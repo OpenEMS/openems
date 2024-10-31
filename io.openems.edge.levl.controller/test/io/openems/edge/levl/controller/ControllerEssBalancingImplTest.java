@@ -26,75 +26,27 @@ import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class ControllerEssBalancingImplTest {
 	
-	/*
-public class CalculateSocTest {
-
-	@Test
-	public void testEmpty() {
-		var esss = List.<SymmetricEss>of();
-		assertNull(new CalculateSoc().add(esss).calculate());
-	}
-
-	@Test
-	public void testNull() {
-		var esss = List.<SymmetricEss>of(//
-				new DummySymmetricEss("ess0"), //
-				new DummySymmetricEss("ess1"));
-		assertNull(new CalculateSoc().add(esss).calculate());
-	}
-
-	@Test
-	public void testWeightedSoc() {
-		var esss = List.<SymmetricEss>of(//
-				new DummySymmetricEss("ess0").withCapacity(10_000).withSoc(40), //
-				new DummySymmetricEss("ess1").withCapacity(20_000).withSoc(60));
-		assertEquals(53, (int) new CalculateSoc().add(esss).calculate());
-	}
-
-	@Test
-	public void testAverageSoc() {
-		var esss = List.<SymmetricEss>of(//
-				new DummySymmetricEss("ess0").withCapacity(10_000).withSoc(40), //
-				new DummySymmetricEss("ess1"), //
-				new DummySymmetricEss("ess2").withSoc(60));
-		assertEquals(50, (int) new CalculateSoc().add(esss).calculate());
-	}
-
-}
-	*/
-	
-//    @InjectMocks
 	private ControllerEssBalancingImpl underTest;
 	
-//    @Mock
-//    private ControllerEssBalancingImpl mockCalculator; // Mock für die Methode
-
 	
 	@Before
 	public void setUp() {
-//		MockitoAnnotations.initMocks(this);
 		this.underTest = new ControllerEssBalancingImpl();
 	}
 	
 	@Test
 	public void testCalculateRequiredPower() throws OpenemsNamedException {
-		//TODO: Keine Tests da ess, meter, ... gemockt warden müsste.
 		this.underTest.cycle = new DummyCycle(1000);
 		this.underTest.ess = new DummyManagedSymmetricEss("ess0")
-				//TODO: maximale Scheinleistung! Holen wir uns damit im Code den richtigen Wert? != allowedCharge/DischargePower
-				//TODO: Mit diesem Setup ist min/maxPower = MAX/MIN-Int und nur buy/sellGridLimit schränken ein
 				.setPower(new DummyPower(0.3, 0.3, 0.1))
 				.withActivePower(-100)
 				.withCapacity(500) // 1.800.000 Ws
 				.withSoc(50) // 900.000 Ws
-				.withAllowedChargePower(500)
-				.withAllowedDischargePower(500);
+				.withMaxApparentPower(500);
 		this.underTest.meter = new DummyElectricityMeter("meter0").withActivePower(200);
 		
 		this.underTest.realizedEnergyGridWs = 100;
 		this.underTest._setLevlSoc(2000L); //TODO: Channels lassen sich innerhalb dieses Unit-Tests nicht setzen. Ggf. nicht notwendig, da Prüfung via OpenEMS-Test
-//		this.underTest.currentRequest = new LevlControlRequest();
-//		this.underTest.currentRequest.energyWs = 200_000;
 		this.underTest._setEfficiency(100.0);
 		this.underTest._setSocLowerBoundLevl(20.0);
 		this.underTest._setSocUpperBoundLevl(80.0);
@@ -308,7 +260,6 @@ public class CalculateSocTest {
 			
 		this.underTest.handleEvent(event);
 		
-		//TODO: check efficiency
 		Assert.assertEquals(-90, this.underTest.realizedEnergyGridWs);
 		Assert.assertEquals(-58, this.underTest.realizedEnergyBatteryWs);
 		Assert.assertEquals(128, this.underTest.getLevlSoc().get().longValue());
