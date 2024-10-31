@@ -108,7 +108,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	private void initChannelValues() {
 		this._setLevlSoc(0L);
 		this._setPucBatteryPower(0L);
-		this._setEfficiency(0.0);
+		this._setEfficiency(100.0);
 		this._setSocLowerBoundLevl(0.0);
 		this._setSocUpperBoundLevl(0.0);
 		this._setRemainingLevlEnergy(0L);
@@ -208,7 +208,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		}
 
 		// overall calculation
-		this._setPucBatteryPower((long) pucBatteryPower);
+		this._setPucBatteryPower(Long.valueOf(pucBatteryPower));
 		long batteryPowerW = pucBatteryPower + levlPowerW;
 		return (int) batteryPowerW;
 	}
@@ -274,8 +274,8 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 	protected long applyBatteryPowerLimitsToLevlPower(long levlPower, int pucBatteryPower, int minEssPower,
 			int maxEssPower) {
-		int levlPowerLowerBound = minEssPower - pucBatteryPower;
-		int levlPowerUpperBound = maxEssPower - pucBatteryPower;
+		long levlPowerLowerBound = Long.valueOf(minEssPower) - pucBatteryPower;
+		long levlPowerUpperBound = Long.valueOf(maxEssPower) - pucBatteryPower;
 		return Math.max(Math.min(levlPower, levlPowerUpperBound), levlPowerLowerBound);
 	}
 
@@ -370,11 +370,20 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE -> {
 				if (this.currentRequest != null) {
 					long levlPower = 0;
-					if (this.ess.getActivePower().isDefined()) {
-						levlPower = this.ess.getActivePower().get() - this.getPucBatteryPower().get();
+					
+					var essNextPower = this.ess.getDebugSetActivePowerChannel().getNextValue();
+					//TODO: Bisher wurde der DebugSetActivePower verwendet. In den unteren schreiben wir jedoch rein. Welcher ist der Richtige?
+					//  In unserem Integrationstest mal beide Werte loggen.
+					//var essNextPower = this.ess.getSetActivePowerEqualsWithPidChannel().getNextValue();
+					if (essNextPower.isDefined()) {
+						var essPower = essNextPower.get();
+						var pucBatteryPower = this.getPucBatteryPowerChannel().getNextValue().get();
+						levlPower = essPower - pucBatteryPower;
 					}
 					long levlEnergyWs = Math.round(levlPower * this.cycle.getCycleTime() / 1000.0);
+					// remaining for the NEXT calculation cycle
 					this._setRemainingLevlEnergy(this.getRemainingLevlEnergy().get() - levlEnergyWs);
+					// realized AFTER the next cycle (next second)
 					this.realizedEnergyGridWs += levlEnergyWs;
 					this.log.info("this cycle realized levl energy on grid: {}", levlEnergyWs);
 					double efficiency = this.getEfficiency().get();
@@ -396,6 +405,8 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this.currentRequest = null;
 	}
 	
+	//TODO: Values will be active with the beginning of the next cycle, because we set the "nextValue". 
+	// There is no way to set the current value directly. However, we could run this triggered by event "BEFORE_PROCESS_IMAGE" instead of "BEFORE_CONTROLLERS".
 	private void startNextRequest() {
 		this.log.info("starting levl request: {}", this.currentRequest);
 		this.currentRequest = this.nextRequest;
@@ -408,4 +419,5 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this._setSellToGridLimit((long) this.currentRequest.sellToGridLimitW);
 		this._setInfluenceSellToGrid(this.currentRequest.influenceSellToGrid);
 	}
+
 }

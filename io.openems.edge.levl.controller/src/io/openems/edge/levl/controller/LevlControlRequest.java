@@ -46,6 +46,12 @@ public class LevlControlRequest {
     public LevlControlRequest() {
     	
     }
+    
+    public LevlControlRequest(int startDelay, int duration) {
+        this.start = LocalDateTime.now(LevlControlRequest.clock).plusSeconds(startDelay);
+        this.deadline = this.start.plusSeconds(duration);
+
+    }
 
     public static LevlControlRequest from(JsonrpcRequest request) throws OpenemsError.OpenemsNamedException {
         var params = request.getParams();
