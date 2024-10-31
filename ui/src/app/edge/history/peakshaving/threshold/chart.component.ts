@@ -93,6 +93,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0.05)",
                         borderColor: "rgba(0,0,0,1)",
+                        borderWidth: 0.5,
                     });
                 }
 
@@ -113,7 +114,8 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(200,0,0,1)",
+                        borderColor: "rgba(200,140,28,1)",
+                        borderDash: [3, 3],
                     });
                 }
 
@@ -132,11 +134,11 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingActive"),
                         data: data,
                         hidden: false,
-                        borderDash: [3, 3],
+
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(200,0,0,1)",
+                        borderColor: "rgba(0,230,128,1)",
                     });
                 }
 
