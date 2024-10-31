@@ -48,18 +48,18 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
     ) { }
 
     ngOnInit() {
-        //console.log("Edge currentData (before subscription):", this.edge.currentData);
+        console.log("Edge currentData (before subscription):", this.edge.currentData);
 
         this.formGroup = this.formBuilder.group({
-            propertyPeakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
+            peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
                 Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
-            propertyPeakShavingThresholdPower: new FormControl(this.component.properties.peakShavingThresholdPower, Validators.compose([
+            peakShavingThresholdPower: new FormControl(this.component.properties.peakShavingThresholdPower, Validators.compose([
                 Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
-            propertyRechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
+            rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
@@ -69,7 +69,7 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
 
         this.edge.currentData.subscribe((currentData) => {
             this.setCurrentStateFromData(currentData);
-            //console.log("Current Data:", currentData); // Check what data is coming in
+            console.log("Current Data:", currentData); // Check what data is coming in
         });
     }
 
@@ -139,11 +139,11 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
     applyChanges() {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast("owner")) {
-                const propertyPeakShavingPower = this.formGroup.controls["propertyPeakShavingPower"];
-                const propertyRechargePower = this.formGroup.controls["propertyRechargePower"];
-                const propertyPeakShavingThresholdPower = this.formGroup.controls["propertyPeakShavingThresholdPower"];
-                if (propertyPeakShavingPower.valid && propertyRechargePower.valid) {
-                    if (propertyPeakShavingPower.value >= propertyRechargePower.value) {
+                const peakShavingPower = this.formGroup.controls["peakShavingPower"];
+                const rechargePower = this.formGroup.controls["rechargePower"];
+                const peakShavingThresholdPower = this.formGroup.controls["peakShavingThresholdPower"];
+                if (peakShavingPower.valid && rechargePower.valid) {
+                    if (peakShavingPower.value >= rechargePower.value) {
                         const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
@@ -156,15 +156,15 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
                         });
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                            this.component.properties.peakShavingPower = propertyPeakShavingPower.value;
-                            this.component.properties.rechargePower = propertyRechargePower.value;
-                            this.component.properties.peakShavingThresholdPower = propertyPeakShavingThresholdPower.value;
+                            this.component.properties.peakShavingPower = peakShavingPower.value;
+                            this.component.properties.rechargePower = rechargePower.value;
+                            this.component.properties.peakShavingThresholdPower = peakShavingThresholdPower.value;
                             this.loading = false;
                             this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                         }).catch(reason => {
-                            propertyPeakShavingPower.setValue(this.component.properties.peakShavingPower);
-                            propertyRechargePower.setValue(this.component.properties.rechargePower);
-                            propertyPeakShavingThresholdPower.setValue(this.component.properties.peakShavingThresholdPower);
+                            peakShavingPower.setValue(this.component.properties.peakShavingPower);
+                            rechargePower.setValue(this.component.properties.rechargePower);
+                            peakShavingThresholdPower.setValue(this.component.properties.peakShavingThresholdPower);
                             this.loading = false;
                             this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
                             console.warn(reason);
