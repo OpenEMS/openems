@@ -18,7 +18,7 @@ import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManag
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
-import io.openems.edge.io.test.DummyInputOutput;
+import io.openems.edge.io.test.DummyCustomInputOutput;
 
 public class TestFeneconHomeDefaultRelays {
 
@@ -92,10 +92,10 @@ public class TestFeneconHomeDefaultRelays {
 		final var instance = TestFeneconHome.createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
 		this.appManagerTestBundle.componentManger.handleDeleteComponentConfigRequest(DUMMY_ADMIN,
 				new DeleteComponentConfigRequest("io0"));
-		final var dummyRelay = new DummyInputOutput("io0", "RELAY", 1, 4);
+		final var dummyRelay = new DummyCustomInputOutput("io0", "RELAY", 1, 4);
 		this.appManagerTestBundle.cm.getOrCreateEmptyConfiguration(dummyRelay.id());
 		((DummyPseudoComponentManager) this.appManagerTestBundle.componentManger).addComponent(dummyRelay);
-		final var dummyRelay1 = new DummyInputOutput("io1", "RELAY", 1, 4);
+		final var dummyRelay1 = new DummyCustomInputOutput("io1", "RELAY", 1, 4);
 		this.appManagerTestBundle.cm.getOrCreateEmptyConfiguration(dummyRelay1.id());
 		((DummyPseudoComponentManager) this.appManagerTestBundle.componentManger).addComponent(dummyRelay1);
 		return instance;

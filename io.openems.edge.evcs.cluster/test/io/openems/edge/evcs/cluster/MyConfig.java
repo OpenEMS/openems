@@ -8,12 +8,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 
-		private String id = "evcsCluster0";
-		private boolean debugMode = false;
-		private int hardwarePowerLimitPerPhase = 7000;
-		private String[] evcsIds = { "evcs0", "evcs1" };
-		private String essId = "ess0";
-		private String meterId = "meter0";
+		private String id;
+		private boolean debugMode;
+		private int hardwarePowerLimitPerPhase;
+		private String[] evcsIds;
+		private String essId;
+		private String meterId;
 
 		private Builder() {
 		}
@@ -33,7 +33,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setEvcsIds(String[] evcsIds) {
+		public Builder setEvcsIds(String... evcsIds) {
 			this.evcsIds = evcsIds;
 			return this;
 		}

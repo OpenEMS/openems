@@ -200,7 +200,9 @@
             "name": "Erzwungene Beladung",
             "shortName": "Manuell"
           },
-          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden."
+          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden.",
+          "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
+          "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt."
         },
         "Heatingelement": {
           "activeForced": "Aktiv (Mindestlaufzeit)",
@@ -235,14 +237,14 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
           "PRICE": "Aktueller Bezugsstrompreis",
           "STATE": {
             "DELAY_DISCHARGE": "Entladung verzögert",
             "BALANCING": "Eigenverbrauchsoptimierung",
             "CHARGE_GRID": "Beladung aus dem Netz freigegeben"
           },
-          "CHART_TITLE": "Aktueller Fahrplan (BETA-Test)",
+          "CHART_TITLE": "Aktueller Fahrplan",
           "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
           "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)"
         },
@@ -271,6 +273,7 @@
       "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "PHASE_ACCURATE": "Phasengenau",
       "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
@@ -312,6 +315,7 @@
       "nov": "Nov",
       "dec": "Dez",
       "activeDuration": "Einschaltdauer",
+      "ACTIVE_DURATION_WITH_LEVEL": "Einschaltdauer Level {{level}}",
       "CURRENT": "Strom",
       "VOLTAGE": "Spannung"
     },
@@ -467,7 +471,6 @@
     "changeAccepted": "Änderung übernommen",
     "changeFailed": "Änderung fehlgeschlagen",
     "chargeDischarge": "Be-/Entladung",
-    "chargePower": "Beladung",
     "componentCount": "Anzahl Komponenten",
     "componentInactive": "Komponente ist inaktiv!",
     "connectionLost": "Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.",
@@ -479,7 +482,6 @@
     "digitalInputs": "Digitaleingänge",
     "numberOfComponents": "Anzahl der Komponenten",
     "directConsumption": "Direktverbrauch",
-    "dischargePower": "Entladung",
     "energyLimit": "Energielimit",
     "fault": "Fehler",
     "grid": "Netz",
@@ -570,7 +572,9 @@
       "MINUTES": "Minuten",
       "DAY": "Tag",
       "DAYS": "Tage"
-    }
+    },
+    "CHARGE": "Beladung",
+    "DISCHARGE": "Entladung"
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",

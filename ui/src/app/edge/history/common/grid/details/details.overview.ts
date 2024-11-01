@@ -4,7 +4,7 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
 import { NavigationOption } from "src/app/shared/components/footer/subnavigation/footerNavigation";
-import { Service } from "src/app/shared/shared";
+import { EdgeConfig, Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
@@ -12,6 +12,8 @@ import { Role } from "src/app/shared/type/role";
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected navigationButtons: NavigationOption[] = [];
+  protected title: string | null = null;
+  protected gridMeters: EdgeConfig.Component[] = [];
 
   constructor(
     public override service: Service,
@@ -26,15 +28,24 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected override afterIsInitialized() {
     this.service.getCurrentEdge().then(edge => {
 
-      const gridMeter = Object.values(this.config.components)
-        .find((component) => component.isEnabled && this.config.isTypeGrid(component)) ?? null;
+      if (!this.component) {
+        return;
+      }
 
+      const gridMeter = this.config.isTypeGrid(this.component) ?? null;
       if (!gridMeter) {
         return;
       }
 
+      const gridMeters = Object.values(this.config.components)
+        .filter((comp) => comp.isEnabled && this.config.isTypeGrid(comp)) ?? null;
+
+      if (gridMeters?.length == 1) {
+        this.title = this.translate.instant("General.grid");
+      }
+
       this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate([`../${gridMeter.id}/currentVoltage`], { relativeTo: this.route }); } }];
+        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
     });
   }
 }

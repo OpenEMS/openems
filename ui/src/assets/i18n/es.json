@@ -9,7 +9,6 @@
     "changeAccepted": "Cambio aceptado",
     "changeFailed": "Cambio fallido",
     "chargeDischarge": "Débito/Descarga",
-    "chargePower": "Carga",
     "componentCount": "Numero de componentes",
     "componentInactive": "El componente está inactivo!",
     "connectionLost": "Conexión perdida. Intentando reconectar.",
@@ -20,7 +19,6 @@
     "digitalInputs": "Entradas digitales",
     "numberOfComponents": "número de componentes",
     "directConsumption": "Consumo directo",
-    "dischargePower": "Descarga",
     "fault": "Error",
     "grid": "Red",
     "gridBuy": "Relación",
@@ -91,7 +89,9 @@
       "MINUTES": "Minutos",
       "DAY": "Día",
       "DAYS": "Días"
-    }
+    },
+    "DISCHARGE": "Descargar",
+    "CHARGE": "Cargando"
   },
   "Menu": {
     "accessLevel": "Nivel de acceso",

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -27,6 +28,7 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -62,6 +64,7 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 	public EvcsGoeChargerHomeImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				EvcsGoeChargerHome.ChannelId.values() //
@@ -128,18 +131,15 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 					this.channel(EvcsGoeChargerHome.ChannelId.CURR_USER).setNextValue(this.activeCurrent);
 
 					var nrg = JsonUtils.getAsJsonArray(json, "nrg");
-					this.channel(EvcsGoeChargerHome.ChannelId.VOLTAGE_L1).setNextValue(JsonUtils.getAsInt(nrg, 0));
-					this.channel(EvcsGoeChargerHome.ChannelId.VOLTAGE_L2).setNextValue(JsonUtils.getAsInt(nrg, 1));
-					this.channel(EvcsGoeChargerHome.ChannelId.VOLTAGE_L3).setNextValue(JsonUtils.getAsInt(nrg, 2));
-					this.channel(EvcsGoeChargerHome.ChannelId.CURRENT_L1)
-							.setNextValue(JsonUtils.getAsInt(nrg, 4) * 100);
-					this.channel(EvcsGoeChargerHome.ChannelId.CURRENT_L2)
-							.setNextValue(JsonUtils.getAsInt(nrg, 5) * 100);
-					this.channel(EvcsGoeChargerHome.ChannelId.CURRENT_L3)
-							.setNextValue(JsonUtils.getAsInt(nrg, 6) * 100);
+					this._setVoltageL1(JsonUtils.getAsInt(nrg, 0));
+					this._setVoltageL2(JsonUtils.getAsInt(nrg, 1));
+					this._setVoltageL3(JsonUtils.getAsInt(nrg, 2));
+					this._setCurrentL1(JsonUtils.getAsInt(nrg, 4) * 100);
+					this._setCurrentL2(JsonUtils.getAsInt(nrg, 5) * 100);
+					this._setCurrentL3(JsonUtils.getAsInt(nrg, 6) * 100);
 					var power = JsonUtils.getAsInt(nrg, 11);
-					this.channel(EvcsGoeChargerHome.ChannelId.ACTUAL_POWER).setNextValue(power * 10);
-					this.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power * 10);
+					// TODO set ActivePowerL1/L2/L3 of ElectricityMeter
+					this._setActivePower(power * 10);
 
 					// Hardware limits
 					var cableCurrent = JsonUtils.getAsInt(json, "cbl") * 1000;
@@ -157,6 +157,7 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 					this._setPhases(phases);
 
 					// Energy
+					// TODO set ActiveProductionEnergy
 					this.channel(EvcsGoeChargerHome.ChannelId.ENERGY_TOTAL)
 							.setNextValue(JsonUtils.getAsInt(json, "eto") * 100);
 					this.channel(Evcs.ChannelId.ENERGY_SESSION)
@@ -176,19 +177,19 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 		}
 	}
 
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
 	private Status convertGoeStatus(int status) {
-		switch (status) {
-		case 1: // ready for charging, car unplugged
-			return Status.NOT_READY_FOR_CHARGING;
-		case 2: // charging
-			return Status.CHARGING;
-		case 3: // waiting for car
-			return Status.READY_FOR_CHARGING;
-		case 4: // charging finished, car plugged
-			return Status.CHARGING_FINISHED;
-		default:
-			return Status.UNDEFINED;
-		}
+		return switch (status) {
+		case 1 -> Status.NOT_READY_FOR_CHARGING; // ready for charging, car unplugged
+		case 2 -> Status.CHARGING; // charging
+		case 3 -> Status.READY_FOR_CHARGING; // waiting for car
+		case 4 -> Status.CHARGING_FINISHED; // charging finished, car plugged
+		default -> Status.UNDEFINED;
+		};
 	}
 
 	/**
@@ -198,17 +199,12 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 	 * @return amount of phases
 	 */
 	private int convertGoePhase(int phase) {
-		var phasen = (byte) phase & 0b00111000;
-		switch (phasen) {
-		case 8: // 0b00001000: Phase 1 is active
-			return 1;
-		case 24: // 0b00011000: Phase 1+2 is active
-			return 2;
-		case 56: // 0b00111000: Phase1-3 are active
-			return 3;
-		default:
-			return 0;
-		}
+		return switch ((byte) phase & 0b00111000) {
+		case 8 -> 1; // 0b00001000: Phase 1 is active
+		case 24 -> 2; // 0b00011000: Phase 1+2 is active
+		case 56 -> 3; // 0b00111000: Phase1-3 are active
+		default -> 0; // TODO illegal value!
+		};
 	}
 
 	/**

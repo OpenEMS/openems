@@ -67,6 +67,7 @@ import io.openems.edge.app.timeofusetariff.GroupeE;
 import io.openems.edge.app.timeofusetariff.RabotCharge;
 import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
+import io.openems.edge.app.timeofusetariff.Swisspower;
 import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.common.component.ComponentManager;
 
@@ -173,6 +174,16 @@ public final class Apps {
 	 */
 	public static final StadtwerkHassfurt stadtwerkHassfurt(AppManagerTestBundle t) {
 		return app(t, StadtwerkHassfurt::new, "App.TimeOfUseTariff.Hassfurt");
+	}
+
+	/**
+	 * Test method for creating a {@link Swisspower}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Swisspower swisspower(AppManagerTestBundle t) {
+		return app(t, Swisspower::new, "App.TimeOfUseTariff.Swisspower");
 	}
 
 	/**

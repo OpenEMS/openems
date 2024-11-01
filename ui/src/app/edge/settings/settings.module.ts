@@ -1,6 +1,5 @@
 import { NgModule } from "@angular/core";
 import { ChangelogModule } from "src/app/changelog/changelog.module";
-
 import { SharedModule } from "./../../shared/shared.module";
 import { AlertingComponent } from "./alerting/alerting.component";
 import { AppModule } from "./app/app.module";

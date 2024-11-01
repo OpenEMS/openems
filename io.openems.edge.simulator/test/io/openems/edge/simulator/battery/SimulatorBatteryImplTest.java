@@ -7,13 +7,11 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class SimulatorBatteryImplTest {
 
-	private static final String COMPONENT_ID = "battery0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new SimulatorBatteryImpl()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("battery0") //
 						.setCapacityKWh(20) //
 						.setChargeMaxCurrent(40) //
 						.setChargeMaxVoltage(700) //

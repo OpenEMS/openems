@@ -3,11 +3,10 @@ package io.openems.edge.timeofusetariff.groupe;
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
-import static io.openems.common.utils.StringUtils.definedOrElse;
+import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 import static java.util.Collections.emptyMap;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -28,8 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -47,7 +44,6 @@ import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
-import io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -63,14 +59,10 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffGroupeImpl.class);
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
-	private String exchangerateAccesskey = null;
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
-
-	@Reference
-	private OpenemsEdgeOem oem;
 
 	@Reference
 	private Meta meta;
@@ -86,7 +78,7 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 	}
 
 	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
-		this.httpBridge = this.httpBridgeFactory.get();
+		this.httpBridge.removeAllTimeEndpoints();
 		this.httpBridge.subscribeTime(new GroupeDelayTimeProvider(this.componentManager.getClock()), //
 				this::createGroupeEndpoint, //
 				this::handleEndpointResponse, //
@@ -98,12 +90,6 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!config.enabled()) {
-			return;
-		}
-
-		this.exchangerateAccesskey = definedOrElse(config.exchangerateAccesskey(), this.oem.getExchangeRateAccesskey());
-		if (this.exchangerateAccesskey == null) {
-			this.logError(this.log, "Please configure personal Access key to access Exchange rate host API");
 			return;
 		}
 
@@ -167,19 +153,12 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException, IOException {
+	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException {
 		this.channel(TimeOfUseTariffGroupe.ChannelId.HTTP_STATUS_CODE).setNextValue(response.status().code());
 
 		final var groupeCurrency = Currency.CHF.name(); // Swiss Franc
 		final var globalCurrency = this.meta.getCurrency();
-		final var exchangerateAccesskey = this.exchangerateAccesskey;
-		if (globalCurrency == Currency.UNDEFINED) {
-			throw new OpenemsException("Global Currency is UNDEFINED. Please configure it in Core.Meta component");
-		}
-
-		final var exchangeRate = globalCurrency.name().equals(groupeCurrency) //
-				? 1. // No need to fetch exchange rate from API.
-				: ExchangeRateApi.getExchangeRate(exchangerateAccesskey, groupeCurrency, globalCurrency);
+		final double exchangeRate = getExchangeRateOrElse(groupeCurrency, globalCurrency, 1.);
 
 		// Parse the response for the prices
 		this.prices.set(parsePrices(response.data(), exchangeRate));

@@ -1,4 +1,3 @@
-<header></header>
 <ion-content>
   <ion-grid>
     <ion-row class="ion-justify-content-center">
@@ -75,9 +74,9 @@
           </ion-item>
           <ion-card-content>
 
-            <formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup" [fields]="userInformationFields"
-              [model]="form?.model">
-            </formly-skeleton-wrapper>
+            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+              [fields]="userInformationFields" [model]="form?.model">
+            </oe-formly-skeleton-wrapper>
 
             <ion-item lines="none">
               <ion-button slot="start" (click)="enableAndDisableEditMode()"
@@ -105,8 +104,9 @@
             </ion-label>
           </ion-item>
           <ion-card-content>
-            <formly-form [form]="form" [form]="form?.formGroup" [fields]="companyInformationFields"
-              [model]="form?.model"></formly-form>
+            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+              [fields]="companyInformationFields" [model]="form?.model">
+            </oe-formly-skeleton-wrapper>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -139,11 +139,6 @@
             <p class="ion-padding">
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>
-            <ion-item lines="none">
-              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
-              </ion-checkbox>
-              <ion-label translate>Debug-Mode</ion-label>
-            </ion-item>
           </ion-card-content>
         </ion-card>
         <ion-card>
@@ -166,6 +161,12 @@
                 The language can not be changed permanently in the local online-monitoring for technical
                 reasons.</small>
             </ion-note>
+
+            <ion-item lines="none" *ngIf="isAtLeastAdmin">
+              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
+              </ion-checkbox>
+              <ion-label translate>Debug-Mode</ion-label>
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </ion-col>

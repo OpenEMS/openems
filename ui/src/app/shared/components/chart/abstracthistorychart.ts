@@ -4,13 +4,15 @@ import { ChangeDetectorRef, Directive, Input, OnDestroy, OnInit } from "@angular
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
+import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
+import { v4 as uuidv4 } from "uuid";
+
 import { ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, Resolution, calculateResolution, isLabelVisible, setLabelVisible } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { v4 as uuidv4 } from "uuid";
-
 import { JsonrpcResponseError } from "../../jsonrpc/base";
+import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { QueryHistoricTimeseriesDataRequest } from "../../jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
 import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
@@ -26,8 +28,6 @@ import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
-
-import "chartjs-adapter-date-fns";
 
 Chart.Chart.register(annotationPlugin);
 
@@ -166,15 +166,20 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   public static fillData(element: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>, label: string, chartObject: HistoryUtils.ChartData, chartType: "line" | "bar", data: number[] | null): { datasets: Chart.ChartDataset[], legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean; }[]; } {
     const legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean; }[] = [];
     const datasets: Chart.ChartDataset[] = [];
+    let normalizedData: (number | null)[] = data;
+
+    if (chartObject.normalizeOutputData == true) {
+      normalizedData = JsonRpcUtils.normalizeQueryData(data);
+    }
 
     // Enable one dataset to be displayed in multiple stacks
     if (Array.isArray(element.stack)) {
       for (const stack of element.stack) {
-        datasets.push(AbstractHistoryChart.getDataSet(element, label, data, stack, chartObject, element.custom?.type ?? chartType));
+        datasets.push(AbstractHistoryChart.getDataSet(element, label, normalizedData, stack, chartObject, element.custom?.type ?? chartType));
         legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
       }
     } else {
-      datasets.push(AbstractHistoryChart.getDataSet(element, label, data, element.stack, chartObject, element.custom?.type ?? chartType));
+      datasets.push(AbstractHistoryChart.getDataSet(element, label, normalizedData, element.stack, chartObject, element.custom?.type ?? chartType));
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
     }
 
@@ -310,7 +315,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisType.TIME:
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
       case YAxisType.PERCENTAGE:
-        return translate.instant("General.percentage");
+        return "%";
       case YAxisType.REACTIVE:
         return "var";
       case YAxisType.ENERGY:
@@ -320,9 +325,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           return "kW";
         }
       case YAxisType.VOLTAGE:
-        return translate.instant("Edge.History.VOLTAGE");
+        return "V";
       case YAxisType.CURRENT:
-        return translate.instant("Edge.History.CURRENT");
+        return "A";
       case YAxisType.NONE:
         return "";
       default:
@@ -358,9 +363,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultOptions(chartOptionsType, service, labels)));
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data);
 
-    const showYAxisType: boolean = chartObject.yAxes.length > 1;
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, showYAxisType);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, true);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -400,6 +404,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         backgroundColor: item.dataset.backgroundColor,
       };
     };
+
 
     options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
 
@@ -460,9 +465,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       return null;
     };
 
+    options.plugins.tooltip.enabled = chartObject.tooltip.enabled ?? true;
+
     // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
-    options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
+    options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend: Chart.LegendElement<any>) {
       const chart: Chart.Chart = this.chart;
+
+      function rebuildScales(chart: Chart.Chart) {
+        let options = chart.options;
+        chartObject.yAxes.forEach((element) => {
+          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, _dataSets, true);
+        });
+      }
 
       const legendItems = chart.data.datasets.reduce((arr, ds, i) => {
         if (ds.label == legendItem.text) {
@@ -479,14 +493,22 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
       });
 
-      // We hid a dataset ... rerender the chart
+      /** needs to be set, cause property async set */
+      const _dataSets: Chart.ChartDataset[] = datasets.map((v, k) => {
+        if (k === legendItem.datasetIndex) {
+          v.hidden = !v.hidden;
+        }
+        return v;
+      });
+
+      rebuildScales(chart);
       chart.update();
     };
+
 
     options.scales.x.ticks["source"] = "auto";
     options.scales.x.ticks.maxTicksLimit = 31;
     options.scales.x["bounds"] = "ticks";
-    options;
     options = AbstractHistoryChart.getExternalPluginFeatures(displayValues, options, chartType);
 
     return options;
@@ -505,9 +527,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", locale: string, datasets: Chart.ChartDataset[], showYAxisType?: boolean): Chart.ChartOptions {
 
     const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType);
-
     switch (element.unit) {
-
       case YAxisType.RELAY:
         options.scales[element.yAxisId] = {
           ...baseConfig,
@@ -518,7 +538,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             ...baseConfig.ticks,
             stepSize: 1,
             // Two states are possible
-            callback: function (value, index, ticks) {
+            callback: function (value, index, ticks: Chart.Tick[]) {
               return Converter.ON_OFF(translate)(value);
             },
             padding: 5,
@@ -556,13 +576,24 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
-      case YAxisType.POWER:
-      case YAxisType.ENERGY:
-      case YAxisType.REACTIVE:
+      case YAxisType.LEVEL:
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          min: 0,
+          max: 3,
+          beginAtZero: true,
+          ticks: {
+            ...baseConfig.ticks,
+            stepSize: 1,
+          },
+        };
+        break;
       case YAxisType.VOLTAGE:
       case YAxisType.CURRENT:
-      case YAxisType.NONE:
-        options.scales[element.yAxisId] = baseConfig;
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          beginAtZero: false,
+        };
         break;
       case YAxisType.CURRENCY:
         options.scales[element.yAxisId] = {
@@ -572,6 +603,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             source: "auto",
           },
         };
+        break;
+      case YAxisType.POWER:
+      case YAxisType.ENERGY:
+      case YAxisType.REACTIVE:
+      case YAxisType.NONE:
+        options.scales[element.yAxisId] = baseConfig;
         break;
     }
     return options;
@@ -869,7 +906,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
       ])
         .then(([dataResponse, energyResponse]) => {
-
           dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
           this.chartType = "line";
           this.chartObject = this.getChartData();

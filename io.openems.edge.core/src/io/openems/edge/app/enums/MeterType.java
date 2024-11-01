@@ -5,7 +5,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
- * Copy of {@link io.openems.edge.meter.api.MeterType}.
+ * Copy of {@link io.openems.common.types.MeterType}.
  */
 public enum MeterType implements TranslatableEnum {
 	PRODUCTION("App.Meter.production"), //

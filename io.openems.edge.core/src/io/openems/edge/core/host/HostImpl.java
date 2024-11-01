@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -49,6 +50,8 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 				"enabled=true" //
 		})
 public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsComponent, ComponentJsonApi {
+
+	private final Logger log = LoggerFactory.getLogger(HostImpl.class);
 
 	protected final OperatingSystem operatingSystem;
 
@@ -93,6 +96,13 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 				e1.printStackTrace();
 			}
 		}
+
+		this.operatingSystem.getOperatingSystemVersion().whenComplete((name, error) -> {
+			this._setOsVersion(name);
+			if (error != null) {
+				this.log.info("Error while trying to get operating system version", error);
+			}
+		});
 	}
 
 	@Activate

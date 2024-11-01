@@ -18,6 +18,10 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	eu.chargetime.ocpp:OCPP-J;version='1.0.2',\
 	eu.chargetime.ocpp:common;version='1.0.2',\
 	eu.chargetime.ocpp:v1_6;version='1.1.0',\
+	io.helins:linux-common;version='0.1.4',\
+	io.helins:linux-errno;version='1.0.2',\
+	io.helins:linux-i2c;version='1.0.2',\
+	io.helins:linux-io;version='0.0.4',\
 	io.jenetics:jenetics;version='7.2.0',\
 	info.faljse:SDNotify;version='1.5.0',\
 	io.reactivex.rxjava3.rxjava;version='3.1.8',\

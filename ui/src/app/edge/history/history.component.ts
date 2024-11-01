@@ -1,9 +1,8 @@
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AppService } from "src/app/app.service";
-import { HeaderComponent } from "src/app/shared/components/header/header.component";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
 import { environment } from "src/environments";
@@ -13,8 +12,6 @@ import { environment } from "src/environments";
   templateUrl: "./history.component.html",
 })
 export class HistoryComponent implements OnInit {
-
-  @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent;
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
@@ -63,12 +60,6 @@ export class HistoryComponent implements OnInit {
         this.isTimedataAvailable = false;
       }
     });
-  }
-
-  // checks arrows when ChartPage is closed
-  // double viewchild is used to prevent undefined state of PickDateComponent
-  ionViewDidEnter() {
-    this.HeaderComponent.PickDateComponent.checkArrowAutomaticForwarding();
   }
 
   updateOnWindowResize() {

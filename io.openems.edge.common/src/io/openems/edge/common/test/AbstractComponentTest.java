@@ -1,5 +1,9 @@
 package io.openems.edge.common.test;
 
+import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
+import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,6 +38,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
@@ -42,6 +47,11 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ChannelAddressValue;
+import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ChannelIdValue;
+import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ChannelNameValue;
+import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ComponentChannelIdValue;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -49,10 +59,49 @@ import io.openems.edge.common.type.TypeUtils;
  */
 public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<SELF, SUT>, SUT extends OpenemsComponent> {
 
-	public record ChannelValue(ChannelAddress address, Object value, boolean force) {
-		@Override
-		public String toString() {
-			return this.address.toString() + ":" + this.value;
+	public sealed interface ChannelValue {
+
+		/**
+		 * Gets the value.
+		 * 
+		 * @return the value
+		 */
+		public Object value();
+
+		/**
+		 * Is the value enforced?.
+		 * 
+		 * @return true for force
+		 */
+		public boolean force();
+
+		public record ChannelAddressValue(ChannelAddress address, Object value, boolean force) implements ChannelValue {
+			@Override
+			public String toString() {
+				return this.address.toString() + ":" + this.value;
+			}
+		}
+
+		public record ChannelIdValue(ChannelId channelId, Object value, boolean force) implements ChannelValue {
+			@Override
+			public String toString() {
+				return this.channelId.id() + ":" + this.value;
+			}
+		}
+
+		public record ChannelNameValue(String channelName, Object value, boolean force) implements ChannelValue {
+			@Override
+			public String toString() {
+				return this.channelName + ":" + this.value;
+			}
+		}
+
+		public record ComponentChannelIdValue(String componentId, ChannelId channelId, Object value, boolean force)
+				implements ChannelValue {
+			@Override
+			public String toString() {
+				return this.componentId + "/" + this.channelId.id() + ":" + this.value;
+			}
 		}
 	}
 
@@ -109,19 +158,71 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		}
 
 		/**
-		 * Adds an input value for a Channel.
+		 * Adds an input value for a {@link ChannelAddress}.
 		 *
 		 * @param address the {@link ChannelAddress}
 		 * @param value   the value {@link Object}
 		 * @return myself
 		 */
 		public TestCase input(ChannelAddress address, Object value) {
-			this.inputs.add(new ChannelValue(address, value, false));
+			this.inputs.add(new ChannelAddressValue(address, value, false));
 			return this;
 		}
 
 		/**
-		 * Enforces an input value for a Channel.
+		 * Adds an input value for a ChannelId of the given Component.
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the Channel-ID in CamelCase
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase input(String componentId, String channelId, Object value) {
+			return this.input(new ChannelAddress(componentId, channelId), value);
+		}
+
+		/**
+		 * Adds an input value for a {@link ChannelId} of the given Component.
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the {@link ChannelId}
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase input(String componentId, ChannelId channelId, Object value) {
+			this.inputs.add(new ComponentChannelIdValue(componentId, channelId, value, false));
+			return this;
+		}
+
+		/**
+		 * Adds an input value for a {@link ChannelId} of the system-under-test.
+		 *
+		 * @param channelId the {@link ChannelId}
+		 * @param value     the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase input(ChannelId channelId, Object value) {
+			if (channelId instanceof Sum.ChannelId) {
+				return this.input("_sum", channelId, value);
+			}
+			this.inputs.add(new ChannelIdValue(channelId, value, false));
+			return this;
+		}
+
+		/**
+		 * Adds an input value for a ChannelId of the system-under-test.
+		 *
+		 * @param channelName the Channel
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase input(String channelName, Object value) {
+			this.inputs.add(new ChannelNameValue(channelName, value, false));
+			return this;
+		}
+
+		/**
+		 * Enforces an input value for a {@link ChannelAddress}.
 		 * 
 		 * <p>
 		 * Use this method if you want to be sure, that the Channel actually applies the
@@ -132,19 +233,130 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * @return myself
 		 */
 		public TestCase inputForce(ChannelAddress address, Object value) {
-			this.inputs.add(new ChannelValue(address, value, true));
+			this.inputs.add(new ChannelAddressValue(address, value, true));
 			return this;
 		}
 
 		/**
-		 * Adds an expected output value for a Channel.
+		 * Enforces an input value for a {@link ChannelAddress}.
+		 * 
+		 * <p>
+		 * Use this method if you want to be sure, that the Channel actually applies the
+		 * value, e.g. to override a {@link Debounce} setting.
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the Channel-ID
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase inputForce(String componentId, String channelId, Object value) {
+			return this.inputForce(new ChannelAddress(componentId, channelId), value);
+		}
+
+		/**
+		 * Enforces an input value for a {@link ChannelId} of the given Component.
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the {@link ChannelId}
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase inputForce(String componentId, ChannelId channelId, Object value) {
+			this.inputs.add(new ComponentChannelIdValue(componentId, channelId, value, true));
+			return this;
+		}
+
+		/**
+		 * Enforces an input value for a {@link ChannelId} of the system-under-test.
+		 *
+		 * <p>
+		 * Use this method if you want to be sure, that the Channel actually applies the
+		 * value, e.g. to override a {@link Debounce} setting.
+		 *
+		 * @param channelId the {@link ChannelId}
+		 * @param value     the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase inputForce(ChannelId channelId, Object value) {
+			this.inputs.add(new ChannelIdValue(channelId, value, true));
+			return this;
+		}
+
+		/**
+		 * Enforces an input value for a Channel of the system-under-test.
+		 *
+		 * <p>
+		 * Use this method if you want to be sure, that the Channel actually applies the
+		 * value, e.g. to override a {@link Debounce} setting.
+		 *
+		 * @param channelName the Channel
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase inputForce(String channelName, Object value) {
+			this.inputs.add(new ChannelNameValue(channelName, value, true));
+			return this;
+		}
+
+		/**
+		 * Adds an expected output value for a {@link ChannelAddress}.
 		 *
 		 * @param address the {@link ChannelAddress}
 		 * @param value   the value {@link Object}
 		 * @return myself
 		 */
 		public TestCase output(ChannelAddress address, Object value) {
-			this.outputs.add(new ChannelValue(address, value, false));
+			this.outputs.add(new ChannelAddressValue(address, value, false));
+			return this;
+		}
+
+		/**
+		 * Adds an expected output value for a {@link ChannelAddress}.
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the Channel-ID in CamelCase
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase output(String componentId, String channelId, Object value) {
+			return this.output(new ChannelAddress(componentId, channelId), value);
+		}
+
+		/**
+		 * Adds an expected output value for a {@link ChannelId} of the given Component.
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the {@link ChannelId}
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase output(String componentId, ChannelId channelId, Object value) {
+			this.outputs.add(new ComponentChannelIdValue(componentId, channelId, value, true));
+			return this;
+		}
+
+		/**
+		 * Adds an expected output value for a {@link ChannelId} of the
+		 * system-under-test.
+		 *
+		 * @param channelId the {@link ChannelId}
+		 * @param value     the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase output(ChannelId channelId, Object value) {
+			this.outputs.add(new ChannelIdValue(channelId, value, false));
+			return this;
+		}
+
+		/**
+		 * Adds an expected output value for a Channel of the system-under-test.
+		 *
+		 * @param channelName the Channel
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase output(String channelName, Object value) {
+			this.outputs.add(new ChannelNameValue(channelName, value, false));
 			return this;
 		}
 
@@ -286,20 +498,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Applies the values for input channels.
 		 *
-		 * @param components Referenced components
+		 * @param act the {@link AbstractComponentTest}
 		 * @throws OpenemsNamedException    on error
 		 * @throws IllegalArgumentException on error
 		 */
-		protected void applyInputs(Map<String, OpenemsComponent> components)
+		protected void applyInputs(AbstractComponentTest<?, ?> act)
 				throws IllegalArgumentException, OpenemsNamedException {
 			for (var input : this.inputs) {
-				var component = components.get(input.address.getComponentId());
-				if (component == null) {
-					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
-							+ "the component [" + input.address.getComponentId() + "] " //
-							+ "was not added to the OpenEMS Component test framework!");
-				}
-				var channel = component.channel(input.address.getChannelId());
+				final Channel<?> channel = this.getChannel(act, input);
 
 				// (Force) set the Read-Value
 				do {
@@ -317,37 +523,75 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Validates the output values.
 		 *
-		 * @param components Referenced components
+		 * @param act the {@link AbstractComponentTest}
 		 * @throws Exception on validation failure
 		 */
-		protected void validateOutputs(Map<String, OpenemsComponent> components) throws Exception {
+		@SuppressWarnings("unchecked")
+		protected void validateOutputs(AbstractComponentTest<?, ?> act) throws Exception {
 			for (var output : this.outputs) {
-				var expected = output.value;
-				var channel = components.get(output.address.getComponentId()).channel(output.address.getChannelId());
+				final Channel<?> channel = this.getChannel(act, output);
+
 				Object got;
-				if (channel instanceof WriteChannel) {
-					got = ((WriteChannel<?>) channel).getNextWriteValueAndReset().orElse(null);
+				if (channel instanceof WriteChannel wc) {
+					got = wc.getNextWriteValueAndReset().orElse(null);
 				} else {
 					var value = channel.getNextValue();
 					got = value.orElse(null);
 				}
-
 				// Try to parse an Enum
 				if (channel.channelDoc() instanceof EnumDoc) {
 					var enumDoc = (EnumDoc) channel.channelDoc();
 					var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
 					got = enumDoc.getOption(intGot);
 				}
-				if (!Objects.equals(expected, got)) {
+				if (!Objects.equals(output.value(), got)) {
 					throw new Exception("On TestCase [" + this.description + "]: " //
-							+ "expected [" + output.value + "] " //
+							+ "expected [" + output.value() + "] " //
 							+ "got [" + got + "] " //
-							+ "for Channel [" + output.address.toString() + "] " //
+							+ "for Channel [" + output.toString() + "] " //
 							+ "on Inputs [" + this.inputs + "]");
 				}
 			}
 		}
+
+		private OpenemsComponent getComponent(Map<String, OpenemsComponent> components, String componentId) {
+			var component = components.get(componentId);
+			if (component != null) {
+				return component;
+			}
+			throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
+					+ "the component [" + componentId + "] " //
+					+ "was not added to the OpenEMS Component test framework!");
+		}
+
+		private Channel<?> getChannel(AbstractComponentTest<?, ?> act, ChannelValue cv)
+				throws IllegalArgumentException {
+			if (cv instanceof ChannelAddressValue cav) {
+				var component = this.getComponent(act.components, cav.address.getComponentId());
+				return component.channel(cav.address.getChannelId());
+			}
+
+			if (cv instanceof ChannelIdValue civ) {
+				return act.sut.channel(civ.channelId);
+			}
+
+			if (cv instanceof ChannelNameValue civ2) {
+				return act.sut.channel(civ2.channelName);
+			}
+
+			if (cv instanceof ComponentChannelIdValue cciv) {
+				var component = this.getComponent(act.components, cciv.componentId());
+				return component.channel(cciv.channelId());
+			}
+
+			throw new IllegalArgumentException("Unhandled subtype of ChannelValue");
+		}
 	}
+
+	/**
+	 * The {@link OpenemsComponent} to be tested. "sut" is for system-under-test.
+	 */
+	public final SUT sut;
 
 	/**
 	 * References added by {@link #addReference()}.
@@ -358,11 +602,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * Components referenced by the tested Component.
 	 */
 	private final Map<String, OpenemsComponent> components = new HashMap<>();
-
-	/**
-	 * The {@link OpenemsComponent} to be tested. "sut" is for system-under-test.
-	 */
-	private final SUT sut;
 
 	/**
 	 * Constructs the Component-Test and validates the implemented Channel-IDs.
@@ -469,11 +708,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	private boolean addReference(Class<?> clazz, String memberName, Object object)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		try {
-			var field = clazz.getDeclaredField(memberName);
-			field.setAccessible(true);
-			field.set(this.sut, object);
+			setAttributeViaReflection(this.sut, memberName, object);
 			return true;
-		} catch (NoSuchFieldException e) {
+		} catch (ReflectionException e) {
 			// Ignore. Try method.
 			if (this.invokeSingleArgMethod(clazz, memberName, object)) {
 				return true;
@@ -603,8 +840,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				}
 				args[i] = arg;
 			}
-			method.setAccessible(true);
-			method.invoke(this.sut, args);
+			invokeMethodViaReflection(this.sut, method, args);
 			return true;
 		}
 		return false;
@@ -624,14 +860,10 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	private void callDeactivate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		Class<?> clazz = this.sut.getClass();
-		var method = clazz.getDeclaredMethod("deactivate");
-		method.setAccessible(true);
-		method.invoke(this.sut);
+		invokeMethodWithoutArgumentsViaReflection(this.sut, "deactivate");
 	}
 
-	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg)
-			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg) throws ReflectionException {
 		var methods = clazz.getDeclaredMethods();
 		for (Method method : methods) {
 			if (!method.getName().equals(methodName)) {
@@ -646,8 +878,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				continue;
 			}
 
-			method.setAccessible(true);
-			method.invoke(this.sut, arg);
+			invokeMethodViaReflection(this.sut, method, arg);
 			return true;
 		}
 
@@ -670,7 +901,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		for (Channel<?> channel : this.getSut().channels()) {
 			channel.nextProcessImage();
 		}
-		testCase.applyInputs(this.components);
+		testCase.applyInputs(this);
 		this.onAfterProcessImage();
 		executeCallbacks(testCase.onAfterProcessImageCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
@@ -691,7 +922,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.onAfterWrite();
 		executeCallbacks(testCase.onAfterWriteCallbacks);
 		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE);
-		testCase.validateOutputs(this.components);
+		testCase.validateOutputs(this);
 		return this.self();
 	}
 
@@ -725,9 +956,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 *
 	 */
 	protected void handleEvent(String topic) throws Exception {
-		if (this.sut instanceof EventHandler) {
-			var event = new Event(topic, new HashMap<String, Object>());
-			((EventHandler) this.sut).handleEvent(event);
+		var event = new Event(topic, new HashMap<String, Object>());
+		for (var component : this.components.values()) {
+			if (component instanceof EventHandler eh) {
+				eh.handleEvent(event);
+			}
 		}
 	}
 
@@ -802,7 +1035,5 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onAfterWrite() throws OpenemsNamedException {
-
 	}
-
 }

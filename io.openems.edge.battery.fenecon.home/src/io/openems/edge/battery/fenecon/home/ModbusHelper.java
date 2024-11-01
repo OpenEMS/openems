@@ -1,24 +1,22 @@
 package io.openems.edge.battery.fenecon.home;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 
 public interface ModbusHelper {
 
 	/**
-	 * Get modbus bridge.
+	 * Get the {@link BridgeModbus}.
 	 * 
-	 * @return modbus bridge.
+	 * @return the {@link BridgeModbus}
 	 */
 	public BridgeModbus getModbus();
 
 	/**
-	 * Get defined modbus protocol.
+	 * Get defined {@link ModbusProtocol}.
 	 * 
-	 * @return modbus protocol
-	 * @throws OpenemsException on error
+	 * @return the {@link ModbusProtocol}
 	 */
-	public ModbusProtocol getDefinedModbusProtocol() throws OpenemsException;
+	public ModbusProtocol getDefinedModbusProtocol();
 
 }

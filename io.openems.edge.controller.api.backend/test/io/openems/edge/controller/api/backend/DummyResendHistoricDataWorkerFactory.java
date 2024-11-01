@@ -1,19 +1,17 @@
 package io.openems.edge.controller.api.backend;
 
-import java.lang.reflect.InvocationTargetException;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentServiceObjects;
 
-import io.openems.common.utils.ReflectionUtils;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 
 public class DummyResendHistoricDataWorkerFactory extends ResendHistoricDataWorkerFactory {
 
-	public DummyResendHistoricDataWorkerFactory()
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	public DummyResendHistoricDataWorkerFactory() throws ReflectionException {
 		super();
-		ReflectionUtils.setAttribute(ResendHistoricDataWorkerFactory.class, this, "cso",
-				new DummyResendHistoricDataWorkerCso());
+		setAttributeViaReflection(this, "cso", new DummyResendHistoricDataWorkerCso());
 	}
 
 	private static class DummyResendHistoricDataWorkerCso implements ComponentServiceObjects<ResendHistoricDataWorker> {

@@ -15,18 +15,16 @@ public enum GoodWeType implements OptionsEnum {
 	GOODWE_10K_ET(20, "GoodWe GW10K-ET", Series.ET, 25), //
 	GOODWE_8K_ET(21, "GoodWe GW8K-ET", Series.ET, 25), //
 	GOODWE_5K_ET(22, "GoodWe GW5K-ET", Series.ET, 25), //
-	FENECON_FHI_10_DAH(30, "FENECON FHI 10 DAH", Series.ET, 25, position2Filter("10"),
+	FENECON_FHI_10_DAH(30, "FENECON FHI 10 DAH", Series.ET, 25, serialNrFilter("010K", "ETU"),
 			(batteryType) -> batteryType != BatteryFeneconHomeHardwareType.BATTERY_52), //
-	FENECON_FHI_20_DAH(120, "FENECON FHI 20 DAH", Series.ET, 50, position2Filter("20"),
+	FENECON_FHI_20_DAH(120, "FENECON FHI 20 DAH", Series.ETT, 50, serialNrFilter("020K", "ETT"),
 			(batteryType) -> batteryType != BatteryFeneconHomeHardwareType.BATTERY_64), //
-	FENECON_FHI_29_9_DAH(130, "FENECON FHI 30 DAH", Series.ET, 50, home30Filter("29K9", "30"),
+	FENECON_FHI_29_9_DAH(130, "FENECON FHI 30 DAH", Series.ETT, 50, home30Filter("29K9", "030K"),
 			(batteryType) -> batteryType != BatteryFeneconHomeHardwareType.BATTERY_64); //
 
 	public static enum Series {
-		UNDEFINED, BT, ET;
+		UNDEFINED, BT, ET, ETT;
 	}
-
-	// TODO: Change logic of isValidHomeBattery to invalidBattery
 
 	private final int value;
 	private final String option;
@@ -100,8 +98,28 @@ public enum GoodWeType implements OptionsEnum {
 	 */
 	public static ThrowingFunction<String, Boolean, Exception> home30Filter(String... match) {
 		return serialNr -> Stream.of(match) //
-				.filter(t -> t.equals(serialNr.substring(2, 4)) || serialNr.substring(1, 5).contains(t)) //
+				.filter(t -> {
+					try {
+						return serialNrFilter(t, "ETT").apply(serialNr);
+					} catch (Exception e) {
+						return false;
+					}
+				}) //
 				.findFirst() //
 				.isPresent();
+	}
+
+	/**
+	 * GoodWe serial number filter.
+	 * 
+	 * <p>
+	 * Check if a serialNr matches a given string at the common position.
+	 * 
+	 * @param ratedPower rated power of the inverter
+	 * @param seriesCode internal inverter model series code
+	 * @return filter function
+	 */
+	public static ThrowingFunction<String, Boolean, Exception> serialNrFilter(String ratedPower, String seriesCode) {
+		return serialNr -> serialNr.substring(1, 5).equals(ratedPower) && serialNr.substring(5, 8).equals(seriesCode);
 	}
 }

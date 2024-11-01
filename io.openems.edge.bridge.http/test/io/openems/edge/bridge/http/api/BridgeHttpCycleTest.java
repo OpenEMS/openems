@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.event.Event;
 
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.BridgeHttpImpl;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -33,7 +32,7 @@ public class BridgeHttpCycleTest {
 	public void before() throws Exception {
 		this.cycleSubscriber = new CycleSubscriber();
 		this.fetcher = new DummyEndpointFetcher();
-		this.pool = new DummyBridgeHttpExecutor(new TimeLeapClock());
+		this.pool = new DummyBridgeHttpExecutor();
 		this.bridgeHttp = new BridgeHttpImpl(//
 				this.cycleSubscriber, //
 				this.fetcher, //

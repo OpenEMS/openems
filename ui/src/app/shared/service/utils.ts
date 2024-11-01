@@ -4,7 +4,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -347,9 +346,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant("General.dischargePower"), value: power };
+      return { name: translate.instant("General.DISCHARGE"), value: power };
     } else {
-      return { name: translate.instant("General.chargePower"), value: power * -1 };
+      return { name: translate.instant("General.CHARGE"), value: power * -1 };
     }
   }
 
@@ -396,8 +395,8 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-    return (value: number | null): string =>
-      (!value ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
+    return (value: number | null | undefined): string =>
+      (value == null ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
   };
 
   /**
@@ -522,7 +521,7 @@ export class Utils {
    *
    * @param value the value to convert
    */
-  public static roundSlightlyNegativeValues(value: number) {
+  public static roundSlightlyNegativeValues(value: number | null): number | null {
     return (value > -0.49 && value < 0) ? 0 : value;
   }
 
@@ -626,16 +625,17 @@ export class Utils {
 }
 
 export enum YAxisType {
-  NONE,
-  POWER,
-  PERCENTAGE,
-  RELAY,
-  ENERGY,
-  VOLTAGE,
-  REACTIVE,
-  CURRENT,
-  TIME,
   CURRENCY,
+  CURRENT,
+  ENERGY,
+  LEVEL,
+  NONE,
+  PERCENTAGE,
+  POWER,
+  REACTIVE,
+  RELAY,
+  TIME,
+  VOLTAGE,
 }
 
 export enum ChartAxis {
@@ -763,8 +763,12 @@ export namespace HistoryUtils {
       /** Format of Number displayed */
       formatNumber: string,
       afterTitle?: (stack: string) => string,
+      /** Defaults to true */
+      enabled?: boolean,
     },
     yAxes: yAxes[],
+    /** Rounds slightly negative values, defaults to false */
+    normalizeOutputData?: boolean,
   };
 
   export type yAxes = {

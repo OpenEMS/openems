@@ -1,34 +1,28 @@
 package io.openems.edge.predictor.persistencemodel;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.predictor.api.prediction.LogVerbosity.NONE;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static org.junit.Assert.assertEquals;
 
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorPersistenceModelImplTest {
-
-	private static final String TIMEDATA_ID = "timedata0";
-	private static final String PREDICTOR_ID = "predictor0";
 
 	private static final ChannelAddress METER1_ACTIVE_POWER = new ChannelAddress("meter1", "ActivePower");
 
 	@Test
 	public void test() throws Exception {
-		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
-				ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		int[] values = {
 				// Day 1
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 146, 348, 636, 1192, 2092, 2882, 3181,
@@ -43,7 +37,7 @@ public class PredictorPersistenceModelImplTest {
 				477, 501, 547, 589, 1067, 13304, 17367, 14825, 13654, 12545, 8371, 10468, 9810, 8537, 6228, 3758, 4131,
 				3572, 1698, 1017, 569, 188, 14, 2, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var timedata = new DummyTimedata("timedata0");
 		var start = ZonedDateTime.of(2019, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC"));
 		for (var i = 0; i < values.length; i++) {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
@@ -55,9 +49,9 @@ public class PredictorPersistenceModelImplTest {
 				.addReference("timedata", timedata) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(PREDICTOR_ID) //
+						.setId("predictor0") //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
-						.setLogVerbosity(LogVerbosity.NONE) //
+						.setLogVerbosity(NONE) //
 						.build());
 
 		var prediction = sut.getPrediction(METER1_ACTIVE_POWER);
@@ -74,7 +68,7 @@ public class PredictorPersistenceModelImplTest {
 	@Test
 	public void test2() throws Exception {
 		var start = ZonedDateTime.of(2019, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC"));
-		final var clock = new TimeLeapClock(start.toInstant(), ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		int[] values = {
 				// Day 1
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 19, 74, 323,
@@ -87,7 +81,7 @@ public class PredictorPersistenceModelImplTest {
 				7320, 5950, 5644, 7157, 6847, 6549, 6498, 6296, 6096, 5895, 5658, 5372, 5011, 4603, 4159, 3831, 3400,
 				2757, 727, 194, 70, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var timedata = new DummyTimedata("timedata0");
 		for (var i = 0; i < values.length; i++) {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
@@ -98,30 +92,29 @@ public class PredictorPersistenceModelImplTest {
 				.addReference("timedata", timedata) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(PREDICTOR_ID) //
+						.setId("predictor0") //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
-						.setLogVerbosity(LogVerbosity.NONE) //
+						.setLogVerbosity(NONE) //
 						.build());
 
-		clock.leap(39, ChronoUnit.HOURS);
+		clock.leap(39, HOURS);
 
 		sut.getPrediction(METER1_ACTIVE_POWER);
 	}
 
 	@Test
 	public void testEmpty() throws Exception {
-		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
-				ZoneOffset.UTC);
-		var timedata = new DummyTimedata(TIMEDATA_ID);
+		final var clock = createDummyClock();
+		var timedata = new DummyTimedata("timedata0");
 		var sut = new PredictorPersistenceModelImpl();
 
 		new ComponentTest(sut) //
 				.addReference("timedata", timedata) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(PREDICTOR_ID) //
+						.setId("predictor0") //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
-						.setLogVerbosity(LogVerbosity.NONE) //
+						.setLogVerbosity(NONE) //
 						.build());
 
 		assertEquals(EMPTY_PREDICTION, sut.getPrediction(METER1_ACTIVE_POWER));

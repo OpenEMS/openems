@@ -201,7 +201,9 @@
             "name": "Force charging",
             "shortName": "Manually"
           },
-          "Uncontrollable": "This charging station can not be controlled."
+          "Uncontrollable": "This charging station can not be controlled.",
+          "HYSTERESIS": "Minimum switching time of the charging station active",
+          "HYSTERESIS_INFO": "For preventing charging interruptions due to frequent starting/pausing of the charing process, the charging mode currently selected will continue for the next few minutes."
         },
         "Heatingelement": {
           "activeForced": "Active (Minimum runtime)",
@@ -236,14 +238,14 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid (BETA test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid",
           "PRICE": "Current price",
           "STATE": {
             "DELAY_DISCHARGE": "Delayed discharge",
             "BALANCING": "Self-Consumption optmization",
             "CHARGE_GRID": "Charge from grid allowed"
           },
-          "CHART_TITLE": "Planned Schedule (BETA test)",
+          "CHART_TITLE": "Planned Schedule",
           "CHART_WARNING_NOTE": "The graphic shows the past three hours as well as the future planned operating mode for the period for which the dynamic grid purchase prices are available. Please note that the planned schedule is subject to continuous recalculation and may change throughout the day.",
           "POWER_SOC_CHART_TITLE": "Forecasts (Only for Admins)"
         },
@@ -311,10 +313,12 @@
       "oct": "Oxt",
       "nov": "Nov",
       "dec": "Dec",
-      "activeDuration": "active duration",
+      "activeDuration": "Active duration",
+      "ACTIVE_DURATION_WITH_LEVEL": "Active duration level {{level}}",
       "CURRENT_AND_VOLTAGE": "Current & Voltage",
       "CURRENT": "Current",
-      "VOLTAGE": "Voltage"
+      "VOLTAGE": "Voltage",
+      "PHASE_ACCURATE": "Phasengenau"
     },
     "Config": {
       "Index": {
@@ -467,8 +471,7 @@
     "capacity": "Capacity",
     "changeAccepted": "Change accepted",
     "changeFailed": "Change failed",
-    "chargeDischarge": "Charge/Discharge power",
-    "chargePower": "Charge power",
+    "chargeDischarge": "Charge/Discharge",
     "componentCount": "Number of components",
     "componentInactive": "Component is not active!",
     "connectionLost": "Connection lost. Trying to reconnect.",
@@ -480,7 +483,6 @@
     "digitalInputs": "Digital Inputs",
     "numberOfComponents": "Number of Components",
     "directConsumption": "Direct consumption",
-    "dischargePower": "Discharge power",
     "fault": "Fault",
     "FAILED": "failed",
     "WILL_BE_EXECUTED": "will be executed",
@@ -572,7 +574,9 @@
       "MINUTES": "Minutes",
       "DAY": "Day",
       "DAYS": "Days"
-    }
+    },
+    "CHARGE": "Charge",
+    "DISCHARGE": "Discharge"
   },
   "Index": {
     "allConnected": "All connections established.",

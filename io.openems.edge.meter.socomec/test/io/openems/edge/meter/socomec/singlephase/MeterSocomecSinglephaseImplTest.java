@@ -1,18 +1,16 @@
 package io.openems.edge.meter.socomec.singlephase;
 
+import static io.openems.common.types.MeterType.GRID;
+import static io.openems.edge.meter.api.SinglePhase.L1;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
 
 public class MeterSocomecSinglephaseImplTest {
-
-	private static final String METER_ID = "meter0";
-	private static final String MODBUS_ID = "modbus0";
 
 	private static MeterSocomecSinglephaseImpl meter;
 
@@ -21,13 +19,13 @@ public class MeterSocomecSinglephaseImplTest {
 		meter = new MeterSocomecSinglephaseImpl();
 		new ComponentTest(meter) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(METER_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setType(MeterType.GRID) //
+						.setId("meter0") //
+						.setModbusId("modbus0") //
+						.setType(GRID) //
 						.setInvert(false) //
-						.setPhase(SinglePhase.L1) //
+						.setPhase(L1) //
 						.build()); //
 	}
 

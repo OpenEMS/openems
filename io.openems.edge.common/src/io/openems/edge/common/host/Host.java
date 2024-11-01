@@ -17,6 +17,15 @@ public interface Host extends OpenemsComponent {
 		DISK_IS_FULL(Doc.of(Level.INFO) //
 				.text("Disk is full")), //
 		HOSTNAME(Doc.of(OpenemsType.STRING)), //
+
+		/**
+		 * Operating System Version.
+		 * 
+		 * <p>
+		 * e. g. 'Raspbian GNU/Linux 11 (bullseye)' or 'Windows 11'
+		 */
+		OS_VERSION(Doc.of(OpenemsType.STRING) //
+				.text("Operating system version")), //
 		;
 
 		private final Doc doc;
@@ -69,7 +78,7 @@ public interface Host extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Disk is Full Warning State. See {@link ChannelId#HOSTNAME}.
+	 * Gets the hostname. See {@link ChannelId#HOSTNAME}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -84,6 +93,34 @@ public interface Host extends OpenemsComponent {
 	 */
 	public default void _setHostname(String value) {
 		this.getHostnameChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#OS_VERSION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StringReadChannel getOsVersionChannel() {
+		return this.channel(ChannelId.OS_VERSION);
+	}
+
+	/**
+	 * Gets the operating system version. See {@link ChannelId#OS_VERSION}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<String> getOsVersion() {
+		return this.getOsVersionChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#OS_VERSION}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setOsVersion(String value) {
+		this.getOsVersionChannel().setNextValue(value);
 	}
 
 }

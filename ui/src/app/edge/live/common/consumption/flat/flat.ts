@@ -50,8 +50,11 @@ export class FlatComponent extends AbstractFlatWidget {
 
     // Get EVCSs
     this.evcss = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-      .filter(component => !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-        !(component.factoryId == "Evcs.Cluster.PeakShaving") && !component.isEnabled == false);
+      .filter(component =>
+        !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
+        !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
+        !(this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.meter.api.ElectricityMeter")) &&
+        !component.isEnabled == false);
 
     for (const component of this.evcss) {
       channelAddresses.push(
