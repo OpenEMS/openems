@@ -3,7 +3,6 @@ package io.openems.edge.timeofusetariff.groupe;
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
-import static io.openems.common.utils.StringUtils.definedOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 import static java.util.Collections.emptyMap;
 
@@ -17,6 +16,8 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -26,6 +27,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -63,7 +65,6 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffGroupeImpl.class);
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
-	private String exchangerateAccesskey = null;
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
@@ -98,12 +99,6 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!config.enabled()) {
-			return;
-		}
-
-		this.exchangerateAccesskey = definedOrElse(config.exchangerateAccesskey(), this.oem.getExchangeRateAccesskey());
-		if (this.exchangerateAccesskey == null) {
-			this.logError(this.log, "Please configure personal Access key to access Exchange rate host API");
 			return;
 		}
 
@@ -167,19 +162,18 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException, IOException {
+	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException, IOException, ParserConfigurationException, SAXException {
 		this.channel(TimeOfUseTariffGroupe.ChannelId.HTTP_STATUS_CODE).setNextValue(response.status().code());
 
 		final var groupeCurrency = Currency.CHF.name(); // Swiss Franc
 		final var globalCurrency = this.meta.getCurrency();
-		final var exchangerateAccesskey = this.exchangerateAccesskey;
 		if (globalCurrency == Currency.UNDEFINED) {
 			throw new OpenemsException("Global Currency is UNDEFINED. Please configure it in Core.Meta component");
 		}
 
 		final var exchangeRate = globalCurrency.name().equals(groupeCurrency) //
 				? 1. // No need to fetch exchange rate from API.
-				: ExchangeRateApi.getExchangeRate(exchangerateAccesskey, groupeCurrency, globalCurrency);
+				: ExchangeRateApi.getExchangeRate(groupeCurrency, globalCurrency);
 
 		// Parse the response for the prices
 		this.prices.set(parsePrices(response.data(), exchangeRate));

@@ -61,11 +61,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String exchangerateAccesskey() {
-		return this.builder.exchangerateAccesskey;
-	}
-
-	@Override
 	public BiddingZone biddingZone() {
 		return this.builder.biddingZone;
 	}

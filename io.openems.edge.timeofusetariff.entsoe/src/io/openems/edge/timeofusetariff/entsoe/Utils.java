@@ -1,6 +1,7 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import static io.openems.common.utils.XmlUtils.stream;
+import static io.openems.common.utils.XmlUtils.getXmlRootDocument;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
@@ -70,15 +71,6 @@ public class Utils {
 						t -> prices.floorEntry(t).getValue()));
 
 		return TimeOfUsePrices.from(result);
-	}
-
-	protected static Element getXmlRootDocument(String xml)
-			throws ParserConfigurationException, SAXException, IOException {
-		var dbFactory = DocumentBuilderFactory.newInstance();
-		var dBuilder = dbFactory.newDocumentBuilder();
-		var is = new InputSource(new StringReader(xml));
-		var doc = dBuilder.parse(is);
-		return doc.getDocumentElement();
 	}
 
 	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root, double exchangeRate) {
