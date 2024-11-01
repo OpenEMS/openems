@@ -471,8 +471,7 @@
     "capacity": "Capacity",
     "changeAccepted": "Change accepted",
     "changeFailed": "Change failed",
-    "chargeDischarge": "Charge/Discharge power",
-    "chargePower": "Charge power",
+    "chargeDischarge": "Charge/Discharge",
     "componentCount": "Number of components",
     "componentInactive": "Component is not active!",
     "connectionLost": "Connection lost. Trying to reconnect.",
@@ -484,7 +483,6 @@
     "digitalInputs": "Digital Inputs",
     "numberOfComponents": "Number of Components",
     "directConsumption": "Direct consumption",
-    "dischargePower": "Discharge power",
     "fault": "Fault",
     "FAILED": "failed",
     "WILL_BE_EXECUTED": "will be executed",
@@ -576,7 +574,9 @@
       "MINUTES": "Minutes",
       "DAY": "Day",
       "DAYS": "Days"
-    }
+    },
+    "CHARGE": "Charge",
+    "DISCHARGE": "Discharge"
   },
   "Index": {
     "allConnected": "All connections established.",

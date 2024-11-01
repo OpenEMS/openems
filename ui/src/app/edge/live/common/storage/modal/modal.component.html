@@ -30,12 +30,12 @@
                         </tr>
                         <!-- Charge/Discharge -->
                         <tr>
-                            <td style="width:65%" translate>General.chargePower</td>
+                            <td style="width:65%" translate>General.CHARGE</td>
                             <td style="width:35%" class="align_right">{{ (sum.effectivePower <= 0 ? (sum.effectivePower
                                     * -1) : null) | unitvalue:'W' }}</td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.dischargePower</td>
+                            <td style="width:65%" translate>General.DISCHARGE</td>
                             <td style="width:35%" class="align_right">
                                 {{ (sum.effectivePower > 0 ? sum.effectivePower : null) | unitvalue:'W' }}
                             </td>
@@ -52,7 +52,7 @@
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.dischargePower</span>
+                                                    translate>General.DISCHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -61,7 +61,7 @@
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.chargePower</span>
+                                                    translate>General.CHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -76,7 +76,7 @@
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.dischargePower</span>
+                                                    translate>General.DISCHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -85,7 +85,7 @@
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.chargePower</span>
+                                                    translate>General.CHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -316,13 +316,13 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.chargePower</td>
+                            <td style="width:65%" translate>General.CHARGE</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.effectiveChargePower | unitvalue:'W' }}
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.dischargePower</td>
+                            <td style="width:65%" translate>General.DISCHARGE</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.effectiveDischargePower | unitvalue:'W' }}
                             </td>
@@ -340,7 +340,7 @@
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                    <span translate>General.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -349,7 +349,7 @@
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                    <span translate>General.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -364,7 +364,7 @@
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                    <span translate>General.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -373,7 +373,7 @@
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                    <span translate>General.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -437,12 +437,12 @@
                                     *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.SymmetricEss') && value !== null && value !== undefined"
                                     class="full_width">
                                     <tr>
-                                        <td style="width:65%" translate>General.chargePower</td>
+                                        <td style="width:65%" translate>General.CHARGE</td>
                                         <td style="width:35%" class="align_right">{{ (value <= 0 ? (value * -1) : null)
                                                 | unitvalue:'W' }}<td>
                                     </tr>
                                     <tr>
-                                        <td style="width:65%" translate>General.dischargePower</td>
+                                        <td style="width:65%" translate>General.DISCHARGE</td>
                                         <td style="width:35%" class="align_right">{{ (value > 0 ? value : null) |
                                             unitvalue:'W' }}
                                         <td>
@@ -458,7 +458,7 @@
                                             <ng-container *ngIf="value > 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                    <span translate>General.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -467,7 +467,7 @@
                                             <ng-container *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                    <span translate>General.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -696,14 +696,14 @@
                                     <td style="width: 100%">{{ component.alias }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.chargePower</td>
+                                    <td style="width:20%" translate>General.CHARGE</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value > 0 ? value : null) | unitvalue:'W' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.dischargePower</td>
+                                    <td style="width:20%" translate>General.DISCHARGE</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value <= 0 ? (value * -1) : null | unitvalue:'W') }}</td>
