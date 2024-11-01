@@ -23,13 +23,12 @@ public class TestStatic {
 		assertNotEquals(GoodWeType.FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KETT22AW0004"));
 
 		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9030KETT228W0004"));
+		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("129K9ETT231W0159"));
 		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT228W0004"));
-		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929K9ETT231W0159"));
 		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929KETT231W0159"));
 		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("928K9ETT231W0159"));
-		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929K9ETT231W0160"));
 
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9040KETT228W0004"));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9036KETT228W0004"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9000KETT228W0004"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("ET2"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(""));

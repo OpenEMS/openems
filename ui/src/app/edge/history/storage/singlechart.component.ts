@@ -216,15 +216,15 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
                 if (label.includes(translate.instant("General.phase"))) {
-                    label += " " + translate.instant("General.chargePower");
+                    label += " " + translate.instant("General.CHARGE");
                 } else {
-                    label = translate.instant("General.chargePower");
+                    label = translate.instant("General.CHARGE");
                 }
             } else if (value > 0.005) {
                 if (label.includes(translate.instant("General.phase"))) {
-                    label += " " + translate.instant("General.dischargePower");
+                    label += " " + translate.instant("General.DISCHARGE");
                 } else {
-                    label = translate.instant("General.dischargePower");
+                    label = translate.instant("General.DISCHARGE");
                 }
             }
             return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";

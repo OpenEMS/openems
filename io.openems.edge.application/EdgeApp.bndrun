@@ -190,6 +190,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.groupe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.hassfurt',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 
 -runbundles: \
@@ -373,6 +374,7 @@
 	io.openems.edge.timeofusetariff.groupe;version=snapshot,\
 	io.openems.edge.timeofusetariff.hassfurt;version=snapshot,\
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
+	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\

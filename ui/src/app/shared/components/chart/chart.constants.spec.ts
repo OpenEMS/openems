@@ -27,7 +27,7 @@ describe("Chart constants", () => {
     ];
 
     expect(ChartConstants.getScaleOptions([], yAxis, "line")).toEqual({ min: null, max: null, stepSize: null });
-    expect(ChartConstants.getScaleOptions(datasets, yAxis, "line")).toEqual({ min: 0, max: 1892, stepSize: 378.4 });
+    expect(ChartConstants.getScaleOptions(datasets, yAxis, "line")).toEqual({ min: 62, max: 1892, stepSize: 366 });
     expect(ChartConstants.getScaleOptions(null, yAxis, "line")).toEqual({ min: null, max: null, stepSize: null });
     expect(ChartConstants.getScaleOptions(null, null, "line")).toEqual({ min: null, max: null, stepSize: null });
   });

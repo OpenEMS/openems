@@ -71,6 +71,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.TimeOfUseTariff.Hassfurt", "") //
 			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.TimeOfUseTariff.Stromdao", "") //
+			.put("App.TimeOfUseTariff.Swisspower", "") //
 			.put("App.TimeOfUseTariff.Tibber", "") //
 			.put("App.Api.ModbusTcp.ReadOnly", "") //
 			.put("App.Api.ModbusTcp.ReadWrite", "") //

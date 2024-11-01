@@ -50,4 +50,9 @@ public class OperatingSystemWindows implements OperatingSystem {
 		throw new NotImplementedException("ExecuteSystemRestartRequest is not implemented for Windows");
 	}
 
+	@Override
+	public CompletableFuture<String> getOperatingSystemVersion() {
+		return CompletableFuture.completedFuture(System.getProperty("os.name"));
+	}
+
 }

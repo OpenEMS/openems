@@ -61,4 +61,11 @@ public interface OperatingSystem {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteSystemRestartRequest(
 			ExecuteSystemRestartRequest request) throws NotImplementedException;
 
+	/**
+	 * Gets the current operating system version.
+	 * 
+	 * @return a future with the result
+	 */
+	public CompletableFuture<String> getOperatingSystemVersion();
+
 }

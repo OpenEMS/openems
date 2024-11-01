@@ -1,6 +1,8 @@
 package io.openems.edge.energy.v1;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
@@ -18,6 +20,8 @@ import java.util.function.Supplier;
 import org.junit.Test;
 
 import io.openems.common.test.TimeLeapClock;
+import io.openems.common.utils.ReflectionUtils;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -89,12 +93,10 @@ public class EnergySchedulerImplTest {
 	 * 
 	 * @param energyScheduler the {@link EnergySchedulerImpl}
 	 * @return the object
-	 * @throws Exception on error
+	 * @throws ReflectionException on error
 	 */
-	public static OptimizerV1 getOptimizer(EnergySchedulerImpl energyScheduler) throws Exception {
-		var field = EnergySchedulerImpl.class.getDeclaredField("optimizerV1");
-		field.setAccessible(true);
-		return (OptimizerV1) field.get(energyScheduler);
+	public static OptimizerV1 getOptimizer(EnergySchedulerImpl energyScheduler) throws ReflectionException {
+		return getValueViaReflection(energyScheduler, "optimizerV1");
 	}
 
 	/**
@@ -105,9 +107,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static void callCreateParams(OptimizerV1 optimizer) throws Exception {
-		var method = OptimizerV1.class.getDeclaredMethod("createParams");
-		method.setAccessible(true);
-		method.invoke(optimizer);
+		invokeMethodWithoutArgumentsViaReflection(optimizer, "createParams");
 	}
 
 	/**
@@ -117,11 +117,8 @@ public class EnergySchedulerImplTest {
 	 * @return the object
 	 * @throws Exception on error
 	 */
-	@SuppressWarnings("unchecked")
 	public static GlobalContextV1 getGlobalContext(EnergySchedulerImpl energyScheduler) throws Exception {
 		var optimizer = getOptimizer(energyScheduler);
-		var field = OptimizerV1.class.getDeclaredField("globalContext");
-		field.setAccessible(true);
-		return ((Supplier<GlobalContextV1>) field.get(optimizer)).get();
+		return ReflectionUtils.<Supplier<GlobalContextV1>>getValueViaReflection(optimizer, "globalContext").get();
 	}
 }
