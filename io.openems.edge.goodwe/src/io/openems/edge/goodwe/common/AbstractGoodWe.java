@@ -1195,10 +1195,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		);
 
 		/*
-		 * Handles different GoodWe Types.
+		 * Handle different GoodWe Types.
 		 * 
-		 * Register 35011: GoodWeType as String (Not supported for GoodWe 20 & 30)
-		 * Register 35003: Serial number as String (Fallback for GoodWe 20 & 30)
+		 * GoodweType Firmware is differing from Type ET-Plus to ETT.
+		 * 
+		 * Register 35011: GoodWeType as String (Not supported for GoodWe 20 & 30 - ETT)
+		 * Register 35003: Serial number as String (Fallback for GoodWe 20 & 30 - ETT)
 		 */
 		readElementOnce(protocol, ModbusUtils::retryOnNull, new StringWordElement(35011, 5)) //
 				.thenAccept(value -> {
@@ -1210,8 +1212,30 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 							TypeUtils.<String>getAsType(OpenemsType.STRING, value));
 
 					if (resultFromString != GoodWeType.UNDEFINED) {
+
+						/*
+						 * ET-Plus
+						 */
 						this.logInfo(this.log, "Identified " + resultFromString.getName());
 						this._setGoodweType(resultFromString);
+
+						// Handles different ET-Plus DSP versions
+						ModbusUtils.readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)) //
+								.thenAccept(dspVersion -> {
+									try {
+										if (dspVersion >= 5) {
+											this.handleDspVersion5(protocol);
+										}
+										if (dspVersion >= 6) {
+											this.handleDspVersion6(protocol);
+										}
+										if (dspVersion >= 7) {
+											this.handleDspVersion7(protocol);
+										}
+									} catch (OpenemsException e) {
+										this.logError(this.log, "Unable to add task for modbus protocol");
+									}
+								});
 						return;
 					}
 
@@ -1220,44 +1244,21 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					 */
 					readElementOnce(protocol, ModbusUtils::retryOnNull, new StringWordElement(35003, 8)) //
 							.thenAccept(serialNr -> {
+
 								final var hardwareType = getGoodWeTypeFromSerialNr(serialNr);
 								try {
 									this._setGoodweType(hardwareType);
+									this.handleDspVersion5(protocol);
+									this.handleDspVersion6(protocol);
+									this.handleDspVersion7(protocol);
 									if (hardwareType == GoodWeType.FENECON_FHI_20_DAH
 											|| hardwareType == GoodWeType.FENECON_FHI_29_9_DAH) {
 										this.handleMultipleStringChargers(protocol);
 									}
-
 								} catch (OpenemsException e) {
 									this.logError(this.log, "Unable to add charger tasks for modbus protocol");
 								}
 							});
-				});
-
-		// Handles different DSP versions
-		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)) //
-				.thenAccept(dspVersion -> {
-					try {
-
-						// GoodWe 30 has DspFmVersionMaster=0 & DspBetaVersion=80
-						if (dspVersion == 0) {
-							this.handleDspVersion5(protocol);
-							this.handleDspVersion6(protocol);
-							this.handleDspVersion7(protocol);
-							return;
-						}
-						if (dspVersion >= 5) {
-							this.handleDspVersion5(protocol);
-						}
-						if (dspVersion >= 6) {
-							this.handleDspVersion6(protocol);
-						}
-						if (dspVersion >= 7) {
-							this.handleDspVersion7(protocol);
-						}
-					} catch (OpenemsException e) {
-						this.logError(this.log, "Unable to add task for modbus protocol");
-					}
 				});
 
 		return protocol;
@@ -1329,7 +1330,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Handle multiple string chargers.
-	 * 
+	 *
 	 * <p>
 	 * For MPPT connectors e.g. two string on one MPPT the power information is
 	 * spread over several registers that should be read as complete blocks.

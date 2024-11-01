@@ -318,7 +318,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	/**
 	 * Get the connection value depending on the phase.
-	 * 
+	 *
 	 * <p>
 	 * The information of each phase connection is part of a hex. The part of the
 	 * given phase will be returned.
