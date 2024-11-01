@@ -76,7 +76,7 @@ export class ChartConstants {
 
     return {
       title: {
-        text: element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType),
+        text: element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType, element.customTitle),
         display: false,
         padding: 5,
         font: {
@@ -141,8 +141,8 @@ export class ChartConstants {
 
     return Object.values(stackMap)
       .reduce((arr: { min: number, max: number, stepSize: number }, dataset: ChartDataset) => {
-
-        const min = Math.floor(Math.min(arr.min, ArrayUtils.findSmallestNumber(dataset.data as number[]))) ?? null;
+        const currMin = ArrayUtils.findSmallestNumber(dataset.data as number[]);
+        const min = Math.floor(Math.min(...[arr.min, currMin].filter(el => el != null))) ?? null;
         const max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
 
         if (max === null || min === null) {

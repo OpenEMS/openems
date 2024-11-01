@@ -3,6 +3,7 @@ import { Component, Input } from "@angular/core";
 import * as Chart from "chart.js";
 import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
@@ -165,7 +166,10 @@ export class ChartComponent extends AbstractHistoryChart {
                     el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
                     return el;
                 });
-
+                this.options.scales[ChartAxis.LEFT].ticks = {
+                    ...this.options.scales[ChartAxis.LEFT].ticks,
+                    ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(this.chartObject.yAxes.find(el => el.unit === YAxisType.CURRENCY), this.translate, "line", this.datasets, true).ticks,
+                };
                 this.options.scales.x["offset"] = false;
                 this.options["animation"] = false;
             });
