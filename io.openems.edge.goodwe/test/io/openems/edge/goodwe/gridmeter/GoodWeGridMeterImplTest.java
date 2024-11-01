@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
@@ -86,6 +87,24 @@ public class GoodWeGridMeterImplTest {
 		var noResult = getPhaseConnectionValue(Phase.L3, 0x000);
 
 		assert noResult == 0x000;
+	}
+
+	@Test
+	public void testAdjustCurrentSign() {
+		{
+			var e2cConverter = GoodWeGridMeterImpl.createAdjustCurrentSign(() -> new Value<Integer>(null, -5000));
+			// postive to negative
+			assertEquals(-16, e2cConverter.elementToChannel(16));
+			// negative stays negative
+			assertEquals(-16, e2cConverter.elementToChannel(-16));
+		}
+		{
+			var e2cConverter = GoodWeGridMeterImpl.createAdjustCurrentSign(() -> new Value<Integer>(null, 5000));
+			// positive stays positive
+			assertEquals(16, e2cConverter.elementToChannel(16));
+			// negative to positive
+			assertEquals(16, e2cConverter.elementToChannel(-16));
+		}
 	}
 
 	@Test
