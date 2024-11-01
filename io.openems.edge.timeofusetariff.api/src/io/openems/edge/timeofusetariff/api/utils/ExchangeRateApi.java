@@ -29,6 +29,9 @@ public class ExchangeRateApi {
 
 	private static final String ECB_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
 
+	// ECB gives exchange rates based on the EUR.
+	private static final Currency BASE_CURRENCY = Currency.EUR;
+
 	private static final OkHttpClient client = new OkHttpClient();
 
 	/**
@@ -65,7 +68,7 @@ public class ExchangeRateApi {
 			throw new OpenemsException("Global Currency is UNDEFINED. Please configure it in Core.Meta component");
 		}
 
-		if (target.name().equals(source)) {
+		if (target.name().equals(source) || target.equals(BASE_CURRENCY)) {
 			return 1.; // No need to fetch exchange rate from API
 		}
 

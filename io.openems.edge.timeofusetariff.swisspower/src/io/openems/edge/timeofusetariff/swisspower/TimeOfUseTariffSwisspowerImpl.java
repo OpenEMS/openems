@@ -1,17 +1,20 @@
-package io.openems.edge.timeofusetariff.groupe;
+package io.openems.edge.timeofusetariff.swisspower;
 
 import static io.openems.common.utils.JsonUtils.getAsDouble;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsString;
-import static io.openems.common.utils.JsonUtils.parseToJsonArray;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
-import static java.util.Collections.emptyMap;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -34,6 +37,7 @@ import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpMethod;
 import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.api.UrlBuilder;
 import io.openems.edge.bridge.http.time.DelayTimeProvider;
 import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 import io.openems.edge.common.channel.value.Value;
@@ -47,18 +51,23 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "TimeOfUseTariff.GroupeE", //
+		name = "TimeOfUseTariff.Swisspower", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
-		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffGroupe {
-	private static final String URL = "https://api.tariffs.groupe-e.ch/v1/tariffs?start_timestamp=%s&end_timestamp=%s";
+public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
+		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffSwisspower {
+	private static final UrlBuilder URL_BASE = UrlBuilder.parse("https://esit.code-fabrik.ch/api/v1/metering_code");
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
+	private static final int DEFAULT_READ_TIMEOUT = 200;
+	protected static final int SERVER_ERROR_CODE = 500;
+	protected static final int BAD_REQUEST_ERROR_CODE = 400;
 
-	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffGroupeImpl.class);
+	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffSwisspowerImpl.class);
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
+	private String accessToken = null;
+	private String meteringCode = null;
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
@@ -70,17 +79,17 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	public TimeOfUseTariffGroupeImpl() {
+	public TimeOfUseTariffSwisspowerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				TimeOfUseTariffGroupe.ChannelId.values() //
+				TimeOfUseTariffSwisspower.ChannelId.values() //
 		);
 	}
 
 	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
 		this.httpBridge.removeAllTimeEndpoints();
-		this.httpBridge.subscribeTime(new GroupeDelayTimeProvider(this.componentManager.getClock()), //
-				this::createGroupeEndpoint, //
+		this.httpBridge.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
+				this::createSwisspowerEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
 	};
@@ -93,27 +102,49 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		this.accessToken = config.accessToken();
+		if (this.accessToken == null) {
+			this.logError(this.log, "Please configure personal Access token to access Swisspower API");
+			return;
+		}
+
+		this.meteringCode = config.meteringCode();
+		if (this.meteringCode == null) {
+			this.logError(this.log, "Please configure meteringCode to access Swisspower API");
+			return;
+		}
+
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.httpBridge.subscribeTime(new GroupeDelayTimeProvider(this.componentManager.getClock()), //
-				this::createGroupeEndpoint, //
+		this.httpBridge.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
+				this::createSwisspowerEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
 	}
 
-	private Endpoint createGroupeEndpoint() {
+	private Endpoint createSwisspowerEndpoint() {
 		final var now = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS);
 		final var startTimestamp = now.format(DATE_FORMATTER); // eg. 2024-05-22T00:00:00+02:00
 		final var endTimestamp = now.plusDays(1).format(DATE_FORMATTER);
 
-		return new Endpoint(String.format(URL, startTimestamp, endTimestamp), //
+		final var url = URL_BASE.withQueryParam("start_timestamp", startTimestamp) //
+				.withQueryParam("end_timestamp", endTimestamp) //
+				.withQueryParam("metering_code", this.meteringCode);
+
+		return new Endpoint(url.toEncodedString(), //
 				HttpMethod.GET, //
 				BridgeHttp.DEFAULT_CONNECT_TIMEOUT, //
-				BridgeHttp.DEFAULT_READ_TIMEOUT, //
+				DEFAULT_READ_TIMEOUT, //
 				null, //
-				emptyMap());
+				this.buildRequestHeaders());
+	}
+
+	private Map<String, String> buildRequestHeaders() {
+		return Map.of(//
+				"Authorization", "Bearer " + this.accessToken //
+		);
 	}
 
 	@Override
@@ -124,18 +155,18 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		this.httpBridgeFactory.unget(this.httpBridge);
 	}
 
-	public static class GroupeDelayTimeProvider implements DelayTimeProvider {
+	public static class SwisspowerProvider implements DelayTimeProvider {
 
 		private final Clock clock;
 
-		public GroupeDelayTimeProvider(Clock clock) {
+		public SwisspowerProvider(Clock clock) {
 			super();
 			this.clock = clock;
 		}
 
 		@Override
 		public Delay onFirstRunDelay() {
-			return Delay.immediate();
+			return Delay.of(Duration.ofMinutes(1));
 		}
 
 		@Override
@@ -153,25 +184,26 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException {
-		this.channel(TimeOfUseTariffGroupe.ChannelId.HTTP_STATUS_CODE).setNextValue(response.status().code());
+	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException, IOException {
+		this.setChannelValues(response.status().code(), false, false, false);
 
-		final var groupeCurrency = Currency.CHF.name(); // Swiss Franc
+		final var swissPowerCurrency = Currency.CHF.name(); // Swiss Franc
 		final var globalCurrency = this.meta.getCurrency();
-		final double exchangeRate = getExchangeRateOrElse(groupeCurrency, globalCurrency, 1.);
+		final double exchangeRate = getExchangeRateOrElse(swissPowerCurrency, globalCurrency, 1.);
 
 		// Parse the response for the prices
 		this.prices.set(parsePrices(response.data(), exchangeRate));
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = INTERNAL_ERROR;
-		if (error instanceof HttpError.ResponseError re) {
-			httpStatusCode = re.status.code();
-		}
+		var httpStatusCode = (error instanceof HttpError.ResponseError re) ? re.status.code() : INTERNAL_ERROR;
+		var serverError = (httpStatusCode == SERVER_ERROR_CODE);
+		var badRequest = (httpStatusCode == BAD_REQUEST_ERROR_CODE);
+		var timeoutError = (error instanceof HttpError.UnknownError e
+				&& e.getCause() instanceof SocketTimeoutException);
 
-		this.channel(TimeOfUseTariffGroupe.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
-		this.log.error(error.getMessage(), error);
+		this.setChannelValues(httpStatusCode, serverError, badRequest, timeoutError);
+		this.log.error("HTTP Error [{}]: {}", httpStatusCode, error.getMessage());
 	}
 
 	@Override
@@ -191,16 +223,19 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException if an error occurs during the parsing of the
 	 *                               JSON data.
 	 */
-	public static TimeOfUsePrices parsePrices(String jsonData, double exchangeRate) throws OpenemsNamedException {
+	protected static TimeOfUsePrices parsePrices(String jsonData, double exchangeRate) throws OpenemsNamedException {
 		var result = new TreeMap<ZonedDateTime, Double>();
-		var data = parseToJsonArray(jsonData);
-		for (var element : data) {
-			var priceString = "vario_plus";
+		var data = parseToJsonObject(jsonData);
+		var prices = getAsJsonArray(data, "prices");
 
-			// Cent/kWh -> Currency/MWh
-			// Example: 12 Cent/kWh => 0.12 EUR/kWh * 1000 kWh/MWh = 120 EUR/MWh.
-			var marketPrice = getAsDouble(element, priceString) * 10 * exchangeRate;
+		for (var element : prices) {
+
 			var startTimeString = getAsString(element, "start_timestamp");
+			var integrated = getAsJsonArray(element, "integrated");
+
+			// CHF/kWh -> Currency/MWh
+			// Example: 0.1 CHF/kWh * 1000 = 100 CHF/MWh.
+			var marketPrice = getAsDouble(integrated.get(0), "value") * 1000 * exchangeRate;
 
 			// Convert LocalDateTime to ZonedDateTime
 			var startTimeStamp = ZonedDateTime.parse(startTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
@@ -209,6 +244,25 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 			result.put(startTimeStamp, marketPrice);
 		}
 		return TimeOfUsePrices.from(result);
+	}
+
+	/**
+	 * This method updates the channel values in response to an HTTP request.
+	 * 
+	 * @param httpStatusCode the HTTP status code returned from the endpoint
+	 *                       response
+	 * @param serverError    a boolean indicating if a server error occurred (status
+	 *                       code 500)
+	 * @param badRequest     a boolean indicating if the request was invalid (status
+	 *                       code 400)
+	 * @param timeoutError   a boolean indicating if the request could not be read
+	 *                       in time
+	 */
+	private void setChannelValues(int httpStatusCode, boolean serverError, boolean badRequest, boolean timeoutError) {
+		this.channel(TimeOfUseTariffSwisspower.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
+		this.channel(TimeOfUseTariffSwisspower.ChannelId.STATUS_INVALID_FIELDS).setNextValue(serverError);
+		this.channel(TimeOfUseTariffSwisspower.ChannelId.STATUS_BAD_REQUEST).setNextValue(badRequest);
+		this.channel(TimeOfUseTariffSwisspower.ChannelId.STATUS_READ_TIMEOUT).setNextValue(timeoutError);
 	}
 
 	@Override
