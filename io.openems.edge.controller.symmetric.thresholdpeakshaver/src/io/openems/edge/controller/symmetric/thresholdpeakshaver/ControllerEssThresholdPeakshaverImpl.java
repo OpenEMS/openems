@@ -23,6 +23,8 @@ import io.openems.edge.controller.api.Controller;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
+
+
 import io.openems.edge.common.sum.GridMode;
 
 @Designate(ocd = Config.class, factory = true)
@@ -63,6 +65,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 	private Instant peakshavingStartTime = Instant.MIN;
 
 	private int maxEssPower = 0;
+	private AverageCalculator gridPowerAverageCalculator = new AverageCalculator(5);
 
 	public ControllerEssThresholdPeakshaverImpl() {
 		super(//
@@ -109,6 +112,11 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
+		
+		/*
+		 * A 5 point average is used to start controller´s timer.
+		 */
+		gridPowerAverageCalculator.addValue(gridPower);
 
 		// Save grid power without peakshaving
 		this._setGridPowerWithoutPeakShaving(gridPower);
@@ -152,8 +160,10 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				this.changeState(State.ERROR);
 				break;
 			}
-			// If grid power is above threshold update timer
-			if (gridPower > this.config.peakShavingThresholdPower()) {
+
+
+			// If grid power average is above threshold update timer
+			if (gridPowerAverageCalculator.getAverage() > this.config.peakShavingThresholdPower()) {
 				this.peakshavingStartTime = Instant.now(this.componentManager.getClock()); // Start timer
 			}
 
@@ -186,7 +196,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 					}
 
 				}
-				
+
 			} else if (gridPower <= this.config.rechargePower()) {
 				/*
 				 * Recharge
@@ -241,13 +251,14 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 			this._setPeakShavedPower(0); //
 		}
 
-		this.logDebug(this.log, "\n PeakShaver Current State " + this.state.getName() + "\n PeakShaving State "
-				+ this.peakshavingState.getName() + "\n max ESS power " + this.maxEssPower + "VA" + "\n Current SoC "
-				+ this.ess.getSoc().get() + "%" + "\n Current ESS ActivePower " + essRealPower + "W"
-				+ "\n Grid power (without ESS) " + this.getGridPowerWithoutPeakShaving() + "W"
-				+ "\n Balancing Target power " + this.getPeakShavingTargetPower() + "W"   
-				+ "\n Shaved power " + this.getPeakShavedPower() + "W"
-				
+		this.logDebug(this.log,
+				"\n PeakShaver Current State " + this.state.getName() + "\n PeakShaving State "
+						+ this.peakshavingState.getName() + "\n max ESS power " + this.maxEssPower + "VA"
+						+ "\n Current SoC " + this.ess.getSoc().get() + "%" + "\n Current ESS ActivePower "
+						+ essRealPower + "W" + "\n Grid power (without ESS) " + this.getGridPowerWithoutPeakShaving()
+						+ "\n Grid powerAverage " + this.gridPowerAverageCalculator.getAverage()
+						+ "W" + "\n Balancing Target power " + this.getPeakShavingTargetPower() + "W"
+						+ "\n Shaved power " + this.getPeakShavedPower() + "W"
 
 		);
 
@@ -282,7 +293,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		if (peakShavingDuration > this.config.hysteresisTime()) {
 			return false;
 		} else {
-			this.logDebug(this.log, "Hysteresis is active");
+			this.logDebug(this.log, "Hysteresis is active. Seconds passed: " + peakShavingDuration + "s");
 			return true;
 		}
 
