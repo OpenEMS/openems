@@ -16,45 +16,45 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId { 
         REMAINING_LEVL_ENERGY(Doc.of(OpenemsType.LONG)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("energy to be realized [Ws])")), //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("energy to be realized [Ws])")),
         LEVL_SOC(Doc.of(OpenemsType.LONG)
         		.unit(Unit.WATT_HOURS)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("levl state of charge [Wh]")), //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("levl state of charge [Wh]")),
         SELL_TO_GRID_LIMIT(Doc.of(OpenemsType.LONG)
         		.unit(Unit.WATT)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("maximum power that may be sold to the grid [W]")), //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("maximum power that may be sold to the grid [W]")),
         BUY_FROM_GRID_LIMIT(Doc.of(OpenemsType.LONG)
         		.unit(Unit.WATT)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("maximum power that may be bought from the grid [W]")), //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("maximum power that may be bought from the grid [W]")),
         SOC_LOWER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE)
         		.unit(Unit.PERCENT)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("lower soc bound limit levl has to respect [%]")), //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("lower soc bound limit levl has to respect [%]")),
         SOC_UPPER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE)
         		.unit(Unit.PERCENT)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("upper soc bound limit levl has to respect [%]")), //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("upper soc bound limit levl has to respect [%]")),
         INFLUENCE_SELL_TO_GRID(Doc.of(OpenemsType.BOOLEAN)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("defines if levl is allowed to influence the sell to grid power [true/false]")), //  
-        EFFICIENCY(Doc.of(OpenemsType.DOUBLE) //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("defines if levl is allowed to influence the sell to grid power [true/false]")),
+        EFFICIENCY(Doc.of(OpenemsType.DOUBLE)
                 .unit(Unit.PERCENT)
-                .persistencePriority(PersistencePriority.HIGH) //
-                .text("ess efficiency defined by levl [%]")), //
+                .persistencePriority(PersistencePriority.HIGH)
+                .text("ess efficiency defined by levl [%]")),
         PUC_BATTERY_POWER(Doc.of(OpenemsType.LONG)
         		.unit(Unit.WATT)
-        		.persistencePriority(PersistencePriority.HIGH) //
-        		.text("power that is applied for the ess primary use case")), //
-        LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG) //
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("power that is applied for the ess primary use case")),
+        LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG)
                 .persistencePriority(PersistencePriority.HIGH)
-                .text("cumulated amount of discharge energy that has been realized since the last discharge request [Ws]")), //
-        LAST_REQUEST_TIMESTAMP(Doc.of(OpenemsType.STRING) //
-                .persistencePriority(PersistencePriority.HIGH) //
-                .text("the timestamp of the last levl control request")); //
+                .text("cumulated amount of discharge energy that has been realized since the last discharge request [Ws]")),
+        LAST_REQUEST_TIMESTAMP(Doc.of(OpenemsType.STRING)
+                .persistencePriority(PersistencePriority.HIGH)
+                .text("the timestamp of the last levl control request"));
 
         private final Doc doc;
 
