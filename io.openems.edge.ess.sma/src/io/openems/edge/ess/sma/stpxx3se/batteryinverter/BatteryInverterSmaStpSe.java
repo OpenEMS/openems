@@ -62,21 +62,60 @@ public interface BatteryInverterSmaStpSe extends HybridManagedSymmetricBatteryIn
 	public default void _setInitializing(boolean value) {
 		this.getInitializingChannel().setNextValue(value);
 	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#WRONG_BATTERY}.
+	 *
+	 * @return the Channel
+	 */
 	public default StateChannel getWrongBatteryChannel() {
 		return this.channel(ChannelId.WRONG_BATTERY);
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#WRONG_BATTERY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
 	public default void _setWrongBattery(boolean value) {
 		this.getWrongBatteryChannel().setNextValue(value);
 	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
 	public default Channel<SetControlMode> getDebugControlModeChannel() {
 		return this.channel(ChannelId.DEBUG_CONTROL_MODE);
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#DEBUG_CONTROL_MODE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
 	public default void _setDebugControlMode(SetControlMode value) {
 		this.getDebugControlModeChannel().setNextValue(value);
 	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#CONFIGURED_CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
 	public default Channel<ControlMode> getConfiguredControlModeChannel() {
 		return this.channel(ChannelId.CONFIGURED_CONTROL_MODE);
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CONFIGURED_CONTROL_MODE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
 	public default void _setConfiguredControlMode(ControlMode value) {
 		this.getConfiguredControlModeChannel().setNextValue(value);
 	}
