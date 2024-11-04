@@ -284,14 +284,14 @@
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.78.1</version>
+			<version>1.79</version>
 		</dependency>
 		<dependency>
 			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.78.1</version>
+			<version>1.79</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
