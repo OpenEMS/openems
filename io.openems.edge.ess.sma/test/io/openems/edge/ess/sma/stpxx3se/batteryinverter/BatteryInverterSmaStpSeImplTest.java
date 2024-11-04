@@ -21,7 +21,7 @@ public class BatteryInverterSmaStpSeImplTest {
 						.setId(BATTERY_INVERTER_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(MODBUS_UNIT_ID) //
-						.setReadOnly(false) //
+						.setControlMode(ControlMode.SMART) //
 						.build());
 	}
 

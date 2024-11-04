@@ -10,7 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String modbusId;
 		private int modbusUnitId;
-		private boolean readOnly;
+		private ControlMode controlMode;
 
 		private Builder() {
 		}
@@ -30,8 +30,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setReadOnly(boolean readOnly) {
-			this.readOnly = readOnly;
+		public Builder setControlMode(ControlMode controlMode) {
+			this.controlMode = controlMode;
 			return this;
 		}
 		
@@ -68,8 +68,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean readOnly() {
-		return this.builder.readOnly;
+	public ControlMode controlMode() {
+		return this.builder.controlMode;
 	}
 
 	@Override

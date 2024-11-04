@@ -5,6 +5,14 @@ package io.openems.edge.ess.sma.stpxx3se.batteryinverter;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OptionsEnum;
+import io.openems.edge.bridge.modbus.sunspec.Point;
+import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint.SunSpecBitPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.BitPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.EnumPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaleFactorPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaledValuePoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ValuePoint;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModelType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
@@ -21,552 +29,403 @@ public enum S160SunSpecModel implements SunSpecModel {
 	); //
 	
 	public static enum S160 implements SunSpecPoint {
-		DCA_SF(new PointImpl(//
+		DCA_SF(new ScaleFactorPoint(//
 				"S160_DCA_S_F", //
 				"Dca_SF", //
-				"", //
-				"", //
-				PointType.SUNSSF, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		DCV_SF(new PointImpl(//
+				"")), //
+		DCV_SF(new ScaleFactorPoint(//
 				"S160_DCV_S_F", //
 				"Dcv_SF", //
-				"", //
-				"", //
-				PointType.SUNSSF, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		DCW_SF(new PointImpl(//
+				"")), //
+		DCW_SF(new ScaleFactorPoint(//
 				"S160_DCW_S_F", //
 				"Dcw_SF", //
-				"", //
-				"", //
-				PointType.SUNSSF, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		DCWH_SF(new PointImpl(//
+				"")), //
+		DCWH_SF(new ScaleFactorPoint(//
 				"S160_DCWH_S_F", //
 				"Dcwh_SF", //
-				"", //
-				"", //
-				PointType.SUNSSF, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		EVT(new PointImpl(//
+				"")), //
+		EVT(new BitFieldPoint(//
 				"S160_EVT", //
 				"Evt", //
 				"Global Events", //
-				"", //
-				PointType.BITFIELD32, //
+				BitFieldPoint.Type.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		N(new PointImpl(//
+				S160_Evt.values())), //
+		N(new ValuePoint(//
 				"S160_N", //
 				"N", //
 				"Number of Modules", //
-				"", //
-				PointType.COUNT, //
+				ValuePoint.Type.COUNT, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		TMS_PER(new PointImpl(//
+				Unit.NONE)), //
+		TMS_PER(new ValuePoint(//
 				"S160_TMS_PER", //
 				"TmsPer", //
-				"TmsPer", //
-				"", //
-				PointType.UINT16, //
+				"Timestamp Period", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
+				Unit.NONE)), //	
 
 		
 		
-		MODULE_1_I_D(new PointImpl(//
+		MODULE_1_I_D(new ValuePoint(//
 				"S160_MODULE_1_I_D", //
 				"Module1Id", //
-				"Module1Id", //
-				"", //
-				PointType.UINT16, //
+				"Input ID", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_1_I_D_STR(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_1_I_D_STR(new ValuePoint(//
 				"S160_MODULE_1_I_D_STR", //
 				"Module1IdStr", //
-				"Module1IdStr", //
-				"", //
-				PointType.STRING8, //
+				"Input ID String", //
+				ValuePoint.Type.STRING8, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_1_D_C_A(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_1_D_C_A(new ScaledValuePoint(//
 				"S160_MODULE_1_D_C_A", //
 				"Module1Dca", //
-				"Module1Dca", //
-				"", //
-				PointType.UINT16, //
+				"DC Current", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.AMPERE, //
-				"DCA_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_1_D_C_V(new PointImpl(//
+				"DCA_SF")), //	
+		MODULE_1_D_C_V(new ScaledValuePoint(//
 				"S160_MODULE_1_D_C_V", //
 				"Module1Dcv", //
-				"Module1Dcv", //
-				"", //
-				PointType.UINT16, //
+				"DC Voltage", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.VOLT, //
-				"DCV_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_1_D_C_W(new PointImpl(//
+				"DCV_SF")), //	
+		MODULE_1_D_C_W(new ScaledValuePoint(//
 				"S160_MODULE_1_D_C_W", //
 				"Module1Dcw", //
-				"Module1Dcw", //
-				"", //
-				PointType.UINT16, //
+				"DC Power", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT, //
-				"DCW_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_1_D_C_W_H(new PointImpl(//
+				"DCW_SF")), //	
+		MODULE_1_D_C_W_H(new ScaledValuePoint(//
 				"S160_MODULE_1_D_C_W_H", //
 				"Module1Dcwh", //
-				"Module1Dcwh", //
-				"", //
-				PointType.ACC32, //
+				"Lifetime Energy", //
+				ValuePoint.Type.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT_HOURS, //
-				"DCWH_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_1_TMS(new PointImpl(//
+				"DCWH_SF")), //	
+		MODULE_1_TMS(new ValuePoint(//
 				"S160_MODULE_1_TMS", //
 				"Module1Timestamp", //
-				"Module1Tms", //
-				"", //
-				PointType.UINT32, //
+				"Timestamp", //
+				ValuePoint.Type.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.SECONDS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_1_TMP(new PointImpl(//
+				Unit.SECONDS)), //	
+		MODULE_1_TMP(new ValuePoint(//
 				"S160_MODULE_1_TEMP", //
 				"Module1Temp", //
-				"Module1Temp", //
-				"", //
-				PointType.INT16, //
+				"Temperature", //
+				ValuePoint.Type.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.DEGREE_CELSIUS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_1_D_C_ST(new PointImpl(//
+				Unit.DEGREE_CELSIUS)), //	
+		MODULE_1_D_C_ST(new EnumPoint(//
 				"S160_MODULE_1_OP_STATES", //
 				"Module1OpStates", //
-				"Module1OpStates", //
-				"", //
-				PointType.ENUM16, //
+				"Operating State", //
+				EnumPoint.Type.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
 				S160_DCSt.values())), //	
-		MODULE_1_EVT(new PointImpl(//
-				"S160_MODULE_1_EVENTS", //
-				"Module1Events", //
-				"Module1Events", //
-				"", //
-				PointType.BITFIELD32, //
+		MODULE_1_EVT(new BitFieldPoint(//
+				"S160_MODULE_1_EVT", //
+				"Evt", //
+				"Module Events", //
+				BitFieldPoint.Type.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				S160_DCEvt.values())), //	
+				S160_Module_1_Evt.values())), //	
 		
-
-		
-		
-		MODULE_2_I_D(new PointImpl(//
+		MODULE_2_I_D(new ValuePoint(//
 				"S160_MODULE_2_I_D", //
 				"Module2Id", //
-				"Module2Id", //
-				"", //
-				PointType.UINT16, //
+				"Input ID", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_2_I_D_STR(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_2_I_D_STR(new ValuePoint(//
 				"S160_MODULE_2_I_D_STR", //
 				"Module2IdStr", //
-				"Module2IdStr", //
-				"", //
-				PointType.STRING8, //
+				"Input ID String", //
+				ValuePoint.Type.STRING8, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_2_D_C_A(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_2_D_C_A(new ScaledValuePoint(//
 				"S160_MODULE_2_D_C_A", //
 				"Module2Dca", //
-				"Module2Dca", //
-				"", //
-				PointType.UINT16, //
+				"DC Current", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.AMPERE, //
-				"DCA_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_2_D_C_V(new PointImpl(//
+				"DCA_SF")), //	
+		MODULE_2_D_C_V(new ScaledValuePoint(//
 				"S160_MODULE_2_D_C_V", //
 				"Module2Dcv", //
-				"Module2Dcv", //
-				"", //
-				PointType.UINT16, //
+				"DC Voltage", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.VOLT, //
-				"DCV_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_2_D_C_W(new PointImpl(//
+				"DCV_SF")), //	
+		MODULE_2_D_C_W(new ScaledValuePoint(//
 				"S160_MODULE_2_D_C_W", //
 				"Module2Dcw", //
-				"Module2Dcw", //
-				"", //
-				PointType.UINT16, //
+				"DC Power", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT, //
-				"DCW_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_2_D_C_W_H(new PointImpl(//
+				"DCW_SF")), //	
+		MODULE_2_D_C_W_H(new ScaledValuePoint(//
 				"S160_MODULE_2_D_C_W_H", //
 				"Module2Dcwh", //
-				"Module2Dcwh", //
-				"", //
-				PointType.ACC32, //
+				"Lifetime Energy", //
+				ValuePoint.Type.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT_HOURS, //
-				"DCWH_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_2_TMS(new PointImpl(//
+				"DCWH_SF")), //	
+		MODULE_2_TMS(new ValuePoint(//
 				"S160_MODULE_2_TMS", //
-				"Module2Tms", //
-				"Module2Tms", //
-				"", //
-				PointType.UINT32, //
+				"Module2Timestamp", //
+				"Timestamp", //
+				ValuePoint.Type.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.SECONDS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_2_TMP(new PointImpl(//
+				Unit.SECONDS)), //	
+		MODULE_2_TMP(new ValuePoint(//
 				"S160_MODULE_2_TEMP", //
 				"Module2Temp", //
-				"Module2Temp", //
-				"", //
-				PointType.INT16, //
+				"Temperature", //
+				ValuePoint.Type.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.DEGREE_CELSIUS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_2_D_C_ST(new PointImpl(//
+				Unit.DEGREE_CELSIUS)), //	
+		MODULE_2_D_C_ST(new EnumPoint(//
 				"S160_MODULE_2_OP_STATES", //
 				"Module2OpStates", //
-				"Module2OpStates", //
-				"", //
-				PointType.ENUM16, //
+				"Operating State", //
+				EnumPoint.Type.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
 				S160_DCSt.values())), //	
-		MODULE_2_EVT(new PointImpl(//
-				"S160_MODULE_2_EVENTS", //
-				"Module2Events", //
-				"Module2Events", //
-				"", //
-				PointType.BITFIELD32, //
+		MODULE_2_EVT(new BitFieldPoint(//
+				"S160_MODULE_2_EVT", //
+				"Evt", //
+				"Module Events", //
+				BitFieldPoint.Type.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				S160_DCEvt.values())), //	
-		
-
-
+				S160_Module_2_Evt.values())), //	
 		
 		
-		MODULE_3_I_D(new PointImpl(//
+		MODULE_3_I_D(new ValuePoint(//
 				"S160_MODULE_3_I_D", //
-				"Module3Id", //
-				"Module3Id", //
-				"", //
-				PointType.UINT16, //
+				"Module2Id", //
+				"Input ID", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_3_I_D_STR(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_3_I_D_STR(new ValuePoint(//
 				"S160_MODULE_3_I_D_STR", //
 				"Module3IdStr", //
-				"Module3IdStr", //
-				"", //
-				PointType.STRING8, //
+				"Input ID String", //
+				ValuePoint.Type.STRING8, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_3_D_C_A(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_3_D_C_A(new ScaledValuePoint(//
 				"S160_MODULE_3_D_C_A", //
 				"Module3Dca", //
-				"Module3Dca", //
-				"", //
-				PointType.UINT16, //
+				"DC Current", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.AMPERE, //
-				"DCA_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_3_D_C_V(new PointImpl(//
+				"DCA_SF")), //	
+		MODULE_3_D_C_V(new ScaledValuePoint(//
 				"S160_MODULE_3_D_C_V", //
 				"Module3Dcv", //
-				"Module3Dcv", //
-				"", //
-				PointType.UINT16, //
+				"DC Voltage", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.VOLT, //
-				"DCV_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_3_D_C_W(new PointImpl(//
+				"DCV_SF")), //	
+		MODULE_3_D_C_W(new ScaledValuePoint(//
 				"S160_MODULE_3_D_C_W", //
 				"Module3Dcw", //
-				"Module3Dcw", //
-				"", //
-				PointType.UINT16, //
+				"DC Power", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT, //
-				"DCW_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_3_D_C_W_H(new PointImpl(//
+				"DCW_SF")), //	
+		MODULE_3_D_C_W_H(new ScaledValuePoint(//
 				"S160_MODULE_3_D_C_W_H", //
 				"Module3Dcwh", //
-				"Module3Dcwh", //
-				"", //
-				PointType.ACC32, //
+				"Lifetime Energy", //
+				ValuePoint.Type.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT_HOURS, //
-				"DCWH_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_3_TMS(new PointImpl(//
+				"DCWH_SF")), //	
+		MODULE_3_TMS(new ValuePoint(//
 				"S160_MODULE_3_TMS", //
-				"Module3Tms", //
-				"Module3Tms", //
-				"", //
-				PointType.UINT32, //
+				"Module3Timestamp", //
+				"Timestamp", //
+				ValuePoint.Type.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.SECONDS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_3_TMP(new PointImpl(//
+				Unit.SECONDS)), //	
+		MODULE_3_TMP(new ValuePoint(//
 				"S160_MODULE_3_TEMP", //
 				"Module3Temp", //
-				"Module3Temp", //
-				"", //
-				PointType.INT16, //
+				"Temperature", //
+				ValuePoint.Type.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.DEGREE_CELSIUS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_3_D_C_ST(new PointImpl(//
+				Unit.DEGREE_CELSIUS)), //	
+		MODULE_3_D_C_ST(new EnumPoint(//
 				"S160_MODULE_3_OP_STATES", //
 				"Module3OpStates", //
-				"Module3OpStates", //
-				"", //
-				PointType.ENUM16, //
+				"Operating State", //
+				EnumPoint.Type.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
 				S160_DCSt.values())), //	
-		MODULE_3_EVT(new PointImpl(//
-				"S160_MODULE_3_EVENTS", //
-				"Module3Events", //
-				"Module3Events", //
-				"", //
-				PointType.BITFIELD32, //
+		MODULE_3_EVT(new BitFieldPoint(//
+				"S160_MODULE_3_EVT", //
+				"Evt", //
+				"Module Events", //
+				BitFieldPoint.Type.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				S160_DCEvt.values())), //	
-		
-
+				S160_Module_3_Evt.values())), //	
 		
 		
-		
-		
-		MODULE_4_I_D(new PointImpl(//
+		MODULE_4_I_D(new ValuePoint(//
 				"S160_MODULE_4_I_D", //
 				"Module4Id", //
-				"Module4Id", //
-				"", //
-				PointType.UINT16, //
+				"Input ID", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_4_I_D_STR(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_4_I_D_STR(new ValuePoint(//
 				"S160_MODULE_4_I_D_STR", //
 				"Module4IdStr", //
-				"Module4IdStr", //
-				"", //
-				PointType.STRING8, //
+				"Input ID String", //
+				ValuePoint.Type.STRING8, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_4_D_C_A(new PointImpl(//
+				Unit.NONE)), //	
+		MODULE_4_D_C_A(new ScaledValuePoint(//
 				"S160_MODULE_4_D_C_A", //
 				"Module4Dca", //
-				"Module4Dca", //
-				"", //
-				PointType.UINT16, //
+				"DC Current", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.AMPERE, //
-				"DCA_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_4_D_C_V(new PointImpl(//
+				"DCA_SF")), //	
+		MODULE_4_D_C_V(new ScaledValuePoint(//
 				"S160_MODULE_4_D_C_V", //
 				"Module4Dcv", //
-				"Module4Dcv", //
-				"", //
-				PointType.UINT16, //
+				"DC Voltage", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.VOLT, //
-				"DCV_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_4_D_C_W(new PointImpl(//
+				"DCV_SF")), //	
+		MODULE_4_D_C_W(new ScaledValuePoint(//
 				"S160_MODULE_4_D_C_W", //
 				"Module4Dcw", //
-				"Module4Dcw", //
-				"", //
-				PointType.UINT16, //
+				"DC Power", //
+				ValuePoint.Type.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT, //
-				"DCW_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_4_D_C_W_H(new PointImpl(//
+				"DCW_SF")), //	
+		MODULE_4_D_C_W_H(new ScaledValuePoint(//
 				"S160_MODULE_4_D_C_W_H", //
 				"Module4Dcwh", //
-				"Module4Dcwh", //
-				"", //
-				PointType.ACC32, //
+				"Lifetime Energy", //
+				ValuePoint.Type.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
 				Unit.WATT_HOURS, //
-				"DCWH_SF", //
-				new OptionsEnum[0])), //	
-		MODULE_4_TMS(new PointImpl(//
+				"DCWH_SF")), //	
+		MODULE_4_TMS(new ValuePoint(//
 				"S160_MODULE_4_TMS", //
-				"Module4Tms", //
-				"Module4Tms", //
-				"", //
-				PointType.UINT32, //
+				"Module4Timestamp", //
+				"Timestamp", //
+				ValuePoint.Type.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.SECONDS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_4_TMP(new PointImpl(//
+				Unit.SECONDS)), //	
+		MODULE_4_TMP(new ValuePoint(//
 				"S160_MODULE_4_TEMP", //
 				"Module4Temp", //
-				"Module4Temp", //
-				"", //
-				PointType.INT16, //
+				"Temperature", //
+				ValuePoint.Type.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.DEGREE_CELSIUS, //
-				null, //
-				new OptionsEnum[0])), //	
-		MODULE_4_D_C_ST(new PointImpl(//
+				Unit.DEGREE_CELSIUS)), //	
+		MODULE_4_D_C_ST(new EnumPoint(//
 				"S160_MODULE_4_OP_STATES", //
 				"Module4OpStates", //
-				"Module4OpStates", //
-				"", //
-				PointType.ENUM16, //
+				"Operating State", //
+				EnumPoint.Type.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
 				S160_DCSt.values())), //	
-		MODULE_4_EVT(new PointImpl(//
-				"S160_MODULE_4_EVENTS", //
-				"Module4Events", //
-				"Module4Events", //
-				"", //
-				PointType.BITFIELD32, //
+		MODULE_4_EVT(new BitFieldPoint(//
+				"S160_MODULE_4_EVT", //
+				"Evt", //
+				"Module Events", //
+				BitFieldPoint.Type.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				S160_DCEvt.values())) //	
+				S160_Module_4_Evt.values())), //	
+		
+		
 		; //
 
-		protected final PointImpl impl;
+		protected final Point point;
 
-		private S160(PointImpl impl) {
-			this.impl = impl;
+		private S160(Point point) {
+			this.point = point;
 		}
 
 		@Override
-		public PointImpl get() {
-			return this.impl;
+		public Point get() {
+			return this.point;
 		}
 	}
 	
@@ -607,54 +466,193 @@ public enum S160SunSpecModel implements SunSpecModel {
 		}
 	}
 	
-	public static enum S160_DCEvt implements OptionsEnum {
-		UNDEFINED(-1, "Undefined"), //
-		GROUND_FAULT(0, "Ground Fault"), //
-		INPUT_OVER_VOLTAGE(1, "Input over voltage"), //
-		RESERVED_2(2, "Reserved 2"), //
-		DC_DISCONNECT(3, "DC Disconnect"), //
-		RESERVED_4(4, "Reserved 4"), //
-		CABINET_OPEN(5, "Cabinet open"), //
-		MANUAL_SHUTDOWN(6, "Manual Shutdown"), //
-		OVER_TEMP(7, "Over Temp"), //
-		RESERVED_8(8, "Reserved 8"), //
-		RESERVED_9(9, "Reserved 9"), //
-		RESERVED_10(10, "Reserved 10"), //
-		RESERVED_11(11, "Reserved 11"), //
-		BLOWN_FUSE(12, "Blown Fuse"), //
-		UNDER_TEMP(13, "Unbder Temp"), //
-		MEMORY_LOSS(14, "Memory Loss"), //
-		ARC_DETECTION(15, "Arc Detection"), //
-		RESERVED_16(16, "Reserved 16"), //
-		RESERVED_17(17, "Reserved 17"), //
-		RESERVED_18(18, "Reserved 18"), //
-		RESERVED_19(19, "Reserved 19"), //
-		TEST_FAILED(20, "Test failed"), //
-		INPUT_UNDER_VOLTAGE(21, "Input under voltage"), //
-		INPUT_OVER_CURRENT(22, "Inout over current"); //
+	public static enum S160_Evt implements SunSpecBitPoint {
+		GROUND_FAULT(new BitPoint(0, "S160_EVT_GROUND_FAULT", "Ground Fault")), //
+		INPUT_OVER_VOLTAGE(new BitPoint(1, "S160_EVT_INPUT_OVER_VOLTAGE", "Input over voltage")), //
+		RESERVED_2(new BitPoint(2, "S160_EVT_RESERVED_2", "Reserved 2")), //
+		DC_DISCONNECT(new BitPoint(3, "S160_EVT_D_C_DISCONNECT", "DC Disconnect")), //
+		RESERVED_4(new BitPoint(4, "S160_EVT_RESERVED_4", "Reserved 4")), //
+		CABINET_OPEN(new BitPoint(5, "S160_EVT_CABINET_OPEN", "Cabinet open")), //
+		MANUAL_SHUTDOWN(new BitPoint(6, "S160_EVT_MANUAL_SHUTDOWN", "Manual Shutdown")), //
+		OVER_TEMP(new BitPoint(7, "S160_EVT_OVER_TEMP", "Over Temp, ")), //
+		RESERVED_8(new BitPoint(8, "S160_EVT_RESERVED_8", "Reserved 8")), //
+		RESERVED_9(new BitPoint(9, "S160_EVT_RESERVED_9", "Reserved 9")), //
+		RESERVED_10(new BitPoint(10, "S160_EVT_RESERVED_10", "Reserved 10")), //
+		RESERVED_11(new BitPoint(11, "S160_EVT_RESERVED_11", "Reserved 11")), //
+		BLOWN_FUSE(new BitPoint(12, "S160_EVT_BLOWN_FUSE", "Blown Fuse")), //
+		UNDER_TEMP(new BitPoint(13, "S160_EVT_UNDER_TEMP", "Under Temp")), //
+		MEMORY_LOSS(new BitPoint(14, "S160_EVT_MEMORY_LOSS", "Memory Loss")), //
+		ARC_DETECTION(new BitPoint(15, "S160_EVT_ARC_DETECTION", "Arc Detection")), //
+		RESERVED_16(new BitPoint(16, "S160_EVT_RESERVED_16", "Reserved 16")), //
+		RESERVED_17(new BitPoint(17, "S160_EVT_RESERVED_17", "Reserved 17")), //
+		RESERVED_18(new BitPoint(18, "S160_EVT_RESERVED_18", "Reserved 18")), //
+		RESERVED_19(new BitPoint(19, "S160_EVT_RESERVED_19", "Reserved 19")), //
+		TEST_FAILED(new BitPoint(20, "S160_EVT_TEST_FAILED", "Test failed")), //
+		INPUT_UNDER_VOLTAGE(new BitPoint(21, "S160_EVT_INPUT_UNDER_VOLTAGE", "Input under voltage")), //
+		INPUT_OVER_CURRENT(new BitPoint(22, "S160_EVT_INPUT_OVER_CURRENT", "Input over current")); //
 
 		
-		private final int value;
-		private final String name;
+		private final BitPoint point;
+
+		private S160_Evt(BitPoint point) {
+			this.point = point;
+		}
+
+		@Override
+		public BitPoint get() {
+			return this.point;
+		}
+	}
+	
+	public static enum S160_Module_1_Evt implements SunSpecBitPoint {
+		GROUND_FAULT(new BitPoint(0, "S160_MODULE_1_EVT_GROUND_FAULT", "Ground Fault")), //
+		INPUT_OVER_VOLTAGE(new BitPoint(1, "S160_MODULE_1_EVT_INPUT_OVER_VOLTAGE", "Input over voltage")), //
+		RESERVED_2(new BitPoint(2, "S160_MODULE_1_EVT_RESERVED_2", "Reserved 2")), //
+		DC_DISCONNECT(new BitPoint(3, "S160_MODULE_1_EVT_D_C_DISCONNECT", "DC Disconnect")), //
+		RESERVED_4(new BitPoint(4, "S160_MODULE_1_EVT_RESERVED_4", "Reserved 4")), //
+		CABINET_OPEN(new BitPoint(5, "S160_MODULE_1_EVT_CABINET_OPEN", "Cabinet open")), //
+		MANUAL_SHUTDOWN(new BitPoint(6, "S160_MODULE_1_EVT_MANUAL_SHUTDOWN", "Manual Shutdown")), //
+		OVER_TEMP(new BitPoint(7, "S160_MODULE_1_EVT_OVER_TEMP", "Over Temp, ")), //
+		RESERVED_8(new BitPoint(8, "S160_MODULE_1_EVT_RESERVED_8", "Reserved 8")), //
+		RESERVED_9(new BitPoint(9, "S160_MODULE_1_EVT_RESERVED_9", "Reserved 9")), //
+		RESERVED_10(new BitPoint(10, "S160_MODULE_1_EVT_RESERVED_10", "Reserved 10")), //
+		RESERVED_11(new BitPoint(11, "S160_MODULE_1_EVT_RESERVED_11", "Reserved 11")), //
+		BLOWN_FUSE(new BitPoint(12, "S160_MODULE_1_EVT_BLOWN_FUSE", "Blown Fuse")), //
+		UNDER_TEMP(new BitPoint(13, "S160_MODULE_1_EVT_UNDER_TEMP", "Under Temp")), //
+		MEMORY_LOSS(new BitPoint(14, "S160_MODULE_1_EVT_MEMORY_LOSS", "Memory Loss")), //
+		ARC_DETECTION(new BitPoint(15, "S160_MODULE_1_EVT_ARC_DETECTION", "Arc Detection")), //
+		RESERVED_16(new BitPoint(16, "S160_MODULE_1_EVT_RESERVED_16", "Reserved 16")), //
+		RESERVED_17(new BitPoint(17, "S160_MODULE_1_EVT_RESERVED_17", "Reserved 17")), //
+		RESERVED_18(new BitPoint(18, "S160_MODULE_1_EVT_RESERVED_18", "Reserved 18")), //
+		RESERVED_19(new BitPoint(19, "S160_MODULE_1_EVT_RESERVED_19", "Reserved 19")), //
+		TEST_FAILED(new BitPoint(20, "S160_MODULE_1_EVT_TEST_FAILED", "Test failed")), //
+		INPUT_UNDER_VOLTAGE(new BitPoint(21, "S160_MODULE_1_EVT_INPUT_UNDER_VOLTAGE", "Input under voltage")), //
+		INPUT_OVER_CURRENT(new BitPoint(22, "S160_MODULE_1_EVT_INPUT_OVER_CURRENT", "Input over current")); //
+
 		
-		private S160_DCEvt(int value, String name) {
-			this.value = value;
-			this.name = name;
+		private final BitPoint point;
+
+		private S160_Module_1_Evt(BitPoint point) {
+			this.point = point;
 		}
 
 		@Override
-		public int getValue() {
-			return this.value;
+		public BitPoint get() {
+			return this.point;
+		}
+	}
+	
+	public static enum S160_Module_2_Evt implements SunSpecBitPoint {
+		GROUND_FAULT(new BitPoint(0, "S160_MODULE_2_EVT_GROUND_FAULT", "Ground Fault")), //
+		INPUT_OVER_VOLTAGE(new BitPoint(1, "S160_MODULE_2_EVT_INPUT_OVER_VOLTAGE", "Input over voltage")), //
+		RESERVED_2(new BitPoint(2, "S160_MODULE_2_EVT_RESERVED_2", "Reserved 2")), //
+		DC_DISCONNECT(new BitPoint(3, "S160_MODULE_2_EVT_D_C_DISCONNECT", "DC Disconnect")), //
+		RESERVED_4(new BitPoint(4, "S160_MODULE_2_EVT_RESERVED_4", "Reserved 4")), //
+		CABINET_OPEN(new BitPoint(5, "S160_MODULE_2_EVT_CABINET_OPEN", "Cabinet open")), //
+		MANUAL_SHUTDOWN(new BitPoint(6, "S160_MODULE_2_EVT_MANUAL_SHUTDOWN", "Manual Shutdown")), //
+		OVER_TEMP(new BitPoint(7, "S160_MODULE_2_EVT_OVER_TEMP", "Over Temp, ")), //
+		RESERVED_8(new BitPoint(8, "S160_MODULE_2_EVT_RESERVED_8", "Reserved 8")), //
+		RESERVED_9(new BitPoint(9, "S160_MODULE_2_EVT_RESERVED_9", "Reserved 9")), //
+		RESERVED_10(new BitPoint(10, "S160_MODULE_2_EVT_RESERVED_10", "Reserved 10")), //
+		RESERVED_11(new BitPoint(11, "S160_MODULE_2_EVT_RESERVED_11", "Reserved 11")), //
+		BLOWN_FUSE(new BitPoint(12, "S160_MODULE_2_EVT_BLOWN_FUSE", "Blown Fuse")), //
+		UNDER_TEMP(new BitPoint(13, "S160_MODULE_2_EVT_UNDER_TEMP", "Under Temp")), //
+		MEMORY_LOSS(new BitPoint(14, "S160_MODULE_2_EVT_MEMORY_LOSS", "Memory Loss")), //
+		ARC_DETECTION(new BitPoint(15, "S160_MODULE_2_EVT_ARC_DETECTION", "Arc Detection")), //
+		RESERVED_16(new BitPoint(16, "S160_MODULE_2_EVT_RESERVED_16", "Reserved 16")), //
+		RESERVED_17(new BitPoint(17, "S160_MODULE_2_EVT_RESERVED_17", "Reserved 17")), //
+		RESERVED_18(new BitPoint(18, "S160_MODULE_2_EVT_RESERVED_18", "Reserved 18")), //
+		RESERVED_19(new BitPoint(19, "S160_MODULE_2_EVT_RESERVED_19", "Reserved 19")), //
+		TEST_FAILED(new BitPoint(20, "S160_MODULE_2_EVT_TEST_FAILED", "Test failed")), //
+		INPUT_UNDER_VOLTAGE(new BitPoint(21, "S160_MODULE_2_EVT_INPUT_UNDER_VOLTAGE", "Input under voltage")), //
+		INPUT_OVER_CURRENT(new BitPoint(22, "S160_MODULE_2_EVT_INPUT_OVER_CURRENT", "Input over current")); //
+
+		
+		private final BitPoint point;
+
+		private S160_Module_2_Evt(BitPoint point) {
+			this.point = point;
 		}
 
 		@Override
-		public String getName() {
-			return this.name;
+		public BitPoint get() {
+			return this.point;
+		}
+	}
+	
+	public static enum S160_Module_3_Evt implements SunSpecBitPoint {
+		GROUND_FAULT(new BitPoint(0, "S160_MODULE_3_EVT_GROUND_FAULT", "Ground Fault")), //
+		INPUT_OVER_VOLTAGE(new BitPoint(1, "S160_MODULE_3_EVT_INPUT_OVER_VOLTAGE", "Input over voltage")), //
+		RESERVED_2(new BitPoint(2, "S160_MODULE_3_EVT_RESERVED_2", "Reserved 2")), //
+		DC_DISCONNECT(new BitPoint(3, "S160_MODULE_3_EVT_D_C_DISCONNECT", "DC Disconnect")), //
+		RESERVED_4(new BitPoint(4, "S160_MODULE_3_EVT_RESERVED_4", "Reserved 4")), //
+		CABINET_OPEN(new BitPoint(5, "S160_MODULE_3_EVT_CABINET_OPEN", "Cabinet open")), //
+		MANUAL_SHUTDOWN(new BitPoint(6, "S160_MODULE_3_EVT_MANUAL_SHUTDOWN", "Manual Shutdown")), //
+		OVER_TEMP(new BitPoint(7, "S160_MODULE_3_EVT_OVER_TEMP", "Over Temp, ")), //
+		RESERVED_8(new BitPoint(8, "S160_MODULE_3_EVT_RESERVED_8", "Reserved 8")), //
+		RESERVED_9(new BitPoint(9, "S160_MODULE_3_EVT_RESERVED_9", "Reserved 9")), //
+		RESERVED_10(new BitPoint(10, "S160_MODULE_3_EVT_RESERVED_10", "Reserved 10")), //
+		RESERVED_11(new BitPoint(11, "S160_MODULE_3_EVT_RESERVED_11", "Reserved 11")), //
+		BLOWN_FUSE(new BitPoint(12, "S160_MODULE_3_EVT_BLOWN_FUSE", "Blown Fuse")), //
+		UNDER_TEMP(new BitPoint(13, "S160_MODULE_3_EVT_UNDER_TEMP", "Under Temp")), //
+		MEMORY_LOSS(new BitPoint(14, "S160_MODULE_3_EVT_MEMORY_LOSS", "Memory Loss")), //
+		ARC_DETECTION(new BitPoint(15, "S160_MODULE_3_EVT_ARC_DETECTION", "Arc Detection")), //
+		RESERVED_16(new BitPoint(16, "S160_MODULE_3_EVT_RESERVED_16", "Reserved 16")), //
+		RESERVED_17(new BitPoint(17, "S160_MODULE_3_EVT_RESERVED_17", "Reserved 17")), //
+		RESERVED_18(new BitPoint(18, "S160_MODULE_3_EVT_RESERVED_18", "Reserved 18")), //
+		RESERVED_19(new BitPoint(19, "S160_MODULE_3_EVT_RESERVED_19", "Reserved 19")), //
+		TEST_FAILED(new BitPoint(20, "S160_MODULE_3_EVT_TEST_FAILED", "Test failed")), //
+		INPUT_UNDER_VOLTAGE(new BitPoint(21, "S160_MODULE_3_EVT_INPUT_UNDER_VOLTAGE", "Input under voltage")), //
+		INPUT_OVER_CURRENT(new BitPoint(22, "S160_MODULE_3_EVT_INPUT_OVER_CURRENT", "Input over current")); //
+
+		
+		private final BitPoint point;
+
+		private S160_Module_3_Evt(BitPoint point) {
+			this.point = point;
 		}
 
 		@Override
-		public OptionsEnum getUndefined() {
-			return UNDEFINED;
+		public BitPoint get() {
+			return this.point;
+		}
+	}
+	
+	public static enum S160_Module_4_Evt implements SunSpecBitPoint {
+		GROUND_FAULT(new BitPoint(0, "S160_MODULE_4_EVT_GROUND_FAULT", "Ground Fault")), //
+		INPUT_OVER_VOLTAGE(new BitPoint(1, "S160_MODULE_4_EVT_INPUT_OVER_VOLTAGE", "Input over voltage")), //
+		RESERVED_2(new BitPoint(2, "S160_MODULE_4_EVT_RESERVED_2", "Reserved 2")), //
+		DC_DISCONNECT(new BitPoint(3, "S160_MODULE_4_EVT_D_C_DISCONNECT", "DC Disconnect")), //
+		RESERVED_4(new BitPoint(4, "S160_MODULE_4_EVT_RESERVED_4", "Reserved 4")), //
+		CABINET_OPEN(new BitPoint(5, "S160_MODULE_4_EVT_CABINET_OPEN", "Cabinet open")), //
+		MANUAL_SHUTDOWN(new BitPoint(6, "S160_MODULE_4_EVT_MANUAL_SHUTDOWN", "Manual Shutdown")), //
+		OVER_TEMP(new BitPoint(7, "S160_MODULE_4_EVT_OVER_TEMP", "Over Temp, ")), //
+		RESERVED_8(new BitPoint(8, "S160_MODULE_4_EVT_RESERVED_8", "Reserved 8")), //
+		RESERVED_9(new BitPoint(9, "S160_MODULE_4_EVT_RESERVED_9", "Reserved 9")), //
+		RESERVED_10(new BitPoint(10, "S160_MODULE_4_EVT_RESERVED_10", "Reserved 10")), //
+		RESERVED_11(new BitPoint(11, "S160_MODULE_4_EVT_RESERVED_11", "Reserved 11")), //
+		BLOWN_FUSE(new BitPoint(12, "S160_MODULE_4_EVT_BLOWN_FUSE", "Blown Fuse")), //
+		UNDER_TEMP(new BitPoint(13, "S160_MODULE_4_EVT_UNDER_TEMP", "Under Temp")), //
+		MEMORY_LOSS(new BitPoint(14, "S160_MODULE_4_EVT_MEMORY_LOSS", "Memory Loss")), //
+		ARC_DETECTION(new BitPoint(15, "S160_MODULE_4_EVT_ARC_DETECTION", "Arc Detection")), //
+		RESERVED_16(new BitPoint(16, "S160_MODULE_4_EVT_RESERVED_16", "Reserved 16")), //
+		RESERVED_17(new BitPoint(17, "S160_MODULE_4_EVT_RESERVED_17", "Reserved 17")), //
+		RESERVED_18(new BitPoint(18, "S160_MODULE_4_EVT_RESERVED_18", "Reserved 18")), //
+		RESERVED_19(new BitPoint(19, "S160_MODULE_4_EVT_RESERVED_19", "Reserved 19")), //
+		TEST_FAILED(new BitPoint(20, "S160_MODULE_4_EVT_TEST_FAILED", "Test failed")), //
+		INPUT_UNDER_VOLTAGE(new BitPoint(21, "S160_MODULE_4_EVT_INPUT_UNDER_VOLTAGE", "Input under voltage")), //
+		INPUT_OVER_CURRENT(new BitPoint(22, "S160_MODULE_4_EVT_INPUT_OVER_CURRENT", "Input over current")); //
+
+		
+		private final BitPoint point;
+
+		private S160_Module_4_Evt(BitPoint point) {
+			this.point = point;
+		}
+
+		@Override
+		public BitPoint get() {
+			return this.point;
 		}
 	}
 	

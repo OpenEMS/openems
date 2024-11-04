@@ -1,6 +1,7 @@
 package io.openems.edge.ess.sma.stpxx3se.batteryinverter;
 
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
@@ -11,6 +12,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.sma.enums.SetControlMode;
 
 public interface BatteryInverterSmaStpSe extends HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter,
 		SymmetricBatteryInverter, StartStoppable, ModbusComponent, OpenemsComponent {
@@ -18,7 +20,15 @@ public interface BatteryInverterSmaStpSe extends HybridManagedSymmetricBatteryIn
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		INITIALIZING(Doc.of(Level.WARNING) //
-				.text("Initializing Sunspec Protocol")) //
+				.text("Initializing Sunspec Protocol")), //
+		WRONG_BATTERY(Doc.of(Level.FAULT) //
+				.text("Failed to run inverter. Battery is not SMA battery.")), //
+		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
+				.text("SMART mode does not work correctly with active PID filter")), //
+		DEBUG_CONTROL_MODE(Doc.of(SetControlMode.values()) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		CONFIGURED_CONTROL_MODE(Doc.of(ControlMode.values()) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		;
 
 		private final Doc doc;
@@ -51,6 +61,24 @@ public interface BatteryInverterSmaStpSe extends HybridManagedSymmetricBatteryIn
 	 */
 	public default void _setInitializing(boolean value) {
 		this.getInitializingChannel().setNextValue(value);
+	}
+	public default StateChannel getWrongBatteryChannel() {
+		return this.channel(ChannelId.WRONG_BATTERY);
+	}
+	public default void _setWrongBattery(boolean value) {
+		this.getWrongBatteryChannel().setNextValue(value);
+	}
+	public default Channel<SetControlMode> getDebugControlModeChannel() {
+		return this.channel(ChannelId.DEBUG_CONTROL_MODE);
+	}
+	public default void _setDebugControlMode(SetControlMode value) {
+		this.getDebugControlModeChannel().setNextValue(value);
+	}
+	public default Channel<ControlMode> getConfiguredControlModeChannel() {
+		return this.channel(ChannelId.CONFIGURED_CONTROL_MODE);
+	}
+	public default void _setConfiguredControlMode(ControlMode value) {
+		this.getConfiguredControlModeChannel().setNextValue(value);
 	}
  
 	/**

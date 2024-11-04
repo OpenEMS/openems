@@ -1,6 +1,7 @@
 package io.openems.edge.ess.sma.stpxx3se.batteryinverter;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -31,12 +32,15 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.sma.stpxx3se.battery.SmaBattery;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -44,7 +48,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Sma.STP-SE.Inverter", immediate = true, //
+		name = "Ess.Sma.StpSe.Inverter", immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
@@ -60,13 +64,19 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 			.put(DefaultSunSpecModel.S_120, Priority.LOW) // Nameplate
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) // Basic Settings
 			.put(DefaultSunSpecModel.S_122, Priority.LOW) // Measurement Status
-			// .put(DefaultSunSpecModel.S_123, Priority.LOW) // Immediate Control PV 
+			// .put(DefaultSunSpecModel.S_123, Priority.LOW) // Immediate Control PV
 			// .put(DefaultSunSpecModel.S_64870, Priority.HIGH) // Vendor specific
 			.put(S160SunSpecModel.S_160, Priority.HIGH) // Multiple MPPT Inverter Extension Model
 			.build();
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Reference
+	private Sum sum;
+
+	@Reference
+	protected Power power;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -80,7 +90,11 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY);
 
+	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler(this);
+
 	private Config config;
+
+	private boolean firstRun = true;
 
 	public BatteryInverterSmaStpSeImpl() throws OpenemsException {
 		super(//
@@ -102,13 +116,14 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
 			return;
 		}
 		this._setGridMode(GridMode.ON_GRID);
+		this._setConfiguredControlMode(config.controlMode());
 		this._setInitializing(true);
 	}
 
@@ -122,36 +137,80 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	protected void onSunSpecInitializationCompleted() {
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
-		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER,
-				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S103.W);
-
 		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER,
 				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S103.V_AR);
 
 		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
 				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S121.W_MAX);
 
-
-		this.getActivePowerChannel().onSetNextValue(val -> {		
-				this._setDcDischargePower(TypeUtils.subtract(val.get(), this.getDcPvPower()));
-		});
-
+		this.installListeners();
 		this._setInitializing(false);
 	}
 
 	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 		this.calculateEnergy();
-		if (this.config.readOnly()) {
-			return;
-		}
+		this._setWrongBattery(!(battery instanceof SmaBattery));
 		if (battery instanceof SmaBattery sma) {
-			sma.applyPower(setActivePower, setReactivePower);
-			return;
+			if (this.firstRun) {
+				this.installBatteryListeners(sma);
+				this.firstRun = false;
+			}
+			this.applyPowerHandler.apply(sma, setActivePower, setReactivePower, this.config.controlMode(),
+					this.sum.getGridActivePower(), this.getActivePower());
 		}
-		this.logError(this.log, "Failed to run inverter. Battery is not SMA battery.");
 	}
 
+	private void installBatteryListeners(SmaBattery sma) {
+		final Consumer<Value<Integer>> calculate = ignore -> {
+			this._setDcDischargePower(TypeUtils.subtract(//
+					sma.getCurBatDschChannel().getNextValue().get(), //
+					sma.getCurBatChaChannel().getNextValue().get())); //
+		};
+		sma.getCurBatChaChannel().onSetNextValue(calculate);
+		sma.getCurBatDschChannel().onSetNextValue(calculate);
+	}
+
+	private void installListeners() {
+		// NOTE: Twice the same callback needed, as we have to install it on Integer-
+		// and Float-Channels
+		final Consumer<Value<Integer>> calculate = ignore -> {
+			Integer p1;
+			Integer p2;
+			try {
+				p1 = this.getModule1DcwChannel().getNextValue() //
+						.orElse(0F).intValue();
+				p2 = this.getModule2DcwChannel().getNextValue() //
+						.orElse(0F).intValue();
+			} catch (OpenemsException e) {
+				return;
+			}
+			this._setActivePower(TypeUtils.sum(//
+					p1, p2, this.getDcDischargePowerChannel().getNextValue().get())); //
+		};
+		final Consumer<Value<Float>> calculateF = ignore -> {
+			Integer p1;
+			Integer p2;
+			try {
+				p1 = this.getModule1DcwChannel().getNextValue() //
+						.orElse(0F).intValue();
+				p2 = this.getModule2DcwChannel().getNextValue() //
+						.orElse(0F).intValue();
+			} catch (OpenemsException e) {
+				return;
+			}
+			this._setActivePower(TypeUtils.sum(//
+					p1, p2, this.getDcDischargePowerChannel().getNextValue().get())); //
+		};
+		this.getDcDischargePowerChannel().onSetNextValue(calculate);
+		try {
+			this.getModule1DcwChannel().onSetNextValue(calculateF);
+			this.getModule2DcwChannel().onSetNextValue(calculateF);
+		} catch (OpenemsException e) {
+			// We should never land here
+			;
+		}
+	}
 
 	/**
 	 * Calculate the Energy values from ActivePower.
@@ -191,8 +250,7 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 
 	@Override
 	public Integer getSurplusPower() {
-		// TODO Implement properly
-		return null;
+		return 0;
 	}
 
 	@Override
@@ -214,8 +272,11 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	public Integer getDcPvPower() {
 		try {
 			return TypeUtils.sum(//
-					this.getModule1DcwChannel().getNextValue().get().intValue(), //
-					this.getModule2DcwChannel().getNextValue().get().intValue());
+					// TODO Catch null more elegantly maybe
+					this.getModule1DcwChannel().value() //
+							.orElse(0F).intValue(), //
+					this.getModule2DcwChannel().value() //
+							.orElse(0F).intValue());
 		} catch (OpenemsException e) {
 			return null;
 		}
@@ -255,7 +316,7 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	public Channel<Float> getModule2DcvChannel() throws OpenemsException {
 		return this.getSunSpecChannelOrError(S160SunSpecModel.S160.MODULE_2_D_C_V);
 	}
-	
+
 	@Override
 	public boolean isInitialized() {
 		return this.isSunSpecInitializationCompleted();
