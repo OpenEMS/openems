@@ -9,7 +9,6 @@ import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
-import io.openems.edge.levl.controller.ControllerEssBalancingImpl;
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class BalancingImplTest {
@@ -147,7 +146,6 @@ public class BalancingImplTest {
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
-						//TODO: Prüfen ob richtiger Channel. Wurde bisher genutzt, aber ggf. nicht korrekt, da "DEBUG"?
 						.input(DEBUG_SET_ACTIVE_POWER, 30000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 30000)
 						.output(LEVL_PUC_BATTERY_POWER, 20000L)
@@ -274,9 +272,8 @@ public class BalancingImplTest {
 						.output(LEVL_SOC, -275000L));
 	}
 
-	// Physical SoC is 90%, Levl SoC is -10%, means PUC must not charge because Levl reserved the remaining 10%. 
 	@Test
-	public void testWithReservedCapacity() throws Exception {
+	public void testWithReservedChargeCapacityLevlChargesPucMustNotCharge() throws Exception {
 		new ControllerTest(new ControllerEssBalancingImpl())
 				.addReference("cm", new DummyConfigurationAdmin())
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
@@ -292,95 +289,442 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						.input(ESS_SOC, 90) // 1.620.000.000 Ws
-						.input(METER_ACTIVE_POWER, -20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000)
-						.input(LEVL_SOC, -180_000_000)
+						// following values will be kept for all cycles
 						.input(LEVL_SELL_TO_GRID_LIMIT, -800000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 800000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
-						.input(DEBUG_SET_ACTIVE_POWER, -500000)
-						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
-						.output(LEVL_REMAINING_LEVL_ENERGY, -9_500_000L)
-						.output(LEVL_SOC, -179_600_000L))
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000.000 Ws
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -20_000) // grid power /wo Levl --> sell to grid
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000) 
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(DEBUG_SET_ACTIVE_POWER, -500_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
+						.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_500_000L) // 500,000 Ws should be realized, therefore 9,500,000 Ws are remaining
+						.output(LEVL_SOC, -179_600_000L))  // Levl soc increases by 500,000 Ws * 80% efficiency = 400,000 Ws
 				.next(new TestCase()
-						.input(ESS_SOC, 90) // 1.620.000.000 Ws, aber eigentlich 1.620.400.000 Ws => TODO: dadurch darf der PUC wieder was machen, obwohl eigentlich noch immer alles für Levl reserviert ist.
-						.input(ESS_ACTIVE_POWER, -500000)
-						.input(METER_ACTIVE_POWER, 480000)
-						.input(DEBUG_SET_ACTIVE_POWER, -500000)
-						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
-						.output(LEVL_REMAINING_LEVL_ENERGY, -9_000_000L)
-						.output(LEVL_SOC, -179_200_000L))
-				.next(new TestCase()
-						.input(ESS_ACTIVE_POWER, -500000)
-						.input(METER_ACTIVE_POWER, 480000)
-						.input(DEBUG_SET_ACTIVE_POWER, -500000)
-						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
-						.output(LEVL_REMAINING_LEVL_ENERGY, -8_500_000L)
-						.output(LEVL_SOC, -178_800_000L));
+						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000,000 Ws | should be 1,620,400,000 Ws but only full percent values can be read
+						.input(ESS_ACTIVE_POWER, -500_000)
+						.input(METER_ACTIVE_POWER, 480_000) // grid power ceteris paribus w/ Levl
+						.input(DEBUG_SET_ACTIVE_POWER, -500_000) 
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
+						.output(LEVL_PUC_BATTERY_POWER, -20_000L) // since reserved capacity decreased by 400,000 Ws in the previous cycle but ess soc value remains the same, puc can still charge
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) // 480,000 Ws can be realized for Levl, therefore 9,020,00 are remaining
+						.output(LEVL_SOC, -179_216_000L)); // Levl soc increases by 480,000 Ws * 80% efficiency = 384,000 Ws
 	}
 	
 	@Test
-	public void testWithLevlChargeRequestAndReservedCapacity() throws Exception {
+	public void testWithReservedChargeCapacityLevlDischargesPucMustNotCharge() throws Exception {
 		new ControllerTest(new ControllerEssBalancingImpl())
-			.addReference("cm", new DummyConfigurationAdmin())
-			.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
-					.setPower(new DummyPower(0.3, 0.3, 0.1))
-					.withCapacity(100) // = 360,000 Ws
-					.withMaxApparentPower(4_500)) // 3.600 / 0.8
-			.addReference("meter", new DummyElectricityMeter(METER_ID))
-			.addReference("cycle", new DummyCycle(1000))
-			.addReference("currentRequest", new LevlControlRequest(0, 100))
-			.activate(MyConfig.create()
-					.setId(CTRL_ID)
-					.setEssId(ESS_ID)
-					.setMeterId(METER_ID)
-					.build())
-			.next(new TestCase()
-					// following values will be kept for all cycles
-					.input(LEVL_SELL_TO_GRID_LIMIT, -800000)
-					.input(LEVL_BUY_FROM_GRID_LIMIT, 800000)
-					.input(SOC_LOWER_BOUND_LEVL, 0)
-					.input(SOC_UPPER_BOUND_LEVL, 100)
-					.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
-					.input(LEVL_EFFICIENCY, 80.0)
-					// following values have to be updated each cycle
-					.input(ESS_SOC, 90) // 90% = 90 Wh = 324,000 Ws
-					.input(ESS_ACTIVE_POWER, 0)
-					.input(METER_ACTIVE_POWER, -10_000)  // grid power /wo Levl
-					.input(LEVL_REMAINING_LEVL_ENERGY, -28_800) // = 8 Wh
-					.input(LEVL_SOC, -36_000) // = 10 Wh = 10% of overall capacity
-					.input(DEBUG_SET_ACTIVE_POWER, -4_500)
-					.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -4_500) // max power of 4,500 W should be applied
-					.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
-					.output(LEVL_REMAINING_LEVL_ENERGY, -24_300L) // 4,500 Ws should be realized, therefore  24,300 Ws are remaining
-					.output(LEVL_SOC, -32_400L)) // Levl soc rises by 4,500 Ws * 80% efficiency = 3.600 Ws = 1 Wh
-			.next(new TestCase()
-					.input(ESS_SOC, 91) // 90 Wh + 1 Wh = 91 Wh = 91%
-					.input(ESS_ACTIVE_POWER, -4_500)
-					.input(METER_ACTIVE_POWER, -5_500) // grid power ceteris paribus w/ Levl
-					.input(DEBUG_SET_ACTIVE_POWER, -4_500)
-					.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -4_500)
-					.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is still completely reserved for Levl
-					.output(LEVL_REMAINING_LEVL_ENERGY, -19_800L) // 4,500 Ws should be realized, therefore  19,800 Ws are remaining
-					.output(LEVL_SOC, -28_800L)) // Levl soc rises by 4,500 Ws * 80% efficiency = 3.600 Ws = 1 Wh
-			.next(new TestCase()
-					.input(ESS_SOC, 92) // 91 Wh + 1 Wh = 92 Wh = 92%
-					.input(ESS_ACTIVE_POWER, -4_500)
-					.input(METER_ACTIVE_POWER, -5_500)
-					.input(DEBUG_SET_ACTIVE_POWER, -4_500)
-					.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -4_500)
-					.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is still completely reserved for Levl
-					.output(LEVL_REMAINING_LEVL_ENERGY, -15_300L) // 4,500 Ws should be realized, therefore  15,300 Ws are remaining
-					.output(LEVL_SOC, -25_200L)); // Levl soc rises by 4,500 Ws * 80% efficiency = 3.600 Ws = 1 Wh
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500_000) // 1,800,000,000 Ws
+						.withMaxApparentPower(500_000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase()
+						// following values will be kept for all cycles
+						.input(LEVL_SELL_TO_GRID_LIMIT, -800_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 800_000)
+						.input(SOC_LOWER_BOUND_LEVL, 0)
+						.input(SOC_UPPER_BOUND_LEVL, 100)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
+						.input(LEVL_EFFICIENCY, 80.0)
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000,000 Ws
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -20_000) // grid power /wo Levl --> sell to grid
+						.input(LEVL_REMAINING_LEVL_ENERGY, 10_000_000)
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(DEBUG_SET_ACTIVE_POWER, 500_000) // max discharge power of 500,000 W should be applied
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 500_000)
+						.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
+						.output(LEVL_REMAINING_LEVL_ENERGY, 9_500_000L) // 500,000 Ws should be realized, therefore 9,500,000 Ws are remaining
+						.output(LEVL_SOC, -180_625_000L)) // Levl soc decreases by 500,000 Ws / 80% efficiency = 625,000 Ws
+				.next(new TestCase()
+						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000,000 Ws | should be 1,619,375,000 Ws but only full percent values can be read
+						.input(ESS_ACTIVE_POWER, 500_000)
+						.input(METER_ACTIVE_POWER, -520_000) // grid power ceteris paribus w/ Levl
+						.input(DEBUG_SET_ACTIVE_POWER, 500_000) // max discharge power of 500,000 W should be applied
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 500_000)
+						.output(LEVL_PUC_BATTERY_POWER, 0L) // // puc should not do anything because capacity is still completely reserved for Levl
+						.output(LEVL_REMAINING_LEVL_ENERGY, 9_000_000L) // 500,000 Ws should be realized, therefore 9,000,000 Ws are remaining
+						.output(LEVL_SOC, -181_250_000L)); // Levl soc decreases by 500,000 Ws / 80% efficiency = 625,000 Ws
+	}
+	
+	
+	@Test
+	public void testWithReservedChargeCapacityLevlChargesPucMayCharge() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500_000) // 1,800,000,000 Ws
+						.withMaxApparentPower(500_000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase()
+						// following values will be kept for all cycles
+						.input(LEVL_SELL_TO_GRID_LIMIT, -800_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 800_000)
+						.input(SOC_LOWER_BOUND_LEVL, 0)
+						.input(SOC_UPPER_BOUND_LEVL, 100)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
+						.input(LEVL_EFFICIENCY, 80.0)
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 85) // 85% = 425,000 Wh = 1,530,000,000 Ws
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -10_000) // grid power /wo Levl --> sell to grid
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000)
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
+						.output(LEVL_PUC_BATTERY_POWER, -10_000L) // puc should charge 10,000 Ws since 5% capacity is available
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_510_000L) // 490,000 Ws should be realized, therefore 9,510,000 Ws are remaining
+						.output(LEVL_SOC, -179_608_000L)) // Levl soc increases by 490,000 Ws * 80% efficiency = 392,000 Ws
+				.next(new TestCase()
+						.input(ESS_SOC, 85) // 85% = 425,000 Wh = 1,530,000,000 Ws | should be 1,530,400,000 Ws but only full percent values can be read
+						.input(ESS_ACTIVE_POWER, -500_000)
+						.input(METER_ACTIVE_POWER, 490_000) // grid power ceteris paribus w/ Levl
+						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
+						.output(LEVL_PUC_BATTERY_POWER, -10_000L) // puc should still charge 10,000 Ws
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) // 490,000 Ws should be realized, therefore 9,020,000 Ws are remaining
+						.output(LEVL_SOC, -179_216_000L)); // Levl soc increases by 490,000 Ws * 80% efficiency = 392,000 Ws
+	}
+	
+	@Test
+	public void testWithReservedChargeCapacityLevlChargesPucMayDischarge() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500_000) // 1,800,000,000 Ws
+						.withMaxApparentPower(500_000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase()
+						// following values will be kept for all cycles
+						.input(LEVL_SELL_TO_GRID_LIMIT, -800_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 800_000)
+						.input(SOC_LOWER_BOUND_LEVL, 0)
+						.input(SOC_UPPER_BOUND_LEVL, 100)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
+						.input(LEVL_EFFICIENCY, 80.0)
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 50) // 50% = 250,000 Wh = 900,000,000 Ws
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 10_000) // grid power /wo Levl --> buy from grid
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000)
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
+						.output(LEVL_PUC_BATTERY_POWER, 10_000L) // puc should discharge 10,000 Ws since Levl has reserved charge not discharge energy
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_490_000L) // 510,000 Ws can be realized, because puc discharges 10,000 Ws
+						.output(LEVL_SOC, -179_592_000L)) // Levl soc increases by 510,000 Ws * 80% efficiency = 408,000 Ws
+				.next(new TestCase()
+						.input(ESS_SOC, 50) // 50% = 250,000 Wh = 900,000,000 Ws | should be 900,400,000 Ws but only full percent values can be read
+						.input(ESS_ACTIVE_POWER, -500_000)
+						.input(METER_ACTIVE_POWER, 510_000) // grid power ceteris paribus w/ Levl
+						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
+						.output(LEVL_PUC_BATTERY_POWER, 10_000L) // puc should still charge 10,000 Ws
+						.output(LEVL_REMAINING_LEVL_ENERGY, -8_980_000L) // 510,000 Ws can be realized again, therefore 8,980,000 Ws are remaining
+						.output(LEVL_SOC, -179_184_000L)); // Levl soc increases by 510,000 Ws * 80% efficiency = 408,000 Ws
+	}
+	
+	
+	@Test
+	public void testInfluenceSellToGrid_PucSellToGrid_LevlChargeForbidden() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(500000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase("puc sell to grid, levl charge not allowed")
+						.input(ESS_SOC, 90)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -20000)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10000L)
+						.input(LEVL_SOC, -180_000_000)
+						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
+						.input(SOC_LOWER_BOUND_LEVL, 0)
+						.input(SOC_UPPER_BOUND_LEVL, 100)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
+						.input(LEVL_EFFICIENCY, 80.0)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -10000L)
+						.output(LEVL_SOC, -180_000_000L));
+	}
+	
+	@Test
+	public void testInfluenceSellToGrid_PucSellToGrid_LevlDischargeForbidden() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(500000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase("puc sell to grid, levl discharge not allowed")
+						.input(ESS_SOC, 90)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -20000)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 10000L)
+						.input(LEVL_SOC, -180_000_000)
+						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
+						.input(SOC_LOWER_BOUND_LEVL, 0)
+						.input(SOC_UPPER_BOUND_LEVL, 100)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
+						.input(LEVL_EFFICIENCY, 80.0)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 10000L)
+						.output(LEVL_SOC, -180_000_000L));
 	}
 
+	@Test
+	public void testInfluenceSellToGrid_PucBuyFromGrid_LevlChargeAllowed() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(500000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase("puc buy from grid, levl charge is allowed")
+						.input(ESS_SOC, 0)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 20000)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10000L)
+						.input(LEVL_SOC, 0)
+						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
+						.input(SOC_LOWER_BOUND_LEVL, 0)
+						.input(SOC_UPPER_BOUND_LEVL, 100)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
+						.input(LEVL_EFFICIENCY, 80.0)
+						.input(DEBUG_SET_ACTIVE_POWER, -10000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -10000)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
+						.output(LEVL_SOC, 8000L));
+	}	
+	
+	@Test
+	public void testInfluenceSellToGrid_PucBuyFromGrid_LevlDischargeLimited() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(500000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase("puc buy from grid, levl discharge is limited to grid limit 0")
+						.input(ESS_SOC, 0)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 20000)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10000L)
+						.input(LEVL_SOC, 0)
+						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
+						.input(SOC_LOWER_BOUND_LEVL, 0)
+						.input(SOC_UPPER_BOUND_LEVL, 100)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
+						.input(LEVL_EFFICIENCY, 100.0)
+						.input(DEBUG_SET_ACTIVE_POWER, -10000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -10000)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
+						.output(LEVL_SOC, 10000L));
+	}
+	
+	@Test
+	public void testUpperSocLimit() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(20_000_000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase()
+						.input(ESS_SOC, 79)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -100_000_000)
+						.input(LEVL_SOC, 0)
+						.input(LEVL_SELL_TO_GRID_LIMIT, -40_000_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 40_000_000)
+						.input(SOC_LOWER_BOUND_LEVL, 20)
+						.input(SOC_UPPER_BOUND_LEVL, 80)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
+						.input(LEVL_EFFICIENCY, 100.0)
+						.input(DEBUG_SET_ACTIVE_POWER, -18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -18_000_000)
+						.output(LEVL_PUC_BATTERY_POWER, -0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -82_000_000L)
+						.output(LEVL_SOC, 18_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 80)
+						.input(ESS_ACTIVE_POWER, -18_000_000)
+						.input(METER_ACTIVE_POWER, 18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -82_000_000L)
+						.output(LEVL_SOC, 18_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 80)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -82_000_000L)
+						.output(LEVL_SOC, 18_000_000L));
+	}
+
+	@Test
+	public void testLowerSocLimit() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(20_000_000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase()
+						.input(ESS_SOC, 21)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 100_000_000)
+						.input(LEVL_SOC, 0)
+						.input(LEVL_SELL_TO_GRID_LIMIT, -40_000_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 40_000_000)
+						.input(SOC_LOWER_BOUND_LEVL, 20)
+						.input(SOC_UPPER_BOUND_LEVL, 80)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
+						.input(LEVL_EFFICIENCY, 100.0)
+						.input(DEBUG_SET_ACTIVE_POWER, 18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 18_000_000)
+						.output(LEVL_PUC_BATTERY_POWER, -0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 82_000_000L)
+						.output(LEVL_SOC, -18_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 20)
+						.input(ESS_ACTIVE_POWER, 18_000_000)
+						.input(METER_ACTIVE_POWER, -18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 82_000_000L)
+						.output(LEVL_SOC, -18_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 20)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 82_000_000L)
+						.output(LEVL_SOC, -18_000_000L));
+	}
+	
+	// Test cases EVO
+	
+	// x: charge request
+	// x: discharge request
+	// x: avoid integer overflow with large request
+	
+	// x: reserved charge energy, levl charges, puc should not charge
+	// x: reserved charge energy, levl discharges, puc should not charge
+	
+	// x: reserved charge energy, puc may charge
+	// x: reserved charge energy, puc may discharge
+	
+	// x: charge request, forbid influence sell to grid
+	// x: discharge request, forbid influence sell to grid
+	
+	// update levl soc => nicht umsetzbar, da wir keinen Request simulieren können
+	
+	// x respect grid limits => integer overflow x sell to grid limit
+	// respect lower soc limit
+	// x: respect upper soc limit
+	
 	
 	// Erläuterung: Channels die innerhalb des Controllers sowie in einem Testcase gesetzt werden, bleiben erhalten.
 	// Channels die jedoch im Anschluss durch andere Controller gesetzt werden, werden nicht gesetzt. Ebenso ändert sich z.B. nicht die ESS_ACTIVE_POWER zwischen den Zyklen, da das ESS lediglich ein Mock ist.

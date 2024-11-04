@@ -194,7 +194,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		long physicalSocWs = Math.round((physicalSoc / 100.0) * essCapacityWs);
 
 		// primary use case (puc) calculation
-		long pucSocWs = physicalSocWs - levlSocWs;
+		long pucSocWs = calculatePucSoc(levlSocWs, physicalSocWs);
 		int pucBatteryPower = calculatePucBatteryPower(cycleTimeS, gridPower, essPower,
 				essCapacityWs, pucSocWs, minEssPower, maxEssPower, efficiency);
 		int pucGridPower = gridPower + essPower - pucBatteryPower;
@@ -211,6 +211,15 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this._setPucBatteryPower(Long.valueOf(pucBatteryPower));
 		long batteryPowerW = pucBatteryPower + levlPowerW;
 		return (int) batteryPowerW;
+	}
+	
+	protected long calculatePucSoc(long levlSocWs, long physicalSocWs) {
+		var pucSoc = physicalSocWs - levlSocWs;
+		
+		if (pucSoc < 0) {
+			return 0;
+		}
+		return pucSoc;
 	}
 
 	/**
@@ -256,6 +265,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 				efficiency);
 		long powerUpperBound = Efficiency.unapply(Math.round(dischargeEnergyUpperBoundWs / cycleTimeS),
 				efficiency);
+				
+		if (powerLowerBound > 0) {
+			powerLowerBound = 0;
+		}
+		if (powerUpperBound < 0) {
+			powerUpperBound = 0;
+		}
 
 		return (int) Math.max(Math.min(pucPower, powerUpperBound), powerLowerBound);
 	}
@@ -283,10 +299,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			double efficiency, double cycleTimeS) {
 		long levlSocLowerBoundWs = Math.round(socLowerBoundLevlPercent / 100.0 * essCapacityWs) - nextPucSocWs;
 		long levlSocUpperBoundWs = Math.round(socUpperBoundLevlPercent / 100.0 * essCapacityWs) - nextPucSocWs;
-		if (levlSocLowerBoundWs > 0)
+		
+		if (levlSocLowerBoundWs > 0) {
 			levlSocLowerBoundWs = 0;
-		if (levlSocUpperBoundWs < 0)
+		}
+		if (levlSocUpperBoundWs < 0) {
 			levlSocUpperBoundWs = 0;
+		}
 
 		long levlDischargeEnergyLowerBoundWs = -(levlSocUpperBoundWs - levlSocWs);
 		long levlDischargeEnergyUpperBoundWs = -(levlSocLowerBoundWs - levlSocWs);
