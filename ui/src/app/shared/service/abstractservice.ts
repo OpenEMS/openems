@@ -1,12 +1,13 @@
-import { ErrorHandler } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
-import { Edge } from '../edge/edge';
-import { EdgeConfig } from '../edge/edgeconfig';
-import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress } from '../shared';
-import { Language } from '../type/language';
-import { DefaultTypes } from './defaulttypes';
+// @ts-strict-ignore
+import { ErrorHandler } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
+import { Edge } from "../components/edge/edge";
+import { EdgeConfig } from "../components/edge/edgeconfig";
+import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress } from "../shared";
+import { Language } from "../type/language";
+import { DefaultTypes } from "./defaulttypes";
 
 export abstract class AbstractService extends ErrorHandler {
 
@@ -32,6 +33,8 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Parses the route params and sets the current edge
+   *
+   * @deprecated use the angular routing module to set page title, getCurrentEdge for retrieving the edge
   */
   abstract setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge>;
 
@@ -97,6 +100,6 @@ export abstract class AbstractService extends ErrorHandler {
    */
   abstract stopSpinner(selector: string);
 
-  abstract toast(message: string, level: 'success' | 'warning' | 'danger');
+  abstract toast(message: string, level: "success" | "warning" | "danger");
 
 }

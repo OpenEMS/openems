@@ -75,7 +75,7 @@ public class WriteHandler implements Runnable {
 			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
 
 			// Apply Charge Power
-			if (this.lastTarget != 0 || this.parent.getChargePower().orElse(0) != 0) {
+			if (this.lastTarget != 0 || this.parent.getActivePower().orElse(0) != 0) {
 				this.parent.getChargeStateHandler().applyNewChargeState(ChargeState.DECREASING);
 				this.applyChargePower(0);
 			}
@@ -128,7 +128,7 @@ public class WriteHandler implements Runnable {
 	 * 
 	 * @param power Power that should be applied
 	 */
-	private void applyChargePower(int power) {
+	protected void applyChargePower(int power) {
 		try {
 
 			boolean sent = false;
@@ -248,5 +248,12 @@ public class WriteHandler implements Runnable {
 		if (this.parent.getConfiguredDebugMode()) {
 			OpenemsComponent.logInfo(this.parent, this.log, message);
 		}
+	}
+
+	/**
+	 * Used for async applyChargePower calls.
+	 * 
+	 */
+	public void cancelChargePower() {
 	}
 }

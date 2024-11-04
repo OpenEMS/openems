@@ -18,6 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -31,7 +32,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -78,7 +78,7 @@ public class PhoenixContactMeterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x8006, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(0x8006) //

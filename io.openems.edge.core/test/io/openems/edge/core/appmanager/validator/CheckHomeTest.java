@@ -35,24 +35,23 @@ public class CheckHomeTest {
 					Apps.feneconHome30(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
-		this.checkHome = this.appManagerTestBundle.checkablesBundle.checkHome();
+		this.checkHome = this.appManagerTestBundle.addCheckable(CheckHome.COMPONENT_NAME,
+				t -> new CheckHome(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
 	}
 
 	@Test
 	public void testCheck() {
-		final var checkHome = this.appManagerTestBundle.checkablesBundle.checkHome();
-		assertFalse(checkHome.check());
+		assertFalse(this.checkHome.check());
 		assertFalse(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
 
 	@Test
 	public void testCheckWithInstalledHome10() throws Exception {
-		final var response = this.appManagerTestBundle.sut
-				.handleAddAppInstanceRequest(DUMMY_ADMIN,
-						new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.fullSettings()))
-				.get();
+		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.fullSettings()));
 
-		assertTrue(response.warnings.isEmpty());
+		assertTrue(response.warnings().isEmpty());
 		assertTrue(this.checkHome.check());
 		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
@@ -60,10 +59,9 @@ public class CheckHomeTest {
 	@Test
 	public void testCheckWithInstalledHome20() throws Exception {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", TestFeneconHome20.fullSettings()))
-				.get();
+				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", TestFeneconHome20.fullSettings()));
 
-		assertTrue(response.warnings.isEmpty());
+		assertTrue(response.warnings().isEmpty());
 		assertTrue(this.checkHome.check());
 		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
@@ -71,10 +69,9 @@ public class CheckHomeTest {
 	@Test
 	public void testCheckWithInstalledHome30() throws Exception {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", TestFeneconHome30.fullSettings()))
-				.get();
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", TestFeneconHome30.fullSettings()));
 
-		assertTrue(response.warnings.isEmpty());
+		assertTrue(response.warnings().isEmpty());
 		assertTrue(this.checkHome.check());
 		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}

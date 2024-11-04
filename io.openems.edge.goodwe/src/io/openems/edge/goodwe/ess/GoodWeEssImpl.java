@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.ess;
 
+import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -21,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -29,6 +32,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
@@ -48,13 +52,16 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, HybridEss, ManagedSymmetricEss,
-		SymmetricEss, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+		SymmetricEss, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave, CycleProvider {
 
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	@Reference
+	private Cycle cycle;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -187,5 +194,10 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 				HybridEss.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(GoodWeEss.class, accessMode, 100) //
 						.build());
+	}
+
+	@Override
+	public int getCycleTime() {
+		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
 }

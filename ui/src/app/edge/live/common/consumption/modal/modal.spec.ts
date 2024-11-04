@@ -1,23 +1,24 @@
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/edge/edgeconfig.spec";
-import { TextIndentation } from "src/app/shared/genericComponents/modal/modal-line/modal-line";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
-import { sharedSetup } from "src/app/shared/test/utils.spec";
+// @ts-strict-ignore
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
+import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
+import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
+import { sharedSetup } from "src/app/shared/components/shared/testing/utils.spec";
 
 import { expectView } from "./modal.constants.spec";
 
-describe('Consumption - Modal', () => {
+describe("Consumption - Modal", () => {
   let TEST_CONTEXT;
   beforeEach(async () => TEST_CONTEXT = await sharedSetup());
 
-  it('generateView()', () => {
+  it("generateView()", () => {
 
     // No evcs and consumptionMeters and negative ConsumptionActivePower
     {
       const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        '_sum/ConsumptionActivePower': -1000,
-        '_sum/ConsumptionActivePowerL1': -1000,
-        '_sum/ConsumptionActivePowerL2': 1000,
-        '_sum/ConsumptionActivePowerL3': -1000,
+        "_sum/ConsumptionActivePower": -1000,
+        "_sum/ConsumptionActivePowerL1": -1000,
+        "_sum/ConsumptionActivePowerL2": 1000,
+        "_sum/ConsumptionActivePowerL3": -1000,
       };
       const EMS = DummyConfig.from();
 
@@ -45,21 +46,21 @@ describe('Consumption - Modal', () => {
         DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs2", "Evcs 3"),
       );
       const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        '_sum/ConsumptionActivePower': 1000,
-        '_sum/ConsumptionActivePowerL1': 300,
-        '_sum/ConsumptionActivePowerL2': 350,
-        '_sum/ConsumptionActivePowerL3': 350,
-        'meter0/ActivePower': 1000,
-        'meter0/ActivePowerL1': 1000,
-        'meter0/ActivePowerL2': -1000,
-        'meter0/ActivePowerL3': 1000,
-        'meter1/ActivePower': null,
-        'meter1/ActivePowerL1': null,
-        'meter1/ActivePowerL2': null,
-        'meter1/ActivePowerL3': null,
-        'evcs0/ChargePower': 1000,
-        'evcs1/ChargePower': -1000,
-        'evcs2/ChargePower': null,
+        "_sum/ConsumptionActivePower": 1000,
+        "_sum/ConsumptionActivePowerL1": 300,
+        "_sum/ConsumptionActivePowerL2": 350,
+        "_sum/ConsumptionActivePowerL3": 350,
+        "meter0/ActivePower": 1000,
+        "meter0/ActivePowerL1": 1000,
+        "meter0/ActivePowerL2": -1000,
+        "meter0/ActivePowerL3": 1000,
+        "meter1/ActivePower": null,
+        "meter1/ActivePowerL1": null,
+        "meter1/ActivePowerL2": null,
+        "meter1/ActivePowerL3": null,
+        "evcs0/ChargePower": 1000,
+        "evcs1/ChargePower": -1000,
+        "evcs2/ChargePower": null,
       };
 
       expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
@@ -98,11 +99,11 @@ describe('Consumption - Modal', () => {
         DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
       );
       const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        '_sum/ConsumptionActivePower': 1000,
-        '_sum/ConsumptionActivePowerL1': 300,
-        '_sum/ConsumptionActivePowerL2': 350,
-        '_sum/ConsumptionActivePowerL3': 350,
-        'evcs0/ChargePower': 1000,
+        "_sum/ConsumptionActivePower": 1000,
+        "_sum/ConsumptionActivePowerL1": 300,
+        "_sum/ConsumptionActivePowerL2": 350,
+        "_sum/ConsumptionActivePowerL3": 350,
+        "evcs0/ChargePower": 1000,
       };
 
       expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
@@ -127,14 +128,14 @@ describe('Consumption - Modal', () => {
         DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
       );
       const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        '_sum/ConsumptionActivePower': 1000,
-        '_sum/ConsumptionActivePowerL1': 300,
-        '_sum/ConsumptionActivePowerL2': 350,
-        '_sum/ConsumptionActivePowerL3': 350,
-        'meter0/ActivePower': 1000,
-        'meter0/ActivePowerL1': 1000,
-        'meter0/ActivePowerL2': -1000,
-        'meter0/ActivePowerL3': 1000,
+        "_sum/ConsumptionActivePower": 1000,
+        "_sum/ConsumptionActivePowerL1": 300,
+        "_sum/ConsumptionActivePowerL2": 350,
+        "_sum/ConsumptionActivePowerL3": 350,
+        "meter0/ActivePower": 1000,
+        "meter0/ActivePowerL1": 1000,
+        "meter0/ActivePowerL2": -1000,
+        "meter0/ActivePowerL3": 1000,
       };
 
       expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {

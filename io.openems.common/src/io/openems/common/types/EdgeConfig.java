@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
@@ -40,7 +41,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class EdgeConfig {
 
-	private static Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
 
 	/**
 	 * Represents an instance of an OpenEMS Component.
@@ -587,8 +588,7 @@ public class EdgeConfig {
 			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
-					if (!ignorePropertyKey(entry.getKey())
-							&& !ignoreComponentPropertyKey(componentId, entry.getKey())) {
+					if (!ignorePropertyKey(entry.getKey())) {
 						properties.put(entry.getKey(), entry.getValue());
 					}
 				}
@@ -1060,19 +1060,12 @@ public class EdgeConfig {
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson() {
-			var natureIds = new JsonArray();
-			for (String naturId : this.getNatureIds()) {
-				natureIds.add(naturId);
-			}
-			var properties = new JsonArray();
-			for (Property property : this.getProperties()) {
-				properties.add(property.toJson());
-			}
 			return JsonUtils.buildJsonObject() //
 					.addProperty("name", this.name) //
 					.addProperty("description", this.description) //
-					.add("natureIds", natureIds) //
-					.add("properties", properties) //
+					.add("natureIds", Stream.of(this.getNatureIds()) //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray())) //
 					.build();
 		}
 
@@ -1177,9 +1170,9 @@ public class EdgeConfig {
 			}
 
 			/**
-			 * Builds the {@link ActualEdgeConfig}.
+			 * Builds the ActualEdgeConfig.
 			 * 
-			 * @return {@link ActualEdgeConfig}
+			 * @return ActualEdgeConfig
 			 */
 			public ActualEdgeConfig build() {
 				return new ActualEdgeConfig(ImmutableSortedMap.copyOf(this.getComponents()),
@@ -1197,16 +1190,16 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Creates an empty {@link ActualEdgeConfig}.
+		 * Creates an empty ActualEdgeConfig.
 		 * 
-		 * @return {@link ActualEdgeConfig}
+		 * @return ActualEdgeConfig
 		 */
 		public static ActualEdgeConfig empty() {
 			return ActualEdgeConfig.create().build();
 		}
 
 		/**
-		 * Create a {@link ActualEdgeConfig.Builder} builder.
+		 * Create a ActualEdgeConfig builder.
 		 * 
 		 * @return a {@link Builder}
 		 */
@@ -1254,9 +1247,9 @@ public class EdgeConfig {
 	private volatile JsonObject _json = null;
 
 	/**
-	 * Build from {@link ActualEdgeConfig} using a {@link Builder}.
+	 * Build from ActualEdgeConfig.
 	 * 
-	 * @param actual the {@link ActualEdgeConfig}
+	 * @param actual the ActualEdgeConfig
 	 */
 	private EdgeConfig(ActualEdgeConfig actual) {
 		this._actual = actual;
@@ -1267,10 +1260,10 @@ public class EdgeConfig {
 	}
 
 	/**
-	 * Gets the {@link ActualEdgeConfig}. Either by parsing it from {@link #json} or
-	 * by returning from cache.
+	 * Gets the ActualEdgeConfig. Either by parsing it from {@link #json} or by
+	 * returning from cache.
 	 * 
-	 * @return {@link ActualEdgeConfig}; empty on JSON parse error
+	 * @return ActualEdgeConfig; empty on JSON parse error
 	 */
 	private synchronized ActualEdgeConfig getActual() {
 		if (this._actual != null) {
@@ -1388,7 +1381,7 @@ public class EdgeConfig {
 	public synchronized JsonObject toJson() {
 		if (this._json == null) {
 			this._json = JsonUtils.buildJsonObject() //
-					.add("components", this.componentsToJson(JsonFormat.COMPLETE)) //
+					.add("components", this.componentsToJson(JsonFormat.WITHOUT_CHANNELS)) //
 					.add("factories", this.factoriesToJson()) //
 					.build();
 		}
@@ -1431,6 +1424,10 @@ public class EdgeConfig {
 	public JsonObject factoriesToJson() {
 		var b = JsonUtils.buildJsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
+			if (!this.getComponents().values().stream() //
+					.anyMatch(c -> c.factoryId.equals(entry.getKey()))) {
+				continue;
+			}
 			b.add(entry.getKey(), entry.getValue().toJson());
 		}
 		return b.build();
@@ -1463,27 +1460,6 @@ public class EdgeConfig {
 				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
 				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
 			true;
-
-		default -> false;
-		};
-	}
-
-	/**
-	 * Internal Method to decide whether a configuration property should be ignored.
-	 *
-	 * @param componentId the Component-ID
-	 * @param key         the property key
-	 * @return true if it should get ignored
-	 */
-	public static boolean ignoreComponentPropertyKey(String componentId, String key) {
-		return switch (componentId) {
-		// Filter for _sum component
-		case "_sum" -> switch (key) {
-		case "productionMaxActivePower", "consumptionMaxActivePower", "gridMinActivePower", "gridMaxActivePower" ->
-			true;
-
-		default -> false;
-		};
 
 		default -> false;
 		};

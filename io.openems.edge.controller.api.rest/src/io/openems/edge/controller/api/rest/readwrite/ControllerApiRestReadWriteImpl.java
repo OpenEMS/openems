@@ -6,9 +6,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -18,8 +15,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.rest.AbstractRestApi;
+import io.openems.edge.controller.api.rest.JsonRpcRestHandler;
 import io.openems.edge.controller.api.rest.RestApi;
-import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -31,13 +28,14 @@ public class ControllerApiRestReadWriteImpl extends AbstractRestApi
 		implements ControllerApiRestReadWrite, RestApi, Controller, OpenemsComponent {
 
 	@Reference
+	private JsonRpcRestHandler.Factory restHandlerFactory;
+	private JsonRpcRestHandler restHandler;
+
+	@Reference
 	private ComponentManager componentManager;
 
 	@Reference
 	private UserService userService;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
 
 	public ControllerApiRestReadWriteImpl() {
 		super("REST-Api Read-Write", //
@@ -51,6 +49,8 @@ public class ControllerApiRestReadWriteImpl extends AbstractRestApi
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.restHandler = this.restHandlerFactory.get();
+
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(), config.apiTimeout(),
 				config.port(), config.connectionlimit());
 	}
@@ -59,14 +59,7 @@ public class ControllerApiRestReadWriteImpl extends AbstractRestApi
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	@Override
-	protected Timedata getTimedata() throws OpenemsException {
-		if (this.timedata != null) {
-			return this.timedata;
-		}
-		throw new OpenemsException("There is no Timedata-Service available!");
+		this.restHandlerFactory.unget(this.restHandler);
 	}
 
 	@Override
@@ -77,6 +70,11 @@ public class ControllerApiRestReadWriteImpl extends AbstractRestApi
 	@Override
 	protected ComponentManager getComponentManager() {
 		return this.componentManager;
+	}
+
+	@Override
+	protected JsonRpcRestHandler getRpcRestHandler() {
+		return this.restHandler;
 	}
 
 	@Override

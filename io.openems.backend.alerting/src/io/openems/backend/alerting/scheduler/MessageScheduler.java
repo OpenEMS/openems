@@ -121,7 +121,7 @@ public class MessageScheduler<T extends Message> {
 
 	private T poll() {
 		synchronized (this) {
-			var msg = this.queue.poll();
+			final var msg = this.queue.poll();
 			if (msg != null) {
 				this.messageForId.remove(msg.getId());
 			}

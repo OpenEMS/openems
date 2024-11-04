@@ -1,27 +1,27 @@
 package io.openems.edge.meter.camillebauer.aplus;
 
+import static io.openems.common.types.MeterType.GRID;
+
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.meter.api.MeterType;
 
 public class MeterCamillebauerAplusImplTest {
-
-	private static final String COMPONENT_ID = "component0";
-	private static final String MODBUS_ID = "modbus0";
 
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new MeterCamillebauerAplusImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setMeterType(MeterType.GRID).setInvert(false).build())
+						.setId("component0") //
+						.setModbusId("modbus0") //
+						.setMeterType(GRID) //
+						.setInvert(false) //
+						.build())
 				.next(new TestCase());
 	}
 

@@ -1,0 +1,8 @@
+= ESS §14a EnWG Controller
+
+Established by law (for Germany), this controller lowers active power to `-4200 W` in response to grid operator limitations, aiming to alleviate load on transformers.
+
+Link to legislative text:
+https://www.gesetze-im-internet.de/enwg_2005/__14a.html
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.limiter14a[Source Code icon:github[]]

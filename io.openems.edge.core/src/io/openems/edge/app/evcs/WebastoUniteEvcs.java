@@ -161,7 +161,8 @@ public class WebastoUniteEvcs extends AbstractOpenemsAppWithProps<WebastoUniteEv
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.schedulerByCentralOrder(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()))) //
+					.addTask(Tasks.schedulerByCentralOrder(
+							new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()))) //
 					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
 							maxHardwarePowerPerPhase, evcsId)) //
 					.build();

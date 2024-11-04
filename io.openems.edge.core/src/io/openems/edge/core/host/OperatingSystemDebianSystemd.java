@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,16 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
 	private static final Path UDEV_PATH = Paths.get("/etc/udev/rules.d/99-usb-serial.rules");
+	private static final int DEFAULT_METRIC = 1024;
+	private static final String MATCH_SECTION = "[Match]";
+	private static final String NETWORK_SECTION = "[Network]";
+	private static final String ROUTE_SECTION = "[Route]";
+	private static final String DHCP_SECTION = "[DHCP]";
+	private static final String ADDRESS_SECTION = "[Address]";
+	private static final String EMPTY_SECTION = "";
 
 	private static enum Block {
-		UNDEFINED, MATCH, NETWORK, ADDRESS
+		UNDEFINED, MATCH, NETWORK, ADDRESS, ROUTE, DHCP
 	}
 
 	private final HostImpl parent;
@@ -195,16 +203,15 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		result.add("# changedBy: " //
 				+ user.getName());
 		result.add("# changedAt: " //
-				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() //
-		);
-		result.add("[Match]");
-		result.add("Name=" + iface.getName());
-		result.add("");
+				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString());
 
-		result.add("[Network]");
-		if (iface.getGateway().isSetAndNotNull()) {
-			result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
-		}
+		// Match Section
+		result.add(MATCH_SECTION);
+		result.add("Name=" + iface.getName());
+		result.add(EMPTY_SECTION);
+
+		// Network Section
+		result.add(NETWORK_SECTION);
 		if (iface.getDhcp().isSetAndNotNull()) {
 			result.add("DHCP=" + (iface.getDhcp().getValue() ? "yes" : "no"));
 		}
@@ -214,11 +221,31 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
 			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
 		}
+
+		var metric = DEFAULT_METRIC;
+		if (iface.getMetric().isSetAndNotNull()) {
+			metric = iface.getMetric().getValue().intValue();
+		}
+
+		if (iface.getDhcp().isSetAndNotNull()) {
+			var dhcp = iface.getDhcp().getValue();
+			result.add(EMPTY_SECTION);
+			if (dhcp) { // dhcp == yes
+				result.add(DHCP_SECTION);
+				result.add("RouteMetric=" + metric);
+			} else {
+				result.add(ROUTE_SECTION);
+				if (iface.getGateway().isSetAndNotNull()) {
+					result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
+				}
+				result.add("Metric=" + metric);
+			}
+		}
 		if (iface.getAddresses().isSetAndNotNull()) {
 			for (var address : iface.getAddresses().getValue()) {
 				final var label = address.getLabel();
-				result.add("");
-				result.add("[Address]");
+				result.add(EMPTY_SECTION);
+				result.add(ADDRESS_SECTION);
 				result.add("Address=" + address.toString());
 				if (!label.isBlank()) {
 					result.add("Label=" + label);
@@ -393,6 +420,10 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
 	private static final Pattern NETWORK_DNS = Pattern //
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+	private static final Pattern GATEWAY_METRIC = Pattern //
+			.compile("^Metric=([0-9]+)$");
+	private static final Pattern ROUTE_METRIC = Pattern //
+			.compile("^RouteMetric=([0-9]+)$");
 
 	/**
 	 * Parses a Systemd-Networkd configuration file.
@@ -419,6 +450,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				ConfigurationProperty.asNotSet());
 		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
 				ConfigurationProperty.asNotSet());
+		final var metric = new AtomicReference<ConfigurationProperty<Integer>>(//
+				ConfigurationProperty.asNotSet());
 		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
 				ConfigurationProperty.asNotSet());
 		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithSubnetmask>>>(//
@@ -438,15 +471,21 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			 */
 			if (line.startsWith("[")) {
 				switch (line) {
-				case "[Match]":
+				case MATCH_SECTION:
 					currentBlock = Block.MATCH;
 					break;
-				case "[Network]":
+				case NETWORK_SECTION:
 					currentBlock = Block.NETWORK;
 					break;
-				case "[Address]":
+				case ADDRESS_SECTION:
 					tmpAddress.set(null);
 					currentBlock = Block.ADDRESS;
+					break;
+				case ROUTE_SECTION:
+					currentBlock = Block.ROUTE;
+					break;
+				case DHCP_SECTION:
+					currentBlock = Block.DHCP;
 					break;
 				default:
 					currentBlock = Block.UNDEFINED;
@@ -486,8 +525,6 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					addresses.set(ConfigurationProperty.of(addressDetails));
 				});
 				break;
-			case UNDEFINED:
-				break;
 			case ADDRESS:
 				onMatchString(NETWORK_ADDRESS, line, property -> {
 					// Storing here temporarily so that we can use it if when we find label.
@@ -518,11 +555,58 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					addressDetails.add(address);
 				});
 				break;
+			case ROUTE:
+				onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
+					gateway.set(ConfigurationProperty.of(property));
+				});
+				onMatchString(GATEWAY_METRIC, line, property -> {
+					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
+				});
+				break;
+			case DHCP:
+				onMatchString(ROUTE_METRIC, line, property -> {
+					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
+				});
+				break;
+			case UNDEFINED:
+				break;
 			default:
 				break;
 			}
 		}
 		return new NetworkInterface<>(name.get(), //
-				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), attachment);
+				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), metric.get(),
+				attachment);
 	}
+
+	@Override
+	public CompletableFuture<String> getOperatingSystemVersion() {
+		final var sc = new SystemCommand(//
+				"cat /etc/os-release", //
+				false, // runInBackground
+				5, // timeoutSeconds
+				Optional.empty(), // username
+				Optional.empty()); // password
+
+		final var versionFuture = new CompletableFuture<String>();
+		this.execute(sc, success -> {
+			final var osVersionName = Stream.of(success.stdout()) //
+					.map(t -> t.split("=", 2)) //
+					.filter(t -> t.length == 2) //
+					.filter(t -> t[0].equals("PRETTY_NAME")) //
+					.map(t -> t[1]) //
+					.map(t -> {
+						if (t.startsWith("\"") && t.endsWith("\"")) {
+							return t.substring(1, t.length() - 1);
+						}
+						return t;
+					}) //
+					.findAny();
+
+			osVersionName.ifPresentOrElse(versionFuture::complete, () -> versionFuture
+					.completeExceptionally(new OpenemsException("OS-Version name not found in /etc/os-release")));
+		}, versionFuture::completeExceptionally);
+		return versionFuture;
+	}
+
 }

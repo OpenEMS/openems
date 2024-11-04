@@ -13,8 +13,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String[] componentIds;
 		private int maxConcurrentConnections;
 		private int apiTimeout;
+		private String[] writeChannels = {};
+		private String[] readChannels = {};
 
 		private Builder() {
+		}
+		
+		public Builder setWriteChannels(String... writeChannels) {
+			this.writeChannels = writeChannels;
+			return this;
+		}
+		
+		public Builder setReadChannels(String... readChannels) {
+			this.readChannels = readChannels;
+			return this;
 		}
 
 		public Builder setId(String id) {
@@ -96,6 +108,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int apiTimeout() {
 		return this.builder.apiTimeout;
+	}
+
+	@Override
+	public String[] readChannels() {
+		return this.builder.readChannels;
+	}
+
+	@Override
+	public String[] writeChannels() {
+		return this.builder.writeChannels;
 	}
 
 }

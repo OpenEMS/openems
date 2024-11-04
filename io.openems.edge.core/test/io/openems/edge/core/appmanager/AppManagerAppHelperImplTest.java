@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public class AppManagerAppHelperImplTest {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.NEVER.name()) //
@@ -160,7 +161,7 @@ public class AppManagerAppHelperImplTest {
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.ALWAYS.name()) //
@@ -184,7 +185,7 @@ public class AppManagerAppHelperImplTest {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.IF_MINE.name()) //
@@ -200,7 +201,7 @@ public class AppManagerAppHelperImplTest {
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.IF_MINE.name()) //
@@ -334,14 +335,13 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var newAlias = "newAppAlias";
-		var completable = this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		var result = this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
 						JsonUtils.buildJsonObject() //
 								.addProperty("NUMBER", 2) //
 								.build()));
 
-		var result = completable.get().getResult();
-		assertTrue(!result.has("warnings") || result.get("warnings").getAsJsonArray().size() == 0);
+		assertTrue(result.warnings().isEmpty());
 
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
 		assertEquals(newAlias, instance.alias);
@@ -364,7 +364,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var newAlias = "newAppAlias";
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
 						JsonUtils.buildJsonObject() //
 								.addProperty("NUMBER", 2) //
@@ -387,15 +387,13 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var newAlias = "newAppAlias";
-		var completable = this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
+		var result = this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
 						JsonUtils.buildJsonObject() //
 								.addProperty("NUMBER", 2) //
 								.build()));
 
-		var result = completable.get().getResult();
-		assertTrue(result.has("warnings"));
-		assertTrue(result.get("warnings").getAsJsonArray().size() > 0);
+		assertFalse(result.warnings().isEmpty());
 
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
 		assertEquals(newAlias, instance.alias);

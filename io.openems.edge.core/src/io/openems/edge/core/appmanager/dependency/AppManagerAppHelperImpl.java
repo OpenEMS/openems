@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.condition.Condition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,11 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTask;
 
 @Component(//
 		immediate = true, //
@@ -65,6 +71,23 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Component(service = { StartTarget.class })
+	public static class StartTarget implements Condition {
+		@Reference
+		private ComponentAggregateTask componentAggregateTask;
+		@Reference
+		private PersistencePredictorAggregateTask persistencePredictorAggregateTask;
+		@Reference
+		private SchedulerAggregateTask schedulerAggregateTask;
+		@Reference
+		private SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask;
+		@Reference
+		private StaticIpAggregateTask staticIpAggregateTask;
+	}
+
+	@Reference
+	private StartTarget startCondition;
 
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //

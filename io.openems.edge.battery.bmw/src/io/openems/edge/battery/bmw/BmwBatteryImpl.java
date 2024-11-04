@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BmsState;
 import io.openems.edge.battery.bmw.enums.State;
@@ -342,10 +341,8 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-
 				new FC16WriteRegistersTask(1399, //
 						m(BmwBattery.ChannelId.HEART_BEAT, new UnsignedWordElement(1399)), //
 						m(BmwBattery.ChannelId.BMS_STATE_COMMAND, new UnsignedWordElement(1400)), //

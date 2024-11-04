@@ -1,5 +1,7 @@
 package io.openems.edge.meter.socomec;
 
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -23,7 +25,7 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 	protected final ModbusProtocol modbusProtocol;
 
 	protected AbstractSocomecMeter(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.modbusProtocol = new ModbusProtocol(this);
 	}
@@ -145,32 +147,18 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 		final var result = new CompletableFuture<String>();
 
 		// Search for Socomec identifier register. Needs to be "SOCO".
-		try {
-			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedQuadruplewordElement(0xC350), true)
-					.thenAccept(value -> {
-						if (value != 0x0053004F0043004FL /* SOCO */) {
-							this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
-							return;
-						}
-						// Found Socomec meter
-						try {
-							ModbusUtils.readELementOnce(this.modbusProtocol, new StringWordElement(0xC38A, 8), true)
-									.thenAccept(name -> {
-										result.complete(name.toLowerCase());
-									});
-
-						} catch (OpenemsException e) {
-							this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
-							e.printStackTrace();
-							result.complete("");
-						}
-					});
-
-		} catch (OpenemsException e) {
-			this.logWarn(this.log, "Error while trying to identify Socomec meter: " + e.getMessage());
-			e.printStackTrace();
-			result.complete("");
-		}
+		readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedQuadruplewordElement(0xC350))
+				.thenAccept(value -> {
+					if (value != 0x0053004F0043004FL /* SOCO */) {
+						this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
+						// Complete result with Long value
+						result.complete(String.valueOf(value));
+					}
+					readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new StringWordElement(0xC38A, 8))
+							.thenAccept(name -> {
+								result.complete(name.toLowerCase());
+							});
+				});
 
 		return result;
 	}

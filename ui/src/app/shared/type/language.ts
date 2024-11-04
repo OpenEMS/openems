@@ -1,22 +1,28 @@
-import localDE from '@angular/common/locales/de';
-import localEN from '@angular/common/locales/en';
-import localES from '@angular/common/locales/es';
-import localFR from '@angular/common/locales/fr';
-import localNL from '@angular/common/locales/nl';
-import localJA from '@angular/common/locales/ja';
-import { TranslateLoader } from "@ngx-translate/core";
-import { Observable, of } from 'rxjs';
-import cz from 'src/assets/i18n/cz.json';
-import de from 'src/assets/i18n/de.json';
-import en from 'src/assets/i18n/en.json';
-import es from 'src/assets/i18n/es.json';
-import fr from 'src/assets/i18n/fr.json';
-import nl from 'src/assets/i18n/nl.json';
-import ja from 'src/assets/i18n/ja.json';
+import localDE from "@angular/common/locales/de";
+import localEN from "@angular/common/locales/en";
+import localES from "@angular/common/locales/es";
+import localFR from "@angular/common/locales/fr";
+import localJA from "@angular/common/locales/ja";
+import localNL from "@angular/common/locales/nl";
+import { TranslateLoader, TranslateService } from "@ngx-translate/core";
+import { Observable, of } from "rxjs";
+import { filter, take } from "rxjs/operators";
+import cz from "src/assets/i18n/cz.json";
+import de from "src/assets/i18n/de.json";
+import en from "src/assets/i18n/en.json";
+import es from "src/assets/i18n/es.json";
+import fr from "src/assets/i18n/fr.json";
+import ja from "src/assets/i18n/ja.json";
+import nl from "src/assets/i18n/nl.json";
+import { environment } from "src/environments";
+
+export interface Translation {
+    [key: string]: string | Translation;
+}
 
 export class MyTranslateLoader implements TranslateLoader {
 
-    public getTranslation(key: string): Observable<any> {
+    public getTranslation(key: string): Observable<Translation> {
         const language = Language.getByKey(key);
         if (language) {
             return of(language.json);
@@ -37,6 +43,18 @@ export class Language {
 
     public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR, Language.JA];
     public static readonly DEFAULT = Language.DE;
+
+    constructor(
+        public readonly title: string,
+        public readonly key: string,
+        public readonly i18nLocaleKey: string,
+        public readonly json: any,
+        // Angular is not providing common type for locale.
+        // https://github.com/angular/angular/issues/30506
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        public readonly locale: any,
+    ) {
+    }
 
     public static getByKey(key: string): Language | null {
         for (const language of Language.ALL) {
@@ -92,12 +110,24 @@ export class Language {
         return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
     }
 
-    constructor(
-        public readonly title: string,
-        public readonly key: string,
-        public readonly i18nLocaleKey: string,
-        public readonly json: any,
-        public readonly locale: any,
-    ) {
+    /**
+     * Sets a additional translation file
+     *
+     * e.g. AdvertismentModule
+     *
+     * @param translationFile the translation file
+     * @returns translations params
+     */
+    public static async setAdditionalTranslationFile(translationFile: any, translate: TranslateService): Promise<{ lang: string; translations: {}; shouldMerge?: boolean; }> {
+        const lang = (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise()).lang;
+        let translationKey: string = lang;
+        if (!(lang in translationFile)) {
+
+            if (environment.debugMode) {
+                console.warn(`[Advert] No translation available for Language ${lang}. Implemented languages are: ${Object.keys(translationFile)}`);
+            }
+            translationKey = Language.EN.key;
+        }
+        return { lang: lang, translations: translationFile[translationKey], shouldMerge: true };
     }
 }

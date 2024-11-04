@@ -1,26 +1,26 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
-import { ExecuteSystemUpdate } from './executeSystemUpdate';
-import { SystemUpdateState } from './getSystemUpdateStateResponse';
+// @ts-strict-ignore
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { environment } from "src/environments";
+import { ExecuteSystemUpdate } from "./executeSystemUpdate";
+import { SystemUpdateState } from "./getSystemUpdateStateResponse";
 
 @Component({
   selector: ExecuteSystemUpdateComponent.SELECTOR,
-  templateUrl: './executesystemupdate.component.html',
+  templateUrl: "./executesystemupdate.component.html",
 })
 export class ExecuteSystemUpdateComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "executesystemupdate";
-  public readonly spinnerId: string = ExecuteSystemUpdateComponent.SELECTOR;
-
   @Input() public executeUpdateInstantly: boolean = false;
   @Input() public edge: Edge;
+  @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
+  public readonly spinnerId: string = ExecuteSystemUpdateComponent.SELECTOR;
+
   public readonly environment = environment;
-  protected executeUpdate: ExecuteSystemUpdate = null;
+  protected executeUpdate: ExecuteSystemUpdate | null = null;
 
   protected isWaiting: boolean;
-
-  @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
 
   constructor(
     private websocket: Websocket,

@@ -1,4 +1,3 @@
-<header></header>
 <ion-content>
   <ion-grid>
     <ion-row *ngFor="let varinstance of instances" class="ion-justify-content-center">
@@ -6,7 +5,6 @@
         <ion-card>
           <form [formGroup]="varinstance.form" (ngSubmit)="submit(varinstance)">
             <ion-item lines="full" color="primary">
-              <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
               <ion-label>{{ appName }}</ion-label>
             </ion-item>
             <ion-card-content>
@@ -17,7 +15,8 @@
                   [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
                   translate> Edge.Config.App.updateApp
                 </ion-button>
-                <ion-button (click)="delete(varinstance)" color="primary" [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
+                <ion-button (click)="delete(varinstance)" color="primary"
+                  [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
                   Edge.Config.App.deleteApp
                 </ion-button>
                 <div *ngIf="varinstance.isDeleting || varinstance.isUpdating" style="min-height: 100px;">

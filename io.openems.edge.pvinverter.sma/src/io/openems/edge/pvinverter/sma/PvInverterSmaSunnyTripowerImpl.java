@@ -100,7 +100,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		super.setModbus(modbus);
 	}
 
-	public PvInverterSmaSunnyTripowerImpl() throws OpenemsException {
+	public PvInverterSmaSunnyTripowerImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //

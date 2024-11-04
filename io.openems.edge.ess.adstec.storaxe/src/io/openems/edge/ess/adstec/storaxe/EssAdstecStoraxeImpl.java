@@ -80,7 +80,7 @@ public class EssAdstecStoraxeImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = -1; // The Modbus library seems to use 0 offsets.
 
 		// We need to override because the ess returns neg for capacitative, pos for

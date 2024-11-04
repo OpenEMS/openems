@@ -1,5 +1,9 @@
 package io.openems.edge.ess.core.power.data;
 
+import static org.apache.commons.math3.optim.linear.Relationship.EQ;
+import static org.apache.commons.math3.optim.linear.Relationship.GEQ;
+import static org.apache.commons.math3.optim.linear.Relationship.LEQ;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,7 +13,6 @@ import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.LinearCoefficient;
 
 public class LinearSolverUtil {
 
@@ -22,28 +25,29 @@ public class LinearSolverUtil {
 	 */
 	public static List<LinearConstraint> convertToLinearConstraints(Coefficients coefficients,
 			List<Constraint> constraints) {
-		List<LinearConstraint> result = new ArrayList<>();
+		final var result = new ArrayList<LinearConstraint>();
 		for (Constraint c : constraints) {
-			if (c.getValue().isPresent()) {
-				var cos = generateEmptyCoefficientsArray(coefficients.getNoOfCoefficients());
-				for (LinearCoefficient co : c.getCoefficients()) {
-					// TODO verify, that ESS is enabled
-					cos[co.getCoefficient().getIndex()] = co.getValue();
-				}
-				org.apache.commons.math3.optim.linear.Relationship relationship = null;
-				switch (c.getRelationship()) {
-				case EQUALS:
-					relationship = org.apache.commons.math3.optim.linear.Relationship.EQ;
-					break;
-				case GREATER_OR_EQUALS:
-					relationship = org.apache.commons.math3.optim.linear.Relationship.GEQ;
-					break;
-				case LESS_OR_EQUALS:
-					relationship = org.apache.commons.math3.optim.linear.Relationship.LEQ;
-					break;
-				}
-				result.add(new LinearConstraint(cos, relationship, c.getValue().get()));
+			final var value = c.getValue();
+			if (value.isEmpty()) {
+				continue;
 			}
+
+			final var cos = generateEmptyCoefficientsArray(coefficients.getNoOfCoefficients());
+			for (var co : c.getCoefficients()) {
+				var index = co.getCoefficient().getIndex();
+				if (index >= cos.length) { // check for race conditions
+					continue;
+				}
+				cos[index] = co.getValue();
+			}
+
+			final var relationship = switch (c.getRelationship()) {
+			case EQUALS -> EQ;
+			case GREATER_OR_EQUALS -> GEQ;
+			case LESS_OR_EQUALS -> LEQ;
+			};
+
+			result.add(new LinearConstraint(cos, relationship, value.get()));
 		}
 		return result;
 	}

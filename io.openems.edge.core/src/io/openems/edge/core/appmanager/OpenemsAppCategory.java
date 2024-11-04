@@ -45,6 +45,11 @@ public enum OpenemsAppCategory {
 	HARDWARE("hardware"),
 
 	/**
+	 * The hardware on which the OpenEMS software runs.
+	 */
+	OPENEMS_DEVICE_HARDWARE("openemsDeviceHardware"),
+
+	/**
 	 * Peak-Shaving.
 	 */
 	PEAK_SHAVING("peakShaving"), //
@@ -69,6 +74,12 @@ public enum OpenemsAppCategory {
 	 */
 	API("api"),
 
+	/**
+	 * Timedata..
+	 *
+	 */
+	TIMEDATA("timedata"),
+	
 	/**
 	 * Category for test apps.
 	 *

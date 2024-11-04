@@ -10,6 +10,7 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.CommonTimedataService;
 import io.openems.common.types.ChannelAddress;
@@ -40,6 +41,23 @@ public interface Timedata extends CommonTimedataService, OpenemsComponent {
 	 * @return the latest known value or Empty
 	 */
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress);
+
+	/**
+	 * Gets the latest known value for the given {@link ChannelAddress} of a not
+	 * existing channel.
+	 *
+	 * <p>
+	 * Gets the latest known value even if the ChannelAddress is not longer
+	 * existing.
+	 * 
+	 * @param channelAddress the ChannelAddress to be queried
+	 * @param unit           unit
+	 * @return the latest known value or Empty
+	 */
+	public default CompletableFuture<Optional<Object>> getLatestValueOfNotExistingChannel(ChannelAddress channelAddress,
+			Unit unit) {
+		return CompletableFuture.completedFuture(Optional.empty());
+	}
 
 	/**
 	 * Gets the {@link Timeranges} to data which got not send. The not send data

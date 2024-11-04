@@ -2,6 +2,7 @@ package io.openems.edge.goodwe.batteryinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
@@ -10,7 +11,7 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private ControlMode controlMode;
 		private String modbusId;
@@ -22,6 +23,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int feedPowerPara;
 		private FeedInPowerSettings feedInPowerSettings;
 		private EnableDisable rcrEnable = EnableDisable.DISABLE;
+		private StartStopConfig startStop;
 
 		private Builder() {
 		}
@@ -78,6 +80,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setRcrEnable(EnableDisable rcrEnable) {
 			this.rcrEnable = rcrEnable;
+			return this;
+		}
+
+		public Builder setStartStop(StartStopConfig startStop) {
+			this.startStop = startStop;
 			return this;
 		}
 
@@ -155,5 +162,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public EnableDisable rcrEnable() {
 		return this.builder.rcrEnable;
+	}
+
+	@Override
+	public StartStopConfig startStop() {
+		return this.builder.startStop;
 	}
 }

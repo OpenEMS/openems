@@ -1,5 +1,11 @@
 package io.openems.edge.ess.generic.offgrid;
 
+import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
+import static io.openems.edge.common.sum.GridMode.OFF_GRID;
+import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.GRID_SWITCH;
+import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.STOP_BATTERY_INVERTER;
+import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.UNDEFINED;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -26,6 +32,7 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -36,10 +43,10 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
+import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.offgrid.statemachine.Context;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine;
-import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
 import io.openems.edge.ess.generic.symmetric.EssGenericManagedSymmetric;
 import io.openems.edge.ess.offgrid.api.OffGridEss;
@@ -58,14 +65,17 @@ import io.openems.edge.ess.power.api.Power;
 public class EssGenericOffGridImpl
 		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
 		implements EssGenericManagedSymmetric, OffGridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, CycleProvider {
 
 	private final Logger log = LoggerFactory.getLogger(EssGenericOffGridImpl.class);
-	private final StateMachine stateMachine = new StateMachine(OffGridState.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
 	private final ChannelManager channelManager = new ChannelManager(this);
 	private final AtomicBoolean fromOffToOnGrid = new AtomicBoolean(false);
 	private final AtomicReference<TargetGridMode> targetGridMode = new AtomicReference<>(TargetGridMode.GO_ON_GRID);
 	private final AtomicBoolean targetDeepDischarge = new AtomicBoolean();
+
+	@Reference
+	private Cycle cycle;
 
 	@Reference
 	private Power power;
@@ -189,7 +199,7 @@ public class EssGenericOffGridImpl
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
 			// Set only if value changed
-			this.stateMachine.forceNextState(OffGridState.UNDEFINED);
+			this.stateMachine.forceNextState(UNDEFINED);
 		}
 	}
 
@@ -210,7 +220,7 @@ public class EssGenericOffGridImpl
 		if (oldTargetGridMode == TargetGridMode.GO_OFF_GRID) {
 			this.fromOffToOnGrid.set(true);
 		}
-		this.stateMachine.forceNextState(OffGridState.GRID_SWITCH);
+		this.stateMachine.forceNextState(GRID_SWITCH);
 	}
 
 	/**
@@ -234,7 +244,7 @@ public class EssGenericOffGridImpl
 
 	private void setTargetDeepDischarge(boolean value) {
 		if (this.targetDeepDischarge.getAndSet(value) != value) {
-			this.stateMachine.forceNextState(OffGridState.STOP_BATTERY_INVERTER);
+			this.stateMachine.forceNextState(STOP_BATTERY_INVERTER);
 		}
 	}
 
@@ -245,10 +255,15 @@ public class EssGenericOffGridImpl
 		this.getAllowedDischargePowerChannel().onSetNextValue(allowedDischargePowerValue -> {
 			var allowedDischargePower = allowedDischargePowerValue.orElse(0);
 			var gridMode = this.offGridSwitch.getGridMode();
-			if (allowedDischargePower > 0 || gridMode != GridMode.OFF_GRID) {
+			if (allowedDischargePower > 0 || gridMode != OFF_GRID) {
 				return;
 			}
 			this.setTargetDeepDischarge(true);
 		});
+	}
+
+	@Override
+	public int getCycleTime() {
+		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
 }

@@ -439,28 +439,28 @@ public class SingleRack {
 		this.addEntry(map, KEY_MAX_CELL_TEMPERATURE, new IntegerDoc().unit(Unit.DEZIDEGREE_CELSIUS));
 		this.addEntry(map, KEY_MIN_CELL_TEMPERATURE_ID, new IntegerDoc().unit(Unit.NONE));
 		this.addEntry(map, KEY_MIN_CELL_TEMPERATURE, new IntegerDoc().unit(Unit.DEZIDEGREE_CELSIUS));
-		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, Doc.of(Level.FAULT)
+		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 2")); /* Bit 15 */
-		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, Doc.of(Level.FAULT)
+		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Cell Discharge Temperature High Alarm Level 2")); /* Bit 14 */
 		this.addEntry(map, KEY_ALARM_LEVEL_2_GR_TEMPERATURE_HIGH,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 2")); /* Bit 10 */
-		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, Doc.of(Level.FAULT)
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " GR Temperature High Alarm Level 2")); /* Bit 10 */
+		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_LOW, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Cell Charge Temperature Low Alarm Level 2")); /* Bit 7 */
-		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH, Doc.of(Level.FAULT)
+		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Cell Charge Temperature High Alarm Level 2")); /* Bit 6 */
-		this.addEntry(map, KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH, Doc.of(Level.FAULT)
+		this.addEntry(map, KEY_ALARM_LEVEL_2_DISCHA_CURRENT_HIGH, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Discharge Current High Alarm Level 2")); /* Bit 5 */
 		this.addEntry(map, KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Total Voltage Low Alarm Level 2")); /* Bit 4 */
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage Low Alarm Level 2")); /* Bit 4 */
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_VOLTAGE_LOW,
-				Doc.of(Level.FAULT).text("Cluster 1 Cell Voltage Low Alarm Level 2")); /* Bit 3 */
+				Doc.of(Level.WARNING).text("Cluster 1 Cell Voltage Low Alarm Level 2")); /* Bit 3 */
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CHA_CURRENT_HIGH,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Charge Current High Alarm Level 2")); /* Bit 2 */
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Charge Current High Alarm Level 2")); /* Bit 2 */
 		this.addEntry(map, KEY_ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Total Voltage High Alarm Level 2")); /* Bit 1 */
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Total Voltage High Alarm Level 2")); /* Bit 1 */
 		this.addEntry(map, KEY_ALARM_LEVEL_2_CELL_VOLTAGE_HIGH,
-				Doc.of(Level.FAULT).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 2")); /* Bit 0 */
+				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 2")); /* Bit 0 */
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW, Doc.of(Level.WARNING)
 				.text("Rack" + this.rackNumber + " Cell Discharge Temperature Low Alarm Level 1")); /* Bit 15 */
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH, Doc.of(Level.WARNING)
@@ -492,23 +492,23 @@ public class SingleRack {
 		this.addEntry(map, KEY_ALARM_LEVEL_1_CELL_VOLTAGE_HIGH,
 				Doc.of(Level.WARNING).text("Rack" + this.rackNumber + " Cell Voltage High Alarm Level 1")); /* Bit 0 */
 		this.addEntry(map, KEY_RUN_STATE, Doc.of(Enums.ClusterRunState.values())); //
-		this.addEntry(map, KEY_FAILURE_INITIALIZATION, Doc.of(Level.FAULT).text("Initialization failure")); /* Bit */
-		this.addEntry(map, KEY_FAILURE_EEPROM, Doc.of(Level.FAULT).text("EEPROM fault")); /* Bit 11 */
+		this.addEntry(map, KEY_FAILURE_INITIALIZATION, Doc.of(Level.WARNING).text("Initialization failure")); /* Bit */
+		this.addEntry(map, KEY_FAILURE_EEPROM, Doc.of(Level.WARNING).text("EEPROM fault")); /* Bit 11 */
 		this.addEntry(map, KEY_FAILURE_INTRANET_COMMUNICATION,
-				Doc.of(Level.FAULT).text("Internal communication fault")); /* Bit 10 */
+				Doc.of(Level.WARNING).text("Internal communication fault")); /* Bit 10 */
 		this.addEntry(map, KEY_FAILURE_TEMPERATURE_SENSOR_CABLE,
-				Doc.of(Level.FAULT).text("Temperature sensor cable fault")); /* Bit 9 */
+				Doc.of(Level.WARNING).text("Temperature sensor cable fault")); /* Bit 9 */
 		this.addEntry(map, KEY_FAILURE_BALANCING_MODULE, Doc.of(Level.OK).text("Balancing module fault")); /* Bit 8 */
-		this.addEntry(map, KEY_FAILURE_TEMPERATURE_PCB, Doc.of(Level.FAULT).text("Temperature PCB error")); /* Bit 7 */
-		this.addEntry(map, KEY_FAILURE_GR_TEMPERATURE, Doc.of(Level.FAULT).text("GR Temperature error")); /* Bit 6 */
-		this.addEntry(map, KEY_FAILURE_TEMP_SENSOR, Doc.of(Level.FAULT).text("Temperature sensor fault")); /* Bit 5 */
+		this.addEntry(map, KEY_FAILURE_TEMPERATURE_PCB, Doc.of(Level.WARNING).text("Temperature PCB error")); /* Bit 7 */
+		this.addEntry(map, KEY_FAILURE_GR_TEMPERATURE, Doc.of(Level.WARNING).text("GR Temperature error")); /* Bit 6 */
+		this.addEntry(map, KEY_FAILURE_TEMP_SENSOR, Doc.of(Level.WARNING).text("Temperature sensor fault")); /* Bit 5 */
 		this.addEntry(map, KEY_FAILURE_TEMP_SAMPLING,
-				Doc.of(Level.FAULT).text("Temperature sampling fault")); /* Bit 4 */
+				Doc.of(Level.WARNING).text("Temperature sampling fault")); /* Bit 4 */
 		this.addEntry(map, KEY_FAILURE_VOLTAGE_SAMPLING,
-				Doc.of(Level.FAULT).text("Voltage sampling fault")); /* Bit 3 */
-		this.addEntry(map, KEY_FAILURE_LTC6803, Doc.of(Level.FAULT).text("LTC6803 fault")); /* Bit 2 */
-		this.addEntry(map, KEY_FAILURE_CONNECTOR_WIRE, Doc.of(Level.FAULT).text("connector wire fault")); /* Bit 1 */
-		this.addEntry(map, KEY_FAILURE_SAMPLING_WIRE, Doc.of(Level.FAULT).text("sampling wire fault")); /* Bit 0 */
+				Doc.of(Level.WARNING).text("Voltage sampling fault")); /* Bit 3 */
+		this.addEntry(map, KEY_FAILURE_LTC6803, Doc.of(Level.WARNING).text("LTC6803 fault")); /* Bit 2 */
+		this.addEntry(map, KEY_FAILURE_CONNECTOR_WIRE, Doc.of(Level.WARNING).text("connector wire fault")); /* Bit 1 */
+		this.addEntry(map, KEY_FAILURE_SAMPLING_WIRE, Doc.of(Level.WARNING).text("sampling wire fault")); /* Bit 0 */
 		this.addEntry(map, KEY_SLEEP, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE));
 		this.addEntry(map, KEY_RESET, Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE));
 

@@ -495,8 +495,8 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			var serviceComponents = serviceComponentsString.split(",");
 
 			// read Service-Component XML files from OSGI-INF folder
-			for (String serviceComponent : serviceComponents) {
-				if (!serviceComponent.contains(factoryPid)) {
+			for (var serviceComponent : serviceComponents) {
+				if (!serviceComponent.equals("OSGI-INF/" + factoryPid + ".xml")) {
 					// search for correct XML file
 					continue;
 				}
@@ -595,7 +595,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			for (EdgeConfig.Factory.Property property : factory.getProperties()) {
 				var key = property.getId();
 
-				if (EdgeConfig.ignorePropertyKey(key) || EdgeConfig.ignoreComponentPropertyKey(componentId, key)) {
+				if (EdgeConfig.ignorePropertyKey(key)) {
 					// Ignore this Property
 					continue;
 				}

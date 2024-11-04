@@ -10,19 +10,16 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class Edge2EdgeEssImplTest {
 
-	private static final String COMPONENT_ID = "ess0";
-	private static final String MODBUS_ID = "modbus0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new Edge2EdgeEssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("ess0") //
+						.setModbusId("modbus0") //
 						.setRemoteAccessMode(AccessMode.READ_WRITE) //
-						.setRemoteComponentId(COMPONENT_ID) //
+						.setRemoteComponentId("ess0") //
 						.build())
 				.next(new TestCase());
 	}

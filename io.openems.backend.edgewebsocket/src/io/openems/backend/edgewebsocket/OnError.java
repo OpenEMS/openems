@@ -16,7 +16,7 @@ public class OnError implements io.openems.common.websocket.OnError {
 	}
 
 	@Override
-	public void run(WebSocket ws, Exception ex) throws OpenemsException {
+	public void accept(WebSocket ws, Exception ex) throws OpenemsException {
 		WsData wsData = ws.getAttachment();
 		var edgeIdOpt = wsData.getEdgeId();
 		this.parent.logWarn(this.log, edgeIdOpt.orElse(null),

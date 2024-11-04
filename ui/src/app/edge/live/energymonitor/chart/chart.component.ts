@@ -1,20 +1,19 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { fromEvent, Subject } from 'rxjs';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
-import { Service } from 'src/app/shared/shared';
-import { CurrentData } from '../../../../shared/edge/currentdata';
-import { ConsumptionSectionComponent } from './section/consumption.component';
-import { GridSectionComponent } from './section/grid.component';
-import { ProductionSectionComponent } from './section/production.component';
-import { StorageSectionComponent } from './section/storage.component';
+// @ts-strict-ignore
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Subject, fromEvent } from "rxjs";
+import { debounceTime, delay, takeUntil } from "rxjs/operators";
+import { Service } from "src/app/shared/shared";
+import { CurrentData } from "../../../../shared/components/edge/currentdata";
+import { ConsumptionSectionComponent } from "./section/consumption.component";
+import { GridSectionComponent } from "./section/grid.component";
+import { ProductionSectionComponent } from "./section/production.component";
+import { StorageSectionComponent } from "./section/storage.component";
 
 @Component({
-  selector: 'energymonitor-chart',
-  templateUrl: './chart.component.html',
+  selector: "energymonitor-chart",
+  templateUrl: "./chart.component.html",
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
-
-  public readonly spinnerId = "energymonitor";
 
   @ViewChild(ConsumptionSectionComponent, { static: true })
   public consumptionSection: ConsumptionSectionComponent;
@@ -28,31 +27,32 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   @ViewChild(StorageSectionComponent, { static: true })
   public storageSection: StorageSectionComponent;
 
-  @ViewChild('energymonitorChart', { static: true })
+  @ViewChild("energymonitorChart", { static: true })
   private chartDiv: ElementRef;
-
-  @Input()
-  set currentData(currentData: CurrentData) {
-    this.service.stopSpinner(this.spinnerId);
-    this.updateCurrentData(currentData);
-  }
 
   public translation: string;
   public width: number;
   public height: number;
   public gridMode: number;
 
+  public readonly spinnerId = "energymonitor";
+
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
     private service: Service,
   ) { }
+  @Input()
+  set currentData(currentData: CurrentData) {
+    this.service.stopSpinner(this.spinnerId);
+    this.updateCurrentData(currentData);
+  }
 
   ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     // make sure chart is redrawn in the beginning and on window resize
     setTimeout(() => this.updateOnWindowResize(), 500);
-    const source = fromEvent(window, 'resize', null, null);
+    const source = fromEvent(window, "resize", null, null);
     source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
       this.updateOnWindowResize();
     });

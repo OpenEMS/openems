@@ -1,9 +1,9 @@
-import { TranslateService } from '@ngx-translate/core';
-import { Filter } from 'src/app/index/filter/filter.component';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-export { environment } from './dummy';
+import { TranslateService } from "@ngx-translate/core";
+import { Filter } from "src/app/index/filter/filter.component";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+export { environment } from "./dummy";
 
-export type Theme = 'OpenEMS';
+export type Theme = "OpenEMS";
 
 export interface Environment {
     readonly theme: Theme;
@@ -21,7 +21,7 @@ export interface Environment {
     readonly docsUrlPrefix: string;
     readonly links: {
 
-        readonly COMMON_STORAGE: string,
+        readonly COMMON_STORAGE: string | null,
         readonly FORGET_PASSWORD: string,
         readonly EVCS_KEBA_KECONTACT: string,
         readonly EVCS_HARDY_BARTH: string,
@@ -41,8 +41,9 @@ export interface Environment {
         readonly CONTROLLER_API_REST_READ: string,
         readonly CONTROLLER_API_REST_READWRITE: string,
 
-        readonly SETTINGS_ALERTING: string,
-        readonly SETTINGS_NETWORK_CONFIGURATION: string,
+        readonly SETTINGS_ALERTING: string | null,
+        readonly SETTINGS_NETWORK_CONFIGURATION: string | null,
+        readonly EVCS_CLUSTER: string,
 
         readonly WARRANTY: {
             readonly HOME: {
@@ -88,6 +89,10 @@ export interface Environment {
              */
             APP_IMAGE: (language: string, appId: string) => string | null;
         },
+        APP: {
+            ANDROID: string | null,
+            IOS: string | null,
+        }
     },
-    readonly PRODUCT_TYPES: (translate: TranslateService) => Filter
+    readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null
 }

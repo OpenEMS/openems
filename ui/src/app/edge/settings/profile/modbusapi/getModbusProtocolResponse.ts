@@ -1,4 +1,4 @@
-import { JsonrpcResponseSuccess } from '../../../../shared/jsonrpc/base';
+import { JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 
 /**
  * Wraps a JSON-RPC Response to "getModbusProtocol" Request
@@ -22,8 +22,8 @@ import { JsonrpcResponseSuccess } from '../../../../shared/jsonrpc/base';
 export class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             table: [{
                 ref: number,
                 name: string,

@@ -1,26 +1,27 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service, Utils } from '../../../../../shared/shared';
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+// @ts-strict-ignore
+import { animate, state, style, transition, trigger } from "@angular/animations";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { DefaultTypes } from "../../../../../shared/service/defaulttypes";
+import { Service, Utils } from "../../../../../shared/shared";
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
 @Component({
-    selector: '[productionsection]',
-    templateUrl: './production.component.html',
+    selector: "[productionsection]",
+    templateUrl: "./production.component.html",
     animations: [
-        trigger('Production', [
-            state('show', style({
+        trigger("Production", [
+            state("show", style({
                 opacity: 0.4,
-                transform: 'translateY(0)',
+                transform: "translateY(0)",
             })),
-            state('hide', style({
+            state("hide", style({
                 opacity: 0.1,
-                transform: 'translateY(17%)',
+                transform: "translateY(17%)",
             })),
-            transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in')),
+            transition("show => hide", animate("650ms ease-out")),
+            transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
 })
@@ -37,12 +38,20 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.production', "up", "#36aed1", translate, service, "Common_Production");
+        super("General.production", "up", "#36aed1", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
+    }
+
+    get stateName() {
+        return this.showAnimation ? "show" : "hide";
     }
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 
     toggleAnimation() {
@@ -50,10 +59,6 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             this.showAnimation = !this.showAnimation;
         }, this.animationSpeed);
         this.animationTrigger = true;
-    }
-
-    get stateName() {
-        return this.showAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -65,7 +70,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     protected getRatioType(): Ratio {
-        return 'Only Positive [0,1]';
+        return "Only Positive [0,1]";
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
@@ -100,7 +105,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             return "";
         }
 
-        return this.unitpipe.transform(value, 'kW');
+        return this.unitpipe.transform(value, "kW");
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
@@ -155,7 +160,4 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         return p;
     }
 
-    ngOnDestroy() {
-        clearInterval(this.startAnimation);
-    }
 }

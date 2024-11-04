@@ -3,6 +3,7 @@ package io.openems.edge.battery.bydcommercial;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -26,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bydcommercial.statemachine.Context;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine;
@@ -176,7 +176,7 @@ public class BydBatteryBoxCommercialC130Impl extends AbstractOpenemsModbusCompon
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x2010, Priority.HIGH, //
 						m(BydBatteryBoxCommercialC130.ChannelId.POWER_CIRCUIT_CONTROL, new UnsignedWordElement(0x2010)) //
@@ -964,43 +964,30 @@ public class BydBatteryBoxCommercialC130Impl extends AbstractOpenemsModbusCompon
 		BydBatteryBoxCommercialC130Impl.this.isModbusProtocolInitialized = true;
 
 		// Try to read MODULE_QTY Register
-		try {
-			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(0x210D), false)
-					.thenAccept(moduleQtyValue -> {
-						if (moduleQtyValue != null) {
-							// Register is available -> add Registers for current hardware to protocol
-							try {
-								this.getModbusProtocol().addTasks(//
-										new FC3ReadRegistersTask(0x210D, Priority.LOW, //
-												m(BydBatteryBoxCommercialC130.ChannelId.MODULE_QTY,
-														new UnsignedWordElement(0x210D)), //
-												m(BydBatteryBoxCommercialC130.ChannelId.TOTAL_VOLTAGE_OF_SINGLE_MODULE,
-														new UnsignedWordElement(0x210E))), //
-										new FC3ReadRegistersTask(0x216E, Priority.LOW, //
-												m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x216E), //
-														SCALE_FACTOR_MINUS_1), //
-												m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-														new UnsignedWordElement(0x216F), //
-														SCALE_FACTOR_MINUS_1) //
-								));
-							} catch (OpenemsException e) {
-								BydBatteryBoxCommercialC130Impl.this.logError(BydBatteryBoxCommercialC130Impl.this.log,
-										"Unable to add registers for detected hardware version: " + e.getMessage());
-								e.printStackTrace();
-							} //
-						} else {
-							BydBatteryBoxCommercialC130Impl.this.logInfo(BydBatteryBoxCommercialC130Impl.this.log,
-									"Detected old hardware version. Registers are not available. Setting default values.");
+		readElementOnce(this.getModbusProtocol(), ModbusUtils::doNotRetry, new UnsignedWordElement(0x210D))
+				.thenAccept(moduleQtyValue -> {
+					if (moduleQtyValue != null) {
+						// Register is available -> add Registers for current hardware to protocol
+						this.getModbusProtocol().addTasks(//
+								new FC3ReadRegistersTask(0x210D, Priority.LOW, //
+										m(BydBatteryBoxCommercialC130.ChannelId.MODULE_QTY,
+												new UnsignedWordElement(0x210D)), //
+										m(BydBatteryBoxCommercialC130.ChannelId.TOTAL_VOLTAGE_OF_SINGLE_MODULE,
+												new UnsignedWordElement(0x210E))), //
+								new FC3ReadRegistersTask(0x216E, Priority.LOW, //
+										m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x216E), //
+												SCALE_FACTOR_MINUS_1), //
+										m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x216F), //
+												SCALE_FACTOR_MINUS_1) //
+						));
+					} else {
+						BydBatteryBoxCommercialC130Impl.this.logInfo(BydBatteryBoxCommercialC130Impl.this.log,
+								"Detected old hardware version. Registers are not available. Setting default values.");
 
-							this._setChargeMaxVoltage(OLD_VERSION_DEFAULT_CHARGE_MAX_VOLTAGE);
-							this._setDischargeMinVoltage(OLD_VERSION_DEFAULT_DISCHARGE_MIN_VOLTAGE);
-						}
-					});
-		} catch (OpenemsException e) {
-			BydBatteryBoxCommercialC130Impl.this.logError(BydBatteryBoxCommercialC130Impl.this.log,
-					"Unable to detect hardware version: " + e.getMessage());
-			e.printStackTrace();
-		}
+						this._setChargeMaxVoltage(OLD_VERSION_DEFAULT_CHARGE_MAX_VOLTAGE);
+						this._setDischargeMinVoltage(OLD_VERSION_DEFAULT_DISCHARGE_MIN_VOLTAGE);
+					}
+				});
 	};
 
 }

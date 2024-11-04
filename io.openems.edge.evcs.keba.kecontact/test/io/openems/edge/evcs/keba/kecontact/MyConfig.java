@@ -1,15 +1,17 @@
 package io.openems.edge.evcs.keba.kecontact;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evcs.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id = null;
-		private int minHwCurrent;
 		private String ip;
 		private boolean debugMode;
+		private int minHwCurrent;
+		private PhaseRotation phaseRotation;
 		private boolean useDisplay;
 
 		private Builder() {
@@ -32,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
+			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -74,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int minHwCurrent() {
 		return this.builder.minHwCurrent;
+	}
+
+	@Override
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 
 	@Override

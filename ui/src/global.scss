@@ -25,6 +25,14 @@
 /* ngx-spinner */
 @import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
 @import "variables";
+@import "./global-ion-custom.scss";
+
+/* Live- and HistoryComponent*/
+ion-refresher-content {
+    ion-spinner {
+        left: 0 !important;
+    }
+}
 
 .custom-ion-popover {
 
@@ -45,6 +53,13 @@
         display: none;
     }
 
+}
+
+.disabled {
+    color: gray;
+    pointer-events: none;
+    opacity: 0.5;
+    /* Makes it semi-transparent */
 }
 
 formly-wrapper-ion-form-field,
@@ -250,6 +265,7 @@ formly-input-section {
 
         .alert-button-group {
             justify-content: space-between;
+
             .alert-button {
                 color: $primary-color;
                 font-size: small;
@@ -312,11 +328,6 @@ formly-input-section {
         left: 25%;
         width: 50%;
         color: var(--ion-color-primary);
-    }
-
-    // Used for notification component
-    .text-overflow-break {
-        line-break: anywhere;
     }
 }
 
@@ -400,4 +411,22 @@ ion-modal.full-width {
     --storage-segment-2: block;
     --storage-segment-3: block;
     --storage-segment-4: block;
+}
+
+.card-with-primary-border {
+    border: 2px solid $primary-color;
+}
+
+ion-avatar.iconify {
+    margin-inline-end: 32px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    --border-radius: 0;
+    max-height: 24px;
+    max-width: 24px;
+}
+
+ion-avatar.iconify.icon-large {
+    max-height: 32px;
+    max-width: 32px;
 }

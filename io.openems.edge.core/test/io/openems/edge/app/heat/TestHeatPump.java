@@ -86,7 +86,7 @@ public class TestHeatPump {
 		assertEquals(3, home.dependencies.size());
 
 		// update heat pump
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				heatPumpInstance.instanceId, "alias", JsonUtils.buildJsonObject().build()));
 
 		// if exceptions occurs here heat pump also deleted dependencies from home

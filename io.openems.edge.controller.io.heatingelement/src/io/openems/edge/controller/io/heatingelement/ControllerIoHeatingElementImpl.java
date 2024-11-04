@@ -219,8 +219,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		targetLevel = this.applyHysteresis(targetLevel);
 
 		Status runState;
-		runState = targetLevel.equals(Level.LEVEL_0) ? Status.INACTIVE
-				: Status.ACTIVE;
+		runState = targetLevel.equals(Level.LEVEL_0) ? Status.INACTIVE : Status.ACTIVE;
 
 		var now = LocalTime.now(this.componentManager.getClock());
 		var configuredEndTime = DateUtils.parseLocalTimeOrError(this.config.endTime());

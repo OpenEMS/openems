@@ -17,7 +17,7 @@ public interface MessageSchedulerService {
 	 * @param handler to register
 	 * @return new MessageScheduler for handler to schedule messages with
 	 */
-	public <T extends Message> MessageScheduler<T> register(Handler<T> handler);
+	<T extends Message> MessageScheduler<T> register(Handler<T> handler);
 
 	/**
 	 * Unregister handler for message scheduling and remove MessageScheduler.
@@ -25,6 +25,6 @@ public interface MessageSchedulerService {
 	 * @param <T>     type of message
 	 * @param handler to unregister
 	 */
-	public <T extends Message> void unregister(Handler<T> handler);
+	<T extends Message> void unregister(Handler<T> handler);
 
 }

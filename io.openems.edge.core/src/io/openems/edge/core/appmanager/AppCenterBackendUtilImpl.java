@@ -33,7 +33,7 @@ import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse.Bundl
 import io.openems.common.jsonrpc.response.AppCenterIsKeyApplicableResponse;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
-import io.openems.edge.controller.api.backend.ControllerApiBackend;
+import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 
 @Component
 public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
@@ -105,7 +105,7 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
 	private final CompletableFuture<? extends JsonrpcResponseSuccess> handleRequestAsync(User user,
 			JsonrpcRequest request) throws OpenemsNamedException {
-		return this.getBackendOrError().handleJsonrpcRequest(user, new AppCenterRequest(request)) //
+		return this.getBackendOrError().sendRequest(user, new AppCenterRequest(request)) //
 				.orTimeout(30L, TimeUnit.SECONDS);
 	}
 

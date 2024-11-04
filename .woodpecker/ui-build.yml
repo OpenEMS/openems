@@ -1,0 +1,80 @@
+variables:
+  - &sftp-settings
+    server: ${CACHE_SERVER}
+    username: user
+    password: pass
+    ignore_branch: true
+    port: 2222
+    path: /cache
+    mount:
+      - cache
+
+  - &rsync-settings
+    user: fenecon-docs
+    hosts:
+      - ${ARTIFACT_SERVER}
+    port: 22
+    key:
+      from_secret: ssh_key_intranet
+    args: '-v'
+
+  - &main-build
+    - branch: [main, develop]
+    - evaluate: 'CI_COMMIT_MESSAGE contains "[APP]"'
+    - path:
+        include: ['.woodpecker/ui-build.yml']
+        on_empty: false
+
+when:
+  event:
+    - push
+
+matrix:
+  THEME:
+    - fenecon
+    - heckert
+
+clone:
+  git:
+    when: *main-build
+    image: woodpeckerci/plugin-git
+
+steps:
+  restore-cache:
+    when: *main-build
+    image: appleboy/drone-sftp-cache
+    settings:
+      restore: true
+      <<: *sftp-settings
+
+  prepare-environment:
+    when: *main-build
+    image: openems-bash
+    commands:
+      - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CI_WORKSPACE/cache build/target
+      - source tools/common.sh
+      - common_initialize_environment
+      - common_build_snapshot_version
+      - common_save_environment $CI_WORKSPACE/.openems-env
+    depends_on: [restore-cache]
+
+  build-android-app:
+    when: *main-build
+    image: openems-android:20.32
+    environment:
+      - THEME=${THEME}
+    commands:
+      - source $CI_WORKSPACE/.openems-env
+      - source tools/common.sh
+      - common_build_android_app
+    depends_on: [prepare-environment]
+
+  refresh-dev-android:
+    when: *main-build
+    image: woodpeckerci/rsync:latest
+    settings:
+      <<: *rsync-settings
+      source: $CI_WORKSPACE/ui/android/target/
+      target: /var/opt/develop/fems-artifacts/html/${CI_COMMIT_BRANCH}
+    depends_on: [build-android-app]

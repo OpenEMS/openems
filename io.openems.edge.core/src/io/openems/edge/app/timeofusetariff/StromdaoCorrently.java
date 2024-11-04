@@ -1,6 +1,8 @@
 package io.openems.edge.app.timeofusetariff;
 
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -8,6 +10,7 @@ import java.util.function.Function;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -61,7 +64,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.TimeOfUseTariff.Stromdao")
+@Component(name = "App.TimeOfUseTariff.Stromdao")
 public class StromdaoCorrently extends
 		AbstractOpenemsAppWithProps<StromdaoCorrently, Property, Type.Parameter.BundleParameter> implements OpenemsApp {
 
@@ -162,7 +165,7 @@ public class StromdaoCorrently extends
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
 	}
 
 	@Override

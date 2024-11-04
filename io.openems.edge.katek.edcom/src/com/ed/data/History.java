@@ -408,7 +408,7 @@ public final class History implements DataSet {
 	 *         <p>
 	 *         All recorded performance values in per hour of the requested day
 	 *         sorted by hour in ascending order. The values are stored in arrays of
-	 *         lenght 30 and 12. Arrays of length 30 represent 2 minute average
+	 *         length 30 and 12. Arrays of length 30 represent 2 minute average
 	 *         values, arrays of 12 represent 5 minute average values.
 	 *         </p>
 	 *         <p>

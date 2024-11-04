@@ -31,8 +31,7 @@ public class InstallationTest {
 			try {
 				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
-								.build()))
-						.get();
+								.build()));
 			} catch (OpenemsException e) {
 				exception = e;
 			}
@@ -51,11 +50,10 @@ public class InstallationTest {
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
 			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 					new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
-							.build()))
-					.get();
+							.build()));
 
 			assertNotNull(appManagerTestBundle.sut.getInstantiatedApps()
-					.get(appManagerTestBundle.sut.getInstantiatedApps().indexOf(response.instance)));
+					.get(appManagerTestBundle.sut.getInstantiatedApps().indexOf(response.instance())));
 		});
 	}
 
@@ -70,8 +68,7 @@ public class InstallationTest {
 			try {
 				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
-								.build()))
-						.get();
+								.build()));
 			} catch (OpenemsException e) {
 				exception = e;
 			}
@@ -90,11 +87,10 @@ public class InstallationTest {
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
 			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 					new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
-							.build()))
-					.get();
+							.build()));
 
 			assertNotNull(appManagerTestBundle.sut.getInstantiatedApps()
-					.get(appManagerTestBundle.sut.getInstantiatedApps().indexOf(response.instance)));
+					.get(appManagerTestBundle.sut.getInstantiatedApps().indexOf(response.instance())));
 		});
 	}
 
@@ -110,8 +106,7 @@ public class InstallationTest {
 			try {
 				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
-								.build()))
-						.get();
+								.build()));
 			} catch (OpenemsException e) {
 				exception = e;
 			}
@@ -133,11 +128,10 @@ public class InstallationTest {
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
 			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 					new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
-							.build()))
-					.get();
+							.build()));
 
 			final var instance = appManagerTestBundle.sut.getInstantiatedApps()
-					.get(appManagerTestBundle.sut.getInstantiatedApps().indexOf(response.instance));
+					.get(appManagerTestBundle.sut.getInstantiatedApps().indexOf(response.instance()));
 
 			assertNotNull(instance);
 
@@ -145,8 +139,7 @@ public class InstallationTest {
 			try {
 				appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 						new UpdateAppInstance.Request(instance.instanceId, "alias", JsonUtils.buildJsonObject() //
-								.build()))
-						.get();
+								.build()));
 			} catch (OpenemsException e) {
 				exception = e;
 			}

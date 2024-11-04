@@ -21,6 +21,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -34,6 +35,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 	@Before
 	public void setUp() throws Exception {
 		this.componentManager = new DummyPseudoComponentManager();
+		this.componentManager.setConfigurationAdmin(new DummyConfigurationAdmin());
 		this.task = new PersistencePredictorAggregateTaskImpl(this.componentManager);
 		this.task.reset();
 	}

@@ -13,6 +13,7 @@ import com.google.common.base.Objects;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.event.BackendEventConstants;
+import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
@@ -28,6 +29,7 @@ public class Edge {
 	private final AtomicReference<String> producttype = new AtomicReference<>("");
 	private final AtomicReference<ZonedDateTime> lastmessage = new AtomicReference<>(null);
 	private boolean isOnline = false;
+	private final AtomicReference<Level> sumState = new AtomicReference<>(null);
 
 	private final List<EdgeUser> user;
 
@@ -72,6 +74,7 @@ public class Edge {
 				.addProperty("version", this.version.get().toString()) //
 				.addProperty("producttype", this.producttype.get()) //
 				.addProperty("online", this.isOnline) //
+				.addProperty("sumState", this.sumState.get()) //
 				.addPropertyIfNotNull("lastmessage", this.lastmessage.get()) //
 				.build();
 	}
@@ -84,7 +87,8 @@ public class Edge {
 				+ "version=" + this.version + ", " //
 				+ "producttype=" + this.producttype + ", " //
 				+ "lastmessage=" + this.lastmessage + ", " //
-				+ "isOnline=" + this.isOnline //
+				+ "isOnline=" + this.isOnline + ", " //
+				+ "sumState=" + this.sumState //
 				+ "]";
 	}
 
@@ -234,6 +238,29 @@ public class Edge {
 		return this.user;
 	}
 
+	/*
+	 * SumState
+	 */
+	public Level getSumState() {
+		return this.sumState.get();
+	}
+
+	/**
+	 * Sets the sumState and emits a ON_SET_SUM_STATE event.
+	 *
+	 * @param sumState the sumState
+	 */
+	public void setSumState(Level sumState) {
+		Level oldState = this.sumState.getAndSet(sumState);
+		if (!Objects.equal(oldState, sumState)) { // on change
+			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_SUM_STATE) //
+					.addArg(Events.OnSetSumState.EDGE_ID, this.id) //
+					.addArg(Events.OnSetSumState.OLD_SUM_STATE, oldState) //
+					.addArg(Events.OnSetSumState.SUM_STATE, sumState) //
+					.send();
+		}
+	}
+
 	/**
 	 * Defines all Events an Edge can throw.
 	 */
@@ -271,6 +298,7 @@ public class Edge {
 
 		public static final class OnSetSumState {
 			public static final String EDGE_ID = "EdgeId:String";
+			public static final String OLD_SUM_STATE = "OldSumState:Level";
 			public static final String SUM_STATE = "SumState:Level";
 		}
 

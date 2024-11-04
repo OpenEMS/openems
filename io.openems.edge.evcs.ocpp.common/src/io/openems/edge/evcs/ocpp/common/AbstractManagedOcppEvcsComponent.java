@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.ocpp.common;
 
+import static io.openems.edge.common.type.TypeUtils.getAsType;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -20,14 +22,13 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 /**
@@ -59,7 +60,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
  * </pre>
  */
 public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEvcsComponent
-		implements Evcs, ManagedEvcs, MeasuringEvcs, EventHandler, TimedataProvider {
+		implements Evcs, ManagedEvcs, MeasuringEvcs, ElectricityMeter, EventHandler, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractManagedOcppEvcsComponent.class);
 
@@ -83,20 +84,6 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 		this.profileTypes = new HashSet<>(Arrays.asList(profileTypes));
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
 	@Override
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		super.activate(context, id, alias, enabled);
@@ -114,11 +101,10 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 	private void setInitialSettings() {
 		// Normally the limits are set automatically when the phase channel is set, but
 		// not every OCPP charger provides the information about the number of phases.
-		int fixedMaximum = this.getFixedMaximumHardwarePower().orElse(DEFAULT_MAXIMUM_HARDWARE_POWER);
-		int fixedMinimum = this.getFixedMinimumHardwarePower().orElse(DEFAULT_MINIMUM_HARDWARE_POWER);
-
-		this.getMaximumHardwarePowerChannel().setNextValue(fixedMaximum);
-		this.getMinimumHardwarePowerChannel().setNextValue(fixedMinimum);
+		this.getMaximumHardwarePowerChannel().setNextValue(//
+				this.getFixedMaximumHardwarePower().orElse(DEFAULT_MAXIMUM_HARDWARE_POWER));
+		this.getMinimumHardwarePowerChannel().setNextValue(//
+				this.getFixedMinimumHardwarePower().orElse(DEFAULT_MINIMUM_HARDWARE_POWER));
 	}
 
 	@Override
@@ -157,22 +143,22 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 		if (timedata == null || componentId == null) {
 			return;
 		} else {
-			timedata.getLatestValue(new ChannelAddress(componentId, Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY.id()))
+			timedata.getLatestValue(
+					new ChannelAddress(componentId, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY.id()))
 					.thenAccept(totalEnergyOpt -> {
-						if (this.getActiveConsumptionEnergy().isDefined()) {
+						if (this.getActiveProductionEnergy().isDefined()) {
 							// Value has been read from device in the meantime
 							return;
 						}
 
 						if (totalEnergyOpt.isPresent()) {
 							try {
-								this._setActiveConsumptionEnergy(
-										TypeUtils.getAsType(OpenemsType.LONG, totalEnergyOpt.get()));
+								this._setActiveProductionEnergy(getAsType(OpenemsType.LONG, totalEnergyOpt.get()));
 							} catch (IllegalArgumentException e) {
-								this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, 0L));
+								this._setActiveProductionEnergy(getAsType(OpenemsType.LONG, 0L));
 							}
 						} else {
-							this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, 0L));
+							this._setActiveConsumptionEnergy(getAsType(OpenemsType.LONG, 0L));
 						}
 					});
 		}
@@ -284,7 +270,7 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 			Channel<?> channel = this.channel(c);
 			channel.setNextValue(null);
 		}
-		this._setChargePower(0);
+		this._setActivePower(0);
 	}
 
 	/**
@@ -305,7 +291,7 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 		case NOT_READY_FOR_CHARGING:
 		case STARTING:
 		case UNDEFINED:
-			this._setChargePower(0);
+			this._setActivePower(0);
 			break;
 		}
 	}
@@ -338,11 +324,9 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 
 	@Override
 	public String debugLog() {
-		if (this instanceof ManagedEvcs) {
-			return "Limit:" + ((ManagedEvcs) this).getSetChargePowerLimit().orElse(null) + "|"
-					+ this.getStatus().getName();
-		}
-		return "Power:" + this.getChargePower().orElse(0) + "|" + this.getStatus().getName();
+		return "P:" + this.getActivePower().orElse(null) //
+			+ "|Limit:" + this.getSetChargePowerLimit().orElse(null) //
+			+ "|" + this.getStatus().getName();
 	}
 
 	@Override

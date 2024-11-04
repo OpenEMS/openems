@@ -10,8 +10,6 @@ import io.openems.edge.common.test.DummyMeta;
 
 public class TouEntsoeTest {
 
-	private static final String COMPONENT_ID = "tou0";
-
 	@Test
 	public void test() throws Exception {
 		var entsoe = new TouEntsoeImpl();
@@ -21,9 +19,8 @@ public class TouEntsoeTest {
 				.addReference("meta", dummyMeta) //
 				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("tou0") //
 						.setSecurityToken("") //
-						.setExchangerateAccesskey("") //
 						.setBiddingZone(BiddingZone.GERMANY) //
 						.build());
 	}

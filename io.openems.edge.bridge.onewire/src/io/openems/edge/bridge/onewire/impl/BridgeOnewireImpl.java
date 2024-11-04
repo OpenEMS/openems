@@ -1,6 +1,5 @@
 package io.openems.edge.bridge.onewire.impl;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.osgi.service.component.ComponentContext;
@@ -14,16 +13,13 @@ import org.slf4j.Logger;
 
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.bridge.onewire.BridgeOnewire;
 import io.openems.edge.bridge.onewire.jsonrpc.GetDevicesRequest;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.user.User;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -34,7 +30,8 @@ import io.openems.edge.common.user.User;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
-public class BridgeOnewireImpl extends AbstractOpenemsComponent implements BridgeOnewire, OpenemsComponent, JsonApi {
+public class BridgeOnewireImpl extends AbstractOpenemsComponent
+		implements BridgeOnewire, OpenemsComponent, ComponentJsonApi {
 
 	private OneWireTaskWorker taskWorker = null;
 
@@ -84,13 +81,8 @@ public class BridgeOnewireImpl extends AbstractOpenemsComponent implements Bridg
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest message)
-			throws OpenemsNamedException {
-		switch (message.getMethod()) {
-		case GetDevicesRequest.METHOD:
-			return CompletableFuture.completedFuture(this.taskWorker.handleGetDevicesRequest(message));
-		}
-		return null;
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetDevicesRequest.METHOD, call -> this.taskWorker.handleGetDevicesRequest(call.getRequest()));
 	}
 
 }

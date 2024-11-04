@@ -3,6 +3,7 @@ package io.openems.edge.app.integratedsystem;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
@@ -14,6 +15,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInS
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
@@ -54,6 +56,8 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -118,7 +122,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  */
 @Component(name = "App.FENECON.Home")
 public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Property, FeneconHomeParameter>
-		implements OpenemsApp {
+		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public record FeneconHomeParameter(//
 			ResourceBundle bundle, //
@@ -162,7 +166,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
 				}))), //
-
+		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 		// External AC PV
 		HAS_AC_METER(AppDef.copyOfGeneric(hasAcMeter(), def -> def //
 				.setDefaultValue((app, property, l, parameter) -> {
@@ -248,10 +252,18 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 		}
 	}
 
+	private final AppManagerUtil appManagerUtil;
+
 	@Activate
-	public FeneconHome(@Reference ComponentManager componentManager, ComponentContext context,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public FeneconHome(//
+			@Reference final ComponentManager componentManager, //
+			final ComponentContext context, //
+			@Reference final ConfigurationAdmin cm, //
+			@Reference final ComponentUtil componentUtil, //
+			@Reference final AppManagerUtil appManagerUtil //
+	) {
 		super(componentManager, context, cm, componentUtil);
+		this.appManagerUtil = appManagerUtil;
 	}
 
 	@Override
@@ -280,6 +292,8 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 					: 0;
 
 			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
+
+			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
 			final var hasAcMeter = this.getBoolean(p, Property.HAS_AC_METER);
 			// for older versions this property is undefined
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
@@ -420,6 +434,13 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
+			if (hasEssLimiter14a) {
+				final var dependency = essLimiter14aToHardware(this.appManagerUtil);
+				if (dependency != null) {
+					dependencies.add(dependency);
+				}
+			}
+
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();
 			if (hasEmergencyReserve) {
 				schedulerComponents.add(new SchedulerComponent("ctrlEmergencyCapacityReserve0",
@@ -537,6 +558,11 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 			batteryInverter = Optional.empty();
 		}
 		return batteryInverter;
+	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
 	}
 
 }

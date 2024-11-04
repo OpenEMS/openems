@@ -1,0 +1,16 @@
+#!/bin/bash
+# postrm script for openems-edge
+
+set -o errexit
+
+function purge-openems {
+    local confdir="/etc/openems.d"
+    local libdir="/var/lib/openems"
+
+    if [ -d "${confdir}" ]; then rm -r "${confdir}"; fi
+    if [ -d "${libdir}" ]; then rm -r "${libdir}"; fi
+}
+
+case "$1" in
+	"purge") purge-openems;;
+esac

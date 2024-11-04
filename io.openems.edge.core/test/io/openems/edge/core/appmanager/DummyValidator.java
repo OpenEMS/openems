@@ -1,53 +1,17 @@
 package io.openems.edge.core.appmanager;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.osgi.service.component.annotations.Component;
+
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.validator.Checkable;
-import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
 
-public class DummyValidator implements Validator {
-
-	private List<Checkable> checkables;
-
-	@Override
-	public List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
-			boolean returnImmediate) {
-		var errors = new ArrayList<String>();
-		for (var check : checkableConfigs) {
-			var checkable = this.findCheckableByName(check.checkableComponentName());
-			checkable.setProperties(check.properties());
-			if (checkable.check() == check.invertResult()) {
-				errors.add(check.invertResult() ? checkable.getInvertedErrorMessage(language)
-						: checkable.getErrorMessage(language));
-				if (returnImmediate) {
-					return errors;
-				}
-			}
-
-		}
-		return errors;
-	}
-
-	private Checkable findCheckableByName(String name) {
-		return this.checkables.stream() //
-				.filter(c -> c.getComponentName().equals(name)) //
-				.findAny().get();
-	}
-
-	public void setCheckables(List<Checkable> checkables) {
-		this.checkables = checkables;
-	}
-
-	public List<Checkable> getCheckables() {
-		return this.checkables;
-	}
+public final class DummyValidator {
 
 	/**
 	 * Creates a {@link CheckableConfig} for a test check.
@@ -105,6 +69,7 @@ public class DummyValidator implements Validator {
 		return testCheckable(check, (String) null, (String) null);
 	}
 
+	@Component(name = TestCheckable.COMPONENT_NAME)
 	public static class TestCheckable implements Checkable {
 
 		public static final String COMPONENT_NAME = "Test.Validator.Checkable.TestCheckable";
@@ -150,6 +115,9 @@ public class DummyValidator implements Validator {
 			return this.invertedErrorMessage.apply(language);
 		}
 
+	}
+
+	private DummyValidator() {
 	}
 
 }

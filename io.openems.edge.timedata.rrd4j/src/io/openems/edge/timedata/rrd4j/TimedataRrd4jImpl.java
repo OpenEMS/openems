@@ -19,6 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -136,6 +137,12 @@ public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		return this.readHandler.getLatestValue(this.id(), channelAddress);
+	}
+
+	@Override
+	public CompletableFuture<Optional<Object>> getLatestValueOfNotExistingChannel(ChannelAddress channelAddress,
+			Unit unit) {
+		return this.readHandler.getLatestValueOfNotExistingChannel(this.id(), channelAddress, unit);
 	}
 
 	@Override

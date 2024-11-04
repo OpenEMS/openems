@@ -1,0 +1,3 @@
+<oe-flat-widget *ngIf="isInitialized" (click)="presentModal()" [icon]="{name:'swap-vertical-outline'}" [title]="component.alias">
+    <oe-flat-widget-line [name]="'MODBUS_TCP_API_READ_WRITE.CURRENT_STATE'| translate" [value]="this.overrideStatus" [leftColumnWidth]="10"></oe-flat-widget-line>
+</oe-flat-widget>

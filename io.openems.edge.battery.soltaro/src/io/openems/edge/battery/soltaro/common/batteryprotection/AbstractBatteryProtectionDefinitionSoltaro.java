@@ -68,4 +68,14 @@ public abstract class AbstractBatteryProtectionDefinitionSoltaro implements Batt
 	public final Double getMaxIncreaseAmperePerSecond() {
 		return 0.1; // [A] per second
 	}
+
+	@Override
+	public PolyLine getChargeSocToPercent() {
+		return PolyLine.empty();
+	}
+
+	@Override
+	public PolyLine getDischargeSocToPercent() {
+		return PolyLine.empty();
+	}
 }

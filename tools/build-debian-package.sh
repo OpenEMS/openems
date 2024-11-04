@@ -1,6 +1,8 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # Creates a Debian package for OpenEMS Edge + UI
+
+set -e
 
 OUTPUT=$( realpath ${1:-.} )
 
@@ -28,7 +30,7 @@ initialize_environment() {
     source $SCRIPT_DIR/common.sh
     common_initialize_environment
     common_build_snapshot_version
-    
+
     DEB_FILE="${PACKAGE_NAME}.deb"
     VERSION_FILE="${PACKAGE_NAME}.version"
 }
@@ -52,6 +54,12 @@ check_dependencies() {
 prepare_deb_template() {
     echo "# Build Debian package"
     sed --in-place "s/^\(Version: \).*$/\1$VERSION/" tools/debian/DEBIAN/control
+
+    for script in preinst postinst prerm postrm
+    do
+	    script="tools/debian/DEBIAN/$script"
+        [ -f $script ] && chmod 755 $script
+    done
 
     echo "## Add OpenEMS Edge"
     if [ -f "$DEBIAN_EDGE_LOCATION/openems.jar" ]; then

@@ -26,7 +26,6 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
-import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 
 @Component(//
 		service = { //
@@ -70,7 +69,10 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		if (oldConfig != null) {
 			var componentDiff = new ArrayList<>(oldConfig.components());
 			if (config != null) {
-				componentDiff.removeIf(t -> config.components().stream().anyMatch(c -> c.getId().equals(t.getId())));
+				componentDiff.removeIf(t -> config.components().stream().anyMatch(c -> {
+					return c.getId().equals(t.getId()) //
+							&& c.getFactoryId().equals(t.getFactoryId());
+				}));
 			}
 			this.components2Delete.addAll(componentDiff);
 		}
@@ -95,8 +97,24 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 			if (foundComponentWithSameId != null) {
 				// check if the found component has the same factory id
 				if (!foundComponentWithSameId.getFactoryId().equals(comp.getFactoryId())) {
-					errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
-							+ "' can not be rewritten. Because the component has a different factoryId.");
+					if (this.components2Delete.stream().anyMatch(t -> t.getId().equals(comp.getId()))) {
+						// if the component was intended to be deleted anyway delete it directly and
+						// create the new component directly afterwards
+						try {
+							this.deleteComponent(user, comp);
+							this.deletedComponents.add(comp.getId());
+							this.components2Delete.removeIf(t -> t.getId().equals(comp.getId()));
+							this.createComponent(user, comp);
+							this.createdComponents.add(comp);
+						} catch (OpenemsNamedException e) {
+							final var error = "Component[" + comp.getFactoryId() + "] cant be created!";
+							errors.add(error);
+							errors.add(e.getMessage());
+						}
+					} else {
+						errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
+								+ "' can not be rewritten. Because the component has a different factoryId.");
+					}
 					continue;
 				}
 
@@ -180,13 +198,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 			}
 
 			try {
-				final var request = new DeleteComponentConfigRequest(comp.getId());
-				if (user != null) {
-					this.componentManager.handleJsonrpcRequest(user, request);
-				} else {
-					// user can be null using internal method
-					((ComponentManagerImpl) this.componentManager).handleDeleteComponentConfigRequest(user, request);
-				}
+				this.deleteComponent(user, comp);
 				this.deletedComponents.add(comp.getId());
 			} catch (OpenemsNamedException e) {
 				errors.add(e.toString());
@@ -241,19 +253,18 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 				|| !this.components2Delete.isEmpty();
 	}
 
+	private void deleteComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {
+		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfigRequest(comp.getId()));
+	}
+
 	private void createComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {
 		List<Property> properties = comp.getProperties().entrySet().stream()
 				.map(t -> new Property(t.getKey(), t.getValue())).collect(Collectors.toList());
 		properties.add(new Property("id", comp.getId()));
 		properties.add(new Property("alias", comp.getAlias()));
 
-		var request = new CreateComponentConfigRequest(comp.getFactoryId(), properties);
-		if (user != null) {
-			this.componentManager.handleJsonrpcRequest(user, request);
-			return;
-		}
-		// user can be null using internal method
-		((ComponentManagerImpl) this.componentManager).handleCreateComponentConfigRequest(user, request);
+		this.componentManager.handleCreateComponentConfigRequest(user,
+				new CreateComponentConfigRequest(comp.getFactoryId(), properties));
 	}
 
 	/**
@@ -276,14 +287,9 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 				.map(t -> new Property(t.getKey(), t.getValue())) //
 				.collect(Collectors.toList());
 		properties.add(new Property("alias", myComp.getAlias()));
-		var updateRequest = new UpdateComponentConfigRequest(actualComp.getId(), properties);
 
-		if (user != null) {
-			this.componentManager.handleJsonrpcRequest(user, updateRequest);
-			return;
-		}
-		// user can be null using internal method
-		((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
+		this.componentManager.handleUpdateComponentConfigRequest(user,
+				new UpdateComponentConfigRequest(actualComp.getId(), properties));
 	}
 
 	@Override

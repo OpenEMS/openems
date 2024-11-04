@@ -1,18 +1,19 @@
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
-import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
 import { OptionGroupConfig, getTitleFromOptionConfig } from "../option-group-picker/optionGroupPickerConfiguration";
+import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
 
 @Component({
-    selector: 'formly-safe-input-wrapper',
-    templateUrl: './formly-safe-input.extended.html',
+    selector: "formly-safe-input-wrapper",
+    templateUrl: "./formly-safe-input.extended.html",
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
 
     protected pathToDisplayValue: string;
-    protected displayType: 'string' | 'boolean' | 'number' | 'optionGroup';
+    protected displayType: "string" | "boolean" | "number" | "optionGroup";
 
     constructor(
         private modalController: ModalController,
@@ -22,7 +23,25 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
 
     ngOnInit(): void {
         this.pathToDisplayValue = this.props["pathToDisplayValue"];
-        this.displayType = this.props["displayType"] ?? 'string';
+        this.displayType = this.props["displayType"] ?? "string";
+    }
+
+    public getValue() {
+        if (this.displayType === "boolean"
+            || this.displayType === "number"
+            || this.displayType === "string") {
+            return this.model[this.pathToDisplayValue];
+        }
+
+        if (this.displayType === "optionGroup") {
+            const value = this.getValueOfOptionGroup();
+            if (value) {
+                return value;
+            }
+        }
+
+        // not defined
+        return this.model[this.pathToDisplayValue];
     }
 
     protected onSelectItem() {
@@ -41,7 +60,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
                 fields: this.getFields(),
                 model: this.model,
             },
-            cssClass: ['auto-height'],
+            cssClass: ["auto-height"],
         });
         modal.onDidDismiss().then(event => {
             if (!event.data) {
@@ -82,26 +101,8 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
         return await modal.present();
     }
 
-    public getValue() {
-        if (this.displayType === 'boolean'
-            || this.displayType === 'number'
-            || this.displayType === 'string') {
-            return this.model[this.pathToDisplayValue];
-        }
-
-        if (this.displayType === 'optionGroup') {
-            const value = this.getValueOfOptionGroup();
-            if (value) {
-                return value;
-            }
-        }
-
-        // not defined
-        return this.model[this.pathToDisplayValue];
-    }
-
     private getValueOfOptionGroup(): string {
-        const field = GetAppAssistant.findField(this.getFields(), this.pathToDisplayValue.split('.'));
+        const field = GetAppAssistant.findField(this.getFields(), this.pathToDisplayValue.split("."));
         if (!field) {
             return null;
         }
@@ -111,7 +112,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
         if (Array.isArray(value)) {
             return (value as []).map(e => options.find(option => option.value === e))
                 .map(option => getTitleFromOptionConfig(option, this.field))
-                .join(', ');
+                .join(", ");
         } else {
             const option = options.find(option => option.value === value);
             if (!option) {
