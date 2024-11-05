@@ -38,8 +38,6 @@ public class BalancingImplTest {
 	private static final ChannelAddress LEVL_INFLUENCE_SELL_TO_GRID = new ChannelAddress(CTRL_ID, "InfluenceSellToGrid");
 	private static final ChannelAddress LEVL_EFFICIENCY = new ChannelAddress(CTRL_ID, "Efficiency");
 	private static final ChannelAddress LEVL_PUC_BATTERY_POWER = new ChannelAddress(CTRL_ID, "PucBatteryPower");
-	private static final ChannelAddress LEVL_LAST_REQUEST_REALIZED_ENERGY_GRID = new ChannelAddress(CTRL_ID, "LastRequestRealizedEnergyGrid");
-	private static final ChannelAddress LEVL_LAST_REQUEST_TIMESTAMP = new ChannelAddress(CTRL_ID, "LastRequestTimestamp");
 	
 	@Test
 	public void testWithoutLevlRequest() throws Exception {
@@ -136,16 +134,18 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, 10000)
-						.input(LEVL_SOC, 100_000)
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 10000)
+						.input(LEVL_SOC, 100_000)
+						// following values have to be updated each cycle
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 30000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 30000)
 						.output(LEVL_PUC_BATTERY_POWER, 20000L)
@@ -187,16 +187,18 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10000)
-						.input(LEVL_SOC, 100_000)
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10000)
+						.input(LEVL_SOC, 100_000)
+						// following values have to be updated each cycle
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 10000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 10000)
 						.output(LEVL_PUC_BATTERY_POWER, 20000L)
@@ -239,16 +241,18 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, 2_500_000_000L)
-						.input(LEVL_SOC, 100_000)
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_SOC, 100_000)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 2_500_000_000L)
+						// following values have to be updated each cycle
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 120000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 120000)
 						.output(LEVL_PUC_BATTERY_POWER, 20000L)
@@ -289,19 +293,19 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						// following values will be kept for all cycles
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -800000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 800000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000) 
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
 						// following values have to be updated each cycle
 						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000.000 Ws
 						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, -20_000) // grid power /wo Levl --> sell to grid
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000) 
-						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(METER_ACTIVE_POWER, -20_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
 						.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
@@ -313,7 +317,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 480_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) 
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
-						.output(LEVL_PUC_BATTERY_POWER, -20_000L) // since reserved capacity decreased by 400,000 Ws in the previous cycle but ess soc value remains the same, puc can still charge
+						.output(LEVL_PUC_BATTERY_POWER, -20_000L) // since reserved capacity decreased by 400,000 Ws in the previous cycle but ess soc value remains the same, puc can charge again
 						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) // 480,000 Ws can be realized for Levl, therefore 9,020,00 are remaining
 						.output(LEVL_SOC, -179_216_000L)); // Levl soc increases by 480,000 Ws * 80% efficiency = 384,000 Ws
 	}
@@ -335,19 +339,19 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						// following values will be kept for all cycles
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -800_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 800_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 10_000_000)
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
 						// following values have to be updated each cycle
 						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000,000 Ws
 						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, -20_000) // grid power /wo Levl --> sell to grid
-						.input(LEVL_REMAINING_LEVL_ENERGY, 10_000_000)
-						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(METER_ACTIVE_POWER, -20_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, 500_000) // max discharge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 500_000)
 						.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
@@ -382,19 +386,19 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						// following values will be kept for all cycles
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -800_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 800_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000)
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
 						// following values have to be updated each cycle
 						.input(ESS_SOC, 85) // 85% = 425,000 Wh = 1,530,000,000 Ws
 						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, -10_000) // grid power /wo Levl --> sell to grid
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000)
-						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(METER_ACTIVE_POWER, -10_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
 						.output(LEVL_PUC_BATTERY_POWER, -10_000L) // puc should charge 10,000 Ws since 5% capacity is available
@@ -428,19 +432,19 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						// following values will be kept for all cycles
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -800_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 800_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000)
+						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
 						// following values have to be updated each cycle
 						.input(ESS_SOC, 50) // 50% = 250,000 Wh = 900,000,000 Ws
 						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 10_000) // grid power /wo Levl --> buy from grid
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10_000_000)
-						.input(LEVL_SOC, -180_000_000) // 10% of total capacity
+						.input(METER_ACTIVE_POWER, 10_000) // grid power w/o Levl --> buy from grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
 						.output(LEVL_PUC_BATTERY_POWER, 10_000L) // puc should discharge 10,000 Ws since Levl has reserved charge not discharge energy
@@ -475,17 +479,17 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase("puc sell to grid, levl charge not allowed")
-						.input(ESS_SOC, 90)
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, -20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10000L)
-						.input(LEVL_SOC, -180_000_000)
 						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -10000L)
+						.input(LEVL_SOC, -180_000_000)
+						.input(ESS_SOC, 90)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
 						.output(LEVL_PUC_BATTERY_POWER, 0L)
@@ -510,17 +514,17 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase("puc sell to grid, levl discharge not allowed")
-						.input(ESS_SOC, 90)
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, -20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, 10000L)
-						.input(LEVL_SOC, -180_000_000)
 						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
 						.input(LEVL_EFFICIENCY, 80.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 10000L)
+						.input(LEVL_SOC, -180_000_000)
+						.input(ESS_SOC, 90)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
 						.output(LEVL_PUC_BATTERY_POWER, 0L)
@@ -545,22 +549,22 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase("puc buy from grid, levl charge is allowed")
-						.input(ESS_SOC, 0)
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10000L)
-						.input(LEVL_SOC, 0)
 						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
 						.input(LEVL_EFFICIENCY, 80.0)
-						.input(DEBUG_SET_ACTIVE_POWER, -10000)
-						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -10000)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -30000L)
+						.input(LEVL_SOC, 0)
+						.input(ESS_SOC, 0)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 20000)
+						.input(DEBUG_SET_ACTIVE_POWER, -30000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -30000)
 						.output(LEVL_PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
-						.output(LEVL_SOC, 8000L));
+						.output(LEVL_SOC, 24000L));
 	}	
 	
 	@Test
@@ -580,22 +584,22 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase("puc buy from grid, levl discharge is limited to grid limit 0")
-						.input(ESS_SOC, 0)
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 20000)
-						.input(LEVL_REMAINING_LEVL_ENERGY, -10000L)
-						.input(LEVL_SOC, 0)
 						.input(LEVL_SELL_TO_GRID_LIMIT, -100_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 100_000)
 						.input(SOC_LOWER_BOUND_LEVL, 0)
 						.input(SOC_UPPER_BOUND_LEVL, 100)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, false)
 						.input(LEVL_EFFICIENCY, 100.0)
-						.input(DEBUG_SET_ACTIVE_POWER, -10000)
-						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -10000)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 30000L)
+						.input(LEVL_SOC, 180_000_000L)
+						.input(ESS_SOC, 10)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 20000)
+						.input(DEBUG_SET_ACTIVE_POWER, 20000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 20000)
 						.output(LEVL_PUC_BATTERY_POWER, 0L)
-						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
-						.output(LEVL_SOC, 10000L));
+						.output(LEVL_REMAINING_LEVL_ENERGY, 10000L)
+						.output(LEVL_SOC, 179_980_000L));
 	}
 	
 	@Test
@@ -615,17 +619,19 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						.input(ESS_SOC, 79)
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 0)
-						.input(LEVL_REMAINING_LEVL_ENERGY, -100_000_000)
-						.input(LEVL_SOC, 0)
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -40_000_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 40_000_000)
 						.input(SOC_LOWER_BOUND_LEVL, 20)
 						.input(SOC_UPPER_BOUND_LEVL, 80)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 100.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -100_000_000)
+						.input(LEVL_SOC, 0)
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 79)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, -18_000_000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -18_000_000)
 						.output(LEVL_PUC_BATTERY_POWER, -0L)
@@ -668,17 +674,19 @@ public class BalancingImplTest {
 						.setMeterId(METER_ID)
 						.build())
 				.next(new TestCase()
-						.input(ESS_SOC, 21)
-						.input(ESS_ACTIVE_POWER, 0)
-						.input(METER_ACTIVE_POWER, 0)
-						.input(LEVL_REMAINING_LEVL_ENERGY, 100_000_000)
-						.input(LEVL_SOC, 0)
+						// following values have to be initialized in the first cycle
 						.input(LEVL_SELL_TO_GRID_LIMIT, -40_000_000)
 						.input(LEVL_BUY_FROM_GRID_LIMIT, 40_000_000)
 						.input(SOC_LOWER_BOUND_LEVL, 20)
 						.input(SOC_UPPER_BOUND_LEVL, 80)
 						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
 						.input(LEVL_EFFICIENCY, 100.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 100_000_000)
+						.input(LEVL_SOC, 0)
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 21)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, 18_000_000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 18_000_000)
 						.output(LEVL_PUC_BATTERY_POWER, -0L)
@@ -703,32 +711,4 @@ public class BalancingImplTest {
 						.output(LEVL_REMAINING_LEVL_ENERGY, 82_000_000L)
 						.output(LEVL_SOC, -18_000_000L));
 	}
-	
-	// Test cases EVO
-	
-	// x: charge request
-	// x: discharge request
-	// x: avoid integer overflow with large request
-	
-	// x: reserved charge energy, levl charges, puc should not charge
-	// x: reserved charge energy, levl discharges, puc should not charge
-	
-	// x: reserved charge energy, puc may charge
-	// x: reserved charge energy, puc may discharge
-	
-	// x: charge request, forbid influence sell to grid
-	// x: discharge request, forbid influence sell to grid
-	
-	// update levl soc => nicht umsetzbar, da wir keinen Request simulieren können
-	
-	// x respect grid limits => integer overflow x sell to grid limit
-	// respect lower soc limit
-	// x: respect upper soc limit
-	
-	
-	// Erläuterung: Channels die innerhalb des Controllers sowie in einem Testcase gesetzt werden, bleiben erhalten.
-	// Channels die jedoch im Anschluss durch andere Controller gesetzt werden, werden nicht gesetzt. Ebenso ändert sich z.B. nicht die ESS_ACTIVE_POWER zwischen den Zyklen, da das ESS lediglich ein Mock ist.
-	
-	//TODO: AllowedChargePower vs. ess.getPower.Max/Min. Was verwenden? Kurze Analyse: GetPower.Min/Max() wird gesetzt, wenn ApparentPower des Ess gesetzt ist. Allowed Charge/DischargePower muss nochmals irgendwo seperat gesetzt werden können.
-	//TODO: Müssen wir noch irgendwo die Production berücksichtigen? Z.B. an der Batterie? Eigentlich nicht, müsste alles über den NAP abgedeckt sein.
 }
