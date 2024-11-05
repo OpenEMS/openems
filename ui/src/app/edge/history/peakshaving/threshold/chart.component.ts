@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { YAxisType } from "src/app/shared/service/utils";
 
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../../shared/shared";
 import { AbstractHistoryChart } from "../../abstracthistorychart";
 
 @Component({
@@ -56,8 +56,10 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
                 //const stateMachine = this.componentId + "/StateMachine";
                 const peakShavedPower = this.componentId + "/PeakShavedPower";
-
                 const peakShavingTargetPower = this.componentId + "/PeakShavingTargetPower";
+                const essSoc = this.componentId + "/EssSoc";
+                const essPower = this.componentId + "/EssPower";
+
                 const result = response.result;
 
                 console.log("Debug Result:", result); // <-- Hier wird das Resultat geloggt
@@ -205,19 +207,34 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: "rgba(200,199,199,1)",
                     });
                 }
-                if ("_sum/EssActivePower" in result.data) {
+
+                if (essSoc in result.data) {
+                    const data = result.data[essSoc].map(value => {
+                        if (value == null) {
+                            return null;
+                        } else if (value == 0) {
+                            return 0;
+                        } else {
+                            return value; // conversion necessary?
+                        }
+                    });
+                    datasets.push({
+                        label: this.translate.instant("General.soc"),
+                        data: data,
+                        hidden: false,
+                        borderDash: [3, 3],
+                    });
+                    this.colors.push({
+                        backgroundColor: "rgba(0,223,0,0.05)",
+                        borderColor: "rgba(0,223,0,1)",
+                    });
+                }
+
+                if (essPower in result.data) {
                     /*
                      * Storage Charge
                      */
-                    let effectivePower;
-                    if ("_sum/ProductionDcActualPower" in result.data && result.data["_sum/ProductionDcActualPower"].length > 0) {
-                        effectivePower = result.data["_sum/ProductionDcActualPower"].map((value, index) => {
-                            return Utils.subtractSafely(result.data["_sum/EssActivePower"][index], value);
-                        });
-                    } else {
-                        effectivePower = result.data["_sum/EssActivePower"];
-                    }
-                    const chargeData = effectivePower.map(value => {
+                    const chargeData = result.data[essPower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value < 0) {
@@ -238,7 +255,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     /*
                      * Storage Discharge
                      */
-                    const dischargeData = effectivePower.map(value => {
+                    const dischargeData = result.data[essPower].map(value => {
                         if (value == null) {
                             return null;
                         } else if (value > 0) {
@@ -286,8 +303,10 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 new ChannelAddress(this.componentId, "StateMachine"),
                 new ChannelAddress(this.componentId, "PeakShavedPower"),
                 new ChannelAddress(this.componentId, "PeakShavingTargetPower"),
+                new ChannelAddress(this.componentId, "EssSoc"),
+                new ChannelAddress(this.componentId, "EssPower"),
                 new ChannelAddress(config.getComponent(this.componentId).properties["meter.id"], "ActivePower"),
-                new ChannelAddress("_sum", "EssActivePower"),
+                //new ChannelAddress("_sum", "EssActivePower"),
             ];
             resolve(result);
         });
