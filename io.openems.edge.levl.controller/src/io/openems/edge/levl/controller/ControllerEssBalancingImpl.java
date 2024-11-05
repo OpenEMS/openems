@@ -61,25 +61,12 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	@Reference
 	protected Cycle cycle;
 
-	private Config config;
-
 	protected static Clock clock = Clock.systemDefaultZone();
 
 	protected LevlControlRequest currentRequest;
 	protected LevlControlRequest nextRequest;
-
-	//private RequestHandler requestHandler;
-	//protected long levlSocWs;
-	//protected int pucBatteryPower;
 	protected long realizedEnergyGridWs;
 	protected long realizedEnergyBatteryWs;
-	//protected double efficiencyPercent = 100.0;
-	//protected double socLowerBoundPercent = 0.0;
-	//protected double socUpperBoundPercent = 100.0;
-	//protected long energyWs;
-	//protected int buyFromGridLimitW;
-	//protected int sellToGridLimitW;
-	//protected boolean influenceSellToGrid = true;
 
 	private static final String METHOD = "sendLevlControlRequest";
 
@@ -94,7 +81,6 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
@@ -103,18 +89,6 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		}
 		
 		this.initChannelValues();
-	}
-	
-	private void initChannelValues() {
-		this._setLevlSoc(0L);
-		this._setPucBatteryPower(0L);
-		this._setEfficiency(100.0);
-		this._setSocLowerBoundLevl(0.0);
-		this._setSocUpperBoundLevl(0.0);
-		this._setRemainingLevlEnergy(0L);
-		this._setBuyFromGridLimit(0L);
-		this._setSellToGridLimit(0L);
-		this._setInfluenceSellToGrid(false);
 	}
 
 	@Override
@@ -151,6 +125,19 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this.ess.setActivePowerEqualsWithPid(calculatedPower);
 		this.ess.setReactivePowerEquals(0);
 	}
+	
+	
+	private void initChannelValues() {
+		this._setLevlSoc(0L);
+		this._setPucBatteryPower(0L);
+		this._setEfficiency(100.0);
+		this._setSocLowerBoundLevl(0.0);
+		this._setSocUpperBoundLevl(0.0);
+		this._setRemainingLevlEnergy(0L);
+		this._setBuyFromGridLimit(0L);
+		this._setSellToGridLimit(0L);
+		this._setInfluenceSellToGrid(false);
+	}
 
 	/**
 	 * Calculates required charge/discharge power.
@@ -171,21 +158,14 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		int essPower = this.ess.getActivePower().getOrError();
 		int essCapacity = this.ess.getCapacity().getOrError();
 		
-		// TODO: Was wenn die Werte nicht gesetzt sind?
-		long levlSocWs = this.getLevlSoc().get();
-		long remainingLevlEnergyWs = this.getRemainingLevlEnergy().get();
-		double efficiency = this.getEfficiency().get();
-		double socLowerBoundLevlPercent = this.getSocLowerBoundLevl().get();
-		double socUpperBoundLevlPercent = this.getSocUpperBoundLevl().get();
-		long buyFromGridLimit = this.getBuyFromGridLimit().get();
-		long sellToGridLimit = this.getSellToGridLimit().get();
-		boolean influenceSellToGrid = this.getInfluenceSellToGrid().get();
-		
-		
-		
-		//TODO: wäre das nicht der richtige Wert? G
-//		int minEssPower = this.ess.getAllowedChargePower().getOrError();
-//		int maxEssPower = this.ess.getAllowedDischargePower().getOrError();
+		long levlSocWs = this.getLevlSoc().getOrError();
+		long remainingLevlEnergyWs = this.getRemainingLevlEnergy().getOrError();
+		double efficiency = this.getEfficiency().getOrError();
+		double socLowerBoundLevlPercent = this.getSocLowerBoundLevl().getOrError();
+		double socUpperBoundLevlPercent = this.getSocUpperBoundLevl().getOrError();
+		long buyFromGridLimit = this.getBuyFromGridLimit().getOrError();
+		long sellToGridLimit = this.getSellToGridLimit().getOrError();
+		boolean influenceSellToGrid = this.getInfluenceSellToGrid().getOrError();
 
 		int minEssPower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 		int maxEssPower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
@@ -353,8 +333,9 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		var request = LevlControlRequest.from(call.getRequest());
 		this.log.info("Received new levl request: {}", request);
 		this.nextRequest = request;
-		this._setLevlSoc(request.levlSocWh * 3600 - this.realizedEnergyBatteryWs);
-		this.log.info("Updated levl soc: {}", this.getLevlSoc().get());
+		var nextLevlSoc = request.levlSocWh * 3600 - this.realizedEnergyBatteryWs;
+		this._setLevlSoc(nextLevlSoc);
+		this.log.info("Updated levl soc: {}", nextLevlSoc);
 		return JsonrpcResponseSuccess
 				.from(this.generateResponse(call.getRequest().getId(), request.levlRequestId));
 	}
@@ -376,7 +357,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS -> {
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
 				if (isActive(this.nextRequest)) {
 					if (this.currentRequest != null) {
 						this.finishRequest();
@@ -387,29 +368,36 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 				}
 			}
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE -> {
-				if (this.currentRequest != null) {
-					long levlPower = 0;
-					
-					var essNextPower = this.ess.getDebugSetActivePowerChannel().getNextValue();
-					//TODO: Bisher wurde der DebugSetActivePower verwendet. In den unteren schreiben wir jedoch rein. Welcher ist der Richtige?
-					//  In unserem Integrationstest mal beide Werte loggen.
-					//var essNextPower = this.ess.getSetActivePowerEqualsWithPidChannel().getNextValue();
-					if (essNextPower.isDefined()) {
-						var essPower = essNextPower.get();
-						var pucBatteryPower = this.getPucBatteryPowerChannel().getNextValue().get();
-						levlPower = essPower - pucBatteryPower;
-					}
-					long levlEnergyWs = Math.round(levlPower * this.cycle.getCycleTime() / 1000.0);
-					// remaining for the NEXT calculation cycle
-					this._setRemainingLevlEnergy(this.getRemainingLevlEnergy().get() - levlEnergyWs);
-					// realized AFTER the next cycle (next second)
-					this.realizedEnergyGridWs += levlEnergyWs;
-					this.log.info("this cycle realized levl energy on grid: {}", levlEnergyWs);
-					double efficiency = this.getEfficiency().get();
-					this.realizedEnergyBatteryWs += Efficiency.apply(levlEnergyWs, efficiency);
-					this._setLevlSoc(this.getLevlSoc().get() - Efficiency.apply(levlEnergyWs, efficiency));
+				try {
+					handleAfterWriteEvent();
+				} catch (Exception e) {
+					this.log.error("error executing after write event", e);
 				}
 			}
+		}
+	}
+	
+	private void handleAfterWriteEvent() throws OpenemsNamedException  {
+		if (this.currentRequest != null) {
+			var pucBatteryPower = this.getPucBatteryPowerChannel().getNextValue().getOrError();
+			var remainingLevlEnergy = this.getRemainingLevlEnergy().getOrError();
+			var efficiency = this.getEfficiency().getOrError();
+			var levlSoc = this.getLevlSoc().getOrError();
+			
+			long levlPower = 0;
+			var essNextPower = this.ess.getDebugSetActivePowerChannel().getNextValue();
+			if (essNextPower.isDefined()) {
+				var essPower = essNextPower.get();
+				levlPower = essPower - pucBatteryPower;
+			}
+			long levlEnergyWs = Math.round(levlPower * this.cycle.getCycleTime() / 1000.0);
+			// remaining for the NEXT calculation cycle
+			this._setRemainingLevlEnergy(remainingLevlEnergy - levlEnergyWs);
+			// realized AFTER the next cycle (next second)
+			this.realizedEnergyGridWs += levlEnergyWs;
+			this.log.info("this cycle realized levl energy on grid: {}", levlEnergyWs);
+			this.realizedEnergyBatteryWs += Efficiency.apply(levlEnergyWs, efficiency);
+			this._setLevlSoc(levlSoc - Efficiency.apply(levlEnergyWs, efficiency));
 		}
 	}
 
@@ -424,8 +412,6 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this.currentRequest = null;
 	}
 	
-	//TODO: Values will be active with the beginning of the next cycle, because we set the "nextValue". 
-	// There is no way to set the current value directly. However, we could run this triggered by event "BEFORE_PROCESS_IMAGE" instead of "BEFORE_CONTROLLERS".
 	private void startNextRequest() {
 		this.log.info("starting levl request: {}", this.currentRequest);
 		this.currentRequest = this.nextRequest;

@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.test.DummyCycle;
@@ -46,21 +47,21 @@ public class ControllerEssBalancingImplTest {
 		this.underTest.meter = new DummyElectricityMeter("meter0").withActivePower(200);
 		
 		this.underTest.realizedEnergyGridWs = 100;
-		this.underTest._setLevlSoc(2000L); //TODO: Channels lassen sich innerhalb dieses Unit-Tests nicht setzen. Ggf. nicht notwendig, da Prüfung via OpenEMS-Test
-		this.underTest._setEfficiency(100.0);
-		this.underTest._setSocLowerBoundLevl(20.0);
-		this.underTest._setSocUpperBoundLevl(80.0);
-		this.underTest._setBuyFromGridLimit(1000L);
-		this.underTest._setSellToGridLimit(-1000L);
-		this.underTest._setInfluenceSellToGrid(true);
-		
+		this.setActiveChannelValue(this.underTest.getLevlSocChannel(), 2000L);
+		this.setActiveChannelValue(this.underTest.getRemainingLevlEnergyChannel(), 200000L);
+		this.setActiveChannelValue(this.underTest.getEfficiencyChannel(), 100.0);
+		this.setActiveChannelValue(this.underTest.getSocLowerBoundLevlChannel(), 20.0);
+		this.setActiveChannelValue(this.underTest.getSocUpperBoundLevlChannel(), 80.0);
+		this.setActiveChannelValue(this.underTest.getBuyFromGridLimitChannel(), 1000L);
+		this.setActiveChannelValue(this.underTest.getSellToGridLimitChannel(), -1000L);
+		this.setActiveChannelValue(this.underTest.getInfluenceSellToGridChannel(), true);
+				
 		int result = this.underTest.calculateRequiredPower();
 		
-		Assert.assertEquals(1100, result);
+		Assert.assertEquals(500, result);
 	}	
 
 	// Primary use case calculation
-	
 	@Test
 	public void testApplyPucSocBounds() {
 		Assert.assertEquals("good case discharge", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30, 100));
@@ -82,15 +83,15 @@ public class ControllerEssBalancingImplTest {
 
     @Test
     public void testCalculatePucBatteryPower() {
-		Assert.assertEquals("discharge within battery limit", 70, underTest.calculatePucBatteryPower(1, 50, 20, 
+		Assert.assertEquals("discharge within battery limit", 70, this.underTest.calculatePucBatteryPower(1, 50, 20, 
                 1000, 500, -150, 150, 100));
-		Assert.assertEquals("discharge outside battery limit", 150, underTest.calculatePucBatteryPower(1, 200, 20, 
+		Assert.assertEquals("discharge outside battery limit", 150, this.underTest.calculatePucBatteryPower(1, 200, 20, 
                 1000, 500, -150, 150, 100));
-		Assert.assertEquals("charge outside battery limit", -150, underTest.calculatePucBatteryPower(1, -200, -20, 
+		Assert.assertEquals("charge outside battery limit", -150, this.underTest.calculatePucBatteryPower(1, -200, -20, 
                 1000, 500, -150, 150, 100));
-}
+    }
     
-    // Levl Power calculation
+	// Levl Power calculation
 	@Test
 	public void testApplyBatteryPowerLimitsToLevlPower() {
 		Assert.assertEquals(70, this.underTest.applyBatteryPowerLimitsToLevlPower(100, 30, -100, 100));
@@ -126,10 +127,7 @@ public class ControllerEssBalancingImplTest {
 	
 	@Test
 	public void testHandleEvent_before_currentActive() {
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>());
-		
-		// 2024-10-24T14:00:00
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC);
+		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC); // 2024-10-24T14:00:00
 		ControllerEssBalancingImpl.clock = clock;
 		
 		LevlControlRequest currentRequest = new LevlControlRequest();
@@ -141,6 +139,8 @@ public class ControllerEssBalancingImplTest {
 		nextRequest.start = LocalDateTime.of(2024, 10, 24, 14, 15, 0);
 		nextRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 29, 59);
 		this.underTest.nextRequest = nextRequest;
+		
+		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 			
 		this.underTest.handleEvent(event);
 		
@@ -149,8 +149,6 @@ public class ControllerEssBalancingImplTest {
 	
 	@Test
 	public void testHandleEvent_before_nextRequestIsActive() {
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>());
-		
 		// 2024-10-24T14:15:00
 		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC);
 		ControllerEssBalancingImpl.clock = clock;
@@ -167,6 +165,8 @@ public class ControllerEssBalancingImplTest {
 		
 		this.underTest.realizedEnergyGridWs = 100;
 		this.underTest.realizedEnergyBatteryWs = 200;
+		
+		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 			
 		this.underTest.handleEvent(event);
 		
@@ -178,10 +178,7 @@ public class ControllerEssBalancingImplTest {
 	
 	@Test
 	public void testHandleEvent_before_gapBetweenRequests() {
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>());
-		
-		// 2024-10-24T14:15:00
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC);
+		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC); // 2024-10-24T14:15:00
 		ControllerEssBalancingImpl.clock = clock;
 		
 		LevlControlRequest currentRequest = new LevlControlRequest();
@@ -196,6 +193,8 @@ public class ControllerEssBalancingImplTest {
 		
 		this.underTest.realizedEnergyGridWs = 100;
 		this.underTest.realizedEnergyBatteryWs = 200;
+		
+		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 			
 		this.underTest.handleEvent(event);
 		
@@ -207,8 +206,6 @@ public class ControllerEssBalancingImplTest {
 	
 	@Test
 	public void testHandleEvent_before_noNextRequest() {
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>());
-		
 		// 2024-10-24T14:15:00
 		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC);
 		ControllerEssBalancingImpl.clock = clock;
@@ -220,7 +217,9 @@ public class ControllerEssBalancingImplTest {
 		
 		this.underTest.realizedEnergyGridWs = 100;
 		this.underTest.realizedEnergyBatteryWs = 200;
-			
+		
+		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
+		
 		this.underTest.handleEvent(event);
 		
 		Assert.assertNull(this.underTest.currentRequest);
@@ -231,10 +230,9 @@ public class ControllerEssBalancingImplTest {
 	
 	@Test
 	public void testHandleEvent_before_noRequests() {
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>());
+		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 		
-		// 2024-10-24T14:15:00
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC);
+		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC); // 2024-10-24T14:15:00
 		ControllerEssBalancingImpl.clock = clock;
 					
 		this.underTest.handleEvent(event);
@@ -245,24 +243,25 @@ public class ControllerEssBalancingImplTest {
 
 	@Test
 	public void testHandleEvent_after() {
-		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, new HashMap<>());
-		
-		this.underTest.ess = new DummyManagedSymmetricEss("ess0")
-				.withActivePower(-100);
+		this.underTest.ess = new DummyManagedSymmetricEss("ess0");
 		this.underTest.cycle = new DummyCycle(1000);
-		this.underTest._setPucBatteryPower(10L); //TODO: Channels lassen sich innerhalb dieses Unit-Tests nicht setzen. Ggf. nicht notwendig, da Prüfung via OpenEMS-Test
-		this.underTest._setLevlSoc(40L);
-		LevlControlRequest currentRequest = new LevlControlRequest();
-		currentRequest.efficiencyPercent = 80.0;
-		this.underTest.currentRequest = currentRequest;
-		this.underTest.realizedEnergyGridWs = 20;
-		this.underTest.realizedEnergyBatteryWs = 30;
+		this.setNextChannelValue(this.underTest.ess.getDebugSetActivePowerChannel(), -100);
+		this.setNextChannelValue(this.underTest.getPucBatteryPowerChannel(), 10L);
+		this.setActiveChannelValue(this.underTest.getLevlSocChannel(), 40L);
+		this.setActiveChannelValue(this.underTest.getRemainingLevlEnergyChannel(), -1000L);
+		this.setActiveChannelValue(this.underTest.getEfficiencyChannel(), 80.0);
+		this.underTest.currentRequest = new LevlControlRequest();
+		this.underTest.realizedEnergyGridWs = -20;
+		this.underTest.realizedEnergyBatteryWs = -30;
+		
+		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, new HashMap<>());
 			
 		this.underTest.handleEvent(event);
 		
-		Assert.assertEquals(-90, this.underTest.realizedEnergyGridWs);
-		Assert.assertEquals(-58, this.underTest.realizedEnergyBatteryWs);
-		Assert.assertEquals(128, this.underTest.getLevlSoc().get().longValue());
+		Assert.assertEquals(-890, this.underTest.getRemainingLevlEnergyChannel().getNextValue().get().longValue());
+		Assert.assertEquals(-130, this.underTest.realizedEnergyGridWs);
+		Assert.assertEquals(-118, this.underTest.realizedEnergyBatteryWs);
+		Assert.assertEquals(128, this.underTest.getLevlSocChannel().getNextValue().get().longValue());
 	}
 
 	@Test
@@ -283,14 +282,22 @@ public class ControllerEssBalancingImplTest {
 		JsonrpcRequest request = new GenericJsonrpcRequest("sendLevlControlRequest", params);
 		Call<JsonrpcRequest, JsonrpcResponse> call = new Call<JsonrpcRequest, JsonrpcResponse>(request);
 		
-		// 2024-10-24T14:00:00
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC);
+		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC); // 2024-10-24T14:00:00
 		LevlControlRequest.clock = clock;
-		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2024-10-24T14:15:00Z", 500*900, LocalDateTime.of(2024, 10, 24, 14, 15, 0), LocalDateTime.of(2024, 10, 24, 14, 30, 0), 10000, 20, 80, 90, true);
+		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2024-10-24T14:15:00Z", (500 * 900), LocalDateTime.of(2024, 10, 24, 14, 15, 0), LocalDateTime.of(2024, 10, 24, 14, 30, 0), 10000, 20, 80, 90, true);
 		
 		this.underTest.handleRequest(call);
 		
 		Assert.assertEquals(expectedNextRequest, this.underTest.nextRequest);
-		Assert.assertEquals(36000000, this.underTest.getLevlSoc().get().longValue()); //TODO: Channels lassen sich innerhalb dieses Unit-Tests nicht abfragen. Kann auch NICHT durch OpenEMS-Test abgetestet werden!
+		Assert.assertEquals(36000000, this.underTest.getLevlSocChannel().getNextValue().get().longValue());
+	}
+	
+	public void setActiveChannelValue(AbstractReadChannel<?, ?> channel, Object value) {
+		channel.setNextValue(value);
+		channel.nextProcessImage();
+	}
+	
+	public void setNextChannelValue(AbstractReadChannel<?, ?> channel, Object value) {
+		channel.setNextValue(value);
 	}
 }
