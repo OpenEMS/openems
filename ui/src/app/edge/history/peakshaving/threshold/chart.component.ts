@@ -77,8 +77,6 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 // convert datasets
                 const datasets = [];
 
-                const stateMachineValue = result.data[stateMachine]?.[0]; // Nimmt den ersten Wert von StateMachine
-
                 if (meterIdActivePower in result.data) {
                     const data = result.data[meterIdActivePower].map(value => {
                         if (value == null) {
@@ -167,93 +165,102 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: "rgba(50,199,199,1)",
                     });
                 }
-
-                if (stateMachineValue === 2 && propertyRechargePower in result.data && propertyPeakshavingPower in result.data) {
+                if (stateMachine in result.data && propertyRechargePower in result.data && propertyPeakshavingPower in result.data) {
+                    const stateMachineValue = result.data[stateMachine]?.[0]; // Nimmt den ersten Wert von StateMachine
                     const rechargePowerData = result.data[propertyRechargePower].map(value => value ? value / 1000 : null);
                     const peakShavingPowerData = result.data[propertyPeakshavingPower].map(value => value ? value / 1000 : null);
 
-                    // Berechne die Differenz zwischen peakShavingPower und rechargePower, um die Höhe der Balken zu definieren
-                    const fillBarData = rechargePowerData.map((rechargeValue, index) => {
-                        const peakValue = peakShavingPowerData[index];
-                        if (rechargeValue !== null && peakValue !== null) {
-                            return peakValue - rechargeValue; // Höhe des Balkens
-                        } else {
-                            return null; // Keine Daten für diesen Punkt
-                        }
-                    });
+                    let fillColor;
+                    switch (stateMachineValue) {
+                        case -1:
+                            fillColor = "rgba(255, 0, 0, 0.2)"; // UNDEFINED
+                            break;
+                        case 0:
+                            fillColor = "rgba(0, 0, 0, 0)"; // StandBy - transparent
+                            break;
+                        case 1:
+                            fillColor = "rgba(255, 0, 0, 0.2)"; // ERROR
+                            break;
+                        case 2:
+                            fillColor = "rgba(255, 223, 0, 0.2)"; // Peakshaver active
+                            break;
+                        case 3:
+                            fillColor = "rgba(0, 223, 0, 0.2)"; // Charging active
+                            break;
+                        default:
+                            fillColor = "rgba(150,199,199,0.2)"; // Standardfarbe (z.B. Blau) für andere Zustände
+                    }
 
-                    // Erzeuge ein Dummy-Datenset für die untere Begrenzung (damit die Balken korrekt starten)
+                    // Untere Linie (propertyRechargePower)
                     datasets.push({
                         label: this.translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
                         data: rechargePowerData,
-                        type: "line",
                         borderColor: "rgba(50,199,199,1)",
-                        backgroundColor: "rgba(0,0,0,0)",
-                        fill: false, // Linie als Basis, kein Bereich
-                        order: 0
-                    });
-
-                    // Füge das Balken-Datenset hinzu, das die Differenz ab rechargePower anzeigt
-                    datasets.push({
-                        type: "bar",
-                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.fillArea"),
-                        data: fillBarData, // Höhe der Balken
-                        base: rechargePowerData, // Startpunkt der Balken auf rechargePower setzen
-                        order: 1,
-                    });
-
-                    // Farben für den Balkenbereich definieren
-                    this.colors.push({
-                        backgroundColor: "rgba(0, 0, 0, 0.2)", // Transparente Füllfarbe
-                        borderColor: "rgba(0, 0, 0, 0.9)", // Dunklerer Rand
+                        backgroundColor: "rgba(0,0,0,0)", // Keine Füllfarbe für die Linie selbst
+                        fill: false, // Kein Füllen von dieser Linie aus
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(50,199,199,1)"
+                        borderColor: "rgba(50,199,199,1)",
                     });
-                }
 
-                if (propertyPeakshavingPower in result.data) {
-                    const data = result.data[propertyPeakshavingPower].map(value => {
-                        if (value == null) {
-                            return null;
-                        } else if (value == 0) {
-                            return 0;
-                        } else {
-                            return value / 1000; // convert to kW
-                        }
-                    });
+                    // Obere Linie (propertyPeakshavingPower) mit Füllung nach unten
                     datasets.push({
                         label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
-                        data: data,
-                        hidden: false,
-                        borderDash: [3, 3],
+                        data: peakShavingPowerData,
+                        borderColor: "rgba(150,199,199,1)",
+                        backgroundColor: fillColor, // Transparente Füllfarbe für den Bereich zwischen den Linien
+                        fill: "-1", // Fülle den Bereich bis zur unteren Linie (rechargePower)
                     });
                     this.colors.push({
-                        backgroundColor: "rgba(0,0,0,0)",
+                        backgroundColor: fillColor, // Füllfarbe für den Bereich
                         borderColor: "rgba(150,199,199,1)",
                     });
-                }
-                if (propertyRechargePower in result.data) {
-                    const data = result.data[propertyRechargePower].map(value => {
-                        if (value == null) {
-                            return null;
-                        } else if (value == 0) {
-                            return 0;
-                        } else {
-                            return value / 1000; // convert to kW
-                        }
-                    });
-                    datasets.push({
-                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
-                        data: data,
-                        hidden: false,
-                        borderDash: [3, 3],
-                    });
-                    this.colors.push({
-                        backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(200,199,199,1)",
-                    });
+                } else {
+
+
+                    if (propertyPeakshavingPower in result.data) {
+                        const data = result.data[propertyPeakshavingPower].map(value => {
+                            if (value == null) {
+                                return null;
+                            } else if (value == 0) {
+                                return 0;
+                            } else {
+                                return value / 1000; // convert to kW
+                            }
+                        });
+                        datasets.push({
+                            label: this.translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
+                            data: data,
+                            hidden: false,
+                            borderDash: [3, 3],
+                        });
+                        this.colors.push({
+                            backgroundColor: "rgba(0,0,0,0)",
+                            borderColor: "rgba(150,199,199,1)",
+                        });
+                    }
+                    if (propertyRechargePower in result.data) {
+                        const data = result.data[propertyRechargePower].map(value => {
+                            if (value == null) {
+                                return null;
+                            } else if (value == 0) {
+                                return 0;
+                            } else {
+                                return value / 1000; // convert to kW
+                            }
+                        });
+                        datasets.push({
+                            label: this.translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
+                            data: data,
+                            hidden: false,
+                            borderDash: [3, 3],
+                        });
+                        this.colors.push({
+                            backgroundColor: "rgba(0,0,0,0)",
+                            borderColor: "rgba(200,199,199,1)",
+                        });
+                    }
                 }
 
                 if (essSoc in result.data) {
