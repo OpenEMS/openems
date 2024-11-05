@@ -283,6 +283,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                             unit: YAxisType.PERCENTAGE,
                             formatNumber: "1.0-0",
                         },
+                        unit: YAxisType.PERCENTAGE,
                         borderDash: [10, 10],
                         order: 0,
                     });
