@@ -172,35 +172,47 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     const rechargePowerData = result.data[propertyRechargePower].map(value => value ? value / 1000 : null);
                     const peakShavingPowerData = result.data[propertyPeakshavingPower].map(value => value ? value / 1000 : null);
 
-                    // Erzeuge Balkendaten als Differenz, aber Offset von rechargePowerData
+                    // Berechne die Differenz zwischen peakShavingPower und rechargePower, um die Höhe der Balken zu definieren
                     const fillBarData = rechargePowerData.map((rechargeValue, index) => {
                         const peakValue = peakShavingPowerData[index];
                         if (rechargeValue !== null && peakValue !== null) {
-                            return {
-                                x: labels[index], // Datum
-                                y: rechargeValue, // Starte den Balken auf der Linie propertyRechargePower
-                                yEnd: peakValue   // Endhöhe ist die Höhe der Linie propertyPeakshavingPower
-                            };
+                            return peakValue - rechargeValue; // Höhe des Balkens
                         } else {
-                            return { x: labels[index], y: null, yEnd: null };
+                            return null; // Keine Daten für diesen Punkt
                         }
                     });
 
-                    // Balken-Datensatz hinzufügen
+                    // Erzeuge ein Dummy-Datenset für die untere Begrenzung (damit die Balken korrekt starten)
+                    datasets.push({
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
+                        data: rechargePowerData,
+                        type: "line",
+                        borderColor: "rgba(50,199,199,1)",
+                        backgroundColor: "rgba(0,0,0,0)",
+                        fill: false, // Linie als Basis, kein Bereich
+                        order: 0
+                    });
+
+                    // Füge das Balken-Datenset hinzu, das die Differenz ab rechargePower anzeigt
                     datasets.push({
                         type: "bar",
                         label: this.translate.instant("Edge.Index.Widgets.Peakshaving.fillArea"),
-                        data: fillBarData.map(bar => bar.yEnd !== null ? bar.yEnd - bar.y : null), // Berechnet die Höhe der Balken
-                        base: fillBarData.map(bar => bar.y !== null ? bar.y : null), // Setzt den Balkenstart auf propertyRechargePower
+                        data: fillBarData, // Höhe der Balken
+                        base: rechargePowerData, // Startpunkt der Balken auf rechargePower setzen
                         order: 1,
                     });
 
-                    // Farben für den Balkenbereich hinzufügen
+                    // Farben für den Balkenbereich definieren
                     this.colors.push({
                         backgroundColor: "rgba(0, 0, 0, 0.2)", // Transparente Füllfarbe
                         borderColor: "rgba(0, 0, 0, 0.9)", // Dunklerer Rand
                     });
+                    this.colors.push({
+                        backgroundColor: "rgba(0,0,0,0)",
+                        borderColor: "rgba(50,199,199,1)"
+                    });
                 }
+
                 if (propertyPeakshavingPower in result.data) {
                     const data = result.data[propertyPeakshavingPower].map(value => {
                         if (value == null) {
