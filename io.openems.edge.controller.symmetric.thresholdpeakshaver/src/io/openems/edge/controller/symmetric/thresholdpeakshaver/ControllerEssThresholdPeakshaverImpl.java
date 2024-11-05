@@ -116,7 +116,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		/*
 		 * A 5 point average is used to start controller´s timer.
 		 */
-		gridPowerAverageCalculator.addValue(gridPower);
+		gridPowerAverageCalculator.addValue(meter.getActivePower().getOrError());
 
 		// Save grid power without peakshaving
 		this._setGridPowerWithoutPeakShaving(gridPower);
