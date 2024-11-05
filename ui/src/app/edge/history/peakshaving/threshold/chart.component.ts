@@ -3,7 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { YAxisType } from "src/app/shared/service/utils";
+import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../../shared/shared";
 import { AbstractHistoryChart } from "../../abstracthistorychart";
@@ -277,7 +277,9 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         label: this.translate.instant("General.soc"),
                         data: data,
                         hidden: false,
-                        borderDash: [3, 3],
+                        yAxisID: ChartAxis.RIGHT,
+                        borderDash: [10, 10],
+                        order: 0,
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,223,0,0.05)",
