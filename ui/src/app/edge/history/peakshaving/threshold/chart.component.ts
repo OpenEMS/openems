@@ -277,9 +277,12 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         label: this.translate.instant("General.soc"),
                         data: data,
                         hidden: false,
-                        yAxisID: ChartAxis.RIGHT,
-                        unit: YAxisType.PERCENTAGE,
-                        position: "right",
+                        yAxisId: ChartAxis.RIGHT,
+                        custom: {
+                            type: "line",
+                            unit: YAxisType.PERCENTAGE,
+                            formatNumber: "1.0-0",
+                        },
                         borderDash: [10, 10],
                         order: 0,
                     });
