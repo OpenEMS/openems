@@ -16,11 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -123,8 +124,10 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 		int calculatedPower;
 
-		Integer essRealPower = this.ess.getActivePower().get();
-
+		//Integer essRealPower = this.ess.getActivePower().get();
+		Integer essRealPower = this.getEssChargePower().get();
+		Integer essSoc = this.ess.getSoc().get();
+		
 		switch (this.state) {
 		case UNDEFINED:
 			if (this.checkEnvironment() == false) {
@@ -250,6 +253,9 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 			this._setPeakShavingTargetPower(0); // feed the channel
 			this._setPeakShavedPower(0); //
 		}
+		
+		this._setEssPower(essRealPower);
+		this._setEssSoc(essSoc);
 
 		this.logDebug(this.log,
 				"\n PeakShaver Current State " + this.state.getName() + "\n PeakShaving State "
@@ -340,6 +346,15 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 			return false;
 		}
 
+	}
+	
+	private Value<Integer> getEssChargePower() {
+		if (this.ess instanceof HybridEss hss) {
+			return hss.getDcDischargePower(); // DC Power for hybrid systems. negative values for Charge; positive for
+												// Discharge
+		} else {
+			return this.ess.getActivePower(); //
+		}
 	}
 
 	/**
