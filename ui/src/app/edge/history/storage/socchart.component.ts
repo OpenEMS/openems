@@ -112,11 +112,13 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                             borderColor: "rgba(1, 1, 1,1)",
                                         });
                                     }
-                                    // Add datasets for MinSoc and MaxSoc
+                                    // Add alias to label if more than 1 ESS
                                     if (channelAddress.channelId === "MinSoc") {
                                         datasets.push({
                                             label:
-                                                this.chargeDischargeLimiterComponents.length > 1 ? component.alias : this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE"),
+                                                this.chargeDischargeLimiterComponents.length > 1
+                                                    ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE")}`
+                                                    : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE")}`,
                                             data: data,
                                             borderDash: [5, 5],
                                         });
@@ -127,7 +129,10 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     }
                                     if (channelAddress.channelId === "MaxSoc") {
                                         datasets.push({
-                                            label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE"),
+                                            label:
+                                                this.chargeDischargeLimiterComponents.length > 1
+                                                    ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE")}`
+                                                    : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE")}`,
                                             data: data,
                                             borderDash: [5, 5],
                                         });
@@ -138,7 +143,10 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     }
                                     if (channelAddress.channelId === "BalancingSoc") {
                                         datasets.push({
-                                            label: this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE"),
+                                            label:
+                                                this.chargeDischargeLimiterComponents.length > 1
+                                                    ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE")}`
+                                                    : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE")}`,
                                             data: data,
                                             borderDash: [5, 5],
                                         });
