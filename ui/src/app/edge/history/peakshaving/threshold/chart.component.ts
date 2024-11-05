@@ -54,7 +54,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 const propertyPeakshavingThresholdPower = this.componentId + "/_PropertyPeakShavingThresholdPower";
                 const propertyPeakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
                 const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
-                //const stateMachine = this.componentId + "/StateMachine";
+                const stateMachine = this.componentId + "/StateMachine";
                 const peakShavedPower = this.componentId + "/PeakShavedPower";
                 const peakShavingTargetPower = this.componentId + "/PeakShavingTargetPower";
                 const essSoc = this.componentId + "/EssSoc";
@@ -76,6 +76,8 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
                 // convert datasets
                 const datasets = [];
+
+                const stateMachineValue = result.data[stateMachine]?.[0]; // Nimmt den ersten Wert von StateMachine
 
                 if (meterIdActivePower in result.data) {
                     const data = result.data[meterIdActivePower].map(value => {
@@ -163,6 +165,31 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: "rgba(0,0,0,0)",
                         borderColor: "rgba(50,199,199,1)",
+                    });
+                }
+                if (stateMachineValue === 2 && propertyRechargePower in result.data && propertyPeakshavingPower in result.data) {
+                    const rechargePowerData = result.data[propertyRechargePower].map(value => value ? value / 1000 : null);
+                    const peakShavingPowerData = result.data[propertyPeakshavingPower].map(value => value ? value / 1000 : null);
+                    // Erzeuge Balkendaten, die den Bereich zwischen RechargePower und PeakShavingPower füllen
+                    const fillBarData = rechargePowerData.map((rechargeValue, index) => {
+                        const peakValue = peakShavingPowerData[index];
+                        if (rechargeValue !== null && peakValue !== null) {
+                            return peakValue - rechargeValue; // Differenz zwischen PeakShaving und Recharge als Höhe des Balkens
+                        } else {
+                            return null; // Keine Daten für diesen Punkt
+                        }
+                    });
+                    // Balken-Datensatz für den Bereich zwischen den beiden Linien hinzufügen
+                    datasets.push({
+                        type: "bar",
+                        label: this.translate.instant("Edge.Index.Widgets.Peakshaving.fillArea"),
+                        data: fillBarData,
+                        order: 1,
+                    });
+                    // Farben für den Balkenbereich hinzufügen
+                    this.colors.push({
+                        backgroundColor: "rgba(0, 0, 0, 0.2)", // Leicht transparente Füllfarbe
+                        borderColor: "rgba(0, 0, 0, 0.9)", // Etwas dunklerer Rand
                     });
                 }
                 if (propertyPeakshavingPower in result.data) {
