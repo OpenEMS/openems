@@ -167,29 +167,38 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderColor: "rgba(50,199,199,1)",
                     });
                 }
+
                 if (stateMachineValue === 2 && propertyRechargePower in result.data && propertyPeakshavingPower in result.data) {
                     const rechargePowerData = result.data[propertyRechargePower].map(value => value ? value / 1000 : null);
                     const peakShavingPowerData = result.data[propertyPeakshavingPower].map(value => value ? value / 1000 : null);
-                    // Erzeuge Balkendaten, die den Bereich zwischen RechargePower und PeakShavingPower füllen
+
+                    // Erzeuge Balkendaten als Differenz, aber Offset von rechargePowerData
                     const fillBarData = rechargePowerData.map((rechargeValue, index) => {
                         const peakValue = peakShavingPowerData[index];
                         if (rechargeValue !== null && peakValue !== null) {
-                            return peakValue - rechargeValue; // Differenz zwischen PeakShaving und Recharge als Höhe des Balkens
+                            return {
+                                x: labels[index], // Datum
+                                y: rechargeValue, // Starte den Balken auf der Linie propertyRechargePower
+                                yEnd: peakValue   // Endhöhe ist die Höhe der Linie propertyPeakshavingPower
+                            };
                         } else {
-                            return null; // Keine Daten für diesen Punkt
+                            return { x: labels[index], y: null, yEnd: null };
                         }
                     });
-                    // Balken-Datensatz für den Bereich zwischen den beiden Linien hinzufügen
+
+                    // Balken-Datensatz hinzufügen
                     datasets.push({
                         type: "bar",
                         label: this.translate.instant("Edge.Index.Widgets.Peakshaving.fillArea"),
-                        data: fillBarData,
+                        data: fillBarData.map(bar => bar.yEnd !== null ? bar.yEnd - bar.y : null), // Berechnet die Höhe der Balken
+                        base: fillBarData.map(bar => bar.y !== null ? bar.y : null), // Setzt den Balkenstart auf propertyRechargePower
                         order: 1,
                     });
+
                     // Farben für den Balkenbereich hinzufügen
                     this.colors.push({
-                        backgroundColor: "rgba(0, 0, 0, 0.2)", // Leicht transparente Füllfarbe
-                        borderColor: "rgba(0, 0, 0, 0.9)", // Etwas dunklerer Rand
+                        backgroundColor: "rgba(0, 0, 0, 0.2)", // Transparente Füllfarbe
+                        borderColor: "rgba(0, 0, 0, 0.9)", // Dunklerer Rand
                     });
                 }
                 if (propertyPeakshavingPower in result.data) {
