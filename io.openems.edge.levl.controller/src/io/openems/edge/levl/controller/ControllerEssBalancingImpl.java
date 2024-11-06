@@ -127,6 +127,8 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	
 	
 	private void initChannelValues() {
+		this._setLastRequestRealizedEnergyGrid(0L);
+		this._setLastRequestTimestamp("1970-01-02T00:00:00Z");
 		this._setLevlSoc(0L);
 		this._setPucBatteryPower(0L);
 		this._setEfficiency(100.0);
@@ -260,6 +262,26 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		return (int) Math.max(Math.min(pucPower, powerUpperBound), powerLowerBound);
 	}
 
+	/**
+	 * Calculates the battery power for the level use case considering various constraints. 
+	 * 
+	 * @param remainingLevlEnergyWs 	the remaining energy that has to be realized for levl [Ws]
+	 * @param pucBatteryPower			the puc battery power [W]
+	 * @param minEssPower 				the minimum possible power of the ess [W]
+	 * @param maxEssPower 				the maximum possible power of the ess [W]
+	 * @param pucGridPower				the active power of the puc on the meter [W]
+	 * @param buyFromGridLimit			maximum power that may be bought from the grid [W]
+	 * @param sellToGridLimit			maximum power that may be sold to the grid [W]
+	 * @param nextPucSocWs				the calculated puc soc for the next cycle
+	 * @param levlSocWs					the current levl soc [Ws]
+	 * @param socLowerBoundLevlPercent	the lower levl soc limit [%]
+	 * @param socUpperBoundLevlPercent	the upper levl soc limit [%]
+	 * @param essCapacityWs				the total ess capacity [Ws]
+	 * @param influenceSellToGrid		if it is allowed to influence sell to grid
+	 * @param efficiency				the efficiency of the system [%]
+	 * @param cycleTimeS				the configured openems cycle time [seconds]
+	 * @return the levl battery power
+	 */
 	protected int calculateLevlPowerW(long remainingLevlEnergyWs, int pucBatteryPower, int minEssPower, int maxEssPower, int pucGridPower, long buyFromGridLimit, long sellToGridLimit,
 			long nextPucSocWs, long levlSocWs, double socLowerBoundLevlPercent, double socUpperBoundLevlPercent, long essCapacityWs, boolean influenceSellToGrid, double efficiency, double cycleTimeS) {
 		long levlPower = Math.round(remainingLevlEnergyWs / (double) cycleTimeS);
