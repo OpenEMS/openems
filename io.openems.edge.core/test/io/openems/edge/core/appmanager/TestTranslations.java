@@ -46,6 +46,9 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.stadtwerkHassfurt(t), true, JsonUtils.buildJsonObject() //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.swisspower(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("METERING_CODE", "bf7777") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.stromdaoCorrently(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
 					.build()));

@@ -1,5 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
 import static io.openems.edge.energy.EnergySchedulerImplTest.CLOCK;
 import static io.openems.edge.energy.EnergySchedulerImplTest.getOptimizer;
 import static org.junit.Assert.assertEquals;
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.energy.EnergySchedulerImplTest;
 import io.openems.edge.energy.LogVerbosity;
@@ -62,14 +64,11 @@ public class OptimizerTest {
 	 * 
 	 * @param optimizer the {@link Optimizer}
 	 * @return the object
-	 * @throws Exception on error
+	 * @throws ReflectionException on error
 	 */
-	@SuppressWarnings("unchecked")
 	public static ThrowingSupplier<GlobalSimulationsContext, OpenemsException> getGlobalSimulationContextSupplier(
-			Optimizer optimizer) throws Exception {
-		var field = Optimizer.class.getDeclaredField("gscSupplier");
-		field.setAccessible(true);
-		return (ThrowingSupplier<GlobalSimulationsContext, OpenemsException>) field.get(optimizer);
+			Optimizer optimizer) throws ReflectionException {
+		return getValueViaReflection(optimizer, "gscSupplier");
 	}
 
 }

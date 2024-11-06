@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+import static io.openems.common.utils.ReflectionUtils.setStaticAttributeViaReflection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -33,7 +35,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.test.ComponentTest;
@@ -183,8 +184,6 @@ public class AppManagerTestBundle {
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
 		this.appCenterBackendUtil = new DummyAppCenterBackendUtil();
 
-		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
-
 		this.addCheckable(TestCheckable.COMPONENT_NAME, t -> new TestCheckable());
 		this.addCheckable(CheckOr.COMPONENT_NAME, t -> new CheckOr(t, this.checkableFactory));
 		this.checkCardinality = this.addCheckable(CheckCardinality.COMPONENT_NAME,
@@ -198,20 +197,13 @@ public class AppManagerTestBundle {
 		this.appValidateWorker = new AppValidateWorker();
 		final var appConfigValidator = new AppConfigValidator();
 
-		ReflectionUtils.setAttribute(AppValidateWorker.class, this.appValidateWorker, "appManagerUtil",
-				this.appManagerUtil);
-		ReflectionUtils.setAttribute(AppValidateWorker.class, this.appValidateWorker, "validator", appConfigValidator);
+		setAttributeViaReflection(this.appValidateWorker, "appManagerUtil", this.appManagerUtil);
+		setAttributeViaReflection(this.appValidateWorker, "validator", appConfigValidator);
 
-		ReflectionUtils.setAttribute(AppConfigValidator.class, appConfigValidator, "appManagerUtil",
-				this.appManagerUtil);
-		ReflectionUtils.setAttribute(AppConfigValidator.class, appConfigValidator, "tasks", this.appHelper.getTasks());
+		setAttributeViaReflection(appConfigValidator, "appManagerUtil", this.appManagerUtil);
+		setAttributeViaReflection(appConfigValidator, "tasks", this.appHelper.getTasks());
 
-		// use this so the appManagerAppHelper does not has to be a OpenemsComponent and
-		// the attribute can still be private
-		ReflectionUtils.setAttribute(this.appHelper.getClass(), this.appHelper, "appManager", this.sut);
-		ReflectionUtils.setAttribute(this.appHelper.getClass(), this.appHelper, "appManagerUtil", this.appManagerUtil);
-
-		ReflectionUtils.setAttribute(DependencyUtil.class, null, "appHelper", this.appHelper);
+		setStaticAttributeViaReflection(DependencyUtil.class, "appHelper", this.appHelper);
 
 		new ComponentTest(this.sut) //
 				.addReference("cm", this.cm) //

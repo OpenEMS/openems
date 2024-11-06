@@ -88,17 +88,11 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		var goodWe = this.getEssOrBatteryInverter();
 		Boolean hasNoDcPv = null;
 		if (goodWe != null) {
-			switch (goodWe.getGoodweType().getSeries()) {
-			case BT:
-				hasNoDcPv = true;
-				break;
-			case ET:
-				hasNoDcPv = false;
-				break;
-			case UNDEFINED:
-				hasNoDcPv = null;
-				break;
-			}
+			hasNoDcPv = switch (goodWe.getGoodweType().getSeries()) {
+			case BT -> true;
+			case ET, ETT -> false;
+			case UNDEFINED -> null;
+			};
 		}
 		this._setHasNoDcPv(hasNoDcPv);
 	}

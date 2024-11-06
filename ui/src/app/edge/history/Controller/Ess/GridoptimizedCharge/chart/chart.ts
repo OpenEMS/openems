@@ -49,7 +49,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
           borderDash: [3, 3],
         },
         {
-          name: translate.instant("General.chargePower"),
+          name: translate.instant("General.CHARGE"),
           converter: () =>
             (data["ProductionDcActualPower"]
               ?

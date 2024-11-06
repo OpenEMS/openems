@@ -346,9 +346,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant("General.dischargePower"), value: power };
+      return { name: translate.instant("General.DISCHARGE"), value: power };
     } else {
-      return { name: translate.instant("General.chargePower"), value: power * -1 };
+      return { name: translate.instant("General.CHARGE"), value: power * -1 };
     }
   }
 

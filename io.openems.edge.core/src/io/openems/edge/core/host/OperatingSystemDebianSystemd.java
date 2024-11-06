@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,7 +204,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				+ user.getName());
 		result.add("# changedAt: " //
 				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString());
-		
+
 		// Match Section
 		result.add(MATCH_SECTION);
 		result.add("Name=" + iface.getName());
@@ -220,12 +221,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
 			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
 		}
-		
+
 		var metric = DEFAULT_METRIC;
 		if (iface.getMetric().isSetAndNotNull()) {
 			metric = iface.getMetric().getValue().intValue();
 		}
-		
+
 		if (iface.getDhcp().isSetAndNotNull()) {
 			var dhcp = iface.getDhcp().getValue();
 			result.add(EMPTY_SECTION);
@@ -577,4 +578,35 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), metric.get(),
 				attachment);
 	}
+
+	@Override
+	public CompletableFuture<String> getOperatingSystemVersion() {
+		final var sc = new SystemCommand(//
+				"cat /etc/os-release", //
+				false, // runInBackground
+				5, // timeoutSeconds
+				Optional.empty(), // username
+				Optional.empty()); // password
+
+		final var versionFuture = new CompletableFuture<String>();
+		this.execute(sc, success -> {
+			final var osVersionName = Stream.of(success.stdout()) //
+					.map(t -> t.split("=", 2)) //
+					.filter(t -> t.length == 2) //
+					.filter(t -> t[0].equals("PRETTY_NAME")) //
+					.map(t -> t[1]) //
+					.map(t -> {
+						if (t.startsWith("\"") && t.endsWith("\"")) {
+							return t.substring(1, t.length() - 1);
+						}
+						return t;
+					}) //
+					.findAny();
+
+			osVersionName.ifPresentOrElse(versionFuture::complete, () -> versionFuture
+					.completeExceptionally(new OpenemsException("OS-Version name not found in /etc/os-release")));
+		}, versionFuture::completeExceptionally);
+		return versionFuture;
+	}
+
 }

@@ -1,21 +1,19 @@
 package io.openems.edge.controller.api.rest;
 
-import java.lang.reflect.InvocationTargetException;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentServiceObjects;
 
 import com.google.common.base.Supplier;
 
-import io.openems.common.utils.ReflectionUtils;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 
 public class DummyJsonRpcRestHandlerFactory extends JsonRpcRestHandler.Factory {
 
-	public DummyJsonRpcRestHandlerFactory(Supplier<JsonRpcRestHandler> factoryMethod)
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	public DummyJsonRpcRestHandlerFactory(Supplier<JsonRpcRestHandler> factoryMethod) throws ReflectionException {
 		super();
-		ReflectionUtils.setAttribute(JsonRpcRestHandler.Factory.class, this, "cso",
-				new DummyJsonRpcRestHandlerCso(factoryMethod));
+		setAttributeViaReflection(this, "cso", new DummyJsonRpcRestHandlerCso(factoryMethod));
 	}
 
 	private static class DummyJsonRpcRestHandlerCso implements ComponentServiceObjects<JsonRpcRestHandler> {

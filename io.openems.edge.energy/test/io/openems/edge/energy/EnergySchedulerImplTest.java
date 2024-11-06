@@ -1,6 +1,7 @@
 package io.openems.edge.energy;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
 import static io.openems.edge.energy.LogVerbosity.TRACE;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
@@ -126,9 +127,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static Optimizer getOptimizer(EnergySchedulerImpl energyScheduler) throws Exception {
-		var field = EnergySchedulerImpl.class.getDeclaredField("optimizer");
-		field.setAccessible(true);
-		return (Optimizer) field.get(energyScheduler);
+		return getValueViaReflection(energyScheduler, "optimizer");
 	}
 
 }
