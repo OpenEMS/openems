@@ -64,31 +64,31 @@ public class ControllerEssBalancingImplTest {
 	// Primary use case calculation
 	@Test
 	public void testApplyPucSocBounds() {
-		Assert.assertEquals("good case discharge", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30, 100));
-		Assert.assertEquals("good case charge", -30, this.underTest.applyPucSocBounds(1, 100, 50, -30, 100));
-		Assert.assertEquals("minimum limit applies", 50, this.underTest.applyPucSocBounds(1, 100, 50, 70, 100));
-		Assert.assertEquals("minimum limit applies due to cycleTime", 25, this.underTest.applyPucSocBounds(2, 100, 50, 30, 100));
-		Assert.assertEquals("maximum limit applies", -50, this.underTest.applyPucSocBounds(1, 100, 50, -70, 100));
-		Assert.assertEquals("no charging allowed because soc is 100%", 0, this.underTest.applyPucSocBounds(1, 100, 100, -20, 100));
-		Assert.assertEquals("no discharging allowed because soc is 0%", 0, this.underTest.applyPucSocBounds(1, 100, 0, 20, 100));
-		Assert.assertEquals("discharging allowed with soc 100%", 20, this.underTest.applyPucSocBounds(1, 100, 100, 20, 100));
-		Assert.assertEquals("charging allowed with soc 0%", -20, this.underTest.applyPucSocBounds(1, 100, 0, -20, 100));
+		Assert.assertEquals("good case discharge", 30, this.underTest.applyPucSocBounds(30, 50, 100, 100, 1));
+		Assert.assertEquals("good case charge", -30, this.underTest.applyPucSocBounds(-30, 50, 100, 100, 1));
+		Assert.assertEquals("minimum limit applies", 50, this.underTest.applyPucSocBounds(70, 50, 100, 100, 1));
+		Assert.assertEquals("minimum limit applies due to cycleTime", 25, this.underTest.applyPucSocBounds(30, 50, 100, 100, 2));
+		Assert.assertEquals("maximum limit applies", -50, this.underTest.applyPucSocBounds(-70, 50, 100, 100, 1));
+		Assert.assertEquals("no charging allowed because soc is 100%", 0, this.underTest.applyPucSocBounds(-20, 100, 100, 100, 1));
+		Assert.assertEquals("no discharging allowed because soc is 0%", 0, this.underTest.applyPucSocBounds(20, 0, 100, 100, 1));
+		Assert.assertEquals("discharging allowed with soc 100%", 20, this.underTest.applyPucSocBounds(20, 100, 100, 100, 1));
+		Assert.assertEquals("charging allowed with soc 0%", -20, this.underTest.applyPucSocBounds(-20, 0, 100, 100, 1));
 	
 		// efficiency 80%
-		Assert.assertEquals("good case discharge /w efficiency", 30, this.underTest.applyPucSocBounds(1, 100, 50, 30, 80));
-		Assert.assertEquals("good case charge /w efficiency", -30, this.underTest.applyPucSocBounds(1, 100, 50, -30, 80));
-		Assert.assertEquals("minimum limit applies /w efficiency", 40, this.underTest.applyPucSocBounds(1, 100, 50, 70, 80));
-		Assert.assertEquals("maximum limit applies /w efficiency", -62, this.underTest.applyPucSocBounds(1, 100, 50, -70, 80));		
+		Assert.assertEquals("good case discharge /w efficiency", 30, this.underTest.applyPucSocBounds(30, 50, 100, 80, 1));
+		Assert.assertEquals("good case charge /w efficiency", -30, this.underTest.applyPucSocBounds(-30, 50, 100, 80, 1));
+		Assert.assertEquals("minimum limit applies /w efficiency", 40, this.underTest.applyPucSocBounds(70, 50, 100, 80, 1));
+		Assert.assertEquals("maximum limit applies /w efficiency", -62, this.underTest.applyPucSocBounds(-70, 50, 100, 80, 1));		
 	}
 
     @Test
     public void testCalculatePucBatteryPower() {
-		Assert.assertEquals("discharge within battery limit", 70, this.underTest.calculatePucBatteryPower(1, 50, 20, 
-                1000, 500, -150, 150, 100));
-		Assert.assertEquals("discharge outside battery limit", 150, this.underTest.calculatePucBatteryPower(1, 200, 20, 
-                1000, 500, -150, 150, 100));
-		Assert.assertEquals("charge outside battery limit", -150, this.underTest.calculatePucBatteryPower(1, -200, -20, 
-                1000, 500, -150, 150, 100));
+		Assert.assertEquals("discharge within battery limit", 70, this.underTest.calculatePucBatteryPower(50, 20, 500, 
+                1000, -150, 150, 100, 1));
+		Assert.assertEquals("discharge outside battery limit", 150, this.underTest.calculatePucBatteryPower(200, 20, 500, 
+                1000, -150, 150, 100, 1));
+		Assert.assertEquals("charge outside battery limit", -150, this.underTest.calculatePucBatteryPower(-200, -20, 500, 
+                1000, -150, 150, 100, 1));
     }
     
 	// Levl Power calculation

@@ -235,8 +235,8 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	public default void _setInfluenceSellToGrid(Boolean value) {
 	    this.getInfluenceSellToGridChannel().setNextValue(value);
 	}
-	
-	 /**
+
+    /**
      * Returns the DoubleReadChannel for the efficiency.
      * @return the DoubleReadChannel
      */
@@ -260,7 +260,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
         this.getEfficiencyChannel().setNextValue(value);
     }
     
-    /**
+	/**
 	 * Returns the LongReadChannel for the PUC battery power.
 	 * @return the LongReadChannel
 	 */

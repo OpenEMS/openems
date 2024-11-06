@@ -11,12 +11,12 @@ public class Efficiency {
 	 * @return the power/energy inside the battery after applying the efficiency
 	 */
 	public static long apply(long value, double efficiencyPercent) {		
-		if(value <= 0) { // charge
-			return Math.round(value * efficiencyPercent/100);
+		if (value <= 0) { // charge
+			return Math.round(value * efficiencyPercent / 100);
 		}
 		
 		// discharge
-		return Math.round(value / (efficiencyPercent/100));
+		return Math.round(value / (efficiencyPercent / 100));
 	}
 	
 	/**
@@ -28,12 +28,12 @@ public class Efficiency {
 	 * @return the power/energy outside the battery after unapplying the efficiency
 	 */
 	public static long unapply(long value, double efficiencyPercent) {		
-		if(value <= 0) { // charge
-			return Math.round(value / (efficiencyPercent/100));
+		if (value <= 0) { // charge
+			return Math.round(value / (efficiencyPercent / 100));
 		}
 		
 		// discharge
-		return Math.round(value * efficiencyPercent/100);
+		return Math.round(value * efficiencyPercent / 100);
 	}
 	
 }

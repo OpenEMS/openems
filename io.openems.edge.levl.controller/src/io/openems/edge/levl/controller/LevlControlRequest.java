@@ -2,6 +2,7 @@ package io.openems.edge.levl.controller;
 
 import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 import java.time.Clock;
@@ -53,7 +54,14 @@ public class LevlControlRequest {
 
     }
 
-    public static LevlControlRequest from(JsonrpcRequest request) throws OpenemsError.OpenemsNamedException {
+    /**
+     * Generates a levl control request object based on the JSON-RPC request.
+     * 
+     * @param request the JSON-RPC request
+     * @return the levl control request
+     * @throws OpenemsNamedException on error
+     */
+    public static LevlControlRequest from(JsonrpcRequest request) throws OpenemsNamedException {
         var params = request.getParams();
         return new LevlControlRequest(params);
     }
@@ -93,36 +101,39 @@ public class LevlControlRequest {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(buyFromGridLimitW, deadline, efficiencyPercent, energyWs, influenceSellToGrid,
-				levlRequestId, levlSocWh, sellToGridLimitW, socLowerBoundPercent, socUpperBoundPercent, start,
-				timestamp);
+		return Objects.hash(this.buyFromGridLimitW, this.deadline, this.efficiencyPercent, this.energyWs, this.influenceSellToGrid,
+				this.levlRequestId, this.levlSocWh, this.sellToGridLimitW, this.socLowerBoundPercent, this.socUpperBoundPercent, this.start,
+				this.timestamp);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		LevlControlRequest other = (LevlControlRequest) obj;
-		return buyFromGridLimitW == other.buyFromGridLimitW
-				&& Objects.equals(deadline, other.deadline)
-				&& Double.doubleToLongBits(efficiencyPercent) == Double.doubleToLongBits(other.efficiencyPercent)
-				&& energyWs == other.energyWs && influenceSellToGrid == other.influenceSellToGrid
-				&& Objects.equals(levlRequestId, other.levlRequestId) && levlSocWh == other.levlSocWh
-				&& sellToGridLimitW == other.sellToGridLimitW && socLowerBoundPercent == other.socLowerBoundPercent
-				&& socUpperBoundPercent == other.socUpperBoundPercent && Objects.equals(start, other.start)
-				&& Objects.equals(timestamp, other.timestamp);
+		return this.buyFromGridLimitW == other.buyFromGridLimitW
+				&& Objects.equals(this.deadline, other.deadline)
+				&& Double.doubleToLongBits(this.efficiencyPercent) == Double.doubleToLongBits(other.efficiencyPercent)
+				&& this.energyWs == other.energyWs && this.influenceSellToGrid == other.influenceSellToGrid
+				&& Objects.equals(this.levlRequestId, other.levlRequestId) && this.levlSocWh == other.levlSocWh
+				&& this.sellToGridLimitW == other.sellToGridLimitW && this.socLowerBoundPercent == other.socLowerBoundPercent
+				&& this.socUpperBoundPercent == other.socUpperBoundPercent && Objects.equals(this.start, other.start)
+				&& Objects.equals(this.timestamp, other.timestamp);
 	}
 
 	@Override
 	public String toString() {
-		return "LevlControlRequest [sellToGridLimitW=" + sellToGridLimitW + ", buyFromGridLimitW=" + buyFromGridLimitW
-				+ ", levlRequestId=" + levlRequestId + ", timestamp=" + timestamp + ", energyWs=" + energyWs
-				+ ", start=" + start + ", deadline=" + deadline + ", levlSocWh=" + levlSocWh + ", socLowerBoundPercent="
-				+ socLowerBoundPercent + ", socUpperBoundPercent=" + socUpperBoundPercent + ", efficiencyPercent="
-				+ efficiencyPercent + ", influenceSellToGrid=" + influenceSellToGrid + "]";
+		return "LevlControlRequest [sellToGridLimitW=" + this.sellToGridLimitW + ", buyFromGridLimitW=" + this.buyFromGridLimitW
+				+ ", levlRequestId=" + this.levlRequestId + ", timestamp=" + this.timestamp + ", energyWs=" + this.energyWs
+				+ ", start=" + this.start + ", deadline=" + this.deadline + ", levlSocWh=" + this.levlSocWh + ", socLowerBoundPercent="
+				+ this.socLowerBoundPercent + ", socUpperBoundPercent=" + this.socUpperBoundPercent + ", efficiencyPercent="
+				+ this.efficiencyPercent + ", influenceSellToGrid=" + this.influenceSellToGrid + "]";
 	}
 }
