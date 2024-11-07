@@ -25,8 +25,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
-import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
+
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -458,41 +457,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		return this.timedata;
 	}
 
-	/**
-	 * Returns the configured minimum SoC, or zero.
-	 * 
-	 * @param ctrlLimitTotalDischarges      the list of
-	 *                                      {@link ControllerEssLimitTotalDischarge}
-	 * @param ctrlEmergencyCapacityReserves the list of
-	 *                                      {@link ControllerEssEmergencyCapacityReserve}
-	 * @return the value in [%]
-	 * 
-	 *         private void getEssMinSocPercentage(ControllerEssLimitTotalDischarge
-	 *         ctrlLimitTotalDischarge, ControllerEssEmergencyCapacityReserve
-	 *         ctrlEmergencyCapacityReserve) {
-	 * 
-	 *         if (this.batteryInverter == null) { return; }
-	 * 
-	 *         var arsch =
-	 *         ctrlEmergencyCapacityReserve.channel("_PropertyEssId").value().asString();
-	 *         int minSocTotalDischarge = 0; int actualReserveSoc = 0;
-	 * 
-	 *         // if (ctrlLimitTotalDischarge != null &&
-	 *         ctrlLimitTotalDischarge.getMinSoc().get() != null) {
-	 *         minSocTotalDischarge = Math.max(0,
-	 *         ctrlLimitTotalDischarge.getMinSoc().get()); // only positive values }
-	 * 
-	 *         // if (ctrlEmergencyCapacityReserve != null &&
-	 *         ctrlEmergencyCapacityReserve.getActualReserveSoc().get() != null) {
-	 *         actualReserveSoc = Math.max(0,
-	 *         ctrlEmergencyCapacityReserve.getActualReserveSoc().get());
-	 * 
-	 *         }
-	 * 
-	 *         // take highest value and return
-	 *         this.battery.setMinSocPercentage(Math.max(minSocTotalDischarge,
-	 *         actualReserveSoc)); }
-	 */
+
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {

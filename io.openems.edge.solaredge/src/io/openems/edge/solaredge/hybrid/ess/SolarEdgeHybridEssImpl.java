@@ -201,6 +201,11 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 				return;
 			}
 			this.config = config;
+			
+			// update filter for 'Controllers'
+			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controllers", config.id())) {
+				return;
+			}			
 
 			// update filter for 'meter'
 			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {

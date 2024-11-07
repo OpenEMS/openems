@@ -111,6 +111,11 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 				config.modbus_id())) {
 			return;
 		}
+		
+		// update filter for 'Controllers'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controllers", config.ess_id())) {
+			return;
+		}
 
 		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
