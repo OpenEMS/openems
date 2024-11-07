@@ -409,13 +409,11 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			}
 			
 			long levlEnergyWs = Math.round(levlPower * this.cycle.getCycleTime() / 1000.0);
-			// remaining for the NEXT calculation cycle
-			
 			var remainingLevlEnergy = this.getRemainingLevlEnergy().getOrError();
+			// remaining for the next cycle
 			this._setRemainingLevlEnergy(remainingLevlEnergy - levlEnergyWs);
-			// realized AFTER the next cycle (next second)
+			// realized after the next cycle
 			this.realizedEnergyGridWs += levlEnergyWs;
-			this.log.info("this cycle realized levl energy on grid: {}", levlEnergyWs);
 			var efficiency = this.getEfficiency().getOrError();
 			var levlSoc = this.getLevlSoc().getOrError();
 			this.realizedEnergyBatteryWs += Efficiency.apply(levlEnergyWs, efficiency);
@@ -435,7 +433,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	}
 	
 	private void startNextRequest() {
-		this.log.info("starting levl request: {}", this.currentRequest);
+		this.log.info("starting levl request: {}", this.nextRequest);
 		this.currentRequest = this.nextRequest;
 		this.nextRequest = null;
 		this._setEfficiency(this.currentRequest.efficiencyPercent);
