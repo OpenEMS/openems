@@ -64,8 +64,6 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 	protected LevlControlRequest currentRequest;
 	protected LevlControlRequest nextRequest;
-	protected long realizedEnergyGridWs;
-	protected long realizedEnergyBatteryWs;
 
 	private static final String METHOD = "sendLevlControlRequest";
 
@@ -127,7 +125,10 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	
 	
 	private void initChannelValues() {
+		this._setRealizedEnergyGrid(0L);
+		this._setRealizedEnergyBattery(0L);
 		this._setLastRequestRealizedEnergyGrid(0L);
+		this._setLastRequestRealizedEnergyBattery(0L);
 		this._setLastRequestTimestamp("1970-01-02T00:00:00Z");
 		this._setLevlSoc(0L);
 		this._setPucBatteryPower(0L);
@@ -400,7 +401,8 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		var request = LevlControlRequest.from(call.getRequest());
 		this.log.info("Received new levl request: {}", request);
 		this.nextRequest = request;
-		var nextLevlSoc = request.levlSocWh * 3600 - this.realizedEnergyBatteryWs;
+		var realizedEnergyBatteryWs = this.getRealizedEnergyBattery().getOrError();
+		var nextLevlSoc = request.levlSocWh * 3600 - realizedEnergyBatteryWs;
 		this._setLevlSoc(nextLevlSoc);
 		this.log.info("Updated levl soc: {}", nextLevlSoc);
 		return JsonrpcResponseSuccess
@@ -461,14 +463,21 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			}
 			
 			long levlEnergyWs = Math.round(levlPower * this.cycle.getCycleTime() / 1000.0);
-			var remainingLevlEnergy = this.getRemainingLevlEnergy().getOrError();
+			
 			// remaining for the next cycle
+			var remainingLevlEnergy = this.getRemainingLevlEnergy().getOrError();
 			this._setRemainingLevlEnergy(remainingLevlEnergy - levlEnergyWs);
+			
 			// realized after the next cycle
-			this.realizedEnergyGridWs += levlEnergyWs;
+			var realizedEnergyGridWs = this.getRealizedEnergyGrid().getOrError();
+			this._setRealizedEnergyGrid(realizedEnergyGridWs + levlEnergyWs);
+			
+			// realized after the next cycle
 			var efficiency = this.getEfficiency().getOrError();
+			var realizedEnergyBatteryWs = this.getRealizedEnergyBattery().getOrError();
+			this._setRealizedEnergyBattery(realizedEnergyBatteryWs + Efficiency.apply(levlEnergyWs, efficiency));
+			
 			var levlSoc = this.getLevlSoc().getOrError();
-			this.realizedEnergyBatteryWs += Efficiency.apply(levlEnergyWs, efficiency);
 			this._setLevlSoc(levlSoc - Efficiency.apply(levlEnergyWs, efficiency));
 		}
 	}
@@ -478,13 +487,17 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * Reset the realized energy class values for the next active request.
 	 */
 	private void finishRequest() {
+		var realizedEnergyGridWs = this.getRealizedEnergyGridChannel().getNextValue().orElse(0L);
+		var realizedEnergyBatteryWs = this.getRealizedEnergyBatteryChannel().getNextValue().orElse(0L);
 		this.log.info("finished levl request: {}", this.currentRequest);
-		this._setLastRequestRealizedEnergyGrid(this.realizedEnergyGridWs);
+		this.log.info("realized levl energy on grid: {}", realizedEnergyGridWs);
+		this.log.info("realized levl energy in battery: {}", realizedEnergyBatteryWs);
+		
+		this._setLastRequestRealizedEnergyGrid(realizedEnergyGridWs);
+		this._setLastRequestRealizedEnergyBattery(realizedEnergyBatteryWs);
 		this._setLastRequestTimestamp(this.currentRequest.timestamp);
-		this.log.info("realized levl energy on grid: {}", this.realizedEnergyGridWs);
-		this.log.info("realized levl energy in battery: {}", this.realizedEnergyBatteryWs);
-		this.realizedEnergyGridWs = 0;
-		this.realizedEnergyBatteryWs = 0;
+		this._setRealizedEnergyGrid(0L);
+		this._setRealizedEnergyBattery(0L);
 		this.currentRequest = null;
 	}
 	

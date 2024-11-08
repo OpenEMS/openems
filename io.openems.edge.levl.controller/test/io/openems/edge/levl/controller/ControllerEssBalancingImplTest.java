@@ -45,8 +45,7 @@ public class ControllerEssBalancingImplTest {
 				.withSoc(50) // 900.000 Ws
 				.withMaxApparentPower(500);
 		this.underTest.meter = new DummyElectricityMeter("meter0").withActivePower(200);
-		
-		this.underTest.realizedEnergyGridWs = 100;
+				
 		this.setActiveChannelValue(this.underTest.getLevlSocChannel(), 2000L);
 		this.setActiveChannelValue(this.underTest.getRemainingLevlEnergyChannel(), 200000L);
 		this.setActiveChannelValue(this.underTest.getEfficiencyChannel(), 100.0);
@@ -163,8 +162,8 @@ public class ControllerEssBalancingImplTest {
 		nextRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 29, 59);
 		this.underTest.nextRequest = nextRequest;
 		
-		this.underTest.realizedEnergyGridWs = 100;
-		this.underTest.realizedEnergyBatteryWs = 200;
+		this.setNextChannelValue(this.underTest.getRealizedEnergyGridChannel(), 100L);
+		this.setNextChannelValue(this.underTest.getRealizedEnergyBatteryChannel(), 200L);
 		
 		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 			
@@ -172,8 +171,8 @@ public class ControllerEssBalancingImplTest {
 		
 		Assert.assertEquals(nextRequest, this.underTest.currentRequest);
 		Assert.assertNull(this.underTest.nextRequest);
-		Assert.assertEquals(0, this.underTest.realizedEnergyGridWs);
-		Assert.assertEquals(0, this.underTest.realizedEnergyBatteryWs);
+		Assert.assertEquals(0, this.underTest.getRealizedEnergyGridChannel().getNextValue().get().longValue());
+		Assert.assertEquals(0, this.underTest.getRealizedEnergyBatteryChannel().getNextValue().get().longValue());
 	}
 	
 	@Test
@@ -191,8 +190,8 @@ public class ControllerEssBalancingImplTest {
 		nextRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 29, 59);
 		this.underTest.nextRequest = nextRequest;
 		
-		this.underTest.realizedEnergyGridWs = 100;
-		this.underTest.realizedEnergyBatteryWs = 200;
+		this.setNextChannelValue(this.underTest.getRealizedEnergyGridChannel(), 100L);
+		this.setNextChannelValue(this.underTest.getRealizedEnergyBatteryChannel(), 200L);
 		
 		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 			
@@ -200,8 +199,8 @@ public class ControllerEssBalancingImplTest {
 		
 		Assert.assertNull(this.underTest.currentRequest);
 		Assert.assertEquals(nextRequest, this.underTest.nextRequest);
-		Assert.assertEquals(0, this.underTest.realizedEnergyGridWs);
-		Assert.assertEquals(0, this.underTest.realizedEnergyBatteryWs);
+		Assert.assertEquals(0, this.underTest.getRealizedEnergyGridChannel().getNextValue().get().longValue());
+		Assert.assertEquals(0, this.underTest.getRealizedEnergyBatteryChannel().getNextValue().get().longValue());
 	}
 	
 	@Test
@@ -215,8 +214,8 @@ public class ControllerEssBalancingImplTest {
 		currentRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 14, 59);
 		this.underTest.currentRequest = currentRequest;
 		
-		this.underTest.realizedEnergyGridWs = 100;
-		this.underTest.realizedEnergyBatteryWs = 200;
+		this.setNextChannelValue(this.underTest.getRealizedEnergyGridChannel(), 100L);
+		this.setNextChannelValue(this.underTest.getRealizedEnergyBatteryChannel(), 200L);
 		
 		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 		
@@ -224,8 +223,8 @@ public class ControllerEssBalancingImplTest {
 		
 		Assert.assertNull(this.underTest.currentRequest);
 		Assert.assertNull(this.underTest.nextRequest);
-		Assert.assertEquals(0, this.underTest.realizedEnergyGridWs);
-		Assert.assertEquals(0, this.underTest.realizedEnergyBatteryWs);
+		Assert.assertEquals(0, this.underTest.getRealizedEnergyGridChannel().getNextValue().get().longValue());
+		Assert.assertEquals(0, this.underTest.getRealizedEnergyBatteryChannel().getNextValue().get().longValue());
 	}
 	
 	@Test
@@ -251,16 +250,17 @@ public class ControllerEssBalancingImplTest {
 		this.setActiveChannelValue(this.underTest.getRemainingLevlEnergyChannel(), -1000L);
 		this.setActiveChannelValue(this.underTest.getEfficiencyChannel(), 80.0);
 		this.underTest.currentRequest = new LevlControlRequest();
-		this.underTest.realizedEnergyGridWs = -20;
-		this.underTest.realizedEnergyBatteryWs = -30;
+		
+		this.setActiveChannelValue(this.underTest.getRealizedEnergyGridChannel(), -20L);
+		this.setActiveChannelValue(this.underTest.getRealizedEnergyBatteryChannel(), -30L);
 		
 		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, new HashMap<>());
 			
 		this.underTest.handleEvent(event);
 		
 		Assert.assertEquals(-890, this.underTest.getRemainingLevlEnergyChannel().getNextValue().get().longValue());
-		Assert.assertEquals(-130, this.underTest.realizedEnergyGridWs);
-		Assert.assertEquals(-118, this.underTest.realizedEnergyBatteryWs);
+		Assert.assertEquals(-130, this.underTest.getRealizedEnergyGridChannel().getNextValue().get().longValue());
+		Assert.assertEquals(-118, this.underTest.getRealizedEnergyBatteryChannel().getNextValue().get().longValue());
 		Assert.assertEquals(128, this.underTest.getLevlSocChannel().getNextValue().get().longValue());
 	}
 
@@ -285,11 +285,12 @@ public class ControllerEssBalancingImplTest {
 		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC); // 2024-10-24T14:00:00
 		LevlControlRequest.clock = clock;
 		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2024-10-24T14:15:00Z", (500 * 900), LocalDateTime.of(2024, 10, 24, 14, 15, 0), LocalDateTime.of(2024, 10, 24, 14, 30, 0), 10000, 20, 80, 90, true);
-		
+		this.setActiveChannelValue(this.underTest.getRealizedEnergyBatteryChannel(), -100L);
+
 		this.underTest.handleRequest(call);
 		
 		Assert.assertEquals(expectedNextRequest, this.underTest.nextRequest);
-		Assert.assertEquals(36000000, this.underTest.getLevlSocChannel().getNextValue().get().longValue());
+		Assert.assertEquals(36000100, this.underTest.getLevlSocChannel().getNextValue().get().longValue());
 	}
 	
 	public void setActiveChannelValue(AbstractReadChannel<?, ?> channel, Object value) {

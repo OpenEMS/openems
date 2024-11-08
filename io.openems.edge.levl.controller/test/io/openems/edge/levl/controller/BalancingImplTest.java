@@ -47,9 +47,7 @@ public class BalancingImplTest {
 						.setPower(new DummyPower(0.3, 0.3, 0.1))
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withSoc(50) // 900.000.000 Ws
-						.withMaxApparentPower(500000)
-						.withAllowedChargePower(500000) //TODO: Die Werte werden in Component nicht verwendet! Herausfinden, ob wir diese berücksichtigen müssen.
-						.withAllowedDischargePower(500000))
+						.withMaxApparentPower(500000))
 				.addReference("meter", new DummyElectricityMeter(METER_ID))
 				.addReference("cycle", new DummyCycle(1000))
 				.activate(MyConfig.create()

@@ -15,7 +15,7 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId { 
-        REMAINING_LEVL_ENERGY(Doc.of(OpenemsType.LONG)
+    	REMAINING_LEVL_ENERGY(Doc.of(OpenemsType.LONG)
         		.persistencePriority(PersistencePriority.HIGH)
         		.text("energy to be realized [Ws])")),
         LEVL_SOC(Doc.of(OpenemsType.LONG)
@@ -49,9 +49,18 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
         		.unit(Unit.WATT)
         		.persistencePriority(PersistencePriority.HIGH)
         		.text("power that is applied for the ess primary use case")),
+        REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG)
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("energy realized for the current request on the grid [Ws])")),
+        REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG)
+        		.persistencePriority(PersistencePriority.HIGH)
+        		.text("energy realized for the current request in the battery [Ws])")),
         LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG)
                 .persistencePriority(PersistencePriority.HIGH)
-                .text("cumulated amount of discharge energy that has been realized since the last discharge request [Ws]")),
+                .text("cumulated amount of discharge energy that has been realized since the last discharge request on the grid [Ws]")),
+        LAST_REQUEST_REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG)
+                .persistencePriority(PersistencePriority.HIGH)
+                .text("cumulated amount of discharge energy that has been realized since the last discharge request in the battery [Ws]")),
         LAST_REQUEST_TIMESTAMP(Doc.of(OpenemsType.STRING)
                 .persistencePriority(PersistencePriority.HIGH)
                 .text("the timestamp of the last levl control request"));
@@ -285,7 +294,55 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 	
 	/**
-	 * Returns the LongReadChannel for the realized energy grid.
+	 * Returns the LongReadChannel for the realized energy on the grid (current request).
+	 * @return the LongReadChannel
+	 */
+	public default LongReadChannel getRealizedEnergyGridChannel() {
+	    return this.channel(ChannelId.REALIZED_ENERGY_GRID);
+	}
+	
+	/**
+	 * Returns the value of the realized energy on the grid (current request).
+	 * @return the value of the realized energy on the grid (current request)
+	 */
+	public default Value<Long> getRealizedEnergyGrid() {
+	    return this.getRealizedEnergyGridChannel().value();
+	}
+	
+	/**
+	 * Sets the next value of realized energy on the grid (current request).
+	 * @param value the next value
+	 */
+	public default void _setRealizedEnergyGrid(Long value) {
+	    this.getRealizedEnergyGridChannel().setNextValue(value);
+	}
+	
+	/**
+	 * Returns the LongReadChannel for the realized energy in the battery (current request).
+	 * @return the LongReadChannel
+	 */
+	public default LongReadChannel getRealizedEnergyBatteryChannel() {
+	    return this.channel(ChannelId.REALIZED_ENERGY_BATTERY);
+	}
+	
+	/**
+	 * Returns the value of the realized energy in the battery (current request).
+	 * @return the value of the realized energy in the battery (current request)
+	 */
+	public default Value<Long> getRealizedEnergyBattery() {
+	    return this.getRealizedEnergyBatteryChannel().value();
+	}
+	
+	/**
+	 * Sets the next value of realized energy in the battery (current request).
+	 * @param value the next value
+	 */
+	public default void _setRealizedEnergyBattery(Long value) {
+	    this.getRealizedEnergyBatteryChannel().setNextValue(value);
+	}
+	
+	/**
+	 * Returns the LongReadChannel for the realized energy on the grid (last request).
 	 * @return the LongReadChannel
 	 */
 	public default LongReadChannel getLastRequestRealizedEnergyGridChannel() {
@@ -293,23 +350,47 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 	
 	/**
-	 * Returns the value of the realized energy grid.
-	 * @return the value of the realized energy grid
+	 * Returns the value of the realized energy on the grid (last request).
+	 * @return the value of the realized energy on the grid (last request)
 	 */
 	public default Value<Long> getLastRequestRealizedEnergyGrid() {
 	    return this.getLastRequestRealizedEnergyGridChannel().value();
 	}
 	
 	/**
-	 * Sets the next value of the realized energy grid.
+	 * Sets the next value of the realized energy on the grid (last request).
 	 * @param value the next value
 	 */
 	public default void _setLastRequestRealizedEnergyGrid(Long value) {
 	    this.getLastRequestRealizedEnergyGridChannel().setNextValue(value);
 	}
+	
+	/**
+	 * Returns the LongReadChannel for the realized energy in the battery (last request).
+	 * @return the LongReadChannel
+	 */
+	public default LongReadChannel getLastRequestRealizedEnergyBatteryChannel() {
+	    return this.channel(ChannelId.LAST_REQUEST_REALIZED_ENERGY_BATTERY);
+	}
+	
+	/**
+	 * Returns the value of the realized energy in the battery (last request).
+	 * @return the value of the realized energy in the battery (last request)
+	 */
+	public default Value<Long> getLastRequestRealizedEnergyBattery() {
+	    return this.getLastRequestRealizedEnergyBatteryChannel().value();
+	}
+	
+	/**
+	 * Sets the next value of the realized energy in the battery (last request).
+	 * @param value the next value
+	 */
+	public default void _setLastRequestRealizedEnergyBattery(Long value) {
+	    this.getLastRequestRealizedEnergyBatteryChannel().setNextValue(value);
+	}
 
 	/**
-	 * Returns the StringReadChannel for the request timestamp.
+	 * Returns the StringReadChannel for the request timestamp (last request).
 	 * @return the StringReadChannel
 	 */
 	public default StringReadChannel getLastRequestTimestampChannel() {
@@ -317,15 +398,15 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 	
 	/**
-	 * Returns the value of the request timestamp.
-	 * @return the value of the request timestamp
+	 * Returns the value of the request timestamp (last request).
+	 * @return the value of the request timestamp (last request)
 	 */
 	public default Value<String> getLastRequestTimestamp() {
 	    return this.getLastRequestTimestampChannel().value();
 	}
 	
 	/**
-	 * Sets the next value of the request timestamp.
+	 * Sets the next value of the request timestamp (last request).
 	 * @param value the next value
 	 */
 	public default void _setLastRequestTimestamp(String value) {
