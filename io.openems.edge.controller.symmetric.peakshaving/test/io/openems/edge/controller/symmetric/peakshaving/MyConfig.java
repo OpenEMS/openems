@@ -12,7 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int peakShavingPower;
 		private int rechargePower;
 		private int minSocLimit;
-		private boolean enableMultipleEssConstraints;
+		private boolean allowParallelMultiUse;
 		private int socHysteresis;
 
 		private Builder() {
@@ -48,8 +48,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setEnableMultipleEssConstraints(boolean enableMultipleEssConstraints) {
-			this.enableMultipleEssConstraints = enableMultipleEssConstraints;
+		public Builder setAllowParallelMultiUse(boolean allowParallelMultiUse) {
+			this.allowParallelMultiUse = allowParallelMultiUse;
 			return this;
 		}
 
@@ -105,8 +105,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean enableMultipleEssConstraints() {
-		return this.builder.enableMultipleEssConstraints;
+	public boolean allowParallelMultiUse() {
+		return this.builder.allowParallelMultiUse;
 	}
 
 	@Override

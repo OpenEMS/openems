@@ -1,5 +1,7 @@
 package io.openems.edge.controller.symmetric.peakshaving;
 
+import java.util.Optional;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,6 +18,10 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.PowerConstraint;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -36,7 +42,7 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 
 	private Config config;
 
-	private BehaviourState previousBehaviour = BehaviourState.FIXED_LIMITATION;
+	private MultiUseState multiUseBehavior = MultiUseState.NONE;
 
 	public ControllerEssPeakShavingImpl() {
 		super(//
@@ -80,76 +86,48 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 
 		var soc = ess.getSoc().orElse(0);
 
-		var behaviour = BehaviourState.FIXED_LIMITATION;
-		if (this.config.enableMultipleEssConstraints()) {
+		if (this.config.allowParallelMultiUse()) {
 
-			behaviour = getSocSubstate(soc, this.config.minSocLimit(), this.config.socHysteresis(),
-					this.previousBehaviour);
-			this.previousBehaviour = behaviour;
+			this.multiUseBehavior = this.multiUseBehavior.getMultiUseBehavior(soc, this.config.minSocLimit(),
+					this.config.socHysteresis());
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
-		int calculatedPower;
+		Optional<Integer> peakShaveCompensationPower = Optional.empty();
 		if (gridPower >= this.config.peakShavingPower()) {
-			/*
-			 * Peak-Shaving
-			 */
-			calculatedPower = gridPower - this.config.peakShavingPower();
-
-		} else if (gridPower <= this.config.rechargePower()) {
-			/*
-			 * Recharge
-			 */
-			calculatedPower = gridPower - this.config.rechargePower();
-
-		} else {
-			/*
-			 * Do nothing
-			 */
-			calculatedPower = 0;
+			// we've to do peak shaving
+			peakShaveCompensationPower = Optional.of(gridPower - this.config.peakShavingPower());
+		}
+		
+		this.setMultiUseState(this.multiUseBehavior);
+		switch (this.multiUseBehavior) {
+		case NONE -> {
+			ess.setActivePowerEqualsWithPid(peakShaveCompensationPower.orElseGet(() -> {
+				// If peak shaving is not required, recharge has to happen.
+				return gridPower - this.config.rechargePower();
+			}));
+			ess.setReactivePowerEquals(0);
 		}
 
-		switch (behaviour) {
-		case FIXED_LIMITATION -> {
-
-			/*
-			 * set result
-			 */
-			ess.setActivePowerEqualsWithPid(calculatedPower);
-		}
-
-		case SOFT_LIMITATION -> {
-			ess.setActivePowerGreaterOrEquals(calculatedPower);
-		}
-		}
-
-		ess.setReactivePowerEquals(0);
-	}
-
-	protected static enum BehaviourState {
-		FIXED_LIMITATION, //
-		SOFT_LIMITATION;
-	}
-
-	protected static BehaviourState getSocSubstate(int soc, int minSoc, int socBuffer,
-			BehaviourState previousBehaviour) {
-
-		return switch (previousBehaviour) {
-		case FIXED_LIMITATION -> {
-			if (soc >= minSoc + socBuffer) {
-				yield BehaviourState.SOFT_LIMITATION;
+		case PARALLEL -> {
+			// If peak shaving does not happen do nothing, and allow follow up controllers
+			// to set any value. If peak shaving has to happen don't allow other controllers
+			// to do anything to guarantee quick reaction of battery.
+			if (peakShaveCompensationPower.isPresent()) {
+				ess.setActivePowerGreaterOrEquals(peakShaveCompensationPower.get());
+				ess.setReactivePowerEquals(0);
+			} else {
+				// one can utilize the battery within the boundaries configured for this
+				// controller
+				log.info("Running peak shaving in parallel multi use mode");
+				PowerConstraint.apply(ess, "Parallel multi use constraints of peak shaving", Phase.ALL, Pwr.ACTIVE,
+						Relationship.GREATER_OR_EQUALS, -this.config.rechargePower());
 			}
-			yield BehaviourState.FIXED_LIMITATION;
 		}
-		case SOFT_LIMITATION -> {
-			if (soc <= minSoc) {
-				yield BehaviourState.FIXED_LIMITATION;
-			}
-			yield BehaviourState.SOFT_LIMITATION;
 		}
-		};
+
 	}
 }

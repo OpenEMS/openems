@@ -2,11 +2,13 @@ package io.openems.edge.controller.symmetric.peakshaving;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.PowerConstraint;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
@@ -41,14 +43,14 @@ public class ControllerEssPeakShavingImplTest {
 						.setMeterId(METER_ID) //
 						.setPeakShavingPower(100_000) //
 						.setRechargePower(50_000) //
-						.setEnableMultipleEssConstraints(false)//
+						.setAllowParallelMultiUse(false) //
 						.setMinSocLimit(50) //
 						.setSocHysteresis(3) //
 						.build())
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 120000) //
-						.input(ESS_ACTIVE_POWER, 0)//
+						.input(ESS_ACTIVE_POWER, 0) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 6000)) //
 				.next(new TestCase() //
 						.input(ESS_ACTIVE_POWER, 0) //
@@ -105,110 +107,101 @@ public class ControllerEssPeakShavingImplTest {
 	}
 
 	@Test
-	public void test_soft_limit() throws Exception {
+	public void test_parallel_multi_use() throws Exception {
+		int peakShavingPowerThreshold = 50_000;
+		int maxDischargePower = peakShavingPowerThreshold;
+		DummyManagedSymmetricEss dummyEss = new DummyManagedSymmetricEss(ESS_ID) //
+				.withAllowedDischargePower(maxDischargePower);
+		int maxRechargePower = 30_000;
 		new ControllerTest(new ControllerEssPeakShavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyManagedSymmetricEss(ESS_ID)) //
+				.addComponent(dummyEss) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
 						.setMeterId(METER_ID) //
-						.setPeakShavingPower(50_000) //
-						.setRechargePower(30_000) //
-						.setEnableMultipleEssConstraints(true)//
-						.setMinSocLimit(50)//
-						.setSocHysteresis(3)//
-						.build())//
-				.next(new TestCase() //
+						.setPeakShavingPower(peakShavingPowerThreshold) //
+						.setRechargePower(maxRechargePower) //
+						.setAllowParallelMultiUse(true) //
+						.setMinSocLimit(50) //
+						.setSocHysteresis(3) //
+						.build()) //
+				.next(new TestCase("Don't allow parallel multi use, because soc is far below threshold") //
 						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_ACTIVE_POWER, 0)//
-						.input(ESS_SOC, 40)//
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(ESS_SOC, 40) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000)) //
-				.next(new TestCase() //
+				.next(new TestCase("Don't allow parallel multi use, because soc matches the threshold") //
 						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 50)//
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 50) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000)) //
-				.next(new TestCase() //
+				.next(new TestCase("Don't allow parallel multi use, because soc is below threshold (incl. hysteresis buffer)") //
 						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 51)//
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 51) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000)) //
-				.next(new TestCase() //
+				.next(new TestCase("Don't allow parallel multi use, because soc is below threshold (incl. hysteresis buffer)") //
 						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 52)//
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 52) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000)) //
-				.next(new TestCase() //
+				.next(new TestCase("Allow parallel multi use, because soc matches threshold (incl. hysteresis buffer)") //
 						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 53)//
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 53) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 54) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold. Don't allow charging as it would exceed peak shaving threshold.") //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold - 10_000) //
+						.input(ESS_SOC, 54) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold. Allow charging with 20kW which still respects peak shaving threshold.") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold - 20_000) //
+						.input(ESS_SOC, 54) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 54) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold (incl. hysteresis buffer)") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 53) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold (incl. hysteresis buffer)") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 52) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold (incl. hysteresis buffer)") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 52) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Allow multi use, because soc is above threshold (incl. hysteresis buffer)") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 51) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, null)) //
+				.next(new TestCase("Don't allow parallel multi use, because soc matches the threshold") //
+						.input(ESS_ACTIVE_POWER, 0) //
+						.input(METER_ACTIVE_POWER, peakShavingPowerThreshold + 10_000) //
+						.input(ESS_SOC, 50) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000)) //
-				.next(new TestCase() //
+				.next(new TestCase("Don't allow parallel multi use, because soc is below the threshold") //
 						.input(ESS_ACTIVE_POWER, 0) //
 						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 54)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000)) //
-				.next(new TestCase("Above peak shaving power") //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 54)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000)) //
-				.next(new TestCase("within boundaries") //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 40_000) //
-						.input(ESS_SOC, 54)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 0)) //
-				.next(new TestCase("below recharge power") //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 20_000) //
-						.input(ESS_SOC, 54)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, -10_000))
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 54)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000))
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 53)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000))
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 52)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000))
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 52)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000))
-
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 51)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000))
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 51)//
-						.output(ESS_SET_ACTIVE_POWER_GREATER_THAN_EQUALS, 10_000))
-
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 50)//
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000))
-
-				.next(new TestCase() //
-						.input(ESS_ACTIVE_POWER, 0) //
-						.input(METER_ACTIVE_POWER, 60_000) //
-						.input(ESS_SOC, 49)//
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000))
+						.input(ESS_SOC, 49) //
+						.output(ESS_SET_ACTIVE_POWER_EQUALS, 10_000)) //
 		; //
 	}
 }
