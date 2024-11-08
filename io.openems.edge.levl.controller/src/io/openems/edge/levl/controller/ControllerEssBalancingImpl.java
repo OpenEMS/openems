@@ -223,14 +223,26 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 */
 	protected int calculatePucBatteryPower(int gridPower, int essPower, long pucSocWs,
 			long essCapacityWs, int minEssPower, int maxEssPower, double efficiency, double cycleTimeS) {
+		this.log.info("### calculatePucBatteryPower ###");
+		this.log.info("gridPower: " + gridPower);
+		this.log.info("essPower: " + essPower);
+		this.log.info("pucSocWs: " + pucSocWs);
+		this.log.info("essCapacityWs: " + essCapacityWs);
+		this.log.info("minEssPower: " + minEssPower);
+		this.log.info("maxEssPower: " + maxEssPower);
+		this.log.info("efficiency: " + efficiency);
+		this.log.info("cycleTimeS: " + cycleTimeS);
 		// calculate pucPower without any limits
 		int pucBatteryPower = gridPower + essPower;
+		this.log.info("pucBatteryPower without limits: " + pucBatteryPower);
 
 		// apply ess power limits
 		pucBatteryPower = Math.max(Math.min(pucBatteryPower, maxEssPower), minEssPower);
-
+		this.log.info("pucBatteryPower with ess power limits: " + pucBatteryPower);
+		
 		// apply soc bounds
 		pucBatteryPower = this.applyPucSocBounds(pucBatteryPower, pucSocWs, essCapacityWs, efficiency, cycleTimeS);
+		this.log.info("pucBatteryPower with ess power and soc limits: " + pucBatteryPower);
 		return pucBatteryPower;
 	}
 
