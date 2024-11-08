@@ -113,9 +113,9 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 		}
 		
 		// update filter for 'Controllers'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controllers", config.ess_id())) {
-			return;
-		}
+//		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controllers", config.ess_id())) {
+//			return;
+//		}
 
 		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
@@ -130,6 +130,20 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 		this.installListener();
 
 	}
+	
+	private boolean checkActiveLimiter() {
+		// ToDo: Checkk other peakshaving controller
+		// check all ess' connected peakshavers if any of them is active
+		for (ControllerEssChargeDischargeLimiter ctrlChargeDischargeLimiter : this.ctrlChargeDischargeLimiters) {
+
+			if (ctrlChargeDischargeLimiter.getStateMachine().toString() == "PEAKSHAVING_ACTIVE") {
+				this.logDebug(this.log, "ChargeDischargeLimiter Controller " + ctrlChargeDischargeLimiter.alias() + " is active");
+				return true;
+			}
+		}
+
+		return false;
+	}	
 
 	@Override
 	@Deactivate
@@ -179,6 +193,9 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 
 	private void installListener() {
 	    this.getCapacityInAmphoursChannel().onUpdate(value -> {
+	    	
+	    	this.checkActiveLimiter();	    	
+	    	
 	        if (this.ess == null) {
 	            this.logError(this.log, "No ESS reference available.");
 	            return;
