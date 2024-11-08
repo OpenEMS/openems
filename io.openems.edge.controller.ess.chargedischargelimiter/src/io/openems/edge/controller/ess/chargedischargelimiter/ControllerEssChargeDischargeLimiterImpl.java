@@ -72,7 +72,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int balancingHysteresisTime = 0;
 	private State state = State.UNDEFINED;
 
-	
 	private boolean debugMode = false;
 	private Integer slowChargePower = null;
 	private Integer slowDisChargePower = null;
@@ -129,8 +128,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			return;
 		}
 
-
-	    initializeEssProperties();
+		initializeEssProperties();
 
 	}
 
@@ -174,30 +172,28 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private Object getTimedata() {
 		return this.timedata;
 	}
-	
-	
-	private void initializeEssProperties() {
-	    // Überprüfen, ob ESS bereit und initialisiert ist
-	    if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
-	        
-	        this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
-	        this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
-	        this.fullChargePower = this.ess.getAllowedChargePower().get();
 
-	        this.logDebug(this.log, "Initialized slow charge and discharge power.");
-	    } else {
-	        this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
-	    }
-	}	
+	private void initializeEssProperties() {
+		// Überprüfen, ob ESS bereit und initialisiert ist
+		if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
+
+			this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
+			this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
+			this.fullChargePower = this.ess.getAllowedChargePower().get();
+
+			this.logDebug(this.log, "Initialized slow charge and discharge power.");
+		} else {
+			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
+		}
+	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
 
-
-	    if (this.ess == null || !this.ess.getAllowedChargePower().isDefined()) {
-	        initializeEssProperties();
-	        return;
-	    }		
+		if (this.ess == null || !this.ess.getAllowedChargePower().isDefined()) {
+			initializeEssProperties();
+			return;
+		}
 
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = this.getEssChargePower().get(); // no matter if AC or DC charging
@@ -463,10 +459,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 					ess.setActivePowerGreaterOrEquals(calculatedPower);
 				}
 			}
-			case BALANCING_WANTED -> //do nothing
-			{}
-			case UNDEFINED -> //do nothing
-			{}
+			case BALANCING_WANTED -> // do nothing
+				{
+				}
+			case UNDEFINED -> // do nothing
+				{
+				}
 
 			default -> throw new IllegalArgumentException("Unexpected State: " + this.state);
 			}
@@ -511,7 +509,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		Long currentEssActiveChargeEnergy = 0L;
 
-		currentEssActiveChargeEnergy = this.getEssChargedEnergy().get(); // Cumulative counter of ESS device. No matter if DC
+		currentEssActiveChargeEnergy = this.getEssChargedEnergy().get(); // Cumulative counter of ESS device. No matter
+																			// if DC
 																			// or AC coupled
 
 		// Ess Active Charge Energy directly from ESS (cumulative)
@@ -574,6 +573,17 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		return false;
 	}
+
+	@Override
+	public String getEssId() {
+		if (this.ess == null) {
+			return null;
+		} else {
+			return this.ess.id();
+		}
+
+	}
+
 
 	private Value<Long> getEssChargedEnergy() {
 		if (this.ess instanceof HybridEss hss) {

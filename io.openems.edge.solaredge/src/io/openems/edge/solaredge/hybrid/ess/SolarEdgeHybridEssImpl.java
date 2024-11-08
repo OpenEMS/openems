@@ -653,6 +653,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 	 */
 
 	private void checkSocControllers() {
+		Utils.filterControllersByEssId(ctrlChargeDischargeLimiters, this.id()); // filter out controllers not referring to this ess
 
 		// Method always gives valid values. Even 100 and 0 if no controllers are active
 		int[] socRange = Utils.getEssUsableSocRange(this.ctrlChargeDischargeLimiters, this.ctrlLimitTotalDischarges,

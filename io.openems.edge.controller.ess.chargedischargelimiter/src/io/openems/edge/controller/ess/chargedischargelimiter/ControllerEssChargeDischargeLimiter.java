@@ -282,4 +282,6 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 		this.getStateMachineChannel().setNextValue(value);
 	}
 
+	public String getEssId();
+
 }

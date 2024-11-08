@@ -1,5 +1,6 @@
 package io.openems.edge.battery.victron;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -128,22 +129,11 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this.installListener();
+		
 
 	}
 	
-	private boolean checkActiveLimiter() {
-		// ToDo: Checkk other peakshaving controller
-		// check all ess' connected peakshavers if any of them is active
-		for (ControllerEssChargeDischargeLimiter ctrlChargeDischargeLimiter : this.ctrlChargeDischargeLimiters) {
-
-			if (ctrlChargeDischargeLimiter.getStateMachine().toString() == "PEAKSHAVING_ACTIVE") {
-				this.logDebug(this.log, "ChargeDischargeLimiter Controller " + ctrlChargeDischargeLimiter.alias() + " is active");
-				return true;
-			}
-		}
-
-		return false;
-	}	
+	
 
 	@Override
 	@Deactivate
@@ -171,8 +161,7 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 		// TODO implement battery start/stop if needed
 		this._setStartStop(value);
 	}
-
-
+	
 	private void checkSocControllers() {
 
 		if (this.ess == null) {
@@ -181,7 +170,7 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 			this.maxSocPercentage = 100;
 			return;
 		}
-
+		Utils.filterControllersByEssId(ctrlChargeDischargeLimiters, this.ess.id()); // filter out controllers not referring to this ess
 		int[] socRange = Utils.getEssUsableSocRange(this.ctrlChargeDischargeLimiters, this.ctrlLimitTotalDischarges,
 				this.ctrlEmergencyCapacityReserves);
 
@@ -193,8 +182,6 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 
 	private void installListener() {
 	    this.getCapacityInAmphoursChannel().onUpdate(value -> {
-	    	
-	    	this.checkActiveLimiter();	    	
 	    	
 	        if (this.ess == null) {
 	            this.logError(this.log, "No ESS reference available.");

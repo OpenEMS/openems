@@ -4,6 +4,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.IntStream.concat;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import io.openems.common.types.ChannelAddress;
@@ -68,6 +69,16 @@ public final class Utils {
 						.mapToInt(v -> max(0, v))) // only positives
 				.max().orElse(0);
 	}
+	
+	public static void filterControllersByEssId(List<ControllerEssChargeDischargeLimiter> controllers, String myEssId) {
+	    Iterator<ControllerEssChargeDischargeLimiter> iterator = controllers.iterator();
+	    while (iterator.hasNext()) {
+	        ControllerEssChargeDischargeLimiter controller = iterator.next();
+	        if (!myEssId.equals(controller.getEssId())) { // Check if controller's ESS ID matches
+	            iterator.remove(); // Remove controllers that do not refer to the specified ESS
+	        }
+	    }
+	}		
 
 	/**
 	 * Returns a range of useable SoC, e.g. min Soc:20, max SoC 95 -> range 75.
