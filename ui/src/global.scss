@@ -171,6 +171,10 @@ ion-label {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+ion-refresher-content ion-spinner {
+  left: 0 !important;
+}
+
 ion-item.noPadding {
     --ion-safe-area-right: 0.1;
 }
