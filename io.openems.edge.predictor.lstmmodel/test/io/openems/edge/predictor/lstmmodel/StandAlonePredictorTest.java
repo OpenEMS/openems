@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 //import org.junit.Test;
 
+//import org.junit.Test;
+
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
 import io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels;
 import io.openems.edge.predictor.lstmmodel.common.ReadCsv;
@@ -36,7 +38,7 @@ public class StandAlonePredictorTest {
 	/**
 	 * Prediction testing.
 	 */
-	// @Test
+	//@Test
 	public void predictionTest() {
 
 		ArrayList<ArrayList<Double>> predictedSeasonality = new ArrayList<ArrayList<Double>>();

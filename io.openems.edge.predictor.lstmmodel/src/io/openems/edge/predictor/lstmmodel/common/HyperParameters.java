@@ -136,7 +136,7 @@ public class HyperParameters implements Serializable {
 	 * of range errors during training.</li>
 	 * </ul>
 	 */
-	private int batchSize = 1;
+	private int batchSize = 10;
 
 	/**
 	 * Counter for tracking batches.
