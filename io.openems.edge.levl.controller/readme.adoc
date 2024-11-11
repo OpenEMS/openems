@@ -1,5 +1,7 @@
 = Levl Controller for ESS Balancing
 
+This is a beta version.
+
 This controller combines the optimization of self-consumption with electricity exchange optimization in order to market the free flexibility of the energy storage system economically.
 Note: This controller can only be used in combination with an optimization contract with Levl Energy. For contact und more information please visit https://levl.energy
 
@@ -8,7 +10,7 @@ This controller receives charging and discharging instructions from Levl Energy 
 
 == Requirements
 The following components are required to use this controller successfully:
-- Contract with Levl Energy for system optimization and 
+- Contract with Levl Energy for system optimization 
 - ManagedSymmetricEss - a controllable energy storage system
 - ElectricityMeter - a meter at the grid connection point
 
