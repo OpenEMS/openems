@@ -217,9 +217,10 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	/**
 	 * Calculates the power of the primary use case, taking into account the ess
 	 * power limits and the soc limits.
-	 * 
+	 * <p>
 	 * positive = discharge
 	 * negative = charge
+	 * </p>
 	 * 
 	 * @param gridPower     the active power of the meter [W]
 	 * @param essPower      the active power of the ess [W]
@@ -285,6 +286,10 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	/**
 	 * Calculates the battery power for the levl use case considering various
 	 * constraints.
+	 * <p>
+	 * positive = discharge
+	 * negative = charge
+	 * </p>
 	 * 
 	 * @param remainingLevlEnergyWs    the remaining energy that has to be realized
 	 *                                 for levl [Ws]
@@ -516,7 +521,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 			// remaining for the next cycle
 			var newRemainingLevlEnergy = remainingLevlEnergy - levlEnergyWs;
-			if (hasSignChanged(remainingLevlEnergy, newRemainingLevlEnergy)) {
+			if (this.hasSignChanged(remainingLevlEnergy, newRemainingLevlEnergy)) {
 				newRemainingLevlEnergy = 0;
 			}
 			this._setRemainingLevlEnergy(newRemainingLevlEnergy);
@@ -571,7 +576,6 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this._setSellToGridLimit((long) this.currentRequest.sellToGridLimitW);
 		this._setInfluenceSellToGrid(this.currentRequest.influenceSellToGrid);
 	}
-
 
 	private boolean hasSignChanged(long a, long b) {
 		return a < 0 && b > 0 || a > 0 && b < 0;
