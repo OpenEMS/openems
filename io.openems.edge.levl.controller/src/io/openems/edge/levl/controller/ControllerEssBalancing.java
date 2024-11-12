@@ -16,7 +16,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		REMAINING_LEVL_ENERGY(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH)
-				.text("energy to be realized [Ws])")),
+				.text("energy to be realized [Ws]")),
 		LEVL_SOC(Doc.of(OpenemsType.LONG).unit(Unit.WATT_HOURS).persistencePriority(PersistencePriority.HIGH)
 				.text("levl state of charge [Wh]")),
 		SELL_TO_GRID_LIMIT(Doc.of(OpenemsType.LONG).unit(Unit.WATT).persistencePriority(PersistencePriority.HIGH)
@@ -24,9 +24,9 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 		BUY_FROM_GRID_LIMIT(Doc.of(OpenemsType.LONG).unit(Unit.WATT).persistencePriority(PersistencePriority.HIGH)
 				.text("maximum power that may be bought from the grid [W]")),
 		SOC_LOWER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE).unit(Unit.PERCENT).persistencePriority(PersistencePriority.HIGH)
-				.text("lower soc bound limit levl has to respect [%]")),
+				.text("lower soc bound levl has to respect [%]")),
 		SOC_UPPER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE).unit(Unit.PERCENT).persistencePriority(PersistencePriority.HIGH)
-				.text("upper soc bound limit levl has to respect [%]")),
+				.text("upper soc bound levl has to respect [%]")),
 		INFLUENCE_SELL_TO_GRID(Doc.of(OpenemsType.BOOLEAN).persistencePriority(PersistencePriority.HIGH)
 				.text("defines if levl is allowed to influence the sell to grid power [true/false]")),
 		EFFICIENCY(Doc.of(OpenemsType.DOUBLE).unit(Unit.PERCENT).persistencePriority(PersistencePriority.HIGH)
@@ -38,9 +38,9 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 		REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH)
 				.text("energy realized for the current request in the battery [Ws])")),
 		LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH).text(
-				"cumulated amount of discharge energy that has been realized since the last discharge request on the grid [Ws]")),
+				"energy that has been realized for the last request on the grid [Ws]")),
 		LAST_REQUEST_REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH)
-				.text("cumulated amount of discharge energy that has been realized since the last discharge request in the battery [Ws]")),
+				.text("energy that has been realized for the last request in the battery [Ws]")),
 		LAST_REQUEST_TIMESTAMP(Doc.of(OpenemsType.STRING).persistencePriority(PersistencePriority.HIGH)
 				.text("the timestamp of the last levl control request"));
 
@@ -165,7 +165,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Returns the DoubleReadChannel for the lower soc bound limit.
+	 * Returns the DoubleReadChannel for the lower soc bound.
 	 * 
 	 * @return the DoubleReadChannel
 	 */
@@ -174,16 +174,16 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Returns the value of the lower soc bound limit.
+	 * Returns the value of the lower soc bound.
 	 * 
-	 * @return the value of the lower soc bound limit
+	 * @return the value of the lower soc bound
 	 */
 	public default Value<Double> getSocLowerBoundLevl() {
 		return this.getSocLowerBoundLevlChannel().value();
 	}
 
 	/**
-	 * Sets the next value of the lower soc bound limit.
+	 * Sets the next value of the lower soc bound.
 	 * 
 	 * @param value the next value
 	 */
@@ -192,7 +192,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Returns the DoubleReadChannel for the upper soc bound limit.
+	 * Returns the DoubleReadChannel for the upper soc bound.
 	 * 
 	 * @return the DoubleReadChannel
 	 */
@@ -201,16 +201,16 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Returns the value of the upper soc bound limit.
+	 * Returns the value of the upper soc bound.
 	 * 
-	 * @return the value of the upper soc bound limit
+	 * @return the value of the upper soc bound
 	 */
 	public default Value<Double> getSocUpperBoundLevl() {
 		return this.getSocUpperBoundLevlChannel().value();
 	}
 
 	/**
-	 * Sets the next value of the upper soc bound limit.
+	 * Sets the next value of the upper soc bound.
 	 * 
 	 * @param value the next value
 	 */

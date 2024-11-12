@@ -2,7 +2,7 @@
 
 This is a beta version.
 
-This controller combines the optimization of self-consumption with electricity exchange optimization in order to market the free flexibility of the energy storage system economically.
+This controller combines the optimization of self-consumption with flexibility trading by levl.
 Note: This controller can only be used in combination with an optimization contract with Levl Energy. For contact und more information please visit https://levl.energy
 
 == How it works

@@ -25,7 +25,29 @@ public class LevlControlRequest {
 	protected double socUpperBoundPercent;
 	protected double efficiencyPercent;
 	protected boolean influenceSellToGrid;
+	
+	public LevlControlRequest() {
+		
+	}
+	
+	
+	public LevlControlRequest(JsonObject params) throws OpenemsError.OpenemsNamedException {
+		try {
+			this.parseFields(params);
+		} catch (NullPointerException e) {
+			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("missing fields in request: " + e.getMessage());
+		} catch (NumberFormatException e) {
+			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("wrong field type in request: " + e.getMessage());
+		}
+		if (this.efficiencyPercent < 0) {
+			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be > 0");
+		}
+		if (this.efficiencyPercent > 100) {
+			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be <= 100");
+		}
+	}
 
+	//Just for testing
 	public LevlControlRequest(int sellToGridLimitW, int buyFromGridLimitW, String levlRequestId, String timestamp,
 			long energyWs, LocalDateTime start, LocalDateTime deadline, int levlSocWh, int socLowerBoundPercent,
 			int socUpperBoundPercent, double efficiencyPercent, boolean influenceSellToGrid) {
@@ -43,14 +65,10 @@ public class LevlControlRequest {
 		this.influenceSellToGrid = influenceSellToGrid;
 	}
 
-	public LevlControlRequest() {
-
-	}
-
+	//Just for testing
 	public LevlControlRequest(int startDelay, int duration) {
 		this.start = LocalDateTime.now(LevlControlRequest.clock).plusSeconds(startDelay);
 		this.deadline = this.start.plusSeconds(duration);
-
 	}
 
 	/**
@@ -63,22 +81,6 @@ public class LevlControlRequest {
 	public static LevlControlRequest from(JsonrpcRequest request) throws OpenemsNamedException {
 		var params = request.getParams();
 		return new LevlControlRequest(params);
-	}
-
-	public LevlControlRequest(JsonObject params) throws OpenemsError.OpenemsNamedException {
-		try {
-			this.parseFields(params);
-		} catch (NullPointerException e) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("missing fields in request: " + e.getMessage());
-		} catch (NumberFormatException e) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("wrong field type in request: " + e.getMessage());
-		}
-		if (this.efficiencyPercent < 0) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be > 0");
-		}
-		if (this.efficiencyPercent > 100) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be <= 100");
-		}
 	}
 
 	private void parseFields(JsonObject params) {
@@ -94,8 +96,7 @@ public class LevlControlRequest {
 		this.sellToGridLimitW = params.get("sellToGridLimitW").getAsInt();
 		this.buyFromGridLimitW = params.get("buyFromGridLimitW").getAsInt();
 		this.efficiencyPercent = params.get("efficiencyPercent").getAsDouble();
-		this.influenceSellToGrid = params.has("influenceSellToGrid") ? params.get("influenceSellToGrid").getAsBoolean()
-				: true;
+		this.influenceSellToGrid = params.get("influenceSellToGrid").getAsBoolean();
 	}
 
 	@Override

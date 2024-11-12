@@ -31,11 +31,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setTargetGridSetpoint(int targetGridSetpoint) {
-			this.targetGridSetpoint = targetGridSetpoint;
-			return this;
-		}
-
 		public MyConfig build() {
 			return new MyConfig(this);
 		}

@@ -12,23 +12,18 @@ import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class BalancingImplTest {
-	
-	
 
 	private static final String CTRL_ID = "ctrl0";
 
 	private static final String ESS_ID = "ess0";
 	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
 	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
-	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
-			"SetActivePowerEquals");
-	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID = new ChannelAddress(ESS_ID,
-			"SetActivePowerEqualsWithPid");
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID, "SetActivePowerEquals");
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID = new ChannelAddress(ESS_ID, "SetActivePowerEqualsWithPid");
 	private static final ChannelAddress DEBUG_SET_ACTIVE_POWER = new ChannelAddress(ESS_ID, "DebugSetActivePower");
-
+	
 	private static final String METER_ID = "meter0";
 	private static final ChannelAddress METER_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
-	
 	private static final ChannelAddress LEVL_REMAINING_LEVL_ENERGY = new ChannelAddress(CTRL_ID, "RemainingLevlEnergy");
 	private static final ChannelAddress LEVL_SOC = new ChannelAddress(CTRL_ID, "LevlSoc");
 	private static final ChannelAddress LEVL_SELL_TO_GRID_LIMIT = new ChannelAddress(CTRL_ID, "SellToGridLimit");

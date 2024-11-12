@@ -141,7 +141,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Calculates the required charge/discharge power based on primary use case
-	 * (puc; e.g. self consumption optimization or peak shaving) and levl.
+	 * (puc; self consumption optimization) and levl.
 	 *
 	 * @return the required power for the next cycle [W]
 	 * @throws OpenemsNamedException on error
@@ -154,7 +154,10 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		var gridPower = this.meter.getActivePower().getOrError();
 		var essPower = this.ess.getActivePower().getOrError();
 		var essCapacity = this.ess.getCapacity().getOrError();
+		var minEssPower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		var maxEssPower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 
+		// levl request specific values
 		var levlSocWs = this.getLevlSoc().getOrError();
 		var remainingLevlEnergyWs = this.getRemainingLevlEnergy().getOrError();
 		var efficiency = this.getEfficiency().getOrError();
@@ -164,23 +167,20 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		var sellToGridLimit = this.getSellToGridLimit().getOrError();
 		var influenceSellToGrid = this.getInfluenceSellToGrid().getOrError();
 
-		var minEssPower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-		var maxEssPower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-
 		var essCapacityWs = essCapacity * 3600L;
 		var physicalSocWs = Math.round((physicalSoc / 100.0) * essCapacityWs);
 
 		// primary use case (puc) calculation
-		var pucSocWs = this.calculatePucSoc(physicalSocWs, levlSocWs);
+		var pucSocWs = this.calculatePucSoc(physicalSocWs, levlSocWs, essCapacityWs);
 		var pucBatteryPower = this.calculatePucBatteryPower(gridPower, essPower, pucSocWs, essCapacityWs, minEssPower,
 				maxEssPower, efficiency, cycleTimeS);
 		var pucGridPower = gridPower + essPower - pucBatteryPower;
-		var nextPucSocWs = pucSocWs + Math.round(pucBatteryPower * cycleTimeS);
+		var nextPucSocWs = pucSocWs - Math.round(Efficiency.apply(pucBatteryPower, efficiency) * cycleTimeS);
 
 		// levl calculation
 		var levlBatteryPower = 0;
 		if (remainingLevlEnergyWs != 0) {
-			levlBatteryPower = this.calculateLevlBatteryPowerW(remainingLevlEnergyWs, pucBatteryPower, minEssPower,
+			levlBatteryPower = this.calculateLevlBatteryPower(remainingLevlEnergyWs, pucBatteryPower, minEssPower,
 					maxEssPower, pucGridPower, buyFromGridLimit, sellToGridLimit, nextPucSocWs, levlSocWs,
 					socLowerBoundLevlPercent, socUpperBoundLevlPercent, essCapacityWs, influenceSellToGrid, efficiency,
 					cycleTimeS);
@@ -188,24 +188,28 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 		// overall calculation
 		this._setPucBatteryPower(Long.valueOf(pucBatteryPower));
-		var batteryPowerW = pucBatteryPower + levlBatteryPower;
-		return batteryPowerW;
+		var batteryPower = pucBatteryPower + levlBatteryPower;
+		return batteryPower;
 	}
 
 	/**
-	 * Calculates the soc of the primary use case based on calculated physical soc
-	 * and tracked levl soc.
+	 * Calculates the soc of the primary use case based on physical soc and tracked
+	 * levl soc.
 	 * 
 	 * @param physicalSocWs the physical soc [Ws]
 	 * @param levlSocWs     the levl soc [Ws]
+	 * @param essCapacityWs the ess capacity [Ws]
 	 * 
 	 * @return the soc of the primary use case
 	 */
-	protected long calculatePucSoc(long physicalSocWs, long levlSocWs) {
+	protected long calculatePucSoc(long physicalSocWs, long levlSocWs, long essCapacityWs) {
 		var pucSoc = physicalSocWs - levlSocWs;
 
+		// handle case of pucSoc out of bounds (e.g. due to rounding)
 		if (pucSoc < 0) {
 			return 0;
+		} else if (pucSoc > essCapacityWs) {
+			return essCapacityWs;
 		}
 		return pucSoc;
 	}
@@ -214,10 +218,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * Calculates the power of the primary use case, taking into account the ess
 	 * power limits and the soc limits.
 	 * 
+	 * positive = discharge
+	 * negative = charge
+	 * 
 	 * @param gridPower     the active power of the meter [W]
 	 * @param essPower      the active power of the ess [W]
 	 * @param pucSocWs      the soc of the puc [Ws]
-	 * @param essCapacityWs the total ess capacity [Ws]
+	 * @param essCapacityWs the ess capacity [Ws]
 	 * @param minEssPower   the minimum possible power of the ess [W]
 	 * @param maxEssPower   the maximum possible power of the ess [W]
 	 * @param efficiency    the efficiency of the system [%]
@@ -252,7 +259,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * 
 	 * @param pucPower      the calculated pucPower [W]
 	 * @param pucSocWs      the soc of the puc [Ws]
-	 * @param essCapacityWs the total ess capacity [Ws]
+	 * @param essCapacityWs the ess capacity [Ws]
 	 * @param efficiency    the efficiency of the system [%]
 	 * @param cycleTimeS    the configured openems cycle time [seconds]
 	 * @return the restricted pucPower [W]
@@ -276,7 +283,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Calculates the battery power for the level use case considering various
+	 * Calculates the battery power for the levl use case considering various
 	 * constraints.
 	 * 
 	 * @param remainingLevlEnergyWs    the remaining energy that has to be realized
@@ -294,14 +301,14 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * @param levlSocWs                the current levl soc [Ws]
 	 * @param socLowerBoundLevlPercent the lower levl soc limit [%]
 	 * @param socUpperBoundLevlPercent the upper levl soc limit [%]
-	 * @param essCapacityWs            the total ess capacity [Ws]
+	 * @param essCapacityWs            the ess capacity [Ws]
 	 * @param influenceSellToGrid      whether it's allowed to influence sell to
 	 *                                 grid
 	 * @param efficiency               the efficiency of the system [%]
 	 * @param cycleTimeS               the configured openems cycle time [seconds]
 	 * @return the levl battery power [W]
 	 */
-	protected int calculateLevlBatteryPowerW(long remainingLevlEnergyWs, int pucBatteryPower, int minEssPower,
+	protected int calculateLevlBatteryPower(long remainingLevlEnergyWs, int pucBatteryPower, int minEssPower,
 			int maxEssPower, int pucGridPower, long buyFromGridLimit, long sellToGridLimit, long nextPucSocWs,
 			long levlSocWs, double socLowerBoundLevlPercent, double socUpperBoundLevlPercent, long essCapacityWs,
 			boolean influenceSellToGrid, double efficiency, double cycleTimeS) {
@@ -337,11 +344,11 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	/**
 	 * Applies battery power limits to the levl power.
 	 * 
-	 * @param levlPower       the puc battery power [W]
+	 * @param levlPower       the levl battery power [W]
 	 * @param pucBatteryPower the puc battery power [W]
 	 * @param minEssPower     the minimum possible power of the ess [W]
 	 * @param maxEssPower     the maximum possible power of the ess [W]
-	 * @return the levl battery power [W]
+	 * @return the restricted levl battery power [W]
 	 */
 	protected long applyBatteryPowerLimitsToLevlPower(long levlPower, int pucBatteryPower, int minEssPower,
 			int maxEssPower) {
@@ -353,15 +360,15 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	/**
 	 * Applies upper and lower soc bounderies to the levl power.
 	 * 
-	 * @param levlPower                the puc battery power [W]
-	 * @param nextPucSocWs             the calculated puc soc for the next cycle
+	 * @param levlPower                the levl battery power [W]
+	 * @param nextPucSocWs             the calculated puc soc for the next cycle [Ws]
 	 * @param levlSocWs                the current levl soc [Ws]
 	 * @param socLowerBoundLevlPercent the lower levl soc limit [%]
 	 * @param socUpperBoundLevlPercent the upper levl soc limit [%]
-	 * @param essCapacityWs            the total ess capacity [Ws]
+	 * @param essCapacityWs            the ess capacity [Ws]
 	 * @param efficiency               the efficiency of the system [%]
 	 * @param cycleTimeS               the configured openems cycle time [seconds]
-	 * @return the levl battery power [W]
+	 * @return the restricted levl battery power [W]
 	 */
 	protected long applySocBoundariesToLevlPower(long levlPower, long nextPucSocWs, long levlSocWs,
 			double socLowerBoundLevlPercent, double socUpperBoundLevlPercent, long essCapacityWs, double efficiency,
@@ -390,11 +397,11 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	/**
 	 * Applies grid power limits to the levl power.
 	 * 
-	 * @param levlPower        the puc battery power [W]
+	 * @param levlPower        the levl battery power [W]
 	 * @param pucGridPower     the active power of the puc on the meter [W]
 	 * @param buyFromGridLimit maximum power that may be bought from the grid [W]
 	 * @param sellToGridLimit  maximum power that may be sold to the grid [W]
-	 * @return the levl battery power [W]
+	 * @return the restricted levl battery power [W]
 	 */
 	protected long applyGridPowerLimitsToLevlPower(long levlPower, int pucGridPower, long buyFromGridLimit,
 			long sellToGridLimit) {
@@ -406,10 +413,10 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	/**
 	 * Applies influence sell to grid constraint to the levl power.
 	 * 
-	 * @param levlPower           the puc battery power [W]
+	 * @param levlPower           the levl battery power [W]
 	 * @param pucGridPower        the active power of the puc on the meter [W]
 	 * @param influenceSellToGrid whether it's allowed to influence sell to grid
-	 * @return the levl battery power [W]
+	 * @return the restricted levl battery power [W]
 	 */
 	protected long applyInfluenceSellToGridConstraint(long levlPower, int pucGridPower, boolean influenceSellToGrid) {
 		if (!influenceSellToGrid) {
@@ -444,9 +451,9 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this.log.info("Received new levl request: {}", request);
 		this.nextRequest = request;
 		var realizedEnergyBatteryWs = this.getRealizedEnergyBattery().getOrError();
-		var nextLevlSoc = request.levlSocWh * 3600L - realizedEnergyBatteryWs;
-		this._setLevlSoc(nextLevlSoc);
-		this.log.info("Updated levl soc: {}", nextLevlSoc);
+		var updatedLevlSoc = request.levlSocWh * 3600L - realizedEnergyBatteryWs;
+		this._setLevlSoc(updatedLevlSoc);
+		this.log.info("Updated levl soc: {}", updatedLevlSoc);
 		return JsonrpcResponseSuccess.from(this.generateResponse(call.getRequest().getId(), request.levlRequestId));
 	}
 
@@ -494,9 +501,11 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	private void handleAfterWriteEvent() throws OpenemsNamedException {
-		if (this.currentRequest != null) {
+		var remainingLevlEnergy = this.getRemainingLevlEnergy().getOrError();
+		
+		if (remainingLevlEnergy != 0L) {
 			var pucBatteryPower = this.getPucBatteryPowerChannel().getNextValue().getOrError();
-			long levlPower = 0;
+			var levlPower = 0L;
 			var essNextPower = this.ess.getDebugSetActivePowerChannel().getNextValue();
 			if (essNextPower.isDefined()) {
 				var essPower = essNextPower.get();
@@ -506,8 +515,11 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			var levlEnergyWs = Math.round(levlPower * (this.cycle.getCycleTime() / 1000.0));
 
 			// remaining for the next cycle
-			var remainingLevlEnergy = this.getRemainingLevlEnergy().getOrError();
-			this._setRemainingLevlEnergy(remainingLevlEnergy - levlEnergyWs);
+			var newRemainingLevlEnergy = remainingLevlEnergy - levlEnergyWs;
+			if (hasSignChanged(remainingLevlEnergy, newRemainingLevlEnergy)) {
+				newRemainingLevlEnergy = 0;
+			}
+			this._setRemainingLevlEnergy(newRemainingLevlEnergy);
 
 			// realized after the next cycle
 			var realizedEnergyGridWs = this.getRealizedEnergyGrid().getOrError();
@@ -537,6 +549,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this._setLastRequestRealizedEnergyGrid(realizedEnergyGridWs);
 		this._setLastRequestRealizedEnergyBattery(realizedEnergyBatteryWs);
 		this._setLastRequestTimestamp(this.currentRequest.timestamp);
+		this._setRemainingLevlEnergy(0L);
 		this._setRealizedEnergyGrid(0L);
 		this._setRealizedEnergyBattery(0L);
 		this.currentRequest = null;
@@ -559,4 +572,8 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this._setInfluenceSellToGrid(this.currentRequest.influenceSellToGrid);
 	}
 
+
+	private boolean hasSignChanged(long a, long b) {
+		return a < 0 && b > 0 || a > 0 && b < 0;
+	}
 }
