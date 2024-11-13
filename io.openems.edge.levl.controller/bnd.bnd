@@ -1,7 +1,7 @@
-Bundle-Name: OpenEMS Edge Controller Ess Balancing
-Bundle-Vendor: FENECON GmbH
+Bundle-Name: Ess Balancing with flexibility trading
+Bundle-Vendor: Levl Energy GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
-Bundle-Version: 1.0.0.${tstamp}
+Bundle-Version: 0.1.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
