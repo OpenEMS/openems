@@ -9,8 +9,8 @@ Bundle-Version: 0.1.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.meter.api,\
-	io.openems.edge.ess.generic
+	io.openems.edge.ess.generic,\
+	io.openems.edge.meter.api
 
 -testpath: \
 	${testpath}
