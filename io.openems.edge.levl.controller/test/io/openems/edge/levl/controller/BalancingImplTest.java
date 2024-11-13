@@ -32,7 +32,7 @@ public class BalancingImplTest {
 	private static final ChannelAddress SOC_UPPER_BOUND_LEVL = new ChannelAddress(CTRL_ID, "SocUpperBoundLevl");
 	private static final ChannelAddress LEVL_INFLUENCE_SELL_TO_GRID = new ChannelAddress(CTRL_ID, "InfluenceSellToGrid");
 	private static final ChannelAddress LEVL_EFFICIENCY = new ChannelAddress(CTRL_ID, "Efficiency");
-	private static final ChannelAddress LEVL_PUC_BATTERY_POWER = new ChannelAddress(CTRL_ID, "PucBatteryPower");
+	private static final ChannelAddress PUC_BATTERY_POWER = new ChannelAddress(CTRL_ID, "PucBatteryPower");
 	
 	@Test
 	public void testWithoutLevlRequest() throws Exception {
@@ -141,7 +141,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 30000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 30000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
 						.output(LEVL_SOC, 87500L))
 				.next(new TestCase()
@@ -149,7 +149,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -10000)
 						.input(DEBUG_SET_ACTIVE_POWER, 20000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 20000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
 						.output(LEVL_SOC, 87500L))
 				.next(new TestCase()
@@ -157,7 +157,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, 20000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 20000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
 						.output(LEVL_SOC, 87500L));
 	}
@@ -194,7 +194,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 10000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 10000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
 						.output(LEVL_SOC, 108000L))
 				.next(new TestCase()
@@ -202,7 +202,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 10000)
 						.input(DEBUG_SET_ACTIVE_POWER, 20000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 20000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
 						.output(LEVL_SOC, 108000L))
 				.next(new TestCase()
@@ -210,7 +210,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, 20000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 20000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
 						.output(LEVL_SOC, 108000L));
 	}
@@ -248,7 +248,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 120000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 120000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 2_499_900_000L)
 						.output(LEVL_SOC, -25000L))
 				.next(new TestCase()
@@ -256,7 +256,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -100000)
 						.input(DEBUG_SET_ACTIVE_POWER, 120000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 120000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 2_499_800_000L)
 						.output(LEVL_SOC, -150000L))
 				.next(new TestCase()
@@ -264,7 +264,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -100000)
 						.input(DEBUG_SET_ACTIVE_POWER, 120000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 120000)
-						.output(LEVL_PUC_BATTERY_POWER, 20000L)
+						.output(PUC_BATTERY_POWER, 20000L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 2_499_700_000L)
 						.output(LEVL_SOC, -275000L));
 	}
@@ -301,7 +301,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -20_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
+						.output(PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
 						.output(LEVL_REMAINING_LEVL_ENERGY, -9_500_000L) // 500,000 Ws should be realized, therefore 9,500,000 Ws are remaining
 						.output(LEVL_SOC, -179_600_000L))  // Levl soc increases by 500,000 Ws * 80% efficiency = 400,000 Ws
 				.next(new TestCase()
@@ -310,7 +310,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 480_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) 
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
-						.output(LEVL_PUC_BATTERY_POWER, -20_000L) // since reserved capacity decreased by 400,000 Ws in the previous cycle but ess soc value remains the same, puc can charge again
+						.output(PUC_BATTERY_POWER, -20_000L) // since reserved capacity decreased by 400,000 Ws in the previous cycle but ess soc value remains the same, puc can charge again
 						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) // 480,000 Ws can be realized for Levl, therefore 9,020,00 are remaining
 						.output(LEVL_SOC, -179_216_000L)); // Levl soc increases by 480,000 Ws * 80% efficiency = 384,000 Ws
 	}
@@ -347,7 +347,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -20_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, 500_000) // max discharge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 500_000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
+						.output(PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely reserved for Levl
 						.output(LEVL_REMAINING_LEVL_ENERGY, 9_500_000L) // 500,000 Ws should be realized, therefore 9,500,000 Ws are remaining
 						.output(LEVL_SOC, -180_625_000L)) // Levl soc decreases by 500,000 Ws / 80% efficiency = 625,000 Ws
 				.next(new TestCase()
@@ -356,7 +356,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -520_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, 500_000) // max discharge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 500_000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L) // // puc should not do anything because capacity is still completely reserved for Levl
+						.output(PUC_BATTERY_POWER, 0L) // // puc should not do anything because capacity is still completely reserved for Levl
 						.output(LEVL_REMAINING_LEVL_ENERGY, 9_000_000L) // 500,000 Ws should be realized, therefore 9,000,000 Ws are remaining
 						.output(LEVL_SOC, -181_250_000L)); // Levl soc decreases by 500,000 Ws / 80% efficiency = 625,000 Ws
 	}
@@ -394,7 +394,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -10_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
-						.output(LEVL_PUC_BATTERY_POWER, -10_000L) // puc should charge 10,000 Ws since 5% capacity is available
+						.output(PUC_BATTERY_POWER, -10_000L) // puc should charge 10,000 Ws since 5% capacity is available
 						.output(LEVL_REMAINING_LEVL_ENERGY, -9_510_000L) // 490,000 Ws should be realized, therefore 9,510,000 Ws are remaining
 						.output(LEVL_SOC, -179_608_000L)) // Levl soc increases by 490,000 Ws * 80% efficiency = 392,000 Ws
 				.next(new TestCase()
@@ -403,7 +403,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 490_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
-						.output(LEVL_PUC_BATTERY_POWER, -10_000L) // puc should still charge 10,000 Ws
+						.output(PUC_BATTERY_POWER, -10_000L) // puc should still charge 10,000 Ws
 						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) // 490,000 Ws should be realized, therefore 9,020,000 Ws are remaining
 						.output(LEVL_SOC, -179_216_000L)); // Levl soc increases by 490,000 Ws * 80% efficiency = 392,000 Ws
 	}
@@ -440,7 +440,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 10_000) // grid power w/o Levl --> buy from grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
-						.output(LEVL_PUC_BATTERY_POWER, 10_000L) // puc should discharge 10,000 Ws since Levl has reserved charge not discharge energy
+						.output(PUC_BATTERY_POWER, 10_000L) // puc should discharge 10,000 Ws since Levl has reserved charge not discharge energy
 						.output(LEVL_REMAINING_LEVL_ENERGY, -9_490_000L) // 510,000 Ws can be realized, because puc discharges 10,000 Ws
 						.output(LEVL_SOC, -179_592_000L)) // Levl soc increases by 510,000 Ws * 80% efficiency = 408,000 Ws
 				.next(new TestCase()
@@ -449,7 +449,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 510_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000)
-						.output(LEVL_PUC_BATTERY_POWER, 10_000L) // puc should still charge 10,000 Ws
+						.output(PUC_BATTERY_POWER, 10_000L) // puc should still charge 10,000 Ws
 						.output(LEVL_REMAINING_LEVL_ENERGY, -8_980_000L) // 510,000 Ws can be realized again, therefore 8,980,000 Ws are remaining
 						.output(LEVL_SOC, -179_184_000L)); // Levl soc increases by 510,000 Ws * 80% efficiency = 408,000 Ws
 	}
@@ -485,7 +485,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, -10000L)
 						.output(LEVL_SOC, -180_000_000L));
 	}
@@ -520,7 +520,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 10000L)
 						.output(LEVL_SOC, -180_000_000L));
 	}
@@ -555,7 +555,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, -30000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -30000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 0L)
 						.output(LEVL_SOC, 24000L));
 	}	
@@ -590,7 +590,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 20000)
 						.input(DEBUG_SET_ACTIVE_POWER, 20000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 20000)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 10000L)
 						.output(LEVL_SOC, 179_980_000L));
 	}
@@ -627,7 +627,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, -18_000_000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -18_000_000)
-						.output(LEVL_PUC_BATTERY_POWER, -0L)
+						.output(PUC_BATTERY_POWER, -0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, -82_000_000L)
 						.output(LEVL_SOC, 18_000_000L))
 				.next(new TestCase()
@@ -636,7 +636,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 18_000_000)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, -82_000_000L)
 						.output(LEVL_SOC, 18_000_000L))
 				.next(new TestCase()
@@ -645,9 +645,82 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, -82_000_000L)
 						.output(LEVL_SOC, 18_000_000L));
+	}
+	
+	@Test
+	public void testUpperSocLimit_levlHasCharged() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(30_000_000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase()
+						// following values have to be initialized in the first cycle
+						.input(LEVL_SELL_TO_GRID_LIMIT, -40_000_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 40_000_000)
+						.input(SOC_LOWER_BOUND_LEVL, 5)
+						.input(SOC_UPPER_BOUND_LEVL, 95)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
+						.input(LEVL_EFFICIENCY, 100.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, -100_000_000)
+						.input(LEVL_SOC, 36_000_000) // 2%
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 94)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, -18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -18_000_000)
+						.output(PUC_BATTERY_POWER, -18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -100_000_000L)
+						.output(LEVL_SOC, 36_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 95)
+						.input(ESS_ACTIVE_POWER, -18_000_000)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(PUC_BATTERY_POWER, -18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -118_000_000L)
+						.output(LEVL_SOC, 18_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 95)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(PUC_BATTERY_POWER, -18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -136_000_000L)
+						.output(LEVL_SOC, 0L))
+				.next(new TestCase()
+						.input(ESS_SOC, 95)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, -18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, -18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -18_000_000)
+						.output(PUC_BATTERY_POWER, -18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -136_000_000L)
+						.output(LEVL_SOC, 0L))
+				.next(new TestCase()
+						.input(ESS_SOC, 96)
+						.input(ESS_ACTIVE_POWER, -18_000_000)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(DEBUG_SET_ACTIVE_POWER, -18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -18_000_000)
+						.output(PUC_BATTERY_POWER, -18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, -136_000_000L)
+						.output(LEVL_SOC, 0L));
 	}
 
 	@Test
@@ -682,7 +755,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, 18_000_000)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 18_000_000)
-						.output(LEVL_PUC_BATTERY_POWER, -0L)
+						.output(PUC_BATTERY_POWER, -0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 82_000_000L)
 						.output(LEVL_SOC, -18_000_000L))
 				.next(new TestCase()
@@ -691,7 +764,7 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -18_000_000)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 82_000_000L)
 						.output(LEVL_SOC, -18_000_000L))
 				.next(new TestCase()
@@ -700,8 +773,81 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 0)
 						.input(DEBUG_SET_ACTIVE_POWER, 0)
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
-						.output(LEVL_PUC_BATTERY_POWER, 0L)
+						.output(PUC_BATTERY_POWER, 0L)
 						.output(LEVL_REMAINING_LEVL_ENERGY, 82_000_000L)
 						.output(LEVL_SOC, -18_000_000L));
+	}
+
+	@Test
+	public void testLowerSocLimit_levlHasDischarged() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl())
+				.addReference("cm", new DummyConfigurationAdmin())
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)
+						.setPower(new DummyPower(0.3, 0.3, 0.1))
+						.withCapacity(500000) // 1.800.000.000 Ws
+						.withMaxApparentPower(30_000_000))
+				.addReference("meter", new DummyElectricityMeter(METER_ID))
+				.addReference("cycle", new DummyCycle(1000))
+				.addReference("currentRequest", new LevlControlRequest(0, 100))
+				.activate(MyConfig.create()
+						.setId(CTRL_ID)
+						.setEssId(ESS_ID)
+						.setMeterId(METER_ID)
+						.build())
+				.next(new TestCase()
+						// following values have to be initialized in the first cycle
+						.input(LEVL_SELL_TO_GRID_LIMIT, -40_000_000)
+						.input(LEVL_BUY_FROM_GRID_LIMIT, 40_000_000)
+						.input(SOC_LOWER_BOUND_LEVL, 5)
+						.input(SOC_UPPER_BOUND_LEVL, 95)
+						.input(LEVL_INFLUENCE_SELL_TO_GRID, true)
+						.input(LEVL_EFFICIENCY, 100.0)
+						.input(LEVL_REMAINING_LEVL_ENERGY, 100_000_000)
+						.input(LEVL_SOC, -36_000_000) // 2%
+						// following values have to be updated each cycle
+						.input(ESS_SOC, 6)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, 18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 18_000_000)
+						.output(PUC_BATTERY_POWER, 18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 100_000_000L)
+						.output(LEVL_SOC, -36_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 5)
+						.input(ESS_ACTIVE_POWER, 18_000_000)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(PUC_BATTERY_POWER, 18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 118_000_000L)
+						.output(LEVL_SOC, -18_000_000L))
+				.next(new TestCase()
+						.input(ESS_SOC, 5)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, 0)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 0)
+						.output(PUC_BATTERY_POWER, 18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 136_000_000L)
+						.output(LEVL_SOC, 0L))
+				.next(new TestCase()
+						.input(ESS_SOC, 5)
+						.input(ESS_ACTIVE_POWER, 0)
+						.input(METER_ACTIVE_POWER, 18_000_000)
+						.input(DEBUG_SET_ACTIVE_POWER, 18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 18_000_000)
+						.output(PUC_BATTERY_POWER, 18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 136_000_000L)
+						.output(LEVL_SOC, 0L))
+				.next(new TestCase()
+						.input(ESS_SOC, 4)
+						.input(ESS_ACTIVE_POWER, 18_000_000)
+						.input(METER_ACTIVE_POWER, 0)
+						.input(DEBUG_SET_ACTIVE_POWER, 18_000_000)
+						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 18_000_000)
+						.output(PUC_BATTERY_POWER, 18_000_000L)
+						.output(LEVL_REMAINING_LEVL_ENERGY, 136_000_000L)
+						.output(LEVL_SOC, 0L));
 	}
 }
