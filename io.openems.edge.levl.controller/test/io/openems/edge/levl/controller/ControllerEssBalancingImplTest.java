@@ -45,7 +45,7 @@ public class ControllerEssBalancingImplTest {
 
 		this.setActiveChannelValue(this.underTest.getLevlSocChannel(), 2000L);
 		this.setActiveChannelValue(this.underTest.getRemainingLevlEnergyChannel(), 200000L);
-		this.setActiveChannelValue(this.underTest.getEfficiencyChannel(), 100.0);
+		this.setActiveChannelValue(this.underTest.getEssEfficiencyChannel(), 100.0);
 		this.setActiveChannelValue(this.underTest.getSocLowerBoundLevlChannel(), 20.0);
 		this.setActiveChannelValue(this.underTest.getSocUpperBoundLevlChannel(), 80.0);
 		this.setActiveChannelValue(this.underTest.getBuyFromGridLimitChannel(), 1000L);
@@ -260,7 +260,7 @@ public class ControllerEssBalancingImplTest {
 		this.setNextChannelValue(this.underTest.getPucBatteryPowerChannel(), 10L);
 		this.setActiveChannelValue(this.underTest.getLevlSocChannel(), 40L);
 		this.setActiveChannelValue(this.underTest.getRemainingLevlEnergyChannel(), -1000L);
-		this.setActiveChannelValue(this.underTest.getEfficiencyChannel(), 80.0);
+		this.setActiveChannelValue(this.underTest.getEssEfficiencyChannel(), 80.0);
 		this.underTest.currentRequest = new LevlControlRequest();
 
 		this.setActiveChannelValue(this.underTest.getRealizedEnergyGridChannel(), -20L);

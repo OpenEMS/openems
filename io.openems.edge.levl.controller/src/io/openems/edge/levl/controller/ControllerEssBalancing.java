@@ -15,34 +15,55 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		REMAINING_LEVL_ENERGY(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH)
-				.text("energy to be realized [Ws]")),
-		LEVL_SOC(Doc.of(OpenemsType.LONG).unit(Unit.WATT_HOURS).persistencePriority(PersistencePriority.HIGH)
-				.text("levl state of charge [Wh]")),
-		SELL_TO_GRID_LIMIT(Doc.of(OpenemsType.LONG).unit(Unit.WATT).persistencePriority(PersistencePriority.HIGH)
-				.text("maximum power that may be sold to the grid [W]")),
-		BUY_FROM_GRID_LIMIT(Doc.of(OpenemsType.LONG).unit(Unit.WATT).persistencePriority(PersistencePriority.HIGH)
-				.text("maximum power that may be bought from the grid [W]")),
-		SOC_LOWER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE).unit(Unit.PERCENT).persistencePriority(PersistencePriority.HIGH)
-				.text("lower soc bound levl has to respect [%]")),
-		SOC_UPPER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE).unit(Unit.PERCENT).persistencePriority(PersistencePriority.HIGH)
-				.text("upper soc bound levl has to respect [%]")),
-		INFLUENCE_SELL_TO_GRID(Doc.of(OpenemsType.BOOLEAN).persistencePriority(PersistencePriority.HIGH)
-				.text("defines if levl is allowed to influence the sell to grid power [true/false]")),
-		EFFICIENCY(Doc.of(OpenemsType.DOUBLE).unit(Unit.PERCENT).persistencePriority(PersistencePriority.HIGH)
-				.text("ess efficiency defined by levl [%]")),
-		PUC_BATTERY_POWER(Doc.of(OpenemsType.LONG).unit(Unit.WATT).persistencePriority(PersistencePriority.HIGH)
-				.text("power that is applied for the ess primary use case")),
-		REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH)
-				.text("energy realized for the current request on the grid [Ws])")),
-		REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH)
-				.text("energy realized for the current request in the battery [Ws])")),
-		LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH).text(
-				"energy that has been realized for the last request on the grid [Ws]")),
-		LAST_REQUEST_REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH)
-				.text("energy that has been realized for the last request in the battery [Ws]")),
-		LAST_REQUEST_TIMESTAMP(Doc.of(OpenemsType.STRING).persistencePriority(PersistencePriority.HIGH)
-				.text("the timestamp of the last levl control request"));
+		REMAINING_LEVL_ENERGY(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("energy to be realized [Ws]")), //
+		LEVL_STATE_OF_CHARGE(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("levl state of charge [Wh]")), //
+		SELL_TO_GRID_LIMIT(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("maximum power that may be sold to the grid [W]")), //
+		BUY_FROM_GRID_LIMIT(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("maximum power that may be bought from the grid [W]")), //
+		STATE_OF_CHARGE_LOWER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("lower soc bound levl has to respect [%]")), //
+		STATE_OF_CHARGE_UPPER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("upper soc bound levl has to respect [%]")), //
+		INFLUENCE_SELL_TO_GRID(Doc.of(OpenemsType.BOOLEAN) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("defines if levl is allowed to influence the sell to grid power [true/false]")), //
+		ESS_EFFICIENCY(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("ess efficiency defined by levl [%]")), //
+		PRIMARY_USE_CASE_BATTERY_POWER(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("power that is applied for the ess primary use case")), //
+		REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("energy realized for the current request on the grid [Ws])")), //
+		REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("energy realized for the current request in the battery [Ws])")), //
+		LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("energy that has been realized for the last request on the grid [Ws]")), //
+		LAST_REQUEST_REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("energy that has been realized for the last request in the battery [Ws]")), //
+		LAST_REQUEST_TIMESTAMP(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("the timestamp of the last levl control request")); //
 
 		private final Doc doc;
 
@@ -89,7 +110,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	 * @return the LongReadChannel
 	 */
 	public default LongReadChannel getLevlSocChannel() {
-		return this.channel(ChannelId.LEVL_SOC);
+		return this.channel(ChannelId.LEVL_STATE_OF_CHARGE);
 	}
 
 	/**
@@ -170,7 +191,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	 * @return the DoubleReadChannel
 	 */
 	public default DoubleReadChannel getSocLowerBoundLevlChannel() {
-		return this.channel(ChannelId.SOC_LOWER_BOUND_LEVL);
+		return this.channel(ChannelId.STATE_OF_CHARGE_LOWER_BOUND_LEVL);
 	}
 
 	/**
@@ -197,7 +218,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	 * @return the DoubleReadChannel
 	 */
 	public default DoubleReadChannel getSocUpperBoundLevlChannel() {
-		return this.channel(ChannelId.SOC_UPPER_BOUND_LEVL);
+		return this.channel(ChannelId.STATE_OF_CHARGE_UPPER_BOUND_LEVL);
 	}
 
 	/**
@@ -246,52 +267,52 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Returns the DoubleReadChannel for the efficiency.
+	 * Returns the DoubleReadChannel for the ess efficiency.
 	 * 
 	 * @return the DoubleReadChannel
 	 */
-	public default DoubleReadChannel getEfficiencyChannel() {
-		return this.channel(ChannelId.EFFICIENCY);
+	public default DoubleReadChannel getEssEfficiencyChannel() {
+		return this.channel(ChannelId.ESS_EFFICIENCY);
 	}
 
 	/**
-	 * Returns the value of the efficiency.
+	 * Returns the value of the ess efficiency.
 	 * 
-	 * @return the value of the efficiency
+	 * @return the value of the ess efficiency
 	 */
-	public default Value<Double> getEfficiency() {
-		return this.getEfficiencyChannel().value();
+	public default Value<Double> getEssEfficiency() {
+		return this.getEssEfficiencyChannel().value();
 	}
 
 	/**
-	 * Sets the next value of the efficiency.
+	 * Sets the next value of the ess efficiency.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setEfficiency(Double value) {
-		this.getEfficiencyChannel().setNextValue(value);
+	public default void _setEssEfficiency(Double value) {
+		this.getEssEfficiencyChannel().setNextValue(value);
 	}
 
 	/**
-	 * Returns the LongReadChannel for the PUC battery power.
+	 * Returns the LongReadChannel for the puc (primary use case) battery power.
 	 * 
 	 * @return the LongReadChannel
 	 */
 	public default LongReadChannel getPucBatteryPowerChannel() {
-		return this.channel(ChannelId.PUC_BATTERY_POWER);
+		return this.channel(ChannelId.PRIMARY_USE_CASE_BATTERY_POWER);
 	}
 
 	/**
-	 * Returns the value of the PUC battery power.
+	 * Returns the value of the puc (primary use case) battery power.
 	 * 
-	 * @return the value of the PUC battery power
+	 * @return the value of the puc battery power
 	 */
 	public default Value<Long> getPucBatteryPower() {
 		return this.getPucBatteryPowerChannel().value();
 	}
 
 	/**
-	 * Sets the next value of the PUC battery power.
+	 * Sets the next value of the puc (primary use case) battery power.
 	 * 
 	 * @param value the next value
 	 */

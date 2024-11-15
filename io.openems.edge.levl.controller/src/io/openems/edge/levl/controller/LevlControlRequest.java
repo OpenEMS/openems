@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.utils.JsonUtils;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -29,7 +30,6 @@ public class LevlControlRequest {
 	public LevlControlRequest() {
 		
 	}
-	
 	
 	public LevlControlRequest(JsonObject params) throws OpenemsError.OpenemsNamedException {
 		try {
@@ -83,20 +83,20 @@ public class LevlControlRequest {
 		return new LevlControlRequest(params);
 	}
 
-	private void parseFields(JsonObject params) {
-		this.levlRequestId = params.get("levlRequestId").getAsString();
-		this.timestamp = params.get("levlRequestTimestamp").getAsString();
-		this.energyWs = params.get("levlPowerW").getAsLong() * QUARTER_HOUR_SECONDS;
+	private void parseFields(JsonObject params) throws OpenemsNamedException {
+		this.levlRequestId = JsonUtils.getAsString(params, "levlRequestId");
+		this.timestamp = JsonUtils.getAsString(params, "levlRequestTimestamp");
+		this.energyWs = JsonUtils.getAsLong(params, "levlPowerW") * QUARTER_HOUR_SECONDS;
 		this.start = LocalDateTime.now(LevlControlRequest.clock)
-				.plusSeconds(params.get("levlChargeDelaySec").getAsInt());
-		this.deadline = this.start.plusSeconds(params.get("levlChargeDurationSec").getAsInt());
-		this.levlSocWh = params.get("levlSocWh").getAsInt();
-		this.socLowerBoundPercent = params.get("levlSocLowerBoundPercent").getAsDouble();
-		this.socUpperBoundPercent = params.get("levlSocUpperBoundPercent").getAsDouble();
-		this.sellToGridLimitW = params.get("sellToGridLimitW").getAsInt();
-		this.buyFromGridLimitW = params.get("buyFromGridLimitW").getAsInt();
-		this.efficiencyPercent = params.get("efficiencyPercent").getAsDouble();
-		this.influenceSellToGrid = params.get("influenceSellToGrid").getAsBoolean();
+				.plusSeconds(JsonUtils.getAsInt(params, "levlChargeDelaySec"));
+		this.deadline = this.start.plusSeconds(JsonUtils.getAsInt(params, "levlChargeDurationSec"));
+		this.levlSocWh = JsonUtils.getAsInt(params, "levlSocWh");
+		this.socLowerBoundPercent = JsonUtils.getAsDouble(params, "levlSocLowerBoundPercent");
+		this.socUpperBoundPercent = JsonUtils.getAsDouble(params, "levlSocUpperBoundPercent");
+		this.sellToGridLimitW = JsonUtils.getAsInt(params, "sellToGridLimitW");
+		this.buyFromGridLimitW = JsonUtils.getAsInt(params, "buyFromGridLimitW");
+		this.efficiencyPercent = JsonUtils.getAsDouble(params, "efficiencyPercent");
+		this.influenceSellToGrid = JsonUtils.getAsBoolean(params, "influenceSellToGrid");
 	}
 
 	@Override
