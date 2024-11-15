@@ -58,7 +58,7 @@ public abstract class AbstractReadTask<//
 
 				return ExecuteState.OK;
 
-			} catch (OpenemsException e1) {
+			} catch (Exception e1) { 
 				logError(this.log, e1, "Parsing Response failed.");
 				throw e1;
 			}
