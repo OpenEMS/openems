@@ -18,8 +18,8 @@
               <ion-label translate>Login.title</ion-label>
             </ion-item>
 
-            <!-- OpenEMS Edge Login -->
-            <ion-card-content *ngIf="environment.backend === 'OpenEMS Edge'">
+            <!-- OpenEMS Edge Login (standard)-->
+            <ion-card-content *ngIf="(environment.backend === 'OpenEMS Edge') && (environment.loginWithUsername !== true)">
               <form (ngSubmit)="doLogin({ password: password.value})">
                 <div class="ion-padding">
                   <ion-item>
@@ -43,13 +43,42 @@
               </form>
             </ion-card-content>
 
+            <!-- OpenEMS Edge Login (with username)-->
+            <ion-card-content *ngIf="(environment.backend === 'OpenEMS Edge') && (environment.loginWithUsername === true)">
+              <form (ngSubmit)="doLogin({username: username.value, password: password.value})">
+                <div class="ion-padding">
+                  <ion-item>
+                    <ion-text class="ion-text-wrap" color="medium" translate>
+                      Login.preamble
+                    </ion-text>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label position="floating"><span translate>Login.user</span></ion-label>
+                    <ion-input #username required type="input" [placeholder]="('Login.user' | translate)">
+                    </ion-input>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label position="floating" translate>Login.passwordLabel</ion-label>
+                    <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
+                      value="user"></ion-input>
+                  </ion-item>
+
+                  <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
+                  <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
+
+                  <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right">
+                    <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </form>
+            </ion-card-content>
+
             <!-- OpenEMS Backend Login -->
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
-              <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
+              <form (ngSubmit)="doLogin({username: username.value, password: password.value})">
                 <ion-item>
                   <ion-label position="floating">E-Mail / <span translate>Login.user</span></ion-label>
-                  <ion-input #username required type="input"
-                    [placeholder]="'E-Mail / ' + ('Login.passwordLabel' | translate)">
+                  <ion-input #username required type="input" [placeholder]="'E-Mail / ' + ('Login.user' | translate)">
                   </ion-input>
                 </ion-item>
                 <ion-item>
