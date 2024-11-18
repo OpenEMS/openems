@@ -287,7 +287,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			powerUpperBound = 0;
 		}
 
-		return (int) applyBound(pucPower, powerLowerBound, powerUpperBound);
+		return (int) this.applyBound(pucPower, powerLowerBound, powerUpperBound);
 	}
 
 	/**
@@ -366,7 +366,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			int maxEssPower) {
 		var levlPowerLowerBound = Long.valueOf(minEssPower) - pucBatteryPower;
 		var levlPowerUpperBound = Long.valueOf(maxEssPower) - pucBatteryPower;
-		return applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
+		return this.applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
 	}
 
 	/**
@@ -402,7 +402,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		var levlPowerLowerBound = Efficiency.unapply(round(levlDischargeEnergyLowerBoundWs / cycleTimeS), efficiency);
 		var levlPowerUpperBound = Efficiency.unapply(round(levlDischargeEnergyUpperBoundWs / cycleTimeS), efficiency);
 
-		return applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
+		return this.applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
 	}
 
 	/**
@@ -418,7 +418,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			long sellToGridLimit) {
 		var levlPowerLowerBound = -(buyFromGridLimit - pucGridPower);
 		var levlPowerUpperBound = -(sellToGridLimit - pucGridPower);
-		return applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
+		return this.applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
 	}
 
 	/**

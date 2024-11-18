@@ -30,8 +30,10 @@ public class BalancingImplTest {
 	private static final ChannelAddress LEVL_SOC = new ChannelAddress(CTRL_ID, "LevlStateOfCharge");
 	private static final ChannelAddress LEVL_SELL_TO_GRID_LIMIT = new ChannelAddress(CTRL_ID, "SellToGridLimit");
 	private static final ChannelAddress LEVL_BUY_FROM_GRID_LIMIT = new ChannelAddress(CTRL_ID, "BuyFromGridLimit");
-	private static final ChannelAddress SOC_LOWER_BOUND_LEVL = new ChannelAddress(CTRL_ID, "StateOfChargeLowerBoundLevl");
-	private static final ChannelAddress SOC_UPPER_BOUND_LEVL = new ChannelAddress(CTRL_ID, "StateOfChargeUpperBoundLevl");
+	private static final ChannelAddress SOC_LOWER_BOUND_LEVL = new ChannelAddress(CTRL_ID,
+			"StateOfChargeLowerBoundLevl");
+	private static final ChannelAddress SOC_UPPER_BOUND_LEVL = new ChannelAddress(CTRL_ID,
+			"StateOfChargeUpperBoundLevl");
 	private static final ChannelAddress LEVL_INFLUENCE_SELL_TO_GRID = new ChannelAddress(CTRL_ID,
 			"InfluenceSellToGrid");
 	private static final ChannelAddress LEVL_EFFICIENCY = new ChannelAddress(CTRL_ID, "EssEfficiency");
@@ -305,26 +307,26 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -20_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000) //
-						.output(PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely
-														// reserved for Levl
-						.output(LEVL_REMAINING_LEVL_ENERGY, -9_500_000L) // 500,000 Ws should be realized, therefore
-																			// 9,500,000 Ws are remaining
-						.output(LEVL_SOC, -179_600_000L)) // Levl soc increases by 500,000 Ws * 80% efficiency = 400,000
-															// Ws
+						// puc should not do anything because capacity is completely reserved for Levl
+						.output(PUC_BATTERY_POWER, 0L) //
+						// 500,000 Ws should be realized, therefore 9,500,000 Ws are remaining
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_500_000L) //
+						// Levl soc increases by 500,000 Ws * 80% efficiency = 400,000 Ws
+						.output(LEVL_SOC, -179_600_000L)) //
 				.next(new TestCase() //
-						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000,000 Ws | should be 1,620,400,000 Ws but only
-											// full percent values can be read
-						.input(ESS_ACTIVE_POWER, -500_000) //
+						// 90% = 450,000 Wh = 1,620,000,000 Ws | should be 1,620,400,000 Ws but only
+						// full percent values can be read
+						.input(ESS_SOC, 90).input(ESS_ACTIVE_POWER, -500_000) //
 						.input(METER_ACTIVE_POWER, 480_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000) //
-						.output(PUC_BATTERY_POWER, -20_000L) // since reserved capacity decreased by 400,000 Ws in the
-																// previous cycle but ess soc value remains the same,
-																// puc can charge again
-						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) // 480,000 Ws can be realized for Levl,
-																			// therefore 9,020,00 are remaining
-						.output(LEVL_SOC, -179_216_000L)); // Levl soc increases by 480,000 Ws * 80% efficiency =
-															// 384,000 Ws
+						// since reserved capacity decreased by 400,000 Ws in the previous cycle but ess
+						// soc value remains the same, puc can charge again
+						.output(PUC_BATTERY_POWER, -20_000L) //
+						// 480,000 Ws can be realized for Levl, therefore 9,020,00 are remaining
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) //
+						// Levl soc increases by 480,000 Ws * 80% efficiency = 384,000 Ws
+						.output(LEVL_SOC, -179_216_000L)); //
 	}
 
 	@Test
@@ -359,25 +361,27 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -20_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, 500_000) // max discharge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 500_000) //
-						.output(PUC_BATTERY_POWER, 0L) // puc should not do anything because capacity is completely
-														// reserved for Levl
-						.output(LEVL_REMAINING_LEVL_ENERGY, 9_500_000L) // 500,000 Ws should be realized, therefore
-																		// 9,500,000 Ws are remaining
-						.output(LEVL_SOC, -180_625_000L)) // Levl soc decreases by 500,000 Ws / 80% efficiency = 625,000
-															// Ws
+						// puc should not do anything because capacity is completely reserved for Levl
+						.output(PUC_BATTERY_POWER, 0L) //
+						// 500,000 Ws should be realized, therefore 9,500,000 Ws are remaining
+						.output(LEVL_REMAINING_LEVL_ENERGY, 9_500_000L) //
+						// Levl soc decreases by 500,000 Ws / 80% efficiency = 625,000 Ws
+						.output(LEVL_SOC, -180_625_000L)) //
 				.next(new TestCase() //
-						.input(ESS_SOC, 90) // 90% = 450,000 Wh = 1,620,000,000 Ws | should be 1,619,375,000 Ws but only
-											// full percent values can be read
+						// 90% = 450,000 Wh = 1,620,000,000 Ws | should be 1,619,375,000 Ws but only
+						// full percent values can be read
+						.input(ESS_SOC, 90) //
 						.input(ESS_ACTIVE_POWER, 500_000) //
 						.input(METER_ACTIVE_POWER, -520_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, 500_000) // max discharge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, 500_000) //
-						.output(PUC_BATTERY_POWER, 0L) // // puc should not do anything because capacity is still
-														// completely reserved for Levl
-						.output(LEVL_REMAINING_LEVL_ENERGY, 9_000_000L) // 500,000 Ws should be realized, therefore
-																		// 9,000,000 Ws are remaining
-						.output(LEVL_SOC, -181_250_000L)); // Levl soc decreases by 500,000 Ws / 80% efficiency =
-															// 625,000 Ws
+						// puc should not do anything because capacity is still completely reserved for
+						// Levl
+						.output(PUC_BATTERY_POWER, 0L) //
+						// 500,000 Ws should be realized, therefore 9,000,000 Ws are remaining
+						.output(LEVL_REMAINING_LEVL_ENERGY, 9_000_000L) //
+						// Levl soc decreases by 500,000 Ws / 80% efficiency = 625,000 Ws
+						.output(LEVL_SOC, -181_250_000L)); //
 	}
 
 	@Test
@@ -412,24 +416,25 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, -10_000) // grid power w/o Levl --> sell to grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000) //
-						.output(PUC_BATTERY_POWER, -10_000L) // puc should charge 10,000 Ws since 5% capacity is
-																// available
-						.output(LEVL_REMAINING_LEVL_ENERGY, -9_510_000L) // 490,000 Ws should be realized, therefore
-																			// 9,510,000 Ws are remaining
-						.output(LEVL_SOC, -179_608_000L)) // Levl soc increases by 490,000 Ws * 80% efficiency = 392,000
-															// Ws
+						// puc should charge 10,000 Ws since 5% capacity is available
+						.output(PUC_BATTERY_POWER, -10_000L) //
+						// 490,000 Ws should be realized, therefore 9,510,000 Ws are remaining
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_510_000L) //
+						// Levl soc increases by 490,000 Ws * 80% efficiency = 392,000 Ws
+						.output(LEVL_SOC, -179_608_000L)) //
 				.next(new TestCase() //
-						.input(ESS_SOC, 85) // 85% = 425,000 Wh = 1,530,000,000 Ws | should be 1,530,400,000 Ws but only
-											// full percent values can be read
+						// 85% = 425,000 Wh = 1,530,000,000 Ws | should be 1,530,400,000 Ws but only
+						// full percent values can be read
+						.input(ESS_SOC, 85) //
 						.input(ESS_ACTIVE_POWER, -500_000) //
 						.input(METER_ACTIVE_POWER, 490_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000) //
 						.output(PUC_BATTERY_POWER, -10_000L) // puc should still charge 10,000 Ws
-						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) // 490,000 Ws should be realized, therefore
-																			// 9,020,000 Ws are remaining
-						.output(LEVL_SOC, -179_216_000L)); // Levl soc increases by 490,000 Ws * 80% efficiency =
-															// 392,000 Ws
+						// 490,000 Ws should be realized, therefore 9,020,000 Ws are remaining
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_020_000L) //
+						// Levl soc increases by 490,000 Ws * 80% efficiency = 392,000 Ws
+						.output(LEVL_SOC, -179_216_000L)); //
 	}
 
 	@Test
@@ -464,24 +469,26 @@ public class BalancingImplTest {
 						.input(METER_ACTIVE_POWER, 10_000) // grid power w/o Levl --> buy from grid
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000) //
-						.output(PUC_BATTERY_POWER, 10_000L) // puc should discharge 10,000 Ws since Levl has reserved
-															// charge not discharge energy
-						.output(LEVL_REMAINING_LEVL_ENERGY, -9_490_000L) // 510,000 Ws can be realized, because puc
-																			// discharges 10,000 Ws
-						.output(LEVL_SOC, -179_592_000L)) // Levl soc increases by 510,000 Ws * 80% efficiency = 408,000
-															// Ws
+						// puc should discharge 10,000 Ws since Levl has reserved charge not discharge
+						// energy
+						.output(PUC_BATTERY_POWER, 10_000L) //
+						// 510,000 Ws can be realized, because puc discharges 10,000 Ws
+						.output(LEVL_REMAINING_LEVL_ENERGY, -9_490_000L) //
+						// Levl soc increases by 510,000 Ws * 80% efficiency = 408,000 Ws
+						.output(LEVL_SOC, -179_592_000L))
 				.next(new TestCase() //
-						.input(ESS_SOC, 50) // 50% = 250,000 Wh = 900,000,000 Ws | should be 900,400,000 Ws but only
-											// full percent values can be read
+						// 50% = 250,000 Wh = 900,000,000 Ws | should be 900,400,000 Ws but only full
+						// percent values can be read
+						.input(ESS_SOC, 50) //
 						.input(ESS_ACTIVE_POWER, -500_000) //
 						.input(METER_ACTIVE_POWER, 510_000) // grid power ceteris paribus w/ Levl
 						.input(DEBUG_SET_ACTIVE_POWER, -500_000) // max charge power of 500,000 W should be applied
 						.output(ESS_SET_ACTIVE_POWER_EQUALS_WITH_PID, -500_000) //
 						.output(PUC_BATTERY_POWER, 10_000L) // puc should still charge 10,000 Ws
-						.output(LEVL_REMAINING_LEVL_ENERGY, -8_980_000L) // 510,000 Ws can be realized again, therefore
-																			// 8,980,000 Ws are remaining
-						.output(LEVL_SOC, -179_184_000L)); // Levl soc increases by 510,000 Ws * 80% efficiency =
-															// 408,000 Ws
+						// 510,000 Ws can be realized again, therefore 8,980,000 Ws are remaining
+						.output(LEVL_REMAINING_LEVL_ENERGY, -8_980_000L) //
+						// Levl soc increases by 510,000 Ws * 80% efficiency = 408,000 Ws
+						.output(LEVL_SOC, -179_184_000L)); //
 	}
 
 	@Test
