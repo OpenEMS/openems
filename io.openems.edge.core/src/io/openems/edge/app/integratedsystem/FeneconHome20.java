@@ -307,6 +307,9 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 
 			final var shadowManagementDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
 
+			final var deviceHardware = this.appManagerUtil
+					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
 			final var components = Lists.<EdgeConfig.Component>newArrayList(//
 					battery(bundle, batteryId, modbusIdInternal), //
 					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, maxFeedInPower,
@@ -316,7 +319,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
-					modbusForExternalMeters(bundle, t, modbusIdExternalMeters), //
+					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
 					predictor(bundle, t), //
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
@@ -359,7 +362,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			}
 
 			if (hasEssLimiter14a) {
-				dependencies.add(essLimiter14aToHardware(this.appManagerUtil));
+				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();

@@ -320,16 +320,10 @@ public final class IntegratedSystemProps {
 				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
 				.setDefaultValue(false) //
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
-					final var hardwareTypes = app.getAppManagerUtil()
-							.getInstantiatedAppsByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+					final var hardwareType = app.getAppManagerUtil()
+							.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
-					final var isSupported = hardwareTypes.stream()//
-							.anyMatch(t -> switch (t.appId) {
-							case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4S" -> true;
-							default -> false;
-							});
-
-					if (!isSupported) {
+					if (!FeneconHomeComponents.isLimiter14aCompatible(hardwareType)) {
 						field.disabled(true);
 					}
 				}));
