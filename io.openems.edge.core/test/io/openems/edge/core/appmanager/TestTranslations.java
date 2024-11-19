@@ -21,7 +21,6 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome15;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
-import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 
 public class TestTranslations {
 
