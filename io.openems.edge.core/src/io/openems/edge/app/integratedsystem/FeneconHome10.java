@@ -48,8 +48,8 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
-import io.openems.edge.app.integratedsystem.FeneconHome.FeneconHomeParameter;
-import io.openems.edge.app.integratedsystem.FeneconHome.Property;
+import io.openems.edge.app.integratedsystem.FeneconHome10.FeneconHomeParameter;
+import io.openems.edge.app.integratedsystem.FeneconHome10.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -121,7 +121,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  * </pre>
  */
 @Component(name = "App.FENECON.Home")
-public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Property, FeneconHomeParameter>
+public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Property, FeneconHomeParameter>
 		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public record FeneconHomeParameter(//
@@ -131,7 +131,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 
 	}
 
-	public static enum Property implements Type<Property, FeneconHome, FeneconHomeParameter> {
+	public static enum Property implements Type<Property, FeneconHome10, FeneconHomeParameter> {
 		ALIAS(alias()), //
 		// Battery Inverter
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
@@ -230,24 +230,24 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 				}))), //
 		;
 
-		private final AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def;
+		private final AppDef<? super FeneconHome10, ? super Property, ? super FeneconHomeParameter> def;
 
-		private Property(AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def) {
+		private Property(AppDef<? super FeneconHome10, ? super Property, ? super FeneconHomeParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, FeneconHome, FeneconHomeParameter> self() {
+		public Type<Property, FeneconHome10, FeneconHomeParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def() {
+		public AppDef<? super FeneconHome10, ? super Property, ? super FeneconHomeParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<FeneconHome>, FeneconHomeParameter> getParamter() {
+		public Function<GetParameterValues<FeneconHome10>, FeneconHomeParameter> getParamter() {
 			return t -> new FeneconHomeParameter(//
 					AbstractOpenemsApp.getTranslationBundle(t.language), //
 					createFeneconHomeDefaultValues(t.app.componentManager, t.app.componentUtil) //
@@ -258,7 +258,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 	private final AppManagerUtil appManagerUtil;
 
 	@Activate
-	public FeneconHome(//
+	public FeneconHome10(//
 			@Reference final ComponentManager componentManager, //
 			final ComponentContext context, //
 			@Reference final ConfigurationAdmin cm, //
@@ -480,7 +480,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 	}
 
 	@Override
-	protected FeneconHome getApp() {
+	protected FeneconHome10 getApp() {
 		return this;
 	}
 

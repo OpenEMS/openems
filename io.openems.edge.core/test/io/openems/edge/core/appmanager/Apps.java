@@ -32,12 +32,12 @@ import io.openems.edge.app.evcs.WebastoUniteEvcs;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
-import io.openems.edge.app.integratedsystem.FeneconHome;
-import io.openems.edge.app.integratedsystem.FeneconHome10KW;
-import io.openems.edge.app.integratedsystem.FeneconHome15KW;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
+import io.openems.edge.app.integratedsystem.FeneconHome10Gen2;
+import io.openems.edge.app.integratedsystem.FeneconHome15;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
-import io.openems.edge.app.integratedsystem.FeneconHome6KW;
+import io.openems.edge.app.integratedsystem.FeneconHome6;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
 import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
@@ -98,43 +98,43 @@ public final class Apps {
 	// Integrated Systems
 
 	/**
-	 * Test method for creating a {@link FeneconHome}.
+	 * Test method for creating a {@link FeneconHome10}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final FeneconHome feneconHome(AppManagerTestBundle t) {
-		return app(t, FeneconHome::new, "App.FENECON.Home");
+	public static final FeneconHome10 feneconHome10(AppManagerTestBundle t) {
+		return app(t, FeneconHome10::new, "App.FENECON.Home");
 	}
 
 	/**
-	 * Test method for creating a {@link FeneconHome6KW}.
+	 * Test method for creating a {@link FeneconHome6}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final FeneconHome6KW feneconHome6kw(AppManagerTestBundle t) {
-		return app(t, FeneconHome6KW::new, "App.FENECON.Home.6KW");
+	public static final FeneconHome6 feneconHome6(AppManagerTestBundle t) {
+		return app(t, FeneconHome6::new, "App.FENECON.Home6");
 	}
 
 	/**
-	 * Test method for creating a {@link FeneconHome10KW}.
+	 * Test method for creating a {@link FeneconHome10Gen2}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final FeneconHome10KW feneconHome10kw(AppManagerTestBundle t) {
-		return app(t, FeneconHome10KW::new, "App.FENECON.Home.10KW");
+	public static final FeneconHome10Gen2 feneconHome10Gen2(AppManagerTestBundle t) {
+		return app(t, FeneconHome10Gen2::new, "App.FENECON.Home10.Gen2");
 	}
 
 	/**
-	 * Test method for creating a {@link FeneconHome15KW}.
+	 * Test method for creating a {@link FeneconHome15}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final FeneconHome15KW feneconHome15kw(AppManagerTestBundle t) {
-		return app(t, FeneconHome15KW::new, "App.FENECON.Home.15KW");
+	public static final FeneconHome15 feneconHome15(AppManagerTestBundle t) {
+		return app(t, FeneconHome15::new, "App.FENECON.Home15");
 	}
 
 	/**

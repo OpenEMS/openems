@@ -312,7 +312,7 @@ public class TestFeneconHome30 {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome30}.
 	 * 
 	 * @return the settings object
 	 */
@@ -337,7 +337,7 @@ public class TestFeneconHome30 {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome30}.
 	 * 
 	 * @return the settings object
 	 */

@@ -32,7 +32,7 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.SafetyCountry;
-import io.openems.edge.app.integratedsystem.FeneconHome15KW.Property;
+import io.openems.edge.app.integratedsystem.FeneconHome15.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -52,11 +52,11 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 
-@Component(name = "App.FENECON.Home.15KW")
-public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW, Property, BundleParameter>
+@Component(name = "App.FENECON.Home15")
+public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Property, BundleParameter>
 		implements OpenemsApp, AppManagerUtilSupplier {
 
-	public static enum Property implements Type<Property, FeneconHome15KW, BundleParameter> {
+	public static enum Property implements Type<Property, FeneconHome15, BundleParameter> {
 		ALIAS(alias()), //
 		// Battery Inverter
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
@@ -94,24 +94,24 @@ public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW
 		SHADOW_MANAGEMENT_DISABLED(IntegratedSystemProps.shadowManagementDisabled()), //
 		;
 
-		private final AppDef<? super FeneconHome15KW, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super FeneconHome15, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super FeneconHome15KW, ? super Property, ? super BundleParameter> def) {
+		private Property(AppDef<? super FeneconHome15, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, FeneconHome15KW, BundleParameter> self() {
+		public Type<Property, FeneconHome15, BundleParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super FeneconHome15KW, ? super Property, ? super BundleParameter> def() {
+		public AppDef<? super FeneconHome15, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<FeneconHome15KW>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<FeneconHome15>, BundleParameter> getParamter() {
 			return t -> new BundleParameter(//
 					AbstractOpenemsApp.getTranslationBundle(t.language) //
 			);
@@ -121,7 +121,7 @@ public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW
 	private final AppManagerUtil appManagerUtil;
 
 	@Activate
-	public FeneconHome15KW(//
+	public FeneconHome15(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext context, //
 			@Reference ConfigurationAdmin cm, //
@@ -256,7 +256,7 @@ public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW
 	}
 
 	@Override
-	protected FeneconHome15KW getApp() {
+	protected FeneconHome15 getApp() {
 		return this;
 	}
 

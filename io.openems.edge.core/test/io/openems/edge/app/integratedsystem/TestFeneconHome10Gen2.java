@@ -19,14 +19,14 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
-public class TestFeneconHome10KW {
+public class TestFeneconHome10Gen2 {
 	private AppManagerTestBundle appManagerTestBundle;
 
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return Apps.of(t, //
-					Apps::feneconHome10kw, //
+					Apps::feneconHome10Gen2, //
 					Apps::gridOptimizedCharge, //
 					Apps::selfConsumptionOptimization, //
 					Apps::prepareBatteryExtension //
@@ -47,13 +47,13 @@ public class TestFeneconHome10KW {
 		var fullConfig = fullSettings();
 
 		appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
-				new AddAppInstance.Request("App.FENECON.Home.10KW", "key", "alias", fullConfig));
+				new AddAppInstance.Request("App.FENECON.Home10.Gen2", "key", "alias", fullConfig));
 
 		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
 
 		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.10KW" -> 3;
+			case "App.FENECON.Home10.Gen2" -> 3;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
@@ -66,7 +66,7 @@ public class TestFeneconHome10KW {
 		}
 
 		var homeInstance = appManagerTestBundle.sut.getInstantiatedApps().stream()
-				.filter(t -> t.appId.equals("App.FENECON.Home.10KW")).findAny().orElse(null);
+				.filter(t -> t.appId.equals("App.FENECON.Home10.Gen2")).findAny().orElse(null);
 
 		assertNotNull(homeInstance);
 
@@ -84,7 +84,7 @@ public class TestFeneconHome10KW {
 		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.10KW" -> 3;
+			case "App.FENECON.Home10.Gen2" -> 3;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
@@ -99,7 +99,7 @@ public class TestFeneconHome10KW {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome10Gen2}.
 	 * 
 	 * @return the settings object
 	 */

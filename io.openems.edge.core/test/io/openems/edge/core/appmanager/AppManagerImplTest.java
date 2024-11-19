@@ -18,7 +18,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
-import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
@@ -28,7 +28,7 @@ public class AppManagerImplTest {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
-	private FeneconHome homeApp;
+	private FeneconHome10 homeApp;
 
 	private KebaEvcs kebaEvcsApp;
 	private AwattarHourly awattarApp;
@@ -292,7 +292,7 @@ public class AppManagerImplTest {
 
 		this.appManagerTestBundle = new AppManagerTestBundle(componentConfig, initialConfig, t -> {
 			return ImmutableList.of(//
-					this.homeApp = Apps.feneconHome(t), //
+					this.homeApp = Apps.feneconHome10(t), //
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
 					Apps.prepareBatteryExtension(t), //

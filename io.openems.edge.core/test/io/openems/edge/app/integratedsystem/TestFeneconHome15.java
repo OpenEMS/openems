@@ -19,14 +19,14 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
-public class TestFeneconHome15KW {
+public class TestFeneconHome15 {
 	private AppManagerTestBundle appManagerTestBundle;
 
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return Apps.of(t, //
-					Apps::feneconHome15kw, //
+					Apps::feneconHome15, //
 					Apps::gridOptimizedCharge, //
 					Apps::selfConsumptionOptimization, //
 					Apps::prepareBatteryExtension //
@@ -47,13 +47,13 @@ public class TestFeneconHome15KW {
 		var fullConfig = fullSettings();
 
 		appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
-				new AddAppInstance.Request("App.FENECON.Home.15KW", "key", "alias", fullConfig));
+				new AddAppInstance.Request("App.FENECON.Home15", "key", "alias", fullConfig));
 
 		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
 
 		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.15KW" -> 3;
+			case "App.FENECON.Home15" -> 3;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
@@ -66,7 +66,7 @@ public class TestFeneconHome15KW {
 		}
 
 		var homeInstance = appManagerTestBundle.sut.getInstantiatedApps().stream()
-				.filter(t -> t.appId.equals("App.FENECON.Home.15KW")).findAny().orElse(null);
+				.filter(t -> t.appId.equals("App.FENECON.Home15")).findAny().orElse(null);
 
 		assertNotNull(homeInstance);
 
@@ -84,7 +84,7 @@ public class TestFeneconHome15KW {
 		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.15KW" -> 3;
+			case "App.FENECON.Home15" -> 3;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
@@ -99,7 +99,7 @@ public class TestFeneconHome15KW {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome15}.
 	 * 
 	 * @return the settings object
 	 */

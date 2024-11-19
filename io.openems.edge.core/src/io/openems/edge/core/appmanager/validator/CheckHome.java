@@ -35,9 +35,9 @@ public class CheckHome extends AbstractCheckable implements Checkable {
 				"App.FENECON.Home", //
 				"App.FENECON.Home.20", //
 				"App.FENECON.Home.30", //
-				"App.FENECON.Home.6KW", //
-				"App.FENECON.Home.10KW", //
-				"App.FENECON.Home.15KW" //
+				"App.FENECON.Home6", //
+				"App.FENECON.Home10.Gen2", //
+				"App.FENECON.Home15" //
 		).properties());
 
 		return !this.checkAppsNotInstalled.check();
