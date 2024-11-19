@@ -2,11 +2,13 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
@@ -38,6 +40,7 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -51,7 +54,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 
 @Component(name = "App.FENECON.Home.15KW")
 public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW, Property, BundleParameter>
-		implements OpenemsApp {
+		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public static enum Property implements Type<Property, FeneconHome15KW, BundleParameter> {
 		ALIAS(alias()), //
@@ -65,6 +68,8 @@ public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW
 
 		GRID_METER_CATEGORY(IntegratedSystemProps.gridMeterType()), //
 		CT_RATIO_FIRST(IntegratedSystemProps.ctRatioFirst(GRID_METER_CATEGORY)), //
+
+		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 
 		// DC PV Charger 1
 		HAS_DC_PV1(IntegratedSystemProps.hasDcPv(1)), //
@@ -159,6 +164,7 @@ public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW
 			} else {
 				ctRatioFirst = null;
 			}
+			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
@@ -202,11 +208,15 @@ public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW
 				components.add(FeneconHomeComponents.ctrlEmergencyCapacityReserve(bundle, t, essId,
 						emergencyReserveEnabled, emergencyReserveSoc));
 			}
-			var dependencies = Lists.newArrayList(//
+			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
 					prepareBatteryExtension() //
 			);
+
+			if (hasEssLimiter14a) {
+				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
+			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();
 			if (hasEmergencyReserve) {
@@ -251,4 +261,10 @@ public class FeneconHome15KW extends AbstractOpenemsAppWithProps<FeneconHome15KW
 	protected Property[] propertyValues() {
 		return Property.values();
 	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
+	}
+
 }

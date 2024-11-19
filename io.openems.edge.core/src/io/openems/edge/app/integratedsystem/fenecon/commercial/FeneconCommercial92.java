@@ -2,7 +2,9 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
@@ -34,6 +36,7 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
@@ -48,8 +51,9 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 @Component(name = "App.FENECON.Commercial.92")
-public class FeneconCommercial92 extends
-		AbstractOpenemsAppWithProps<FeneconCommercial92, Property, Parameter.BundleParameter> implements OpenemsApp {
+public class FeneconCommercial92
+		extends AbstractOpenemsAppWithProps<FeneconCommercial92, Property, Parameter.BundleParameter>
+		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public enum Property implements Type<Property, FeneconCommercial92, Parameter.BundleParameter> {
 		ALIAS(alias()), //
@@ -59,6 +63,8 @@ public class FeneconCommercial92 extends
 
 		FEED_IN_TYPE(feedInType(FeedInType.EXTERNAL_LIMITATION)), //
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
+
+		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 
 		BATTERY_TARGET(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("Battery Start/Stop Target") //
@@ -147,6 +153,8 @@ public class FeneconCommercial92 extends
 					? this.getInt(p, Property.MAX_FEED_IN_POWER)
 					: 0;
 
+			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
+
 			final var batteryTarget = this.getString(p, Property.BATTERY_TARGET);
 
 			final var deviceHardware = this.appManagerUtil
@@ -171,6 +179,10 @@ public class FeneconCommercial92 extends
 					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId) //
 			);
 
+			if (hasEssLimiter14a) {
+				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
+			}
+
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.staticIp(new InterfaceConfiguration("eth1") //
@@ -191,6 +203,11 @@ public class FeneconCommercial92 extends
 				.setCanDelete(Role.INSTALLER) //
 				.setCanSee(Role.INSTALLER) //
 				.build();
+	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
 	}
 
 }
