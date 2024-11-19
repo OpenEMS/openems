@@ -4,6 +4,7 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.calculateLimitChargePowerFor14aEnWG;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstPeakIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstValleyIndex;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
@@ -20,6 +21,7 @@ import static io.openems.edge.energy.v1.optimizer.TestDataV1.PAST_STATES;
 import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRODUCTION_888_20231106;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.SUM_CONSUMPTION;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.SUM_PRODUCTION;
+import static io.openems.edge.energy.v1.optimizer.UtilsV1.calculateMaxChargePower;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.generateProductionPrediction;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.getEssMinSocEnergy;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
@@ -31,6 +33,7 @@ import static io.openems.edge.energy.v1.optimizer.UtilsV1.updateSchedule;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -49,9 +52,11 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
+import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1.ContextV1;
@@ -211,13 +216,37 @@ public class UtilsV1Test {
 		}
 	}
 
+	private static class MyControllerEssLimiter14a extends AbstractDummyOpenemsComponent<MyControllerEssLimiter14a>
+			implements ControllerEssLimiter14a {
+
+		protected MyControllerEssLimiter14a(boolean restrictionMode) {
+			super("ctrl0", //
+					OpenemsComponent.ChannelId.values(), //
+					ControllerEssLimiter14a.ChannelId.values() //
+			);
+			withValue(this.getRestrictionModeChannel(), restrictionMode);
+		}
+
+		@Override
+		public void run() throws OpenemsNamedException {
+		}
+
+		@Override
+		protected MyControllerEssLimiter14a self() {
+			return this;
+		}
+	}
+
 	@Test
 	public void testGetEssMinSocEnergy() {
 		var t1 = new MyControllerEssLimitTotalDischarge(50);
 		var t2 = new MyControllerEssLimitTotalDischarge(null);
 		var t3 = new MyControllerEssEmergencyCapacityReserve(30);
-		assertEquals(5000,
-				getEssMinSocEnergy(new ContextV1(List.of(t3), List.of(t1, t2), null, null, 10000, false), 10000));
+		var limiter1 = new MyControllerEssLimiter14a(false);
+		var limiter2 = new MyControllerEssLimiter14a(true);
+		assertEquals(5000, getEssMinSocEnergy(new ContextV1(//
+				List.of(t3), List.of(t1, t2), List.of(limiter1, limiter2), //
+				null, null, 10000), 10000));
 	}
 
 	@Test
@@ -240,26 +269,10 @@ public class UtilsV1Test {
 			timedata.add(quarter, SUM_GRID, PRODUCTION_888_20231106[i]);
 		}
 
+		var globalContext = EnergySchedulerImplTest.getGlobalContext(energyScheduler);
+		assertNotNull(globalContext);
 		var optimizer = getOptimizer(energyScheduler);
-		System.out.println(optimizer);
-		// TODO this requires a fully configured TimeOfUseTariffControllerImpl
-		// callCreateParams(optimizer);
-		//
-		// // Testing only past data. For full data, optimizer has to be created as
-		// well.
-		// var result = handleGetScheduleRequest(optimizer, getNilUuid(), timedata,
-		// "ctrl0", clock.now()).getResult();
-		//
-		// // JsonUtils.prettyPrint(result);
-		//
-		// var schedule = getAsJsonArray(result, "schedule");
-		// assertEquals(11, schedule.size());
-		// {
-		// var period = getAsJsonObject(schedule.get(0));
-		// assertEquals(PAST_HOURLY_PRICES[0], getAsFloat(period, "price"), 0.00F);
-		// assertEquals(PRODUCTION_PREDICTION_QUARTERLY[0] / 4, getAsInt(period,
-		// "production"));
-		// }
+		assertNotNull(optimizer);
 	}
 
 	@Test
@@ -300,5 +313,22 @@ public class UtilsV1Test {
 		// No current entry -> handle null
 		schedule.remove(t);
 		updateSchedule(t, schedule, newSchedule);
+	}
+
+	@Test
+	public void testCalculateLimitChargePowerFor14aEnWG() {
+		assertEquals(-4200, calculateLimitChargePowerFor14aEnWG(
+				List.of(new MyControllerEssLimiter14a(false), new MyControllerEssLimiter14a(true))));
+		assertEquals(Integer.MIN_VALUE, calculateLimitChargePowerFor14aEnWG(
+				List.of(new MyControllerEssLimiter14a(false), new MyControllerEssLimiter14a(false))));
+	}
+
+	@Test
+	public void testCalculateMaxChargePower() {
+		assertEquals(3000, calculateMaxChargePower(-4200, new Value<>(null, 3000), -1000));
+		assertEquals(4200, calculateMaxChargePower(-4200, new Value<>(null, 5000), -1000));
+		assertEquals(5000, calculateMaxChargePower(Integer.MIN_VALUE, new Value<>(null, 5000), -1000));
+		assertEquals(1000, calculateMaxChargePower(Integer.MIN_VALUE, new Value<>(null, null), -1000));
+		assertEquals(1000, calculateMaxChargePower(-4200, new Value<>(null, null), -1000));
 	}
 }

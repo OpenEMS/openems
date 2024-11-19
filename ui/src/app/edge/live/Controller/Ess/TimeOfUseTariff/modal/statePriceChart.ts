@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
+import { filter, take } from "rxjs/operators";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { calculateResolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -26,6 +27,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     @Input({ required: true }) public component!: EdgeConfig.Component;
 
     private currencyLabel: Currency.Label; // Default
+    private currencyUnit: Currency.Unit; // Default
 
     constructor(
         protected override service: Service,
@@ -40,8 +42,13 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
     }
 
-    public ngOnChanges() {
-        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+    public async ngOnChanges() {
+        this.edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1)).subscribe(config => {
+            const meta: EdgeConfig.Component = config?.getComponent("_meta");
+            const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+            this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
+            this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
+        });
         this.updateChart();
     }
 
@@ -165,7 +172,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
             return el;
         });
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyLabel };
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit };
         [rightYaxisSoc, rightYAxisPower].forEach((element) => {
             this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", locale, this.datasets, true);
         });

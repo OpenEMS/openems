@@ -104,6 +104,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     }
     this.installedApps.appCategories = [];
     this.availableApps.appCategories = [];
+    this.incompatibleApps.appCategories = [];
 
     const sortedApps = [];
     this.apps.forEach(app => {

@@ -14,10 +14,14 @@ import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static org.apache.commons.math3.optim.linear.Relationship.EQ;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -29,9 +33,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -43,6 +44,7 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
+import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyState;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
@@ -93,22 +95,22 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Reference
 	private TimeOfUseTariff timeOfUseTariff;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
 	@Deprecated
-	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(isReserveSocEnabled=true))")
+	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
 	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
 	@Deprecated
-	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(enabled=true)")
+	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(enabled=true)")
 	private volatile List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Deprecated
+	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(enabled=true)")
+	private volatile List<ControllerEssLimiter14a> ctrlLimiter14as = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private ManagedSymmetricEss ess;
 
 	@Reference
@@ -126,15 +128,14 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
 				() -> this.config.controlMode().states, //
-				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, this.ess,
-						this.config.controlMode(), this.config.maxChargePowerFromGrid(),
-						this.config.limitChargePowerFor14aEnWG()));
+				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
+						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
+						this.config.maxChargePowerFromGrid()));
 
 		this.energyScheduleHandler = buildEnergyScheduleHandler(//
 				() -> this.ess, //
 				() -> this.config.controlMode(), //
-				() -> this.config.maxChargePowerFromGrid(), //
-				() -> this.config.limitChargePowerFor14aEnWG());
+				() -> this.config.maxChargePowerFromGrid());
 	}
 
 	@Activate
@@ -172,7 +173,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 			-> switch (this.config.mode()) {
 			case AUTOMATIC //
 				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, this.sum, this.ess,
-						this.config.maxChargePowerFromGrid(), this.config.limitChargePowerFor14aEnWG());
+						this.ctrlLimiter14as, this.config.maxChargePowerFromGrid());
 			case OFF //
 				-> new ApplyState(StateMachine.BALANCING, null);
 			};
@@ -181,7 +182,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 			-> switch (this.config.mode()) {
 			case AUTOMATIC //
 				-> calculateAutomaticMode(this.sum, this.ess, this.config.maxChargePowerFromGrid(),
-						this.config.limitChargePowerFor14aEnWG(), this.energyScheduleHandler.getCurrentPeriod());
+						this.energyScheduleHandler.getCurrentPeriod());
 			case OFF //
 				-> new ApplyState(StateMachine.BALANCING, null);
 			};
@@ -245,19 +246,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param ess                        a supplier for the
-	 *                                   {@link ManagedSymmetricEss}
-	 * @param controlMode                a supplier for the configured
-	 *                                   {@link ControlMode}
-	 * @param maxChargePowerFromGrid     a supplier for the configured
-	 *                                   maxChargePowerFromGrid
-	 * @param limitChargePowerFor14aEnWG a supplier for the configured
-	 *                                   limitChargePowerFor14aEnWG
+	 * @param ess                    a supplier for the {@link ManagedSymmetricEss}
+	 * @param controlMode            a supplier for the configured
+	 *                               {@link ControlMode}
+	 * @param maxChargePowerFromGrid a supplier for the configured
+	 *                               maxChargePowerFromGrid
 	 * @return a typed {@link EnergyScheduleHandler}
 	 */
 	public static EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> buildEnergyScheduleHandler(
-			Supplier<ManagedSymmetricEss> ess, Supplier<ControlMode> controlMode, IntSupplier maxChargePowerFromGrid,
-			BooleanSupplier limitChargePowerFor14aEnWG) {
+			Supplier<ManagedSymmetricEss> ess, Supplier<ControlMode> controlMode, IntSupplier maxChargePowerFromGrid) {
 		return EnergyScheduleHandler.of(//
 				StateMachine.BALANCING, //
 				() -> controlMode.get().states, //
@@ -266,7 +263,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 					var maxSocEnergyInChargeGrid = round(simContext.ess().totalEnergy() * (ESS_MAX_SOC / 100));
 					var essChargeInChargeGrid = calculateChargeEnergyInChargeGrid(simContext);
 					return new EshContext(ess.get(), controlMode.get(), maxChargePowerFromGrid.getAsInt(),
-							limitChargePowerFor14aEnWG.getAsBoolean(), maxSocEnergyInChargeGrid, essChargeInChargeGrid);
+							maxSocEnergyInChargeGrid, essChargeInChargeGrid);
 				}, //
 				(simContext, period, energyFlow, ctrlContext, state) -> {
 					switch (state) {
@@ -325,7 +322,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	}
 
 	public static record EshContext(ManagedSymmetricEss ess, ControlMode controlMode, int maxChargePowerFromGrid,
-			boolean limitChargePowerFor14aEnWG, int maxSocEnergyInChargeGrid, int essChargeInChargeGrid) {
+			int maxSocEnergyInChargeGrid, int essChargeInChargeGrid) {
 	}
 
 	@Override

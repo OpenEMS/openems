@@ -48,8 +48,8 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
-import io.openems.edge.app.integratedsystem.FeneconHome.FeneconHomeParameter;
-import io.openems.edge.app.integratedsystem.FeneconHome.Property;
+import io.openems.edge.app.integratedsystem.FeneconHome10.FeneconHomeParameter;
+import io.openems.edge.app.integratedsystem.FeneconHome10.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -121,7 +121,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  * </pre>
  */
 @Component(name = "App.FENECON.Home")
-public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Property, FeneconHomeParameter>
+public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Property, FeneconHomeParameter>
 		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public record FeneconHomeParameter(//
@@ -131,7 +131,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 
 	}
 
-	public static enum Property implements Type<Property, FeneconHome, FeneconHomeParameter> {
+	public static enum Property implements Type<Property, FeneconHome10, FeneconHomeParameter> {
 		ALIAS(alias()), //
 		// Battery Inverter
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
@@ -166,6 +166,9 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
 				}))), //
+
+		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
+
 		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 		// External AC PV
 		HAS_AC_METER(AppDef.copyOfGeneric(hasAcMeter(), def -> def //
@@ -227,24 +230,24 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 				}))), //
 		;
 
-		private final AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def;
+		private final AppDef<? super FeneconHome10, ? super Property, ? super FeneconHomeParameter> def;
 
-		private Property(AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def) {
+		private Property(AppDef<? super FeneconHome10, ? super Property, ? super FeneconHomeParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, FeneconHome, FeneconHomeParameter> self() {
+		public Type<Property, FeneconHome10, FeneconHomeParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super FeneconHome, ? super Property, ? super FeneconHomeParameter> def() {
+		public AppDef<? super FeneconHome10, ? super Property, ? super FeneconHomeParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<FeneconHome>, FeneconHomeParameter> getParamter() {
+		public Function<GetParameterValues<FeneconHome10>, FeneconHomeParameter> getParamter() {
 			return t -> new FeneconHomeParameter(//
 					AbstractOpenemsApp.getTranslationBundle(t.language), //
 					createFeneconHomeDefaultValues(t.app.componentManager, t.app.componentUtil) //
@@ -255,7 +258,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 	private final AppManagerUtil appManagerUtil;
 
 	@Activate
-	public FeneconHome(//
+	public FeneconHome10(//
 			@Reference final ComponentManager componentManager, //
 			final ComponentContext context, //
 			@Reference final ConfigurationAdmin cm, //
@@ -300,6 +303,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
+			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 			var components = Lists.newArrayList(//
@@ -355,7 +359,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 									.addProperty("batteryStartUpRelay", "io0/Relay4") //
 									.build()),
 					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting), //
+							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					new EdgeConfig.Component(essId,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + essId + ".alias"),
 							"Ess.Generic.ManagedSymmetric", JsonUtils.buildJsonObject() //
@@ -476,7 +480,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 	}
 
 	@Override
-	protected FeneconHome getApp() {
+	protected FeneconHome10 getApp() {
 		return this;
 	}
 

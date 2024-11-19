@@ -22,7 +22,7 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
-public class TestFeneconHome {
+public class TestFeneconHome10 {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -30,7 +30,7 @@ public class TestFeneconHome {
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return Apps.of(t, //
-					Apps::feneconHome, //
+					Apps::feneconHome10, //
 					Apps::gridOptimizedCharge, //
 					Apps::selfConsumptionOptimization, //
 					Apps::socomecMeter, //
@@ -166,7 +166,7 @@ public class TestFeneconHome {
 	@Ignore
 	public void testEnableLimiter14a() throws Exception {
 		final var createSettings = fullSettings();
-		createSettings.addProperty(FeneconHome.Property.HAS_ESS_LIMITER_14A.name(), false);
+		createSettings.addProperty(FeneconHome10.Property.HAS_ESS_LIMITER_14A.name(), false);
 
 		final var createResponse = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", createSettings));
@@ -176,7 +176,7 @@ public class TestFeneconHome {
 				.anyMatch(a -> a.appId.equals("App.Ess.Limiter14a")));
 
 		final var updateSettings = fullSettings();
-		createSettings.addProperty(FeneconHome.Property.HAS_ESS_LIMITER_14A.name(), true);
+		createSettings.addProperty(FeneconHome10.Property.HAS_ESS_LIMITER_14A.name(), true);
 		final var updateResponse = this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(createResponse.instance().instanceId, "alias", updateSettings));
 
@@ -234,7 +234,7 @@ public class TestFeneconHome {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome10}.
 	 * 
 	 * @return the settings object
 	 */
@@ -259,7 +259,7 @@ public class TestFeneconHome {
 
 	/**
 	 * Gets a {@link JsonObject} with the minimum settings for a
-	 * {@link FeneconHome}.
+	 * {@link FeneconHome10}.
 	 * 
 	 * @return the settings object
 	 */

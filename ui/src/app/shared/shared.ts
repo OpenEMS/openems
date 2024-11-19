@@ -125,19 +125,6 @@ export class UserPermission {
 export namespace Currency {
 
   /**
-   * Gets the currencylabel for a edgeId
-   *
-   * @param edgeId the edgeId
-   * @returns the Currencylabel dependent on edgeId
-   */
-  export function getCurrencyLabelByEdgeId(edgeId: string): Label {
-    switch (edgeId) {
-      default:
-        return Label.CENT_PER_KWH;
-    }
-  }
-
-  /**
    * This method returns the corresponding label based on the user-selected currency in "core.meta."
    *
    * @param currency The currency enum.
@@ -147,18 +134,40 @@ export namespace Currency {
     switch (currency) {
       case "SEK":
         return Label.OERE_PER_KWH;
+      case "CHF":
+        return Label.RAPPEN_PER_KWH;
       default:
         return Label.CENT_PER_KWH;
+    }
+  }
+
+  /**
+   * This method returns the corresponding label for the chart based on the user-selected currency.
+   *
+   * @param currency The currency enum.
+   * @returns the Currency Unit label
+   */
+  export function getChartCurrencyUnitLabel(currency: string) {
+    switch (currency) {
+      case "SEK":
+        return Unit.OERE;
+      case "CHF":
+        return Unit.RAPPEN;
+      default:
+        return Unit.CENT;
     }
   }
 
   export enum Label {
     OERE_PER_KWH = "Öre/kWh",
     CENT_PER_KWH = "Cent/kWh",
+    RAPPEN_PER_KWH = "Rp./kWh",
   }
 
   export enum Unit {
     CENT = "Cent",
+    OERE = "Öre",
+    RAPPEN = "Rp.",
   }
 }
 

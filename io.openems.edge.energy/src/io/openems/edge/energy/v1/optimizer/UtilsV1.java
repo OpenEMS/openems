@@ -7,14 +7,13 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANC
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
+import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.calculateLimitChargePowerFor14aEnWG;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.getEssMinSocPercentage;
 import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
 import static io.openems.edge.energy.api.EnergyUtils.interpolateArray;
-import static io.openems.edge.energy.optimizer.Utils.ESS_LIMIT_14A_ENWG;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_DISCHARGE_POWER;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_SOC;
 import static io.openems.edge.energy.optimizer.Utils.SUM_GRID;
-import static java.lang.Math.max;
 import static java.lang.Math.round;
 import static java.util.Arrays.stream;
 
@@ -36,6 +35,8 @@ import com.google.common.collect.Streams;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.Context;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
@@ -100,10 +101,9 @@ public final class UtilsV1 {
 
 		// Power Values for scheduling battery for individual periods.
 		var maxDischargePower = globalContext.sum().getEssMaxDischargePower().orElse(1000 /* at least 1000 */);
-		var maxChargePower = globalContext.sum().getEssMaxDischargePower().orElse(-1000 /* at least 1000 */);
-		if (context.limitChargePowerFor14aEnWG()) {
-			maxChargePower = max(ESS_LIMIT_14A_ENWG, maxChargePower); // Apply §14a EnWG limit
-		}
+		var maxChargePower = calculateMaxChargePower(//
+				calculateLimitChargePowerFor14aEnWG(context.ctrlLimiter14as()), // Apply §14a EnWG limit
+				globalContext.sum().getEssMaxDischargePower(), -1000 /* at least 1000 */);
 
 		return ParamsV1.create() //
 				.setTime(time) //
@@ -111,7 +111,7 @@ public final class UtilsV1 {
 				.setEssMinSocEnergy(essMinSocEnergy) //
 				.setEssMaxSocEnergy(essMaxSocEnergy) //
 				.setEssInitialEnergy(essSocEnergy) //
-				.setEssMaxChargeEnergy(toEnergy(Math.abs(maxChargePower))) //
+				.setEssMaxChargeEnergy(toEnergy(maxChargePower)) //
 				.setEssMaxDischargeEnergy(toEnergy(maxDischargePower)) //
 				.seMaxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
 				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
@@ -270,9 +270,9 @@ public final class UtilsV1 {
 		if (!schedule.isEmpty()) {
 			toTime = schedule.lastKey();
 		} else {
-			var pricesPerQuarter = timeOfUseTariff.getPrices().pricePerQuarter;
-			if (!pricesPerQuarter.isEmpty()) {
-				toTime = pricesPerQuarter.lastKey();
+			var lastTime = timeOfUseTariff.getPrices().getLastTime();
+			if (lastTime != null) {
+				toTime = lastTime;
 			} else {
 				toTime = fromTime;
 			}
@@ -378,5 +378,24 @@ public final class UtilsV1 {
 		if (current != null) {
 			schedule.put(thisQuarter, current);
 		}
+	}
+
+	/**
+	 * Calculates the max-charge-power.
+	 * 
+	 * @param calculateLimitChargePowerFor14aEnWG negative value provided by
+	 *                                            calculateLimitChargePowerFor14aEnWG;
+	 *                                            possilby Integer.MIN_VALUE
+	 * @param essMaxDischargePower                {@link Sum.ChannelId#ESS_MAX_DISCHARGE_POWER};
+	 *                                            positive
+	 * @param orElse                              a default value; negative
+	 * @return max-charge-power as positive value
+	 */
+	protected static int calculateMaxChargePower(int calculateLimitChargePowerFor14aEnWG,
+			Value<Integer> essMaxDischargePower, int orElse) {
+		return Math.abs(//
+				Math.max(//
+						calculateLimitChargePowerFor14aEnWG, // Apply §14a EnWG limit
+						-1 * essMaxDischargePower.orElse(orElse)));
 	}
 }

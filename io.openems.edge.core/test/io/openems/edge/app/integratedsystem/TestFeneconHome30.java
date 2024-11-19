@@ -8,32 +8,41 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
+import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
+import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestFeneconHome30 {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
+	private OpenemsApp integratedSystemApp;
+
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			return Apps.of(t, //
-					Apps::feneconHome30, //
-					Apps::gridOptimizedCharge, //
-					Apps::selfConsumptionOptimization, //
-					Apps::socomecMeter, //
-					Apps::prepareBatteryExtension //
+			return ImmutableList.of(//
+					this.integratedSystemApp = Apps.feneconHome30(t), //
+					Apps.gridOptimizedCharge(t), //
+					Apps.selfConsumptionOptimization(t), //
+					Apps.socomecMeter(t), //
+					Apps.prepareBatteryExtension(t), //
+					Apps.techbaseCm3(t), //
+					Apps.techbaseCm4sGen2(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -221,6 +230,34 @@ public class TestFeneconHome30 {
 		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
+	@Test
+	public void testNewHardwareExternalModbusPort() throws Exception {
+		final var hardwareResponse = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.OpenemsHardware.CM3", "key", "alias",
+						JsonUtils.buildJsonObject().build()));
+
+		// old/no hardware
+		final var oldConfig = this.integratedSystemApp.getAppConfiguration(ConfigurationTarget.ADD, fullSettings(),
+				Language.DEFAULT);
+		final var oldExternalModbus = oldConfig.getComponents().stream() //
+				.filter(t -> t.getId().equals("modbus2")) //
+				.findAny().orElse(null);
+		assertEquals("/dev/bus0", oldExternalModbus.getProperty("portName").orElse(null).getAsString());
+
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
+				new DeleteAppInstance.Request(hardwareResponse.instance().instanceId));
+		// install new hardware
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
+				"App.OpenemsHardware.CM4S.Gen2", "key", "alias", JsonUtils.buildJsonObject().build()));
+
+		final var newConfig = this.integratedSystemApp.getAppConfiguration(ConfigurationTarget.ADD, fullSettings(),
+				Language.DEFAULT);
+		final var newExternalModbus = newConfig.getComponents().stream() //
+				.filter(t -> t.getId().equals("modbus2")) //
+				.findAny().orElse(null);
+		assertEquals("/dev/busUSB3", newExternalModbus.getProperty("portName").orElse(null).getAsString());
+	}
+
 	private final OpenemsAppInstance createFullHome30() throws Exception {
 		return createFullHome30(this.appManagerTestBundle, DUMMY_ADMIN);
 	}
@@ -275,7 +312,7 @@ public class TestFeneconHome30 {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome30}.
 	 * 
 	 * @return the settings object
 	 */
@@ -300,7 +337,7 @@ public class TestFeneconHome30 {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome30}.
 	 * 
 	 * @return the settings object
 	 */

@@ -38,10 +38,6 @@ import io.openems.edge.energy.api.Version;
 	@AttributeDefinition(name = "Max Charge Power from the grid [W]", description = "Maximum charge power from the grid")
 	int maxChargePowerFromGrid() default 20_000;
 
-	// TODO This will eventually be moved globally
-	@AttributeDefinition(name = "Limit Charge Power for §14a EnWG", description = "Always apply §14a EnWG limitation of 4.2 kW")
-	boolean limitChargePowerFor14aEnWG() default false;
-
 	@AttributeDefinition(name = "Version", description = "Select version of implementation")
 	Version version() default Version.V1_ESS_ONLY;
 
