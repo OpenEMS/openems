@@ -15,7 +15,6 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { AppService } from "./app.service";
 import { CheckForUpdateService } from "./appupdateservice";
-import { ChangelogModule } from "./changelog/changelog.module";
 import { EdgeModule } from "./edge/edge.module";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { SystemLogComponent } from "./edge/settings/systemlog/systemlog.component";
@@ -43,7 +42,6 @@ import { UserModule } from "./user/user.module";
     AppRoutingModule,
     BrowserAnimationsModule,
     BrowserModule,
-    ChangelogModule,
     EdgeModule,
     EdgeSettingsModule,
     IndexModule,
