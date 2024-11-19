@@ -187,7 +187,18 @@ export class ChartComponent extends AbstractHistoryChart {
         const prices = data["QuarterlyPrice"]
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
         const states = data["StateMachine"]
-            .map(val => Utils.multiplySafely(val, 1000));
+            .map(val => Utils.multiplySafely(val, 1000))
+            .map(val => {
+                if (val === null) {
+                    return null;
+                } else if (val < 0.5) {
+                    return 0; // DelayDischarge
+                } else if (val > 2.5) {
+                    return 3; // ChargeGrid
+                } else {
+                    return 1; // Balancing
+                }
+            });
         const length = prices.length;
         const dataset = Array(length).fill(null);
 
