@@ -662,7 +662,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return pipe.transform(value);
       }
       case YAxisType.CURRENCY: {
-        const currency = config.components["_meta"].properties.currency;
+        const meta: EdgeConfig.Component = config?.getComponent("_meta");
+        const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
         tooltipsLabel = Currency.getCurrencyLabelByCurrency(currency);
         break;
       }

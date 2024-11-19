@@ -23,7 +23,8 @@ export class ChartComponent extends AbstractHistoryChart {
         const componentId: string = this.config.getComponentIdsByFactory("Controller.Ess.Time-Of-Use-Tariff")[0];
         this.component = this.config.components[componentId];
 
-        const currency = this.config.components["_meta"].properties.currency;
+        const meta: EdgeConfig.Component = this.config?.getComponent("_meta");
+        const currency: string = this.config?.getPropertyFromComponent<string>(meta, "currency");
         this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
         this.chartType = "bar";
 

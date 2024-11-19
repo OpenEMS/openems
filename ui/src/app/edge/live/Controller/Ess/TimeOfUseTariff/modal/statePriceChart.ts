@@ -44,10 +44,11 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
     public async ngOnChanges() {
         this.edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1)).subscribe(config => {
-            const currency = config?.components["_meta"]?.properties?.currency ?? null;
-            this.currencyUnit = Currency.getChartCurrencyLabel(currency);
+            const meta: EdgeConfig.Component = config?.getComponent("_meta");
+            const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+            this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
+            this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
         });
-        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
         this.updateChart();
     }
 
