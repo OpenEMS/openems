@@ -133,4 +133,11 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
+	public record OAuthClientRegistration(String clientId, String clientSecret) {
+	}
+
+	public default OAuthClientRegistration getRabotChargeCredentials() {
+		return null;
+	}
+
 }
