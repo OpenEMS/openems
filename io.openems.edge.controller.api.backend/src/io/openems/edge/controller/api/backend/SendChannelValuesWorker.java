@@ -54,7 +54,7 @@ import io.openems.edge.common.type.TypeUtils;
 public class SendChannelValuesWorker {
 
 	private static final int AGGREGATION_MINUTES = 5;
-	private static final int SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS = 300; /* 5 minutes */
+	private static final int SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS = 240; /* 4 minutes */
 
 	private final Logger log = LoggerFactory.getLogger(SendChannelValuesWorker.class);
 
