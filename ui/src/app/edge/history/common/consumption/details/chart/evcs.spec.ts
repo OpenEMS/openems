@@ -53,6 +53,6 @@ export function expectView(config: EdgeConfig, testContext: TestContext & { rout
         .apply(EvcsChartDetailsComponent
             .getChartData(
                 DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), testContext.route,
-                testContext.translate), chartType, channels, testContext, config)))
+                testContext.translate, DummyConfig.dummyEdge({ version: "2024.1.1" })), chartType, channels, testContext, config)))
         .toEqual(TestingUtils.removeFunctions(view));
 }

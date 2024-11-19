@@ -2,9 +2,10 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 
 @Component({
   selector: "consumptionchart",
@@ -12,8 +13,7 @@ import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, translate: TranslateService): HistoryUtils.ChartData {
-
+  public static getChartData(config: EdgeConfig, translate: TranslateService, edge: Edge): HistoryUtils.ChartData {
     const inputChannel: HistoryUtils.InputChannel[] = [{
       name: "ConsumptionActivePower",
       powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
@@ -29,8 +29,8 @@ export class ChartComponent extends AbstractHistoryChart {
     // TODO Since 2024.11.0 EVCS implements EletricityMeter; use DeprecatedEvcs as filter
     evcsComponents.forEach(component => {
       inputChannel.push({
-        name: component.id + "/ChargePower",
-        powerChannel: ChannelAddress.fromString(component.id + "/ChargePower"),
+        name: component.id + "/" + EvcsUtils.getEvcsPowerChannelId(component, config, edge),
+        powerChannel: ChannelAddress.fromString(component.id + "/" + EvcsUtils.getEvcsPowerChannelId(component, config, edge)),
         energyChannel: ChannelAddress.fromString(component.id + "/ActiveConsumptionEnergy"),
       });
     });
@@ -74,7 +74,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[component.id + "/ActiveConsumptionEnergy"];
             },
             converter: () => {
-              return data[component.id + "/ChargePower"] ?? null;
+              return data[component.id + "/" + EvcsUtils.getEvcsPowerChannelId(component, config, edge)] ?? null;
             },
             color: evcsComponentColors[Math.min(index, (evcsComponentColors.length - 1))],
             stack: 1,
@@ -126,7 +126,8 @@ export class ChartComponent extends AbstractHistoryChart {
   }
 
   protected override getChartData() {
-    return ChartComponent.getChartData(this.config, this.translate);
+    return ChartComponent.getChartData(this.config, this.translate, this.edge);
   }
+
 
 }
