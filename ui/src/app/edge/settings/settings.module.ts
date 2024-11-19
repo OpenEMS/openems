@@ -23,9 +23,8 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
   imports: [
     AppModule,
     SharedModule,
-    ServiceAssistantModule,
-    AssistantModule,
     ChangelogComponent,
+    PowerAssistantModule,
   ],
   declarations: [
     AlertingComponent,
