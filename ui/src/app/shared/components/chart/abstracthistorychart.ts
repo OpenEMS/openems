@@ -583,7 +583,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           max: 3,
           beginAtZero: true,
           ticks: {
-            ...baseConfig.ticks,
             stepSize: 1,
           },
         };
