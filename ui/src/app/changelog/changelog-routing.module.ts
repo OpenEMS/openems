@@ -1,11 +1,11 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { ChangelogComponent } from "./view/component/changelog.component";
+import { ChangelogViewComponent } from "./view/view";
 
 const routes: Routes = [
     {
         path: "",
-        component: ChangelogComponent,
+        component: ChangelogViewComponent,
     },
 ];
 @NgModule({
