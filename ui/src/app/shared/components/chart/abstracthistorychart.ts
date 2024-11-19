@@ -361,7 +361,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
     let tooltipsLabel: string | null = null;
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultOptions(chartOptionsType, service, labels)));
-    const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data);
+    const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
     chartObject.yAxes.forEach((element) => {
       options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, true);
