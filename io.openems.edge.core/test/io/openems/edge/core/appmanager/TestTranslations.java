@@ -16,11 +16,12 @@ import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.TestFeneconHome;
-import io.openems.edge.app.integratedsystem.TestFeneconHome6KW;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10KW;
 import io.openems.edge.app.integratedsystem.TestFeneconHome15KW;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.TestFeneconHome6KW;
+import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 
 public class TestTranslations {
 
@@ -39,7 +40,7 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome6kw(t), true, TestFeneconHome6KW.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome10kw(t), true, TestFeneconHome10KW.fullSettings()));
-			this.apps.add(new TestTranslation(Apps.feneconHome15kw(t), true, TestFeneconHome15KW.fullSettings()));			
+			this.apps.add(new TestTranslation(Apps.feneconHome15kw(t), true, TestFeneconHome15KW.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //

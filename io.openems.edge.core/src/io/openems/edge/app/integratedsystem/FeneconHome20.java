@@ -150,6 +150,8 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 		FEED_IN_SETTING(feedInSetting()), //
 
+		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
+
 		GRID_METER_CATEGORY(gridMeterType(GoodWeGridMeterCategory.INTEGRATED_METER)), //
 		CT_RATIO_FIRST(ctRatioFirst(GRID_METER_CATEGORY)), //
 
@@ -306,6 +308,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			final var emergencyReserveSoc = this.getInt(p, Property.EMERGENCY_RESERVE_SOC);
 
 			final var shadowManagementDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
+			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
 			final var deviceHardware = this.appManagerUtil
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
@@ -313,7 +316,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			final var components = Lists.<EdgeConfig.Component>newArrayList(//
 					battery(bundle, batteryId, modbusIdInternal), //
 					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting), //
+							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtection), //
 					ess(bundle, essId, batteryId, batteryInverterId), //
 					io(bundle, modbusIdInternal), //
 					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //

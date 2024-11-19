@@ -46,6 +46,7 @@ public class AppManagerImplTest {
 		final var emergencyReserveEnabled = false;
 
 		final var shadowManagmentDisabled = false;
+		final var naProtectionEnabled = false;
 
 		// Battery-Inverter Settings
 		final var safetyCountry = "AUSTRIA";
@@ -130,6 +131,7 @@ public class AppManagerImplTest {
 								.addProperty("feedPowerEnable", "ENABLE") //
 								.addProperty("feedPowerPara", 10000) //
 								.addProperty("controlMode", "SMART") //
+								.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 								.addProperty("setfeedInPowerSettings", "LAGGING_0_95") //
 								.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
 								.addProperty("rcrEnable", "DISABLE") //
@@ -255,6 +257,7 @@ public class AppManagerImplTest {
 										.addProperty("HAS_DC_PV2", false) //
 										.addProperty("EMERGENCY_RESERVE_ENABLED", emergencyReserveEnabled) //
 										.addProperty("SHADOW_MANAGEMENT_DISABLED", shadowManagmentDisabled) //
+										.addProperty("NA_PROTECTION_ENABLED", naProtectionEnabled) //
 										.build()) //
 								.build()) //
 						.add(JsonUtils.buildJsonObject() //

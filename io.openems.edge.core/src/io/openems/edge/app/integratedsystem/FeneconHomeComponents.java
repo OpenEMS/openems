@@ -78,6 +78,7 @@ public final class FeneconHomeComponents {
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
 	 * @param safetyCountry            the {@link SafetyCountry}
 	 * @param feedInSetting            the feedInSetting
+	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @return the {@link Component}
 	 */
 	public static EdgeConfig.Component batteryInverter(//
@@ -89,7 +90,8 @@ public final class FeneconHomeComponents {
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
 			final SafetyCountry safetyCountry, //
-			final String feedInSetting //
+			final String feedInSetting, //
+			final boolean naProtectionEnabled //
 	) {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
@@ -107,6 +109,7 @@ public final class FeneconHomeComponents {
 						.addProperty("safetyCountry", safetyCountry) //
 						.addProperty("setfeedInPowerSettings", feedInSetting) //
 						.addProperty("rcrEnable", feedInType == FeedInType.EXTERNAL_LIMITATION ? "ENABLE" : "DISABLE") //
+						.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 						.build());
 	}
 
@@ -447,20 +450,20 @@ public final class FeneconHomeComponents {
 						.addProperty("mpptPort", "MPPT_" + (mpptPort + 1)) //
 						.build());
 	}
-	
-	/** Creates a goodwe charger component for  a FENECON Home Gen2.
+
+	/**
+	 * Creates a goodwe charger component for a FENECON Home Gen2.
 	 * 
-	 * @param chargerId the id of the charger
-	 * @param pvNumber the string number of the charger
-	 * @param alias the alias for the charger
-	 * @param modbusIdExternal the id of the modbus external
+	 * @param chargerId         the id of the charger
+	 * @param pvNumber          the string number of the charger
+	 * @param alias             the alias for the charger
+	 * @param modbusIdExternal  the id of the modbus external
 	 * @param batteryInverterId the battery inver id
 	 * @return the component
 	 */
 	public static EdgeConfig.Component chargerPv(String chargerId, int pvNumber, String alias,
 			final String modbusIdExternal, final String batteryInverterId) {
-		return new EdgeConfig.Component(chargerId, alias,
-				"GoodWe.Charger-PV" + pvNumber, //
+		return new EdgeConfig.Component(chargerId, alias, "GoodWe.Charger-PV" + pvNumber, //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("essOrBatteryInverter.id", batteryInverterId) //

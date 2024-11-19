@@ -79,7 +79,7 @@ public enum OpenemsAppCategory {
 	 *
 	 */
 	TIMEDATA("timedata"),
-	
+
 	/**
 	 * Category for test apps.
 	 *

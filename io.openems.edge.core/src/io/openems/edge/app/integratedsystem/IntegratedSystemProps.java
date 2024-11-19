@@ -56,6 +56,18 @@ public final class IntegratedSystemProps {
 	}
 
 	/**
+	 * Creates a {@link AppDef} for a NA-protection (ger. Netz- und Anlagenschutz).
+	 * 
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> naProtectionEnabled() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.naProtectionEnabled.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+	}
+
+	/**
 	 * Creates a {@link AppDef} for the max feed in power.
 	 * 
 	 * @param nameableToBeChecked  the {@link Nameable} to check if the field should

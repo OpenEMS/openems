@@ -337,9 +337,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			}
 		}
 
-		// Ripple Control Receiver on / off
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.RIPPLE_CONTROL_RECEIVER_ENABLE),
-				config.rcrEnable().booleanValue);
+		// Multi-functional Block for Ripple Control Receiver and NA protection on / off
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE),
+				config.rcrEnable().booleanValue || config.naProtectionEnable().booleanValue);
 	}
 
 	/**

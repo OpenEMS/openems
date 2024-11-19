@@ -66,6 +66,8 @@ public class FeneconHome6KW extends AbstractOpenemsAppWithProps<FeneconHome6KW, 
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 		FEED_IN_SETTING(IntegratedSystemProps.feedInSetting()), //
 
+		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
+
 		GRID_METER_CATEGORY(IntegratedSystemProps.gridMeterType()), //
 		CT_RATIO_FIRST(IntegratedSystemProps.ctRatioFirst(GRID_METER_CATEGORY)), //
 
@@ -164,6 +166,7 @@ public class FeneconHome6KW extends AbstractOpenemsAppWithProps<FeneconHome6KW, 
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
+			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
 			final var deviceHardware = this.appManagerUtil
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
@@ -180,7 +183,7 @@ public class FeneconHome6KW extends AbstractOpenemsAppWithProps<FeneconHome6KW, 
 					// battery
 					FeneconHomeComponents.battery(bundle, "battery0", modbusIdInternal),
 					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting), //
+							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					// meter
 					FeneconHomeComponents.gridMeter(bundle, "meter0", modbusIdExternal, gridMeterCategory,
 							ctRatioFirst),

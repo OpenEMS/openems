@@ -166,6 +166,9 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
 				}))), //
+
+		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
+
 		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 		// External AC PV
 		HAS_AC_METER(AppDef.copyOfGeneric(hasAcMeter(), def -> def //
@@ -300,6 +303,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
+			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 			var components = Lists.newArrayList(//
@@ -355,7 +359,7 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 									.addProperty("batteryStartUpRelay", "io0/Relay4") //
 									.build()),
 					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting), //
+							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					new EdgeConfig.Component(essId,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + essId + ".alias"),
 							"Ess.Generic.ManagedSymmetric", JsonUtils.buildJsonObject() //
