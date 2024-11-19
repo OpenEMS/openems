@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import * as Chart from "chart.js";
-import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
+import { ChronoUnit, Resolution, calculateResolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
@@ -54,21 +54,21 @@ export class ChartComponent extends AbstractHistoryChart {
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: "rgb(51,102,0)",
                     stack: 1,
-                    order: 1,
+                    order: 2,
                 },
                 {
                     name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
                     color: "rgb(0, 204, 204)",
                     stack: 1,
-                    order: 1,
+                    order: 2,
                 },
                 {
                     name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
                     color: "rgb(0,0,0)",
                     stack: 1,
-                    order: 1,
+                    order: 2,
                 },
                 {
                     name: this.translate.instant("General.soc"),
@@ -81,7 +81,7 @@ export class ChartComponent extends AbstractHistoryChart {
                         unit: YAxisType.PERCENTAGE,
                         formatNumber: "1.0-0",
                     },
-                    order: 0,
+                    order: 1,
                 },
                 {
                     name: this.translate.instant("General.gridBuy"),
@@ -93,7 +93,7 @@ export class ChartComponent extends AbstractHistoryChart {
                         formatNumber: "1.0-0",
                     },
                     hiddenOnInit: true,
-                    order: 2,
+                    order: 0,
                 },
                 ];
             },
@@ -104,6 +104,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 unit: YAxisType.CURRENCY,
                 position: "left",
                 yAxisId: ChartAxis.LEFT,
+                customTitle: Currency.getChartCurrencyUnitLabel(currency),
             },
             {
                 unit: YAxisType.PERCENTAGE,

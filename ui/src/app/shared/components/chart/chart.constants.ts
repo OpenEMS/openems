@@ -138,7 +138,7 @@ export class ChartConstants {
       } else {
         // If the stack already exists, merge the data arrays
         stackMap[stackId].data = stackMap[stackId].data.map((value, index) => {
-          return Utils.addSafely(value as number, (dataset.data[index] as number || 0)); // Sum data points or handle missing values
+          return Utils.addSafely(value as number, (dataset.data[index] as number)); // Sum data points or handle missing values
         });
       }
     });
