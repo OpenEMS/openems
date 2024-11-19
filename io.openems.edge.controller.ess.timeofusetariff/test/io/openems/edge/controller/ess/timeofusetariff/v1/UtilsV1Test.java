@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff.v1;
 
+import static io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a.ESS_LIMIT_14A_ENWG;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
@@ -23,7 +24,7 @@ public class UtilsV1Test {
 						new DummyManagedSymmetricEss("ess0"), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						BALANCING));
 		assertEquals("Null-Check", new ApplyState(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -32,7 +33,7 @@ public class UtilsV1Test {
 						new DummyManagedSymmetricEss("ess0"), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						BALANCING));
 
 		assertEquals("BALANCING", new ApplyState(BALANCING, null), //
@@ -43,7 +44,7 @@ public class UtilsV1Test {
 								.withActivePower(500), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						BALANCING));
 
 		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", new ApplyState(DELAY_DISCHARGE, 0), //
@@ -54,7 +55,7 @@ public class UtilsV1Test {
 								.withActivePower(500), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE to BALANCING", new ApplyState(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -64,7 +65,7 @@ public class UtilsV1Test {
 								.withActivePower(500), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						DELAY_DISCHARGE));
 
 		assertEquals("CHARGE_GRID stays CHARGE_GRID", new ApplyState(CHARGE_GRID, -1400), //
@@ -75,7 +76,7 @@ public class UtilsV1Test {
 								.withActivePower(500), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						CHARGE_GRID));
 		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyState(DELAY_DISCHARGE, 0), //
 				calculateAutomaticMode(//
@@ -85,7 +86,7 @@ public class UtilsV1Test {
 								.withActivePower(500), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 400, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						CHARGE_GRID));
 		assertEquals("CHARGE_GRID to BALANCING", new ApplyState(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -95,7 +96,28 @@ public class UtilsV1Test {
 								.withActivePower(500), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 0, //
-						/* limitChargePowerFor14aEnWG */ true, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
+						CHARGE_GRID));
+
+		assertEquals("CHARGE_GRID with §14a EnWG limit", new ApplyState(CHARGE_GRID, -4200), //
+				calculateAutomaticMode(//
+						new DummySum() //
+								.withGridActivePower(100), //
+						new DummyManagedSymmetricEss("ess0") //
+								.withActivePower(500), //
+						/* essChargeInChargeGrid */ 6000, //
+						/* maxChargePowerFromGrid */ 7000, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
+						CHARGE_GRID));
+		assertEquals("CHARGE_GRID without §14a EnWG limit", new ApplyState(CHARGE_GRID, -6400), //
+				calculateAutomaticMode(//
+						new DummySum() //
+								.withGridActivePower(100), //
+						new DummyManagedSymmetricEss("ess0") //
+								.withActivePower(500), //
+						/* essChargeInChargeGrid */ 6000, //
+						/* maxChargePowerFromGrid */ 7000, //
+						/* limitChargePowerFor14aEnWG */ Integer.MIN_VALUE, //
 						CHARGE_GRID));
 	}
 }

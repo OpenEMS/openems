@@ -106,8 +106,7 @@ public class EnergySchedulerImplTest {
 								TimeOfUseTariffControllerImpl.buildEnergyScheduleHandler(//
 										() -> ess, //
 										() -> ControlMode.CHARGE_CONSUMPTION, //
-										() -> /* maxChargePowerFromGrid */ 20_000, //
-										() -> /* limitChargePowerFor14aEnWG */ false)))
+										() -> /* maxChargePowerFromGrid */ 20_000)))
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("_energy") //

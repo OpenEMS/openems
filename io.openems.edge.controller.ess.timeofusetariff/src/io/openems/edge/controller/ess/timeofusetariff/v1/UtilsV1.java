@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff.v1;
 
+import static io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a.ESS_LIMIT_14A_ENWG;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeGridPower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischargePower;
@@ -12,6 +13,7 @@ import java.util.Objects;
 
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
+import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
@@ -58,17 +60,18 @@ public final class UtilsV1 {
 	/**
 	 * Calculate Automatic Mode.
 	 * 
-	 * @param esh                        the {@link EnergyScheduleHandlerV1}
-	 * @param sum                        the {@link Sum}
-	 * @param ess                        the {@link ManagedSymmetricEss}
-	 * @param maxChargePowerFromGrid     the configured max charge from grid power
-	 * @param limitChargePowerFor14aEnWG Limit Charge Power for §14a EnWG
+	 * @param esh                    the {@link EnergyScheduleHandlerV1}
+	 * @param sum                    the {@link Sum}
+	 * @param ess                    the {@link ManagedSymmetricEss}
+	 * @param ctrlLimiter14as        the list of {@link ControllerEssLimiter14a}s
+	 * @param maxChargePowerFromGrid the configured max charge from grid power
 	 * @return {@link ApplyState}
 	 */
 	public static ApplyState calculateAutomaticMode(EnergyScheduleHandlerV1 esh, Sum sum, ManagedSymmetricEss ess,
-			int maxChargePowerFromGrid, boolean limitChargePowerFor14aEnWG) {
+			List<ControllerEssLimiter14a> ctrlLimiter14as, int maxChargePowerFromGrid) {
 		final var targetState = getCurrentPeriodState(esh);
 		final var essChargeInChargeGrid = esh.getCurrentEssChargeInChargeGrid();
+		final var limitChargePowerFor14aEnWG = calculateLimitChargePowerFor14aEnWG(ctrlLimiter14as);
 		return calculateAutomaticMode(sum, ess, essChargeInChargeGrid, maxChargePowerFromGrid,
 				limitChargePowerFor14aEnWG, targetState);
 	}
@@ -85,7 +88,7 @@ public final class UtilsV1 {
 	 * @return {@link ApplyState}
 	 */
 	protected static ApplyState calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer essChargeInChargeGrid,
-			int maxChargePowerFromGrid, boolean limitChargePowerFor14aEnWG, StateMachine targetState) {
+			int maxChargePowerFromGrid, int limitChargePowerFor14aEnWG, StateMachine targetState) {
 		final StateMachine actualState;
 		final Integer setPoint;
 
@@ -99,8 +102,8 @@ public final class UtilsV1 {
 		// Post-process and get actual state
 		final var pwrBalancing = gridActivePower + essActivePower;
 		final var pwrDelayDischarge = calculateDelayDischargePower(ess);
-		final var pwrChargeGrid = calculateChargeGridPower(essChargeInChargeGrid, ess, essActivePower, gridActivePower,
-				maxChargePowerFromGrid, limitChargePowerFor14aEnWG);
+		final var pwrChargeGrid = max(limitChargePowerFor14aEnWG, calculateChargeGridPower(//
+				essChargeInChargeGrid, ess, essActivePower, gridActivePower, maxChargePowerFromGrid));
 		actualState = postprocessRunState(targetState, pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
@@ -128,5 +131,21 @@ public final class UtilsV1 {
 			}
 		}
 		return BALANCING; // Default Fallback
+	}
+
+	/**
+	 * Calculates the limit for §14a EnWG.
+	 * 
+	 * @param ctrlLimiter14as the list of {@link ControllerEssLimiter14a}s
+	 * @return the (negative) charge value or {@link Integer#MIN_VALUE} for no limit
+	 */
+	public static int calculateLimitChargePowerFor14aEnWG(List<ControllerEssLimiter14a> ctrlLimiter14as) {
+		var isLimited = ctrlLimiter14as.stream() //
+				.map(c -> c.getRestrictionMode()) //
+				.anyMatch(r -> r == Boolean.TRUE);
+		if (!isLimited) {
+			return Integer.MIN_VALUE;
+		}
+		return ESS_LIMIT_14A_ENWG; // 4.2 kW
 	}
 }

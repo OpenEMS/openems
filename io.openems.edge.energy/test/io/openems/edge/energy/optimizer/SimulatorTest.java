@@ -35,8 +35,7 @@ public class SimulatorTest {
 			.buildEnergyScheduleHandler(//
 					() -> ESS, //
 					() -> ControlMode.CHARGE_CONSUMPTION, //
-					() -> 20_000 /* maxChargePowerFromGrid */, //
-					() -> false /* limitChargePowerFor14aEnWG */);
+					() -> 20_000 /* maxChargePowerFromGrid */);
 
 	private static enum Esh2State {
 		FOO, BAR;

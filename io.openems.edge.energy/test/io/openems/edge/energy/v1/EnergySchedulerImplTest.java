@@ -2,7 +2,6 @@ package io.openems.edge.energy.v1;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
-import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
@@ -15,10 +14,11 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.common.utils.ReflectionUtils.ReflectionException;
@@ -76,6 +76,7 @@ public class EnergySchedulerImplTest {
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
+				.addReference("timeOfUseTariffController", ctrl) //
 				.addReference("schedulables", List.of(ctrl)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
@@ -100,17 +101,6 @@ public class EnergySchedulerImplTest {
 	}
 
 	/**
-	 * Calls the 'createParams()' method in the {@link OptimizerV1} via Java
-	 * Reflection.
-	 * 
-	 * @param optimizer the {@link OptimizerV1}
-	 * @throws Exception on error
-	 */
-	public static void callCreateParams(OptimizerV1 optimizer) throws Exception {
-		invokeMethodWithoutArgumentsViaReflection(optimizer, "createParams");
-	}
-
-	/**
 	 * Gets the {@link GlobalContextV1} via Java Reflection.
 	 * 
 	 * @param energyScheduler the {@link EnergySchedulerImpl}
@@ -119,6 +109,8 @@ public class EnergySchedulerImplTest {
 	 */
 	public static GlobalContextV1 getGlobalContext(EnergySchedulerImpl energyScheduler) throws Exception {
 		var optimizer = getOptimizer(energyScheduler);
-		return ReflectionUtils.<Supplier<GlobalContextV1>>getValueViaReflection(optimizer, "globalContext").get();
+		return ReflectionUtils
+				.<ThrowingSupplier<GlobalContextV1, OpenemsException>>getValueViaReflection(optimizer, "globalContext")
+				.get();
 	}
 }

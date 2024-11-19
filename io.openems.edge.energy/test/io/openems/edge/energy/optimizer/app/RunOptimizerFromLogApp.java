@@ -60,8 +60,7 @@ public class RunOptimizerFromLogApp {
 			TimeOfUseTariffControllerImpl.buildEnergyScheduleHandler(//
 					() -> ESS, //
 					() -> ControlMode.CHARGE_CONSUMPTION, //
-					() -> /* maxChargePowerFromGrid */ 20_000, //
-					() -> /* limitChargePowerFor14aEnWG */ false));
+					() -> /* maxChargePowerFromGrid */ 20_000));
 
 	/** Insert the full log lines including GlobalSimulationsContext header. */
 	private static final String LOG = """
