@@ -422,6 +422,27 @@ public final class FeneconHomeComponents {
 						.addProperty("mpptPort", "MPPT_" + (mpptPort + 1)) //
 						.build());
 	}
+	
+	/** Creates a goodwe charger component for  a FENECON Home Gen2.
+	 * 
+	 * @param chargerId the id of the charger
+	 * @param pvNumber the string number of the charger
+	 * @param alias the alias for the charger
+	 * @param modbusIdExternal the id of the modbus external
+	 * @param batteryInverterId the battery inver id
+	 * @return the component
+	 */
+	public static EdgeConfig.Component chargerPv(String chargerId, int pvNumber, String alias,
+			final String modbusIdExternal, final String batteryInverterId) {
+		return new EdgeConfig.Component(chargerId, alias,
+				"GoodWe.Charger-PV" + pvNumber, //
+				JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("essOrBatteryInverter.id", batteryInverterId) //
+						.addProperty("modbus.id", modbusIdExternal) //
+						.addProperty("modbusUnitId", 247) //
+						.build());
+	}
 
 	/**
 	 * Creates a default gridOptimizedCharge dependency for a FENECON Home.

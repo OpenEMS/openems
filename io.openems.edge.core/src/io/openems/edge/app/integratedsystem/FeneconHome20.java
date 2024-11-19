@@ -150,7 +150,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 		FEED_IN_SETTING(feedInSetting()), //
 
-		GRID_METER_CATEGORY(gridMeterType()), //
+		GRID_METER_CATEGORY(gridMeterType(GoodWeGridMeterCategory.INTEGRATED_METER)), //
 		CT_RATIO_FIRST(ctRatioFirst(GRID_METER_CATEGORY)), //
 
 		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //

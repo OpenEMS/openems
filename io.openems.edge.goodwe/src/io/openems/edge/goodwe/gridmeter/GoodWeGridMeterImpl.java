@@ -175,7 +175,16 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								this.ignoreZeroAndScaleFactorMinus2), //
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								this.ignoreZeroAndScaleFactor1)));
+								this.ignoreZeroAndScaleFactor1)),
+
+				new FC3ReadRegistersTask(47456, Priority.LOW, //
+						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+				),
+
+				// Cannot be written for GoodWe Gen2
+				new FC6WriteRegisterTask(47456,
+						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+				));
 
 		// Handles different DSP versions
 		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)).thenAccept(dspVersion -> {
@@ -183,12 +192,6 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 				this.handleDspVersion4(protocol);
 			}
 		});
-
-		switch (this.config.goodWeMeterCategory()) {
-		case COMMERCIAL_METER -> this.handleExternalMeter(protocol);
-		case SMART_METER -> {
-		}
-		}
 
 		return protocol;
 	}
@@ -218,30 +221,10 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 										createAdjustCurrentSign(this.getActivePowerL3Channel()::getNextValue))))); //
 	}
 
-	private void handleExternalMeter(ModbusProtocol protocol) {
-
-		protocol.addTask(//
-				new FC6WriteRegisterTask(47456,
-						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
-				)); //
-
-		protocol.addTask(//
-				new FC3ReadRegistersTask(47456, Priority.LOW, //
-						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
-				)); //
-	}
-
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-
-			switch (this.config.goodWeMeterCategory()) {
-			case COMMERCIAL_METER -> this.setExternalMeterValue();
-			case SMART_METER -> {
-			}
-			}
-		}
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> this.handleMeterRatio();
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
 		}
 	}
@@ -249,9 +232,13 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Set channel for external meter if configured.
 	 */
-	protected void setExternalMeterValue() {
-		final var meterCtRatio = calculateRatio(this.config.externalMeterRatioValueA(),
-				this.config.externalMeterRatioValueB());
+	private void handleMeterRatio() {
+		Integer meterCtRatio = switch (this.config.goodWeMeterCategory()) {
+		case COMMERCIAL_METER ->
+			calculateRatio(this.config.externalMeterRatioValueA(), this.config.externalMeterRatioValueB());
+		case INTEGRATED_METER -> 90;
+		case SMART_METER -> 3000;
+		};
 
 		try {
 			ChannelUtils.setWriteValueIfNotRead(this.getExternalMeterRatioChannel(), meterCtRatio);

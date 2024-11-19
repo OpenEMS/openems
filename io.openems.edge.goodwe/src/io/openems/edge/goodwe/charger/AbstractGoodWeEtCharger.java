@@ -90,7 +90,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		if (goodWe != null) {
 			hasNoDcPv = switch (goodWe.getGoodweType().getSeries()) {
 			case BT -> true;
-			case ET, ETT -> false;
+			case ET, ETT, EUB -> false;
 			case UNDEFINED -> null;
 			};
 		}

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.google.gson.JsonPrimitive;
+
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
@@ -112,16 +114,48 @@ public final class IntegratedSystemProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for the type of the grid meter.
+	 * Creates a {@link AppDef} for feed in setting for the checkbox of a dcpv.
 	 * 
+	 * @param number the number which dc pv it is
 	 * @return the created {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridMeterType() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> hasDcPv(int number) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Home.hasDcPV" + number + ".label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the alias of a dcpv charger.
+	 * 
+	 * @param number  the number which dc pv it is
+	 * @param hasDcPv the property for the hasDcPv
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> dcPvAlias(int number, Nameable hasDcPv) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Home.dcPv" + number + ".alias.label") //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive("DC-PV" + number);
+				}) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(hasDcPv).notNull());
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the type of the grid meter.
+	 * 
+	 * @param exclude Category to be excluded
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridMeterType(GoodWeGridMeterCategory... exclude) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.gridMeterType.label") //
 				.setDefaultValue(GoodWeGridMeterCategory.SMART_METER) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(GoodWeGridMeterCategory.class), l);
+					field.setOptions(OptionsFactory.of(GoodWeGridMeterCategory.class, exclude), l);
 				}));
 	}
 
