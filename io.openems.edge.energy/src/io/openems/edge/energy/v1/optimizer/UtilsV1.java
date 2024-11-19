@@ -270,9 +270,9 @@ public final class UtilsV1 {
 		if (!schedule.isEmpty()) {
 			toTime = schedule.lastKey();
 		} else {
-			var pricesPerQuarter = timeOfUseTariff.getPrices().pricePerQuarter;
-			if (!pricesPerQuarter.isEmpty()) {
-				toTime = pricesPerQuarter.lastKey();
+			var lastTime = timeOfUseTariff.getPrices().getLastTime();
+			if (lastTime != null) {
+				toTime = lastTime;
 			} else {
 				toTime = fromTime;
 			}

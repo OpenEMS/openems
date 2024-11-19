@@ -11,7 +11,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,6 +23,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.OpenemsEdgeOem;
@@ -283,7 +284,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData, PriceComponents priceComponent)
 			throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
 		var data = getAsJsonArray(parseToJsonObject(jsonData), "records");
 		for (var element : data) {
 			// Cent/kWh -> Currency/MWh
@@ -304,7 +305,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 				result.put(startTimeStamp.plusMinutes(minutes), marketPrice);
 			}
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	@Override

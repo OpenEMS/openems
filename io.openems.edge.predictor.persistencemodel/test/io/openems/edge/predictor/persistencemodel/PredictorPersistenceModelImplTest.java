@@ -62,7 +62,7 @@ public class PredictorPersistenceModelImplTest {
 		assertEquals((Integer) 6, p[21]);
 		assertEquals((Integer) 146, p[22]);
 		assertEquals((Integer) 297, p[23]);
-		assertEquals(190, prediction.valuePerQuarter.size());
+		assertEquals(190, prediction.asArray().length);
 	}
 
 	@Test
