@@ -152,6 +152,15 @@ export namespace Currency {
     }
   }
 
+  export function getChartCurrencyLabel(currency: string) {
+    switch (currency) {
+      case "SEK":
+        return Unit.OERE;
+      default:
+        return Unit.CENT;
+    }
+  }
+
   export enum Label {
     OERE_PER_KWH = "Öre/kWh",
     CENT_PER_KWH = "Cent/kWh",
@@ -159,6 +168,7 @@ export namespace Currency {
 
   export enum Unit {
     CENT = "Cent",
+    OERE = "Öre",
   }
 }
 
