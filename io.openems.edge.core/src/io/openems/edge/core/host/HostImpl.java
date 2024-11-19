@@ -1,8 +1,10 @@
 package io.openems.edge.core.host;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,12 +30,15 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
 import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdateRequest;
+import io.openems.edge.core.host.jsonrpc.GetIpAddresses;
+import io.openems.edge.core.host.jsonrpc.GetIpAddresses.Response;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigResponse;
 import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateRequest;
@@ -180,6 +185,20 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 			return this.handleExecuteSystemRestartRequest(call.get(EdgeKeys.USER_KEY),
 					ExecuteSystemRestartRequest.from(call.getRequest())).get();
 		});
+
+		builder.handleRequest(new GetIpAddresses(), endpoint -> {
+			endpoint.setDescription("""
+					Gets the current ip addresses.
+					""".stripIndent());
+
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+		}, call -> new Response(this.getSystemIPs()));
+
+	}
+
+	@Override
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		return this.operatingSystem.getSystemIPs();
 	}
 
 	/**

@@ -1,6 +1,10 @@
 package io.openems.edge.common.host;
 
+import java.net.Inet4Address;
+import java.util.List;
+
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -95,6 +99,14 @@ public interface Host extends OpenemsComponent {
 		this.getHostnameChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets all the IPs of the current system.
+	 * 
+	 * @return A list of all the IPs
+	 * @throws OpenemsNamedException exception
+	 */
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException;
+	
 	/**
 	 * Gets the Channel for {@link ChannelId#OS_VERSION}.
 	 *
