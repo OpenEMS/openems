@@ -15,11 +15,11 @@ public class Efficiency {
 	 */
 	public static long apply(long value, double efficiencyPercent) {
 		if (value <= 0) { // charge
-			return multiplyEfficiency(value, efficiencyPercent);
+			return multiplyByEfficiency(value, efficiencyPercent);
 		}
 
 		// discharge
-		return divideEfficiency(value, efficiencyPercent);
+		return divideByEfficiency(value, efficiencyPercent);
 	}
 
 	/**
@@ -36,18 +36,18 @@ public class Efficiency {
 	 */
 	public static long unapply(long value, double efficiencyPercent) {
 		if (value <= 0) { // charge
-			return divideEfficiency(value, efficiencyPercent);
+			return divideByEfficiency(value, efficiencyPercent);
 		}
 
 		// discharge
-		return multiplyEfficiency(value, efficiencyPercent);
+		return multiplyByEfficiency(value, efficiencyPercent);
 	}
 
-	private static long divideEfficiency(long value, double efficiencyPercent) {
+	private static long divideByEfficiency(long value, double efficiencyPercent) {
 		return Math.round(value / (efficiencyPercent / 100));
 	}
 
-	private static long multiplyEfficiency(long value, double efficiencyPercent) {
+	private static long multiplyByEfficiency(long value, double efficiencyPercent) {
 		return Math.round(value * efficiencyPercent / 100);
 	}
 }

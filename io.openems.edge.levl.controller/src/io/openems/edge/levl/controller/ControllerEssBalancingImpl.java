@@ -252,6 +252,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 		// apply ess power limits
 		pucBatteryPower = max(min(pucBatteryPower, maxEssPower), minEssPower);
+		pucBatteryPower = (int) this.applyBound(pucBatteryPower, minEssPower, maxEssPower);
 		this.log.debug("pucBatteryPower with ess power limits: " + pucBatteryPower);
 
 		// apply soc bounds
@@ -273,11 +274,10 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 */
 	protected int applyPucSocBounds(int pucPower, long pucSocWs, long essCapacityWs, double efficiency,
 			double cycleTimeS) {
-		// efficiency = 50
 		var dischargeEnergyLowerBoundWs = pucSocWs - essCapacityWs;
 		var dischargeEnergyUpperBoundWs = pucSocWs;
 
-		var powerLowerBound = Efficiency.unapply(round(dischargeEnergyLowerBoundWs / cycleTimeS), efficiency); 
+		var powerLowerBound = Efficiency.unapply(round(dischargeEnergyLowerBoundWs / cycleTimeS), efficiency);
 		var powerUpperBound = Efficiency.unapply(round(dischargeEnergyUpperBoundWs / cycleTimeS), efficiency);
 
 		if (powerLowerBound > 0) {
@@ -586,7 +586,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	private boolean hasSignChanged(long a, long b) {
 		return a < 0 && b > 0 || a > 0 && b < 0;
 	}
-	
+
 	private long applyBound(long power, long lowerBound, long upperBound) {
 		return max(min(power, upperBound), lowerBound);
 	}

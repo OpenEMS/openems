@@ -27,11 +27,8 @@ public class LevlControlRequest {
 	protected double efficiencyPercent;
 	protected boolean influenceSellToGrid;
 	
-	public LevlControlRequest() {
-		
-	}
 	
-	public LevlControlRequest(JsonObject params) throws OpenemsError.OpenemsNamedException {
+	protected LevlControlRequest(JsonObject params) throws OpenemsError.OpenemsNamedException {
 		try {
 			this.parseFields(params);
 		} catch (NullPointerException e) {
@@ -46,9 +43,14 @@ public class LevlControlRequest {
 			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be <= 100");
 		}
 	}
+	
+	//Just for testing
+	protected LevlControlRequest() {
+		
+	}
 
 	//Just for testing
-	public LevlControlRequest(int sellToGridLimitW, int buyFromGridLimitW, String levlRequestId, String timestamp,
+	protected LevlControlRequest(int sellToGridLimitW, int buyFromGridLimitW, String levlRequestId, String timestamp,
 			long energyWs, LocalDateTime start, LocalDateTime deadline, int levlSocWh, int socLowerBoundPercent,
 			int socUpperBoundPercent, double efficiencyPercent, boolean influenceSellToGrid) {
 		this.sellToGridLimitW = sellToGridLimitW;
@@ -66,7 +68,7 @@ public class LevlControlRequest {
 	}
 
 	//Just for testing
-	public LevlControlRequest(int startDelay, int duration) {
+	protected LevlControlRequest(int startDelay, int duration) {
 		this.start = LocalDateTime.now(LevlControlRequest.clock).plusSeconds(startDelay);
 		this.deadline = this.start.plusSeconds(duration);
 	}
@@ -78,7 +80,7 @@ public class LevlControlRequest {
 	 * @return the levl control request
 	 * @throws OpenemsNamedException on error
 	 */
-	public static LevlControlRequest from(JsonrpcRequest request) throws OpenemsNamedException {
+	protected static LevlControlRequest from(JsonrpcRequest request) throws OpenemsNamedException {
 		var params = request.getParams();
 		return new LevlControlRequest(params);
 	}
