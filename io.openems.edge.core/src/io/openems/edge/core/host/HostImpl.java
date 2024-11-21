@@ -78,8 +78,6 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 				OpenemsComponent.ChannelId.values(), //
 				Host.ChannelId.values() //
 		);
-		
-		log.info(System.getProperty("os.name"));
 
 		// Initialize correct Operating System handler
 		if (System.getProperty("os.name").startsWith("Windows")) {
