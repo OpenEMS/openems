@@ -29,7 +29,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     };
 
     protected get thresholdDelta() {
-        var delta = this.highThresholdValue - this.lowThresholdValue;
+        const delta = this.highThresholdValue - this.lowThresholdValue;
         return delta < 0 ? 0 : delta;
     }
 
