@@ -50,14 +50,14 @@ export class LiveComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected updateMasonryLayout() {
-    this.masonry.reloadItems();
-    this.masonry.layout();
-  }
-
   public ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+  }
+
+  protected updateMasonryLayout() {
+    this.masonry.reloadItems();
+    this.masonry.layout();
   }
 
   protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => {
