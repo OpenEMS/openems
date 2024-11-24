@@ -49,4 +49,48 @@ public class DummySum extends AbstractDummyOpenemsComponent<DummySum> implements
 		return this.self();
 	}
 
+	/**
+	 * Set {@link Sum.ChannelId#ESS_CAPACITY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssCapacity(int value) {
+		withValue(this, Sum.ChannelId.ESS_CAPACITY, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#ESS_SOC}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssSoc(int value) {
+		withValue(this, Sum.ChannelId.ESS_SOC, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#ESS_MIN_DISCHARGE_POWER}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssMinDischargePower(int value) {
+		withValue(this, Sum.ChannelId.ESS_MIN_DISCHARGE_POWER, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#ESS_MAX_DISCHARGE_POWER}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssMaxDischargePower(int value) {
+		withValue(this, Sum.ChannelId.ESS_MAX_DISCHARGE_POWER, value);
+		return this.self();
+	}
+
 }

@@ -7,15 +7,18 @@ import static io.openems.edge.core.appmanager.formly.enums.Validation.IP;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ModbusType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
+import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -26,6 +29,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 import io.openems.edge.core.appmanager.formly.expression.Variable;
+import io.openems.edge.core.host.NetworkConfiguration;
 
 public final class CommunicationProps {
 
@@ -56,6 +60,35 @@ public final class CommunicationProps {
 				.setDefaultValue("192.168.178.85") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
 				f.setValidation(IP)));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a ip-address that excludes all IPs of system
+	 * itself.
+	 * 
+	 * @param <APP>   the type of the app
+	 * @param <PROP>  the type of the properties
+	 * @param <PARAM> the type of the parameters
+	 * @return the {@link AppDef}
+	 */
+	public static final <APP extends OpenemsApp & ComponentManagerSupplier & HostSupplier, //
+			PROP extends Nameable, PARAM extends BundleProvider> //
+	AppDef<APP, PROP, PARAM> excludingIp() {
+		return AppDef.copyOfGeneric(ip(),
+				def -> def.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> {
+					try {
+						var ips = app.getHost().getSystemIPs();
+						final var exclusionPattern = ips.stream().map(ip -> ip.getHostAddress())//
+								.map(ip -> ip.replace(".", "\\.")) //
+								.collect(Collectors.joining("|"));
+
+						final var regex = "^(?!.*(?:" + exclusionPattern + ")$)"
+								+ NetworkConfiguration.PATTERN_INET4ADDRESS;
+						f.setValidation(regex, TranslationUtil.getTranslation(param.bundle(), "communication.excludingIp"));
+					} catch (OpenemsNamedException e) {
+						f.setValidation(IP);
+					}
+				}));
 	}
 
 	/**

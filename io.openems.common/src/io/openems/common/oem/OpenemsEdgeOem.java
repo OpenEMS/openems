@@ -133,13 +133,11 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
-	/**
-	 * Gets the OEM Access-Key for Exchangerate.host (used by
-	 * TimeOfUseTariff.ENTSO-E).
-	 * 
-	 * @return the value
-	 */
-	public default String getExchangeRateAccesskey() {
+	public record OAuthClientRegistration(String clientId, String clientSecret) {
+	}
+
+	public default OAuthClientRegistration getRabotChargeCredentials() {
 		return null;
 	}
+
 }

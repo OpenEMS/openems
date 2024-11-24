@@ -1,6 +1,5 @@
 import { NgModule } from "@angular/core";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
-
 import { SharedModule } from "../../shared/shared.module";
 import { ChpSocChartComponent } from "./chpsoc/chart.component";
 import { ChpSocWidgetComponent } from "./chpsoc/widget.component";
@@ -9,9 +8,6 @@ import { Controller } from "./Controller/controller.module";
 import { DelayedSellToGridChartComponent } from "./delayedselltogrid/chart.component";
 import { DelayedSellToGridChartOverviewComponent } from "./delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
 import { DelayedSellToGridWidgetComponent } from "./delayedselltogrid/widget.component";
-import { HeatingelementChartComponent } from "./heatingelement/chart.component";
-import { HeatingelementChartOverviewComponent } from "./heatingelement/heatingelementchartoverview/heatingelementchartoverview.component";
-import { HeatingelementWidgetComponent } from "./heatingelement/widget.component";
 import { HeatPumpChartComponent } from "./heatpump/chart.component";
 import { HeatPumpChartOverviewComponent } from "./heatpump/heatpumpchartoverview/heatpumpchartoverview.component";
 import { HeatpumpWidgetComponent } from "./heatpump/widget.component";
@@ -36,10 +32,10 @@ import { StorageComponent } from "./storage/widget.component";
 
 @NgModule({
   imports: [
-    SharedModule,
     Common,
     Controller,
     HistoryDataErrorModule,
+    SharedModule,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -50,13 +46,11 @@ import { StorageComponent } from "./storage/widget.component";
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
-    HeatingelementChartComponent,
-    HeatingelementChartOverviewComponent,
-    HeatingelementWidgetComponent,
     HeatPumpChartComponent,
     HeatPumpChartOverviewComponent,
     HeatpumpWidgetComponent,
     HistoryComponent,
+    HistoryParentComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,
     StorageChartOverviewComponent,
@@ -70,7 +64,6 @@ import { StorageComponent } from "./storage/widget.component";
     TimeslotPeakshavingChartComponent,
     TimeslotPeakshavingChartOverviewComponent,
     TimeslotPeakshavingWidgetComponent,
-    HistoryParentComponent,
   ],
 })
 export class HistoryModule { }

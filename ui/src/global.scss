@@ -417,10 +417,24 @@ ion-modal.full-width {
     border: 2px solid $primary-color;
 }
 
+ion-avatar.iconify {
+    margin-inline-end: 32px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    --border-radius: 0;
+    max-height: 24px;
+    max-width: 24px;
+}
+
+ion-avatar.iconify.icon-large {
+    max-height: 32px;
+    max-width: 32px;
+}
+
 .masonry-grid {
     display: block;
-        margin: 0 auto;
-        width: 100%;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .masonry-sizer {
@@ -436,6 +450,6 @@ ion-modal.full-width {
 
 @media (max-width: 992px) {
     .masonry-item {
-            width: 100%;
+        width: 100%;
     }
 }

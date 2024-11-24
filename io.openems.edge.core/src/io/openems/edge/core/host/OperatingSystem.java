@@ -1,5 +1,7 @@
 package io.openems.edge.core.host;
 
+import java.net.Inet4Address;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.exceptions.NotImplementedException;
@@ -60,5 +62,20 @@ public interface OperatingSystem {
 	 */
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteSystemRestartRequest(
 			ExecuteSystemRestartRequest request) throws NotImplementedException;
+
+	/**
+	 * Gets the System IPs.
+	 * 
+	 * @return a list of all ips of the system
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException;
+	
+	/**
+	 * Gets the current operating system version.
+	 * 
+	 * @return a future with the result
+	 */
+	public CompletableFuture<String> getOperatingSystemVersion();
 
 }

@@ -1,21 +1,20 @@
 package io.openems.edge.core.sum;
 
 import static io.openems.edge.common.test.TestUtils.activateNextProcessImage;
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -25,12 +24,12 @@ public class ExtremeEverValuesTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		var cm = new DummyConfigurationAdmin();
 		var sum = new SumImpl();
 		new ComponentTest(sum) //
 				.addReference("cm", cm) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setGridMinActivePower(0) //
 						.setIgnoreStateComponents() //
@@ -63,14 +62,14 @@ public class ExtremeEverValuesTest {
 		assertEquals(0, getProperty(cm, "gridMinActivePower"));
 
 		// Still the same
-		clock.leap(24, ChronoUnit.HOURS);
+		clock.leap(24, HOURS);
 		withValue(sum, Sum.ChannelId.GRID_ACTIVE_POWER, -100);
 		sut.update(sum, cm);
 		activateNextProcessImage(sum);
 		assertEquals(0, getProperty(cm, "gridMinActivePower"));
 
 		// 24 hours passed -> update config
-		clock.leap(1, ChronoUnit.SECONDS);
+		clock.leap(1, SECONDS);
 		withValue(sum, Sum.ChannelId.GRID_ACTIVE_POWER, -101);
 		sut.update(sum, cm);
 		activateNextProcessImage(sum);
@@ -78,7 +77,7 @@ public class ExtremeEverValuesTest {
 		assertEquals(-101, getProperty(cm, "gridMinActivePower"));
 
 		// Update Channel; not the config
-		clock.leap(1, ChronoUnit.SECONDS);
+		clock.leap(1, SECONDS);
 		withValue(sum, Sum.ChannelId.GRID_ACTIVE_POWER, -101);
 		sut.update(sum, cm);
 		activateNextProcessImage(sum);

@@ -4,6 +4,7 @@ import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTI
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
@@ -41,6 +42,10 @@ public class DummyPredictorManagerTest {
 		assertEquals(EMPTY_PREDICTION, sut.getPrediction(new ChannelAddress("foo", "bar")));
 
 		assertEquals(sut, sut.self());
+
+		assertEquals(9, sut.getPrediction(SUM_CONSUMPTION_ACTIVE_POWER).getAt(now).intValue());
+		assertEquals(9, sut.getPrediction(SUM_CONSUMPTION_ACTIVE_POWER)
+				.getAt(now.withZoneSameInstant(ZoneId.of("Europe/Berlin"))).intValue());
 	}
 
 }

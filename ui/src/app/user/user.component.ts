@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, effect } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -56,7 +56,7 @@ export class UserComponent implements OnInit {
       disabled: true,
     },
   }];
-  protected readonly companyInformationFields: FormlyFieldConfig[] = [];
+  protected companyInformationFields: FormlyFieldConfig[] = [];
 
   protected isAtLeastAdmin: boolean = false;
 
@@ -65,92 +65,22 @@ export class UserComponent implements OnInit {
     public service: Service,
     private route: ActivatedRoute,
     private websocket: Websocket,
-  ) { }
+  ) {
+    effect(() => {
+      const user = this.service.currentUser();
+
+      if (user) {
+        this.isAtLeastAdmin = Role.isAtLeast(user.globalRole, Role.ADMIN);
+        this.updateUserInformation();
+      }
+    });
+  }
 
   ngOnInit() {
     // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
 
-    this.service.getCurrentUser().then(user => {
-      this.isAtLeastAdmin = Role.isAtLeast(user.globalRole, Role.ADMIN);
-    });
-
-    this.getUserInformation().then((userInformation) => {
-      this.form = {
-        formGroup: new FormGroup({}),
-        model: userInformation,
-      };
-
-      const baseInformationFields: FormlyFieldConfig[] = [{
-        key: "street",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.street"),
-          disabled: true,
-        },
-      },
-      {
-        key: "zip",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.zip"),
-          disabled: true,
-        },
-      },
-      {
-        key: "city",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.city"),
-          disabled: true,
-        },
-      },
-      {
-        key: "country",
-        type: "select",
-        props: {
-          label: this.translate.instant("Register.Form.country"),
-          options: COUNTRY_OPTIONS(this.translate),
-          disabled: true,
-        },
-      },
-      {
-        key: "email",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.email"),
-          disabled: true,
-        },
-        validators: {
-          validation: [Validators.email],
-        },
-      },
-      {
-        key: "phone",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.phone"),
-          disabled: true,
-        },
-      }];
-
-      if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
-        this.companyInformationFields.push(
-          {
-            key: "companyName",
-            type: "input",
-            props: {
-              label: this.translate.instant("Register.Form.companyName"),
-              disabled: true,
-            },
-          },
-          ...baseInformationFields,
-        );
-      } else {
-        this.userInformationFields.push(...baseInformationFields);
-      }
-
-    }).then(() => {
+    this.updateUserInformation().then(() => {
       this.service.metadata.subscribe(entry => {
         this.showInformation = true;
       });
@@ -270,5 +200,83 @@ export class UserComponent implements OnInit {
 
     this.currentLanguage = language;
     this.translate.use(language.key);
+  }
+
+  private updateUserInformation(): Promise<void> {
+    return this.getUserInformation().then((userInformation) => {
+      this.form = {
+        formGroup: new FormGroup({}),
+        model: userInformation,
+      };
+
+      const baseInformationFields: FormlyFieldConfig[] = [{
+        key: "street",
+        type: "input",
+        props: {
+          label: this.translate.instant("Register.Form.street"),
+          disabled: true,
+        },
+      },
+      {
+        key: "zip",
+        type: "input",
+        props: {
+          label: this.translate.instant("Register.Form.zip"),
+          disabled: true,
+        },
+      },
+      {
+        key: "city",
+        type: "input",
+        props: {
+          label: this.translate.instant("Register.Form.city"),
+          disabled: true,
+        },
+      },
+      {
+        key: "country",
+        type: "select",
+        props: {
+          label: this.translate.instant("Register.Form.country"),
+          options: COUNTRY_OPTIONS(this.translate),
+          disabled: true,
+        },
+      },
+      {
+        key: "email",
+        type: "input",
+        props: {
+          label: this.translate.instant("Register.Form.email"),
+          disabled: true,
+        },
+        validators: {
+          validation: [Validators.email],
+        },
+      },
+      {
+        key: "phone",
+        type: "input",
+        props: {
+          label: this.translate.instant("Register.Form.phone"),
+          disabled: true,
+        },
+
+      }];
+
+      if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
+        this.companyInformationFields = [{
+          key: "companyName",
+          type: "input",
+          props: {
+            label: this.translate.instant("Register.Form.companyName"),
+            disabled: true,
+          },
+        },
+        ...baseInformationFields,
+        ];
+      } else {
+        this.userInformationFields = baseInformationFields;
+      }
+    });
   }
 }

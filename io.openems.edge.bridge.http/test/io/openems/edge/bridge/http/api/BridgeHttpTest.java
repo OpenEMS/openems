@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.http.api;
 
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
 import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -14,7 +15,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingFunction;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.BridgeHttpImpl;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -31,8 +31,7 @@ public class BridgeHttpTest {
 	public void before() throws Exception {
 		this.cycleSubscriber = DummyBridgeHttpFactory.cycleSubscriber();
 		this.fetcher = DummyBridgeHttpFactory.dummyEndpointFetcher();
-		this.bridgeHttp = new BridgeHttpImpl(this.cycleSubscriber, this.fetcher,
-				DummyBridgeHttpFactory.dummyBridgeHttpExecutor(new TimeLeapClock(), true));
+		this.bridgeHttp = new BridgeHttpImpl(this.cycleSubscriber, this.fetcher, dummyBridgeHttpExecutor(true));
 	}
 
 	@After

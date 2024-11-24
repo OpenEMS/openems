@@ -22,6 +22,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -90,6 +91,6 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	}
 
 	private void applyConfig(Config config) {
-		this._setCurrency(config.currency().toCurrency());
+		this._setCurrency(Currency.fromCurrencyConfig(config.currency()));
 	}
 }

@@ -11,6 +11,8 @@ import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
 import { BehaviorSubject, Subject } from "rxjs";
 import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
+import { PreviousRouteService } from "./shared/service/previousRouteService";
+import { ArrayUtils } from "./shared/utils/array/array.utils";
 
 @Injectable()
 export class AppService {
@@ -28,6 +30,7 @@ export class AppService {
     private alertCtrl: AlertController,
     private translate: TranslateService,
     private deviceService: DeviceDetectorService,
+    private routeService: PreviousRouteService,
   ) {
     AppService.deviceInfo = this.deviceService.getDeviceInfo();
     AppService.isMobile = this.deviceService.isMobile();
@@ -162,11 +165,26 @@ export class AppService {
 
   private async updateState() {
     const { isActive } = await App.getState();
-
-    if (isActive === true && AppService.isActive?.getValue() === false) {
-      window.location.reload();
-    }
-
+    this.reloadBehavior(isActive);
     AppService.isActive.next(isActive);
   }
+
+  /**
+   * Controls the reload behaviour after app was running in background und got active again
+   *
+   * @param isAppCurrentlyActive is app currently active
+   */
+  private reloadBehavior(isAppCurrentlyActive: boolean) {
+
+    const route = this.routeService.getCurrentUrl();
+    const isForbiddenToReload: boolean = ArrayUtils.containsStrings(route.split("/"), FORBIDDEN_ROUTES_TO_RELOAD);
+
+    if (isAppCurrentlyActive === true
+      && AppService.isActive?.getValue() === false
+      && !isForbiddenToReload) {
+      window.location.reload();
+    }
+  }
 }
+
+export const FORBIDDEN_ROUTES_TO_RELOAD: string[] = ["login", "installation", "index"];

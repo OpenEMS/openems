@@ -69,8 +69,7 @@ public interface GoodWe extends OpenemsComponent {
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		AC_OUTPUT_TYPE(Doc.of(OutputTypeAC.values())), //
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.accessMode(AccessMode.READ_WRITE)),
+				.persistencePriority(PersistencePriority.HIGH)),
 		EMS_CHECK_INVERTER_OPERATION_STATUS(Doc.of(EmsCheck.values())), //
 		DSP_FM_VERSION_MASTER(Doc.of(OpenemsType.INTEGER)), //
 		DSP_FM_VERSION_SLAVE(Doc.of(OpenemsType.INTEGER)), //
@@ -87,13 +86,13 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT)), //
 		I_PV3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE)), //
-		P_PV3(Doc.of(OpenemsType.INTEGER) //
+		P_PV3(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT)), //
 		V_PV4(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
 		I_PV4(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE)), //
-		P_PV4(Doc.of(OpenemsType.INTEGER) //
+		P_PV4(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT)), //
 		PV_MODE(Doc.of(PvMode.values())), //
 		TOTAL_INV_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -1312,8 +1311,16 @@ public interface GoodWe extends OpenemsComponent {
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		RIPPLE_CONTROL_RECEIVER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE)), //
+		/**
+		 * Enable block used for multiple remote functions.
+		 * 
+		 * <p>
+		 * DRED, Remote shutdown and RCR function must be enabled with one register.
+		 * Depending on the hardware installation each function is activated
+		 * individually.
+		 */
+		DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE)), // 
 
 		DEBUG_EMS_POWER_MODE(Doc.of(EmsPowerMode.values())), //
 		DEBUG_EMS_POWER_SET(Doc.of(OpenemsType.INTEGER)), //

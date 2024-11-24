@@ -146,7 +146,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.chargePower"),
+                label: this.translate.instant("General.CHARGE"),
                 data: essChargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -159,7 +159,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.dischargePower"),
+                label: this.translate.instant("General.DISCHARGE"),
                 data: essDischargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,

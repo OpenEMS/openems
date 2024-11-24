@@ -8,14 +8,12 @@ import io.openems.edge.common.test.DummyComponentManager;
 
 public class SimulatorDatasourceSingleDirectImplTest {
 
-	private static final String COMPONENT_ID = "datasource0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new SimulatorDatasourceSingleDirectImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("datasource0") //
 						.setTimeDelta(0) //
 						.setValues() //
 						.build()) //

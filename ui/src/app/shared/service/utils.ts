@@ -4,7 +4,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -347,9 +346,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant("General.dischargePower"), value: power };
+      return { name: translate.instant("General.DISCHARGE"), value: power };
     } else {
-      return { name: translate.instant("General.chargePower"), value: power * -1 };
+      return { name: translate.instant("General.CHARGE"), value: power * -1 };
     }
   }
 
@@ -626,16 +625,17 @@ export class Utils {
 }
 
 export enum YAxisType {
-  NONE,
-  POWER,
-  PERCENTAGE,
-  RELAY,
-  ENERGY,
-  VOLTAGE,
-  REACTIVE,
-  CURRENT,
-  TIME,
   CURRENCY,
+  CURRENT,
+  ENERGY,
+  LEVEL,
+  NONE,
+  PERCENTAGE,
+  POWER,
+  REACTIVE,
+  RELAY,
+  TIME,
+  VOLTAGE,
 }
 
 export enum ChartAxis {
@@ -758,7 +758,7 @@ export namespace HistoryUtils {
     /** Input Channels that need to be queried from the database */
     input: InputChannel[],
     /** Output Channels that will be shown in the chart */
-    output: (data: ChannelData, labels?: Date[]) => DisplayValue<HistoryUtils.CustomOptions>[],
+    output: (data: ChannelData, labels?: (string | Date)[]) => DisplayValue<HistoryUtils.CustomOptions>[],
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,

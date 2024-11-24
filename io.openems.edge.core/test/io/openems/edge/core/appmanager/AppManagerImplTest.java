@@ -18,7 +18,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
-import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
@@ -28,7 +28,7 @@ public class AppManagerImplTest {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
-	private FeneconHome homeApp;
+	private FeneconHome10 homeApp;
 
 	private KebaEvcs kebaEvcsApp;
 	private AwattarHourly awattarApp;
@@ -46,6 +46,7 @@ public class AppManagerImplTest {
 		final var emergencyReserveEnabled = false;
 
 		final var shadowManagmentDisabled = false;
+		final var naProtectionEnabled = false;
 
 		// Battery-Inverter Settings
 		final var safetyCountry = "AUSTRIA";
@@ -130,6 +131,7 @@ public class AppManagerImplTest {
 								.addProperty("feedPowerEnable", "ENABLE") //
 								.addProperty("feedPowerPara", 10000) //
 								.addProperty("controlMode", "SMART") //
+								.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 								.addProperty("setfeedInPowerSettings", "LAGGING_0_95") //
 								.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
 								.addProperty("rcrEnable", "DISABLE") //
@@ -255,6 +257,7 @@ public class AppManagerImplTest {
 										.addProperty("HAS_DC_PV2", false) //
 										.addProperty("EMERGENCY_RESERVE_ENABLED", emergencyReserveEnabled) //
 										.addProperty("SHADOW_MANAGEMENT_DISABLED", shadowManagmentDisabled) //
+										.addProperty("NA_PROTECTION_ENABLED", naProtectionEnabled) //
 										.build()) //
 								.build()) //
 						.add(JsonUtils.buildJsonObject() //
@@ -289,7 +292,7 @@ public class AppManagerImplTest {
 
 		this.appManagerTestBundle = new AppManagerTestBundle(componentConfig, initialConfig, t -> {
 			return ImmutableList.of(//
-					this.homeApp = Apps.feneconHome(t), //
+					this.homeApp = Apps.feneconHome10(t), //
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
 					Apps.prepareBatteryExtension(t), //

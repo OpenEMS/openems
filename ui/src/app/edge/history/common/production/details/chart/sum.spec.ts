@@ -3,7 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
-import { removeFunctions, sharedSetupWithComponentIdRoute, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { EdgeConfig } from "src/app/shared/shared";
 import { DATA, LABELS } from "../../../energy/chart/chart.constants.spec";
 import { History } from "./channels.spec";
@@ -17,7 +17,8 @@ describe("History Production Details - _sum", () => {
 
     let TEST_CONTEXT: TestContext & { route: ActivatedRoute };
     beforeEach(async () => {
-        TEST_CONTEXT = await sharedSetupWithComponentIdRoute("_sum");
+        TEST_CONTEXT = await TestingUtils.setupWithActivatedRoute("_sum");
+
     });
 
     it("#getChartData() - asymmetricMeter && no essDcCharger configured", () => {
@@ -116,10 +117,10 @@ describe("History Production Details - _sum", () => {
 });
 
 export function expectView(config: EdgeConfig, testContext: TestContext & { route: ActivatedRoute }, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
-    expect(removeFunctions(OeChartTester
+    expect(TestingUtils.removeFunctions(OeChartTester
         .apply(SumChartDetailsComponent
             .getChartData(
                 DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), testContext.route,
                 testContext.translate), chartType, channels, testContext, config)))
-        .toEqual(removeFunctions(view));
+        .toEqual(TestingUtils.removeFunctions(view));
 }

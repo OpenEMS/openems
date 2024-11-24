@@ -7,9 +7,9 @@ import { ChartConstants } from "./chart.constants";
 
 describe("Chart constants", () => {
   it("#calculateStepSize", () => {
-    expect(ChartConstants.calculateStepSize(0, 10)).toEqual(2.5);
+    expect(ChartConstants.calculateStepSize(0, 10)).toEqual(2);
     expect(ChartConstants.calculateStepSize(0, null)).toEqual(null);
-    expect(ChartConstants.calculateStepSize(-10, 0)).toEqual(2.5);
+    expect(ChartConstants.calculateStepSize(-10, 0)).toEqual(2);
     expect(ChartConstants.calculateStepSize(undefined, 0)).toEqual(null);
 
     // min higher than max
@@ -26,9 +26,9 @@ describe("Chart constants", () => {
       },
     ];
 
-    expect(ChartConstants.getScaleOptions([], yAxis)).toEqual({ min: null, max: null, stepSize: null });
-    expect(ChartConstants.getScaleOptions(datasets, yAxis)).toEqual({ min: 0, max: 1892, stepSize: 473 });
-    expect(ChartConstants.getScaleOptions(null, yAxis)).toEqual(null);
-    expect(ChartConstants.getScaleOptions(null, null)).toEqual(null);
+    expect(ChartConstants.getScaleOptions([], yAxis, "line")).toEqual({ min: null, max: null, stepSize: null });
+    expect(ChartConstants.getScaleOptions(datasets, yAxis, "line")).toEqual({ min: 62, max: 1892, stepSize: 366 });
+    expect(ChartConstants.getScaleOptions(null, yAxis, "line")).toEqual({ min: null, max: null, stepSize: null });
+    expect(ChartConstants.getScaleOptions(null, null, "line")).toEqual({ min: null, max: null, stepSize: null });
   });
 });

@@ -256,3 +256,28 @@ export type TKeyValue<T> = {
 };
 /**  */
 export type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
+
+type Range<N extends number, Acc extends number[] = []> = Acc["length"] extends N
+  ? Acc[number]
+  : Range<N, [...Acc, Acc["length"]]>;
+
+export type RGBValue = Range<256>; // 0 to 255
+
+export class RGBColor<T extends RGBValue = RGBValue> {
+  private readonly red: T;
+  private readonly green: T;
+  private readonly blue: T;
+
+  constructor(red: T, green: T, blue: T) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+  }
+
+  public toString(): string {
+    if (this.red == null || this.green == null || this.blue == null) {
+      throw new Error("All values need to be valid");
+    }
+    return `rgb(${this.red},${this.green},${this.blue})`;
+  }
+}

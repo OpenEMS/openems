@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.rrd4j;
 
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static java.util.stream.Collectors.toMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +28,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
@@ -80,9 +80,9 @@ public class Rrd4jReadHandlerTest {
 		final var versionHandler = new VersionHandler();
 		versionHandler.bindVersion(version3);
 
-		ReflectionUtils.setAttribute(Rrd4jReadHandler.class, this.readHandler, "componentManager", dcm);
-		ReflectionUtils.setAttribute(Rrd4jReadHandler.class, this.readHandler, "rrd4jSupplier", rrd4jSupplier);
-		ReflectionUtils.setAttribute(Rrd4jSupplier.class, rrd4jSupplier, "versionHandler", versionHandler);
+		setAttributeViaReflection(this.readHandler, "componentManager", dcm);
+		setAttributeViaReflection(this.readHandler, "rrd4jSupplier", rrd4jSupplier);
+		setAttributeViaReflection(rrd4jSupplier, "versionHandler", versionHandler);
 
 	}
 

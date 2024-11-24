@@ -16,8 +16,10 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
+public interface EvcsKebaKeContact
+		extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int UDP_PORT = 7090;
 
@@ -85,34 +87,9 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 		/*
 		 * Report 3
 		 */
-		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.text("Voltage on L1")), //
-		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.text("Voltage on L2")), //
-		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.text("Voltage on L3")), //
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L1")), //
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L2")), //
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L3")), //
-		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIWATT) //
-				.text("Total real power")), //
 		COS_PHI(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
 				.text("Power factor")), //
-		ENERGY_TOTAL(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.text("Total power consumption (persistent) without current loading session. "
-						+ "Is summed up after each completed charging session")), //
 		DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 				.text("Dip-Switch 1.3. for communication must be on")), //
@@ -179,19 +156,10 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 				.channel(72, EvcsKebaKeContact.ChannelId.CURR_FAILSAFE, ModbusType.UINT16)
 				.channel(73, EvcsKebaKeContact.ChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
 				.channel(74, EvcsKebaKeContact.ChannelId.CURR_TIMER, ModbusType.UINT16)
-				.channel(75, EvcsKebaKeContact.ChannelId.TIMEOUT_CT, ModbusType.UINT16).uint16Reserved(76)
+				.channel(75, EvcsKebaKeContact.ChannelId.TIMEOUT_CT, ModbusType.UINT16) //
+				.uint16Reserved(76) //
 				.channel(77, EvcsKebaKeContact.ChannelId.OUTPUT, ModbusType.UINT16)
 				.channel(78, EvcsKebaKeContact.ChannelId.INPUT, ModbusType.UINT16)
-
-				// Report 3
-				.channel(79, EvcsKebaKeContact.ChannelId.VOLTAGE_L1, ModbusType.UINT16)
-				.channel(80, EvcsKebaKeContact.ChannelId.VOLTAGE_L2, ModbusType.UINT16)
-				.channel(81, EvcsKebaKeContact.ChannelId.VOLTAGE_L3, ModbusType.UINT16)
-				.channel(82, EvcsKebaKeContact.ChannelId.CURRENT_L1, ModbusType.UINT16)
-				.channel(83, EvcsKebaKeContact.ChannelId.CURRENT_L2, ModbusType.UINT16)
-				.channel(84, EvcsKebaKeContact.ChannelId.CURRENT_L3, ModbusType.UINT16)
-				.channel(85, EvcsKebaKeContact.ChannelId.ACTUAL_POWER, ModbusType.UINT16)
-				.channel(86, EvcsKebaKeContact.ChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
-				.channel(88, EvcsKebaKeContact.ChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
+				.build();
 	}
 }
