@@ -82,6 +82,8 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		// Initialize correct Operating System handler
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			this.operatingSystem = new OperatingSystemWindows();
+		} else if (System.getProperty("os.name").startsWith("Mac")) {
+			this.operatingSystem = new OperatingSystemMac();
 		} else {
 			this.operatingSystem = new OperatingSystemDebianSystemd(this);
 		}
