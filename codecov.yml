@@ -10,7 +10,11 @@ coverage:
     project:
       default:
         target: auto
-        threshold: '2'
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 2%
 
 comment:
   layout: "condensed_header, diff"
