@@ -1,3 +1,8 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
 coverage:
   round: up
   precision: 2
@@ -5,7 +10,7 @@ coverage:
     project:
       default:
         target: auto
-        threshold: 10%
+        threshold: '2'
 
 comment:
   layout: "condensed_header, diff"
