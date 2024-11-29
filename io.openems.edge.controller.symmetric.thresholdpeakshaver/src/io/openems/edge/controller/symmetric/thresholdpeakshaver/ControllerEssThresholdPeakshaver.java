@@ -35,12 +35,16 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 		 */
 		ESS_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT).persistencePriority(HIGH)),
-		PEAK_SHAVED_POWER(Doc.of(OpenemsType.INTEGER)//
+		PEAK_SHAVING_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT).persistencePriority(HIGH)),
+		PEAK_SHAVING_ENERGY(Doc.of(OpenemsType.INTEGER)// Energy used for peak shaving
+				.unit(Unit.WATT_HOURS).persistencePriority(HIGH)),				
 		PEAK_SHAVING_TARGET_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT).persistencePriority(HIGH)),
+		RECHARGED_ENERGY(Doc.of(OpenemsType.INTEGER)// Energy used for peak shaving
+				.unit(Unit.WATT_HOURS).persistencePriority(HIGH)),			
 		GRID_POWER_WITHOUT_PEAK_SHAVING(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)),;
+				.unit(Unit.WATT).persistencePriority(HIGH));
 
 		;
 
@@ -183,23 +187,92 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 	public default void _setGridPowerWithoutPeakShaving(Integer value) {
 		this.getGridPowerWithoutPeakShavingChannel().setNextValue(value);
 	}
+	
+
+	// ----------------------------------------
+	// PeakShaving Energy Channel
+	// ----------------------------------------
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PEAK_SHAVING_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getPeakShavingEnergyChannel() {
+		return this.channel(ChannelId.PEAK_SHAVING_ENERGY);
+	}
+
+	/**
+	 * Gets the current energy value used for peak shaving. See
+	 * {@link ChannelId#PEAK_SHAVING_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Integer getPeakShavingEnergy() {
+		return this.getPeakShavingEnergyChannel().value().get();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVING_ENERGY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPeakShavingEnergy(Integer value) {
+		this.getPeakShavingEnergyChannel().setNextValue(value);
+	}
+	
+
+	// ----------------------------------------
+	// Recharge Energy Channel
+	// ----------------------------------------
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RECHARGED_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getRechargedEnergyChannel() {
+		return this.channel(ChannelId.RECHARGED_ENERGY);
+	}
+
+	/**
+	 * Gets the current energy value used for peak shaving. See
+	 * {@link ChannelId#RECHARGED_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Integer getRechargedEnergy() {
+		return this.getRechargedEnergyChannel().value().get();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RECHARGED_ENERGY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRechargedEnergy(Integer value) {
+		this.getRechargedEnergyChannel().setNextValue(value);
+	}
+		
 
 	// ----------------------------------------
 	// PeakShavedPower Channel
 	// ----------------------------------------
 
 	/**
-	 * Gets the Channel for {@link ChannelId#PEAK_SHAVED_POWER}.
+	 * Gets the Channel for {@link ChannelId#PEAK_SHAVING_POWER}.
 	 *
 	 * @return the Channel
 	 */
 	public default Channel<Integer> getPeakShavedPowerChannel() {
-		return this.channel(ChannelId.PEAK_SHAVED_POWER);
+		return this.channel(ChannelId.PEAK_SHAVING_POWER);
 	}
 
 	/**
 	 * Gets the current value of Peak Shaved Grid Power. See
-	 * {@link ChannelId#PEAK_SHAVED_POWER}.
+	 * {@link ChannelId#PEAK_SHAVING_POWER}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -208,12 +281,12 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVED_POWER}
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVING_POWER}
 	 * Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setPeakShavedPower(Integer value) {
+	public default void _setPeakShavingPower(Integer value) {
 		this.getPeakShavedPowerChannel().setNextValue(value);
 	}
 
@@ -265,7 +338,7 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 
 	/**
 	 * Gets the current value of Peak Shaved Grid Power. See
-	 * {@link ChannelId#PEAK_SHAVED_POWER}.
+	 * {@link ChannelId#PEAK_SHAVING_POWER}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -274,7 +347,7 @@ public interface ControllerEssThresholdPeakshaver extends Controller, OpenemsCom
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVED_POWER}
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PEAK_SHAVING_POWER}
 	 * Channel.
 	 *
 	 * @param value the next value

@@ -55,7 +55,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 const propertyPeakshavingPower = this.componentId + "/_PropertyPeakShavingPower";
                 const propertyRechargePower = this.componentId + "/_PropertyRechargePower";
                 const stateMachine = this.componentId + "/StateMachine";
-                const peakShavedPower = this.componentId + "/PeakShavedPower";
+                const peakShavedPower = this.componentId + "/PeakShavingPower";
                 const peakShavingTargetPower = this.componentId + "/PeakShavingTargetPower";
                 const essSoc = this.componentId + "/EssSoc";
                 const essPower = this.componentId + "/EssPower";
@@ -364,7 +364,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                 new ChannelAddress(this.componentId, "_PropertyPeakShavingThresholdPower"),
                 new ChannelAddress(this.componentId, "_PropertyPeakShavingPower"),
                 new ChannelAddress(this.componentId, "StateMachine"),
-                new ChannelAddress(this.componentId, "PeakShavedPower"),
+                new ChannelAddress(this.componentId, "PeakShavingPower"),
                 new ChannelAddress(this.componentId, "PeakShavingTargetPower"),
                 new ChannelAddress(this.componentId, "EssSoc"),
                 new ChannelAddress(this.componentId, "EssPower"),

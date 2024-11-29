@@ -10,7 +10,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,9 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
-
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 import io.openems.edge.common.sum.GridMode;
 
@@ -35,7 +39,7 @@ import io.openems.edge.common.sum.GridMode;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsComponent
-		implements ControllerEssThresholdPeakshaver, Controller, OpenemsComponent {
+		implements ControllerEssThresholdPeakshaver, Controller, OpenemsComponent, TimedataProvider {
 
 	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
@@ -65,8 +69,17 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 	private Instant peakshavingStartTime = Instant.MIN;
 
-	private int maxEssPower = 0;
+	private Integer maxEssPower = 0;
 	private AverageCalculator gridPowerAverageCalculator = new AverageCalculator(5);
+
+	private final CalculateEnergyFromPower calculatePeakShavingEnergy = new CalculateEnergyFromPower(this,
+			ControllerEssThresholdPeakshaver.ChannelId.PEAK_SHAVING_ENERGY);
+	
+	private final CalculateEnergyFromPower calculateRechargedEnergy = new CalculateEnergyFromPower(this,
+			ControllerEssThresholdPeakshaver.ChannelId.RECHARGED_ENERGY);	
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private volatile Timedata timedata = null;
 
 	public ControllerEssThresholdPeakshaverImpl() {
 		super(//
@@ -92,12 +105,13 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		// Log warnings or handle errors if components are not available
 		if (this.ess == null) {
 			this.logError(this.log, "ESS component is not available.");
-		}
+		} 
+		
 		if (this.meter == null) {
 			this.logError(this.log, "Meter component is not available.");
 		}
 
-		this.maxEssPower = this.ess.getMaxApparentPower().get();
+		
 
 	}
 
@@ -113,7 +127,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
-		
+
 		/*
 		 * A 5 point average is used to start controller´s timer.
 		 */
@@ -122,12 +136,12 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		// Save grid power without peakshaving
 		this._setGridPowerWithoutPeakShaving(gridPower);
 
-		int calculatedPower;
+		int calculatedPower = 0;
 
-		//Integer essRealPower = this.ess.getActivePower().get();
+		// Integer essRealPower = this.ess.getActivePower().get();
 		Integer essRealPower = this.getEssChargePower().get();
 		Integer essSoc = this.ess.getSoc().get();
-		
+
 		switch (this.state) {
 		case UNDEFINED:
 			if (this.checkEnvironment() == false) {
@@ -164,7 +178,6 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				break;
 			}
 
-
 			// If grid power average is above threshold update timer
 			if (gridPowerAverageCalculator.getAverage() > this.config.peakShavingThresholdPower()) {
 				this.peakshavingStartTime = Instant.now(this.componentManager.getClock()); // Start timer
@@ -181,8 +194,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 				if (essRealPower == 0 && calculatedPower > 0) { // assume ESS is 'empty'
 					this.changePeakshavingState(PeakshavingState.DISCHARGING_FAILS);
-					this._setPeakShavedPower(0); //
-					break;
+					this._setPeakShavingPower(0); //
 				}
 
 				if (calculatedPower > this.maxEssPower) {
@@ -199,13 +211,20 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 					}
 
 				}
+				if (essRealPower > 0) {
+					this.calculatePeakShavingEnergy.update(essRealPower); // Energy used for peakshaving	
+				} else {
+					this.calculatePeakShavingEnergy.update(0); // Energy used for peakshaving	
+				}
+				
+				this.calculateRechargedEnergy.update(0); // Energy used for re-charging				
 
 			} else if (gridPower <= this.config.rechargePower()) {
 				/*
 				 * Recharge
 				 */
 				calculatedPower = gridPower -= this.config.rechargePower();
-				this._setPeakShavedPower(0); // feed channel
+				this._setPeakShavingPower(0); // feed channel
 
 				if (calculatedPower < 0 && essRealPower == 0) {
 					this.changePeakshavingState(PeakshavingState.CHARGING_FINISHED); // Assume ESS is fully charged
@@ -213,6 +232,14 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 					this.logDebug(this.log, "Peakshaver: Battery Charging");
 					this.changePeakshavingState(PeakshavingState.CHARGING);
 				}
+				this.calculatePeakShavingEnergy.update(0); // Energy used for peakshaing. 0 while re-charging
+				if (essRealPower < 0) {  // only charge power
+					this.logDebug(this.log, "ReChargeEnergyCalculator: " + (essRealPower * -1) + "[W] / " + this.getRechargedEnergy() + "[Wh]");
+					this.calculateRechargedEnergy.update(essRealPower *-1); // Energy used for re-charging	
+				} else {
+					this.calculateRechargedEnergy.update(0);
+				}
+				
 
 			} else {
 				/*
@@ -220,6 +247,8 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				 */
 				calculatedPower = 0; // only 0 if gridPower is above limit or below recharge limit
 				this.changePeakshavingState(PeakshavingState.IDLE);
+				this.calculatePeakShavingEnergy.update(null); // Energy used for peakshaing. NULL while not active
+				this.calculateRechargedEnergy.update(null); // Energy used for re-charging				
 
 			}
 
@@ -232,13 +261,16 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				this.changeState(State.STANDBY);
 
 			}
+
+			// feed channels
 			if (calculatedPower > 0) {
 
 				this._setPeakShavingTargetPower(calculatedPower); // feed the channel
-				this._setPeakShavedPower(Math.min(calculatedPower, essRealPower)); //
+				this._setPeakShavingPower(Math.min(calculatedPower, essRealPower)); //
+
 			} else {
 				this._setPeakShavingTargetPower(0); // feed the channel
-				this._setPeakShavedPower(0); //
+				this._setPeakShavingPower(0); //
 			}
 
 			break;
@@ -247,24 +279,21 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 			break;
 
 		}
-		// save current state
-
+		// save current state / channels
 		if (this.state != State.PEAKSHAVING_ACTIVE) {
 			this._setPeakShavingTargetPower(0); // feed the channel
-			this._setPeakShavedPower(0); //
+			this._setPeakShavingPower(0); //
 		}
 		
 		this._setEssPower(essRealPower);
 		this._setEssSoc(essSoc);
 
-		this.logDebug(this.log,
-				"\n PeakShaver Current State " + this.state.getName() + "\n PeakShaving State "
-						+ this.peakshavingState.getName() + "\n max ESS power " + this.maxEssPower + "VA"
-						+ "\n Current SoC " + this.ess.getSoc().get() + "%" + "\n Current ESS ActivePower "
-						+ essRealPower + "W" + "\n Grid power (without ESS) " + this.getGridPowerWithoutPeakShaving()
-						+ "\n Grid powerAverage " + this.gridPowerAverageCalculator.getAverage()
-						+ "W" + "\n Balancing Target power " + this.getPeakShavingTargetPower() + "W"
-						+ "\n Shaved power " + this.getPeakShavedPower() + "W"
+		this.logDebug(this.log, "\n PeakShaver Current State " + this.state.getName() + "\n PeakShaving State "
+				+ this.peakshavingState.getName() + "\n max ESS power " + this.maxEssPower + "VA" + "\n Current SoC "
+				+ this.ess.getSoc().get() + "%" + "\n Current ESS ActivePower " + essRealPower + "W"
+				+ "\n Grid power (without ESS) " + this.getGridPowerWithoutPeakShaving() + "\n Grid powerAverage "
+				+ this.gridPowerAverageCalculator.getAverage() + "W" + "\n Balancing Target power "
+				+ this.getPeakShavingTargetPower() + "W" + "\n Shaved power " + this.getPeakShavedPower() + "W"
 
 		);
 
@@ -290,6 +319,9 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		if (this.meter == null || this.ess == null) {
 			return false;
 		}
+		
+		this.maxEssPower = this.ess.getMaxApparentPower().get();		
+
 		return true;
 	}
 
@@ -315,7 +347,16 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
-			ess.setActivePowerEqualsWithPid(activePower);
+			this.logDebug(this.log, "PeakShaver applyPower: " + activePower + "[W]");
+			if (activePower == 0) {
+				this.logDebug(this.log, "PeakShaver applyPower with setActivePowerEquals: " + activePower + "[W]");
+				ess.setActivePowerEquals(activePower);
+			} else {
+				this.logDebug(this.log,
+						"PeakShaver applyPower with setActivePowerEqualsWithPid: " + activePower + "[W]");
+				ess.setActivePowerEqualsWithPid(activePower);
+			}
+
 			ess.setReactivePowerEquals(0);
 			this._setCalculatedPower(activePower); // save value to channel
 
@@ -347,7 +388,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		}
 
 	}
-	
+
 	private Value<Integer> getEssChargePower() {
 		if (this.ess instanceof HybridEss hss) {
 			return hss.getDcDischargePower(); // DC Power for hybrid systems. negative values for Charge; positive for
@@ -374,5 +415,10 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 		this._setPeakShavingStateMachine(nextState); // save to channel
 
 		return true;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

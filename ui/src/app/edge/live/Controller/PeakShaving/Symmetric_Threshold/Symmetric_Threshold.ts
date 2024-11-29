@@ -17,7 +17,7 @@ export class Controller_Symmetric_Threshold_PeakShavingComponent extends Abstrac
     public propertyPeakShavingThresholdPower: number;
 
     public peakShavingTargetPower: number;
-    public peakShavedPower: number;
+    public peakShavingPower: number;
     public gridPowerWithoutPeakShaving: number;
     public peakShavingStateMachine: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
@@ -44,7 +44,7 @@ export class Controller_Symmetric_Threshold_PeakShavingComponent extends Abstrac
             new ChannelAddress(this.componentId, "_PropertyPeakShavingPower"),
             new ChannelAddress(this.componentId, "_PropertyRechargePower"),
             new ChannelAddress(this.componentId, "_PropertyPeakShavingThresholdPower"),
-            new ChannelAddress(this.componentId, "PeakShavedPower"),
+            new ChannelAddress(this.componentId, "PeakShavingPower"),
             new ChannelAddress(this.componentId, "PeakShavingTargetPower"),
             new ChannelAddress(this.componentId, "GridPowerWithoutPeakShaving"),
             new ChannelAddress(this.componentId, "PeakShavingStateMachine"),
@@ -59,7 +59,7 @@ export class Controller_Symmetric_Threshold_PeakShavingComponent extends Abstrac
         this.propertyRechargePower = this.component.properties["rechargePower"];
         this.propertyPeakShavingThresholdPower = this.component.properties["peakShavingThresholdPower"];
 
-        this.peakShavedPower = currentData.allComponents[this.componentId + "/PeakShavedPower"] > 0 ? currentData.allComponents[this.componentId + "/PeakShavedPower"] : 0;
+        this.peakShavingPower = currentData.allComponents[this.componentId + "/PeakShavingPower"] > 0 ? currentData.allComponents[this.componentId + "/PeakShavingPower"] : 0;
         this.peakShavingTargetPower = currentData.allComponents[this.componentId + "/PeakShavingTargetPower"] > 0 ? currentData.allComponents[this.componentId + "/PeakShavingTargetPower"] : 0;
         this.gridPowerWithoutPeakShaving = currentData.allComponents[this.componentId + "/GridPowerWithoutPeakShaving"] >= 0 ? currentData.allComponents[this.componentId + "/GridPowerWithoutPeakShaving"] : 0;
         this.peakShavingStateMachine = currentData.allComponents[this.componentId + "/PeakShavingStateMachine"];

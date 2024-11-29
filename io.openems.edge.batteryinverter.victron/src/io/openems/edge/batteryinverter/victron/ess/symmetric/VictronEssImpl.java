@@ -428,8 +428,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		if (activeAcPower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);
-			this.calculateDischargeEnergy.update(null); // Mapped to SunSpec register 103Wh.Energy leaving the
-														// hybrid-system: battery & PV
+			this.calculateDischargeEnergy.update(null); // 
 		} else if (activeAcPower > 0) {
 			// Discharge
 			this.calculateChargeEnergy.update(0);
@@ -437,9 +436,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		} else if (activeAcPower < 0) {
 			// Charge
 			this.calculateChargeEnergy.update(activeAcPower * -1);
-			this.calculateDischargeEnergy.update(activeAcPower);
+			this.calculateDischargeEnergy.update(0);
 		} else {
-			// Charge
+			// Undefined
 			this.calculateChargeEnergy.update(0);
 			this.calculateDischargeEnergy.update(0);
 		}
