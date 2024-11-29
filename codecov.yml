@@ -13,8 +13,7 @@ coverage:
         threshold: 1%
     patch:
       default:
-        target: auto
-        threshold: 2%
+        target: 75%
 
 comment:
   layout: "condensed_header, diff"
