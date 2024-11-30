@@ -1,6 +1,7 @@
 package io.openems.edge.energy;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.Version;
 
 @SuppressWarnings("all")
@@ -11,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean enabled;
 		private LogVerbosity logVerbosity;
 		private Version version;
+		private RiskLevel riskLevel;
 
 		private Builder() {
 		}
@@ -32,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setVersion(Version version) {
 			this.version = version;
+			return this;
+		}
+
+		public Builder setRiskLevel(RiskLevel riskLevel) {
+			this.riskLevel = riskLevel;
 			return this;
 		}
 
@@ -69,5 +76,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Version version() {
 		return this.builder.version;
+	}
+
+	@Override
+	public RiskLevel riskLevel() {
+		return this.builder.riskLevel;
 	}
 }

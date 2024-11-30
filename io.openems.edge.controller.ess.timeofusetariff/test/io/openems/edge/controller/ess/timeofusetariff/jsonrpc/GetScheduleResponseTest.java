@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -28,6 +29,8 @@ import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerI
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
 import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
+import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -65,10 +68,11 @@ public class GetScheduleResponseTest {
 		}
 
 		// Simulate future Schedule
-		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, ess, timedata);
+		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, Version.V2_ENERGY_SCHEDULABLE, ess, timedata);
 		var esh = TimeOfUseTariffControllerImplTest.getEnergyScheduleHandler(ctrl);
-		((AbstractEnergyScheduleHandler<?> /* this is safe */) esh).initialize(new GlobalSimulationsContext(CLOCK, null,
-				null, null, new GlobalSimulationsContext.Ess(0, 0, 0, 0), ImmutableList.of()));
+		((AbstractEnergyScheduleHandler<?> /* this is safe */) esh)
+				.initialize(new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, null, null, null, null, //
+						new GlobalSimulationsContext.Ess(0, 0, 0, 0), ImmutableMap.of(), ImmutableList.of()));
 		esh.applySchedule(ImmutableSortedMap.<ZonedDateTime, Period.Transition>naturalOrder() //
 				.put(now.plusMinutes(0), new Period.Transition(1, 0.1, energyFlow, 5000)) //
 				.put(now.plusMinutes(15), new Period.Transition(0, 0.2, energyFlow, 6000)) //

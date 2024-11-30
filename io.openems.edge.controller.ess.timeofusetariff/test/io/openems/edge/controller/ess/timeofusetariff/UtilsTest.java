@@ -4,12 +4,14 @@ import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyDelayDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeEnergyInChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeGridPower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateEssChargeInChargeGridPower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateMaxChargeProductionPower;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.postprocessSimulatorState;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
@@ -19,13 +21,18 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.EshContext;
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyState;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Ess;
+import io.openems.edge.energy.api.simulation.OneSimulationContext;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -210,15 +217,17 @@ public class UtilsTest {
 	@Test
 	public void testCalculateChargeEnergyInChargeGrid() {
 		assertEquals(1375, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of())));
 
 		assertEquals(525, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of(//
 								new GlobalSimulationsContext.Period.Quarter(TIME, 0, 1000, 0), //
 								new GlobalSimulationsContext.Period.Quarter(TIME, 100, 1100, 0), //
@@ -226,9 +235,10 @@ public class UtilsTest {
 						))));
 
 		assertEquals(538, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of(//
 								new GlobalSimulationsContext.Period.Quarter(TIME, 0, 700, 123), //
 								new GlobalSimulationsContext.Period.Quarter(TIME, 100, 600, 123), //
@@ -241,9 +251,10 @@ public class UtilsTest {
 						))));
 
 		assertEquals(499, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of(//
 								new GlobalSimulationsContext.Period.Quarter(TIME, 0, 700, 120), //
 								new GlobalSimulationsContext.Period.Quarter(TIME, 100, 600, 121), //
@@ -256,4 +267,21 @@ public class UtilsTest {
 						))));
 	}
 
+	@Test
+	public void testPostprocessSimulatorState() {
+		var m = new EnergyFlow.Model(//
+				/* production */ 200, //
+				/* consumption */ 500, //
+				/* essMaxCharge */ 5000, //
+				/* essMaxDischarge */ 0, //
+				/* gridMaxBuy */ 4000, //
+				/* gridMaxSell */ 10000);
+		applyDelayDischarge(m);
+		var ef = m.solve();
+		m.logMinMaxValues();
+		var gsc = new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, null, null, null, new Ess(0, 0, 0, 0),
+				ImmutableMap.of(), null);
+		var osc = OneSimulationContext.from(gsc);
+		assertEquals(BALANCING, postprocessSimulatorState(osc, ef, null, DELAY_DISCHARGE));
+	}
 }

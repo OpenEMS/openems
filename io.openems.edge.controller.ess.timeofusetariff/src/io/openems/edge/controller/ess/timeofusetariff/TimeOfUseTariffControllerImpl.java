@@ -5,6 +5,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeEnergyInChargeGrid;
+import static io.openems.edge.energy.api.simulation.Coefficient.CONS;
 import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.GRID_TO_CONS;
 import static io.openems.edge.energy.api.simulation.Coefficient.GRID_TO_ESS;
@@ -14,6 +15,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static org.apache.commons.math3.optim.linear.Relationship.EQ;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
+import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -166,8 +168,13 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		var version = this.energyScheduler.getImplementationVersion();
+		if (version == null) {
+			return;
+		}
+
 		// Version and Mode given from the configuration.
-		final var as = switch (this.config.version()) {
+		final var as = switch (this.energyScheduler.getImplementationVersion()) {
 
 		case V1_ESS_ONLY //
 			-> switch (this.config.mode()) {
@@ -208,8 +215,13 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		var version = this.energyScheduler.getImplementationVersion();
+		if (version == null) {
+			return;
+		}
+
 		builder.handleRequest(GetScheduleRequest.METHOD, call -> //
-		switch (this.config.version()) {
+		switch (version) {
 		case V1_ESS_ONLY //
 			-> this.energyScheduler.handleGetScheduleRequestV1(call, this.id());
 
@@ -224,17 +236,20 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		var b = new StringBuilder() //
 				.append(this.getStateMachine()); //
 
-		switch (this.config.version()) {
-		case V1_ESS_ONLY -> {
-			if (this.energyScheduleHandlerV1 == null || this.energyScheduleHandlerV1.getCurrentState() == null) {
-				b.append("|No Schedule available");
+		var version = this.energyScheduler.getImplementationVersion();
+		if (version != null) {
+			switch (version) {
+			case V1_ESS_ONLY -> {
+				if (this.energyScheduleHandlerV1 == null || this.energyScheduleHandlerV1.getCurrentState() == null) {
+					b.append("|No Schedule available");
+				}
 			}
-		}
-		case V2_ENERGY_SCHEDULABLE -> {
-			if (this.energyScheduleHandler.getCurrentPeriod() == null) {
-				b.append("|No Schedule available");
+			case V2_ENERGY_SCHEDULABLE -> {
+				if (this.energyScheduleHandler.getCurrentPeriod() == null) {
+					b.append("|No Schedule available");
+				}
 			}
-		}
+			}
 		}
 		return b.toString();
 	}
@@ -270,7 +285,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 					case BALANCING -> applyBalancing(energyFlow); // TODO Move to CtrlBalancing
 					case DELAY_DISCHARGE -> applyDelayDischarge(energyFlow);
 					case CHARGE_GRID -> {
-						energyFlow.setEssMaxCharge(ctrlContext.maxSocEnergyInChargeGrid - simContext.getEssInitial());
+						energyFlow.setEssMaxCharge(
+								ctrlContext.maxSocEnergyInChargeGrid - simContext.ess.getInitialEnergy());
 						applyChargeGrid(energyFlow, ctrlContext.essChargeInChargeGrid);
 					}
 					}
@@ -284,7 +300,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	 * @param model the {@link EnergyFlow.Model}
 	 */
 	public static void applyBalancing(EnergyFlow.Model model) {
-		var target = model.consumption - model.production;
+		var consumption = model.setExtremeCoefficientValue(CONS, MINIMIZE);
+		var target = consumption - model.production;
 		model.setFittingCoefficientValue(ESS, EQ, target);
 	}
 
@@ -294,7 +311,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	 * @param model the {@link EnergyFlow.Model}
 	 */
 	public static void applyDelayDischarge(EnergyFlow.Model model) {
-		var target = min(0 /* Charge -> apply Balancing */, model.consumption - model.production);
+		var consumption = model.setExtremeCoefficientValue(CONS, MINIMIZE);
+		var target = min(0 /* Charge -> apply Balancing */, consumption - model.production);
 		model.setFittingCoefficientValue(ESS, EQ, target);
 	}
 
@@ -305,6 +323,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	 * @param chargeEnergy the target charge-from-grid energy
 	 */
 	public static void applyChargeGrid(EnergyFlow.Model model, int chargeEnergy) {
+		model.setExtremeCoefficientValue(CONS, MINIMIZE);
 		model.setExtremeCoefficientValue(PROD_TO_ESS, MAXIMIZE);
 		model.setExtremeCoefficientValue(GRID_TO_CONS, MAXIMIZE);
 		model.setFittingCoefficientValue(GRID_TO_ESS, EQ, chargeEnergy);
@@ -317,6 +336,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	 * @param dischargeEnergy the target discharge-to-grid energy
 	 */
 	public static void applyDischargeGrid(EnergyFlow.Model model, int dischargeEnergy) {
+		model.setExtremeCoefficientValue(CONS, MINIMIZE);
 		model.setExtremeCoefficientValue(PROD_TO_GRID, MAXIMIZE);
 		model.setFittingCoefficientValue(GRID_TO_ESS, EQ, -dischargeEnergy);
 	}

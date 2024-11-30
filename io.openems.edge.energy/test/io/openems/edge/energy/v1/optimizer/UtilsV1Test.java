@@ -24,6 +24,7 @@ import static io.openems.edge.energy.v1.optimizer.UtilsV1.SUM_PRODUCTION;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.calculateMaxChargePower;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.generateProductionPrediction;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.getEssMinSocEnergy;
+import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateArray;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.joinConsumptionPredictions;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.paramsAreValid;
@@ -330,5 +331,20 @@ public class UtilsV1Test {
 		assertEquals(5000, calculateMaxChargePower(Integer.MIN_VALUE, new Value<>(null, 5000), -1000));
 		assertEquals(1000, calculateMaxChargePower(Integer.MIN_VALUE, new Value<>(null, null), -1000));
 		assertEquals(1000, calculateMaxChargePower(-4200, new Value<>(null, null), -1000));
+	}
+
+	@Test
+	public void testInterpolateArrayInteger() {
+		assertArrayEquals(new int[] { 123, 123, 234, 234, 345 }, //
+				interpolateArray(new Integer[] { null, 123, 234, null, 345, null }));
+
+		assertArrayEquals(new int[] {}, //
+				interpolateArray(new Integer[] { null }));
+
+		assertArrayEquals(new int[] { 123, 123 }, //
+				interpolateArray(new Integer[] { null, 123 }));
+
+		assertArrayEquals(new int[] { 123 }, //
+				interpolateArray(new Integer[] { 123, null }));
 	}
 }
