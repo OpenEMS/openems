@@ -22,7 +22,8 @@
       "plugins": [
         "import",
         "unused-imports",
-        "@stylistic"
+        "@stylistic",
+        "check-file"
       ],
       "extends": [
         "eslint:recommended",
@@ -32,6 +33,12 @@
         "plugin:import/recommended"
       ],
       "rules": {
+        "check-file/filename-naming-convention": [
+          "off",
+          {
+            "**/*.{ts}": "KEBAB_CASE"
+          }
+        ],
         "curly": "error",
         "unused-imports/no-unused-imports": "error",
         "import/order": [
@@ -121,6 +128,18 @@
           }
         ]
       },
+      "overrides": [
+        {
+          "files": [
+            "*.component.ts",
+            "*.service.ts",
+            "*.module.ts"
+          ],
+          "rules": {
+            "check-file/filename-naming-convention": "off"
+          }
+        }
+      ],
       "settings": {
         "import/resolver": {
           "typescript": {}
