@@ -37,7 +37,6 @@ public class IntegrationTestsV1 {
 	 */
 	@Ignore
 	@Test
-	// TODO to be updated
 	public void test1() throws Exception {
 		var log = """
 				""";

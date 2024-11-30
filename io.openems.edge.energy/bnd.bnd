@@ -29,4 +29,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.ess.gridoptimizedcharge,\
 	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.controller.ess.timeofusetariff,\
+	io.openems.edge.evcs.api,\
+	io.openems.edge.meter.api,\
 	org.apache.commons.math3,\

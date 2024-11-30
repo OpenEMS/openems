@@ -402,7 +402,8 @@
         "buyApp": "Buy licence key",
         "modifyApp": "Modify app",
         "createApp": "Install app",
-        "deleteApp": "Delete app",
+        "deleteApp": "Uninstall app",
+        "DELETE_CONFIRM": "uninstall",
         "updateApp": "Update app",
         "errorInstallable": "Installation errors",
         "errorCompatible": "Compatibility errors",
@@ -432,7 +433,9 @@
         "successUpdate": "Successfully updated App",
         "failUpdate": "Error updating App '{{error}}'",
         "successDelete": "Successfully deleted App",
-        "failDelete": "Error deleting App '{{error}}'"
+        "failDelete": "Error deleting App '{{error}}'",
+        "DELETE_CONFIRM_HEADLINE": "Are you sure you wish to uninstall the app?",
+        "DELETE_CONFIRM_DESCRIPTION": "Uninstalling the app will remove all of its components and delete all settings made by it."
       }
     },
     "Service": {
@@ -594,6 +597,9 @@
     "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
     "FIRST_SETUP_PROTOCOL": "Initial commissioning"
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Pull this banner to refresh"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",

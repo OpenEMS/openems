@@ -1,17 +1,15 @@
 package io.openems.edge.predictor.api.test;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static org.junit.Assert.assertEquals;
 
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -19,14 +17,14 @@ import io.openems.edge.predictor.api.prediction.Prediction;
 
 public class DummyPredictorManagerTest {
 
-	private static final ChannelAddress SUM_PRODUCTION_ACTIVE_POWER = new ChannelAddress("_sum",
+	protected static final ChannelAddress SUM_PRODUCTION_ACTIVE_POWER = new ChannelAddress("_sum",
 			"ProductionActivePower");
-	private static final ChannelAddress SUM_CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
+	protected static final ChannelAddress SUM_CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
 			"ConsumptionActivePower");
 
 	@Test
 	public void test() throws OpenemsNamedException {
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		final var now = ZonedDateTime.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
