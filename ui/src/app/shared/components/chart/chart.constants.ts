@@ -7,10 +7,12 @@ import { RGBColor } from "../../service/defaulttypes";
 import { HistoryUtils, Utils } from "../../service/utils";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { AssertionUtils } from "../../utils/assertions/assertions-utils";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 
 export class ChartConstants {
   public static readonly NUMBER_OF_Y_AXIS_TICKS: number = 7;
+  public static readonly MAX_LENGTH_OF_Y_AXIS_TITLE: number = 6;
   public static readonly EMPTY_DATASETS: ChartDataset[] = [];
   public static readonly REQUEST_TIMEOUT = 500;
 
@@ -98,7 +100,9 @@ export class ChartConstants {
         ...(scaleOptions?.stepSize && { stepSize: scaleOptions.stepSize }),
         callback: function (value, index, ticks) {
           if (index == (ticks.length - 1) && showYAxisTitle) {
-            return element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType);
+            const upperMostTick = element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType);
+            AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
+            return upperMostTick;
           }
           return value;
         },
@@ -134,7 +138,7 @@ export class ChartConstants {
       } else {
         // If the stack already exists, merge the data arrays
         stackMap[stackId].data = stackMap[stackId].data.map((value, index) => {
-          return Utils.addSafely(value as number, (dataset.data[index] as number || 0)); // Sum data points or handle missing values
+          return Utils.addSafely(value as number, (dataset.data[index] as number)); // Sum data points or handle missing values
         });
       }
     });

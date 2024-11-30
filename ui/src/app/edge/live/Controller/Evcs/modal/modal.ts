@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
@@ -105,7 +106,7 @@ export class ModalComponent extends AbstractModal {
 
     return [
       // channels for modal component, subscribe here for better UX
-      new ChannelAddress(this.component.id, "ChargePower"),
+      new ChannelAddress(this.component.id, this.getPowerChannelId()),
       new ChannelAddress(this.component.id, "Phases"),
       new ChannelAddress(this.component.id, "Plug"),
       new ChannelAddress(this.component.id, "Status"),
@@ -127,7 +128,7 @@ export class ModalComponent extends AbstractModal {
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
-      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/ChargePower"]);
+      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/" + this.getPowerChannelId()]);
       this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
       this.state = currentData.allComponents[this.component.id + "/Status"];
       this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
@@ -279,7 +280,11 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
+  private getPowerChannelId(): string {
+    return EvcsUtils.getEvcsPowerChannelId(this.component, this.config, this.edge);
+  }
 }
+
 
 enum ChargeState {
   UNDEFINED = -1,           //Undefined

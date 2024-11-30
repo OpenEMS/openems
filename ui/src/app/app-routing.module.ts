@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
-import { PreloadAllModules, RouterModule, Routes } from "@angular/router";
+import { NoPreloading, RouterModule, Routes } from "@angular/router";
 import { environment } from "src/environments";
-import { ChangelogViewComponent } from "./changelog/view/view";
 import { EdgeComponent } from "./edge/edge.component";
 import { OverviewComponent as AutarchyChartOverviewComponent } from "./edge/history/common/autarchy/overview/overview";
 import { DetailsOverviewComponent as ConsumptionDetailsOverviewComponent } from "./edge/history/common/consumption/details/details.overview";
@@ -67,7 +66,7 @@ export const routes: Routes = [
   { path: "overview", component: OverViewComponent },
 
   { path: "user", component: UserComponent, data: { navbarTitleToBeTranslated: "Menu.user" } },
-  { path: "changelog", component: ChangelogViewComponent, data: { navbarTitleToBeTranslated: "Menu.changelog" } },
+  { path: "changelog", loadChildren: () => import("./changelog/changelog.module").then(m => m.ChangelogModule), data: { navbarTitleToBeTranslated: "Menu.changelog" } },
 
   // Edge Pages
   {
@@ -147,7 +146,7 @@ export const appRoutingProviders: any[] = [];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, paramsInheritanceStrategy: "always" }),
+    RouterModule.forRoot(routes, { preloadingStrategy: NoPreloading, paramsInheritanceStrategy: "always" }),
   ],
   exports: [RouterModule],
 })

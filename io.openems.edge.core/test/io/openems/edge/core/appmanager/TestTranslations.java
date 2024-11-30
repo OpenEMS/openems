@@ -15,9 +15,12 @@ import com.google.gson.JsonObject;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.integratedsystem.TestFeneconHome;
+import io.openems.edge.app.integratedsystem.TestFeneconHome10;
+import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
+import io.openems.edge.app.integratedsystem.TestFeneconHome15;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.TestFeneconHome6;
 
 public class TestTranslations {
 
@@ -31,9 +34,12 @@ public class TestTranslations {
 	public void beforeEach() throws Exception {
 		this.apps = new ArrayList<>();
 		new AppManagerTestBundle(null, null, t -> {
-			this.apps.add(new TestTranslation(Apps.feneconHome(t), true, TestFeneconHome.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconHome10(t), true, TestFeneconHome10.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome20(t), true, TestFeneconHome20.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconHome6(t), true, TestFeneconHome6.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconHome10Gen2(t), true, TestFeneconHome10Gen2.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconHome15(t), true, TestFeneconHome15.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
@@ -42,7 +48,7 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.groupeE(t), true, JsonUtils.buildJsonObject() //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("ACCESS_TOKEN", "123456789") //
+					.addProperty("ZIP_CODE", "123456789") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.stadtwerkHassfurt(t), true, JsonUtils.buildJsonObject() //
 					.build()));

@@ -32,9 +32,12 @@ import io.openems.edge.app.evcs.WebastoUniteEvcs;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
-import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
+import io.openems.edge.app.integratedsystem.FeneconHome10Gen2;
+import io.openems.edge.app.integratedsystem.FeneconHome15;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
+import io.openems.edge.app.integratedsystem.FeneconHome6;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
 import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
@@ -70,6 +73,7 @@ import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Swisspower;
 import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.host.Host;
 
 public final class Apps {
 
@@ -95,13 +99,43 @@ public final class Apps {
 	// Integrated Systems
 
 	/**
-	 * Test method for creating a {@link FeneconHome}.
+	 * Test method for creating a {@link FeneconHome10}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final FeneconHome feneconHome(AppManagerTestBundle t) {
-		return app(t, FeneconHome::new, "App.FENECON.Home");
+	public static final FeneconHome10 feneconHome10(AppManagerTestBundle t) {
+		return app(t, FeneconHome10::new, "App.FENECON.Home");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome6}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome6 feneconHome6(AppManagerTestBundle t) {
+		return app(t, FeneconHome6::new, "App.FENECON.Home6");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome10Gen2}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome10Gen2 feneconHome10Gen2(AppManagerTestBundle t) {
+		return app(t, FeneconHome10Gen2::new, "App.FENECON.Home10.Gen2");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome15}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome15 feneconHome15(AppManagerTestBundle t) {
+		return app(t, FeneconHome15::new, "App.FENECON.Home15");
 	}
 
 	/**
@@ -737,6 +771,12 @@ public final class Apps {
 				t.componentUtil, t.appManagerUtil);
 	}
 
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor,
+			String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.host);
+	}
+	
 	private static interface DefaultAppConstructor<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
@@ -751,4 +791,11 @@ public final class Apps {
 
 	}
 
+	private static interface DefaultAppConstructorWithHost<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Host host);
+
+	}
+	
 }

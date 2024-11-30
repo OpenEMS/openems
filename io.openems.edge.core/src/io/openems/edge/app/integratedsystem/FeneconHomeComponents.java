@@ -18,6 +18,7 @@ import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 
@@ -77,6 +78,7 @@ public final class FeneconHomeComponents {
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
 	 * @param safetyCountry            the {@link SafetyCountry}
 	 * @param feedInSetting            the feedInSetting
+	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @return the {@link Component}
 	 */
 	public static EdgeConfig.Component batteryInverter(//
@@ -88,7 +90,8 @@ public final class FeneconHomeComponents {
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
 			final SafetyCountry safetyCountry, //
-			final String feedInSetting //
+			final String feedInSetting, //
+			final boolean naProtectionEnabled //
 	) {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
@@ -106,6 +109,7 @@ public final class FeneconHomeComponents {
 						.addProperty("safetyCountry", safetyCountry) //
 						.addProperty("setfeedInPowerSettings", feedInSetting) //
 						.addProperty("rcrEnable", feedInType == FeedInType.EXTERNAL_LIMITATION ? "ENABLE" : "DISABLE") //
+						.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 						.build());
 	}
 
@@ -254,6 +258,30 @@ public final class FeneconHomeComponents {
 			final ConfigurationTarget t, //
 			final String modbusIdExternal //
 	) {
+		return modbusForExternalMeters(bundle, t, modbusIdExternal, null);
+	}
+
+	/**
+	 * Creates a default external modbus component for external meters for a FENECON
+	 * Home.
+	 * 
+	 * @param bundle           the translation bundle
+	 * @param t                the current {@link ConfigurationTarget}
+	 * @param modbusIdExternal the id of the external modbus bridge
+	 * @param deviceHardware   the current device hardware; can be null if not
+	 *                         available or needed
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component modbusForExternalMeters(//
+			final ResourceBundle bundle, //
+			final ConfigurationTarget t, //
+			final String modbusIdExternal, //
+			final OpenemsAppInstance deviceHardware //
+	) {
+		final var portName = deviceHardware == null || !deviceHardware.appId.equals("App.OpenemsHardware.CM4S.Gen2")
+				? "/dev/bus0"
+				: "/dev/busUSB3";
+
 		return new EdgeConfig.Component(modbusIdExternal,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.modbus2.alias"), "Bridge.Modbus.Serial", //
 				JsonUtils.buildJsonObject() //
@@ -261,7 +289,7 @@ public final class FeneconHomeComponents {
 						.addProperty("baudRate", 9600) //
 						.addProperty("databits", 8) //
 						.addProperty("parity", Parity.NONE) //
-						.addProperty("portName", "/dev/bus0") //
+						.addProperty("portName", portName) //
 						.addProperty("stopbits", "ONE") //
 						.onlyIf(t == ConfigurationTarget.ADD, b -> {
 							b.addProperty("invalidateElementsAfterReadErrors", 1) //
@@ -424,6 +452,27 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a goodwe charger component for a FENECON Home Gen2.
+	 * 
+	 * @param chargerId         the id of the charger
+	 * @param pvNumber          the string number of the charger
+	 * @param alias             the alias for the charger
+	 * @param modbusIdExternal  the id of the modbus external
+	 * @param batteryInverterId the battery inver id
+	 * @return the component
+	 */
+	public static EdgeConfig.Component chargerPv(String chargerId, int pvNumber, String alias,
+			final String modbusIdExternal, final String batteryInverterId) {
+		return new EdgeConfig.Component(chargerId, alias, "GoodWe.Charger-PV" + pvNumber, //
+				JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("essOrBatteryInverter.id", batteryInverterId) //
+						.addProperty("modbus.id", modbusIdExternal) //
+						.addProperty("modbusUnitId", 247) //
+						.build());
+	}
+
+	/**
 	 * Creates a default gridOptimizedCharge dependency for a FENECON Home.
 	 * 
 	 * @param t              the {@link ConfigurationTarget}
@@ -541,22 +590,58 @@ public final class FeneconHomeComponents {
 	public static DependencyDeclaration essLimiter14aToHardware(AppManagerUtil appManagerUtil)
 			throws OpenemsNamedException {
 		final var deviceHardware = appManagerUtil
-				.getInstantiatedAppsByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
-		final var app = deviceHardware.stream().findAny().orElse(null);
-		switch (app == null ? "" : app.appId) {
-		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4S" -> {
-			for (var dependency : app.dependencies) {
-				if (!"IO_GPIO".equals(dependency.key)) {
-					continue;
-				}
-				final var instance = appManagerUtil.findInstanceByIdOrError(dependency.instanceId);
-				final var ioId = instance.properties.get(IoGpio.Property.IO_ID.name()).getAsString();
-				return essLimiter14a(ioId);
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+		return essLimiter14aToHardware(appManagerUtil, deviceHardware);
+	}
+
+	/**
+	 * Creates a default essLimiter14a dependency for a FENECON Home which can be
+	 * different depending on the hardware type.
+	 * 
+	 * @param appManagerUtil the {@link AppManagerUtil} to get the hardware type
+	 * @param deviceHardware the hardware app which is installed
+	 * @return the {@link DependencyDeclaration} of the specific hardware or null if
+	 *         not specified for the current hardware
+	 * @throws OpenemsNamedException on error
+	 */
+	public static DependencyDeclaration essLimiter14aToHardware(//
+			AppManagerUtil appManagerUtil, //
+			OpenemsAppInstance deviceHardware //
+	) throws OpenemsNamedException {
+		if (deviceHardware == null) {
+			throw new OpenemsException("Hardware 'null' not supported for ess limiter 14a.");
+		}
+
+		if (!isLimiter14aCompatible(deviceHardware)) {
+			throw new OpenemsException("Hardware '" + deviceHardware.appId + "' not supported for ess limiter 14a.");
+		}
+
+		for (var dependency : deviceHardware.dependencies) {
+			if (!"IO_GPIO".equals(dependency.key)) {
+				continue;
 			}
+			final var instance = appManagerUtil.findInstanceByIdOrError(dependency.instanceId);
+			final var ioId = instance.properties.get(IoGpio.Property.IO_ID.name()).getAsString();
+			return essLimiter14a(ioId);
 		}
+		throw new OpenemsException("Unable to get limiter14a dependency for hardware '" + deviceHardware.appId + "'.");
+	}
+
+	/**
+	 * Checks if the provided id of the app is compatible with the
+	 * {@link Limiter14a}.
+	 * 
+	 * @param hardwareInstance the current installed hardware instance; nullable
+	 * @return true if there is a default relay for it; else false
+	 */
+	public static final boolean isLimiter14aCompatible(OpenemsAppInstance hardwareInstance) {
+		if (hardwareInstance == null) {
+			return false;
 		}
-		throw new OpenemsException(
-				"Hardware " + (app == null ? "UNDEFINED" : app.appId) + " not supported for ess limiter 14a.");
+		return switch (hardwareInstance.appId) {
+		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4S", "App.OpenemsHardware.CM4S.Gen2" -> true;
+		default -> false;
+		};
 	}
 
 	private FeneconHomeComponents() {

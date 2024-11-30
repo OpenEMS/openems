@@ -60,7 +60,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Home", "https://fenecon.de/fenecon-home-10/") //
 			.put("App.FENECON.Home.20", "https://fenecon.de/fenecon-home-20-30/") //
 			.put("App.FENECON.Home.30", "https://fenecon.de/fenecon-home-20-30/") //
-			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial/") //
+			.put("App.FENECON.Home6", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Home10.Gen2", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
 			.put("App.FENECON.Industrial.L.ILK710", "https://fenecon.de/fenecon-industrial-l/") //
 			.put("App.FENECON.Industrial.S.ISK010", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //

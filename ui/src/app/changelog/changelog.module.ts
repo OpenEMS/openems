@@ -1,19 +1,20 @@
+import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { SharedModule } from "./../shared/shared.module";
+import { ChangelogRoutingModule } from "./changelog-routing.module";
 import { ChangelogComponent } from "./view/component/changelog.component";
 import { ChangelogViewComponent } from "./view/view";
 
 @NgModule({
   imports: [
-    SharedModule,
-  ],
-  declarations: [
+    CommonModule,
     ChangelogComponent,
     ChangelogViewComponent,
+    ChangelogRoutingModule,
+  ],
+  declarations: [
   ],
   exports: [
     ChangelogComponent,
-    ChangelogViewComponent,
   ],
 })
 export class ChangelogModule { }

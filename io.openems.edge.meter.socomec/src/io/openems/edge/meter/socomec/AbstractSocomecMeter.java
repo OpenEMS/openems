@@ -1,6 +1,7 @@
 package io.openems.edge.meter.socomec;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -147,14 +148,15 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 		final var result = new CompletableFuture<String>();
 
 		// Search for Socomec identifier register. Needs to be "SOCO".
-		readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedQuadruplewordElement(0xC350))
+		readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedQuadruplewordElement(0xC350))
 				.thenAccept(value -> {
 					if (value != 0x0053004F0043004FL /* SOCO */) {
 						this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
 						// Complete result with Long value
 						result.complete(String.valueOf(value));
 					}
-					readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new StringWordElement(0xC38A, 8))
+					readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull,
+							new StringWordElement(0xC38A, 8)) //
 							.thenAccept(name -> {
 								result.complete(name.toLowerCase());
 							});

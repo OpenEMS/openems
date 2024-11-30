@@ -52,13 +52,25 @@ public interface AppManagerUtil {
 	}
 
 	/**
-	 * Gets the installed apps which match any of the provided
+	 * Gets the installed apps which matches at least one of the provided
 	 * {@link OpenemsAppCategory OpenemsAppCategories}.
 	 * 
 	 * @param categories the {@link OpenemsAppCategory} to be contained by the app
 	 * @return the found {@link OpenemsAppInstance OpenemsAppInstances}
 	 */
 	public List<OpenemsAppInstance> getInstantiatedAppsByCategories(OpenemsAppCategory... categories);
+
+	/**
+	 * Gets the first found installed app which matches at least one of the provided
+	 * {@link OpenemsAppCategory OpenemsAppCategories}.
+	 * 
+	 * @param categories the {@link OpenemsAppCategory} to be contained by the app
+	 * @return the found {@link OpenemsAppInstance}; or null if non found
+	 */
+	public default OpenemsAppInstance getFirstInstantiatedAppByCategories(OpenemsAppCategory... categories) {
+		final var instances = this.getInstantiatedAppsByCategories(categories);
+		return instances.isEmpty() ? null : instances.get(0);
+	}
 
 	/**
 	 * Finds the {@link OpenemsApp} with the given id.

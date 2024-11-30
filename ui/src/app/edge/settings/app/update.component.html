@@ -15,7 +15,7 @@
                   [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
                   translate> Edge.Config.App.updateApp
                 </ion-button>
-                <ion-button (click)="delete(varinstance)" color="primary"
+                <ion-button (click)="submitDelete(varinstance)" color="primary"
                   [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
                   Edge.Config.App.deleteApp
                 </ion-button>
