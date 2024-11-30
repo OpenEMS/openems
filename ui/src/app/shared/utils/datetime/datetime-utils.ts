@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 /* eslint-disable import/no-duplicates */
 // cf. https://github.com/import-js/eslint-plugin-import/issues/1479
-import { format, startOfMonth, startOfYear } from "date-fns";
+import { differenceInMilliseconds, format, startOfMonth, startOfYear } from "date-fns";
 import { de } from "date-fns/locale";
 /* eslint-enable import/no-duplicates */
 import { ChronoUnit } from "src/app/edge/history/shared";
@@ -57,6 +57,13 @@ export class DateTimeUtils {
       default:
         return energyPerPeriodResponse;
     }
+  }
 
+  public static isDifferenceInSecondsGreaterThan(seconds: number, currentDate: Date, dateToCompare: Date | null) {
+    if (dateToCompare == null) {
+      return false;
+    }
+    const milliSeconds = seconds * 1000;
+    return differenceInMilliseconds(currentDate, dateToCompare) > milliSeconds;
   }
 }

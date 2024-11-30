@@ -862,6 +862,9 @@
     },
     "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
   },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
+  },
   "LOADING_SCREEN": {
     "LOADING": "Wird geladen",
     "SERVER_NOT_ACCESSIBLE": "Server nicht erreichbar",

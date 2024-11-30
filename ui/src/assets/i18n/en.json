@@ -595,6 +595,9 @@
     "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
     "FIRST_SETUP_PROTOCOL": "Initial commissioning"
   },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Pull this banner to refresh"
+  },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
     "BACK": "Back",
