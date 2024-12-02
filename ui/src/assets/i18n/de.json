@@ -402,6 +402,7 @@
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
+        "DELETE_CONFIRM": "entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
         "errorCompatible": "Kompatibilitäts fehler",
@@ -431,7 +432,9 @@
         "successUpdate": "App erfolgreich aktualisiert",
         "failUpdate": "Fehler während der Aktualisierung: {{error}}",
         "successDelete": "App erfolgreich entfernt",
-        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}"
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
+        "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
       }
     },
     "Service": {
@@ -861,6 +864,9 @@
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
     "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
   },
   "LOADING_SCREEN": {
     "LOADING": "Wird geladen",

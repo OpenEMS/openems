@@ -1,8 +1,7 @@
 package io.openems.edge.energy.api.simulation;
 
+import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
 import static io.openems.edge.energy.api.simulation.GlobalSimulationsContext.calculatePeriodDurationHourFromIndex;
-import static io.openems.edge.energy.api.simulation.GlobalSimulationsContext.generateProductionPrediction;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
@@ -62,7 +61,8 @@ public class GlobalSimulationsContextTest {
 		);
 
 		var gsc = GlobalSimulationsContext.create() //
-				.setClock(CLOCK) //
+				.setComponentManager(cm) //
+				.setRiskLevel(MEDIUM) //
 				.setEnergyScheduleHandlers(ImmutableList.of()) //
 				.setSum(sum) //
 				.setPredictorManager(predictorManager) //
@@ -75,13 +75,6 @@ public class GlobalSimulationsContextTest {
 		var p0 = gsc.periods().get(0);
 		assertEquals(2000 /* Wh */, p0.production());
 		assertEquals(1000 /* Wh */, p0.consumption());
-	}
-
-	@Test
-	public void testGenerateProductionPrediction() {
-		final var arr = new Integer[] { 1, 2, 3 };
-		assertArrayEquals(arr, generateProductionPrediction(arr, 2));
-		assertArrayEquals(new Integer[] { 1, 2, 3, 0 }, generateProductionPrediction(arr, 4));
 	}
 
 	@Test

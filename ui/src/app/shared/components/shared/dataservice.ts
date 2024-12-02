@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { Injectable, WritableSignal, signal } from "@angular/core";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { BehaviorSubject, Subject } from "rxjs";
 import { ChannelAddress, Edge } from "../../shared";
@@ -9,6 +9,7 @@ export abstract class DataService {
 
   /** Used to retrieve values */
   public currentValue: BehaviorSubject<{ allComponents: {} }> = new BehaviorSubject({ allComponents: {} });
+  public timestamp: WritableSignal<Date | null> = signal(new Date());
 
   protected edge: Edge | null = null;
   protected stopOnDestroy: Subject<void> = new Subject<void>();
