@@ -10,7 +10,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.calculateLimitChargePowerFor14aEnWG;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.getEssMinSocPercentage;
 import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
-import static io.openems.edge.energy.api.EnergyUtils.interpolateArray;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_DISCHARGE_POWER;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_SOC;
 import static io.openems.edge.energy.optimizer.Utils.SUM_GRID;
@@ -397,5 +396,38 @@ public final class UtilsV1 {
 				Math.max(//
 						calculateLimitChargePowerFor14aEnWG, // Apply §14a EnWG limit
 						-1 * essMaxDischargePower.orElse(orElse)));
+	}
+
+	/**
+	 * Interpolate an Array of {@link Integer}s.
+	 * 
+	 * <p>
+	 * Replaces nulls with previous value. If first entry is null, it is set to
+	 * first available value. If all values are null, all are set to 0.
+	 * 
+	 * @param values the values
+	 * @return values without nulls
+	 */
+	public static int[] interpolateArray(Integer[] values) {
+		var firstNonNull = stream(values) //
+				.filter(Objects::nonNull) //
+				.findFirst();
+		var lastNonNullIndex = IntStream.range(0, values.length) //
+				.filter(i -> values[i] != null) //
+				.reduce((first, second) -> second); //
+		if (lastNonNullIndex.isEmpty()) {
+			return new int[0];
+		}
+		var result = new int[lastNonNullIndex.getAsInt() + 1];
+		if (firstNonNull.isEmpty()) {
+			// all null
+			return result;
+		}
+		int last = firstNonNull.get();
+		for (var i = 0; i < result.length; i++) {
+			int value = orElse(values[i], last);
+			result[i] = last = value;
+		}
+		return result;
 	}
 }

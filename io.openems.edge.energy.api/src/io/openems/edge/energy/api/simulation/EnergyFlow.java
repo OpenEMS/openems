@@ -191,19 +191,21 @@ public class EnergyFlow {
 			} else {
 				factor = 1;
 			}
-			final var ess = osc.global.ess();
+			final var essGlobal = osc.global.ess();
+			final var essOne = osc.ess;
 			final var grid = osc.global.grid();
 			return new EnergyFlow.Model(//
 					/* production */ period.production(), //
 					/* consumption */ period.consumption(), //
-					/* essMaxCharge */ min(ess.maxChargeEnergy() * factor, ess.totalEnergy() - osc.getEssInitial()), //
-					/* essMaxDischarge */ min(ess.maxDischargeEnergy() * factor, osc.getEssInitial()), //
+					/* essMaxCharge */ min(essGlobal.maxChargeEnergy() * factor,
+							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //
+					/* essMaxDischarge */ min(essGlobal.maxDischargeEnergy() * factor, osc.ess.getInitialEnergy()), //
 					/* gridMaxBuy */ grid.maxBuy() * factor, //
 					/* gridMaxSell */ grid.maxSell() * factor);
 		}
 
 		public final int production;
-		public final int consumption;
+		public final int unmanagedConsumption;
 		public final int essMaxCharge;
 		public final int essMaxDischarge;
 		public final int gridMaxBuy;
@@ -211,10 +213,12 @@ public class EnergyFlow {
 
 		private final List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
 
-		public Model(int production, int consumption, int essMaxCharge, int essMaxDischarge, int gridMaxBuy,
+		private int addedConsumption = 0;
+
+		public Model(int production, int unmanagedConsumption, int essMaxCharge, int essMaxDischarge, int gridMaxBuy,
 				int gridMaxSell) {
 			this.production = production;
-			this.consumption = consumption;
+			this.unmanagedConsumption = unmanagedConsumption;
 			this.essMaxCharge = essMaxCharge;
 			this.essMaxDischarge = essMaxDischarge;
 			this.gridMaxBuy = gridMaxBuy;
@@ -271,10 +275,10 @@ public class EnergyFlow {
 							.toLinearConstraint(EQ, production)) //
 					.addConstraint(c -> c //
 							.setCoefficient(CONS, 1) //
-							.toLinearConstraint(EQ, consumption))
-					.addConstraint(b -> b // PROD_TO_CONS
+							.toLinearConstraint(GEQ, unmanagedConsumption))
+					.addConstraint(b -> b //
 							.setCoefficient(PROD_TO_CONS, 1) //
-							.toLinearConstraint(EQ, min(production, consumption)))
+							.toLinearConstraint(GEQ, min(production, unmanagedConsumption)))
 
 					// ESS Max Charge/Discharge
 					.addConstraint(c -> c //
@@ -345,6 +349,18 @@ public class EnergyFlow {
 		 */
 		public double setGridMaxSell(int value) {
 			return this.setFittingCoefficientValue(ESS, GEQ, -value);
+		}
+
+		/**
+		 * Adds {@link Coefficient#CONS} Energy, while making sure the value fits in the
+		 * active constraints.
+		 * 
+		 * @param value the added consumption value
+		 * @return actually set value; {@link Double#NaN} on error
+		 */
+		public synchronized double addConsumption(int value) {
+			this.addedConsumption += value;
+			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.addedConsumption);
 		}
 
 		/**
@@ -467,15 +483,18 @@ public class EnergyFlow {
 		 * 
 		 * @param coefficient the {@link Coefficient}
 		 * @param goalType    the {@link GoalType}
+		 * @return actually set value; {@link Double#NaN} on error
 		 */
-		public void setExtremeCoefficientValue(Coefficient coefficient, GoalType goalType) {
+		public double setExtremeCoefficientValue(Coefficient coefficient, GoalType goalType) {
 			try {
 				var value = this.getExtremeCoefficientValue(coefficient, goalType);
 				this.setCoefficientValue(coefficient, value);
+				return value;
 			} catch (MathIllegalStateException e) {
 				LOG.warn("[setExtremeCoefficientValue] " //
 						+ "Unable to " + goalType + " " + coefficient + ": " + e.getMessage() + " " //
 						+ this.toString());
+				return NaN;
 			}
 		}
 

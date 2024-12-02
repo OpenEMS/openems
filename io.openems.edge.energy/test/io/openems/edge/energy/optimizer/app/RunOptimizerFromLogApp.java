@@ -1,7 +1,7 @@
 package io.openems.edge.energy.optimizer.app;
 
 import static io.jenetics.engine.Limits.byExecutionTime;
-import static io.openems.edge.energy.optimizer.QuickSchedules.findBestQuickSchedule;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
 import static io.openems.edge.energy.optimizer.app.AppUtils.parseGlobalSimulationsContextFromLogString;
 import static java.time.Duration.ofSeconds;
 
@@ -18,7 +18,6 @@ import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyUtils;
-import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.Utils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -75,12 +74,7 @@ public class RunOptimizerFromLogApp {
 	public static void main(String[] args) throws Exception {
 		var simulator = new Simulator(parseGlobalSimulationsContextFromLogString(LOG, ESHS));
 
-		// Collect Genotype with lowest cost
-		var quickScheduleGt = findBestQuickSchedule(simulator, SimulationResult.EMPTY);
-		var quickSchedule = quickScheduleGt == null ? null
-				: SimulationResult.fromQuarters(simulator.gsc, quickScheduleGt);
-
-		var simulationResult = simulator.getBestSchedule(quickSchedule, null, //
+		var simulationResult = simulator.getBestSchedule(EMPTY, false /* isCurrentPeriodFixed */, null, //
 				stream -> stream //
 						.limit(byExecutionTime(ofSeconds(EXECUTION_LIMIT_SECONDS))));
 

@@ -22,6 +22,7 @@ import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerI
 import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.simulation.OneSimulationContext;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -140,11 +141,14 @@ public final class Utils {
 	 * NOTE: heavy computation is ok here, because this method is called only at the
 	 * end with the best Schedule.
 	 * 
-	 * @param ef    the {@link EnergyFlow} for the state
-	 * @param state the initial state
+	 * @param osc     the {@link OneSimulationContext}
+	 * @param ef      the {@link EnergyFlow} for the state
+	 * @param context the {@link EshContext}
+	 * @param state   the initial state
 	 * @return the new state
 	 */
-	public static StateMachine postprocessSimulatorState(EnergyFlow ef, StateMachine state) {
+	public static StateMachine postprocessSimulatorState(OneSimulationContext osc, EnergyFlow ef, EshContext context,
+			StateMachine state) {
 		if (state == CHARGE_GRID) {
 			// CHARGE_GRID,...
 			if (ef.getGridToEss() <= 0) {
@@ -155,8 +159,8 @@ public final class Utils {
 
 		if (state == DELAY_DISCHARGE) {
 			// DELAY_DISCHARGE,...
-			if (ef.getEss() < 0) {
-				// but battery gets charged
+			if (osc.ess.getInitialEnergy() == 0 || ef.getEss() < 0) {
+				// but battery is empty or gets charged
 				state = BALANCING;
 			}
 		}
