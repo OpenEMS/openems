@@ -182,10 +182,15 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
 				));
 
-		// Add the FC6WriteRegisterTask only for commercial meter
+		// Add the FC6WriteRegisterTask and the FC3ReadRegistersTask only for commercial
+		// meter
 		if (this.config.goodWeMeterCategory() == GoodWeGridMeterCategory.COMMERCIAL_METER) {
+			protocol.addTask(new FC3ReadRegistersTask(47456, Priority.LOW,
+					m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+			));
 			protocol.addTask(new FC6WriteRegisterTask(47456,
-					m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456))));
+					m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+			));
 		}
 
 		// Handle different DSP versions
