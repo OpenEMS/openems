@@ -176,11 +176,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								this.ignoreZeroAndScaleFactorMinus2), //
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								this.ignoreZeroAndScaleFactor1)),
-
-				new FC3ReadRegistersTask(47456, Priority.LOW, //
-						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
-				));
+								this.ignoreZeroAndScaleFactor1)));
 
 		// Add the FC6WriteRegisterTask and the FC3ReadRegistersTask only for commercial
 		// meter
