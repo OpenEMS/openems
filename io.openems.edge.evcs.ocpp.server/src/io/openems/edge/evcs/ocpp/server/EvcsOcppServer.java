@@ -135,6 +135,10 @@ public class EvcsOcppServer extends AbstractOpenemsComponent implements OpenemsC
 		ocppEvcs.lostSession();
 	}
 
+	public EvcsOcppServer() {
+		super(OpenemsComponent.ChannelId.values());
+	}
+
 	@Activate
 	private void activate(ComponentContext context, Config config) throws UnknownHostException,
 			OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
