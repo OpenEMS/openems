@@ -43,8 +43,8 @@ public class MyJsonServer {
 	/**
 	 * The JSON OCPP server.
 	 *
-	 * <p>
-	 * Responsible for sending and receiving OCPP JSON commands.
+	 *
+	 * <p>Responsible for sending and receiving OCPP JSON commands.
 	 */
 	private final JSONServer server;
 
