@@ -110,21 +110,29 @@ public class EvcsOcppServer extends AbstractOpenemsComponent implements OpenemsC
 			return;
 		}
 		var ocppEvcs = (AbstractManagedOcppEvcsComponent) evcs;
-		var evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
-		if (evcss != null) {
-			if (evcss.size() < 2) {
-				this.activeEvcsSessions.remove(ocppEvcs.getSessionId());
-			} else {
-				this.activeEvcsSessions.get(ocppEvcs.getSessionId()).remove(ocppEvcs);
+		var sessionId = ocppEvcs.getSessionId();
+		if (sessionId != null) {
+			var evcss = this.activeEvcsSessions.get(sessionId);
+			if (evcss != null) {
+				evcss.remove(ocppEvcs);
+				if (evcss.isEmpty()) {
+					this.activeEvcsSessions.remove(sessionId);
+					// Also remove from ocppSessions if needed
+					var ocppIdToRemove = "";
+					for (Entry<String, UUID> entry : this.ocppSessions.entrySet()) {
+						if (entry.getValue().equals(sessionId)) {
+							ocppIdToRemove = entry.getKey();
+							break;
+						}
+					}
+					if (!ocppIdToRemove.isEmpty()) {
+						this.ocppSessions.remove(ocppIdToRemove);
+					}
+				}
 			}
 		}
 		this.ocppEvcss.remove(ocppEvcs.getConfiguredOcppId());
 		ocppEvcs.lostSession();
-	}
-
-	public EvcsOcppServer() {
-		super(OpenemsComponent.ChannelId.values() //
-		);
 	}
 
 	@Activate
