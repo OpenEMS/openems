@@ -14,7 +14,6 @@ public class SimulatorDatasourceSingleDirectImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
 						.setId("datasource0") //
-						.setTimeDelta(0) //
 						.setValues() //
 						.build()) //
 				.next(new TestCase()) //

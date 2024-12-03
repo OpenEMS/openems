@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.single.direct;
+package io.openems.edge.simulator.datasource.single.channel;
 
 import java.io.IOException;
 
@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -21,31 +22,40 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Simulator.Datasource.Single.Direct", //
+		name = "Simulator.Datasource.Single.Channel", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		}
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, //
 })
-public class SimulatorDatasourceSingleDirectImpl extends AbstractCsvDatasource
-		implements SimulatorDatasourceSingleDirect, SimulatorDatasource, OpenemsComponent, EventHandler {
+public class SimulatorDatasourceSingleChannelImpl extends AbstractCsvDatasource
+		implements SimulatorDatasourceSingleChannel, SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	@Reference
 	private ComponentManager componentManager;
+	
+	private DataContainer container = new DataContainer();
+	
+	private boolean containerIsEmpty = true;
 
-	private Config config;
-
-	public SimulatorDatasourceSingleDirectImpl() {
+	public SimulatorDatasourceSingleChannelImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SimulatorDatasourceSingleDirect.ChannelId.values() //
+				SimulatorDatasourceSingleChannel.ChannelId.values() //
 		);
+		this.getDataWriteChannel().onSetNextWrite(newData -> {
+			this.container.addRecord(new Float[] { newData.floatValue() });
+			this.container.nextRecord();
+		});
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws NumberFormatException, IOException {
-		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), -1);
 	}
 
@@ -62,11 +72,12 @@ public class SimulatorDatasourceSingleDirectImpl extends AbstractCsvDatasource
 
 	@Override
 	protected DataContainer getData() throws NumberFormatException, IOException {
-		var result = new DataContainer();
-		for (int value : this.config.values()) {
-			result.addRecord(new Float[] { Float.valueOf(value) });
+		if (this.containerIsEmpty) {
+			// fill with default value 0 if container is empty and no value set via channel yet
+			this.container.addRecord(new Float[] { 0f });
+			this.containerIsEmpty = false;
 		}
-		return result;
+		return this.container;
 	}
 
 }
