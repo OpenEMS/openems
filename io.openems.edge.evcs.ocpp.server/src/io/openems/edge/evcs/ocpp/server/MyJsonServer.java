@@ -90,6 +90,23 @@ public class MyJsonServer {
 
 				var ocppIdentifier = information.getIdentifier().replace("/", "");
 
+				// Check if there is already a session for this ocppIdentifier
+				UUID oldSessionIndex = MyJsonServer.this.parent.ocppSessions.get(ocppIdentifier);
+				if (oldSessionIndex != null && !oldSessionIndex.equals(sessionIndex)) {
+					// Remove old session
+					MyJsonServer.this.logDebug("Removing old session [" + oldSessionIndex + "] for ocppIdentifier ["
+							+ ocppIdentifier + "]");
+					List<AbstractManagedOcppEvcsComponent> oldEvcss = MyJsonServer.this.parent.activeEvcsSessions
+							.get(oldSessionIndex);
+					if (oldEvcss != null) {
+						for (AbstractManagedOcppEvcsComponent ocppEvcs : oldEvcss) {
+							ocppEvcs.lostSession();
+						}
+						MyJsonServer.this.parent.activeEvcsSessions.remove(oldSessionIndex);
+					}
+				}
+
+				// Update the ocppSessions with the new sessionIndex
 				MyJsonServer.this.parent.ocppSessions.put(ocppIdentifier, sessionIndex);
 
 				var presentEvcss = MyJsonServer.this.parent.ocppEvcss.get(ocppIdentifier);
@@ -122,10 +139,16 @@ public class MyJsonServer {
 				for (Entry<String, UUID> session : MyJsonServer.this.parent.ocppSessions.entrySet()) {
 					if (session.getValue().equals(sessionIndex)) {
 						ocppId = session.getKey();
+						break;
 					}
 				}
 
-				MyJsonServer.this.parent.ocppSessions.remove(ocppId);
+				// Before removing, check if the sessionIndex is still the one mapped to ocppId
+				UUID currentSessionIndex = MyJsonServer.this.parent.ocppSessions.get(ocppId);
+				if (currentSessionIndex != null && currentSessionIndex.equals(sessionIndex)) {
+					MyJsonServer.this.parent.ocppSessions.remove(ocppId);
+				}
+
 				MyJsonServer.this.parent.activeEvcsSessions.remove(sessionIndex);
 			}
 
