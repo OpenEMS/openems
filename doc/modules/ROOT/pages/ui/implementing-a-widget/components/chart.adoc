@@ -8,7 +8,7 @@ Charts are mainly used in the History-View and should be acting like the `modal`
 
 Creating or updating charts has been very difficult, but if you use the recommended and new way of creating them, its much easier and can be done fast. Furthermore they are unittestable now. 
 
-If we take a look at a link:src\app\edge\history\common\autarchy\chart\chart.ts[Working Example], we will see, that the chart directory includes not only the chart.ts but also the corresponding .spec-file. If you are not familiar with angulars unit testing, check it out link:https://angular.io/guide/testing#test-file-name-and-location[here].
+If we take a look at a link:https://github.com/OpenEMS/openems/blob/9cbfdb2368fcadcb6ce5de5df84c8bb01079445d/ui/src/app/edge/history/common/autarchy/chart/chart.ts[Working Example], we will see, that the chart directory includes not only the chart.ts but also the corresponding .spec-file. If you are not familiar with angulars unit testing, check it out link:https://angular.io/guide/testing#test-file-name-and-location[here].
 
 NOTE: It is recommended to have the `component.ts` and `component.spec.ts` files in the same folder.
 
