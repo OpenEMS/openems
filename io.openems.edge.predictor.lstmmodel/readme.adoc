@@ -1,25 +1,25 @@
-= Long short term model predictor
+= Long Short-Term Memory (LSTM) predictor
 
-The Long Short-Term Memory (LSTM) model is a type of recurrent neural network (RNN) that is particularly well-suited for time series prediction tasks, including consumption and production power predictions, due to its ability to capture dependencies and patterns over time. https://en.wikipedia.org/wiki/Long_short-term_memory[More details of LSTM]
+The Long Short-Term Memory (LSTM) model is a type of recurrent neural network (RNN) that is particularly well-suited for time series prediction tasks, including consumption and production power predictions, due to its ability to capture dependencies and patterns over time. https://en.wikipedia.org/wiki/Long_short-term_memory[More details on LSTM]
 
-This application is used for predicting power (consumption and production) values.
-Here, For power prediction, LSTM models can analyze historical power data to learn patterns and trends that occur over time, such as:
+This application is used for predicting consumption and production power values.
+Here, for power prediction, LSTM models can analyze historical power data to learn patterns and trends that occur over time, such as:
 
-* Daily and Seasonal Variations: example, Consumption power often follows cyclic patterns (e.g., higher usage during the day, lower at night). Production power often higher during the day and none during the nights.
+* Daily and seasonal variations: Consumption power often follows cyclic patterns (e.g. higher usage during the day, lower at night). Solar production power is high during the day and zero during the nights.
 * External Factors: LSTM can incorporate external factors like weather, day of the week, or holidays to improve prediction accuracy.
 
-== Training LSTM for  Power Predictions:
+== Training LSTM for power predictions:
 
-* Input Data (Channels address "_sum/ConsumptionActivePower"): Time series data of past consumption levels.
+* Input Data (channels address `_sum/UnmanagedConsumptionActivePower`): Time series data of past consumptions.
 * Pre-processing: Data needs to be scaled and sometimes transformed to remove seasonality or noise.
 * Training: The LSTM is trained on historical data using techniques like backpropagation through time (BPTT), where it learns to minimize the error between predicted and actual consumption.
 * Prediction: Once trained, the model can predict future power consumption for various time steps ahead (e.g., hours, days, or even weeks).
 
-In practice, LSTMs are favored for their ability to learn complex time-related patterns, making them effective in forecasting energy demand patterns that can inform Energy management system (EMS), energy distribution, and cost optimization strategies.
+In practice, LSTMs are favored for their ability to learn complex time-related patterns, making them effective in forecasting energy demand patterns that can inform Energy Management System (EMS) for optimized energy distribution and cost strategies.
 
 == Note for activating the predictor
 
-To run this predictor, please create a folder named "models" in the OpenEMS data directory (openems/data/).
+This predictor creates a folder named "lstm" in the OpenEMS data directory (defined by `openems.data.dir` in `EdgeApp.bndrun`).
 
 Initially, a generic model will be used for predictions, which may not yield optimal results. However, a training process is scheduled to occur every 45 days, during which the models in this directory will be updated. The 45-day interval consists of 30 days for training and 15 days for validation.
 

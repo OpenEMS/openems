@@ -1,5 +1,6 @@
 package io.openems.edge.predictor.lstmmodel.common;
 
+import static io.openems.edge.predictor.lstmmodel.common.ReadAndSaveModels.MODEL_FOLDER;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -48,7 +49,7 @@ public class ReadAndSaveObjectTest {
 
 		// deleting the hyperparametes
 		try {
-			Files.delete(Paths.get(this.getModelPath(hyperParameters.getModelName() + "fenHp.fems")));
+			Files.delete(Paths.get(getModelPath(hyperParameters.getModelName() + "fenHp.edge")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -57,14 +58,13 @@ public class ReadAndSaveObjectTest {
 
 	/**
 	 * Gets the absolute path for a model file based on a given suffix. The path is
-	 * constructed within the OpenEMS data directory under the "models"
-	 * subdirectory.
+	 * constructed within the OpenEMS data directory under the "lstm" subdirectory.
 	 *
 	 * @param suffix The suffix to be appended to the model file path.
 	 * @return The absolute path for the model file.
 	 */
-	public String getModelPath(String suffix) {
+	public static String getModelPath(String suffix) {
 		File file = Paths.get(OpenemsConstants.getOpenemsDataDir()).toFile();
-		return file.getAbsolutePath() + File.separator + "models" + File.separator + suffix;
+		return file.getAbsolutePath() + MODEL_FOLDER + suffix;
 	}
 }

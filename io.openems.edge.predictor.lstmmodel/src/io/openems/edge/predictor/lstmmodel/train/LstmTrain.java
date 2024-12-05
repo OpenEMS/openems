@@ -104,7 +104,7 @@ public class LstmTrain implements Runnable {
 				constantScaling(removeNegatives(validationData), 1), validationDate, //
 				hyperParameters);
 
-		this.parent._setLastTrainedTime(hyperParameters.getLastTrainedDate().toString());
+		this.parent._setLastTrainedTime(hyperParameters.getLastTrainedDate().toInstant().toEpochMilli());
 		this.parent._setModelError(Collections.min(hyperParameters.getRmsErrorSeasonality()));
 		this.parent._setCannotTrainCondition(false);
 

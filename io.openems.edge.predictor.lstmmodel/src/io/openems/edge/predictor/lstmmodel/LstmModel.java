@@ -1,21 +1,23 @@
 package io.openems.edge.predictor.lstmmodel;
 
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanReadChannel;
+import static io.openems.common.channel.Level.INFO;
+import static io.openems.common.types.OpenemsType.DOUBLE;
+import static io.openems.common.types.OpenemsType.LONG;
+
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DoubleReadChannel;
-import io.openems.edge.common.channel.StringReadChannel;
-import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface LstmModel extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		LAST_TRAINED_TIME(Doc.of(OpenemsType.STRING) //
-				.text("Last trained time in Unixstimestamp")), //
-		MODEL_ERROR(Doc.of(OpenemsType.DOUBLE) //
+		LAST_TRAINED_TIME(Doc.of(LONG) //
+				.text("Last trained time as Unixtimestamp [ms]")), //
+		MODEL_ERROR(Doc.of(DOUBLE) //
 				.text("Error in the Model")), //
-		CANNOT_TRAIN_CONDITON(Doc.of(OpenemsType.BOOLEAN) //
+		CANNOT_TRAIN_CONDITON(Doc.of(INFO) //
 				.text("When the data set is empty, entirely null, or contains 50% null values."));
 
 		private final Doc doc;
@@ -35,18 +37,8 @@ public interface LstmModel extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default BooleanReadChannel getCannotTrainConditionChannel() {
+	public default StateChannel getCannotTrainConditionChannel() {
 		return this.channel(ChannelId.CANNOT_TRAIN_CONDITON);
-	}
-
-	/**
-	 * Gets the Cannot train condition in boolean. See
-	 * {@link ChannelId#CANNOT_TRAIN_CONDITON}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getCannotTrainCondition() {
-		return this.getCannotTrainConditionChannel().value();
 	}
 
 	/**
@@ -60,32 +52,12 @@ public interface LstmModel extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CANNOT_TRAIN_CONDITON} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setCannotTrainCondition(Boolean value) {
-		this.getCannotTrainConditionChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#LAST_TRAINED_TIME}.
 	 *
 	 * @return the Channel
 	 */
-	public default StringReadChannel getLastTrainedTimeChannel() {
+	public default LongReadChannel getLastTrainedTimeChannel() {
 		return this.channel(ChannelId.LAST_TRAINED_TIME);
-	}
-
-	/**
-	 * Gets the Last time trained time in Unix time stamp. See
-	 * {@link ChannelId#LAST_TRAINED_TIME}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<String> getLastTrainedTime() {
-		return this.getLastTrainedTimeChannel().value();
 	}
 
 	/**
@@ -94,7 +66,7 @@ public interface LstmModel extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setLastTrainedTime(String value) {
+	public default void _setLastTrainedTime(long value) {
 		this.getLastTrainedTimeChannel().setNextValue(value);
 	}
 
@@ -105,15 +77,6 @@ public interface LstmModel extends OpenemsComponent {
 	 */
 	public default DoubleReadChannel getModelErrorChannel() {
 		return this.channel(ChannelId.MODEL_ERROR);
-	}
-
-	/**
-	 * Gets the Model error. See {@link ChannelId#MODEL_ERROR}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Double> getModelError() {
-		return this.getModelErrorChannel().value();
 	}
 
 	/**

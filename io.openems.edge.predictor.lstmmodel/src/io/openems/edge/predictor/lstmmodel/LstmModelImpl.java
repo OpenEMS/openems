@@ -23,8 +23,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.Sets;
@@ -108,8 +106,8 @@ public class LstmModelImpl extends AbstractPredictor
 		this.channelForPrediction = channelAddress;
 
 		/*
-		 * Avoid training for the new FEMs due to lack of data. Set a fixed 45-day
-		 * period: 30 days for training and 15 days for validation.
+		 * Avoid training for the newly setup Edges due to lack of data. Set a fixed
+		 * 45-day period: 30 days for training and 15 days for validation.
 		 */
 		this.scheduler.scheduleAtFixedRate(//
 				new LstmTrain(this.timedata, channelAddress, this, DAYS_45), //
@@ -141,10 +139,11 @@ public class LstmModelImpl extends AbstractPredictor
 		var dayPlus1SeasonalityFuture = CompletableFuture
 				.supplyAsync(() -> this.predictSeasonality(channelAddress, nowDate.plusDays(1), hyperParameters));
 
-		var combinePrerequisites = CompletableFuture.allOf(seasonalityFuture, trendFuture);
+		// var combinePrerequisites = CompletableFuture.allOf(seasonalityFuture,
+		// trendFuture);
 
 		try {
-			combinePrerequisites.get();
+			// combinePrerequisites.get();
 
 			// Current day prediction
 			var currentDayPredicted = combine(trendFuture.get(), seasonalityFuture.get());

@@ -26,16 +26,16 @@ import io.openems.edge.predictor.lstmmodel.validator.ValidationTrendModel;
 
 public class ReadAndSaveModels {
 
+	protected static final String MODEL_FOLDER = File.separator + "lstm" + File.separator;
+
 	private static final String MODEL_DIRECTORY = Paths.get(OpenemsConstants.getOpenemsDataDir())//
 			.toFile()//
 			.getAbsolutePath();
 
-	private static final String MODEL_FOLDER = File.separator + "models" + File.separator;
-
 	/**
 	 * Saves the {@link HyperParameters} object to a file in JSON format. This
 	 * method serializes the provided {@link HyperParameters} object into JSON
-	 * format and saves it to a file with the specified name in the "models"
+	 * format and saves it to a file with the specified name in the "lstm"
 	 * directory. The serialization process utilizes a custom Gson instance
 	 * configured to handle the serialization of OffsetDateTime objects. The file is
 	 * saved in the directory specified by the OpenEMS data directory.
@@ -70,7 +70,7 @@ public class ReadAndSaveModels {
 	 * de-serializing it into a {@link HyperParameters} instance. The
 	 * de-serialization process utilizes a custom Gson instance configured to handle
 	 * the de-serialization of {@link OffsetDateTime} objects. The file is expected
-	 * to be located in the "models" directory within the OpenEMS data directory.
+	 * to be located in the "lstm" directory within the OpenEMS data directory.
 	 * 
 	 * @param fileName The name of the JSON file to read the HyperParameters from.
 	 * @return The {@link HyperParameters} object read from the file.
