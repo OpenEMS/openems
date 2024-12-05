@@ -13,7 +13,7 @@ public class ShufflePipe implements Stage<Object, Object> {
 		double[][] trainData = data[0];
 		double[] targetData = data[1][0];
 
-		Shuffle shuffle = new Shuffle(trainData, targetData);
+		var shuffle = new Shuffle(trainData, targetData);
 
 		double[][] shuffledData = shuffle.getData();
 		double[] shuffledTarget = shuffle.getTarget();

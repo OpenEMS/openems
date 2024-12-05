@@ -1,8 +1,10 @@
 package io.openems.edge.predictor.lstm.common;
 
-import java.util.Arrays;
+import static java.util.Arrays.stream;
+import static java.util.stream.IntStream.range;
+
 import java.util.Collection;
-import java.util.stream.IntStream;
+import java.util.stream.DoubleStream;
 
 public class DataStatistics {
 
@@ -13,7 +15,10 @@ public class DataStatistics {
 	 * @return mean value
 	 */
 	public static double getMean(Collection<? extends Number> data) {
-		return data.stream().mapToDouble(Number::doubleValue).average().orElse(0.0);
+		return data.stream() //
+				.mapToDouble(Number::doubleValue) //
+				.average() //
+				.orElse(0.0);
 	}
 
 	/**
@@ -25,7 +30,11 @@ public class DataStatistics {
 	 * @return an ArrayList of Double containing the means of each row
 	 */
 	public static double[] getMean(double[][] data) {
-		return Arrays.stream(data).mapToDouble(row -> Arrays.stream(row).average().orElse(0.0)).toArray();
+		return stream(data) //
+				.mapToDouble(row -> stream(row) //
+						.average() //
+						.orElse(0.0)) //
+				.toArray();
 	}
 
 	/**
@@ -42,7 +51,10 @@ public class DataStatistics {
 	 * @throws java.util.NoSuchElementException if the array is empty
 	 */
 	public static double getMean(double[] data) {
-		return Arrays.stream(data).parallel().average().getAsDouble();
+		return stream(data) //
+				.parallel() //
+				.average() //
+				.getAsDouble();
 	}
 
 	/**
@@ -60,15 +72,12 @@ public class DataStatistics {
 	 * @throws IllegalArgumentException if the input list is empty.
 	 */
 	public static double getStandardDeviation(Collection<? extends Number> data) {
-		double mean = getMean(data);
-		double sumSquaredDeviations = data.stream().mapToDouble(x -> Math.pow(x.doubleValue() - mean, 2)).sum();
-		double variance = sumSquaredDeviations / data.size();
-		double stdDeviation = Math.sqrt(variance);
-		return (stdDeviation == 0) ? 0.000000000000001 : stdDeviation;
+		var mean = getMean(data);
+		return getStandardDeviation(data, mean);
 	}
 
 	/**
-	 * * calculates the deviation of the data from the expected error. THis method
+	 * Calculates the deviation of the data from the expected error. This method
 	 * computes the average deviation from the expected error.
 	 * 
 	 * @param data          the data of type numbers
@@ -76,13 +85,7 @@ public class DataStatistics {
 	 * @return stdDeviation the standard deviation
 	 */
 	public static double getStandardDeviation(Collection<? extends Number> data, double expectedError) {
-		double mean = expectedError;
-		double sumSquaredDeviations = data.stream()//
-				.mapToDouble(x -> Math.pow(x.doubleValue() - mean, 2))//
-				.sum();
-		double variance = sumSquaredDeviations / data.size();
-		double stdDeviation = Math.sqrt(variance);
-		return (stdDeviation == 0) ? 0.000000000000001 : stdDeviation;
+		return getStandardDeviation(data.stream().mapToDouble(Number::doubleValue), data.size(), expectedError);
 	}
 
 	/**
@@ -100,13 +103,11 @@ public class DataStatistics {
 	 *             be computed
 	 * @return the standard deviation of the input array
 	 */
-
 	public static double getStandardDeviation(double[] data) {
-		double mean = Arrays.stream(data).average().getAsDouble();
-		double sumSquaredDeviations = Arrays.stream(data).map(x -> Math.pow(x - mean, 2)).sum();
-		double variance = sumSquaredDeviations / data.length;
-		double stdDeviation = Math.sqrt(variance);
-		return (stdDeviation == 0) ? 0.000000000000001 : stdDeviation;
+		var mean = stream(data) //
+				.average() //
+				.getAsDouble();
+		return getStandardDeviation(stream(data), data.length, mean);
 	}
 
 	/**
@@ -118,9 +119,18 @@ public class DataStatistics {
 	 * @return an ArrayList of Double containing the standard deviations of each row
 	 */
 	public static double[] getStandardDeviation(double[][] data) {
-		return Arrays.stream(data)//
+		return stream(data)//
 				.mapToDouble(row -> getStandardDeviation(row))//
 				.toArray();
+	}
+
+	private static double getStandardDeviation(DoubleStream data, int length, double expectedError) {
+		double sumSquaredDeviations = data //
+				.map(x -> Math.pow(x - expectedError, 2))//
+				.sum();
+		double variance = sumSquaredDeviations / length;
+		double stdDeviation = Math.sqrt(variance);
+		return (stdDeviation == 0) ? 0.000000000000001 : stdDeviation;
 	}
 
 	/**
@@ -137,8 +147,8 @@ public class DataStatistics {
 			throw new IllegalArgumentException("Arrays must have the same length");
 		}
 
-		var sumOfSquaredDifferences = IntStream.range(0, original.length)
-				.mapToDouble(i -> Math.pow(original[i] - computed[i], 2))//
+		var sumOfSquaredDifferences = range(0, original.length) //
+				.mapToDouble(i -> Math.pow(original[i] - computed[i], 2)) //
 				.average();
 
 		return Math.sqrt(sumOfSquaredDifferences.getAsDouble());

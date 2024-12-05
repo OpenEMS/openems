@@ -11,6 +11,7 @@ import io.openems.edge.predictor.lstm.preprocessingpipeline.PreprocessingPipeImp
 import io.openems.edge.predictor.lstm.util.Engine.EngineBuilder;
 
 public class MakeModel {
+
 	public static final String SEASONALITY = "seasonality";
 	public static final String TREND = "trend";
 
@@ -30,7 +31,6 @@ public class MakeModel {
 	 */
 	public synchronized ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> trainTrend(ArrayList<Double> data,
 			ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
-
 		var weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		var weightTrend = new ArrayList<ArrayList<Double>>();
 		PreprocessingPipeImpl preProcessing = new PreprocessingPipeImpl(hyperParameters);
@@ -46,7 +46,6 @@ public class MakeModel {
 				.execute();
 
 		for (int i = 0; i < modifiedData.length; i++) {
-
 			weightTrend = (hyperParameters.getCount() == 0) //
 					? generateInitialWeightMatrix(hyperParameters.getWindowSizeTrend(), hyperParameters)//
 					: hyperParameters.getlastModelTrend().get(i);
@@ -88,13 +87,11 @@ public class MakeModel {
 
 	public synchronized ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> trainSeasonality(ArrayList<Double> data,
 			ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
-
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix = new ArrayList<>();
-		ArrayList<ArrayList<Double>> weightSeasonality = new ArrayList<>();
+		var weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+		var weightSeasonality = new ArrayList<ArrayList<Double>>();
 		int windowsSize = hyperParameters.getWindowSizeSeasonality();
 
-		PreprocessingPipeImpl preprocessing = new PreprocessingPipeImpl(hyperParameters);
-
+		var preprocessing = new PreprocessingPipeImpl(hyperParameters);
 		preprocessing.setData(to1DArray(data));//
 		preprocessing.setDates(date);//
 
@@ -115,24 +112,23 @@ public class MakeModel {
 
 				if (hyperParameters.getCount() == 0) {
 					weightSeasonality = generateInitialWeightMatrix(windowsSize, hyperParameters);
+
 				} else {
-
 					weightSeasonality = hyperParameters.getlastModelSeasonality().get(k);
-
 				}
 
 				preprocessing.setData(dataGroupedByMinute[i][j]);
 
 				var preProcessedSeason = (double[][][]) preprocessing//
-						//.differencing()//
-						.groupToWIndowSeasonality()//
-						.normalize()//
-						.shuffle()//
+						// .differencing()//
+						.groupToWIndowSeasonality() //
+						.normalize() //
+						.shuffle() //
 						.execute();
 
 				var model = new EngineBuilder()//
-						.setInputMatrix(preProcessedSeason[0])//
-						.setTargetVector(preProcessedSeason[1][0])//
+						.setInputMatrix(preProcessedSeason[0]) //
+						.setTargetVector(preProcessedSeason[1][0]) //
 						.build();
 
 				model.fit(hyperParameters.getGdIterration(), weightSeasonality, hyperParameters);
@@ -158,14 +154,13 @@ public class MakeModel {
 	 */
 	public static ArrayList<ArrayList<Double>> generateInitialWeightMatrix(int windowSize,
 			HyperParameters hyperParameters) {
+		var initialWeight = new ArrayList<ArrayList<Double>>();
+		var parameterTypes = new String[] { "wi", "wo", "wz", "ri", "ro", "rz", "yt", "ct" };
 
-		ArrayList<ArrayList<Double>> initialWeight = new ArrayList<>();
-		String[] parameterTypes = { "wi", "wo", "wz", "ri", "ro", "rz", "yt", "ct" };
-
-		for (String type : parameterTypes) {
-			ArrayList<Double> temp = new ArrayList<>();
+		for (var type : parameterTypes) {
+			var temp = new ArrayList<Double>();
 			for (int i = 1; i <= windowSize; i++) {
-				double value = switch (type) {
+				var value = switch (type) {
 				case "wi" -> hyperParameters.getWiInit();
 				case "wo" -> hyperParameters.getWoInit();
 				case "wz" -> hyperParameters.getWzInit();

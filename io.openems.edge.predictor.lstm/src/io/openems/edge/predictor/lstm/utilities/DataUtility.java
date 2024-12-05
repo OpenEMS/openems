@@ -24,8 +24,7 @@ public class DataUtility {
 	 */
 	public static ArrayList<Double> getData(
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult) {
-
-		ArrayList<Double> data = new ArrayList<>();
+		var data = new ArrayList<Double>();
 
 		queryResult.values().stream()//
 				.map(SortedMap::values)//
@@ -52,7 +51,8 @@ public class DataUtility {
 	 * @return true if all elements in the ArrayList are null, false otherwise.
 	 */
 	private static boolean isAllNulls(ArrayList<Double> array) {
-		return array.stream().allMatch(Objects::isNull);
+		return array.stream() //
+				.allMatch(Objects::isNull);
 	}
 
 	/**
@@ -61,11 +61,9 @@ public class DataUtility {
 	 * @param trendPrediction       The list of predicted trend values.
 	 * @param seasonalityPrediction The list of predicted seasonality values.
 	 * @return A combined list containing both trend and seasonality predictions.
-	 * 
 	 */
 	public static ArrayList<Double> combine(ArrayList<Double> trendPrediction,
 			ArrayList<Double> seasonalityPrediction) {
-
 		for (int l = 0; l < trendPrediction.size(); l++) {
 			seasonalityPrediction.set(l, trendPrediction.get(l));
 		}
@@ -83,7 +81,6 @@ public class DataUtility {
 	 */
 	public static ArrayList<Double> concatenateList(ArrayList<Double> list1, ArrayList<Double> list2) {
 		ArrayList<Double> result = new ArrayList<>();
-
 		if (list1 != null) {
 			result.addAll(list1);
 		}

@@ -2,13 +2,13 @@ package io.openems.edge.predictor.lstm.preprocessing;
 
 import static io.openems.edge.predictor.lstm.common.DataStatistics.getMean;
 import static io.openems.edge.predictor.lstm.common.DataStatistics.getStandardDeviation;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.IntStream.range;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 
@@ -32,7 +32,7 @@ public class DataModification {
 	public static ArrayList<Double> scale(ArrayList<Double> data, double min, double max) {
 		return data.stream()//
 				.map(value -> MIN_SCALED + ((value - min) / (max - min)) * (MAX_SCALED - MIN_SCALED))
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class DataModification {
 	 * @return A new list containing the scaled data within the specified range.
 	 */
 	public static double[] scale(double[] data, double min, double max) {
-		return Arrays.stream(data)//
+		return stream(data)//
 				.map(value -> MIN_SCALED + ((value - min) / (max - min)) * (MAX_SCALED - MIN_SCALED))//
 				.toArray();
 	}
@@ -86,7 +86,7 @@ public class DataModification {
 	public static ArrayList<Double> scaleBack(ArrayList<Double> data, double minOriginal, double maxOriginal) {
 		return data.stream()//
 				.map(value -> calculateScale(value, MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal))//
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class DataModification {
 	 * @return A new ArrayList containing the scaled back values.
 	 */
 	public static double[] scaleBack(double[] data, double minOriginal, double maxOriginal) {
-		return Arrays.stream(data)//
+		return stream(data)//
 				.map(value -> calculateScale(value, MIN_SCALED, MAX_SCALED, minOriginal, maxOriginal))//
 				.toArray();
 	}
@@ -134,8 +134,7 @@ public class DataModification {
 	 * @return A new 2D array containing the standardized (normalized) data.
 	 */
 	public static double[][] normalizeData(double[][] data, HyperParameters hyperParameters) {
-		double[][] standData;
-		standData = new double[data.length][data[0].length];// Here error
+		var standData = new double[data.length][data[0].length];// Here error
 		for (int i = 0; i < data.length; i++) {
 			standData[i] = standardize(data[i], hyperParameters);
 		}
@@ -159,8 +158,7 @@ public class DataModification {
 	 */
 
 	public static double[] normalizeData(double[][] data, double[] target, HyperParameters hyperParameters) {
-		double[] standData;
-		standData = new double[target.length];
+		var standData = new double[target.length];
 		for (int i = 0; i < data.length; i++) {
 			standData[i] = standardize(target[i], getMean(data[i]), getStandardDeviation(data[i]), hyperParameters);
 		}
@@ -182,12 +180,12 @@ public class DataModification {
 
 		double stdDeviationCurrent = getStandardDeviation(inputData);
 		double meanTarget = hyperParameters.getMean();
-		double standerDeviationTarget = hyperParameters.getStanderDeviation();
+		double stdDeviationTarget = hyperParameters.getStandardDeviation();
 
 		double[] standardizedData = new double[inputData.length];
 		for (int i = 0; i < inputData.length; i++) {
 			standardizedData[i] = meanTarget
-					+ ((inputData[i] - meanCurrent) * (standerDeviationTarget / stdDeviationCurrent));
+					+ ((inputData[i] - meanCurrent) * (stdDeviationTarget / stdDeviationCurrent));
 		}
 		return standardizedData;
 	}
@@ -207,14 +205,12 @@ public class DataModification {
 	 */
 	public static double standardize(double inputData, double mean, double standerdDev,
 			HyperParameters hyperParameters) {
-
 		double meanCurrent = mean;
 
 		double stdDeviationCurrent = standerdDev;
 		double meanTarget = hyperParameters.getMean();
-		double standerDeviationTarget = hyperParameters.getStanderDeviation();
-		return meanTarget + ((inputData - meanCurrent) * (standerDeviationTarget / stdDeviationCurrent));
-
+		double stdDeviationTarget = hyperParameters.getStandardDeviation();
+		return meanTarget + ((inputData - meanCurrent) * (stdDeviationTarget / stdDeviationCurrent));
 	}
 
 	/**
@@ -233,10 +229,9 @@ public class DataModification {
 	 */
 	public static double reverseStandrize(double zvalue, double mean, double standardDeviation,
 			HyperParameters hyperParameters) {
-
 		double reverseStand = 0;
 		double meanTarget = hyperParameters.getMean();
-		double standardDeviationTarget = hyperParameters.getStanderDeviation();
+		double standardDeviationTarget = hyperParameters.getStandardDeviation();
 
 		reverseStand = ((zvalue - meanTarget) * (standardDeviation / standardDeviationTarget) + mean);
 		return reverseStand;
@@ -259,7 +254,7 @@ public class DataModification {
 	 */
 	public static double[] reverseStandrize(ArrayList<Double> data, ArrayList<Double> mean,
 			ArrayList<Double> standDeviation, HyperParameters hyperParameters) {
-		double[] revNorm = new double[data.size()];
+		var revNorm = new double[data.size()];
 		for (int i = 0; i < data.size(); i++) {
 			revNorm[i] = (reverseStandrize(data.get(i), mean.get(i), standDeviation.get(i), hyperParameters));
 		}
@@ -283,7 +278,7 @@ public class DataModification {
 	 */
 	public static double[] reverseStandrize(double[] data, double[] mean, double[] standDeviation,
 			HyperParameters hyperParameters) {
-		double[] revNorm = new double[data.length];
+		var revNorm = new double[data.length];
 		for (int i = 0; i < data.length; i++) {
 			revNorm[i] = (reverseStandrize(data[i], mean[i], standDeviation[i], hyperParameters));
 		}
@@ -307,7 +302,7 @@ public class DataModification {
 	 */
 	public static double[] reverseStandrize(ArrayList<Double> data, double mean, double standDeviation,
 			HyperParameters hyperParameters) {
-		double[] revNorm = new double[data.size()];
+		var revNorm = new double[data.size()];
 		for (int i = 0; i < data.size(); i++) {
 			revNorm[i] = (reverseStandrize(data.get(i), mean, standDeviation, hyperParameters));
 		}
@@ -331,7 +326,7 @@ public class DataModification {
 	 */
 	public static double[] reverseStandrize(double[] data, double mean, double standDeviation,
 			HyperParameters hyperParameters) {
-		double[] revNorm = new double[data.length];
+		var revNorm = new double[data.length];
 		for (int i = 0; i < data.length; i++) {
 			revNorm[i] = (reverseStandrize(data[i], mean, standDeviation, hyperParameters));
 		}
@@ -352,11 +347,10 @@ public class DataModification {
 
 	public static ArrayList<ArrayList<ArrayList<Double>>> groupDataByHourAndMinute(ArrayList<Double> data,
 			ArrayList<OffsetDateTime> date) {
+		var dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
+		var dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 
-		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<>();
-		ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<>();
-
-		GroupBy groupByHour = new GroupBy(data, date);
+		var groupByHour = new GroupBy(data, date);
 		groupByHour.hour();
 
 		for (int i = 0; i < groupByHour.getGroupedDataByHour().size(); i++) {
@@ -380,14 +374,13 @@ public class DataModification {
 	 */
 	public static ArrayList<ArrayList<Double>> modifyFortrendPrediction(ArrayList<Double> data,
 			ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
-
-		ArrayList<ArrayList<ArrayList<Double>>> firstModification = groupDataByHourAndMinute(data, date);
+		var firstModification = groupDataByHourAndMinute(data, date);
 
 		// Flatten the structure of the first modification
-		ArrayList<ArrayList<Double>> secondModification = flatten3dto2d(firstModification);
+		var secondModification = flatten3dto2d(firstModification);
 
 		// Apply windowing to create the third modification
-		ArrayList<ArrayList<Double>> thirdModification = applyWindowing(secondModification, hyperParameters);
+		var thirdModification = applyWindowing(secondModification, hyperParameters);
 
 		return thirdModification;
 	}
@@ -396,7 +389,7 @@ public class DataModification {
 			ArrayList<ArrayList<ArrayList<Double>>> data) {
 		return data.stream()//
 				.flatMap(twoDList -> twoDList.stream())//
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -409,10 +402,9 @@ public class DataModification {
 	 */
 	public static ArrayList<ArrayList<ArrayList<Double>>> flattern4dto3d(
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> model) {
-
 		return model.stream()//
 				.flatMap(threeDList -> threeDList.stream())//
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(toCollection(ArrayList::new));
 	}
 
 	private static ArrayList<ArrayList<Double>> applyWindowing(ArrayList<ArrayList<Double>> data,
@@ -439,12 +431,11 @@ public class DataModification {
 	 * @return reGroupedsecond Teh Flattened ArrayList
 	 */
 	public static ArrayList<Double> combinedArray(ArrayList<ArrayList<Double>> values) {
-		int minSize = values.stream()//
+		var minSize = values.stream()//
 				.mapToInt(ArrayList::size)//
 				.min()//
 				.orElse(0);
-
-		ArrayList<Double> reGroupedsecond = new ArrayList<>();
+		var reGroupedsecond = new ArrayList<Double>();
 
 		for (int i = 0; i < minSize; i++) {
 			for (ArrayList<Double> innerList : values) {
@@ -469,15 +460,14 @@ public class DataModification {
 	 */
 	public static ArrayList<ArrayList<Double>> getDataInBatch(ArrayList<Double> originalList, int numberOfGroups) {
 		ArrayList<ArrayList<Double>> splitGroups = new ArrayList<>();
+		var originalSize = originalList.size();
+		var groupSize = originalSize / numberOfGroups;
+		var remainder = originalSize % numberOfGroups;
 
-		int originalSize = originalList.size();
-		int groupSize = originalSize / numberOfGroups;
-		int remainder = originalSize % numberOfGroups;
-
-		int currentIndex = 0;
+		var currentIndex = 0;
 		for (int i = 0; i < numberOfGroups; i++) {
-			int groupCount = groupSize + (i < remainder ? 1 : 0);
-			ArrayList<Double> group = new ArrayList<>(originalList.subList(currentIndex, currentIndex + groupCount));
+			var groupCount = groupSize + (i < remainder ? 1 : 0);
+			var group = new ArrayList<>(originalList.subList(currentIndex, currentIndex + groupCount));
 			splitGroups.add(group);
 			currentIndex += groupCount;
 		}
@@ -499,17 +489,15 @@ public class DataModification {
 	 */
 	public static ArrayList<ArrayList<OffsetDateTime>> getDateInBatch(ArrayList<OffsetDateTime> originalList,
 			int numberOfGroups) {
-		ArrayList<ArrayList<OffsetDateTime>> splitGroups = new ArrayList<>();
+		var splitGroups = new ArrayList<ArrayList<OffsetDateTime>>();
+		var originalSize = originalList.size();
+		var groupSize = originalSize / numberOfGroups;
+		var remainder = originalSize % numberOfGroups;
 
-		int originalSize = originalList.size();
-		int groupSize = originalSize / numberOfGroups;
-		int remainder = originalSize % numberOfGroups;
-
-		int currentIndex = 0;
+		var currentIndex = 0;
 		for (int i = 0; i < numberOfGroups; i++) {
-			int groupCount = groupSize + (i < remainder ? 1 : 0);
-			ArrayList<OffsetDateTime> group = new ArrayList<>(
-					originalList.subList(currentIndex, currentIndex + groupCount));
+			var groupCount = groupSize + (i < remainder ? 1 : 0);
+			var group = new ArrayList<OffsetDateTime>(originalList.subList(currentIndex, currentIndex + groupCount));
 			splitGroups.add(group);
 			currentIndex += groupCount;
 		}
@@ -529,7 +517,7 @@ public class DataModification {
 		return data.stream()//
 				// Replace negative values with 0
 				.map(value -> value == null || Double.isNaN(value) ? Double.NaN : Math.max(value, 0))
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(toCollection(ArrayList::new));
 
 	}
 
@@ -541,7 +529,7 @@ public class DataModification {
 	 * @return a new array with negative values replaced by 0
 	 */
 	public static double[] removeNegatives(double[] data) {
-		return Arrays.stream(data)//
+		return stream(data)//
 				.map(value -> Double.isNaN(value) ? Double.NaN : Math.max(value, 0))//
 				.toArray();
 	}
@@ -555,7 +543,9 @@ public class DataModification {
 	 * @return A new ArrayList containing the scaled values.
 	 */
 	public static ArrayList<Double> constantScaling(ArrayList<Double> data, double scalingFactor) {
-		return data.stream().map(val -> val * scalingFactor).collect(Collectors.toCollection(ArrayList::new));
+		return data.stream() //
+				.map(val -> val * scalingFactor) //
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -567,7 +557,9 @@ public class DataModification {
 	 * @return A new Array containing the scaled values.
 	 */
 	public static double[] constantScaling(double[] data, double scalingFactor) {
-		return Arrays.stream(data).map(val -> val * scalingFactor).toArray();
+		return stream(data) //
+				.map(val -> val * scalingFactor) //
+				.toArray();
 	}
 
 	/**
@@ -585,17 +577,16 @@ public class DataModification {
 	 */
 	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshape(
 			ArrayList<ArrayList<ArrayList<Double>>> dataList, HyperParameters hyperParameters) {
-
 		// Calculate the dimensions for reshaping
-		int rowsPerDay = 60 / hyperParameters.getInterval() * 24;
-		int numDays = dataList.size() / rowsPerDay;
+		var rowsPerDay = 60 / hyperParameters.getInterval() * 24;
+		var numDays = dataList.size() / rowsPerDay;
 
 		// Initialize the reshaped 4D list
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshapedData = new ArrayList<>();
+		var reshapedData = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 
-		int dataIndex = 0;
+		var dataIndex = 0;
 		for (int day = 0; day < numDays; day++) {
-			ArrayList<ArrayList<ArrayList<Double>>> dailyData = new ArrayList<>();
+			var dailyData = new ArrayList<ArrayList<ArrayList<Double>>>();
 			for (int row = 0; row < rowsPerDay; row++) {
 				dailyData.add(dataList.get(dataIndex));
 				dataIndex++;
@@ -626,12 +617,11 @@ public class DataModification {
 			String fileName, //
 			String modelType, //
 			HyperParameters hyperParameters) {
-
-		ArrayList<ArrayList<ArrayList<Double>>> optimumWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
+		var optimumWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
 
 		for (List<Integer> idx : indices) {
-			ArrayList<ArrayList<Double>> tempWeights = allModel//
-					.get(idx.get(0))//
+			var tempWeights = allModel //
+					.get(idx.get(0)) //
 					.get(idx.get(1));
 			optimumWeights.add(tempWeights);
 		}
@@ -661,7 +651,7 @@ public class DataModification {
 		if (featureA.length != featureB.length) {
 			throw new IllegalArgumentException("The input arrays must have the same length.");
 		}
-		return IntStream.range(0, featureA.length)//
+		return range(0, featureA.length)//
 				.mapToDouble(i -> featureA[i] * featureB[i])//
 				.toArray();
 	}
@@ -680,8 +670,9 @@ public class DataModification {
 		if (featureA.size() != featureB.size()) {
 			throw new IllegalArgumentException("The input ArrayLists must have the same length.");
 		}
-		ArrayList<Double> result = new ArrayList<>();
-		IntStream.range(0, featureA.size()).forEach(i -> result.add(featureA.get(i) * featureB.get(i)));
+		var result = new ArrayList<Double>();
+		range(0, featureA.size()) //
+				.forEach(i -> result.add(featureA.get(i) * featureB.get(i)));
 		return result;
 	}
 
@@ -701,9 +692,11 @@ public class DataModification {
 		if (featureA.size() != featureB.size()) {
 			throw new IllegalArgumentException("The input ArrayLists must have the same length.");
 		}
-		ArrayList<Double> result = new ArrayList<>();
-		IntStream.range(0, featureA.size())
-				.forEach(i -> result.add((featureB.get(i) == 0) ? featureA.get(i) : featureA.get(i) / featureB.get(i)));
+		var result = new ArrayList<Double>();
+		range(0, featureA.size()) //
+				.forEach(i -> result.add(featureB.get(i) == 0 //
+						? featureA.get(i) //
+						: featureA.get(i) / featureB.get(i)));
 		return result;
 	}
 
@@ -722,8 +715,10 @@ public class DataModification {
 		if (featureA.length != featureB.length) {
 			throw new IllegalArgumentException("The input arrays must have the same length.");
 		}
-		return IntStream.range(0, featureA.length)//
-				.mapToDouble(i -> (featureB[i] == 0) ? featureA[i] : featureA[i] / featureB[i])//
+		return range(0, featureA.length)//
+				.mapToDouble(i -> featureB[i] == 0 //
+						? featureA[i] //
+						: featureA[i] / featureB[i])//
 				.toArray();
 	}
 

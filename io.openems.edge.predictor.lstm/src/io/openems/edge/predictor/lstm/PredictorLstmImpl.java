@@ -1,11 +1,15 @@
 package io.openems.edge.predictor.lstm;
 
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
+import static io.openems.edge.common.jsonapi.EdgeGuards.roleIsAtleast;
+import static io.openems.edge.predictor.lstm.jsonrpc.PredictionRequestHandler.handlerGetPredictionRequest;
+import static io.openems.edge.predictor.lstm.preprocessing.DataModification.removeNegatives;
 import static io.openems.edge.predictor.lstm.utilities.DataUtility.combine;
 import static io.openems.edge.predictor.lstm.utilities.DataUtility.concatenateList;
 import static io.openems.edge.predictor.lstm.utilities.DataUtility.getData;
 import static io.openems.edge.predictor.lstm.utilities.DataUtility.getDate;
 import static io.openems.edge.predictor.lstm.utilities.DataUtility.getMinute;
+import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -36,7 +40,6 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
-import io.openems.edge.common.jsonapi.EdgeGuards;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -48,8 +51,6 @@ import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.LstmPredictor;
 import io.openems.edge.predictor.lstm.common.ReadAndSaveModels;
 import io.openems.edge.predictor.lstm.jsonrpc.GetPredictionRequest;
-import io.openems.edge.predictor.lstm.jsonrpc.PredictionRequestHandler;
-import io.openems.edge.predictor.lstm.preprocessing.DataModification;
 import io.openems.edge.predictor.lstm.train.LstmTrain;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -61,8 +62,6 @@ import io.openems.edge.timedata.api.Timedata;
 )
 public class PredictorLstmImpl extends AbstractPredictor
 		implements Predictor, OpenemsComponent, ComponentJsonApi, PredictorLstm {
-
-	// private final Logger log = LoggerFactory.getLogger(LstmModelImpl.class);
 
 	/** 45 days. */
 	private static final long DAYS_45 = 45;
@@ -127,24 +126,22 @@ public class PredictorLstmImpl extends AbstractPredictor
 
 	@Override
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
-
 		var hyperParameters = ReadAndSaveModels.read(channelAddress.getChannelId());
-		var nowDate = ZonedDateTime.now();
+		var now = ZonedDateTime.now();
 
 		var seasonalityFuture = CompletableFuture
-				.supplyAsync(() -> this.predictSeasonality(channelAddress, nowDate, hyperParameters));
+				.supplyAsync(() -> this.predictSeasonality(channelAddress, now, hyperParameters));
 
-		var trendFuture = CompletableFuture
-				.supplyAsync(() -> this.predictTrend(channelAddress, nowDate, hyperParameters));
+		var trendFuture = CompletableFuture.supplyAsync(() -> this.predictTrend(channelAddress, now, hyperParameters));
 
 		var dayPlus1SeasonalityFuture = CompletableFuture
-				.supplyAsync(() -> this.predictSeasonality(channelAddress, nowDate.plusDays(1), hyperParameters));
+				.supplyAsync(() -> this.predictSeasonality(channelAddress, now.plusDays(1), hyperParameters));
 
 		// var combinePrerequisites = CompletableFuture.allOf(seasonalityFuture,
 		// trendFuture);
 
 		try {
-			// combinePrerequisites.get();
+			// TODO combinePrerequisites.get();
 
 			// Current day prediction
 			var currentDayPredicted = combine(trendFuture.get(), seasonalityFuture.get());
@@ -155,12 +152,12 @@ public class PredictorLstmImpl extends AbstractPredictor
 			// Concat current and Nextday
 			var actualPredicted = concatenateList(currentDayPredicted, plus1DaySeasonalityPrediction);
 
-			var baseTimeOfPrediction = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0)
-					.withNano(0);
+			var baseTimeOfPrediction = now.withMinute(getMinute(now, hyperParameters)).withSecond(0).withNano(0);
 
 			return Prediction.from(this.sum, channelAddress, //
 					baseTimeOfPrediction, //
 					averageInChunks(actualPredicted));
+
 		} catch (Exception e) {
 			throw new RuntimeException("Error in getting prediction execution", e);
 		}
@@ -183,11 +180,11 @@ public class PredictorLstmImpl extends AbstractPredictor
 	 */
 	private static Integer[] averageInChunks(ArrayList<Double> inputList) {
 		final int chunkSize = 3;
-		int resultSize = inputList.size() / chunkSize;
-		Integer[] result = new Integer[resultSize];
+		var resultSize = inputList.size() / chunkSize;
+		var result = new Integer[resultSize];
 
 		for (int i = 0; i < inputList.size(); i += chunkSize) {
-			double sum = IntStream.range(i, Math.min(i + chunkSize, inputList.size()))
+			var sum = IntStream.range(i, min(i + chunkSize, inputList.size())) //
 					.mapToDouble(j -> inputList.get(j))//
 					.sum();
 			result[i / chunkSize] = (int) (sum / chunkSize);
@@ -236,7 +233,6 @@ public class PredictorLstmImpl extends AbstractPredictor
 	 */
 	public ArrayList<Double> predictTrend(ChannelAddress channelAddress, ZonedDateTime nowDate,
 			HyperParameters hyperParameters) {
-
 		var till = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0).withNano(0);
 		var from = till.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend());
 
@@ -269,7 +265,6 @@ public class PredictorLstmImpl extends AbstractPredictor
 	 */
 	public ArrayList<Double> predictSeasonality(ChannelAddress channelAddress, ZonedDateTime nowDate,
 			HyperParameters hyperParameters) {
-
 		var till = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0).withNano(0);
 		var temp = till.minusDays(hyperParameters.getWindowSizeSeasonality() - 1);
 
@@ -283,18 +278,16 @@ public class PredictorLstmImpl extends AbstractPredictor
 
 		return LstmPredictor.getArranged(
 				LstmPredictor.getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters), //
-				LstmPredictor.predictSeasonality(DataModification.removeNegatives(getData(queryResult)),
-						getDate(queryResult), //
+				LstmPredictor.predictSeasonality(removeNegatives(getData(queryResult)), getDate(queryResult), //
 						hyperParameters));
 	}
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(GetPredictionRequest.METHOD, endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+			endpoint.setGuards(roleIsAtleast(Role.OWNER));
 		}, call -> {
-			return PredictionRequestHandler.handlerGetPredictionRequest(call.getRequest().id, this.predictorManager,
-					this.channelForPrediction);
+			return handlerGetPredictionRequest(call.getRequest().id, this.predictorManager, this.channelForPrediction);
 		});
 	}
 }

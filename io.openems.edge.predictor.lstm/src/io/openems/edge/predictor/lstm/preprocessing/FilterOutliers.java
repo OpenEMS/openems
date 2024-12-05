@@ -1,8 +1,9 @@
 package io.openems.edge.predictor.lstm.preprocessing;
 
+import static java.util.stream.IntStream.range;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 
@@ -21,9 +22,9 @@ public class FilterOutliers {
 			throw new IllegalArgumentException("Input data must not be null or empty.");
 		}
 
-		double[] filteredData = Arrays.copyOf(data, data.length);
-		int iterationCount = 0;
-		boolean hasOutliers = true;
+		var filteredData = Arrays.copyOf(data, data.length);
+		var iterationCount = 0;
+		var hasOutliers = true;
 
 		while (hasOutliers && iterationCount <= 100) {
 			var outlierIndices = detect(filteredData);
@@ -44,12 +45,11 @@ public class FilterOutliers {
 	 * Applies the hyperbolic tangent function to data points at the specified
 	 * indices.
 	 *
-	 * @param data  the input dataset
+	 * @param data    the input dataset
 	 * @param indices the indices of data points to be transformed
 	 * @return the transformed dataset
 	 */
 	public static double[] filter(double[] data, ArrayList<Integer> indices) {
-
 		if (data == null || indices == null) {
 			throw new IllegalArgumentException("Input data and indices must not be null.");
 		}
@@ -76,20 +76,19 @@ public class FilterOutliers {
 	 * @return a list of indices of the detected outliers
 	 */
 	public static ArrayList<Integer> detect(double[] data) {
-
 		if (data == null || data.length == 0) {
 			throw new IllegalArgumentException("Input data must not be null or empty.");
 		}
 
-		Percentile perc = new Percentile();
-		var q1 = perc.evaluate(data, 25);// 25th percentile (Q1) (First percentile)
-		var q3 = perc.evaluate(data, 75);// 75th percentile (Q3) (Third percentile)
+		var perc = new Percentile();
+		var q1 = perc.evaluate(data, 25); // 25th percentile (Q1) (First percentile)
+		var q3 = perc.evaluate(data, 75); // 75th percentile (Q3) (Third percentile)
 		var iqr = q3 - q1;
 		var upperLimit = q3 + 1.5 * iqr;
 		var lowerLimit = q1 - 1.5 * iqr;
 
 		// Detect outliers
-		return IntStream.range(0, data.length)//
+		return range(0, data.length)//
 				.filter(i -> data[i] < lowerLimit || data[i] > upperLimit)
 				.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 	}

@@ -9,8 +9,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.openems.edge.predictor.lstm.interpolation.CubicalInterpolation;
-
 public class CubicalInterpolationTest {
 
 	@Test

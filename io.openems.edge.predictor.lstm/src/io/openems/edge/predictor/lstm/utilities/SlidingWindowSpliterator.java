@@ -14,7 +14,7 @@ import java.util.stream.StreamSupport;
 public class SlidingWindowSpliterator<T> implements Spliterator<Stream<T>> {
 
 	/**
-	 * creates windows.
+	 * Creates windows.
 	 * 
 	 * @param <T>        generic data type
 	 * @param stream     Collection

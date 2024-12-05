@@ -78,7 +78,6 @@ public class ReadAndSaveModels {
 	 * @throws IOException           If an I/O error occurs while reading the file.
 	 */
 	public static HyperParameters read(String fileName) {
-
 		String filePath = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER, fileName)//
 				.toString();
 

@@ -18,7 +18,7 @@ public class TrainAndValidateBatch {
 			ArrayList<Double> validateData, //
 			ArrayList<OffsetDateTime> validateDate, //
 			HyperParameters hyperParameter) {
-		
+
 		/*
 		 * var checkTrain = trainData.size() / hyperParameter.getBatchSize()
 		 * 
@@ -30,8 +30,6 @@ public class TrainAndValidateBatch {
 				trainData, hyperParameter.getBatchSize());
 		var batchedDate = DataModification.getDateInBatch(//
 				trainDate, hyperParameter.getBatchSize());
-		
-
 
 		for (int epoch = hyperParameter.getEpochTrack(); epoch < hyperParameter.getEpoch(); epoch++) {
 
@@ -47,11 +45,10 @@ public class TrainAndValidateBatch {
 
 				MakeModel makeModels = new MakeModel();
 
-				var trainDataTemp = batchedData.get(batch);				
+				var trainDataTemp = batchedData.get(batch);
 				var trainDateTemp = batchedDate.get(batch);
 
 				CompletableFuture<Void> firstTaskFuture = CompletableFuture
-
 						// Train the Seasonality model
 						.supplyAsync(() -> makeModels.trainSeasonality(trainDataTemp, trainDateTemp, hyperParameter))
 
@@ -60,7 +57,6 @@ public class TrainAndValidateBatch {
 								validateData, validateDate, untestedSeasonalityMoadels, hyperParameter));
 
 				CompletableFuture<Void> secondTaskFuture = CompletableFuture
-
 						// Train the trend model
 						.supplyAsync(() -> makeModels.trainTrend(trainDataTemp, trainDateTemp, hyperParameter))
 
@@ -79,12 +75,13 @@ public class TrainAndValidateBatch {
 				hyperParameter.setCount(k);
 				ReadAndSaveModels.save(hyperParameter);
 			}
+
 			hyperParameter.setBatchTrack(0);
 			hyperParameter.setEpochTrack(hyperParameter.getEpochTrack() + 1);
 			hyperParameter.update();
 			ReadAndSaveModels.save(hyperParameter);
-
 		}
+
 		hyperParameter.setEpochTrack(0);
 		ReadAndSaveModels.save(hyperParameter);
 	}

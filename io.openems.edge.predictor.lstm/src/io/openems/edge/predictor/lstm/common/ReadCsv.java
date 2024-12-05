@@ -35,7 +35,6 @@ public class ReadCsv {
 	 * @throws IOException if there are issues reading the file.
 	 */
 	public void getDataFromCsv(String fileName) {
-
 		try {
 			var path = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER, fileName)//
 					.toString();

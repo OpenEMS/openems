@@ -2,7 +2,6 @@ package io.openems.edge.predictor.lstm.util;
 
 import static org.junit.Assert.assertEquals;
 
-import io.openems.edge.predictor.lstm.util.Cell;
 import io.openems.edge.predictor.lstm.utilities.MathUtils;
 
 public class CellTest {

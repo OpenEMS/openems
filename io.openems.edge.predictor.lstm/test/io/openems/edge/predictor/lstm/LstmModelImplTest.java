@@ -12,7 +12,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
-import io.openems.edge.predictor.lstm.PredictorLstmImpl;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class LstmModelImplTest {

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
-import io.openems.edge.predictor.lstm.util.AdaptiveLearningRate;
 
 public class AdaptiveLearningRateTest {
 

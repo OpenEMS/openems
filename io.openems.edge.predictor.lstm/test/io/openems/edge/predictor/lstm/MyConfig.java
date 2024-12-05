@@ -2,7 +2,6 @@ package io.openems.edge.predictor.lstm;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
-import io.openems.edge.predictor.lstm.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

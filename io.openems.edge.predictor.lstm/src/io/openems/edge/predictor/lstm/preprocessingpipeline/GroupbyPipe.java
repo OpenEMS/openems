@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 
 public class GroupbyPipe implements Stage<Object, Object> {
+
 	private ArrayList<OffsetDateTime> dates;
 
 	public GroupbyPipe(HyperParameters hype, ArrayList<OffsetDateTime> date) {

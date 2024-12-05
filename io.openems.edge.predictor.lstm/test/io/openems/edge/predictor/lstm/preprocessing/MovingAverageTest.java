@@ -2,7 +2,6 @@ package io.openems.edge.predictor.lstm.preprocessing;
 
 import org.junit.Test;
 
-import io.openems.edge.predictor.lstm.preprocessing.MovingAverage;
 import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class MovingAverageTest {

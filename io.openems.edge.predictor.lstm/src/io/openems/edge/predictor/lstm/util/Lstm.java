@@ -49,8 +49,7 @@ public class Lstm {
 	 * Backward propagation.
 	 */
 	public void backwardprop() {
-
-		ArrayList<Double> gradients = new ArrayList<Double>();
+		var gradients = new ArrayList<Double>();
 
 		for (int i = this.cells.size() - 1; i >= 0; i--) {
 			if (i < this.cells.size() - 1) {
@@ -103,8 +102,8 @@ public class Lstm {
 			gradients.add(this.derivativeLWrtRz / this.cells.size());
 
 		}
-		this.updateweights(gradients);
 
+		this.updateweights(gradients);
 	}
 
 	protected void updateweights(ArrayList<Double> gradients) {
@@ -116,6 +115,7 @@ public class Lstm {
 		var localLearningRate4 = 0.;
 		var localLearningRate5 = 0.;
 		var localLearningRate6 = 0.;
+
 		for (int i = 0; i < this.cells.size(); i++) {
 
 			localLearningRate1 = rate.adagradOptimizer(this.learningRate, localLearningRate1, gradients.get(0), i);
@@ -141,8 +141,7 @@ public class Lstm {
 	 * @return weight matrix trained weight matrix
 	 */
 	public ArrayList<ArrayList<Double>> train() {
-
-		MatrixWeight mW = new MatrixWeight();
+		var mW = new MatrixWeight();
 		for (int i = 0; i < this.epoch; i++) {
 
 			this.forwardprop();
@@ -342,20 +341,16 @@ public class Lstm {
 		public Lstm build() {
 			return new Lstm(this);
 		}
-
 	}
 
 	/**
 	 * Initializes the cell with the default data.
 	 */
-
 	public synchronized void initilizeCells() {
 		this.cells = new ArrayList<>();
 		for (int i = 0; i < this.inputData.length; i++) {
 			Cell cell = new Cell(this.inputData[i], this.outputData);
 			this.cells.add(cell);
 		}
-
 	}
-
 }

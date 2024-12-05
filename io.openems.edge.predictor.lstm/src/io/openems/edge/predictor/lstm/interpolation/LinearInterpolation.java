@@ -11,8 +11,7 @@ public class LinearInterpolation {
 	 * @return The data set with NaN values replaced by interpolated values.
 	 */
 	public static ArrayList<Double> interpolate(ArrayList<Double> data) {
-
-		ArrayList<ArrayList<Integer>> coordinate = determineInterpolatingPoints(data);
+		var coordinate = determineInterpolatingPoints(data);
 		for (int i = 0; i < coordinate.size(); i++) {
 			var xVal1 = coordinate.get(i).get(0);
 			var xVal2 = coordinate.get(i).get(1);
@@ -33,8 +32,7 @@ public class LinearInterpolation {
 	 *         are sandwiched.
 	 */
 	public static ArrayList<ArrayList<Integer>> determineInterpolatingPoints(ArrayList<Double> data) {
-
-		ArrayList<ArrayList<Integer>> coordinates = new ArrayList<>();
+		var coordinates = new ArrayList<ArrayList<Integer>>();
 
 		var inNaNSequence = false;
 		var xVal1 = -1;
@@ -50,7 +48,7 @@ public class LinearInterpolation {
 			} else {
 				if (inNaNSequence) {
 					var xVal2 = i;
-					ArrayList<Integer> temp = new ArrayList<>();
+					var temp = new ArrayList<Integer>();
 					temp.add(xVal1);
 					temp.add(xVal2);
 					coordinates.add(temp);
@@ -93,7 +91,6 @@ public class LinearInterpolation {
 	 */
 	public static ArrayList<Double> combine(ArrayList<Double> orginalData, ArrayList<Double> interpolatedResult,
 			int xValue1, int xValue2) {
-
 		for (int i = 0; i < (interpolatedResult.size()); i++) {
 			orginalData.set((i + xValue1 + 1), interpolatedResult.get(i));
 		}

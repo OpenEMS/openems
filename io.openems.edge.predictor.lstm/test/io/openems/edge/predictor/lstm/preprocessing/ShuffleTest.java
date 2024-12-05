@@ -5,8 +5,6 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-import io.openems.edge.predictor.lstm.preprocessing.Shuffle;
-
 public class ShuffleTest {
 
 	@Test

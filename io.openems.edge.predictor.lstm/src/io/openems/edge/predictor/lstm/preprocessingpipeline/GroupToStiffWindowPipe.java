@@ -3,11 +3,11 @@ package io.openems.edge.predictor.lstm.preprocessingpipeline;
 import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArray;
 import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArrayList;
 import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to2DArray;
+import static java.util.stream.IntStream.range;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 	private int window;
@@ -19,11 +19,9 @@ public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-
 		if (input instanceof double[] inputData) {
-
 			var inputDataList = to1DArrayList(inputData);
-			
+
 			var resultArray = new double[2][][];
 			var stiffedTargetGroup = new double[1][];
 
@@ -34,6 +32,7 @@ public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 			resultArray[1] = stiffedTargetGroup;
 
 			return resultArray;
+
 		} else {
 			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
@@ -55,7 +54,7 @@ public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 			throw new IllegalArgumentException("Invalid window size");
 		}
 
-		List<Integer> indices = IntStream.range(0, values.size() - windowSize + 1) //
+		List<Integer> indices = range(0, values.size() - windowSize + 1) //
 				.filter(i -> i % (windowSize + 1) == 0) //
 				.boxed() //
 				.collect(Collectors.toList()); //
@@ -85,7 +84,7 @@ public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 			throw new IllegalArgumentException("Invalid window size");
 		}
 
-		List<Double> windowedData = IntStream.range(0, val.size())//
+		var windowedData = range(0, val.size())//
 				.filter(j -> j % (windowSize + 1) == windowSize)//
 				.mapToObj(val::get)//
 				.collect(Collectors.toList());
@@ -110,9 +109,10 @@ public class GroupToStiffWindowPipe implements Stage<Object, Object> {
 			throw new IllegalArgumentException("Invalid window size");
 		}
 
-		return IntStream.range(0, val.length)//
+		return range(0, val.length)//
 				.filter(j -> j % (windowSize + 1) == windowSize)//
-				.mapToDouble(j -> val[j]).toArray();
+				.mapToDouble(j -> val[j]) //
+				.toArray();
 	}
 
 }

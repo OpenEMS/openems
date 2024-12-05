@@ -24,10 +24,11 @@ public class GrouptoWindowpipe implements Stage<Object, Object> {
 	public Object execute(Object input) {
 		if (input instanceof double[] inputData) {
 			try {
-				double[] windowedTarget = this.getTargetData(inputData);
-				double[][] windowedData = this.getWindowDataTrain(inputData);
+				var windowedTarget = this.getTargetData(inputData);
+				var windowedData = this.getWindowDataTrain(inputData);
 
 				return new double[][][] { windowedData, new double[][] { windowedTarget } };
+
 			} catch (Exception e) {
 				throw new RuntimeException("Error processing input data", e);
 			}
@@ -59,7 +60,6 @@ public class GrouptoWindowpipe implements Stage<Object, Object> {
 	 * @throws Exception If the provided list of scaled data is empty.
 	 */
 	public double[] getTargetData(double[] data) throws Exception {
-
 		if (data.length == 0) {
 			throw new Exception("Scaled data is empty");
 		}

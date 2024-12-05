@@ -4,17 +4,17 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
+import org.junit.Ignore;
+import org.junit.Test;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.validator.ValidationSeasonalityModel;
 
 public class FindOptimumIndexTest {
 
-	/**
-	 * testFindOptimumIndex.
-	 */
-	// @Test
+	@Ignore
+	@Test
 	public void testFindOptimumIndex() {
 		ArrayList<ArrayList<Double>> matrix = new ArrayList<>(//
 				Arrays.asList(//
@@ -24,7 +24,7 @@ public class FindOptimumIndexTest {
 				)//
 		);
 
-		List<List<Integer>> result = ValidationSeasonalityModel.findOptimumIndex(matrix, "Test", new HyperParameters());
+		var result = ValidationSeasonalityModel.findOptimumIndex(matrix, "Test", new HyperParameters());
 
 		assertEquals(Arrays.asList(Arrays.asList(2, 0), Arrays.asList(2, 1), Arrays.asList(1, 2)), result);
 	}

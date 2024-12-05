@@ -6,7 +6,6 @@ import java.util.Collections;
 public class DynamicItterationValue {
 
 	public static int setIteration(ArrayList<Double> errors, int errorIndex, HyperParameters hyperParameters) {
-
 		if (errors.isEmpty()) {
 			return 10;
 		}

@@ -3,6 +3,7 @@ package io.openems.edge.predictor.lstm.util;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 
 public class AdaptiveLearningRate {
+
 	/**
 	 * Adjusts the learning rate based on the given percentage. * the total
 	 * iterations.
@@ -11,7 +12,6 @@ public class AdaptiveLearningRate {
 	 * @return The adapted learning rate calculated using a cosine annealing
 	 *         strategy.
 	 */
-
 	public double scheduler(HyperParameters hyperParameters) {
 		var maximum = hyperParameters.getLearningRateUpperLimit();
 		var minimum = hyperParameters.getLearningRateLowerLimit();

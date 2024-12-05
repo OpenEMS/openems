@@ -10,7 +10,6 @@ import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadAndSaveModels;
 import io.openems.edge.predictor.lstm.common.ReadCsv;
 import io.openems.edge.predictor.lstm.preprocessing.DataModification;
-import io.openems.edge.predictor.lstm.train.TrainAndValidateBatch;
 
 public class BatchImplementationTest {
 	/**

@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 //import org.junit.Test;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.edge.predictor.lstm.common.HyperParameters;
-import io.openems.edge.predictor.lstm.common.ReadAndSaveModels;
 
 /**
  * This class contains test methods for saving and reading objects using Gson.

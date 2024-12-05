@@ -1,13 +1,15 @@
 package io.openems.edge.predictor.lstm.utilities;
 
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
 public class UtilityConversion {
 
@@ -59,7 +61,8 @@ public class UtilityConversion {
 	 * @return result converted {@link OffsetDateTime} []
 	 */
 	public static OffsetDateTime[] to1DArray(ArrayList<OffsetDateTime> data) {
-		return data.stream().toArray(OffsetDateTime[]::new);
+		return data.stream() //
+				.toArray(OffsetDateTime[]::new);
 	}
 
 	/**
@@ -114,16 +117,16 @@ public class UtilityConversion {
 	 *         converted data.
 	 */
 	public static ArrayList<ArrayList<Double>> to2DArrayList(double[][] data) {
-		ArrayList<ArrayList<Double>> toReturn = new ArrayList<ArrayList<Double>>();
+		var result = new ArrayList<ArrayList<Double>>();
 		for (int i = 0; i < data.length; i++) {
-			ArrayList<Double> temp = new ArrayList<Double>();
+			var temp = new ArrayList<Double>();
 			for (int j = 0; j < data[i].length; j++) {
 				temp.add(data[i][j]);
 
 			}
-			toReturn.add(temp);
+			result.add(temp);
 		}
-		return toReturn;
+		return result;
 	}
 
 	/**
@@ -152,10 +155,9 @@ public class UtilityConversion {
 	 * @return result converted Array list
 	 */
 	public static ArrayList<Double> to1DArrayList(double[] toBeConverted) {
-
 		return DoubleStream.of(toBeConverted) //
 				.boxed() //
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -165,7 +167,8 @@ public class UtilityConversion {
 	 * @return result converted Array list
 	 */
 	public static ArrayList<OffsetDateTime> to1DArrayList(OffsetDateTime[] toBeConverted) {
-		return Arrays.stream(toBeConverted).collect(Collectors.toCollection(ArrayList::new));
+		return Arrays.stream(toBeConverted) //
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -175,9 +178,9 @@ public class UtilityConversion {
 	 * @return converted the converted
 	 */
 	public static ArrayList<Double> to1DArrayList(ArrayList<ArrayList<Double>> data) {
-		return (ArrayList<Double>) data.stream()//
+		return data.stream()//
 				.flatMap(Collection::stream)//
-				.collect(Collectors.toList());
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -191,7 +194,7 @@ public class UtilityConversion {
 		return toBeConverted.stream() //
 				.mapToDouble(i -> i == null ? null : i) //
 				.boxed() //
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	/**
@@ -221,9 +224,9 @@ public class UtilityConversion {
 			throw new IllegalArgumentException("Array must not be empty or null");
 		}
 
-		return IntStream.range(0, arr.length)//
-				.boxed()//
-				.min((i, j) -> Double.compare(arr[i], arr[j]))//
+		return range(0, arr.length) //
+				.boxed() //
+				.min((i, j) -> Double.compare(arr[i], arr[j])) //
 				.orElseThrow();
 	}
 }

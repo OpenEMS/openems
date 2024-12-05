@@ -3,8 +3,6 @@ package io.openems.edge.predictor.lstm.preprocessing;
 import org.junit.Test;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
-import io.openems.edge.predictor.lstm.preprocessing.DataModification;
-import io.openems.edge.predictor.lstm.preprocessing.FilterOutliers;
 import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class OutliersDetectionTest {

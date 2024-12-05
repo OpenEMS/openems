@@ -1,5 +1,7 @@
 package io.openems.edge.predictor.lstm.validator;
 
+import static io.openems.edge.predictor.lstm.preprocessing.DataModification.flattern4dto3d;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,34 +19,29 @@ public class ValidationTrendModel {
 	public static final String TREND = "trend";
 
 	/**
-	 * validate Trend.
+	 * Validate Trend.
 	 * 
 	 * @param values               the value
 	 * @param dates                the date
 	 * @param untestedTrendWeights Untested Models.
 	 * @param hyperParameters      the hyperParam
 	 */
-
 	public void validateTrend(ArrayList<Double> values, ArrayList<OffsetDateTime> dates,
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> untestedTrendWeights, HyperParameters hyperParameters) {
+		var allModels = DataModification.reshape((flattern4dto3d(untestedTrendWeights)), hyperParameters);
 
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = DataModification
-				.reshape((DataModification.flattern4dto3d(untestedTrendWeights)), hyperParameters);
-
-		ArrayList<ArrayList<Double>> rmsErrors = this.validateModels(//
+		var rmsErrors = this.validateModels(//
 				values, //
 				dates, //
 				allModels, //
 				hyperParameters);
 
-		List<List<Integer>> optInd = findOptimumIndex(rmsErrors, TREND, hyperParameters);
+		var optInd = findOptimumIndex(rmsErrors, TREND, hyperParameters);
 
 		this.updateModels(//
 				allModels, //
-				optInd,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + TREND, //
-				TREND,
-				hyperParameters);
+				optInd, Integer.toString(hyperParameters.getCount()) + hyperParameters.getModelName() + TREND, //
+				TREND, hyperParameters);
 	}
 
 	/**
@@ -64,7 +61,7 @@ public class ValidationTrendModel {
 
 	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix, String var,
 			HyperParameters hyperParameters) {
-		List<List<Integer>> minimumIndices = new ArrayList<>();
+		var minimumIndices = new ArrayList<List<Integer>>();
 
 		if (matrix.isEmpty() || matrix.get(0).isEmpty()) {
 			return minimumIndices; // Empty matrix, return empty list
@@ -88,7 +85,7 @@ public class ValidationTrendModel {
 			minimumIndices.add(minIndices);
 		}
 
-		ArrayList<Double> err = new ArrayList<Double>();
+		var err = new ArrayList<Double>();
 		for (int i = 0; i < minimumIndices.size(); i++) {
 			err.add(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
 		}
@@ -101,8 +98,7 @@ public class ValidationTrendModel {
 
 	private ArrayList<ArrayList<Double>> validateModels(ArrayList<Double> value, ArrayList<OffsetDateTime> dates,
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels, HyperParameters hyperParameters) {
-
-		PreprocessingPipeImpl validateTrendPreProcess = new PreprocessingPipeImpl(hyperParameters);
+		var validateTrendPreProcess = new PreprocessingPipeImpl(hyperParameters);
 		double[][] modifiedData = (double[][]) validateTrendPreProcess//
 				.setData(UtilityConversion.to1DArray(value))//
 				.setDates(dates)//
@@ -113,10 +109,9 @@ public class ValidationTrendModel {
 				.modifyForTrendPrediction()//
 				.execute();
 
-		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<>();
-
-		for (ArrayList<ArrayList<ArrayList<Double>>> modelsForData : allModels) {
-			ArrayList<Double> rmsTemp1 = new ArrayList<>();
+		var rmsTemp2 = new ArrayList<ArrayList<Double>>();
+		for (var modelsForData : allModels) {
+			var rmsTemp1 = new ArrayList<Double>();
 
 			for (int j = 0; j < modifiedData.length; j++) {
 				double[][][] intermediate = (double[][][]) validateTrendPreProcess.setData(modifiedData[j])//
@@ -139,9 +134,10 @@ public class ValidationTrendModel {
 						.execute();
 
 				double rms = PerformanceMatrix.rmsError(
-						(double[]) validateTrendPreProcess.setData(intermediate[1][0]).reverseScale().execute(),
-						result) * (1 - PerformanceMatrix.accuracy((double[]) validateTrendPreProcess.setData(intermediate[1][0]).reverseScale().execute(),
-						result, 0.01));
+						(double[]) validateTrendPreProcess.setData(intermediate[1][0]).reverseScale().execute(), result)
+						* (1 - PerformanceMatrix.accuracy(
+								(double[]) validateTrendPreProcess.setData(intermediate[1][0]).reverseScale().execute(),
+								result, 0.01));
 				rmsTemp1.add(rms);
 			}
 			rmsTemp2.add(rmsTemp1);

@@ -19,9 +19,5 @@ public class NormalizePipelineTest {
 		System.out.print(result[0][0]);
 
 	}
-	
-	
 
 }
-
-

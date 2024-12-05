@@ -63,7 +63,6 @@ public class CubicalInterpolation extends SplineInterpolator {
 	}
 
 	private ArrayList<Double> calculate(double[] weight, int requiredPoints) {
-
 		ArrayList<Double> result = new ArrayList<>();
 		for (int j = 0; j < requiredPoints; j++) {
 			double sum = 0;
@@ -76,7 +75,6 @@ public class CubicalInterpolation extends SplineInterpolator {
 	}
 
 	private void generateCombineInstruction(ArrayList<ArrayList<Double>> interPolatedValue, double[] firstOrderDiff) {
-
 		int count = 0;
 		int startingPoint = 0;
 		int addedData = 0;

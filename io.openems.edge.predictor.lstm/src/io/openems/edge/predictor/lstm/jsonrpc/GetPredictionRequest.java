@@ -12,7 +12,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
  *   "params": {
   *      "componentId": "predictor0",
   *      "payload": {
-  *          "method": "getLstmPrediction",
+  *          "method": "getPrediction",
   *          "params": {
    *             "id": "edge0"
    *         }
@@ -22,10 +22,10 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
  */
 public class GetPredictionRequest extends JsonrpcRequest {
 
-	public static final String METHOD = "getLstmPrediction";
+	public static final String METHOD = "getPrediction";
 
 	/**
-	 * get predictions.
+	 * Get prediction.
 	 * 
 	 * @param r the request
 	 * @return new prediction

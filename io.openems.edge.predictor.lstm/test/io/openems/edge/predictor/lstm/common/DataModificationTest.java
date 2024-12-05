@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.preprocessing.DataModification;
 
 public class DataModificationTest {

@@ -2,6 +2,7 @@ package io.openems.edge.predictor.lstm.train;
 
 import static io.openems.edge.predictor.lstm.preprocessing.DataModification.constantScaling;
 import static io.openems.edge.predictor.lstm.preprocessing.DataModification.removeNegatives;
+import static java.util.stream.Collectors.toCollection;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
@@ -13,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.predictor.lstm.PredictorLstm;
-import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadAndSaveModels;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -47,27 +46,25 @@ public class LstmTrain implements Runnable {
 
 	@Override
 	public void run() {
-
-		var nowDate = ZonedDateTime.now();
-
-		var until = nowDate.minusDays(1).withHour(23).withMinute(45).withSecond(0).withNano(0);
+		var now = ZonedDateTime.now();
+		var until = now.minusDays(1).withHour(23).withMinute(45).withSecond(0).withNano(0);
 		var fromDate = until.minusDays(this.days).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
-		HyperParameters hyperParameters = ReadAndSaveModels.read(this.channelAddress.getChannelId());
+		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
+		var hyperParameters = ReadAndSaveModels.read(this.channelAddress.getChannelId());
 
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> trainMap = new TreeMap<>();
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> validateMap = new TreeMap<>();
+		var trainMap = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
+		var validateMap = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
 
 		try {
-			querryResult = this.timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(this.channelAddress),
+			queryResult = this.timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(this.channelAddress),
 					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES));
 
-			int totalItems = querryResult.size();
+			int totalItems = queryResult.size();
 			int trainSize = (int) (totalItems * 0.66); // 66% train and 33% validation
 
 			int count = 0;
-			for (Map.Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : querryResult.entrySet()) {
+			for (Map.Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : queryResult.entrySet()) {
 				if (count < trainSize) {
 					trainMap.put(entry.getKey(), entry.getValue());
 				} else {
@@ -88,6 +85,7 @@ public class LstmTrain implements Runnable {
 			this.log.info("Cannot proceed with training: Data is all null or insufficient data.");
 			return;
 		}
+
 		// Get the training Date
 		var trainingDate = this.getDate(trainMap);
 		// Get the training data
@@ -118,7 +116,6 @@ public class LstmTrain implements Runnable {
 	 *         values.
 	 */
 	public ArrayList<Double> getData(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult) {
-
 		ArrayList<Double> data = new ArrayList<>();
 
 		queryResult.values().stream()//
@@ -147,7 +144,7 @@ public class LstmTrain implements Runnable {
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult) {
 		return queryResult.keySet().stream()//
 				.map(ZonedDateTime::toOffsetDateTime)//
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(toCollection(ArrayList::new));
 	}
 
 	/**
@@ -161,7 +158,8 @@ public class LstmTrain implements Runnable {
 			return true; // Cannot train with no data
 		}
 
-		boolean allNulls = array.stream().allMatch(Objects::isNull);
+		boolean allNulls = array.stream() //
+				.allMatch(Objects::isNull);
 		if (allNulls) {
 			return true; // Cannot train with all null data
 		}

@@ -1,13 +1,15 @@
 package io.openems.edge.predictor.lstm.preprocessing;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class GroupBy {
+
 	private final ArrayList<Double> data;
 	private final ArrayList<OffsetDateTime> date;
 
@@ -25,12 +27,11 @@ public class GroupBy {
 	 */
 	public void groupByTemporalField(ChronoField chronoField, List<ArrayList<OffsetDateTime>> groupedDateList,
 			List<ArrayList<Double>> groupedDataList) {
+		var uniqueList = this.extractUniqueAndSortedValues(chronoField);
 
-		List<Integer> uniqueList = this.extractUniqueAndSortedValues(chronoField);
-
-		for (Integer uniqueValue : uniqueList) {
-			List<OffsetDateTime> groupedDateTemp = this.groupDatesByUniqueValue(uniqueValue, chronoField);
-			List<Double> groupedDataTemp = this.groupDataByUniqueValue(uniqueValue, chronoField);
+		for (var uniqueValue : uniqueList) {
+			var groupedDateTemp = this.groupDatesByUniqueValue(uniqueValue, chronoField);
+			var groupedDataTemp = this.groupDataByUniqueValue(uniqueValue, chronoField);
 
 			groupedDateList.add(new ArrayList<>(groupedDateTemp));
 			groupedDataList.add(new ArrayList<>(groupedDataTemp));
@@ -39,26 +40,26 @@ public class GroupBy {
 
 	private List<Integer> extractUniqueAndSortedValues(ChronoField chronoField) {
 		return this.date.stream()//
-				.map(date -> date.get(chronoField))//
-				.distinct()//
-				.sorted()//
-				.collect(Collectors.toList());
+				.map(date -> date.get(chronoField)) //
+				.distinct() //
+				.sorted() //
+				.collect(toList());
 	}
 
 	private List<OffsetDateTime> groupDatesByUniqueValue(Integer uniqueValue, ChronoField chronoField) {
 		return this.date.stream()//
 				.filter(date -> uniqueValue.equals(date.get(chronoField)))//
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	private List<Double> groupDataByUniqueValue(Integer uniqueValue, ChronoField chronoField) {
-		return IntStream.range(0, this.data.size())//
+		return range(0, this.data.size())//
 				.filter(i -> {
 					double dateValue = this.date.get(i).get(chronoField);
 					return Double.compare(dateValue, uniqueValue.doubleValue()) == 0;
-				})//
-				.mapToObj(i -> this.data.get(i))//
-				.collect(Collectors.toList());
+				}) //
+				.mapToObj(i -> this.data.get(i)) //
+				.collect(toList());
 	}
 
 	/**

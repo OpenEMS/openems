@@ -2,8 +2,8 @@ package io.openems.edge.predictor.lstm.validator;
 
 import static io.openems.edge.predictor.lstm.performance.PerformanceMatrix.accuracy;
 import static io.openems.edge.predictor.lstm.performance.PerformanceMatrix.rmsError;
+import static io.openems.edge.predictor.lstm.preprocessing.DataModification.flattern4dto3d;
 
-import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,15 +28,13 @@ public class ValidationSeasonalityModel {
 	 * @param untestedSeasonalityWeight Models to validate.
 	 * @param hyperParameters           the hyperParameters
 	 */
-
 	public void validateSeasonality(ArrayList<Double> values, ArrayList<OffsetDateTime> dates,
 			ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> untestedSeasonalityWeight,
 			HyperParameters hyperParameters) {
+		var rmsTemp2 = new ArrayList<ArrayList<Double>>();
 
-		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<ArrayList<Double>>();
-
-		PreprocessingPipeImpl preProcessing = new PreprocessingPipeImpl(hyperParameters);
-		double[][][] dataGroupedByMinute = (double[][][]) preProcessing.setData(UtilityConversion.to1DArray(values))//
+		var preProcessing = new PreprocessingPipeImpl(hyperParameters);
+		double[][][] dataGroupedByMinute = (double[][][]) preProcessing.setData(UtilityConversion.to1DArray(values)) //
 				.setDates(dates)//
 				.interpolate()//
 				.movingAverage()//
@@ -45,8 +43,7 @@ public class ValidationSeasonalityModel {
 				.groupByHoursAndMinutes()//
 				.execute();
 
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = DataModification
-				.reshape((DataModification.flattern4dto3d(untestedSeasonalityWeight)), hyperParameters);
+		var allModels = DataModification.reshape((flattern4dto3d(untestedSeasonalityWeight)), hyperParameters);
 
 		for (int h = 0; h < allModels.size(); h++) {
 			ArrayList<Double> rmsTemp1 = new ArrayList<Double>();
@@ -118,7 +115,7 @@ public class ValidationSeasonalityModel {
 
 	public static List<List<Integer>> findOptimumIndex(ArrayList<ArrayList<Double>> matrix, String variable,
 			HyperParameters hyperParameters) {
-		List<List<Integer>> minimumIndices = new ArrayList<>();
+		var minimumIndices = new ArrayList<List<Integer>>();
 
 		if (matrix.isEmpty() || matrix.get(0).isEmpty()) {
 			return minimumIndices; // Empty matrix, return empty list
@@ -128,7 +125,7 @@ public class ValidationSeasonalityModel {
 
 		for (int col = 0; col < numColumns; col++) {
 			double min = matrix.get(0).get(col);
-			List<Integer> minIndices = new ArrayList<>(Arrays.asList(0, col));
+			var minIndices = new ArrayList<>(Arrays.asList(0, col));
 
 			for (int row = 0; row < matrix.size(); row++) {
 				double value = matrix.get(row).get(col);
@@ -142,9 +139,8 @@ public class ValidationSeasonalityModel {
 			minimumIndices.add(minIndices);
 		}
 
-		ArrayList<Double> err = new ArrayList<Double>();
+		var err = new ArrayList<Double>();
 		for (int i = 0; i < minimumIndices.size(); i++) {
-
 			err.add(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
 		}
 		hyperParameters.setAllModelErrorSeason(err);
@@ -153,10 +149,4 @@ public class ValidationSeasonalityModel {
 		System.out.println("=====> Average RMS error for  " + variable + " = " + errVal);
 		return minimumIndices;
 	}
-
-	@FunctionalInterface
-	interface FilePathGenerator {
-		String generatePath(File file, String fileName);
-	}
-
 }

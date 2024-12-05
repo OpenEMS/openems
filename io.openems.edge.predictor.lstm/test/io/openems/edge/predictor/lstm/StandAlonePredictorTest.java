@@ -36,7 +36,7 @@ public class StandAlonePredictorTest {
 	/**
 	 * Prediction testing.
 	 */
-	//@Test
+	// @Test
 	public void predictionTest() {
 
 		ArrayList<ArrayList<Double>> predictedSeasonality = new ArrayList<ArrayList<Double>>();
@@ -422,8 +422,8 @@ public class StandAlonePredictorTest {
 	 * Find the index of a specific OffsetDateTime within an ArrayList of
 	 * OffsetDateTime values.
 	 *
-	 * @param targetDate  The OffsetDateTime to search for within the ArrayList.
-	 * @param dates An ArrayList of OffsetDateTime values to search in.
+	 * @param targetDate The OffsetDateTime to search for within the ArrayList.
+	 * @param dates      An ArrayList of OffsetDateTime values to search in.
 	 * @return The index of the specified date in the ArrayList if found; otherwise,
 	 *         null.
 	 */

@@ -11,11 +11,10 @@ public class MovingAverage {
 	 * @return the moving average
 	 */
 	public static double[] movingAverage(double[] data) {
-
-		double[] paddedInputData = new double[data.length + WINDOW_SIZE - 1];
+		var paddedInputData = new double[data.length + WINDOW_SIZE - 1];
 		System.arraycopy(data, 0, paddedInputData, WINDOW_SIZE / 2, data.length);
 
-		double[] movingAverages = new double[data.length];
+		var movingAverages = new double[data.length];
 
 		for (int i = 0; i < data.length; i++) {
 			double sum = 0;

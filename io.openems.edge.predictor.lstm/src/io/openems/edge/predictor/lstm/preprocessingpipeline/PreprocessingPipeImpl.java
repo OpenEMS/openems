@@ -66,7 +66,7 @@ public class PreprocessingPipeImpl implements PiplineInterface<Object, Object> {
 	 * @return this
 	 */
 	public PreprocessingPipeImpl trainTestSplit() {
-		return this.addStage(new TrainandTestSplitPipe(this.hyperParameter));
+		return this.addStage(new TrainAndTestSplitPipe(this.hyperParameter));
 	}
 
 	/**

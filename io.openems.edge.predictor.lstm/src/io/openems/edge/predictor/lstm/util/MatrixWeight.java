@@ -4,18 +4,18 @@ import java.util.ArrayList;
 
 public class MatrixWeight {
 
-	private ArrayList<ArrayList<Double>> wI = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> wO = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> wZ = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> wF = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> rI = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> rO = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> rZ = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> rF = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> wI = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> wO = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> wZ = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> wF = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> rI = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> rO = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> rZ = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> rF = new ArrayList<ArrayList<Double>>();
 
-	private ArrayList<ArrayList<Double>> out = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> cT = new ArrayList<ArrayList<Double>>();
-	private ArrayList<Double> errorList = new ArrayList<Double>();
+	private final ArrayList<ArrayList<Double>> out = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<Double>> cT = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<Double> errorList = new ArrayList<Double>();
 
 	public ArrayList<ArrayList<Double>> getWi() {
 		return this.wI;

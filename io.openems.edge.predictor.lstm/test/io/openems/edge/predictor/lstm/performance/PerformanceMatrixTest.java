@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import io.openems.edge.predictor.lstm.performance.PerformanceMatrix;
-
 public class PerformanceMatrixTest {
 
 	public static final double delta = 0.0001;

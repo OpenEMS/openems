@@ -30,7 +30,6 @@ public class PerformanceMatrix {
 	 * @throws IllegalArgumentException If the input lists have different sizes.
 	 */
 	public static double meanAbsoluteError(ArrayList<Double> target, ArrayList<Double> predicted) {
-
 		if (predicted.size() != target.size()) {
 			throw new IllegalArgumentException("Input lists must have the same size");
 		}

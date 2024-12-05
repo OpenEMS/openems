@@ -4,10 +4,11 @@ import java.util.stream.IntStream;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 
-public class TrainandTestSplitPipe implements Stage<Object, Object> {
+public class TrainAndTestSplitPipe implements Stage<Object, Object> {
+
 	private HyperParameters hyp;
 
-	public TrainandTestSplitPipe(HyperParameters hyperParameters) {
+	public TrainAndTestSplitPipe(HyperParameters hyperParameters) {
 		this.hyp = hyperParameters;
 	}
 

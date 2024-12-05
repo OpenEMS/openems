@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
-import io.openems.edge.predictor.lstm.train.MakeModel;
 
 public class MakeModelTest {
 
@@ -27,7 +26,7 @@ public class MakeModelTest {
 		// ]
 
 		int windowSize = 3;
-		ArrayList<ArrayList<Double>> result = MakeModel.generateInitialWeightMatrix(windowSize,  new HyperParameters());
+		ArrayList<ArrayList<Double>> result = MakeModel.generateInitialWeightMatrix(windowSize, new HyperParameters());
 
 		assertNotNull(result);
 		assertEquals(8, result.size());

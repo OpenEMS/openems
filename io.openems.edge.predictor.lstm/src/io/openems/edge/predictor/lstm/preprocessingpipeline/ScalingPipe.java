@@ -19,8 +19,10 @@ public class ScalingPipe implements Stage<Object, Object> {
 	public Object execute(Object value) {
 		if (value instanceof double[][] v) {
 			return this.scaleSecondCase(v);
+
 		} else if (value instanceof double[] v) {
 			return (this.scaleFirstCase(v));
+
 		} else {
 			throw new IllegalArgumentException("Input must be an instance of double[]");
 		}
@@ -40,7 +42,7 @@ public class ScalingPipe implements Stage<Object, Object> {
 			throw new IllegalArgumentException("Input must be a non-null 2xN array.");
 		}
 
-		double[][] result = new double[2][];
+		var result = new double[2][];
 		result[0] = this.scaleFirstCase(value[0]);
 		result[1] = this.scaleFirstCase(value[1]);
 
@@ -55,8 +57,8 @@ public class ScalingPipe implements Stage<Object, Object> {
 	 * @return An array containing the scaled data.
 	 */
 	public double[] scaleFirstCase(double[] value) {
-		double min = this.hyperParameter.getScalingMin();
-		double max = this.hyperParameter.getScalingMax();
+		var min = this.hyperParameter.getScalingMin();
+		var max = this.hyperParameter.getScalingMax();
 
 		return Arrays.stream(value)//
 				.map(v -> MIN_SCALED + ((v - min) / (max - min)) * (MAX_SCALED - MIN_SCALED))//

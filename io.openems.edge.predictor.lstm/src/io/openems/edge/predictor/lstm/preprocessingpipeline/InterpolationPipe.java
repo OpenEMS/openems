@@ -18,7 +18,6 @@ public class InterpolationPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-
 		if (input instanceof double[] in) {
 			var inList = to1DArrayList(in);
 			var inter = new InterpolationManager(inList, this.hyperParameters);

@@ -16,8 +16,8 @@ import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 public class GetPredictionResponse extends JsonrpcResponseSuccess {
 
-	private JsonArray prediction;
-	private SortedMap<ZonedDateTime, Integer> predictionResult;
+	private final JsonArray prediction;
+	private final SortedMap<ZonedDateTime, Integer> predictionResult;
 
 	public GetPredictionResponse(JsonArray prediction) {
 		this(UUID.randomUUID(), prediction);

@@ -28,7 +28,6 @@ public class LstmPredictor {
 	 */
 	public static ArrayList<Double> predictSeasonality(ArrayList<Double> data, ArrayList<OffsetDateTime> date,
 			HyperParameters hyperParameters) {
-
 		var preprocessing = new PreprocessingPipeImpl(hyperParameters);
 		preprocessing.setData(to1DArray(data)).setDates(date);
 		var resized = to2DList((double[][][]) preprocessing.interpolate()//
@@ -66,7 +65,6 @@ public class LstmPredictor {
 	 */
 	public static ArrayList<Double> predictTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date,
 			ZonedDateTime until, HyperParameters hyperParameters) {
-
 		var preprocessing = new PreprocessingPipeImpl(hyperParameters);
 		preprocessing.setData(to1DArray(data)).setDates(date);
 
@@ -74,6 +72,7 @@ public class LstmPredictor {
 				.interpolate()//
 				.scale()//
 				.execute();
+
 		// normalize
 		var trendPrediction = new double[hyperParameters.getTrendPoint()];
 		var mean = DataStatistics.getMean(scaled);
@@ -210,7 +209,6 @@ public class LstmPredictor {
 	 */
 	public static ArrayList<Double> predictPre(ArrayList<ArrayList<Double>> inputData,
 			ArrayList<ArrayList<ArrayList<Double>>> val, HyperParameters hyperParameters) {
-
 		var result = new ArrayList<Double>();
 		for (var i = 0; i < inputData.size(); i++) {
 
@@ -252,7 +250,6 @@ public class LstmPredictor {
 	 */
 	public static ArrayList<Double> predictPre(double[][] data, List<ArrayList<Double>> val,
 			HyperParameters hyperParameters) {
-
 		var result = new ArrayList<Double>();
 
 		var wi = val.get(0);

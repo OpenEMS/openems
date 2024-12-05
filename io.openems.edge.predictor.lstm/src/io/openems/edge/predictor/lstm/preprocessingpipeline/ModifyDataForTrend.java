@@ -1,13 +1,13 @@
 package io.openems.edge.predictor.lstm.preprocessingpipeline;
 
+import static io.openems.edge.predictor.lstm.preprocessing.DataModification.modifyFortrendPrediction;
+import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArrayList;
+import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to2DArray;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import io.openems.edge.predictor.lstm.common.HyperParameters;
-
-import static io.openems.edge.predictor.lstm.preprocessing.DataModification.modifyFortrendPrediction;
-import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArrayList;
-import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to2DArray;
 
 public class ModifyDataForTrend implements Stage<Object, Object> {
 

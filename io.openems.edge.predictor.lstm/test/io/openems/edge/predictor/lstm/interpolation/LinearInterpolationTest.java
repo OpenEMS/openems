@@ -7,8 +7,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.openems.edge.predictor.lstm.interpolation.LinearInterpolation;
-
 public class LinearInterpolationTest {
 
 	@Test

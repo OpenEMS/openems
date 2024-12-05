@@ -28,8 +28,10 @@ public class NormalizePipe implements Stage<Object, Object> {
 
 			} else if (input instanceof double[][] inputArray) {
 				return normalizeData(inputArray, this.hyperParameters);
+
 			} else if (input instanceof double[] inputArray) {
 				return standardize(inputArray, this.hyperParameters);
+
 			} else {
 				throw new IllegalArgumentException("Illegal Argument encountered during normalization");
 			}

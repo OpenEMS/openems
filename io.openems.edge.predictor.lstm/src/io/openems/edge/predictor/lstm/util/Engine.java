@@ -19,8 +19,8 @@ public class Engine {
 	private double[] validateTarget;
 	private double learningRate;
 
-	private ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
-	private ArrayList<ArrayList<Double>> finalWeights = new ArrayList<ArrayList<Double>>();
+	private final ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
+	private final ArrayList<ArrayList<Double>> finalWeights = new ArrayList<ArrayList<Double>>();
 
 	/**
 	 * This method train the LSTM network. and Update the finalWeight matrix.
@@ -31,7 +31,6 @@ public class Engine {
 	 * 
 	 */
 	public void fit(int epochs, ArrayList<ArrayList<Double>> val, HyperParameters hyperParameters) {
-
 		var rate = new AdaptiveLearningRate();
 
 		this.learningRate = rate.scheduler(hyperParameters);
@@ -95,7 +94,6 @@ public class Engine {
 	 * @return result
 	 */
 	public double[] predict(double[][] inputData, HyperParameters hyperParameter) {
-
 		var result = new double[inputData.length];
 		for (int i = 0; i < inputData.length; i++) {
 
@@ -124,7 +122,6 @@ public class Engine {
 	 */
 	public double[] validate(double[][] inputData, double[] target, ArrayList<ArrayList<Double>> val,
 			HyperParameters hyperParameter) {
-
 		var result = new double[inputData.length];
 		for (int i = 0; i < inputData.length; i++) {
 
@@ -169,7 +166,6 @@ public class Engine {
 			ArrayList<Double> ytV, //
 			ArrayList<Double> ctV, //
 			HyperParameters hyperParameter) {
-
 		var ct = 0.;
 		var ctMinusOne = 0.;
 		var yt = 0.;
@@ -194,7 +190,6 @@ public class Engine {
 	 * @return index index of the best matrix.
 	 */
 	public int selectWeight(ArrayList<ArrayList<ArrayList<Double>>> wightMatrix, HyperParameters hyperParameter) {
-
 		var rms = new double[wightMatrix.size()];
 
 		for (int k = 0; k < wightMatrix.size(); k++) {
@@ -215,7 +210,6 @@ public class Engine {
 	}
 
 	public static class EngineBuilder {
-
 		private double[][] inputMatrix;
 		private double[] targetVector;
 		private double[][] validateData;
@@ -227,7 +221,6 @@ public class Engine {
 			this.targetVector = targetVector;
 			this.validateData = validateData;
 			this.validateTarget = validateTarget;
-
 		}
 
 		public EngineBuilder() {

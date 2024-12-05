@@ -54,7 +54,6 @@ public class InterpolationManager {
 				}).collect(Collectors.toList());
 
 		this.interpolated = unGroup(interpolatedGroupedData);
-
 	}
 
 	private void handleFirstAndLastDataPoint(ArrayList<Double> currentGroup, double mean) {
