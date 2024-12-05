@@ -74,9 +74,9 @@
           </ion-item>
           <ion-card-content>
 
-            <formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup" [fields]="userInformationFields"
-              [model]="form?.model">
-            </formly-skeleton-wrapper>
+            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+              [fields]="userInformationFields" [model]="form?.model">
+            </oe-formly-skeleton-wrapper>
 
             <ion-item lines="none">
               <ion-button slot="start" (click)="enableAndDisableEditMode()"
@@ -104,8 +104,9 @@
             </ion-label>
           </ion-item>
           <ion-card-content>
-            <formly-form [form]="form" [form]="form?.formGroup" [fields]="companyInformationFields"
-              [model]="form?.model"></formly-form>
+            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+              [fields]="companyInformationFields" [model]="form?.model">
+            </oe-formly-skeleton-wrapper>
           </ion-card-content>
         </ion-card>
       </ion-col>

@@ -11,8 +11,8 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
-import io.openems.edge.app.integratedsystem.FeneconHome;
-import io.openems.edge.app.integratedsystem.TestFeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
+import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.Apps;
@@ -26,7 +26,7 @@ public class TestHeatPump {
 
 	private HeatPump heatPump;
 
-	private FeneconHome homeApp;
+	private FeneconHome10 homeApp;
 
 	private ModbusTcpApiReadOnly modbusTcpApiReadOnly;
 	private RestJsonApiReadOnly restJsonApiReadOnly;
@@ -37,7 +37,7 @@ public class TestHeatPump {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
 					this.heatPump = Apps.heatPump(t), //
-					this.homeApp = Apps.feneconHome(t), //
+					this.homeApp = Apps.feneconHome10(t), //
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
 					Apps.socomecMeter(t), //
@@ -65,7 +65,7 @@ public class TestHeatPump {
 
 		// install home
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.homeApp.getAppId(), "key", "alias", TestFeneconHome.fullSettings()));
+				new AddAppInstance.Request(this.homeApp.getAppId(), "key", "alias", TestFeneconHome10.fullSettings()));
 
 		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 

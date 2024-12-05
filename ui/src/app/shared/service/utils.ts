@@ -346,9 +346,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant("General.dischargePower"), value: power };
+      return { name: translate.instant("General.DISCHARGE"), value: power };
     } else {
-      return { name: translate.instant("General.chargePower"), value: power * -1 };
+      return { name: translate.instant("General.CHARGE"), value: power * -1 };
     }
   }
 
@@ -758,7 +758,7 @@ export namespace HistoryUtils {
     /** Input Channels that need to be queried from the database */
     input: InputChannel[],
     /** Output Channels that will be shown in the chart */
-    output: (data: ChannelData, labels?: Date[]) => DisplayValue<HistoryUtils.CustomOptions>[],
+    output: (data: ChannelData, labels?: (string | Date)[]) => DisplayValue<HistoryUtils.CustomOptions>[],
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,

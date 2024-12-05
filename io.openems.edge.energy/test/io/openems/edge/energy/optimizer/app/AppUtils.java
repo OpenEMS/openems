@@ -1,6 +1,7 @@
 package io.openems.edge.energy.optimizer.app;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentStates;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
@@ -13,9 +14,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period;
 import io.openems.edge.energy.optimizer.SimulationResult;
@@ -54,6 +57,9 @@ public class AppUtils {
 				parseInt(essMatcher.group("maxChargeEnergy")), //
 				parseInt(essMatcher.group("maxDischargeEnergy")));
 
+		// TODO Evcs
+		final var evcss =  ImmutableMap.<String, GlobalSimulationsContext.Evcs>of();
+
 		var nextTime = new AtomicReference<>(startDateTime);
 		var periods = log.lines() //
 				.filter(l -> l.contains("OPTIMIZER ") && !l.contains("GlobalSimulationsContext") && !l.contains("Time")) //
@@ -71,7 +77,9 @@ public class AppUtils {
 				}) //
 				.collect(toImmutableList());
 
-		return new GlobalSimulationsContext(clock, startDateTime, eshs, grid, ess, periods);
+		return new GlobalSimulationsContext(clock, RiskLevel.MEDIUM, startDateTime, //
+				eshs, filterEshsWithDifferentStates(eshs).collect(toImmutableList()), //
+				grid, ess, evcss, periods);
 	}
 
 	private static Matcher applyPattern(Pattern pattern, String line) {

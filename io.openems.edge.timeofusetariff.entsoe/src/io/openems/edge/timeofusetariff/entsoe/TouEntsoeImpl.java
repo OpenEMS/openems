@@ -61,7 +61,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	private Config config = null;
 	private String securityToken = null;
-	private String exchangerateAccesskey = null;
 	private ScheduledFuture<?> future = null;
 
 	public TouEntsoeImpl() {
@@ -89,11 +88,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 
-		this.exchangerateAccesskey = definedOrElse(config.exchangerateAccesskey(), this.oem.getExchangeRateAccesskey());
-		if (this.exchangerateAccesskey == null) {
-			this.logError(this.log, "Please configure personal Access key to access Exchange rate host API");
-			return;
-		}
 		this.config = config;
 
 		// React on updates to Currency.
@@ -124,7 +118,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	private final Runnable task = () -> {
 		var token = this.securityToken;
-		var exchangerateAccesskey = this.exchangerateAccesskey;
 		var areaCode = this.config.biddingZone().code;
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		var toDate = fromDate.plusDays(1);
@@ -134,8 +127,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
 			final var entsoeCurrency = parseCurrency(result);
 			final var globalCurrency = this.meta.getCurrency();
-			final double exchangeRate = getExchangeRateOrElse(//
-					exchangerateAccesskey, entsoeCurrency, globalCurrency, 1.);
+			final double exchangeRate = getExchangeRateOrElse(entsoeCurrency, globalCurrency, 1.);
 
 			// Parse the response for the prices
 			this.prices.set(parsePrices(result, exchangeRate));

@@ -4,12 +4,14 @@ import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyDelayDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeEnergyInChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeGridPower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateEssChargeInChargeGridPower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateMaxChargeProductionPower;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.postprocessSimulatorState;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
@@ -19,13 +21,18 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.EshContext;
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyState;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Ess;
+import io.openems.edge.energy.api.simulation.OneSimulationContext;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -42,31 +49,20 @@ public class UtilsTest {
 						.withCapacity(20000), //
 				/* essActivePower */ -6000, //
 				/* gridActivePower */ 10000, //
-				/* maxChargePowerFromGrid */ 20000, //
-				/* limitChargePowerFor14aEnWG */ false));
-
-		assertEquals(-4200, calculateChargeGridPower(null, //
-				new DummyManagedSymmetricEss("ess0") //
-						.withCapacity(20000), //
-				/* essActivePower */ -6000, //
-				/* gridActivePower */ 10000, //
-				/* maxChargePowerFromGrid */ 20000, //
-				/* limitChargePowerFor14aEnWG */ true));
+				/* maxChargePowerFromGrid */ 20000));
 
 		assertEquals(-11000, calculateChargeGridPower(null, //
 				new DummyManagedSymmetricEss("ess0") //
 						.withCapacity(20000), //
 				/* essActivePower */ -6000, //
 				/* gridActivePower */ 5000, //
-				/* maxChargePowerFromGrid */ 20000, //
-				/* limitChargePowerFor14aEnWG */ false));
+				/* maxChargePowerFromGrid */ 20000));
 
 		assertEquals(-5860, calculateChargeGridPower(1340, //
 				new DummyManagedSymmetricEss("ess0"), //
 				/* essActivePower */ -1000, //
 				/* gridActivePower */ 500, //
-				/* maxChargePowerFromGrid */ 24000, //
-				/* limitChargePowerFor14aEnWG */ false));
+				/* maxChargePowerFromGrid */ 24000));
 
 		// Would be -3584, but limited to 5000 which is already surpassed
 		// TODO if this should actually serve as blackout-protection, a positive value
@@ -75,16 +71,14 @@ public class UtilsTest {
 				new DummyManagedSymmetricEss("ess0"), //
 				/* essActivePower */ 1000, //
 				/* gridActivePower */ 9000, //
-				/* maxChargePowerFromGrid */ 5000, //
-				/* limitChargePowerFor14aEnWG */ false));
+				/* maxChargePowerFromGrid */ 5000));
 
 		assertEquals(-8360, calculateChargeGridPower(1340, //
 				new DummyHybridEss("ess0") //
 						.withDcDischargePower(-1500), //
 				/* essActivePower */ -1000, //
 				/* gridActivePower */ -2000, //
-				/* maxChargePowerFromGrid */ 24000, //
-				/* limitChargePowerFor14aEnWG */ false));
+				/* maxChargePowerFromGrid */ 24000));
 	}
 
 	@Test
@@ -146,7 +140,7 @@ public class UtilsTest {
 	private static EnergyScheduleHandler.WithDifferentStates.Period<StateMachine, EshContext> mockPeriod(
 			StateMachine state, int essChargeInChargeGrid) {
 		return new EnergyScheduleHandler.WithDifferentStates.Period<StateMachine, EshContext>(state, 0,
-				new EshContext(null, null, 0, false, 0, essChargeInChargeGrid), null, 0);
+				new EshContext(null, null, 0, 0, essChargeInChargeGrid), null, 0);
 	}
 
 	@Test
@@ -156,7 +150,6 @@ public class UtilsTest {
 						new DummySum(), //
 						new DummyManagedSymmetricEss("ess0"), //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(BALANCING, /* essChargeInChargeGrid */ 1000)));
 		assertEquals("Null-Check", new ApplyState(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -164,7 +157,6 @@ public class UtilsTest {
 								.withGridActivePower(100), //
 						new DummyManagedSymmetricEss("ess0"), //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(BALANCING, /* essChargeInChargeGrid */ 1000)));
 
 		assertEquals("BALANCING", new ApplyState(BALANCING, null), //
@@ -174,7 +166,6 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(BALANCING, /* essChargeInChargeGrid */ 1000)));
 
 		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", new ApplyState(DELAY_DISCHARGE, 0), //
@@ -184,7 +175,6 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000)));
 
 		assertEquals("DELAY_DISCHARGE to BALANCING", new ApplyState(BALANCING, null), //
@@ -194,7 +184,6 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000)));
 
 		assertEquals("CHARGE_GRID stays CHARGE_GRID", new ApplyState(CHARGE_GRID, -1400), //
@@ -204,7 +193,6 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(CHARGE_GRID, /* essChargeInChargeGrid */ 1000)));
 
 		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyState(DELAY_DISCHARGE, 0), //
@@ -214,7 +202,6 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 400, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(CHARGE_GRID, /* essChargeInChargeGrid */ 1000)));
 
 		assertEquals("CHARGE_GRID to BALANCING", new ApplyState(BALANCING, null), //
@@ -224,22 +211,23 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 0, //
-						/* limitChargePowerFor14aEnWG */ true, //
 						mockPeriod(CHARGE_GRID, /* essChargeInChargeGrid */ 1000)));
 	}
 
 	@Test
 	public void testCalculateChargeEnergyInChargeGrid() {
 		assertEquals(1375, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of())));
 
 		assertEquals(525, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of(//
 								new GlobalSimulationsContext.Period.Quarter(TIME, 0, 1000, 0), //
 								new GlobalSimulationsContext.Period.Quarter(TIME, 100, 1100, 0), //
@@ -247,9 +235,10 @@ public class UtilsTest {
 						))));
 
 		assertEquals(538, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of(//
 								new GlobalSimulationsContext.Period.Quarter(TIME, 0, 700, 123), //
 								new GlobalSimulationsContext.Period.Quarter(TIME, 100, 600, 123), //
@@ -262,9 +251,10 @@ public class UtilsTest {
 						))));
 
 		assertEquals(499, calculateChargeEnergyInChargeGrid(//
-				new GlobalSimulationsContext(CLOCK, TIME, ImmutableList.of(), //
+				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
+						ImmutableMap.of(), //
 						ImmutableList.of(//
 								new GlobalSimulationsContext.Period.Quarter(TIME, 0, 700, 120), //
 								new GlobalSimulationsContext.Period.Quarter(TIME, 100, 600, 121), //
@@ -277,4 +267,21 @@ public class UtilsTest {
 						))));
 	}
 
+	@Test
+	public void testPostprocessSimulatorState() {
+		var m = new EnergyFlow.Model(//
+				/* production */ 200, //
+				/* consumption */ 500, //
+				/* essMaxCharge */ 5000, //
+				/* essMaxDischarge */ 0, //
+				/* gridMaxBuy */ 4000, //
+				/* gridMaxSell */ 10000);
+		applyDelayDischarge(m);
+		var ef = m.solve();
+		m.logMinMaxValues();
+		var gsc = new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, null, null, null, new Ess(0, 0, 0, 0),
+				ImmutableMap.of(), null);
+		var osc = OneSimulationContext.from(gsc);
+		assertEquals(BALANCING, postprocessSimulatorState(osc, ef, null, DELAY_DISCHARGE));
+	}
 }

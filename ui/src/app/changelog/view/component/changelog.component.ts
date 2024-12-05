@@ -1,6 +1,8 @@
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { environment } from "src/environments";
 import { Service } from "../../../shared/shared";
 import { Role } from "../../../shared/type/role";
@@ -9,6 +11,8 @@ import { Changelog } from "./changelog.constants";
 @Component({
   selector: "changelog",
   templateUrl: "./changelog.component.html",
+  standalone: true,
+  imports: [IonicModule, CommonModule, TranslateModule],
 })
 export class ChangelogComponent {
 

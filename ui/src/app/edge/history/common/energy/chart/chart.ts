@@ -101,7 +101,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Charge Power
           {
-            name: translate.instant("General.chargePower"),
+            name: translate.instant("General.CHARGE"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data["_sum/EssDcChargeEnergy"],
             converter: () => chartType === "line" //
               ? data["EssCharge"]?.map((value, index) => {
@@ -114,7 +114,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Discharge Power
           {
-            name: translate.instant("General.dischargePower"),
+            name: translate.instant("General.DISCHARGE"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data["_sum/EssDcDischargeEnergy"],
             converter: () => {
               return chartType === "line" ?

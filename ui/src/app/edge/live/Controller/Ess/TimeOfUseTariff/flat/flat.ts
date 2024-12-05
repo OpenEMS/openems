@@ -1,6 +1,7 @@
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { ChannelAddress, Currency, CurrentData, Utils } from "src/app/shared/shared";
+import { ChannelAddress, Currency, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
 import { ModalComponent } from "../modal/modal";
 
@@ -33,7 +34,9 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
 
     protected override onCurrentData(currentData: CurrentData): void {
         const quarterlyPrice = currentData.allComponents[this.component.id + "/QuarterlyPrices"];
-        const currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+        const meta: EdgeConfig.Component = this.config?.getComponent("_meta");
+        const currency: string = this.config?.getPropertyFromComponent<string>(meta, "currency");
+        const currencyLabel: Currency.Label = Currency.getCurrencyLabelByCurrency(currency);
         this.priceWithCurrency = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
 }

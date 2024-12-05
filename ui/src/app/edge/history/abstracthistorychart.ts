@@ -2,7 +2,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
+import { XAxisType } from "src/app/shared/components/chart/chart.constants";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
@@ -234,19 +234,18 @@ export abstract class AbstractHistoryChart {
                         break;
                 }
 
-                // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, false);
-
-                options.scales.x["stacked"] = true;
-                options.scales[ChartAxis.LEFT]["stacked"] = false;
-                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
-
                 /** Overwrite default yAxisId */
                 this.datasets = this.datasets
                     .map(el => {
                         el["yAxisID"] = ChartAxis.LEFT;
                         return el;
                     });
+
+                // Only one yAxis defined
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", locale, this.datasets, true);
+                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
+                options.scales[ChartAxis.LEFT]["stacked"] = false;
+                options.scales.x["stacked"] = true;
             }).then(() => {
                 this.options = options;
                 resolve();
@@ -345,8 +344,7 @@ export abstract class AbstractHistoryChart {
      * @returns the ChartOptions
      */
     protected createDefaultChartOptions(): Chart.ChartOptions {
-        const options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        return options;
+        return <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     }
 
     /**

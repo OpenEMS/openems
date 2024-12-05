@@ -4,8 +4,6 @@ import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collections;
-
 import org.junit.Test;
 
 import io.openems.edge.common.currency.Currency;
@@ -785,15 +783,14 @@ public class ParserTest {
 		var currencyExchangeValue = 1.0;
 		var prices = parsePrices(XML, currencyExchangeValue);
 		assertEquals(109.93, prices.getFirst(), 0.001);
-		var lastKey = Collections.max(prices.pricePerQuarter.keySet());
-		assertEquals(65.07, prices.pricePerQuarter.get(lastKey), 0.001);
+		assertEquals(65.07, prices.getAt(prices.getLastTime()), 0.001);
 	}
 
 	@Test
 	public void testParsePrices2() throws Exception {
 		var currencyExchangeValue = 1.0;
 		var prices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, currencyExchangeValue);
-		assertEquals(192, prices.pricePerQuarter.size());
+		assertEquals(192, prices.asArray().length);
 		var array = prices.asArray();
 		assertEquals(array[96], array[97], 0.001); // Missing value check
 		assertEquals(array[0], 0, 0.001); // Making sure that Periods are sorted before prices are stored.

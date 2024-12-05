@@ -3,7 +3,7 @@ import { History } from "src/app/edge/history/common/energy/chart/channels.spec"
 
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
-import { TestContext, sharedSetup } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { ChartAxis } from "src/app/shared/service/utils";
 import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
 import { expectView } from "./chart.constants.spec";
@@ -21,7 +21,7 @@ describe("History Grid", () => {
 
     let TEST_CONTEXT: TestContext;
     beforeEach(async () =>
-        TEST_CONTEXT = await sharedSetup(),
+        TEST_CONTEXT = await TestingUtils.sharedSetup(),
     );
 
     it("#getChartData()", () => {

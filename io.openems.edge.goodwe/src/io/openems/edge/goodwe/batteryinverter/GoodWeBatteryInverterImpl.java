@@ -337,9 +337,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			}
 		}
 
-		// Ripple Control Receiver on / off
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.RIPPLE_CONTROL_RECEIVER_ENABLE),
-				config.rcrEnable().booleanValue);
+		// Multi-functional Block for Ripple Control Receiver and NA protection on / off
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE),
+				config.rcrEnable().booleanValue || config.naProtectionEnable().booleanValue);
 	}
 
 	/**
@@ -365,8 +365,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
 
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
-		var setChargeMaxCurrent = this.getGoodweType().maxDcCurrent;
-		var setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent;
+		final int setChargeMaxCurrent;
+		final int setDischargeMaxCurrent;
 		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(210);
 		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(210);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
@@ -376,19 +376,26 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 			setBatteryStrings = homeBattery.getNumberOfModulesPerTower().orElse(setBatteryStrings);
 
+			final var batteryType = homeBattery.getBatteryHardwareType();
+
 			/*
 			 * Check combination of GoodWe inverter and FENECON Home battery to avoid
 			 * invalid combinations for FENECON Home Systems
 			 */
-			if (this.getGoodweType().isInvalidBattery.test(homeBattery.getBatteryHardwareType())) {
+			if (this.getGoodweType().isInvalidBattery.test(batteryType)) {
 				this._setImpossibleFeneconHomeCombination(true);
 
 				// Set zero limits to avoid charging and discharging
 				setChargeMaxCurrent = 0;
 				setDischargeMaxCurrent = 0;
 			} else {
+				setChargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(batteryType);
+				setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(batteryType);
 				this._setImpossibleFeneconHomeCombination(false);
 			}
+		} else {
+			setChargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(null);
+			setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(null);
 		}
 
 		/*
@@ -551,7 +558,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Override
 	public Integer getSurplusPower() {
 		var productionPower = this.calculatePvProduction();
-		return calculateSurplusPower(this.latestBatteryData, productionPower, this.getGoodweType().maxDcCurrent);
+		return calculateSurplusPower(this.latestBatteryData, productionPower,
+				this.getGoodweType().maxDcCurrent.apply(null));
 
 	}
 

@@ -191,13 +191,14 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.groupe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.hassfurt',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
-	bcpkix;version='[1.78.1,1.78.2)',\
-	bcprov;version='[1.78.1,1.78.2)',\
-	bcutil;version='[1.78.1,1.78.2)',\
+	bcpkix;version='[1.79.0,1.79.1)',\
+	bcprov;version='[1.79.0,1.79.1)',\
+	bcutil;version='[1.79.0,1.79.1)',\
 	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
 	com.fazecast.jSerialComm;version='[2.10.4,2.10.5)',\
 	com.ghgande.j2mod;version='[3.2.1,3.2.2)',\
@@ -375,6 +376,7 @@
 	io.openems.edge.timeofusetariff.groupe;version=snapshot,\
 	io.openems.edge.timeofusetariff.hassfurt;version=snapshot,\
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
+	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
@@ -420,8 +422,8 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.0.21,2.0.22)',\
-	org.jsoup;version='[1.18.1,1.18.2)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.1.0,2.1.1)',\
+	org.jsoup;version='[1.18.3,1.18.4)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\

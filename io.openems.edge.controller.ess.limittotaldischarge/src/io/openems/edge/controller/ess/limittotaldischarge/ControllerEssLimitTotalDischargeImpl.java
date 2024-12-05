@@ -235,7 +235,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 		return EnergyScheduleHandler.of(//
 				simContext -> socToEnergy(simContext.ess().totalEnergy(), minSoc.getAsInt()), //
 				(simContext, period, energyFlow, minEnergy) -> {
-					energyFlow.setEssMaxDischarge(max(0, simContext.getEssInitial() - minEnergy));
+					energyFlow.setEssMaxDischarge(max(0, simContext.ess.getInitialEnergy() - minEnergy));
 				});
 	}
 

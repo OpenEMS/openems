@@ -154,6 +154,19 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 	}
 
 	/**
+	 * Sets the validation of the Input.
+	 *
+	 * @param pattern the pattern to be set
+	 * @param msg     the error message
+	 * @return this
+	 */
+	public InputBuilder setValidation(String pattern, String msg) {
+		this.setPattern(pattern);
+		this.setValidationMessage("pattern", msg);
+		return this;
+	}
+
+	/**
 	 * Only allows positive number as a input.
 	 * 
 	 * @return this

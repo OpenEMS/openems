@@ -361,11 +361,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
     let tooltipsLabel: string | null = null;
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultOptions(chartOptionsType, service, labels)));
-    const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data);
+    const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
-    const showYAxisType: boolean = chartObject.yAxes.length > 1;
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, showYAxisType);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, true);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -475,7 +474,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       function rebuildScales(chart: Chart.Chart) {
         let options = chart.options;
         chartObject.yAxes.forEach((element) => {
-          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, _dataSets, showYAxisType);
+          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, _dataSets, true);
         });
       }
 
@@ -510,7 +509,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     options.scales.x.ticks["source"] = "auto";
     options.scales.x.ticks.maxTicksLimit = 31;
     options.scales.x["bounds"] = "ticks";
-    options;
     options = AbstractHistoryChart.getExternalPluginFeatures(displayValues, options, chartType);
 
     return options;
@@ -585,7 +583,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           max: 3,
           beginAtZero: true,
           ticks: {
-            ...baseConfig.ticks,
             stepSize: 1,
           },
         };
@@ -597,21 +594,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           beginAtZero: false,
         };
         break;
-
-      case YAxisType.POWER:
-      case YAxisType.ENERGY:
-      case YAxisType.REACTIVE:
-      case YAxisType.NONE:
-        options.scales[element.yAxisId] = baseConfig;
-        break;
       case YAxisType.CURRENCY:
         options.scales[element.yAxisId] = {
           ...baseConfig,
           beginAtZero: false,
           ticks: {
+            ...baseConfig.ticks,
             source: "auto",
           },
         };
+        break;
+      case YAxisType.POWER:
+      case YAxisType.ENERGY:
+      case YAxisType.REACTIVE:
+      case YAxisType.NONE:
+        options.scales[element.yAxisId] = baseConfig;
         break;
     }
     return options;
@@ -665,7 +662,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return pipe.transform(value);
       }
       case YAxisType.CURRENCY: {
-        const currency = config.components["_meta"].properties.currency;
+        const meta: EdgeConfig.Component = config?.getComponent("_meta");
+        const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
         tooltipsLabel = Currency.getCurrencyLabelByCurrency(currency);
         break;
       }

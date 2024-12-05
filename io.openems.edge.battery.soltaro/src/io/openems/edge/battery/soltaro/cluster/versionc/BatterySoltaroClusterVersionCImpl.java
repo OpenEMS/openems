@@ -3,6 +3,7 @@ package io.openems.edge.battery.soltaro.cluster.versionc;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.LinkedList;
 import java.util.Optional;
@@ -648,7 +649,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		return readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull,
+		return readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull,
 				new UnsignedWordElement(0x20C1 /* No of modules for 1st tower */));
 	}
 
@@ -675,7 +676,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 		}
 
 		// Read next address in Queue
-		readElementOnce(this.getModbusProtocol(), retryPredicate, new UnsignedWordElement(address))
+		readElementOnce(FC3, this.getModbusProtocol(), retryPredicate, new UnsignedWordElement(address))
 				.thenAccept(numberOfModules -> {
 					if (numberOfModules == null) {
 						// Read error -> this tower does not exist. Stop here.

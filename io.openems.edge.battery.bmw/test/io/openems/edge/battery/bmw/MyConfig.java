@@ -2,21 +2,16 @@ package io.openems.edge.battery.bmw;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.battery.bmw.enums.BatteryState;
+import io.openems.edge.common.startstop.StartStopConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id;
-		private String modbusId;
+		private String id = null;
+		private String modbusId = null;
 		private int modbusUnitId;
-		private BatteryState batteryState;
-		private long errorDelay;
-		private int maxStartAttempts;
-		private int maxStartTime;
-		private int startUnsuccessfulDelay;
-		private int pendingTolerance;
+		private StartStopConfig startStop;
 
 		private Builder() {
 		}
@@ -31,33 +26,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setBatteryState(BatteryState batteryState) {
-			this.batteryState = batteryState;
+		public Builder setStartStop(StartStopConfig startStop) {
+			this.startStop = startStop;
 			return this;
 		}
 
-		public Builder setErrorDelay(long errorDelay) {
-			this.errorDelay = errorDelay;
-			return this;
-		}
-
-		public Builder setMaxStartAttempts(int maxStartAttempts) {
-			this.maxStartAttempts = maxStartAttempts;
-			return this;
-		}
-
-		public Builder setMaxStartTime(int maxStartTime) {
-			this.maxStartTime = maxStartTime;
-			return this;
-		}
-
-		public Builder setStartUnsuccessfulDelay(int startUnsuccessfulDelay) {
-			this.startUnsuccessfulDelay = startUnsuccessfulDelay;
-			return this;
-		}
-
-		public Builder setPendingTolerance(int pendingTolerance) {
-			this.pendingTolerance = pendingTolerance;
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
@@ -98,33 +73,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public BatteryState batteryState() {
-		return this.builder.batteryState;
+	public StartStopConfig startStop() {
+		return this.builder.startStop;
 	}
-
-	@Override
-	public long errorDelay() {
-		return this.builder.errorDelay;
-	}
-
-	@Override
-	public int maxStartAttempts() {
-		return this.builder.maxStartAttempts;
-	}
-
-	@Override
-	public int maxStartTime() {
-		return this.builder.maxStartTime;
-	}
-
-	@Override
-	public int startUnsuccessfulDelay() {
-		return this.builder.startUnsuccessfulDelay;
-	}
-
-	@Override
-	public int pendingTolerance() {
-		return this.builder.pendingTolerance;
-	}
-
 }
