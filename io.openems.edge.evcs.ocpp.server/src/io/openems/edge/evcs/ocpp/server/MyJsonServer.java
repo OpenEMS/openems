@@ -3,11 +3,17 @@ package io.openems.edge.evcs.ocpp.server;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +54,11 @@ public class MyJsonServer {
 	 */
 	private final JSONServer server;
 
+	private static final long INITIAL_RETRY_DELAY_SECONDS = 5;
+	private static final double RETRY_DELAY_MULTIPLIER = 1.5;
+	private static final long MAX_RETRY_DELAY_SECONDS = 60; // maximum delay between retries is 60 seconds
+	private static final long MAX_TOTAL_RETRY_TIME_SECONDS = 600; // maximum total retry time is 600 seconds
+
 	// All implemented Profiles
 	private final ServerCoreProfile coreProfile;
 	private final ServerFirmwareManagementProfile firmwareProfile;
@@ -55,6 +66,10 @@ public class MyJsonServer {
 	private final ServerRemoteTriggerProfile remoteTriggerProfile = new ServerRemoteTriggerProfile();
 	private final ServerReservationProfile reservationProfile = new ServerReservationProfile();
 	private final ServerSmartChargingProfile smartChargingProfile = new ServerSmartChargingProfile();
+	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+	protected final Map<String, UUID> pendingSessions = new ConcurrentHashMap<>();
+	private final Map<String, AtomicInteger> retryAttempts = new ConcurrentHashMap<>();
+	private final Map<String, Long> totalRetryTime = new ConcurrentHashMap<>();
 
 	public MyJsonServer(EvcsOcppServer parent) {
 		this.parent = parent;
@@ -92,11 +107,22 @@ public class MyJsonServer {
 
 				MyJsonServer.this.parent.ocppSessions.put(ocppIdentifier, sessionIndex);
 
-				var presentEvcss = MyJsonServer.this.parent.ocppEvcss.get(ocppIdentifier);
+				// Try to get the presentEvcss
+				List<AbstractManagedOcppEvcsComponent> presentEvcss = MyJsonServer.this.parent.ocppEvcss
+						.get(ocppIdentifier);
 
 				if (presentEvcss == null) {
+					// EVCS not yet configured, store session and retry later
+					MyJsonServer.this
+							.logDebug("EVCS not yet configured for ocppId " + ocppIdentifier + ". Will retry.");
+					// Store the session for later processing
+					MyJsonServer.this.pendingSessions.put(ocppIdentifier, sessionIndex);
+					// Optionally, schedule a retry after a delay
+					retryNewSession(sessionIndex, information, ocppIdentifier);
 					return;
 				}
+
+				// Proceed as normal
 				MyJsonServer.this.parent.activeEvcsSessions.put(sessionIndex, presentEvcss);
 
 				for (AbstractManagedOcppEvcsComponent evcs : presentEvcss) {
@@ -146,7 +172,7 @@ public class MyJsonServer {
 	 *
 	 * @param session unique session id referring to the corresponding Evcs
 	 * @param request given request that needs to be sent
-	 * @return CompletitionStage
+	 * @return CompletionStage
 	 * @throws OccurenceConstraintException OccurenceConstraintException
 	 * @throws UnsupportedFeatureException  UnsupportedFeatureException
 	 * @throws NotConnectedException        NotConnectedException
@@ -213,6 +239,67 @@ public class MyJsonServer {
 				this.sendDefault(ocppEvcs.getSessionId(), request);
 			}
 		}
+	}
+
+	private void retryNewSession(UUID sessionIndex, SessionInformation information, String ocppIdentifier) {
+		// Initialize retry attempt counter and total retry time for this ocppIdentifier
+		retryAttempts.putIfAbsent(ocppIdentifier, new AtomicInteger(0));
+		totalRetryTime.putIfAbsent(ocppIdentifier, 0L);
+
+		// Schedule the first retry attempt
+		scheduleRetry(sessionIndex, information, ocppIdentifier);
+	}
+
+	private void scheduleRetry(UUID sessionIndex, SessionInformation information, String ocppIdentifier) {
+		int attempt = retryAttempts.get(ocppIdentifier).getAndIncrement();
+		long delay = calculateNextDelay(attempt);
+
+		// Optional: Add randomness (jitter) to delay to prevent synchronized retries
+		long randomJitter = ThreadLocalRandom.current().nextLong(0, 1000); // 0 to 1000 milliseconds
+		delay += randomJitter;
+
+		// Update total retry time
+		long totalTime = totalRetryTime.get(ocppIdentifier) + delay / 1000; // Convert milliseconds to seconds
+		totalRetryTime.put(ocppIdentifier, totalTime);
+
+		// Optional: Check if total retry time exceeds maximum allowed
+		if (totalTime > MAX_TOTAL_RETRY_TIME_SECONDS) {
+			MyJsonServer.this.logWarn("Maximum total retry time exceeded for ocppId " + ocppIdentifier);
+			// Clean up
+			MyJsonServer.this.pendingSessions.remove(ocppIdentifier);
+			retryAttempts.remove(ocppIdentifier);
+			totalRetryTime.remove(ocppIdentifier);
+			return;
+		}
+
+		scheduledExecutorService.schedule(() -> {
+			List<AbstractManagedOcppEvcsComponent> presentEvcss = MyJsonServer.this.parent.ocppEvcss
+					.get(ocppIdentifier);
+			if (presentEvcss != null) {
+				MyJsonServer.this
+						.logDebug("EVCS configured for ocppId " + ocppIdentifier + ". Proceeding with session setup.");
+				MyJsonServer.this.parent.activeEvcsSessions.put(sessionIndex, presentEvcss);
+
+				for (AbstractManagedOcppEvcsComponent evcs : presentEvcss) {
+					evcs.newSession(MyJsonServer.this.parent, sessionIndex);
+					MyJsonServer.this.sendInitialRequests(sessionIndex, evcs);
+				}
+				// Remove from pending sessions and retry attempts
+				MyJsonServer.this.pendingSessions.remove(ocppIdentifier);
+				retryAttempts.remove(ocppIdentifier);
+				totalRetryTime.remove(ocppIdentifier);
+			} else {
+				MyJsonServer.this.logDebug("Still waiting for EVCS configuration for ocppId " + ocppIdentifier);
+				// Schedule the next retry
+				scheduleRetry(sessionIndex, information, ocppIdentifier);
+			}
+		}, delay, TimeUnit.MILLISECONDS);
+	}
+
+	private long calculateNextDelay(int attempt) {
+		long delay = (long) (INITIAL_RETRY_DELAY_SECONDS * 1000 * Math.pow(RETRY_DELAY_MULTIPLIER, attempt));
+		delay = Math.min(delay, MAX_RETRY_DELAY_SECONDS * 1000); // Ensure delay does not exceed maximum
+		return delay;
 	}
 
 	private HashMap<String, String> getConfiguration(UUID sessionIndex) {
