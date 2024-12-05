@@ -13,8 +13,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ import io.openems.common.utils.JsonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class RestHandler extends AbstractHandler {
+public class RestHandler extends Handler.Abstract {
 
 	private final Logger log = LoggerFactory.getLogger(RestHandler.class);
 
@@ -43,11 +45,10 @@ public class RestHandler extends AbstractHandler {
 	}
 
 	@Override
-	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
+	public boolean handle(Request request, Response resposne, Callback callback) throws Exception {
 		try {
 			var user = this.authenticate(request);
-
+			
 			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
 							.split("/"));
@@ -74,8 +75,8 @@ public class RestHandler extends AbstractHandler {
 	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
-		var authHeader = request.getHeader("Authorization");
+	private User authenticate(Request request) throws OpenemsNamedException {
+		var authHeader = request.getHeaders().get("Authorization");
 		if (authHeader != null) {
 			var st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
