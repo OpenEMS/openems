@@ -24,7 +24,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.predictor.lstm.LstmModel;
+import io.openems.edge.predictor.lstm.PredictorLstm;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadAndSaveModels;
 import io.openems.edge.timedata.api.Timedata;
@@ -35,10 +35,10 @@ public class LstmTrain implements Runnable {
 
 	private final Timedata timedata;
 	private final ChannelAddress channelAddress;
-	private final LstmModel parent;
+	private final PredictorLstm parent;
 	private final long days;
 
-	public LstmTrain(Timedata timedata, ChannelAddress channelAddress, LstmModel parent, long days) {
+	public LstmTrain(Timedata timedata, ChannelAddress channelAddress, PredictorLstm parent, long days) {
 		this.timedata = timedata;
 		this.channelAddress = channelAddress;
 		this.parent = parent;

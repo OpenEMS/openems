@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstm;
+package io.openems.edge.predictor.lstm.common;
 
 import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArray;
 import static io.openems.edge.predictor.lstm.utilities.UtilityConversion.to1DArrayList;
@@ -10,8 +10,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.openems.edge.predictor.lstm.common.DataStatistics;
-import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.preprocessingpipeline.PreprocessingPipeImpl;
 import io.openems.edge.predictor.lstm.utilities.MathUtils;
 

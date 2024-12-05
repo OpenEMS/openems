@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.openems.edge.predictor.lstm.LstmPredictor;
 import io.openems.edge.predictor.lstm.common.DataStatistics;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
+import io.openems.edge.predictor.lstm.common.LstmPredictor;
 import io.openems.edge.predictor.lstm.performance.PerformanceMatrix;
 import io.openems.edge.predictor.lstm.preprocessing.DataModification;
 import io.openems.edge.predictor.lstm.preprocessingpipeline.PreprocessingPipeImpl;

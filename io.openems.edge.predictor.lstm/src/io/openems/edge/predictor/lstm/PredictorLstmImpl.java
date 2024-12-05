@@ -45,6 +45,7 @@ import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.predictor.lstm.common.HyperParameters;
+import io.openems.edge.predictor.lstm.common.LstmPredictor;
 import io.openems.edge.predictor.lstm.common.ReadAndSaveModels;
 import io.openems.edge.predictor.lstm.jsonrpc.GetPredictionRequest;
 import io.openems.edge.predictor.lstm.jsonrpc.PredictionRequestHandler;
@@ -54,12 +55,12 @@ import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Predictor.LstmModel", //
+		name = "Predictor.LSTM", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class LstmModelImpl extends AbstractPredictor
-		implements Predictor, OpenemsComponent, ComponentJsonApi, LstmModel {
+public class PredictorLstmImpl extends AbstractPredictor
+		implements Predictor, OpenemsComponent, ComponentJsonApi, PredictorLstm {
 
 	// private final Logger log = LoggerFactory.getLogger(LstmModelImpl.class);
 
@@ -86,11 +87,11 @@ public class LstmModelImpl extends AbstractPredictor
 		return this.componentManager;
 	}
 
-	public LstmModelImpl() throws OpenemsNamedException {
+	public PredictorLstmImpl() throws OpenemsNamedException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				LstmModel.ChannelId.values()//
+				PredictorLstm.ChannelId.values()//
 		);
 	}
 

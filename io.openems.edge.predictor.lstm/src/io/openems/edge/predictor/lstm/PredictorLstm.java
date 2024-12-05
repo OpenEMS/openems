@@ -10,7 +10,7 @@ import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface LstmModel extends OpenemsComponent {
+public interface PredictorLstm extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LAST_TRAINED_TIME(Doc.of(LONG) //

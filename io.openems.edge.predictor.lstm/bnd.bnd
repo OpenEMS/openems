@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge Predictor LSTM-Model
+Bundle-Name: OpenEMS Edge Predictor LSTM
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}

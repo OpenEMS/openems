@@ -12,7 +12,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
-import io.openems.edge.predictor.lstm.LstmModelImpl;
+import io.openems.edge.predictor.lstm.PredictorLstmImpl;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class LstmModelImplTest {
@@ -35,7 +35,7 @@ public class LstmModelImplTest {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
 
-		var sut = new LstmModelImpl();
+		var sut = new PredictorLstmImpl();
 
 		new ComponentTest(sut) //
 				.addReference("timedata", timedata) //
