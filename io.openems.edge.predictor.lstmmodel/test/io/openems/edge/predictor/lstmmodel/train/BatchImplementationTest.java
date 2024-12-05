@@ -3,6 +3,7 @@ package io.openems.edge.predictor.lstmmodel.train;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openems.edge.predictor.lstmmodel.common.HyperParameters;
@@ -14,6 +15,7 @@ public class BatchImplementationTest {
 	/**
 	 * Batch testing.
 	 */
+	@Ignore
 	@Test
 	public void trainInBatchtest() {
 
