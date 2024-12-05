@@ -18,7 +18,7 @@ public class PredictionRequestHandler {
 	public static GetPredictionResponse handlerGetPredictionRequest(UUID requestId, PredictorManager predictionManager,
 			ChannelAddress channelAddress) {
 
-		var sortedMap = predictionManager.getPrediction(channelAddress).valuePerQuarter;
+		var sortedMap = predictionManager.getPrediction(channelAddress).toMapWithAllQuarters();
 		return new GetPredictionResponse(requestId, sortedMap);
 	}
 }

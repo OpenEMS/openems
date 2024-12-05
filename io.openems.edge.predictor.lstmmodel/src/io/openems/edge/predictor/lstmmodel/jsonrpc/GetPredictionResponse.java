@@ -1,6 +1,7 @@
 package io.openems.edge.predictor.lstmmodel.jsonrpc;
 
 import java.time.ZonedDateTime;
+import java.util.NavigableMap;
 import java.util.SortedMap;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class GetPredictionResponse extends JsonrpcResponseSuccess {
 		this.predictionResult = null;
 	}
 
-	public GetPredictionResponse(UUID id, SortedMap<ZonedDateTime, Integer> predictionResult) {
+	public GetPredictionResponse(UUID id, NavigableMap<ZonedDateTime, Integer> predictionResult) {
 		super(id);
 		this.predictionResult = predictionResult;
 		this.prediction = new JsonArray();

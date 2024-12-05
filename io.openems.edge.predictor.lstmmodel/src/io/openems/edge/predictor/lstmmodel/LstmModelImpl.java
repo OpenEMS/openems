@@ -158,8 +158,7 @@ public class LstmModelImpl extends AbstractPredictor
 			var baseTimeOfPrediction = nowDate.withMinute(getMinute(nowDate, hyperParameters)).withSecond(0)
 					.withNano(0);
 
-			return Prediction.from(//
-					Prediction.getValueRange(this.sum, channelAddress), //
+			return Prediction.from(this.sum, channelAddress, //
 					baseTimeOfPrediction, //
 					averageInChunks(actualPredicted));
 		} catch (Exception e) {
