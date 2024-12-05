@@ -29,7 +29,8 @@ public class DataStatistics {
 	}
 
 	/**
-	 * Computes the mean (average) of an array of double values. *
+	 * Computes the mean (average) of an array of double values.
+	 * 
 	 * <p>
 	 * This method calculates the mean by summing all the elements in the input
 	 * array and dividing by the number of elements. If the array is empty, it

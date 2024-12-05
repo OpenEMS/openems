@@ -50,7 +50,7 @@ public class Lstm {
 	 */
 	public void backwardprop() {
 
-		ArrayList<Double> gradients= new ArrayList<Double>();
+		ArrayList<Double> gradients = new ArrayList<Double>();
 
 		for (int i = this.cells.size() - 1; i >= 0; i--) {
 			if (i < this.cells.size() - 1) {
@@ -67,39 +67,47 @@ public class Lstm {
 			this.derivativeLWrtWi += this.cells.get(i).getXt() * this.cells.get(i).getDelI();
 			this.derivativeLWrtWo += this.cells.get(i).getXt() * this.cells.get(i).getDelO();
 			this.derivativeLWrtWz += this.cells.get(i).getXt() * this.cells.get(i).getDelZ();
-			
-			
 
-//			localLearningRate1 = rate.adagradOptimizer(this.learningRate, localLearningRate1, this.derivativeLWrtWi, i);
-//			localLearningRate2 = rate.adagradOptimizer(this.learningRate, localLearningRate2, this.derivativeLWrtWo, i);
-//			localLearningRate3 = rate.adagradOptimizer(this.learningRate, localLearningRate3, this.derivativeLWrtWz, i);
-//			localLearningRate4 = rate.adagradOptimizer(this.learningRate, localLearningRate4, this.derivativeLWrtRi, i);
-//			localLearningRate5 = rate.adagradOptimizer(this.learningRate, localLearningRate5, this.derivativeLWrtRo, i);
-//			localLearningRate6 = rate.adagradOptimizer(this.learningRate, localLearningRate6, this.derivativeLWrtRz, i);
-//
-//			this.cells.get(i).setWi(this.cells.get(i).getWi() - localLearningRate1 * this.derivativeLWrtWi);
-//			this.cells.get(i).setWo(this.cells.get(i).getWo() - localLearningRate2 * this.derivativeLWrtWo);
-//			this.cells.get(i).setWz(this.cells.get(i).getWz() - localLearningRate3 * this.derivativeLWrtWz);
-//			this.cells.get(i).setRi(this.cells.get(i).getRi() - localLearningRate4 * this.derivativeLWrtRi);
-//			this.cells.get(i).setRo(this.cells.get(i).getRo() - localLearningRate5 * this.derivativeLWrtRo);
-//			this.cells.get(i).setRz(this.cells.get(i).getRz() - localLearningRate6 * this.derivativeLWrtRz);
+			// localLearningRate1 = rate.adagradOptimizer(this.learningRate,
+			// localLearningRate1, this.derivativeLWrtWi, i);
+			// localLearningRate2 = rate.adagradOptimizer(this.learningRate,
+			// localLearningRate2, this.derivativeLWrtWo, i);
+			// localLearningRate3 = rate.adagradOptimizer(this.learningRate,
+			// localLearningRate3, this.derivativeLWrtWz, i);
+			// localLearningRate4 = rate.adagradOptimizer(this.learningRate,
+			// localLearningRate4, this.derivativeLWrtRi, i);
+			// localLearningRate5 = rate.adagradOptimizer(this.learningRate,
+			// localLearningRate5, this.derivativeLWrtRo, i);
+			// localLearningRate6 = rate.adagradOptimizer(this.learningRate,
+			// localLearningRate6, this.derivativeLWrtRz, i);
+
+			// this.cells.get(i).setWi(this.cells.get(i).getWi() - localLearningRate1 *
+			// this.derivativeLWrtWi);
+			// this.cells.get(i).setWo(this.cells.get(i).getWo() - localLearningRate2 *
+			// this.derivativeLWrtWo);
+			// this.cells.get(i).setWz(this.cells.get(i).getWz() - localLearningRate3 *
+			// this.derivativeLWrtWz);
+			// this.cells.get(i).setRi(this.cells.get(i).getRi() - localLearningRate4 *
+			// this.derivativeLWrtRi);
+			// this.cells.get(i).setRo(this.cells.get(i).getRo() - localLearningRate5 *
+			// this.derivativeLWrtRo);
+			// this.cells.get(i).setRz(this.cells.get(i).getRz() - localLearningRate6 *
+			// this.derivativeLWrtRz);
 		}
-			for(int i = 0;i<this.cells.size();i++) {
-			gradients.add(this.derivativeLWrtWi/this.cells.size());
-			gradients.add(this.derivativeLWrtWo/this.cells.size());
-			gradients.add(this.derivativeLWrtWz/this.cells.size());
-			gradients.add(this.derivativeLWrtRi/this.cells.size());
-			gradients.add(this.derivativeLWrtRo/this.cells.size());
-			gradients.add(this.derivativeLWrtRz/this.cells.size());
-			
-			
-			
+		for (int i = 0; i < this.cells.size(); i++) {
+			gradients.add(this.derivativeLWrtWi / this.cells.size());
+			gradients.add(this.derivativeLWrtWo / this.cells.size());
+			gradients.add(this.derivativeLWrtWz / this.cells.size());
+			gradients.add(this.derivativeLWrtRi / this.cells.size());
+			gradients.add(this.derivativeLWrtRo / this.cells.size());
+			gradients.add(this.derivativeLWrtRz / this.cells.size());
+
 		}
 		this.updateweights(gradients);
-			
+
 	}
 
-	public void updateweights(ArrayList<Double> gradients) {
+	protected void updateweights(ArrayList<Double> gradients) {
 		var rate = new AdaptiveLearningRate();
 
 		var localLearningRate1 = 0.;
@@ -109,7 +117,6 @@ public class Lstm {
 		var localLearningRate5 = 0.;
 		var localLearningRate6 = 0.;
 		for (int i = 0; i < this.cells.size(); i++) {
-			
 
 			localLearningRate1 = rate.adagradOptimizer(this.learningRate, localLearningRate1, gradients.get(0), i);
 			localLearningRate2 = rate.adagradOptimizer(this.learningRate, localLearningRate2, gradients.get(1), i);
