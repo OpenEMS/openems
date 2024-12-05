@@ -118,7 +118,7 @@ public class MyJsonServer {
 					// Store the session for later processing
 					MyJsonServer.this.pendingSessions.put(ocppIdentifier, sessionIndex);
 					// Optionally, schedule a retry after a delay
-					retryNewSession(sessionIndex, information, ocppIdentifier);
+					MyJsonServer.this.retryNewSession(sessionIndex, information, ocppIdentifier);
 					return;
 				}
 
@@ -243,36 +243,36 @@ public class MyJsonServer {
 
 	private void retryNewSession(UUID sessionIndex, SessionInformation information, String ocppIdentifier) {
 		// Initialize retry attempt counter and total retry time for this ocppIdentifier
-		retryAttempts.putIfAbsent(ocppIdentifier, new AtomicInteger(0));
-		totalRetryTime.putIfAbsent(ocppIdentifier, 0L);
+		MyJsonServer.this.retryAttempts.putIfAbsent(ocppIdentifier, new AtomicInteger(0));
+		MyJsonServer.this.totalRetryTime.putIfAbsent(ocppIdentifier, 0L);
 
 		// Schedule the first retry attempt
-		scheduleRetry(sessionIndex, information, ocppIdentifier);
+		MyJsonServer.this.scheduleRetry(sessionIndex, information, ocppIdentifier);
 	}
 
 	private void scheduleRetry(UUID sessionIndex, SessionInformation information, String ocppIdentifier) {
-		int attempt = retryAttempts.get(ocppIdentifier).getAndIncrement();
-		long delay = calculateNextDelay(attempt);
+		int attempt = MyJsonServer.this.retryAttempts.get(ocppIdentifier).getAndIncrement();
+		long delay = MyJsonServer.this.calculateNextDelay(attempt);
 
 		// Optional: Add randomness (jitter) to delay to prevent synchronized retries
 		long randomJitter = ThreadLocalRandom.current().nextLong(0, 1000); // 0 to 1000 milliseconds
 		delay += randomJitter;
 
 		// Update total retry time
-		long totalTime = totalRetryTime.get(ocppIdentifier) + delay / 1000; // Convert milliseconds to seconds
-		totalRetryTime.put(ocppIdentifier, totalTime);
+		long totalTime = MyJsonServer.this.totalRetryTime.get(ocppIdentifier) + delay / 1000; // Convert milliseconds to seconds
+		MyJsonServer.this.totalRetryTime.put(ocppIdentifier, totalTime);
 
 		// Optional: Check if total retry time exceeds maximum allowed
 		if (totalTime > MAX_TOTAL_RETRY_TIME_SECONDS) {
 			MyJsonServer.this.logWarn("Maximum total retry time exceeded for ocppId " + ocppIdentifier);
 			// Clean up
 			MyJsonServer.this.pendingSessions.remove(ocppIdentifier);
-			retryAttempts.remove(ocppIdentifier);
-			totalRetryTime.remove(ocppIdentifier);
+			MyJsonServer.this.retryAttempts.remove(ocppIdentifier);
+			MyJsonServer.this.totalRetryTime.remove(ocppIdentifier);
 			return;
 		}
 
-		scheduledExecutorService.schedule(() -> {
+		MyJsonServer.this.scheduledExecutorService.schedule(() -> {
 			List<AbstractManagedOcppEvcsComponent> presentEvcss = MyJsonServer.this.parent.ocppEvcss
 					.get(ocppIdentifier);
 			if (presentEvcss != null) {
@@ -286,12 +286,12 @@ public class MyJsonServer {
 				}
 				// Remove from pending sessions and retry attempts
 				MyJsonServer.this.pendingSessions.remove(ocppIdentifier);
-				retryAttempts.remove(ocppIdentifier);
-				totalRetryTime.remove(ocppIdentifier);
+				MyJsonServer.this.retryAttempts.remove(ocppIdentifier);
+				MyJsonServer.this.totalRetryTime.remove(ocppIdentifier);
 			} else {
 				MyJsonServer.this.logDebug("Still waiting for EVCS configuration for ocppId " + ocppIdentifier);
 				// Schedule the next retry
-				scheduleRetry(sessionIndex, information, ocppIdentifier);
+				MyJsonServer.this.scheduleRetry(sessionIndex, information, ocppIdentifier);
 			}
 		}, delay, TimeUnit.MILLISECONDS);
 	}
