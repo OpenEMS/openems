@@ -167,6 +167,7 @@
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.meter.ziehl',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
+	bnd.identity;id='io.openems.edge.predictor.lstm',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
@@ -346,6 +347,7 @@
 	io.openems.edge.meter.ziehl;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
+	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
@@ -420,8 +422,8 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.0.21,2.0.22)',\
-	org.jsoup;version='[1.18.1,1.18.2)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.1.0,2.1.1)',\
+	org.jsoup;version='[1.18.3,1.18.4)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
