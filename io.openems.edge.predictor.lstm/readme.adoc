@@ -25,4 +25,4 @@ Initially, a generic model will be used for predictions, which may not yield opt
 
 As a result of this process, a new model will be trained and will automatically replace the previous one.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.lstmmodel[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.lstm[Source Code icon:github[]]
