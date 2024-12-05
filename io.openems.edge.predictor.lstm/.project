@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>io.openems.edge.predictor.lstmmodel</name>
+	<name>io.openems.edge.predictor.lstm</name>
 	<comment></comment>
 	<projects>
 	</projects>
