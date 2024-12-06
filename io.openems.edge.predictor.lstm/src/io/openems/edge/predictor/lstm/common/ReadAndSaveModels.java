@@ -44,8 +44,20 @@ public class ReadAndSaveModels {
 	 */
 	public static void save(HyperParameters hyperParameters) {
 		String modelName = hyperParameters.getModelName();
-		String filePath = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER, modelName)//
+		String directoryPath = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER) //
 				.toString();
+		String filePath = Paths.get(directoryPath, modelName) //
+				.toString();
+
+		// Ensure the directory exists
+		File directory = new File(directoryPath);
+		if (!directory.exists()) {
+			boolean dirCreated = directory.mkdirs();
+			if (!dirCreated) {
+				System.err.println("Failed to create directory: " + directoryPath);
+				return;
+			}
+		}
 
 		Gson gson = new GsonBuilder()//
 				.registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeAdapter())//
