@@ -46,7 +46,7 @@ public class ReadAndSaveModels {
 		String modelName = hyperParameters.getModelName();
 		String directoryPath = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER) //
 				.toString();
-		String filePath = Paths.get(directoryPath, modelName) //
+		String filePath = Paths.get(directoryPath, modelName)//
 				.toString();
 
 		// Ensure the directory exists
