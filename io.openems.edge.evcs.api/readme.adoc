@@ -1,5 +1,12 @@
 = EVCS (Electric Vehicle Charging Station)
 
 link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.evcs.api/src/io/openems/edge/evcs/api/Evcs.java[Evcs icon:code[]]::
-A charging station for electric vehicles like e-cars and e-buses.
-// TODO add channels
+A charging station for electric vehicles like e-cars and e-buses (read only).
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.evcs.api/src/io/openems/edge/evcs/api/ManagedEvcs.java[ManagedEvcs icon:code[]]::
+A controllable charging station.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.evcs.api/src/io/openems/edge/evcs/api/SocEvcs.java[SocEvcs icon:code[]]::
+A charging station able of providing the vehicle batteries State-of-Charge. 
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.api[Source Code icon:github[]]
