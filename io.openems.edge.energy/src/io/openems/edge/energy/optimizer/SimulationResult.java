@@ -6,15 +6,14 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.jenetics.Genotype;
-import io.jenetics.IntegerChromosome;
-import io.jenetics.IntegerGene;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
@@ -24,7 +23,7 @@ import io.openems.edge.energy.optimizer.Simulator.EshToState;
 
 public record SimulationResult(//
 		double cost, //
-		ImmutableMap<ZonedDateTime, Period> periods, //
+		ImmutableSortedMap<ZonedDateTime, Period> periods, //
 		ImmutableMap<//
 				? extends EnergyScheduleHandler.WithDifferentStates<?, ?>, //
 				ImmutableSortedMap<ZonedDateTime, EnergyScheduleHandler.WithDifferentStates.Period.Transition>> schedules) {
@@ -57,20 +56,20 @@ public record SimulationResult(//
 	/**
 	 * An empty {@link SimulationResult}.
 	 */
-	public static final SimulationResult EMPTY = new SimulationResult(0., ImmutableMap.of(), ImmutableMap.of());
+	public static final SimulationResult EMPTY = new SimulationResult(0., ImmutableSortedMap.of(), ImmutableMap.of());
 
 	/**
 	 * Re-Simulate a {@link Genotype} to create a {@link SimulationResult}.
 	 * 
-	 * @param cache the {@link GenotypeCache}
-	 * @param gsc   the {@link GlobalSimulationsContext}
-	 * @param gt    the {@link Genotype}
+	 * @param cache    the {@link GenotypeCache}
+	 * @param gsc      the {@link GlobalSimulationsContext}
+	 * @param schedule the schedule as defined by {@link EshCodec}
 	 * @return the {@link SimulationResult}
 	 */
-	private static SimulationResult from(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
-		var allPeriods = ImmutableMap.<ZonedDateTime, Period>builder();
+	private static SimulationResult from(GlobalSimulationsContext gsc, int[][] schedule) {
+		var allPeriods = ImmutableSortedMap.<ZonedDateTime, Period>naturalOrder();
 		var allEshToStates = new ArrayList<EshToState>();
-		var cost = Simulator.simulate(gsc, gt, new Simulator.BestScheduleCollector(//
+		var cost = Simulator.simulate(gsc, schedule, new Simulator.BestScheduleCollector(//
 				p -> allPeriods.put(p.context().time(), p), //
 				allEshToStates::add));
 
@@ -93,45 +92,44 @@ public record SimulationResult(//
 	 * This method re-simulates using the {@link Quarter} periods and not (only) the
 	 * {@link Hour} periods.
 	 * 
-	 * @param gsc the {@link GlobalSimulationsContext}
-	 * @param gt  the {@link Genotype}
+	 * @param gsc      the {@link GlobalSimulationsContext}
+	 * @param schedule the schedule as defined by {@link EshCodec}
 	 * @return the {@link SimulationResult}
 	 */
-	public static SimulationResult fromQuarters(GlobalSimulationsContext gsc, Genotype<IntegerGene> gt) {
-		if (gsc == null || gt == null) {
+	public static SimulationResult fromQuarters(GlobalSimulationsContext gsc, int[][] schedule) {
+		if (gsc == null || schedule.length == 0) {
 			return SimulationResult.EMPTY;
 		}
 
 		// Convert to Quarters
-		final GlobalSimulationsContext quarterGsc;
-		final Genotype<IntegerGene> quarterGt;
-		{
-			final var quarterPeriods = ImmutableList.<GlobalSimulationsContext.Period>builder();
-			final var quarterGenes = gt.stream().map(ignore -> ImmutableList.<IntegerGene>builder()).toList();
-			final BiConsumer<Integer, GlobalSimulationsContext.Period.Quarter> add = (j, p) -> {
-				quarterPeriods.add(p);
-				for (var i = 0; i < quarterGenes.size(); i++) {
-					quarterGenes.get(i).add(gt.get(i).get(j));
-				}
-			};
-			for (var i = 0; i < gsc.periods().size(); i++) {
-				var p = gsc.periods().get(i);
-				if (p instanceof GlobalSimulationsContext.Period.Quarter pq) {
-					add.accept(i, pq);
-				} else if (p instanceof GlobalSimulationsContext.Period.Hour ph) {
-					for (var j = 0; j < ph.quarterPeriods().size(); j++) {
-						var pq = ph.quarterPeriods().get(j);
-						add.accept(i, pq);
-					}
-				}
-			}
-			quarterGsc = new GlobalSimulationsContext(gsc.clock(), gsc.startTime(), gsc.handlers(), gsc.grid(),
-					gsc.ess(), quarterPeriods.build());
-			quarterGt = Genotype.of(quarterGenes.stream() //
-					.map(gs -> IntegerChromosome.of(gs.build())) //
-					.toList());
-		}
-		return from(quarterGsc, quarterGt);
+		final var quarterPeriods = gsc.periods().stream() //
+				.flatMap(period -> period instanceof GlobalSimulationsContext.Period.Hour ph //
+						? ph.quarterPeriods().stream()
+						: Stream.of(period)) //
+				.collect(ImmutableList.<GlobalSimulationsContext.Period>toImmutableList());
+		final GlobalSimulationsContext quarterGsc = new GlobalSimulationsContext(gsc.clock(), gsc.riskLevel(),
+				gsc.startTime(), gsc.eshs(), gsc.eshsWithDifferentStates(), gsc.grid(), gsc.ess(), gsc.evcss(),
+				quarterPeriods);
+		final var quarterSchedule = IntStream.range(0, gsc.periods().size()) //
+				.flatMap(periodIndex //
+				-> gsc.periods().get(periodIndex) instanceof GlobalSimulationsContext.Period.Hour ph //
+						? ph.quarterPeriods().stream().mapToInt(ignore -> periodIndex) // repeat
+						: IntStream.of(periodIndex)) //
+				.mapToObj(periodIndex //
+				-> IntStream.range(0, gsc.eshsWithDifferentStates().size()) //
+						.map(eshIndex -> {
+							if (periodIndex < schedule.length && eshIndex < schedule[periodIndex].length) {
+								return schedule[periodIndex][eshIndex];
+							}
+							if (periodIndex < gsc.eshsWithDifferentStates().size()) {
+								return gsc.eshsWithDifferentStates().get(periodIndex).getDefaultStateIndex();
+							}
+							return 0;
+						}) //
+						.toArray()) //
+				.toArray(int[][]::new);
+
+		return from(quarterGsc, quarterSchedule);
 	}
 
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");

@@ -100,7 +100,7 @@
 	io.openems.wrapper.retrofit-converter-gson;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
-	io.reactivex.rxjava3.rxjava;version='[3.1.9,3.1.10)',\
+	io.reactivex.rxjava3.rxjava;version='[3.1.10,3.1.11)',\
 	org.apache.commons.commons-codec;version='[1.17.1,1.17.2)',\
 	org.apache.commons.commons-compress;version='[1.27.1,1.27.2)',\
 	org.apache.commons.commons-csv;version='[1.11.0,1.11.1)',\
@@ -115,7 +115,7 @@
 	org.apache.felix.scr;version='[2.2.12,2.2.13)',\
 	org.apache.felix.webconsole;version='[5.0.8,5.0.9)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.0.21,2.0.22)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.1.0,2.1.1)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.2.1,2.2.2)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.1,2.2.2)',\

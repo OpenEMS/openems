@@ -2,6 +2,9 @@ package io.openems.edge.energy.v1;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static io.openems.edge.energy.LogVerbosity.DEBUG_LOG;
+import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
+import static io.openems.edge.energy.api.Version.V1_ESS_ONLY;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
@@ -29,9 +32,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.EnergySchedulerImpl;
-import io.openems.edge.energy.LogVerbosity;
 import io.openems.edge.energy.MyConfig;
-import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.v1.optimizer.GlobalContextV1;
 import io.openems.edge.energy.v1.optimizer.OptimizerV1;
 import io.openems.edge.predictor.api.prediction.Prediction;
@@ -82,8 +83,9 @@ public class EnergySchedulerImplTest {
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
 						.setEnabled(false) //
-						.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
-						.setVersion(Version.V1_ESS_ONLY) //
+						.setLogVerbosity(DEBUG_LOG) //
+						.setVersion(V1_ESS_ONLY) //
+						.setRiskLevel(MEDIUM) //
 						.build()) //
 				.next(new TestCase());
 		return sut;
