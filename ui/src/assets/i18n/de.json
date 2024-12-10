@@ -1015,5 +1015,11 @@
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
+    }
   }
 }
