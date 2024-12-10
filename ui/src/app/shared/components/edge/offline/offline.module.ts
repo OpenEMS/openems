@@ -3,7 +3,6 @@ import { BrowserModule } from "@angular/platform-browser";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { OfflineComponent } from "./offline.component";
-import { ManualComponent } from "./producttype/default";
 
 @NgModule({
     imports: [
@@ -15,7 +14,6 @@ import { ManualComponent } from "./producttype/default";
         OfflineComponent,
     ],
     exports: [
-        ManualComponent,
         OfflineComponent,
     ],
 })

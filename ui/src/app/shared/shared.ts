@@ -123,6 +123,9 @@ export class UserPermission {
   }
 }
 
+export enum Producttype {
+}
+
 export namespace Currency {
 
   /**
