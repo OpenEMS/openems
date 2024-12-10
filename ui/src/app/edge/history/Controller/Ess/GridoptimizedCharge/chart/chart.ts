@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 
@@ -39,13 +40,13 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
         {
           name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.maximumCharge"),
           converter: () => data["DelayChargeMaximumChargeLimit"],
-          color: "rgb(253,197,7)",
+          color: ChartConstants.Colors.YELLOW,
           borderDash: [3, 3],
         },
         {
           name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.minimumCharge"),
           converter: () => data["SellToGridLimitMinimumChargeLimit"],
-          color: "rgb(200,0,0)",
+          color: ChartConstants.Colors.RED,
           borderDash: [3, 3],
         },
         {
@@ -58,7 +59,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
               })
               :
               data["EssActivePower"])?.map(val => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(val)) ?? null,
-          color: "rgb(0,223,0)",
+          color: ChartConstants.Colors.GREEN,
         },
         {
           name: translate.instant("General.soc"),

@@ -16,8 +16,6 @@ import io.openems.common.utils.JsonUtils;
 /**
  * Wraps a JSON-RPC Response to "getDevices" Request.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

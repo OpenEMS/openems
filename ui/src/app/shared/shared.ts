@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+export { ChartConstants } from "./components/chart/chart.constants";
 export { Edge } from "./components/edge/edge";
 export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";
@@ -120,6 +121,9 @@ export class UserPermission {
     const isAllowed = edge?.isVersionAtLeast("2024.2.2");
     return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
   }
+}
+
+export enum Producttype {
 }
 
 export namespace Currency {

@@ -104,7 +104,7 @@ public final class UtilsV1 {
 		final var pwrDelayDischarge = calculateDelayDischargePower(ess);
 		final var pwrChargeGrid = max(limitChargePowerFor14aEnWG, calculateChargeGridPower(//
 				essChargeInChargeGrid, ess, essActivePower, gridActivePower, maxChargePowerFromGrid));
-		actualState = postprocessRunState(targetState, pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
+		actualState = postprocessRunState(ess, targetState, pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		setPoint = switch (actualState) {

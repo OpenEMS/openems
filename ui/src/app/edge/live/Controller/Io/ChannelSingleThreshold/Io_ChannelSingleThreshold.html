@@ -1,5 +1,6 @@
 <oe-flat-widget *ngIf="isInitialized" button (click)="presentModal()" [title]="component.alias"
-  [icon]="icon">
+  [icon]="{name: icon.name, color: 'normal'}">
+
   <oe-flat-widget-line [name]="'General.state' | translate" [value]="state"></oe-flat-widget-line>
   <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"></oe-flat-widget-line>
 

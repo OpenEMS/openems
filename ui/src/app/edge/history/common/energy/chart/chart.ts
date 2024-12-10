@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
@@ -79,7 +80,7 @@ export class ChartComponent extends AbstractHistoryChart {
             name: translate.instant("General.production"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data["_sum/ProductionActiveEnergy"],
             converter: () => data["ProductionActivePower"],
-            color: "rgb(45,143,171)",
+            color: ChartConstants.Colors.BLUE,
             stack: 0,
             hiddenOnInit: chartType == "line" ? false : true,
             order: 1,
@@ -94,7 +95,7 @@ export class ChartComponent extends AbstractHistoryChart {
             converter: () =>
               data["ProductionActivePower"]?.map((value, index) => Utils.subtractSafely(value, data["GridSell"][index], data["EssCharge"][index]))
                 ?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
-            color: "rgb(244,164,96)",
+            color: ChartConstants.Colors.ORANGE,
             stack: [1, 2],
             order: 2,
           }],
@@ -107,7 +108,7 @@ export class ChartComponent extends AbstractHistoryChart {
               ? data["EssCharge"]?.map((value, index) => {
                 return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data["ProductionDcActual"]?.[index]));
               }) : data["EssCharge"],
-            color: "rgb(0,223,0)",
+            color: ChartConstants.Colors.GREEN,
             stack: 1,
             ...(chartType === "line" && { order: 6 }),
           },
@@ -122,7 +123,7 @@ export class ChartComponent extends AbstractHistoryChart {
                   return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(Utils.subtractSafely(value, data["ProductionDcActual"]?.[index]));
                 }) : data["EssDischarge"];
             },
-            color: "rgb(200,0,0)",
+            color: ChartConstants.Colors.RED,
             stack: 2,
             ...(chartType === "line" && { order: 5 }),
           },
@@ -132,7 +133,7 @@ export class ChartComponent extends AbstractHistoryChart {
             name: translate.instant("General.gridSellAdvanced"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data["_sum/GridSellActiveEnergy"],
             converter: () => data["GridSell"],
-            color: "rgb(0,0,200)",
+            color: ChartConstants.Colors.PURPLE,
             stack: 1,
             ...(chartType === "line" && { order: 4 }),
           },
@@ -142,7 +143,7 @@ export class ChartComponent extends AbstractHistoryChart {
             name: translate.instant("General.gridBuyAdvanced"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data["_sum/GridBuyActiveEnergy"],
             converter: () => data["GridBuy"],
-            color: "rgb(0,0,0)",
+            color: ChartConstants.Colors.BLUE_GREY,
             stack: 2,
             ...(chartType === "line" && { order: 2 }),
           },
@@ -152,7 +153,7 @@ export class ChartComponent extends AbstractHistoryChart {
             name: translate.instant("General.consumption"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues.result.data["_sum/ConsumptionActiveEnergy"],
             converter: () => data["Consumption"],
-            color: "rgb(253,197,7)",
+            color: ChartConstants.Colors.YELLOW,
             stack: 3,
             hiddenOnInit: chartType == "line" ? false : true,
             ...(chartType === "line" && { order: 0 }),
