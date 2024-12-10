@@ -13,7 +13,7 @@
             [channelAddress]="componentId + '/EnergySession'" [converter]="CONVERT_TO_KILO_WATTHOURS">
         </oe-flat-widget-line>
 
-        <oe-flat-widget-line *ngIf="isChargingEnabled" [name]="'General.mode'| translate" [value]="mode">
+        <oe-flat-widget-line *ngIf="isChargingEnabled && isReadWrite" [name]="'General.mode'| translate" [value]="mode">
         </oe-flat-widget-line>
 
         <!-- Show if charging is enabled -->

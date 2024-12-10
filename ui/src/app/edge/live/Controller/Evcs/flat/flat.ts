@@ -42,6 +42,7 @@ export class FlatComponent extends AbstractFlatWidget {
   protected chargeDischargePower: { name: string, value: number };
   protected propertyMode: DefaultTypes.ManualOnOff | null = null;
   protected status: string;
+  protected isReadWrite: boolean;
 
   formatNumber(i: number) {
     const round = Math.ceil(i / 100) * 100;
@@ -88,6 +89,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
     this.evcsComponent = this.config.getComponent(this.component.id);
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] != 3 ? true : false;
+    this.isReadWrite = !this.component.properties["readOnly"];
     this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
 
     // Check if Energy since beginning is allowed
