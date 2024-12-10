@@ -788,14 +788,34 @@ public class ParserTest {
 	@Test
 	public void testParsePrices() throws Exception {
 		var currencyExchangeValue = 1.0;
+
+		// Quarterly resolution.
 		var preferredResolution = Resolution.QUARTERLY;
 		var prices = parsePrices(XML, currencyExchangeValue, preferredResolution);
+		var startTime = prices.getFirstTime();
 		assertEquals(109.93, prices.getFirst(), 0.001);
+
+		var secondPrice = prices.getAt(startTime.plusMinutes(15));
+		assertEquals(85.84, secondPrice, 0.001);
+
+		var thirdPrice = prices.getAt(startTime.plusMinutes(30));
+		assertEquals(65.09, thirdPrice, 0.001);
+
+		// Last price
 		assertEquals(65.07, prices.getAt(prices.getLastTime()), 0.001);
 
+		// Hourly resolution.
 		preferredResolution = Resolution.HOURLY;
 		prices = parsePrices(XML, currencyExchangeValue, preferredResolution);
 		assertEquals(84.15, prices.getFirst(), 0.001);
+
+		secondPrice = prices.getAt(startTime.plusMinutes(15));
+		assertEquals(84.15, secondPrice, 0.001);
+
+		thirdPrice = prices.getAt(startTime.plusMinutes(60));
+		assertEquals(74.3, thirdPrice, 0.001);
+
+		// Last price
 		assertEquals(86.53, prices.getAt(prices.getLastTime()), 0.001);
 	}
 
