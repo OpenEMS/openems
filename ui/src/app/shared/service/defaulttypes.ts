@@ -264,6 +264,7 @@ type Range<N extends number, Acc extends number[] = []> = Acc["length"] extends 
 export type RGBValue = Range<256>; // 0 to 255
 
 export class RGBColor<T extends RGBValue = RGBValue> {
+  private static INVALID_RGB_VALUES_ERROR = new Error("All values need to be valid");
   private readonly red: T;
   private readonly green: T;
   private readonly blue: T;
@@ -274,9 +275,21 @@ export class RGBColor<T extends RGBValue = RGBValue> {
     this.blue = blue;
   }
 
+  public static fromString(rgbString: string) {
+    const rgb: string[] = rgbString.split(",").map(el => el.trim());
+    const red: RGBValue = parseInt(rgb[0]) as RGBValue;
+    const green: RGBValue = parseInt(rgb[1]) as RGBValue;
+    const blue: RGBValue = parseInt(rgb[2]) as RGBValue;
+
+    if (!red || !green || !blue) {
+      throw RGBColor.INVALID_RGB_VALUES_ERROR;
+    }
+    return new RGBColor(red, green, blue);
+  }
+
   public toString(): string {
     if (this.red == null || this.green == null || this.blue == null) {
-      throw new Error("All values need to be valid");
+      throw RGBColor.INVALID_RGB_VALUES_ERROR;
     }
     return `rgb(${this.red},${this.green},${this.blue})`;
   }

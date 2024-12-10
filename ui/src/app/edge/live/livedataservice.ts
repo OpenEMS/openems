@@ -18,6 +18,11 @@ export class LiveDataService extends DataService implements OnDestroy {
         @Inject(Service) protected service: Service,
     ) {
         super();
+
+        this.service.getCurrentEdge().then((edge) => {
+            edge.currentData.pipe(takeUntil(this.stopOnDestroy))
+                .subscribe(() => this.lastUpdated.set(new Date()));
+        });
     }
 
     public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
@@ -41,7 +46,7 @@ export class LiveDataService extends DataService implements OnDestroy {
             }
 
             this.currentValue.next({ allComponents: allComponents });
-            this.timestamp.set(new Date());
+            this.lastUpdated.set(new Date());
         });
     }
 
@@ -52,7 +57,7 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     public unsubscribeFromChannels(channels: ChannelAddress[]) {
-        this.timestamp.set(null);
+        this.lastUpdated.set(null);
         this.edge.unsubscribeFromChannels(this.websocket, channels);
     }
 

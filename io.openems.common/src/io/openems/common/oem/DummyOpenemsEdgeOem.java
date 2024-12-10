@@ -81,13 +81,14 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
 			.put("App.Timedata.InfluxDb", "")//
-			.put("App.Evcs.HardyBarth", "") //
-			.put("App.Evcs.Keba", "") //
-			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Alpitronic", "") //
+			.put("App.Evcs.Cluster", "") //
+			.put("App.Evcs.HardyBarth", "") //
+			.put("App.Evcs.IesKeywatt", "") //
+			.put("App.Evcs.Keba", "") //
+			.put("App.Evcs.Mennekes.ReadOnly", "") //
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //
-			.put("App.Evcs.Cluster", "") //
 			.put("App.Hardware.KMtronic8Channel", "") //
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //
