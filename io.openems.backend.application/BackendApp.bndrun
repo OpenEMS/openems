@@ -35,6 +35,7 @@
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\
 	bnd.identity;id='org.osgi.service.jdbc',\
 	bnd.identity;id='org.apache.felix.http.jetty',\
+	bnd.identity;id='org.apache.felix.http.servlet-api',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
