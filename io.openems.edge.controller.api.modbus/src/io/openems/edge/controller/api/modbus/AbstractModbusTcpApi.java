@@ -18,13 +18,11 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
@@ -89,7 +87,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	protected abstract Consumer<Entry<WriteChannel<?>, WriteObject>> handleWrites();
 
 	protected abstract void setOverrideStatus(Status status);
-	
+
 	protected abstract Runnable handleTimeouts();
 
 	protected synchronized void removeComponent(OpenemsComponent component) {
@@ -233,8 +231,9 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 					this.slave.addProcessImage(UNIT_ID, AbstractModbusTcpApi.this.processImage);
 					if (isEnabled()) {
 						this.slave.open();
-						AbstractModbusTcpApi.this.logInfo(this.log, AbstractModbusTcpApi.this.implementationName
-							+ " started on port [" + port + "] with UnitId [" + AbstractModbusTcpApi.UNIT_ID + "].");
+						AbstractModbusTcpApi.this.logInfo(this.log,
+								AbstractModbusTcpApi.this.implementationName + " started " //
+										+ "on port [" + port + "] with UnitId [" + AbstractModbusTcpApi.UNIT_ID + "].");
 					}
 				} catch (ModbusException e) {
 					ModbusSlaveFactory.close();
@@ -495,19 +494,18 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	public static record ConfigRecord(String id, String alias, boolean enabled, Meta metaComponent,
 			String[] componentIds, int apiTimeout, int port, int maxConcurrentConnections) {
-		
+
 		@Override
 		public boolean equals(Object other) {
-			
-		    if (this == other) {
-		        return true;
-		    }
-		    if (other == null) {
-		        return false;
-		    }   
-		    if (!(other instanceof ConfigRecord)) {
-		        return false;
-		    }
+			if (this == other) {
+				return true;
+			}
+			if (other == null) {
+				return false;
+			}
+			if (!(other instanceof ConfigRecord)) {
+				return false;
+			}
 			ConfigRecord config = (ConfigRecord) other;
 
 			if (config.id.equals(this.id) && config.alias.equals(this.alias) //
@@ -517,13 +515,9 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 					&& config.maxConcurrentConnections == this.maxConcurrentConnections) {
 				return true;
 			}
-			
 			return false;
-			
 		}
 	}
-
-	;
 
 	/**
 	 * Format a given channelAddress to a ChannelId.
