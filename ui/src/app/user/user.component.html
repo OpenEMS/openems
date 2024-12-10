@@ -158,7 +158,7 @@
               </ion-select>
             </ion-item>
             <ng-container *ngIf="isAtLeastAdmin">
-              <div class="page-content" *ngIf="environment.theme === 'FENECON'">
+              <div class="page-content">
                 <ion-item id="theme-switcher" lines="none">
                   <ion-label>Theme</ion-label>
                   <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="currentTheme"
