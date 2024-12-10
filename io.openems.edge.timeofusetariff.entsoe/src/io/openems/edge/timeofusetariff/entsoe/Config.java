@@ -24,5 +24,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Bidding Zone", description = "Zone corresponding to the customer's location")
 	BiddingZone biddingZone();
 
+	@AttributeDefinition(name = "Resolution", description = "Resolution corresponding to the price interval")
+	Resolution resolution() default Resolution.HOURLY;
+
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff ENTSO-E [{id}]";
 }
