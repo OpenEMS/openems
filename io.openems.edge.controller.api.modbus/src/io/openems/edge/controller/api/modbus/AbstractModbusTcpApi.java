@@ -18,11 +18,13 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
@@ -91,11 +93,11 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	protected abstract Runnable handleTimeouts();
 
 	protected synchronized void removeComponent(OpenemsComponent component) {
+		this._components.remove(component);
 		if (this.invalidComponents.remove(component)) {
 			if (this.invalidComponents.isEmpty()) {
 				this._setComponentNoModbusApiFault(false);
 			}
-			this._components.remove(component);
 			return;
 		}
 		this.updateComponents();
@@ -274,6 +276,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	 */
 	private void initializeModbusRecords(Meta metaComponent, String[] componentIds) {
 		// Add generic header
+		this.records.clear();
 		this.records.put(0, new ModbusRecordUint16Hash(0, "OpenEMS"));
 		var nextAddress = 1;
 
@@ -506,7 +509,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		        return false;
 		    }
 			ConfigRecord config = (ConfigRecord) other;
-			
+
 			if (config.id.equals(this.id) && config.alias.equals(this.alias) //
 					&& config.enabled == this.enabled && config.metaComponent.equals(this.metaComponent) //
 					&& Arrays.equals(config.componentIds, this.componentIds) //
