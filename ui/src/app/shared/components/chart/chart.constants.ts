@@ -145,7 +145,15 @@ export class ChartConstants {
 
     return Object.values(stackMap)
       .reduce((arr: { min: number, max: number, stepSize: number }, dataset: ChartDataset) => {
-        const currMin = ArrayUtils.findSmallestNumber(dataset.data as number[]);
+        let currMin: number | null;
+        if (yAxis.scale?.dynamicScale) {
+          currMin = ArrayUtils.findSmallestNumber(dataset.data as number[]);
+        } else {
+
+          // Starts yAxis at least at 0
+          currMin = ArrayUtils.findSmallestNumber([...dataset.data as number[], 0]);
+        }
+
         const min = Math.floor(Math.min(...[arr.min, currMin].filter(el => el != null))) ?? null;
         const max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
 
