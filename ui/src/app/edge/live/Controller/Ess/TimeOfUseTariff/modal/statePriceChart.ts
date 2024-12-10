@@ -172,7 +172,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
             return el;
         });
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit };
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit, scale: { dynamicScale: true } };
         [rightYaxisSoc, rightYAxisPower].forEach((element) => {
             this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", locale, this.datasets, true);
         });

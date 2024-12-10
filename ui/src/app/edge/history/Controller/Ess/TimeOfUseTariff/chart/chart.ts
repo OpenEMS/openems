@@ -106,6 +106,9 @@ export class ChartComponent extends AbstractHistoryChart {
                 position: "left",
                 yAxisId: ChartAxis.LEFT,
                 customTitle: Currency.getChartCurrencyUnitLabel(currency),
+                scale: {
+                    dynamicScale: true,
+                },
             },
             {
                 unit: YAxisType.PERCENTAGE,
