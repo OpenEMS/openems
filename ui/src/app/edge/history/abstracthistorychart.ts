@@ -10,6 +10,7 @@ import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/resp
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
@@ -156,15 +157,19 @@ export abstract class AbstractHistoryChart {
                 };
 
                 options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
-                    const color = colors[item.datasetIndex];
+                    let backgroundColor = item.dataset.backgroundColor;
 
-                    if (!color) {
-                        return;
+                    if (Array.isArray(backgroundColor)) {
+                        backgroundColor = backgroundColor[0];
+                    }
+
+                    if (!backgroundColor) {
+                        backgroundColor = item.dataset.borderColor || "rgba(0, 0, 0, 0.5)";
                     }
 
                     return {
-                        borderColor: color.borderColor,
-                        backgroundColor: color.backgroundColor,
+                        borderColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
+                        backgroundColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
                     };
                 };
 
@@ -246,6 +251,7 @@ export abstract class AbstractHistoryChart {
                 options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
                 options.scales[ChartAxis.LEFT]["stacked"] = false;
                 options.scales.x["stacked"] = true;
+                options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
             }).then(() => {
                 this.options = options;
                 resolve();

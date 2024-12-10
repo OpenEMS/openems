@@ -29,12 +29,42 @@ export class PickDatePopoverComponent implements OnInit {
         stylesData: {
             selector: "dp1",
             styles: `
-               .dp1 .myDpMarkCurrDay, 
-               .dp1 .myDpMarkCurrMonth, 
-               .dp1 .myDpMarkCurrYear {
-                   border-bottom: 2px solid #2d8fab;
-                   color: #2d8fab;
+            .dp1 .myDpIconLeftArrow, 
+            .dp1 .myDpIconRightArrow,
+            .dp1 .myDpHeaderBtn {
+                color: #004d8c;
+            }
+            .dp1 .myDpHeaderBtn:focus,
+            .dp1 .myDpMonthLabel:focus,
+            .dp1 .myDpYearLabel:focus {
+                color: #2d8fab;
+             }
+            .dp1 .myDpDaycell:focus,
+            .dp1 .myDpMonthcell:focus,
+            .dp1 .myDpYearcell:focus {
+                box-shadow: inset 0 0 0 1px #66afe9;
+            }
+            .dp1 .myDpSelectedDay,
+            .dp1 .myDpSelectedMonth,
+            .dp1 .myDpSelectedYear {
+                background-color: #93c47d;
                 }
+            .dp1 .myDpTableSingleDay:hover, 
+            .dp1 .myDpTableSingleMonth:hover, 
+            .dp1 .myDpTableSingleYear:hover {
+                background-color: #add8e6;
+                color: #3855c1;
+                }
+            .dp1 .myDpMarkCurrDay, 
+            .dp1 .myDpMarkCurrMonth, 
+            .dp1 .myDpMarkCurrYear {
+                border-bottom: 2px solid #2d8fab;
+                color: #2d8fab;
+             }
+            .dp1 .myDpRangeColor {
+            background-color: #dbeaff;
+            }
+
              `,
         },
         calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
@@ -46,6 +76,7 @@ export class PickDatePopoverComponent implements OnInit {
         selectorHeight: "225px",
         selectorWidth: "251px",
         showWeekNumbers: true,
+
     };
     protected readonly DefaultTypes = DefaultTypes;
     private readonly TODAY = new Date();

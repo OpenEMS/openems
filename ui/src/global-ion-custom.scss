@@ -1,3 +1,5 @@
+@import "variables";
+
 .ion-font-size-medium {
     font-size: medium !important;
 }
@@ -8,6 +10,10 @@
 
 .ion-font-weight-bolder {
     font-weight: bolder;
+}
+
+.ion-link {
+    color: var(--ion-color-primary);
 }
 
 .ion-full-width {
@@ -25,4 +31,17 @@
 
 .ion-item-min-content-height {
     height: min-content;
+}
+
+.ion-toolbar-button::part(native) {
+    --background: var(--ion-item-background) !important;
+}
+
+/* Functions */
+@function tint($color, $percentage) {
+    @return mix(white, $color, $percentage);
+}
+
+@function shade($color, $percentage) {
+    @return mix(black, $color, $percentage);
 }

@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+export { ChartConstants } from "./components/chart/chart.constants";
 export { Edge } from "./components/edge/edge";
 export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";

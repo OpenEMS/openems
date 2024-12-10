@@ -122,6 +122,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
         this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
+        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
         this.options.scales.x.ticks.maxTicksLimit = 30;
         this.options.scales.x["offset"] = false;
         this.options.scales.x.ticks.callback = function (value) {

@@ -2,11 +2,11 @@
   <app-header></app-header>
   <ion-menu type="overlay" side="start" contentId="content">
     <ion-header>
-      <ion-toolbar color="primary">
+      <ion-toolbar style="--ion-background-color: var(--ion-color-toolbar-primary);">
         <ion-buttons slot="start">
-          <ion-menu-button autoHide="false"></ion-menu-button>
+          <ion-menu-button [ngStyle]="{'color': 'var(--ion-menu-color)'}" autoHide="false"></ion-menu-button>
         </ion-buttons>
-        <ion-title translate>Menu.menu</ion-title>
+        <ion-title [ngStyle]="{'color': 'var(--ion-menu-color)'}" translate>Menu.menu</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content>
@@ -16,10 +16,10 @@
           (click)="menu.close()">
           <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
           </ion-icon>
-          <ion-label class="ion-text-wrap" color="dark">
-            <p>{{ user.name }}</p>
-            <ion-text color="medium">
-              <p>{{ user.id }}</p>
+          <ion-label>
+            <p style="color:var(--ion-text-color);">{{ user.name }}</p>
+            <ion-text>
+              <p style="color:var(--ion-text-color-shade);">{{ user.id }}</p>
             </ion-text>
           </ion-label>
         </ion-item>
@@ -75,9 +75,6 @@
 
     <!-- Show Sub-Views -->
     <ion-router-outlet id="content"></ion-router-outlet>
-
-    <!-- Side Menu  -->
-
   </ion-content>
 
   <oe-footer *ngIf="isUserAllowedToSeeFooter && !isHistoryDetailView"></oe-footer>

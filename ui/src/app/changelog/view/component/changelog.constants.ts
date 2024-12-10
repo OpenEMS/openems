@@ -27,7 +27,7 @@ export class Changelog {
     }
 
     public static link(title: string, url: string) {
-        return "<a target=\"_blank\" href=\"" + url + "\">" + title + "</a>";
+        return "<a class='ion-link' target=\"_blank\" href=\"" + url + "\">" + title + "</a>";
     }
 }
 
