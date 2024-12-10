@@ -4,8 +4,9 @@ import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { ChartAxis, TimeOfUseTariffUtils } from "src/app/shared/service/utils";
-import { Utils } from "src/app/shared/shared";
+import { ChartConstants, Utils } from "src/app/shared/shared";
 import { SharedModule } from "src/app/shared/shared.module";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
 import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
@@ -152,8 +153,8 @@ export namespace Controller_Ess_TimeOfUseTariff {
             order: 2,
         });
         colors.push({
-            backgroundColor: "rgba(0,0,0, 0.2)",
-            borderColor: "rgba(0,0,0, 1)",
+            backgroundColor: ChartConstants.Colors.BLUE_GREY,
+            borderColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE_GREY, 1),
         });
 
         const scheduleChartData: Controller_Ess_TimeOfUseTariff.ScheduleChartData = {

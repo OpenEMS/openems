@@ -29,6 +29,7 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
@@ -427,6 +428,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link MennekesEvcsReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final MennekesEvcsReadOnly mennekesEvcsReadOnlyEvcs(AppManagerTestBundle t) {
+		return app(t, MennekesEvcsReadOnly::new, "App.Evcs.Mennekes.ReadOnly");
+	}
+
+	/**
 	 * Test method for creating a {@link IesKeywattEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -771,12 +782,11 @@ public final class Apps {
 				t.componentUtil, t.appManagerUtil);
 	}
 
-	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor,
-			String appId) {
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor, String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.host);
 	}
-	
+
 	private static interface DefaultAppConstructor<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
@@ -797,5 +807,5 @@ public final class Apps {
 				ComponentUtil componentUtil, Host host);
 
 	}
-	
+
 }

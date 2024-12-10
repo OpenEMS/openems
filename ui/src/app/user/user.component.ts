@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { KeyValue } from "@angular/common";
 import { Component, OnInit, effect } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -6,10 +7,13 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Changelog } from "src/app/changelog/view/component/changelog.constants";
 import { environment } from "../../environments";
+import { Theme } from "../edge/history/shared";
 import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
+import { UpdateUserSettingsRequest } from "../shared/jsonrpc/request/updateUserSettingsRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
+import { User } from "../shared/jsonrpc/shared";
 import { Service, Websocket } from "../shared/shared";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
 import { Language } from "../shared/type/language";
@@ -33,6 +37,13 @@ type UserInformation = {
 })
 export class UserComponent implements OnInit {
 
+  private static readonly DEFAULT_THEME: Theme = Theme.LIGHT;
+  public currentTheme: string;
+  public readonly themes: KeyValue<string, string>[] = [
+    { key: "Light", value: "light" },
+    { key: "Dark", value: "dark" },
+    { key: "System", value: "system" },
+  ];
   protected readonly environment = environment;
   protected readonly uiVersion = Changelog.UI_VERSION;
   protected readonly languages: Language[] = Language.ALL;
@@ -76,6 +87,24 @@ export class UserComponent implements OnInit {
     });
   }
 
+  public static applyUserSettings(user: User): void {
+    const theme = UserComponent.getCurrentTheme(user);
+    let attr: Exclude<`${Theme}`, Theme.SYSTEM> = theme;
+    localStorage.setItem("THEME", theme);
+    if (theme === Theme.SYSTEM) {
+      attr = window.matchMedia("(prefers-color-scheme: dark)").matches ? Theme.DARK : Theme.LIGHT;
+    }
+    document.documentElement.setAttribute("data-theme", attr);
+  }
+
+  public static getPreferedColorSchemeFromTheme(theme: Theme) {
+    return theme === Theme.SYSTEM ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? Theme.DARK : Theme.LIGHT) : theme;
+  }
+
+  public static getCurrentTheme(user: User): Theme {
+    return user?.settings["theme"] ?? localStorage.getItem("THEME") ?? UserComponent.DEFAULT_THEME;
+  }
+
   ngOnInit() {
     // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
@@ -84,6 +113,18 @@ export class UserComponent implements OnInit {
       this.service.metadata.subscribe(entry => {
         this.showInformation = true;
       });
+    });
+  }
+
+  public setTheme(theme: Theme): void {
+    this.service.websocket.sendSafeRequest(new UpdateUserSettingsRequest({
+      settings: { theme: theme },
+    })).then(() => {
+      const currentUser = this.service.currentUser();
+      if (currentUser) {
+        currentUser.settings["theme"] = theme;
+        UserComponent.applyUserSettings(currentUser);
+      }
     });
   }
 

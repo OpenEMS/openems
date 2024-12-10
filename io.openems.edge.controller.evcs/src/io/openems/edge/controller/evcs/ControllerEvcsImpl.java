@@ -48,7 +48,7 @@ import io.openems.edge.evcs.api.Status;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEvcsImpl extends AbstractOpenemsComponent
-		implements Controller, EnergySchedulable, OpenemsComponent, ModbusSlave {
+		implements Controller, OpenemsComponent, ModbusSlave, EnergySchedulable, ControllerEvcs {
 
 	private static final int CHARGE_POWER_BUFFER = 200;
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
@@ -139,6 +139,11 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
+		if (this.evcs.isReadOnly()) {
+			this.setEvcsIsReadOnlyChannel(true);
+			return;
+		}
+		this.setEvcsIsReadOnlyChannel(false);
 
 		final var isClustered = this.evcs.getIsClustered().orElse(false);
 
