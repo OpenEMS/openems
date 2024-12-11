@@ -216,14 +216,14 @@ public class UtilsTest {
 
 	@Test
 	public void testCalculateChargeEnergyInChargeGrid() {
-		assertEquals(1375, calculateChargeEnergyInChargeGrid(//
+		assertEquals(1436, calculateChargeEnergyInChargeGrid(//
 				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableMap.of(), //
 						ImmutableList.of())));
 
-		assertEquals(525, calculateChargeEnergyInChargeGrid(//
+		assertEquals(540, calculateChargeEnergyInChargeGrid(//
 				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
@@ -234,7 +234,7 @@ public class UtilsTest {
 								new GlobalSimulationsContext.Period.Quarter(TIME, 200, 0, 0) //
 						))));
 
-		assertEquals(538, calculateChargeEnergyInChargeGrid(//
+		assertEquals(558, calculateChargeEnergyInChargeGrid(//
 				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //
@@ -250,7 +250,7 @@ public class UtilsTest {
 								new GlobalSimulationsContext.Period.Quarter(TIME, 700, 0, 121) //
 						))));
 
-		assertEquals(499, calculateChargeEnergyInChargeGrid(//
+		assertEquals(515, calculateChargeEnergyInChargeGrid(//
 				new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalSimulationsContext.Grid(0, 20000), //
 						new GlobalSimulationsContext.Ess(0, 12223, 5000, 5000), //

@@ -5,7 +5,7 @@ Bundle-Version: 0.18.4
 
 Include-Resource: \
 	@fastexcel-0.18.4.jar,\
-	@fastexcel-reader-0.18.4.jar,\
+	@fastexcel-reader-0.18.4.jar;onduplicate:=SKIP,\
 
 -dsannotations: *
 

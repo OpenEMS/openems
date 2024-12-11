@@ -13,7 +13,8 @@
 
             <ion-list>
               <ion-item lines="none">
-                <ion-select style="white-space: initial;width: 100%;" #selectedComponentId interface="alert"
+                <ion-select [interfaceOptions]="{ cssClass: 'custom-theme-text custom-ion-popover' }"
+                  style="white-space: initial;width: 100%;" #selectedComponentId interface="alert"
                   [placeholder]="'CHANNELS.Component'| translate" (ionChange)="onSelectedComponentChanged($event)">
                   <ion-select-option style=" white-space: normal !important;"
                     *ngFor="let entry of (config.components | keys)" [value]="entry.key">
@@ -21,7 +22,8 @@
                 </ion-select>
               </ion-item>
               <ion-item lines="none">
-                <ngx-spinner [name]="selectedComponentId.value"></ngx-spinner>
+                <ngx-spinner [name]="selectedComponentId.value"
+                  [interfaceOptions]="{ cssClass: 'custom-theme-text custom-ion-popover' }"></ngx-spinner>
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
                   [disabled]="!selectedComponentId?.value" [placeholder]="'CHANNELS.CHANNEL'| translate">
                   <ng-container *ngIf="selectedComponentId?.value">
@@ -153,12 +155,11 @@
                     </ion-item>
                   </ion-card-content>
                 </ng-container>
-
                 <ion-item lines="none">
                   <ion-label color="primary" translate>CHANNELS.MORE_CHANNELS</ion-label>
                   <ion-select interface="alert" #selectedChannelId>
                     <ng-container *ngIf="component.key">
-                      <ion-select-option
+                      <ion-select-option color="danger"
                         *ngFor="let entry of channelsPerComponent.get(component.key).channels | keyvalue"
                         [value]="entry.key">
                         {{ entry.key }}

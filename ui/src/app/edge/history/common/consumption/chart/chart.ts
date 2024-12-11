@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
@@ -62,11 +63,11 @@ export class ChartComponent extends AbstractHistoryChart {
           converter: () => {
             return data["ConsumptionActivePower"] ?? null;
           },
-          color: "rgb(253,197,7)",
+          color: ChartConstants.Colors.BLUE,
           stack: 0,
         });
 
-        const evcsComponentColors: string[] = ["rgb(0,223,0)", "rgb(0,178,0)", "rgb(0,201,0)", "rgb(0,134,0)", "rgb(0,156,0)"];
+        const evcsComponentColors: string[] = ChartConstants.Colors.SHADES_OF_GREEN;
         evcsComponents.forEach((component, index) => {
           datasets.push({
             name: component.alias,
@@ -76,12 +77,12 @@ export class ChartComponent extends AbstractHistoryChart {
             converter: () => {
               return data[component.id + "/" + EvcsUtils.getEvcsPowerChannelId(component, config, edge)] ?? null;
             },
-            color: evcsComponentColors[Math.min(index, (evcsComponentColors.length - 1))],
+            color: evcsComponentColors[index % (evcsComponentColors.length - 1)],
             stack: 1,
           });
         });
 
-        const consumptionMeterColors: string[] = ["rgb(220,20,60)", "rgb(202, 158, 6", "rgb(228, 177, 6)", "rgb(177, 138, 5)", "rgb(152, 118, 4)"];
+        const consumptionMeterColors: string[] = ChartConstants.Colors.SHADES_OF_YELLOW;
         consumptionMeters.forEach((meter, index) => {
           datasets.push({
             name: meter.alias,
@@ -91,7 +92,7 @@ export class ChartComponent extends AbstractHistoryChart {
             converter: () => {
               return data[meter.id + "/ActivePower"] ?? null;
             },
-            color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
+            color: consumptionMeterColors[index % (consumptionMeterColors.length - 1)],
             stack: 1,
           });
         });
@@ -106,7 +107,7 @@ export class ChartComponent extends AbstractHistoryChart {
             converter: () => {
               return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
             },
-            color: "rgb(0,0,0)",
+            color: ChartConstants.Colors.GREY,
             stack: 1,
           });
         }

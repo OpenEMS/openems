@@ -9,7 +9,7 @@ export abstract class DataService {
 
   /** Used to retrieve values */
   public currentValue: BehaviorSubject<{ allComponents: {} }> = new BehaviorSubject({ allComponents: {} });
-  public timestamp: WritableSignal<Date | null> = signal(new Date());
+  public lastUpdated: WritableSignal<Date | null> = signal(new Date());
 
   protected edge: Edge | null = null;
   protected stopOnDestroy: Subject<void> = new Subject<void>();
