@@ -1,10 +1,10 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { FileOpener } from "@awesome-cordova-plugins/file-opener";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { AlertController } from "@ionic/angular";
-import { FileOpener } from "@ionic-native/file-opener";
 import { TranslateService } from "@ngx-translate/core";
 import { saveAs } from "file-saver-es";
 import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";

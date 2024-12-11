@@ -4,10 +4,8 @@ import { UserComponent } from "./user.component";
 
 @NgModule({
   imports: [
-    SharedModule,
-  ],
-  declarations: [
     UserComponent,
+    SharedModule,
   ],
 })
 export class UserModule { }

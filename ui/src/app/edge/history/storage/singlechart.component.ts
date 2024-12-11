@@ -155,7 +155,10 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                         borderColor: "rgba(0,223,0,1)",
                                     });
                                 }
-                                if ("_sum/EssActivePowerL1" && "_sum/EssActivePowerL2" && "_sum/EssActivePowerL3" in result.data && this.showPhases == true) {
+                                if ("_sum/EssActivePowerL1" in result.data
+                                    && "_sum/EssActivePowerL2" in result.data
+                                    && "_sum/EssActivePowerL3" in result.data
+                                    && this.showPhases == true) {
                                     if (channelAddress.channelId == "EssActivePowerL1") {
                                         datasets.push({
                                             label: this.translate.instant("General.phase") + " " + "L1",

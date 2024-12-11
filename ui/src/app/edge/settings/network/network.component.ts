@@ -75,7 +75,7 @@ export class NetworkComponent implements OnInit {
         this.handleNetworkConfigResponse(response);
       }
     } catch (reason: any) {
-      this.service.toast(this.translate.instant("Edge.Network.errorReading") + reason?.error?.message ?? "Unknown error", "danger");
+      this.service.toast(this.translate.instant("Edge.Network.errorReading") + reason?.error?.message || "Unknown error", "danger");
     }
   }
 
@@ -187,7 +187,7 @@ export class NetworkComponent implements OnInit {
       }));
       this.service.toast(this.translate.instant("Edge.Network.successUpdate") + `[${interfaceName}].`, "success");
     } catch (reason: any) {
-      this.service.toast(this.translate.instant("Edge.Network.errorUpdating") + `[${interfaceName}].` + reason?.error?.message ?? "Unknown error", "danger");
+      this.service.toast(this.translate.instant("Edge.Network.errorUpdating") + `[${interfaceName}].` + reason?.error?.message || "Unknown error", "danger");
     }
   }
 
