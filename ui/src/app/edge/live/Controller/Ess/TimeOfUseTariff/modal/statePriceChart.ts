@@ -19,6 +19,7 @@ import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
 @Component({
     selector: "statePriceChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

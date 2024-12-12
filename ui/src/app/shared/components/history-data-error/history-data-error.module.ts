@@ -12,8 +12,6 @@ import { HistoryDataErrorComponent } from "./history-data-error.component";
     CommonModule,
     IonicModule,
     TranslateModule,
-  ],
-  declarations: [
     HistoryDataErrorComponent,
   ],
   exports: [

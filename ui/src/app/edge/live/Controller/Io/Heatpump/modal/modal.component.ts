@@ -11,6 +11,7 @@ type AutomaticEnableMode = "automaticRecommendationCtrlEnabled" | "automaticForc
 @Component({
   selector: "heatpump-modal",
   templateUrl: "./modal.component.html",
+  standalone: false,
 })
 export class Controller_Io_HeatpumpModalComponent implements OnInit {
 

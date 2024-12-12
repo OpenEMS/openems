@@ -9,6 +9,7 @@ import { IonicModule, IonicRouteStrategy } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
+import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 import { CookieService } from "ngx-cookie-service";
 import { DeviceDetectorService } from "ngx-device-detector";
 import { AppRoutingModule } from "./app-routing.module";
@@ -64,6 +65,7 @@ import { UserModule } from "./user/user.module";
     CheckForUpdateService,
     AppService,
     AppStateTracker,
+    provideCharts(withDefaultRegisterables())
   ],
   bootstrap: [AppComponent],
 })

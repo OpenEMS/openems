@@ -9,6 +9,7 @@ import { Controller_Io_HeatpumpModalComponent } from "./modal/modal.component";
 @Component({
   selector: "Controller_Io_Heatpump",
   templateUrl: "./Io_Heatpump.html",
+  standalone: false,
 })
 export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 

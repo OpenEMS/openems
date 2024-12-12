@@ -16,6 +16,7 @@ import { UserComponent } from "../user/user.component";
 @Component({
   selector: "login",
   templateUrl: "./login.component.html",
+  standalone: false,
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
   public currentThemeMode: string;

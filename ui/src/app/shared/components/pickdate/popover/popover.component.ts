@@ -12,6 +12,7 @@ import { Edge } from "../../edge/edge";
 @Component({
     selector: "pickdatepopover",
     templateUrl: "./popover.component.html",
+    standalone: false,
 })
 export class PickDatePopoverComponent implements OnInit {
 

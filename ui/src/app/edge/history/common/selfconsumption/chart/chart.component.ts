@@ -9,6 +9,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
     selector: "selfconsumptionChart",
     templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 

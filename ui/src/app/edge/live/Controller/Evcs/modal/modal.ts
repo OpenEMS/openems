@@ -14,6 +14,7 @@ import { PopoverComponent } from "../popover/popover";
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 

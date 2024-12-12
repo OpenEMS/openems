@@ -9,6 +9,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
   selector: "gridOptimizedChargeChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
   public static getChartData(component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {

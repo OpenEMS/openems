@@ -9,6 +9,7 @@ import { SUM_STATES } from "../shared/sumState";
 @Component({
   selector: "oe-filter",
   templateUrl: "./filter.component.html",
+  standalone: false,
 })
 export class FilterComponent {
 

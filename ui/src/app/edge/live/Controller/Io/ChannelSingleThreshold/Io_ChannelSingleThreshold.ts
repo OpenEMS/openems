@@ -3,11 +3,13 @@ import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 import { Icon } from "src/app/shared/type/widget";
+import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { Controller_Io_ChannelSingleThresholdModalComponent } from "./modal/modal.component";
 
 @Component({
   selector: "Controller_Io_ChannelSingleThresholdComponent",
   templateUrl: "./Io_ChannelSingleThreshold.html",
+  standalone: false,
 })
 export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatWidget {
 
@@ -143,12 +145,10 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     }
 
     // True when InputAddress doesnt match any of the following channelIds
-    this.isOtherInputAddress = this.inputChannel.toString() !== null
-      && this.inputChannel.toString() !== "_sum/EssSoc"
-      && this.inputChannel.toString() !== "_sum/GridActivePower"
-      && this.inputChannel.toString() !== "_sum/ProductionActivePower";
+    this.isOtherInputAddress = StringUtils.isNot(this.inputChannel.toString(),
+      [null, "_sum/EssSoc", "_sum/GridActivePower", "_sum/ProductionActivePower"]);
 
-    // Switch ON / OFF && BELOW / ABOVE
+    // Switch ON / OF,&& BELOW / ABOVE
     // Threshold greater 0
     if (this.component.properties.threshold > 0) {
 

@@ -59,4 +59,15 @@ export namespace ArrayUtils {
   export function containsStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
     return arr.filter(el => strings.includes(el)).length > 0;
   }
+
+  /**
+  * Checks if array contains at least one of the passed strings
+  *
+  * @param strings the strings
+  * @param arr the array
+  * @returns true if arr contains at least one of the strings
+  */
+  export function containsAllStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
+    return arr.every(el => strings.includes(el));
+  }
 }

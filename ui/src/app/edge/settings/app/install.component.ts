@@ -21,6 +21,7 @@ import { hasPredefinedKey } from "./permissions";
 @Component({
   selector: InstallAppComponent.SELECTOR,
   templateUrl: "./install.component.html",
+  standalone: false,
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
 

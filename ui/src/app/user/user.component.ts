@@ -34,6 +34,7 @@ type UserInformation = {
 
 @Component({
   templateUrl: "./user.component.html",
+  standalone: false,
 })
 export class UserComponent implements OnInit {
 

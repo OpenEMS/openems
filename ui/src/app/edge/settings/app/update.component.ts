@@ -25,6 +25,7 @@ interface MyInstance {
 @Component({
   selector: UpdateAppComponent.SELECTOR,
   templateUrl: "./update.component.html",
+  standalone: false,
 })
 export class UpdateAppComponent implements OnInit {
 

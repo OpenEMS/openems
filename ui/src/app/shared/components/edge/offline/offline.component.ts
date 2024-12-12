@@ -14,6 +14,7 @@ import { environment } from "src/environments";
                 font-weight: bolder;
             }
         `],
+    standalone: false,
 })
 export class OfflineComponent implements OnInit {
 

@@ -9,6 +9,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
   selector: "chargerChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChargerChartDetailsComponent extends AbstractHistoryChart {
 

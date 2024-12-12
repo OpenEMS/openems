@@ -3,6 +3,7 @@ import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/ab
 
 @Component({
   templateUrl: "./currentVoltage.overview.html",
+  standalone: false,
 })
 export class CurrentAndVoltageOverviewComponent extends AbstractHistoryChartOverview {
 

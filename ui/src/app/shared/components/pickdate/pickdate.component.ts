@@ -12,6 +12,7 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
 @Component({
     selector: "pickdate",
     templateUrl: "./pickdate.component.html",
+    standalone: false,
 })
 export class PickDateComponent implements OnInit, OnDestroy {
 

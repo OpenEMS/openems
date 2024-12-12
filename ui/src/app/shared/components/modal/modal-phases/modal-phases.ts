@@ -9,6 +9,7 @@ import { TextIndentation } from "../modal-line/modal-line";
   /** If multiple items in line use this */
   selector: "oe-modal-meter-phases",
   templateUrl: "./modal-phases.html",
+  standalone: false,
 })
 export class ModalPhasesComponent extends AbstractModalLine {
 

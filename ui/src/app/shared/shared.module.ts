@@ -137,6 +137,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorModule,
     IonicModule,
     MeterModule,
+    BaseChartDirective,
     NgxSpinnerModule,
     PercentageBarComponent,
     PipeModule,
