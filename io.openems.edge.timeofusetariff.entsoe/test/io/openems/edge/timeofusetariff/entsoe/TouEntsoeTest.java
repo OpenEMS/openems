@@ -22,6 +22,7 @@ public class TouEntsoeTest {
 						.setId("tou0") //
 						.setSecurityToken("") //
 						.setBiddingZone(BiddingZone.GERMANY) //
+						.setResolution(Resolution.HOURLY) //
 						.build());
 	}
 }

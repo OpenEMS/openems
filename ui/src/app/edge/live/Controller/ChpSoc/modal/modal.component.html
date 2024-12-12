@@ -1,5 +1,5 @@
 <ion-header>
-    <ion-toolbar color="primary">
+    <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
         <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <oe-help-button key="CONTROLLER_CHP_SOC"></oe-help-button>
@@ -27,20 +27,23 @@
                     <ion-label translate>
                         General.on
                     </ion-label>
-                    <ion-icon color="success" style="width:40px" name="power-outline"></ion-icon>
+                    <ion-icon [color]="component.properties['mode'] === 'MANUAL_ON' ? 'success' : 'normal'"
+                        style="width:40px" name="power-outline"></ion-icon>
                 </ion-segment-button>
                 <ion-segment-button value="AUTOMATIC">
                     <ion-label translate>
                         General.automatic
                     </ion-label>
-                    <ion-icon style="width:40px" name="sunny-outline">
+                    <ion-icon style="width:40px" name="sunny-outline"
+                        [color]="component.properties['mode'] === 'AUTOMATIC' ? 'primary' : 'normal'">
                     </ion-icon>
                 </ion-segment-button>
                 <ion-segment-button value="MANUAL_OFF">
                     <ion-label translate>
                         General.off
                     </ion-label>
-                    <ion-icon name="power-outline" style="width: 40px"></ion-icon>
+                    <ion-icon name="power-outline" style="width: 40px"
+                        [color]="component.properties['mode'] === 'MANUAL_OFF' ? 'danger' : 'normal'"></ion-icon>
                 </ion-segment-button>
             </ion-segment>
         </ion-card-content>

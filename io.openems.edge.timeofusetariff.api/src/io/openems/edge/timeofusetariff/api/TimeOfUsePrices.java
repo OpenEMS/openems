@@ -1,8 +1,11 @@
 package io.openems.edge.timeofusetariff.api;
 
+import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 
 import com.google.common.collect.ImmutableSortedMap;
@@ -81,12 +84,14 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 			// prices is EMPTY
 			return EMPTY_PRICES;
 		}
-		time = roundDownToQuarter(time);
-		if (prices.valuePerQuarter.firstKey().isEqual(time)) {
+		final var baseTime = roundDownToQuarter(time);
+		if (prices.valuePerQuarter.firstKey().isEqual(baseTime)) {
 			// prices is still valid
 			return prices;
 		}
-		final var newMap = prices.valuePerQuarter.tailMap(time, true);
+		final var newMap = prices.valuePerQuarter.entrySet().stream() //
+				.filter(e -> !baseTime.isAfter(e.getKey())) //
+				.collect(toImmutableSortedMap(Comparator.naturalOrder(), Entry::getKey, Entry::getValue));
 		if (newMap.isEmpty()) {
 			// new prices would be empty
 			return EMPTY_PRICES;

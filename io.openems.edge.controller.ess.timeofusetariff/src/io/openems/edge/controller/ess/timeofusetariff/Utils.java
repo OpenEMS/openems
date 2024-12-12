@@ -38,7 +38,7 @@ public final class Utils {
 	}
 
 	/** Keep some buffer to avoid scheduling errors because of bad predictions. */
-	public static final float ESS_MAX_SOC = 90F;
+	public static final float ESS_MAX_SOC = 94F;
 
 	/**
 	 * C-Rate (capacity divided by time) during {@link StateMachine#CHARGE_GRID}.
@@ -83,7 +83,7 @@ public final class Utils {
 		final var pwrDelayDischarge = calculateDelayDischargePower(ess);
 		final var pwrChargeGrid = calculateChargeGridPower(period.context().essChargeInChargeGrid(), ess,
 				essActivePower, gridActivePower, maxChargePowerFromGrid);
-		actualState = postprocessRunState(period.state(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
+		actualState = postprocessRunState(ess, period.state(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		setPoint = switch (actualState) {
@@ -103,6 +103,7 @@ public final class Utils {
 	 * NOTE: this can be useful, if live operation deviates from predicted
 	 * operation, e.g. because predictions were wrong.
 	 * 
+	 * @param ess               the {@link ManagedSymmetricEss}
 	 * @param state             the initial state
 	 * @param pwrBalancing      the power set-point as it would be in
 	 *                          {@link StateMachine#BALANCING}
@@ -112,12 +113,16 @@ public final class Utils {
 	 *                          {@link StateMachine#CHARGE_GRID}
 	 * @return the new state
 	 */
-	public static StateMachine postprocessRunState(StateMachine state, int pwrBalancing, int pwrDelayDischarge,
-			int pwrChargeGrid) {
+	public static StateMachine postprocessRunState(ManagedSymmetricEss ess, StateMachine state, int pwrBalancing,
+			int pwrDelayDischarge, int pwrChargeGrid) {
 		if (state == CHARGE_GRID) {
 			// CHARGE_GRID,...
 			if (pwrChargeGrid >= pwrDelayDischarge) {
 				// but battery charge/discharge is the same as DELAY_DISCHARGE
+				state = DELAY_DISCHARGE;
+			}
+			var soc = ess.getSoc();
+			if (soc.isDefined() && soc.get() >= ESS_MAX_SOC) {
 				state = DELAY_DISCHARGE;
 			}
 		}

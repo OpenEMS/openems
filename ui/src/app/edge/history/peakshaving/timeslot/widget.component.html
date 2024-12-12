@@ -1,10 +1,10 @@
 <ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/timeslotpeakshavingchart"
     *ngIf="component && edge">
     <ion-item lines="full" color="light">
-        <ion-icon slot="start" size="large" color="primary" name="trending-down-outline"></ion-icon>
+        <ion-icon slot="start" size="large" color="normal" name="trending-down-outline"></ion-icon>
         <ion-label>{{ component.alias }}</ion-label>
     </ion-item>
-    <ion-card-content>
+    <ion-card-content style="color: var(--ion-card-content-color);">
         <table class="full_width">
             <tr>
                 <td style="width:35%" class="align_right">

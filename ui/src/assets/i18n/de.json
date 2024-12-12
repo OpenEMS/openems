@@ -579,6 +579,17 @@
     "CHARGE": "Beladung",
     "DISCHARGE": "Entladung"
   },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+      "MORE_INFO": "mehr Infos",
+      "EMS_OFFLINE": "{{edgeShortName}} ist offline"
+    }
+  },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
     "connectionInProgress": "Verbindung wird aufgebaut...",
@@ -863,7 +874,13 @@
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
-    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Dimmung nach §14a EnWG",
+      "IS_ACTIVATE": "Möglichkeit der Dimmung nach §14a EnWG aktivieren",
+      "INFO_NOTE": "Um eine Überlastung des Netzes zu vermeiden, erhält der Netzbetreiber bei allen, seit dem 01.01.2024 installierten Verbrauchseinrichtungen, zukünftig die Möglichkeit, diese auf eine Netzbezugsleistung des Stromspeichers von 4,2 kW zu dimmen.",
+      "IS_ACTIVATE_LABEL": "Die Verdrahtung ist entsprechend der Montageanleitung anzubringen."
+    }
   },
   "LIVE": {
     "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"

@@ -9,6 +9,7 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
 
@@ -104,8 +105,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: "rgba(0,0,0, 0.2)",
-                borderColor: "rgba(0,0,0, 1)",
+                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE_GREY, 0.2),
+                borderColor: ChartConstants.Colors.BLUE_GREY,
             });
 
             datasets.push({
@@ -116,8 +117,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: "rgba(0,0,200, 0.2)",
-                borderColor: "rgba(0,0,200, 1)",
+                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.PURPLE, 0.2),
+                borderColor: ChartConstants.Colors.PURPLE,
             });
 
             datasets.push({
@@ -128,8 +129,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: "rgba(45,143,171, 0.2)",
-                borderColor: "rgba(45,143,171, 1)",
+                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE, 0.2),
+                borderColor: ChartConstants.Colors.BLUE,
             });
 
             datasets.push({
@@ -140,8 +141,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: "rgba(253,197,7,0.2)",
-                borderColor: "rgba(253,197,7,1)",
+                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.YELLOW, 0.2),
+                borderColor: ChartConstants.Colors.YELLOW,
             });
 
             datasets.push({
@@ -153,8 +154,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 unit: YAxisType.POWER,
             });
             this.colors.push({
-                backgroundColor: "rgba(0,223,0, 0.2)",
-                borderColor: "rgba(0,223,0, 1)",
+                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.GREEN, 0.2),
+                borderColor: ChartConstants.Colors.GREEN,
             });
 
             datasets.push({
@@ -166,8 +167,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 unit: YAxisType.POWER,
             });
             this.colors.push({
-                backgroundColor: "rgba(200,0,0, 0.2)",
-                borderColor: "rgba(200,0,0, 1)",
+                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.2),
+                borderColor: ChartConstants.Colors.RED,
             });
 
             // State of charge data
@@ -219,6 +220,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         });
 
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
+        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
         this.options.scales.x.ticks.callback = function (value, index, values) {
             const date = new Date(value);
 

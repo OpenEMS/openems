@@ -1,5 +1,5 @@
 -runfw: org.apache.felix.framework;version='[7.0.5,7.0.5]'
--runee: JavaSE-17
+-runee: JavaSE-21
 -runprovidedcapabilities: ${native_capability}
 
 -resolve.effective: active
@@ -35,6 +35,7 @@
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\
 	bnd.identity;id='org.osgi.service.jdbc',\
 	bnd.identity;id='org.apache.felix.http.jetty',\
+	bnd.identity;id='org.apache.felix.http.servlet-api',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
@@ -100,7 +101,7 @@
 	io.openems.wrapper.retrofit-converter-gson;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
-	io.reactivex.rxjava3.rxjava;version='[3.1.9,3.1.10)',\
+	io.reactivex.rxjava3.rxjava;version='[3.1.10,3.1.11)',\
 	org.apache.commons.commons-codec;version='[1.17.1,1.17.2)',\
 	org.apache.commons.commons-compress;version='[1.27.1,1.27.2)',\
 	org.apache.commons.commons-csv;version='[1.11.0,1.11.1)',\
@@ -117,8 +118,8 @@
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[2.1.0,2.1.1)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.2.1,2.2.2)',\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.1,2.2.2)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.2.7,2.2.8)',\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.7,2.2.8)',\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.service.jdbc;version='[1.1.0,1.1.1)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\

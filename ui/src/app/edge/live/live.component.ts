@@ -57,7 +57,7 @@ export class LiveComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const lastUpdate: Date | null = this.dataService.timestamp();
+      const lastUpdate: Date | null = this.dataService.lastUpdated();
       if (lastUpdate == null) {
         this.showRefreshDragDown = true;
         return;
