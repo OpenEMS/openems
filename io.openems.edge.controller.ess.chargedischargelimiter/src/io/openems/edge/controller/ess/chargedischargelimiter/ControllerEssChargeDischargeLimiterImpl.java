@@ -294,14 +294,23 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			// Check wether it has reached desired SOC
 			if (!shouldBalance()) {
 				this.changeState(State.NORMAL);
-			} else if (currentSoc >= this.forceChargeSoc) {
+			} 
+			
+			calculatedPower = this.forceChargePower * -1;
+			
+			if (currentSoc >= this.forceChargeSoc) {
 				this.changeState(State.BALANCING_ACTIVE);
-			} else {
-				calculatedPower = this.forceChargePower * -1;
-			}
+			} 
 			break;
 		case BALANCING_WANTED:
 			// State can be used to check things. Don´t know what, yet ;o)
+			
+			// Check again if balancing is necessary
+		    if (!shouldBalance()) {
+		        this.changeState(State.NORMAL);
+		        break;
+		    }
+			
 			this.changeState(State.FORCE_CHARGE_ACTIVE);
 			break;
 		case BALANCING_ACTIVE:
@@ -318,11 +327,18 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				// ToDo: channel for balancing remaining time needed for UI modal
 			}
 
-			// Check if balancing duration has passed
-			if (isBalancingDurationExceeded() || !this.shouldBalance()) {
-				// Balancing time is over, transition to NORMAL state
+			if (!this.shouldBalance()) {
+				this.resetBalancingTimers(false);
 				this.changeState(State.NORMAL);
-				this.resetBalancingTimers();
+				break;
+			}
+			
+			// Check if balancing duration has passed
+			if (isBalancingDurationExceeded()) {
+				// Balancing time is over, transition to NORMAL state
+				this.resetBalancingTimers(true);
+				this.changeState(State.NORMAL);
+				
 
 			} else {
 				this.balancingRemainingTime = (int) (this.balancingHysteresisTime - this.balancingTime);
@@ -336,7 +352,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 					// SOC dropped below forceChargeSoc: reset balancing
 					this.logDebug(this.log, "SOC dropped below " + this.forceChargeSoc + "%. Restarting balancing.");
 					this.changeState(State.BALANCING_WANTED);
-					this.resetBalancingTimers();
+					this.resetBalancingTimers(false);
 					break;
 				} else if (currentSoc <= (this.forceChargeSoc + 1)) {
 					// SOC slightly below target, maintain SOC with force charging
@@ -368,12 +384,15 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	}
 
-	private void resetBalancingTimers() {
+	private void resetBalancingTimers(boolean fullReset) {
 		this.logDebug(this.log, "\nBalancing finished. Going back to normal operation. Resetting counters ");
 		this.balancingStartTime = Instant.MIN; // Reset balancing start time
-		this.balancingRemainingTime = 0; // Reset remaining balancing time
-		this.resetChargedEnergy = true; // Flag to reset charged energy
-		this.cumulatedchargedEnergy = 0; // Optional: reset cumulative charge energy here
+		this.balancingRemainingTime = this.balancingHysteresisTime; // Reset remaining balancing time
+		
+		if (fullReset) {
+			this.resetChargedEnergy = true; // Flag to reset charged energy
+			this.cumulatedchargedEnergy = 0; // Optional: reset cumulative charge energy here
+		}
 
 	}
 
@@ -410,16 +429,21 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		// balancing is not desired
 		if (config.energyBetweenBalancingCycles() == 0) {
+			this.logDebug(this.log, "Balancing is deactivated due to config setting");
 			return false;
 		}
 
 		if (this.state == State.BALANCING_ACTIVE) {
+			this.logDebug(this.log, "Balancing already active");
 			return false;
 		}
 
 		if (this.getChargedEnergy().get() > this.energyBetweenBalancingCycles) {
+			this.logDebug(this.log, "Balancing necessary because charged energy between balancing cycles exceeded");
 			return true;
 		}
+		
+		this.logDebug(this.log, "No Balancing necessary");
 		return false;
 	}
 
