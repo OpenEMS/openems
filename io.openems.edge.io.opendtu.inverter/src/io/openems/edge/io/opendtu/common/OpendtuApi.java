@@ -1,11 +1,10 @@
 package io.openems.edge.io.opendtu.common;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.Base64;
 
 import com.google.gson.JsonElement;
@@ -85,7 +84,10 @@ public class OpendtuApi {
 	 */
 	private JsonElement sendGetRequest(String endpoint) throws OpenemsNamedException {
 		try {
-			var url = new URL(this.baseUrl + endpoint);
+
+			var uri = new URI(this.baseUrl + endpoint);
+			var url = uri.toURL();
+
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(5000);
@@ -107,7 +109,7 @@ public class OpendtuApi {
 				return JsonUtils.parseToJsonObject(body);
 			}
 			throw new OpenemsException("Error while reading from openDTU API. Response code: " + status + ". " + body);
-		} catch (OpenemsNamedException | IOException e) {
+		} catch (Exception e) {
 			throw new OpenemsException(
 					"Unable to read from openDTU API. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
@@ -126,7 +128,8 @@ public class OpendtuApi {
 
 	private JsonElement sendRequest(String method, String endpoint, JsonObject data) throws OpenemsNamedException {
 		try {
-			var url = new URL(this.baseUrl + endpoint);
+			var uri = new URI(this.baseUrl + endpoint);
+			var url = uri.toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod(method);
 			con.setConnectTimeout(5000);
@@ -168,7 +171,7 @@ public class OpendtuApi {
 			}
 
 			throw new OpenemsException("Error with openDTU API. Response code: " + status + ". " + body);
-		} catch (OpenemsNamedException | IOException e) {
+		} catch (Exception e) {
 			throw new OpenemsException(
 					"Unable to communicate with openDTU API. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
