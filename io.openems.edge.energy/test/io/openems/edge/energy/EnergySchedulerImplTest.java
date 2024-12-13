@@ -1,10 +1,13 @@
 package io.openems.edge.energy;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.energy.LogVerbosity.TRACE;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
+import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
 import static io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
@@ -13,14 +16,11 @@ import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -44,11 +44,9 @@ import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class EnergySchedulerImplTest {
 
-	public static final Clock CLOCK = new TimeLeapClock(Instant.parse("2020-03-04T14:19:00.00Z"), ZoneOffset.UTC);
-
 	@Test
 	public void test() throws Exception {
-		create(CLOCK);
+		create(createDummyClock());
 	}
 
 	/**
@@ -105,14 +103,14 @@ public class EnergySchedulerImplTest {
 								TimeOfUseTariffControllerImpl.buildEnergyScheduleHandler(//
 										() -> ess, //
 										() -> ControlMode.CHARGE_CONSUMPTION, //
-										() -> /* maxChargePowerFromGrid */ 20_000, //
-										() -> /* limitChargePowerFor14aEnWG */ false)))
+										() -> /* maxChargePowerFromGrid */ 20_000)))
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("_energy") //
 						.setEnabled(false) //
 						.setLogVerbosity(TRACE) //
 						.setVersion(V2_ENERGY_SCHEDULABLE) //
+						.setRiskLevel(MEDIUM) //
 						.build()) //
 				.next(new TestCase());
 		return sut;
@@ -126,9 +124,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static Optimizer getOptimizer(EnergySchedulerImpl energyScheduler) throws Exception {
-		var field = EnergySchedulerImpl.class.getDeclaredField("optimizer");
-		field.setAccessible(true);
-		return (Optimizer) field.get(energyScheduler);
+		return getValueViaReflection(energyScheduler, "optimizer");
 	}
 
 }

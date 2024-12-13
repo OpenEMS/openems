@@ -293,6 +293,26 @@ public class ElementToChannelConverter {
 	}
 
 	/**
+	 * Sets the null value for given {@link Long} value.
+	 * 
+	 * @param defaultValue to ignore {@link Long}
+	 * @return null if actual value is equal to default value.
+	 */
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter SET_NULL_FOR_DEFAULT(long defaultValue) {
+		// CHECKSTYLE:ON
+		return new ElementToChannelConverter(value -> {
+			var v = TypeUtils.<Long>getAsType(OpenemsType.LONG, value);
+
+			if (v == null || v == defaultValue) {
+				return null;
+			}
+
+			return v;
+		});
+	}
+
+	/**
 	 * Sets the chain with given {@link ElementToChannelConverter
 	 * ElementToChannelConverters}.
 	 * 

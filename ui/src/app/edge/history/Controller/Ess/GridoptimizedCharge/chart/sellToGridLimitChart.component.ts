@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress } from "src/app/shared/shared";
 
@@ -32,18 +33,20 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
         {
           name: translate.instant("General.gridSell"),
           converter: () => data["ActivePower"],
-          color: "rgb(0,0,200)",
+          color: ChartConstants.Colors.PURPLE,
         },
         {
           name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn"),
           converter: () => data["_PropertyMaximumSellToGridPower"],
-          color: "rgb(0,0,0)",
+          color: ChartConstants.Colors.YELLOW,
+          hideShadow: true,
           borderDash: [3, 3],
         },
         {
           name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.MAXIMUM_GRIDSELL_WITH_CHARGE"),
           converter: () => data["_PropertyMaximumSellToGridPower"].map(el => Utils.multiplySafely(el, 0.95)),
-          color: "rgb(200,0,0)",
+          color: ChartConstants.Colors.RED,
+          hideShadow: true,
           borderDash: [3, 3],
         },
         {

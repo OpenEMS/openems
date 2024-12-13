@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.common;
 
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType.BATTERY_52;
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType.BATTERY_64;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -23,17 +25,44 @@ public class TestStatic {
 		assertNotEquals(GoodWeType.FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KETT22AW0004"));
 
 		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9030KETT228W0004"));
+		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("129K9ETT231W0159"));
 		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT228W0004"));
-		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929K9ETT231W0159"));
 		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929KETT231W0159"));
 		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("928K9ETT231W0159"));
-		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929K9ETT231W0160"));
+
+		assertEquals(GoodWeType.FENECON_GEN2_6K, AbstractGoodWe.getGoodWeTypeFromSerialNr("96000EUB246L0002"));
+		assertEquals(GoodWeType.FENECON_GEN2_10K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KEUB246L0001"));
+		assertEquals(GoodWeType.FENECON_GEN2_15K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9015KEUB246L0003"));
 
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9040KETT228W0004"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9000KETT228W0004"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("ET2"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(""));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(null));
+	}
+
+	@Test
+	public void testAuthorisedLimit() {
+		assertEquals(25, GoodWeType.authorisedLimit(40, 25, 40).apply(BATTERY_52).intValue());
+		assertEquals(40, GoodWeType.authorisedLimit(40, 25, 40).apply(BATTERY_64).intValue());
+		assertEquals(40, GoodWeType.authorisedLimit(40, 25, 40).apply(null).intValue());
+
+		assertEquals(25, GoodWeType.FENECON_GEN2_6K.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(40, GoodWeType.FENECON_GEN2_6K.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, GoodWeType.FENECON_GEN2_10K.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(40, GoodWeType.FENECON_GEN2_10K.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, GoodWeType.FENECON_GEN2_15K.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(40, GoodWeType.FENECON_GEN2_15K.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, GoodWeType.FENECON_FHI_10_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(0, GoodWeType.FENECON_FHI_10_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(0, GoodWeType.FENECON_FHI_20_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(50, GoodWeType.FENECON_FHI_20_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(0, GoodWeType.FENECON_FHI_29_9_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(50, GoodWeType.FENECON_FHI_29_9_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, GoodWeType.GOODWE_8K_ET.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(25, GoodWeType.GOODWE_8K_ET.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, GoodWeType.GOODWE_8K_ET.maxDcCurrent.apply(null).intValue());
+
 	}
 
 	@Test

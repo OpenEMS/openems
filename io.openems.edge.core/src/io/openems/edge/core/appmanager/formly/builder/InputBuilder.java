@@ -140,9 +140,9 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 
 	/**
 	 * Sets the validation of the Input.
+	 * 
 	 * <p>
 	 * e. g. to set the validation of an IP use {@link Validation#IP}
-	 * </p>
 	 *
 	 * @param validation the validation to be set
 	 * @return this
@@ -150,6 +150,19 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 	public InputBuilder setValidation(Validation validation) {
 		this.setPattern(validation.getPattern());
 		this.setValidationMessage("pattern", validation.getErrorMsg());
+		return this;
+	}
+
+	/**
+	 * Sets the validation of the Input.
+	 *
+	 * @param pattern the pattern to be set
+	 * @param msg     the error message
+	 * @return this
+	 */
+	public InputBuilder setValidation(String pattern, String msg) {
+		this.setPattern(pattern);
+		this.setValidationMessage("pattern", msg);
 		return this;
 	}
 

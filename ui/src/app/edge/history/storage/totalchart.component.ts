@@ -110,6 +110,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                     backgroundColor: "rgba(0,223,0,0.05)",
                                     borderColor: "rgba(0,223,0,1)",
                                 });
+
                             } if ("_sum/EssActivePowerL1" && "_sum/EssActivePowerL2" && "_sum/EssActivePowerL3" in result.data && this.showPhases == true) {
                                 if (channelAddress.channelId == "EssActivePowerL1") {
                                     datasets.push({
@@ -252,9 +253,9 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
             const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
-                label += " " + translate.instant("General.chargePower");
+                label += " " + translate.instant("General.CHARGE");
             } else if (value > 0.005) {
-                label += " " + translate.instant("General.dischargePower");
+                label += " " + translate.instant("General.DISCHARGE");
             }
             return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
         };

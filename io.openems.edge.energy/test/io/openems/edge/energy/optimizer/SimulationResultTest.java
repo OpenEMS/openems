@@ -2,14 +2,7 @@ package io.openems.edge.energy.optimizer;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.stream.IntStream;
-
 import org.junit.Test;
-
-import io.jenetics.Genotype;
-import io.jenetics.IntegerChromosome;
-import io.jenetics.IntegerGene;
 
 public class SimulationResultTest {
 
@@ -17,40 +10,22 @@ public class SimulationResultTest {
 	public void test() {
 		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
 
-		var result = SimulationResult.fromQuarters(simulator.gsc, Genotype.of(//
-				// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
-				integerChromosomeOf(//
-						0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 0, 1, 2), //
-				// ESH2 (FOO, BAR)
-				integerChromosomeOf(//
-						0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
-						0, 0, 1, 0)));
+		// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
+		// ESH2 (FOO, BAR)
+		var result = SimulationResult.fromQuarters(simulator.gsc, new int[][] { //
+				p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
+				p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
+				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
+				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0),
+				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1),
+				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
+				p(0, 0), p(1, 1), p(2, 0) //
+		});
 
-		assertEquals(1_126_154.844, result.cost(), 0.001);
+		assertEquals(1166163.462, result.cost(), 0.001);
 	}
 
-	/**
-	 * Creates a {@link IntegerChromosome} from the given values.
-	 * 
-	 * @param values the int values
-	 * @return the {@link IntegerChromosome}
-	 */
-	public static IntegerChromosome integerChromosomeOf(int... values) {
-		if (values.length == 0) {
-			return IntegerChromosome.of();
-		}
-		var max = IntStream.of(values).max().getAsInt();
-		return IntegerChromosome.of(Arrays.stream(values) //
-				.mapToObj(value -> IntegerGene.of(value, 0, max)) //
-				.toList());
+	private static int[] p(int... states) {
+		return states;
 	}
 }

@@ -28,8 +28,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 /**
  * Represents a JSON-RPC Response for 'channelExportXlsxRequest'.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

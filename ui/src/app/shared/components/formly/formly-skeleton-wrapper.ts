@@ -10,7 +10,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 * @input model the model
 */
 @Component({
-  selector: "formly-skeleton-wrapper",
+  selector: "oe-formly-skeleton-wrapper",
   template: `
 <div>
   <ion-list *ngIf="!show">

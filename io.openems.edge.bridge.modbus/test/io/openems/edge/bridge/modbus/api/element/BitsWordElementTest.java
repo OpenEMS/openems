@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.element;
 import static io.openems.common.channel.AccessMode.READ_WRITE;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -129,12 +130,7 @@ public class BitsWordElementTest {
 	private static ModbusTest.FC3ReadRegisters<BitsWordElement, ?> generateSut() throws IllegalArgumentException,
 			IllegalAccessException, OpenemsException, NoSuchFieldException, SecurityException {
 		var sut = new ModbusTest.FC3ReadRegisters<>(new BitsWordElement(0, null), INTEGER);
-
-		// Some Reflection to properly initialize the BitsWordElement
-		var field = BitsWordElement.class.getDeclaredField("component");
-		field.setAccessible(true);
-		field.set(sut.element, sut);
-
+		setAttributeViaReflection(sut.element, "component", sut);
 		return sut;
 	}
 

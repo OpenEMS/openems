@@ -28,6 +28,11 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         color: "primary",
     };
 
+    protected get thresholdDelta() {
+        const delta = this.highThresholdValue - this.lowThresholdValue;
+        return delta < 0 ? 0 : delta;
+    }
+
     async presentModal() {
         const modal = await this.modalController.create({
             component: Controller_ChpSocModalComponent,

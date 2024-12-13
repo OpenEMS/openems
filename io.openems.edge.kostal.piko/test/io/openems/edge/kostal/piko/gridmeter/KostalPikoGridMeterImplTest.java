@@ -16,8 +16,10 @@ public class KostalPikoGridMeterImplTest {
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setCoreId("core0") //
-						.build()) //
-		;
+						.build()); //
+		// TODO This does not work because this.worker == null
+		// .next(new TestCase()) //
+		// deactivate();
 	}
 
 }

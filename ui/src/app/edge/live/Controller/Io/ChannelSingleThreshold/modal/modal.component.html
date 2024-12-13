@@ -1,5 +1,6 @@
 <ion-header>
-  <ion-toolbar mode="md" class="ion-justify-content-center" color="primary">
+  <ion-toolbar mode="md" class="ion-justify-content-center"
+    style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
     <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
       <oe-help-button key="CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD"></oe-help-button>
@@ -45,20 +46,23 @@
                 <ion-label translate>
                   General.on
                 </ion-label>
-                <ion-icon color="success" style="width:40px" name="power-outline"></ion-icon>
+                <ion-icon [color]="component.properties['mode'] === 'ON' ? 'success' : 'normal'" style="width:40px"
+                  name="power-outline"></ion-icon>
               </ion-segment-button>
               <ion-segment-button value="AUTOMATIC">
                 <ion-label translate>
                   General.automatic
                 </ion-label>
-                <ion-icon style="width:40px" name="sunny-outline">
+                <ion-icon [color]="component.properties['mode'] === 'AUTOMATIC' ? 'primary' : 'normal'"
+                  style="width:40px" name="sunny-outline">
                 </ion-icon>
               </ion-segment-button>
               <ion-segment-button value="OFF">
                 <ion-label translate>
                   General.off
                 </ion-label>
-                <ion-icon name="power-outline" style="width: 40px"></ion-icon>
+                <ion-icon [color]="component.properties['mode'] === 'OFF' ? 'danger' : 'normal'" name="power-outline"
+                  style="width: 40px"></ion-icon>
               </ion-segment-button>
             </ion-segment>
           </ion-card-content>

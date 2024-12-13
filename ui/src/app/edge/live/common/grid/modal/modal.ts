@@ -135,6 +135,7 @@ export class ModalComponent extends AbstractFormlyComponent {
           channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
           converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant("General.phase") + " " + phase),
         },
+
         indentation: TextIndentation.SINGLE,
         children: ModalComponent.generatePhasesLineItems(role, phase, component),
       });
@@ -150,7 +151,7 @@ export class ModalComponent extends AbstractFormlyComponent {
       }, {
         type: "item",
         channel: component.id + "/Current" + phase,
-        converter: Converter.CURRENT_IN_MILLIAMPERE_TO_AMPERE,
+        converter: Converter.CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE,
       });
     }
 

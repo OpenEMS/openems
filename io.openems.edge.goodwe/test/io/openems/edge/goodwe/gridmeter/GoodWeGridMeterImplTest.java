@@ -13,10 +13,12 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class GoodWeGridMeterImplTest {
 
@@ -86,6 +88,66 @@ public class GoodWeGridMeterImplTest {
 		var noResult = getPhaseConnectionValue(Phase.L3, 0x000);
 
 		assert noResult == 0x000;
+	}
+
+	@Test
+	public void testReadFromModbus() throws Exception {
+		new ComponentTest(new GoodWeGridMeterImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegisters(36003, 0, 1) // States
+						.withRegisters(35123, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) // F_GRID_R etc.
+						.withRegister(35016, 4) // DSP Version
+						.withRegisters(36005, //
+								/* ACTIVE_POWER */ -1000 /* L1 */, -1320 /* L2 */, 1610 /* L3 */, //
+								/* reserved */ 0, 0, 0, 0, 0, //
+								/* METER_POWER_FACTOR */ 0, //
+								/* FREQUENCY */ 50)
+						.withRegisters(36052, //
+								/* VOLTAGE */ 2000 /* L1 */, 2200 /* L2 */, 2300 /* L3 */, //
+								/* CURRENT */ 50 /* L1 */, 60 /* L2 */, 70 /* L3 */))
+				.activate(MyConfig.create() //
+						.setId("meter0") //
+						.setModbusId("modbus0") //
+						.setGoodWeMeterCategory(SMART_METER) //
+						.setExternalMeterRatioValueA(0) //
+						.setExternalMeterRatioValueB(0) //
+						.build()) //
+
+				.next(new TestCase() //
+						.output(GoodWeGridMeter.ChannelId.HAS_NO_METER, false) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1000) // inverted
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1320) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, -1610) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 710)) //
+
+				.next(new TestCase(), 3) // Wait for 36052
+				.next(new TestCase() //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 200_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 220_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 230_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 5_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, 6_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, -7_000)) // inverted
+				.deactivate();
+	}
+
+	@Test
+	public void testAdjustCurrentSign() {
+		{
+			var e2cConverter = GoodWeGridMeterImpl.createAdjustCurrentSign(() -> new Value<Integer>(null, -5000));
+			// postive to negative
+			assertEquals(-16, e2cConverter.elementToChannel(16));
+			// negative stays negative
+			assertEquals(-16, e2cConverter.elementToChannel(-16));
+		}
+		{
+			var e2cConverter = GoodWeGridMeterImpl.createAdjustCurrentSign(() -> new Value<Integer>(null, 5000));
+			// positive stays positive
+			assertEquals(16, e2cConverter.elementToChannel(16));
+			// negative to positive
+			assertEquals(16, e2cConverter.elementToChannel(-16));
+		}
 	}
 
 	@Test

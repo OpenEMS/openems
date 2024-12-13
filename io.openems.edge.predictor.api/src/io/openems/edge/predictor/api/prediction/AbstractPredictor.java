@@ -6,6 +6,7 @@ import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTI
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -59,7 +60,10 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 	public Prediction getPrediction(ChannelAddress channelAddress) {
 		var now = roundDownToQuarter(ZonedDateTime.now(this.getClockProvider().getClock()));
 		var prediction = this.predictions.get(channelAddress);
-		if (prediction == null || prediction.isEmpty() || now.isAfter(prediction.valuePerQuarter.firstKey())) {
+		if (Optional.ofNullable(prediction) //
+				.map(p -> p.getFirstTime()) //
+				.map(t -> now.isAfter(t)) //
+				.orElse(true /* any null? */)) {
 			// Create new prediction
 			prediction = this.createNewPrediction(channelAddress);
 			this.predictions.put(channelAddress, prediction);

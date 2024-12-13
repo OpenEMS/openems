@@ -1,6 +1,6 @@
 import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
-import { sharedSetup, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { GridMode } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
@@ -19,7 +19,7 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
 
 describe("Grid - Modal", () => {
   let TEST_CONTEXT: TestContext;
-  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
 
   it("generateView()", () => {
     {

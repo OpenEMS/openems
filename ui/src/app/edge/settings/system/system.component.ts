@@ -1,6 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Component, effect } from "@angular/core";
 import { environment } from "src/environments";
 import { Edge, Service, UserPermission, Utils } from "../../../shared/shared";
 
@@ -8,30 +7,26 @@ import { Edge, Service, UserPermission, Utils } from "../../../shared/shared";
   selector: SystemComponent.SELECTOR,
   templateUrl: "./system.component.html",
 })
-export class SystemComponent implements OnInit {
+export class SystemComponent {
 
   private static readonly SELECTOR = "system";
 
-  public readonly environment = environment;
-  public readonly spinnerId: string = SystemComponent.SELECTOR;
-  public showLog: boolean = false;
-  public readonly ESTIMATED_REBOOT_TIME = 600; // Seconds till the openems service is restarted after update
-
-  public edge: Edge;
-  public restartTime: number = this.ESTIMATED_REBOOT_TIME;
-
+  protected readonly environment = environment;
+  protected readonly spinnerId: string = SystemComponent.SELECTOR;
+  protected showLog: boolean = false;
+  protected readonly ESTIMATED_REBOOT_TIME = 600; // Seconds till the openems service is restarted after update
+  protected edge: Edge;
+  protected restartTime: number = this.ESTIMATED_REBOOT_TIME;
   protected canSeeSystemRestart: boolean = false;
 
   constructor(
-    private route: ActivatedRoute,
     protected utils: Utils,
     private service: Service,
-  ) { }
-
-  ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
-      this.canSeeSystemRestart = UserPermission.isAllowedToSeeSystemRestart(this.service.currentUser, edge);
+  ) {
+    effect(async () => {
+      const user = this.service.currentUser();
+      this.edge = await this.service.getCurrentEdge();
+      this.canSeeSystemRestart = UserPermission.isAllowedToSeeSystemRestart(user, this.edge);
     });
   }
 }

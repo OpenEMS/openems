@@ -3,6 +3,7 @@ package io.openems.edge.battery.fenecon.home;
 import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.time.Instant;
 import java.util.List;
@@ -343,7 +344,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private void detectHardwareType() throws OpenemsException {
 		// Set Battery-Protection
-		readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(10019))
+		readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(10019))
 				.thenAccept(value -> {
 					if (value == null) {
 						return;

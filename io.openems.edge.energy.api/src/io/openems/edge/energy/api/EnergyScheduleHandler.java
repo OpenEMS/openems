@@ -63,7 +63,7 @@ public sealed interface EnergyScheduleHandler {
 			Supplier<STATE[]> statesSupplier, //
 			Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
 			WithDifferentStates.Simulator<STATE, CONTEXT> simulator, //
-			WithDifferentStates.PostProcessor<STATE> postProcessor) {
+			WithDifferentStates.PostProcessor<STATE, CONTEXT> postProcessor) {
 		return new EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT>(defaultState, statesSupplier,
 				contextFunction, simulator, postProcessor);
 	}
@@ -169,16 +169,17 @@ public sealed interface EnergyScheduleHandler {
 					EnergyFlow.Model model, CONTEXT context, STATE state);
 		}
 
-		public static interface PostProcessor<STATE> {
+		public static interface PostProcessor<STATE, CONTEXT> {
 
 			/**
 			 * A 'do-nothing' {@link PostProcessor}.
 			 * 
-			 * @param <STATE> the type of the State
+			 * @param <STATE>   the type of the State
+			 * @param <CONTEXT> the type of the Context
 			 * @return the same State
 			 */
-			public static <STATE> PostProcessor<STATE> doNothing() {
-				return (energyFlow, state) -> state;
+			public static <STATE, CONTEXT> PostProcessor<STATE, CONTEXT> doNothing() {
+				return (osc, energyFlow, context, state) -> state;
 			}
 
 			/**
@@ -189,17 +190,19 @@ public sealed interface EnergyScheduleHandler {
 			 * NOTE: heavy computation is ok here, because this method is called only at the
 			 * end with the best Schedule.
 			 * 
+			 * @param osc        the {@link OneSimulationContext}
 			 * @param energyFlow the {@link EnergyFlow}
+			 * @param context    the Controller Context
 			 * @param state      the initial state
 			 * @return the new state
 			 */
-			public STATE postProcess(EnergyFlow energyFlow, STATE state);
+			public STATE postProcess(OneSimulationContext osc, EnergyFlow energyFlow, CONTEXT context, STATE state);
 		}
 
 		private final STATE defaultState;
 		private final Supplier<STATE[]> availableStatesSupplier;
 		private final Simulator<STATE, CONTEXT> simulator;
-		private final WithDifferentStates.PostProcessor<STATE> postProcessor;
+		private final WithDifferentStates.PostProcessor<STATE, CONTEXT> postProcessor;
 		private final SortedMap<ZonedDateTime, Period<STATE, CONTEXT>> schedule = new TreeMap<>();
 
 		private STATE[] availableStates;
@@ -209,7 +212,7 @@ public sealed interface EnergyScheduleHandler {
 				Supplier<STATE[]> availableStatesSupplier, //
 				Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
 				Simulator<STATE, CONTEXT> simulator, //
-				WithDifferentStates.PostProcessor<STATE> postProcessor) {
+				WithDifferentStates.PostProcessor<STATE, CONTEXT> postProcessor) {
 			super(contextFunction);
 			this.defaultState = defaultState;
 			this.availableStatesSupplier = availableStatesSupplier;
@@ -286,7 +289,8 @@ public sealed interface EnergyScheduleHandler {
 		 */
 		public int postProcessPeriod(GlobalSimulationsContext.Period period, OneSimulationContext osc,
 				EnergyFlow energyFlow, int stateIndex) {
-			return this.getStateIndex(this.postProcessor.postProcess(energyFlow, this.availableStates[stateIndex]));
+			return this.getStateIndex(
+					this.postProcessor.postProcess(osc, energyFlow, this.context, this.availableStates[stateIndex]));
 		}
 
 		public static record Period<STATE, CONTEXT>(

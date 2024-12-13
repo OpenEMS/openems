@@ -41,7 +41,7 @@ public class ResolveDependenciesTest {
 						.build(),
 				t -> {
 					return Apps.of(t, //
-							Apps::feneconHome, //
+							Apps::feneconHome10, //
 							Apps::gridOptimizedCharge, //
 							Apps::selfConsumptionOptimization, //
 							Apps::prepareBatteryExtension //

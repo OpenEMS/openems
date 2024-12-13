@@ -1,10 +1,12 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import * as Chart from "chart.js";
-import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
+import { ChronoUnit, Resolution, calculateResolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 
 @Component({
@@ -22,7 +24,8 @@ export class ChartComponent extends AbstractHistoryChart {
         const componentId: string = this.config.getComponentIdsByFactory("Controller.Ess.Time-Of-Use-Tariff")[0];
         this.component = this.config.components[componentId];
 
-        const currency = this.config.components["_meta"].properties.currency;
+        const meta: EdgeConfig.Component = this.config?.getComponent("_meta");
+        const currency: string = this.config?.getPropertyFromComponent<string>(meta, "currency");
         this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
         this.chartType = "bar";
 
@@ -52,21 +55,21 @@ export class ChartComponent extends AbstractHistoryChart {
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: "rgb(51,102,0)",
                     stack: 1,
-                    order: 1,
+                    order: 2,
                 },
                 {
                     name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
                     color: "rgb(0, 204, 204)",
                     stack: 1,
-                    order: 1,
+                    order: 2,
                 },
                 {
                     name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
                     color: "rgb(0,0,0)",
                     stack: 1,
-                    order: 1,
+                    order: 2,
                 },
                 {
                     name: this.translate.instant("General.soc"),
@@ -79,19 +82,19 @@ export class ChartComponent extends AbstractHistoryChart {
                         unit: YAxisType.PERCENTAGE,
                         formatNumber: "1.0-0",
                     },
-                    order: 0,
+                    order: 1,
                 },
                 {
                     name: this.translate.instant("General.gridBuy"),
                     converter: () => data["GridBuy"],
-                    color: "rgb(0,0,0)",
+                    color: ChartConstants.Colors.BLUE_GREY,
                     yAxisId: ChartAxis.RIGHT_2,
                     custom: {
                         type: "line",
                         formatNumber: "1.0-0",
                     },
                     hiddenOnInit: true,
-                    order: 2,
+                    order: 0,
                 },
                 ];
             },
@@ -102,6 +105,10 @@ export class ChartComponent extends AbstractHistoryChart {
                 unit: YAxisType.CURRENCY,
                 position: "left",
                 yAxisId: ChartAxis.LEFT,
+                customTitle: Currency.getChartCurrencyUnitLabel(currency),
+                scale: {
+                    dynamicScale: true,
+                },
             },
             {
                 unit: YAxisType.PERCENTAGE,
@@ -166,6 +173,17 @@ export class ChartComponent extends AbstractHistoryChart {
                     return el;
                 });
 
+                const chartObject = this.chartObject;
+                this.options.scales[ChartAxis.LEFT].ticks = {
+                    callback: function (value, index, ticks) {
+                        if (index == (ticks.length - 1)) {
+                            const upperMostTick = chartObject.yAxes.find(el => el.unit === YAxisType.CURRENCY).customTitle;
+                            AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
+                            return upperMostTick;
+                        }
+                        return value;
+                    },
+                };
                 this.options.scales.x["offset"] = false;
                 this.options["animation"] = false;
             });
@@ -182,7 +200,18 @@ export class ChartComponent extends AbstractHistoryChart {
         const prices = data["QuarterlyPrice"]
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
         const states = data["StateMachine"]
-            .map(val => Utils.multiplySafely(val, 1000));
+            .map(val => Utils.multiplySafely(val, 1000))
+            .map(val => {
+                if (val === null) {
+                    return null;
+                } else if (val < 0.5) {
+                    return 0; // DelayDischarge
+                } else if (val > 2.5) {
+                    return 3; // ChargeGrid
+                } else {
+                    return 1; // Balancing
+                }
+            });
         const length = prices.length;
         const dataset = Array(length).fill(null);
 

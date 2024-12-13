@@ -1,5 +1,9 @@
 package io.openems.edge.common.test;
 
+import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
+import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,6 +38,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
@@ -45,6 +50,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ChannelAddressValue;
 import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ChannelIdValue;
+import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ChannelNameValue;
 import io.openems.edge.common.test.AbstractComponentTest.ChannelValue.ComponentChannelIdValue;
 import io.openems.edge.common.type.TypeUtils;
 
@@ -80,6 +86,13 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			@Override
 			public String toString() {
 				return this.channelId.id() + ":" + this.value;
+			}
+		}
+
+		public record ChannelNameValue(String channelName, Object value, boolean force) implements ChannelValue {
+			@Override
+			public String toString() {
+				return this.channelName + ":" + this.value;
 			}
 		}
 
@@ -197,6 +210,18 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		}
 
 		/**
+		 * Adds an input value for a ChannelId of the system-under-test.
+		 *
+		 * @param channelName the Channel
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase input(String channelName, Object value) {
+			this.inputs.add(new ChannelNameValue(channelName, value, false));
+			return this;
+		}
+
+		/**
 		 * Enforces an input value for a {@link ChannelAddress}.
 		 * 
 		 * <p>
@@ -258,6 +283,22 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		}
 
 		/**
+		 * Enforces an input value for a Channel of the system-under-test.
+		 *
+		 * <p>
+		 * Use this method if you want to be sure, that the Channel actually applies the
+		 * value, e.g. to override a {@link Debounce} setting.
+		 *
+		 * @param channelName the Channel
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase inputForce(String channelName, Object value) {
+			this.inputs.add(new ChannelNameValue(channelName, value, true));
+			return this;
+		}
+
+		/**
 		 * Adds an expected output value for a {@link ChannelAddress}.
 		 *
 		 * @param address the {@link ChannelAddress}
@@ -304,6 +345,18 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public TestCase output(ChannelId channelId, Object value) {
 			this.outputs.add(new ChannelIdValue(channelId, value, false));
+			return this;
+		}
+
+		/**
+		 * Adds an expected output value for a Channel of the system-under-test.
+		 *
+		 * @param channelName the Channel
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase output(String channelName, Object value) {
+			this.outputs.add(new ChannelNameValue(channelName, value, false));
 			return this;
 		}
 
@@ -479,11 +532,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				final Channel<?> channel = this.getChannel(act, output);
 
 				Object got;
+				final String readWriteInfo;
 				if (channel instanceof WriteChannel wc) {
 					got = wc.getNextWriteValueAndReset().orElse(null);
+					readWriteInfo = "WriteValue";
 				} else {
 					var value = channel.getNextValue();
 					got = value.orElse(null);
+					readWriteInfo = "ReadValue";
 				}
 				// Try to parse an Enum
 				if (channel.channelDoc() instanceof EnumDoc) {
@@ -493,7 +549,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				}
 				if (!Objects.equals(output.value(), got)) {
 					throw new Exception("On TestCase [" + this.description + "]: " //
-							+ "expected [" + output.value() + "] " //
+							+ "expected " + readWriteInfo + " [" + output.value() + "] " //
 							+ "got [" + got + "] " //
 							+ "for Channel [" + output.toString() + "] " //
 							+ "on Inputs [" + this.inputs + "]");
@@ -520,6 +576,10 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 			if (cv instanceof ChannelIdValue civ) {
 				return act.sut.channel(civ.channelId);
+			}
+
+			if (cv instanceof ChannelNameValue civ2) {
+				return act.sut.channel(civ2.channelName);
 			}
 
 			if (cv instanceof ComponentChannelIdValue cciv) {
@@ -651,11 +711,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	private boolean addReference(Class<?> clazz, String memberName, Object object)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		try {
-			var field = clazz.getDeclaredField(memberName);
-			field.setAccessible(true);
-			field.set(this.sut, object);
+			setAttributeViaReflection(this.sut, memberName, object);
 			return true;
-		} catch (NoSuchFieldException e) {
+		} catch (ReflectionException e) {
 			// Ignore. Try method.
 			if (this.invokeSingleArgMethod(clazz, memberName, object)) {
 				return true;
@@ -785,8 +843,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				}
 				args[i] = arg;
 			}
-			method.setAccessible(true);
-			method.invoke(this.sut, args);
+			invokeMethodViaReflection(this.sut, method, args);
 			return true;
 		}
 		return false;
@@ -806,14 +863,10 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	private void callDeactivate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
-		Class<?> clazz = this.sut.getClass();
-		var method = clazz.getDeclaredMethod("deactivate");
-		method.setAccessible(true);
-		method.invoke(this.sut);
+		invokeMethodWithoutArgumentsViaReflection(this.sut, "deactivate");
 	}
 
-	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg)
-			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg) throws ReflectionException {
 		var methods = clazz.getDeclaredMethods();
 		for (Method method : methods) {
 			if (!method.getName().equals(methodName)) {
@@ -828,8 +881,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				continue;
 			}
 
-			method.setAccessible(true);
-			method.invoke(this.sut, arg);
+			invokeMethodViaReflection(this.sut, method, arg);
 			return true;
 		}
 
@@ -907,9 +959,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 *
 	 */
 	protected void handleEvent(String topic) throws Exception {
-		if (this.sut instanceof EventHandler) {
-			var event = new Event(topic, new HashMap<String, Object>());
-			((EventHandler) this.sut).handleEvent(event);
+		var event = new Event(topic, new HashMap<String, Object>());
+		for (var component : this.components.values()) {
+			if (component instanceof EventHandler eh) {
+				eh.handleEvent(event);
+			}
 		}
 	}
 

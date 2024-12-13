@@ -39,7 +39,6 @@ public interface EvcsHardyBarth {
 		/**
 		 * States of the Hardy Barth.
 		 *
-		 * <p>
 		 * <ul>
 		 * <li>A = Free (no EV connected)
 		 * <li>B = EV connected, no charging (pause state)

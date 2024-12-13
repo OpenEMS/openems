@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -7,9 +9,15 @@ import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -253,5 +261,27 @@ public class XmlUtils {
 	public static Stream<Node> stream(final Node node) {
 		var childNodes = node.getChildNodes();
 		return IntStream.range(0, childNodes.getLength()).boxed().map(childNodes::item);
+	}
+
+	/**
+	 * Parses the provided XML string and returns the root {@link Element} of the
+	 * XML document.
+	 * 
+	 * @param xml the XML string to parse
+	 * @return the root {@link Element} of the parsed XML document
+	 * @throws ParserConfigurationException if a DocumentBuilder cannot be created
+	 *                                      which satisfies the configuration
+	 *                                      requested
+	 * @throws SAXException                 if any parse errors occur while
+	 *                                      processing the XML
+	 * @throws IOException                  if an I/O error occurs during parsing
+	 */
+	public static Element getXmlRootDocument(String xml)
+			throws ParserConfigurationException, SAXException, IOException {
+		var dbFactory = DocumentBuilderFactory.newInstance();
+		var dBuilder = dbFactory.newDocumentBuilder();
+		var is = new InputSource(new StringReader(xml));
+		var doc = dBuilder.parse(is);
+		return doc.getDocumentElement();
 	}
 }

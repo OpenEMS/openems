@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.timeofusetariff;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.energy.api.Version;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -15,9 +14,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private ControlMode controlMode;
 		private int essMaxChargePower;
 		private int maxChargePowerFromGrid;
-		private boolean limitChargePowerFor14aEnWG;
-		private RiskLevel riskLevel;
-		private Version version;
 
 		private Builder() {
 		}
@@ -54,21 +50,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMaxChargePowerFromGrid(int maxChargePowerFromGrid) {
 			this.maxChargePowerFromGrid = maxChargePowerFromGrid;
-			return this;
-		}
-
-		public Builder setRiskLevel(RiskLevel riskLevel) {
-			this.riskLevel = riskLevel;
-			return this;
-		}
-
-		public Builder setLimitChargePowerFor14aEnWG(boolean limitChargePowerFor14aEnWG) {
-			this.limitChargePowerFor14aEnWG = limitChargePowerFor14aEnWG;
-			return this;
-		}
-
-		public Builder setVersion(Version version) {
-			this.version = version;
 			return this;
 		}
 
@@ -116,21 +97,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int maxChargePowerFromGrid() {
 		return this.builder.maxChargePowerFromGrid;
-	}
-
-	@Override
-	public boolean limitChargePowerFor14aEnWG() {
-		return this.builder.limitChargePowerFor14aEnWG;
-	}
-
-	@Override
-	public RiskLevel riskLevel() {
-		return this.builder.riskLevel;
-	}
-
-	@Override
-	public Version version() {
-		return this.builder.version;
 	}
 
 	@Override

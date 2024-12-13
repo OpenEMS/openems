@@ -10,6 +10,7 @@ import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
@@ -27,7 +28,21 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	private int maximumHardwarePower = Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER;
 	private MeterType meterType = MANAGED_CONSUMPTION_METERED;
 
+	/**
+	 * Instantiates a disabled {@link DummyManagedEvcs}.
+	 * 
+	 * @param id the Component-ID
+	 * @return a new {@link DummyManagedEvcs}
+	 */
+	public static DummyManagedEvcs ofDisabled(String id) {
+		return new DummyManagedEvcs(id, new DummyEvcsPower(new DisabledRampFilter()), false);
+	}
+
 	public DummyManagedEvcs(String id, EvcsPower evcsPower) {
+		this(id, evcsPower, true);
+	}
+
+	private DummyManagedEvcs(String id, EvcsPower evcsPower, boolean isEnabled) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
@@ -38,7 +53,7 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true);
+		super.activate(null, id, "", isEnabled);
 	}
 
 	/**
@@ -65,6 +80,9 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		super.handleEvent(event);
 		switch (event.getTopic()) {
 		// Results of the written limits are checked after write in the Dummy Component

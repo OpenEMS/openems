@@ -1,0 +1,15 @@
+= Mennekes Amtron Professional Charging Station
+
+This component implements the Mennekes Professional charging station by the manufacturer Mennekes. It collects all relevant information into the given Nature Channels and its own Channels and sends charging commands that have been set by another controllers.
+
+== https://en.wikipedia.org/wiki/Software_release_life_cycle[Software release life cycle]: BETA
+
+This implementation has been carried out during OpenEMS Hackathon Q1/2023 and is not yet fully feature tested. Please consider it BETA quality
+
+=== Technical Data
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+* ManagedEvcs
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.mennekes[Source Code icon:github[]]

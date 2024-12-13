@@ -10,8 +10,6 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemComm
 /**
  * JSON-RPC Response to {@link ExecuteSystemRestartRequest}.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

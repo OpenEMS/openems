@@ -39,4 +39,12 @@ public interface EnergyScheduler extends OpenemsComponent {
 	 */
 	@Deprecated
 	public JsonrpcResponse handleGetScheduleRequestV1(Call<JsonrpcRequest, JsonrpcResponse> call, String id);
+
+	/**
+	 * Gets the configured implementation {@link Version}.
+	 * 
+	 * @return {@link Version} or null
+	 */
+	@Deprecated
+	public Version getImplementationVersion();
 }

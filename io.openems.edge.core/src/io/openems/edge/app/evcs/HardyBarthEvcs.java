@@ -34,6 +34,7 @@ import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.HardyBarthEvcs.PropertyParent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.host.Host;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -41,6 +42,7 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -87,8 +89,9 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
  * </pre>
  */
 @Component(name = "App.Evcs.HardyBarth")
-public class HardyBarthEvcs extends
-		AbstractOpenemsAppWithProps<HardyBarthEvcs, PropertyParent, Parameter.BundleParameter> implements OpenemsApp {
+public class HardyBarthEvcs
+		extends AbstractOpenemsAppWithProps<HardyBarthEvcs, PropertyParent, Parameter.BundleParameter>
+		implements OpenemsApp, HostSupplier {
 
 	public interface PropertyParent extends Nameable, Type<PropertyParent, HardyBarthEvcs, Parameter.BundleParameter> {
 
@@ -184,15 +187,16 @@ public class HardyBarthEvcs extends
 								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
 										"App.Evcs.HardyBarth.alias.value", //
 										TranslationUtil.getTranslation(parameter.bundle(), "right"))))))), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.30") //
 				.setAutoGenerateField(false) //
 				.setRequired(true)), //
 		;
 
-		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;
+		private final AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def;
 
-		private SubPropertyFirstChargepoint(AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def) {
+		private SubPropertyFirstChargepoint(
+				AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -201,7 +205,7 @@ public class HardyBarthEvcs extends
 		 * 
 		 * @return the {@link AppDef}
 		 */
-		public AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def() {
+		public AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -239,16 +243,16 @@ public class HardyBarthEvcs extends
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
 						TranslationUtil.getTranslation(parameter.bundle(), "left")))) //
 				.setRequired(true)), //
-		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.31") //
 				.setAutoGenerateField(false) //
 				.setRequired(true)), //
 		;
 
-		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;
+		private final AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def;
 
 		private SubPropertySecondChargepoint(
-				AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def) {
+				AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -257,7 +261,7 @@ public class HardyBarthEvcs extends
 		 * 
 		 * @return the {@link AppDef}
 		 */
-		public AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def() {
+		public AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -288,10 +292,13 @@ public class HardyBarthEvcs extends
 
 	}
 
+	private final Host host;
+
 	@Activate
 	public HardyBarthEvcs(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil, @Reference Host host) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.host = host;
 	}
 
 	@Override
@@ -400,6 +407,11 @@ public class HardyBarthEvcs extends
 	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.EVCS };
+	}
+
+	@Override
+	public Host getHost() {
+		return this.host;
 	}
 
 }

@@ -2,6 +2,7 @@ package io.openems.edge.io.weidmueller;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -223,7 +224,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 	}
 
 	private CompletableFuture<Integer> readNumberOfEntriesInTheCurrentModuleList() {
-		return readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0x27FE));
+		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0x27FE));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -232,7 +233,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 				.map(index -> 0x2A00 + index * 2) //
 				.mapToObj(address -> new UnsignedDoublewordElement(address)) //
 				.toArray(ModbusRegisterElement[]::new);
-		return readElementsOnce(this.modbusProtocol, ModbusUtils::retryOnNull, elements) //
+		return readElementsOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, elements) //
 				.thenApply(rsr -> ((ReadElementsResult<Long>) rsr).values());
 	}
 

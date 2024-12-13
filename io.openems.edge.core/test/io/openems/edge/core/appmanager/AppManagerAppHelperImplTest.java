@@ -41,7 +41,7 @@ public class AppManagerAppHelperImplTest {
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
-					Apps.feneconHome(t), //
+					Apps.feneconHome10(t), //
 					Apps.kebaEvcs(t), //
 					Apps.awattarHourly(t), //
 					Apps.entsoE(t), //

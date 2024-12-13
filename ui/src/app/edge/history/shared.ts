@@ -15,6 +15,12 @@ export interface Dataset {
     hidden: boolean;
 }
 
+export enum Theme {
+    LIGHT = "light",
+    DARK = "dark",
+    SYSTEM = "system",
+}
+
 export const EMPTY_DATASET = [{
     label: "no Data available",
     data: [],
@@ -131,7 +137,7 @@ export type ChartOptions = {
             ticks: {
                 source?: string,
                 maxTicksLimit?: number
-            }
+            },
         }]
     },
     tooltips: {
@@ -207,8 +213,7 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             stacked: true,
             offset: false,
             type: "time",
-            ticks: {
-            },
+            ticks: {},
             bounds: "data",
             adapters: {
                 date: {

@@ -4,6 +4,7 @@ import static io.openems.edge.common.sum.Sum.ChannelId.GRID_MODE;
 import static io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a.ChannelId.RESTRICTION_MODE;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS;
 import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT0;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -22,7 +23,8 @@ public class ControllerEssLimiter14aTest {
 
 	@Test
 	public void testController() throws OpenemsException, Exception {
-		new ControllerTest(new ControllerEssLimiter14aImpl()) //
+		var sut = new ControllerEssLimiter14aImpl();
+		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
@@ -39,19 +41,21 @@ public class ControllerEssLimiter14aTest {
 						.input("io0", INPUT_OUTPUT0, false) //
 						.input(GRID_MODE, GridMode.ON_GRID) //
 						.output("ess0", SET_ACTIVE_POWER_GREATER_OR_EQUALS, -4200) //
-						.output(RESTRICTION_MODE, RestrictionMode.ON)) //
+						.output(RESTRICTION_MODE, true)) //
 				.next(new TestCase() //
 						.input("io0", INPUT_OUTPUT0, null) //
 						.output("ess0", SET_ACTIVE_POWER_GREATER_OR_EQUALS, null)) //
 				.next(new TestCase() //
 						.input("io0", INPUT_OUTPUT0, 1) //
 						.input(GRID_MODE, GridMode.OFF_GRID) //
-						.output(RESTRICTION_MODE, RestrictionMode.OFF)) //
+						.output(RESTRICTION_MODE, false)) //
 				.next(new TestCase() //
 						.input("io0", INPUT_OUTPUT0, false) //
 						.input(GRID_MODE, GridMode.OFF_GRID) //
 						.output("ess0", SET_ACTIVE_POWER_GREATER_OR_EQUALS, null)) //
 				.deactivate();
+
+		assertEquals(false, sut.getRestrictionMode());
 	}
 
 }

@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -154,7 +155,8 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 	 * @return the Number of Modules as a {@link CompletableFuture}.
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		return readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(0x20C1));
+		return readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull,
+				new UnsignedWordElement(0x20C1));
 	}
 
 	@Override

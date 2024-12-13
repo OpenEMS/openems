@@ -1,12 +1,12 @@
 // @ts-strict-ignore
 import { registerLocaleData } from "@angular/common";
-import { Injectable } from "@angular/core";
+import { Injectable, WritableSignal, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
-import { filter, first, map, take } from "rxjs/operators";
+import { filter, first, take } from "rxjs/operators";
 import { ChosenFilter } from "src/app/index/filter/filter.component";
 import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
@@ -79,7 +79,7 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
-  public currentUser: User | null = null;
+  public currentUser: WritableSignal<User | null> = signal(null);
 
   /**
    * Holds the current Activated Route
@@ -186,24 +186,6 @@ export class Service extends AbstractService {
     });
   }
 
-  /**
-   * Gets the current user
-   *
-   * @returns a Promise of the user
-   */
-  public getCurrentUser(): Promise<User> {
-    return new Promise<User>((resolve) => {
-      this.metadata.pipe(
-        filter(metadata => metadata != null && metadata.user != null),
-        map(metadata => metadata.user),
-        first(),
-      ).toPromise().then(resolve);
-      if (this.currentUser) {
-        resolve(this.currentUser);
-      }
-    });
-  }
-
   public getConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
       this.getCurrentEdge().then(edge => {
@@ -217,6 +199,7 @@ export class Service extends AbstractService {
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
+    this.currentUser.set(null);
     this.websocket.state.set(States.NOT_AUTHENTICATED);
     this.router.navigate(["/login"]);
   }

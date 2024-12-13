@@ -1,14 +1,14 @@
 <ng-container *ngIf="edge">
     <ion-header>
-        <ion-toolbar color="primary">
-            <ion-title>{{ component.alias }}</ion-title>
-            <ion-buttons slot="end">
+        <ion-toolbar style="--ion-background-color: var(--ion-color-toolbar-primary);">
+            <ion-title style="color: var(--ion-color-white);">{{ component.alias }}</ion-title>
+            <ion-buttons style="color: var(--ion-color-white);" slot="end">
                 <ion-button routerLink="/device/{{edge.id}}/history">
                     <ion-icon name="close-outline"></ion-icon>
                 </ion-button>
             </ion-buttons>
         </ion-toolbar>
-        <ion-toolbar color="primary">
+        <ion-toolbar color="secondary">
             <ion-buttons class="ion-justify-content-center">
                 <pickdate></pickdate>
             </ion-buttons>

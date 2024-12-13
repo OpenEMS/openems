@@ -31,6 +31,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.type = type;
 			return this;
 		}
+		
+		public Builder setModbusUnitId(int unitId) {
+			this.modbusUnitId = unitId;
+			return this;
+		}
 
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;

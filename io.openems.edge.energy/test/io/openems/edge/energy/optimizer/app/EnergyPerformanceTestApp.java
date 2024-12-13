@@ -1,8 +1,5 @@
 package io.openems.edge.energy.optimizer.app;
 
-import static io.openems.edge.energy.optimizer.SimulationResultTest.integerChromosomeOf;
-
-import io.jenetics.Genotype;
 import io.openems.edge.energy.api.simulation.OneSimulationContext;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.SimulatorTest;
@@ -32,13 +29,14 @@ public class EnergyPerformanceTestApp {
 		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
 
 		var osc = OneSimulationContext.from(simulator.gsc);
-		var gt = Genotype.of(//
+		var schedule = new int[][] { //
 				// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
-				integerChromosomeOf(1), //
+				new int[] { 1 }, //
 				// ESH2 (FOO, BAR)
-				integerChromosomeOf(1));
+				new int[] { 1 }, //
+		};
 
-		Simulator.simulatePeriod(osc, gt, 0, null);
+		Simulator.simulatePeriod(osc, schedule, 0, null);
 	}
 
 }

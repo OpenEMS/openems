@@ -137,8 +137,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 		// Getting the average predictions
 		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
 
-		return Prediction.from(Prediction.getValueRange(this.sum, channelAddress), now,
-				nextOneDayPredictions.stream().toArray(Integer[]::new));
+		return Prediction.from(this.sum, channelAddress, now, nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
 
 	/**

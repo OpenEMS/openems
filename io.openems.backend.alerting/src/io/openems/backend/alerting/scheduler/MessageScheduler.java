@@ -12,6 +12,7 @@ import io.openems.backend.alerting.Message;
 
 /**
  * Schedules one or more {@link Message} for type {@link T} to a specific time.
+ * 
  * <p>
  * After the specified time is reached, the scheduler sends the Messages to
  * their {@link Handler} and removes them from itself.

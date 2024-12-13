@@ -36,8 +36,6 @@ import io.openems.common.utils.JsonUtils;
 /**
  * Represents a JSON-RPC Response for 'queryHistoricTimeseriesExportXlxs'.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

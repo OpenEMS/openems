@@ -23,6 +23,11 @@ public enum OpenemsAppCategory {
 	 * Electric vehicle charging station.
 	 */
 	EVCS("evcs"),
+	
+	/**
+	 * Read only Electric vehicle charging station.
+	 */
+	EVCS_READ_ONLY("evcsReadOnly"),
 
 	/**
 	 * Heat.
@@ -79,7 +84,7 @@ public enum OpenemsAppCategory {
 	 *
 	 */
 	TIMEDATA("timedata"),
-	
+
 	/**
 	 * Category for test apps.
 	 *

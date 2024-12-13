@@ -15,8 +15,6 @@ import io.openems.edge.common.modbusslave.ModbusRecord;
 /**
  * Wraps a JSON-RPC Response to "getModbusProtocol" Request.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

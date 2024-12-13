@@ -18,11 +18,22 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
 import io.openems.edge.common.taskmanager.Priority;
 
 public class ModbusUtils {
+
+	/**
+	 * Enum representing Modbus function codes used to select the appropriate task.
+	 * 
+	 * <p>
+	 * This enum defines the available function codes for use in modbus tasks.
+	 */
+	public static enum FunctionCode {
+		FC3, FC4;
+	}
 
 	/**
 	 * Predefined `retryPredicate` that triggers a retry whenever `value` is null,
@@ -53,6 +64,7 @@ public class ModbusUtils {
 	 * Reads given Element once from Modbus.
 	 *
 	 * @param <T>            the Type of the element
+	 * @param functionCode   the {@link FunctionCode}
 	 * @param modbusProtocol the {@link ModbusProtocol}, that is linked with a
 	 *                       {@link BridgeModbus}
 	 * @param retryPredicate yield true to retry reading values; false otherwise.
@@ -62,9 +74,9 @@ public class ModbusUtils {
 	 * @return a future value, e.g. a Integer or null (if tryAgainOnError is false)
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> CompletableFuture<T> readElementOnce(ModbusProtocol modbusProtocol,
+	public static <T> CompletableFuture<T> readElementOnce(FunctionCode functionCode, ModbusProtocol modbusProtocol,
 			BiPredicate<ExecuteState, T> retryPredicate, ModbusRegisterElement<?, T> element) {
-		return readElementsOnce(modbusProtocol, retryPredicate, //
+		return readElementsOnce(functionCode, modbusProtocol, retryPredicate, //
 				new ModbusRegisterElement[] { element }) //
 				.thenApply(rsr -> ((ReadElementsResult<T>) rsr).values().get(0));
 	}
@@ -73,6 +85,7 @@ public class ModbusUtils {
 	 * Reads given Elements once from Modbus.
 	 *
 	 * @param <T>            the Type of the elements
+	 * @param functionCode   the {@link FunctionCode}
 	 * @param modbusProtocol the {@link ModbusProtocol}, that is linked with a
 	 *                       {@link BridgeModbus}
 	 * @param retryPredicate yield true to retry reading values. Parameters are the
@@ -82,22 +95,26 @@ public class ModbusUtils {
 	 *         returned, it is guaranteed to have the same length as `elements`
 	 */
 	@SafeVarargs
-	public static <T> CompletableFuture<ReadElementsResult<T>> readElementsOnce(ModbusProtocol modbusProtocol,
-			BiPredicate<ExecuteState, T> retryPredicate, ModbusRegisterElement<?, T>... elements) {
+	public static <T> CompletableFuture<ReadElementsResult<T>> readElementsOnce(FunctionCode functionCode,
+			ModbusProtocol modbusProtocol, BiPredicate<ExecuteState, T> retryPredicate,
+			ModbusRegisterElement<?, T>... elements) {
 		if (elements.length == 0) {
 			return completedFuture(new ReadElementsResult<>(NO_OP, emptyList()));
 		}
 
 		// Register listener for each element
-		final var executeState = new AtomicReference<ExecuteState>(ExecuteState.NO_OP);
+		final var executeState = new AtomicReference<ExecuteState>(NO_OP);
 
-		// Activate task
-		final Task task = new FC3ReadRegistersTask(executeState::set, //
-				elements[0].startAddress, Priority.HIGH, elements);
+		// Activate task based on functionCode
+		Task task = switch (functionCode) {
+		case FC4 -> new FC4ReadInputRegistersTask(executeState::set, elements[0].startAddress, Priority.HIGH, elements);
+		case FC3 -> new FC3ReadRegistersTask(executeState::set, elements[0].startAddress, Priority.HIGH, elements);
+		};
 		modbusProtocol.addTask(task);
 
 		@SuppressWarnings("unchecked")
 		final var subResults = (CompletableFuture<T>[]) new CompletableFuture<?>[elements.length];
+
 		for (var i = 0; i < elements.length; i++) {
 			var subResult = new CompletableFuture<T>();
 			subResults[i] = subResult;
@@ -127,7 +144,6 @@ public class ModbusUtils {
 	}
 
 	public static record ReadElementsResult<T>(ExecuteState executeState, List<T> values) {
-
 	}
 
 	/**

@@ -60,5 +60,8 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 	@AttributeDefinition(name = "Enable/disable Ripple Control Receiver", description = "Enable/disable Ripple Control Receiver (RCR) function")
 	EnableDisable rcrEnable() default EnableDisable.DISABLE;
 
+	@AttributeDefinition(name = "Enable/disable NA-protection", description = "Enable/disable NA-protection")
+	EnableDisable naProtectionEnable() default EnableDisable.DISABLE;
+
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
 }

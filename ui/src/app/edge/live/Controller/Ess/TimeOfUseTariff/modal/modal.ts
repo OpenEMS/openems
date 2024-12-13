@@ -2,7 +2,7 @@
 import { Component } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { ChannelAddress, Currency, CurrentData } from "src/app/shared/shared";
+import { ChannelAddress, Currency, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
 
 @Component({
@@ -42,7 +42,9 @@ export class ModalComponent extends AbstractModal {
 
     protected override onCurrentData(currentData: CurrentData): void {
         const quarterlyPrice = currentData.allComponents[this.component.id + "/QuarterlyPrices"];
-        const currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge?.id);
+        const meta: EdgeConfig.Component = this.config?.getComponent("_meta");
+        const currency: string = this.config?.getPropertyFromComponent<string>(meta, "currency");
+        const currencyLabel: Currency.Label = Currency.getCurrencyLabelByCurrency(currency);
         this.priceWithCurrency = this.Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
 }

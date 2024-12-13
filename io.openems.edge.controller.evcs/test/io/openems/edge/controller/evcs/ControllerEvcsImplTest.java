@@ -20,20 +20,15 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 
 public class ControllerEvcsImplTest {
-
-	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
-	private static final DummyManagedEvcs EVCS = new DummyManagedEvcs("evcs0", EVCS_POWER);
 
 	private static final int DEFAULT_FORCE_CHARGE_MIN_POWER = 7360;
 	private static final int DEFAULT_CHARGE_MIN_POWER = 0;
@@ -43,7 +38,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -68,7 +63,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -95,7 +90,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -120,7 +115,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -142,7 +137,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", cm) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -167,7 +162,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -215,7 +210,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -264,7 +259,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //

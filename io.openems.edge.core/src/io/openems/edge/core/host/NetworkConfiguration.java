@@ -20,8 +20,6 @@ public class NetworkConfiguration {
 	/**
 	 * Return this NetworkConfiguration as a JSON object.
 	 *
-	 * <p>
-	 *
 	 * <pre>
 	 * {
 	 *   "interfaces": {

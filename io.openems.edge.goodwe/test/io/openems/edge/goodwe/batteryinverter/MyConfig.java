@@ -24,6 +24,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private FeedInPowerSettings feedInPowerSettings;
 		private EnableDisable rcrEnable = EnableDisable.DISABLE;
 		private StartStopConfig startStop;
+		private EnableDisable naProtectionEnable = EnableDisable.DISABLE;
 
 		private Builder() {
 		}
@@ -80,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setRcrEnable(EnableDisable rcrEnable) {
 			this.rcrEnable = rcrEnable;
+			return this;
+		}
+
+		public Builder setNaProtectionEnable(EnableDisable naProtectionEnable) {
+			this.naProtectionEnable = naProtectionEnable;
 			return this;
 		}
 
@@ -167,5 +173,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
+	}
+
+	@Override
+	public EnableDisable naProtectionEnable() {
+		return this.builder.naProtectionEnable;
 	}
 }

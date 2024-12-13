@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
-import { sharedSetup, TestContext } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 
 import { DATA, expectView, LABELS } from "./chart.constants.spec";
 
@@ -14,7 +14,7 @@ describe("History EnergyMonitor", () => {
 
   let TEST_CONTEXT: TestContext;
   beforeEach(async () =>
-    TEST_CONTEXT = await sharedSetup(),
+    TEST_CONTEXT = await TestingUtils.sharedSetup(),
   );
 
   it("getChartData()", () => {

@@ -636,4 +636,26 @@ public class BatteryFeneconHomeImplTest {
 						.output(BP_CHARGE_MAX_SOC, round(40 * 0.2F)) //
 				);
 	}
+
+	@Test
+	public void testReadModbus() throws Exception {
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegister(18000, (byte) 0x00, (byte) 0x00)) // TOWER_4_BMS_SOFTWARE_VERSION
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, 0)) //
+
+				.deactivate();
+	}
 }

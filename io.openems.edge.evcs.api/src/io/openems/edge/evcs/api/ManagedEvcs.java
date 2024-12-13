@@ -176,7 +176,6 @@ public interface ManagedEvcs extends Evcs {
 		 * <li>Hardy Barth allows setting in Ampere. It should return 230 W (1A * 230V).
 		 * </ul>
 		 *
-		 * <p>
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Writable

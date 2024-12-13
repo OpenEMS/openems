@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title translate>{{title}}</ion-title>
+  <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
+    <ion-title translate style="color: var(--ion-title-color);">{{title}}</ion-title>
     <ion-buttons slot="end">
       <!-- Additional Toolbarbuttons -->
       <ng-container *ngIf="toolbarButtons !== null">
@@ -15,7 +15,7 @@
         <ng-template #singleButton>
           <ion-button [href]="toolbarButtons?.url" target="_blank" (click)="toolbarButtons?.callback()">
             <ion-icon [name]="toolbarButtons.icon?.name ??'help-circle-outline'"
-              [color]="toolbarButtons.icon?.color ??'light'" [size]="toolbarButtons.icon?.size ??'medium'">
+              [color]="toolbarButtons.icon?.color ?? 'dark'" [size]="toolbarButtons.icon?.size ??'medium'">
             </ion-icon>
           </ion-button>
         </ng-template>
@@ -25,7 +25,7 @@
       <oe-help-button *ngIf="helpKey" [key]="helpKey"></oe-help-button>
 
       <ion-button (click)="modalController.dismiss()">
-        <ion-icon name="close-outline" size="medium" color="light"></ion-icon>
+        <ion-icon name="close-outline" size="medium" style="fill: var(--ion-color-dark)"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

@@ -21,8 +21,6 @@ import io.openems.edge.core.host.SystemUpdateHandler;
 /**
  * JSON-RPC Response to {@link GetSystemUpdateStateRequest}.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

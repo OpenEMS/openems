@@ -1,5 +1,5 @@
 <oe-flat-widget button (click)="presentModal()" style="cursor: pointer;" *ngIf="isInitialized && evcsComponent"
-    [title]="evcsComponent.alias" [icon]="{name: 'oe-evcs', color: 'environmental'}">
+    [title]="evcsComponent.alias" [icon]="{name: 'oe-evcs', color: 'normal'}">
 
     <!-- Show if Connection is Successful -->
     <ng-container *ngIf="isConnectionSuccessful, else noConnection">
@@ -13,7 +13,7 @@
             [channelAddress]="componentId + '/EnergySession'" [converter]="CONVERT_TO_KILO_WATTHOURS">
         </oe-flat-widget-line>
 
-        <oe-flat-widget-line *ngIf="isChargingEnabled" [name]="'General.mode'| translate" [value]="mode">
+        <oe-flat-widget-line *ngIf="isChargingEnabled && isReadWrite" [name]="'General.mode'| translate" [value]="mode">
         </oe-flat-widget-line>
 
         <!-- Show if charging is enabled -->

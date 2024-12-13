@@ -1,10 +1,14 @@
 package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -31,6 +35,8 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
@@ -42,10 +48,12 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 @Component(name = "App.FENECON.Commercial.92")
-public class FeneconCommercial92 extends
-		AbstractOpenemsAppWithProps<FeneconCommercial92, Property, Parameter.BundleParameter> implements OpenemsApp {
+public class FeneconCommercial92
+		extends AbstractOpenemsAppWithProps<FeneconCommercial92, Property, Parameter.BundleParameter>
+		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public enum Property implements Type<Property, FeneconCommercial92, Parameter.BundleParameter> {
 		ALIAS(alias()), //
@@ -55,6 +63,16 @@ public class FeneconCommercial92 extends
 
 		FEED_IN_TYPE(feedInType(FeedInType.EXTERNAL_LIMITATION)), //
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
+
+		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
+
+		BATTERY_TARGET(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setLabel("Battery Start/Stop Target") //
+				.setDefaultValue("AUTO") //
+				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
+					field.setOptions(List.of("START", "AUTO"));
+				}) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)))), //
 		;
 
 		private final AppDef<? super FeneconCommercial92, ? super Property, ? super BundleParameter> def;
@@ -80,14 +98,18 @@ public class FeneconCommercial92 extends
 
 	}
 
+	private final AppManagerUtil appManagerUtil;
+
 	@Activate
 	public FeneconCommercial92(//
 			@Reference final ComponentManager componentManager, //
 			final ComponentContext componentContext, //
 			@Reference final ConfigurationAdmin cm, //
-			@Reference final ComponentUtil componentUtil //
+			@Reference final ComponentUtil componentUtil, //
+			@Reference final AppManagerUtil appManagerUtil //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.appManagerUtil = appManagerUtil;
 	}
 
 	@Override
@@ -131,8 +153,15 @@ public class FeneconCommercial92 extends
 					? this.getInt(p, Property.MAX_FEED_IN_POWER)
 					: 0;
 
+			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
+
+			final var batteryTarget = this.getString(p, Property.BATTERY_TARGET);
+
+			final var deviceHardware = this.appManagerUtil
+					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
 			final var components = Lists.newArrayList(//
-					FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId), //
+					FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget), //
 					FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusToBatteryInverterId), //
 					FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId), //
 					FeneconHomeComponents.io(bundle, modbusToBatteryId), //
@@ -140,7 +169,7 @@ public class FeneconCommercial92 extends
 					FeneconHomeComponents.predictor(bundle, t), //
 					FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId), //
 					FeneconCommercialComponents.modbusToGridMeter(bundle, t, modbusToGridMeterId), //
-					FeneconHomeComponents.modbusForExternalMeters(bundle, t, modbusToExternalDevicesId) //
+					FeneconHomeComponents.modbusForExternalMeters(bundle, t, modbusToExternalDevicesId, deviceHardware) //
 			);
 
 			final var dependencies = Lists.newArrayList(//
@@ -149,6 +178,10 @@ public class FeneconCommercial92 extends
 					FeneconHomeComponents.prepareBatteryExtension(), //
 					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId) //
 			);
+
+			if (hasEssLimiter14a) {
+				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
+			}
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
@@ -170,6 +203,11 @@ public class FeneconCommercial92 extends
 				.setCanDelete(Role.INSTALLER) //
 				.setCanSee(Role.INSTALLER) //
 				.build();
+	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
 	}
 
 }

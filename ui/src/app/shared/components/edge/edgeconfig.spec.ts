@@ -170,6 +170,19 @@ export namespace DummyConfig {
                 "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
                 "io.openems.edge.evcs.api.ManagedEvcs",
                 "io.openems.edge.evcs.api.Evcs",
+                "io.openems.edge.evcs.api.DeprecatedEvcs",
+                "io.openems.edge.meter.api.ElectricityMeter",
+            ],
+        };
+
+        export const EVCS_MENNEKES = {
+            id: "Evcs.Mennekes",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
+                "io.openems.edge.evcs.api.ManagedEvcs",
+                "io.openems.edge.evcs.api.Evcs",
+                "io.openems.edge.meter.api.ElectricityMeter",
             ],
         };
 
@@ -203,6 +216,17 @@ export namespace DummyConfig {
             alias: alias ?? id,
             factoryId: "Evcs.HardyBarth",
             factory: Factory.EVCS_HARDY_BARTH,
+            properties: {
+                enabled: "true",
+            },
+            channels: {},
+        });
+
+        export const EVCS_MENNEKES = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Evcs.Mennekes",
+            factory: Factory.EVCS_MENNEKES,
             properties: {
                 enabled: "true",
             },

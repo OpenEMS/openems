@@ -26,4 +26,14 @@ export class PreviousRouteService {
     public getPreviousUrl() {
         return this.previousUrl;
     }
+
+
+    /**
+     * Gets the current url
+     *
+     * @returns the current url
+     */
+    public getCurrentUrl() {
+        return this.currentUrl;
+    }
 }

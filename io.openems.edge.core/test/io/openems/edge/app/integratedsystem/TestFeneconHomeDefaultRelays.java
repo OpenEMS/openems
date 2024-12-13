@@ -28,7 +28,7 @@ public class TestFeneconHomeDefaultRelays {
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return Apps.of(t, //
-					Apps::feneconHome, //
+					Apps::feneconHome10, //
 					Apps::gridOptimizedCharge, //
 					Apps::selfConsumptionOptimization, //
 					Apps::socomecMeter, //
@@ -89,7 +89,7 @@ public class TestFeneconHomeDefaultRelays {
 	}
 
 	private final OpenemsAppInstance createFullHomeWithDummyIo() throws Exception {
-		final var instance = TestFeneconHome.createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
+		final var instance = TestFeneconHome10.createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
 		this.appManagerTestBundle.componentManger.handleDeleteComponentConfigRequest(DUMMY_ADMIN,
 				new DeleteComponentConfigRequest("io0"));
 		final var dummyRelay = new DummyCustomInputOutput("io0", "RELAY", 1, 4);

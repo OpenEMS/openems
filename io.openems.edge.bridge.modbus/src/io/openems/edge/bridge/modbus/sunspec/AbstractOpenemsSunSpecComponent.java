@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.sunspec;
 import static com.ghgande.j2mod.modbus.Modbus.ILLEGAL_ADDRESS_EXCEPTION;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static io.openems.edge.bridge.modbus.sunspec.Utils.toUpperUnderscore;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -132,7 +133,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Boolean> isSunSpec() throws OpenemsException {
-		return readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedDoublewordElement(40_000)) //
+		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull,
+				new UnsignedDoublewordElement(40_000)) //
 				.thenApply(v -> v == 0x53756e53);
 	}
 
@@ -158,7 +160,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		 * and that some blocks are not read - especially when one component is used for
 		 * multiple devices like single and three phase inverter.
 		 */
-		return readElementsOnce(this.modbusProtocol, //
+		return readElementsOnce(FC3, this.modbusProtocol, //
 				// Retry if value is null and error is not "Illegal Data Address".
 				// Background: some SMA inverters do not provide an END_OF_MAP register.
 				(executeState, value) -> {

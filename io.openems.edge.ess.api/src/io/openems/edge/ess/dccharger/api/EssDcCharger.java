@@ -17,7 +17,6 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.ess.api.SymmetricEss;
 
 @ProviderType
 public interface EssDcCharger extends OpenemsComponent {
@@ -310,7 +309,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
+		return ModbusSlaveNatureTable.of(EssDcCharger.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTUAL_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTUAL_ENERGY, ModbusType.FLOAT64) //
 				.channel(6, ChannelId.VOLTAGE, ModbusType.FLOAT32) //

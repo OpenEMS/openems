@@ -21,8 +21,8 @@ public class TouEntsoeTest {
 				.activate(MyConfig.create() //
 						.setId("tou0") //
 						.setSecurityToken("") //
-						.setExchangerateAccesskey("") //
 						.setBiddingZone(BiddingZone.GERMANY) //
+						.setResolution(Resolution.HOURLY) //
 						.build());
 	}
 }

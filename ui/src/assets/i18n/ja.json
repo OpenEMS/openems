@@ -410,7 +410,6 @@
     "changeAccepted": "変更が承認されました",
     "changeFailed": "変更が失敗しました",
     "chargeDischarge": "充電・放電パワー",
-    "chargePower": "充電",
     "componentCount": "部品数",
     "componentInactive": "無効化中",
     "connectionLost": "接続が切断されました。再接続を試みます。",
@@ -422,7 +421,6 @@
     "digitalInputs": "デジタル入力",
     "numberOfComponents": "部品数",
     "directConsumption": "直接消費",
-    "dischargePower": "放電",
     "fault": "障害",
     "grid": "グリッド",
     "gridBuy": "買電",
@@ -503,7 +501,9 @@
     "yes": "はい",
     "no": "いいえ",
     "value": "値",
-    "SUM_STATE": "システム状態"
+    "SUM_STATE": "システム状態",
+    "DISCHARGE": "放電",
+    "CHARGE": "充電"
   },
   "Index": {
     "allConnected": "すべての接続が確立されています。",

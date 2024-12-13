@@ -1,5 +1,7 @@
 package io.openems.edge.app.timeofusetariff;
 
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -9,9 +11,29 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.Nameable;
+import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 public final class TimeOfUseProps {
+
+	/**
+	 * Creates a {@link AppDef} for a zipcode.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> zipCode() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.TimeOfUseTariff.zipCode.label") //
+				.setTranslatedDescription("App.TimeOfUseTariff.zipCode.description") //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.NUMBER);
+				}));
+	}
 
 	private TimeOfUseProps() {
 	}

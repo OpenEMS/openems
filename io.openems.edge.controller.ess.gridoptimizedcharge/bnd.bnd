@@ -16,4 +16,5 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath},\
+	io.openems.edge.evcs.api,\
 	org.apache.commons.math3,\

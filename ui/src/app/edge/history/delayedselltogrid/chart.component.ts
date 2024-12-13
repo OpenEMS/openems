@@ -147,7 +147,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.chargePower"),
+                        label: this.translate.instant("General.CHARGE"),
                         data: chargeData,
                         borderDash: [10, 10],
                     });
@@ -168,7 +168,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.dischargePower"),
+                        label: this.translate.instant("General.DISCHARGE"),
                         data: dischargeData,
                         borderDash: [10, 10],
                     });

@@ -178,6 +178,21 @@ export namespace Converter {
       Formatter.FORMAT_AMPERE(value / 1000));
   };
 
+  /**
+   * Converts a formatted current value to the absolute value.
+   *
+   * Value -1000 -> "1.000 A".
+   * Value 1000 -> "1.000 A".
+   * Value null -> "-".
+   *
+   * @param value the current value
+   * @returns formatted value; '-' for null
+   */
+  export const CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_AMPERE(Math.abs(value) / 1000));
+  };
+
   export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       value <= 0

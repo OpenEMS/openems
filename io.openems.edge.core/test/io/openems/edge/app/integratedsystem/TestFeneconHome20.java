@@ -192,7 +192,7 @@ public class TestFeneconHome20 {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome}.
+	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome20}.
 	 * 
 	 * @return the settings object
 	 */

@@ -178,7 +178,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant("General.chargePower"),
+                    label: this.translate.instant("General.CHARGE"),
                     data: chargeData,
                 });
                 this.colors.push({
@@ -198,7 +198,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant("General.dischargePower"),
+                    label: this.translate.instant("General.DISCHARGE"),
                     data: dischargeData,
                 });
                 this.colors.push({

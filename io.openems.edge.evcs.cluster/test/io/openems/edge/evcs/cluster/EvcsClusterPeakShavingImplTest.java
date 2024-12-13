@@ -18,8 +18,6 @@ import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_
 
 import org.junit.Test;
 
-import io.openems.edge.common.filter.DisabledRampFilter;
-import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -28,7 +26,6 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
@@ -38,13 +35,12 @@ public class EvcsClusterPeakShavingImplTest {
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0") //
 			.withMaxApparentPower(30000);
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
-	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
-	private static final DummyManagedEvcs EVCS0 = new DummyManagedEvcs("evcs0", EVCS_POWER);
-	private static final DummyManagedEvcs EVCS1 = new DummyManagedEvcs("evcs1", EVCS_POWER);
-	private static final DummyManagedEvcs EVCS2 = new DummyManagedEvcs("evcs2", EVCS_POWER);
-	private static final DummyManagedEvcs EVCS3 = new DummyManagedEvcs("evcs3", EVCS_POWER);
-	private static final DummyManagedEvcs EVCS4 = new DummyManagedEvcs("evcs4", EVCS_POWER);
-	private static final DummyManagedEvcs EVCS5 = new DummyManagedEvcs("evcs5", new DummyEvcsPower(new RampFilter()));
+	private static final DummyManagedEvcs EVCS0 = DummyManagedEvcs.ofDisabled("evcs0");
+	private static final DummyManagedEvcs EVCS1 = DummyManagedEvcs.ofDisabled("evcs1");
+	private static final DummyManagedEvcs EVCS2 = DummyManagedEvcs.ofDisabled("evcs2");
+	private static final DummyManagedEvcs EVCS3 = DummyManagedEvcs.ofDisabled("evcs3");
+	private static final DummyManagedEvcs EVCS4 = DummyManagedEvcs.ofDisabled("evcs4");
+	private static final DummyManagedEvcs EVCS5 = DummyManagedEvcs.ofDisabled("evcs5");
 
 	private static final int HARDWARE_POWER_LIMIT_PER_PHASE = 7000;
 

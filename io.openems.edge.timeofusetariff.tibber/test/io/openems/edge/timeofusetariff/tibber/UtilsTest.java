@@ -7,6 +7,7 @@ import static io.openems.edge.timeofusetariff.tibber.Utils.generateGraphQl;
 import static io.openems.edge.timeofusetariff.tibber.Utils.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -205,8 +206,8 @@ public class UtilsTest {
 		assertEquals(0.2466 * 1000, prices.getFirst(), 0.001);
 
 		// To check 15 minutes values are taken instead of one hour values.
-		var firstHour = prices.pricePerQuarter.firstKey();
-		assertTrue(prices.pricePerQuarter.containsKey(firstHour.plusMinutes(15)));
+		var firstHour = prices.getFirstTime();
+		assertNotNull(prices.getAt(firstHour.plusMinutes(15)));
 	}
 
 	@Test(expected = OpenemsNamedException.class)

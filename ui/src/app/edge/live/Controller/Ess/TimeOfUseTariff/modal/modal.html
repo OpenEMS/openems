@@ -15,7 +15,7 @@
     <oe-modal-line [name]="'General.mode'| translate"></oe-modal-line>
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
         { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
-        { name: ('General.off' | translate), value: 'OFF', icon: {color:'light-contrast', name: 'power'}}]">
+        { name: ('General.off' | translate), value: 'OFF', icon: {color:'danger', name: 'power'}}]">
     </oe-modal-buttons>
 
     <ng-container *ngIf="component.factoryId  === 'Controller.Ess.Time-Of-Use-Tariff'">

@@ -1,5 +1,6 @@
 <oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized"
-    [icon]="{color: 'danger', name: 'flame', size: 'medium'}" [title]="component.alias">
+    [icon]="{color: 'normal', name: 'flame', size: 'medium'}" [title]="component.alias">
+
     <oe-flat-widget-line *ngIf="isConnectionSuccessful, else noConnection" [name]="'General.state'|translate"
         [value]="statusValue">
     </oe-flat-widget-line>
