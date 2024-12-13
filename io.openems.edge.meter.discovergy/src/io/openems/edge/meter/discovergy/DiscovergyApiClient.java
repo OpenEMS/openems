@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Collectors;
@@ -93,7 +93,8 @@ public class DiscovergyApiClient {
 	 */
 	private JsonElement sendGetRequest(String endpoint) throws OpenemsNamedException {
 		try {
-			var url = new URL(BASE_URL + endpoint);
+			var uri = URI.create(BASE_URL + endpoint);
+			var url = uri.toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestProperty("Authorization", this.authorizationHeader);
 			con.setRequestMethod("GET");

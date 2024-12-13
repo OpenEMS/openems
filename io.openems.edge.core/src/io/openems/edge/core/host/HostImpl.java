@@ -319,8 +319,13 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 * @throws IOException on error
 	 */
 	private static String execReadToString(String execCommand) throws IOException {
-		try (var s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
+		ProcessBuilder processBuilder = new ProcessBuilder(execCommand.split(" "));
+		processBuilder.redirectErrorStream(true);
+		Process process = processBuilder.start();
+
+		try (var s = new Scanner(process.getInputStream()).useDelimiter("\\A")) {
 			return s.hasNext() ? s.next().trim() : "";
 		}
 	}
+
 }

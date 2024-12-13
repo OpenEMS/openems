@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 
@@ -95,7 +96,8 @@ public class DezonyApi {
 		JsonObject result = null;
 
 		try {
-			URL url = new URL(this.baseUrl + endpoint);
+			URI uri = URI.create(this.baseUrl + endpoint);
+			URL url = uri.toURL();
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
 			con.setRequestMethod("GET");
@@ -149,7 +151,8 @@ public class DezonyApi {
 		JsonObject result = null;
 
 		try {
-			var url = new URL(this.baseUrl + endpoint);
+			URI uri = URI.create(this.baseUrl + endpoint);
+			URL url = uri.toURL();
 			var connection = (HttpURLConnection) url.openConnection();
 
 			// Set general information

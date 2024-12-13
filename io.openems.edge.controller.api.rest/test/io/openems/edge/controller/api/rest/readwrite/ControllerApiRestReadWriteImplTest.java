@@ -13,7 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.Base64;
 
 import org.junit.Test;
@@ -156,7 +156,8 @@ public class ControllerApiRestReadWriteImplTest {
 	private static JsonElement sendRequest(int port, String requestMethod, String password, String endpoint,
 			JsonObject request) throws OpenemsNamedException {
 		try {
-			var url = new URL("http://127.0.0.1:" + port + endpoint);
+			var uri = URI.create("http://127.0.0.1:" + port + endpoint);
+			var url = uri.toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestProperty("Authorization",
 					"Basic " + new String(Base64.getEncoder().encode(("x:" + password).getBytes())));
