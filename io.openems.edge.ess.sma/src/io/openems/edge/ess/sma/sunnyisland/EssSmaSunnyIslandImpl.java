@@ -1,4 +1,4 @@
-package io.openems.edge.sma.sunnyisland;
+package io.openems.edge.ess.sma.sunnyisland;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
@@ -46,8 +46,8 @@ import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.sma.enums.PowerSupplyStatus;
-import io.openems.edge.sma.enums.SetControlMode;
+import io.openems.edge.ess.sma.enums.PowerSupplyStatus;
+import io.openems.edge.ess.sma.enums.SetControlMode;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

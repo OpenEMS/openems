@@ -1,4 +1,4 @@
-package io.openems.edge.sma.sunnyisland;
+package io.openems.edge.ess.sma.sunnyisland;
 
 import org.junit.Test;
 
