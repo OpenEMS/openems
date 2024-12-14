@@ -6,12 +6,13 @@ import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChar
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischargePower;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.postprocessRunState;
 import static java.lang.Math.max;
-import static java.util.stream.IntStream.concat;
+import static java.lang.Math.min;
 
 import java.util.List;
 import java.util.Objects;
 
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
@@ -35,28 +36,101 @@ public final class UtilsV1 {
 	public static final int PERIODS_PER_HOUR = 4;
 
 	/**
-	 * Returns the configured minimum SoC, or zero.
+	 * Returns the minimum SoC [%] considering charge/discharge limiters, total
+	 * discharge limits, and emergency capacity reserves.
 	 * 
+	 * @param ctrlChargeDischargeLimiters   the list of
+	 *                                      {@link ControllerEssChargeDischargeLimiter}
+	 * @param ctrlLimitTotalDischarges      the list of
+	 *                                      {@link ControllerEssLimitTotalDischarge}
+	 * @param ctrlEmergencyCapacityReserves the list of
+	 *                                      {@link ControllerEssEmergencyCapacityReserve}
+	 * @return the minimum SoC in [%]
+	 */
+	public static int getEssMinSocPercentage(List<ControllerEssChargeDischargeLimiter> ctrlChargeDischargeLimiters,
+			List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
+			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
+
+		// Null checks for lists before processing streams
+		int minDischargeSoc = (ctrlLimitTotalDischarges != null)
+				? ctrlLimitTotalDischarges.stream().map(ctrl -> ctrl.getMinSoc().orElse(null)) // Defensive null
+																								// handling
+						.filter(Objects::nonNull).mapToInt(v -> max(0, v)) // Only positive values
+						.max().orElse(0) // Default to 0 if no values
+				: 0;
+
+		int minReserveSoc = (ctrlEmergencyCapacityReserves != null)
+				? ctrlEmergencyCapacityReserves.stream().map(ctrl -> ctrl.getActualReserveSoc().orElse(null)) // Defensive
+																												// null
+																												// handling
+						.filter(Objects::nonNull).mapToInt(v -> max(0, v)) // Only positive values
+						.max().orElse(0) // Default to 0 if no values
+				: 0;
+
+		int minLimiterSoc = (ctrlChargeDischargeLimiters != null)
+				? ctrlChargeDischargeLimiters.stream().map(ctrl -> ctrl.getMinSoc().orElse(null)) // Defensive null
+																									// handling
+						.filter(Objects::nonNull).mapToInt(v -> max(0, v)) // Only positive values
+						.max().orElse(0) // Default to 0 if no values
+				: 0;
+
+		// Calculate the overall minimum SoC from all controllers
+		return max(minDischargeSoc, max(minReserveSoc, minLimiterSoc));
+	}
+	
+	
+
+	/**
+	 * Returns a range of useable SoC, e.g. min Soc:20, max SoC 95 -> range 75.
+	 * 
+	 * @param ctrlChargeDischargeLimiters   the list of
+	 *                                      {@link ControllerEssChargeDischargeLimiter}
 	 * @param ctrlLimitTotalDischarges      the list of
 	 *                                      {@link ControllerEssLimitTotalDischarge}
 	 * @param ctrlEmergencyCapacityReserves the list of
 	 *                                      {@link ControllerEssEmergencyCapacityReserve}
 	 * @return the value in [%]
 	 */
-	public static int getEssMinSocPercentage(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
+	public static int[] getEssUsableSocRange(List<ControllerEssChargeDischargeLimiter> ctrlChargeDischargeLimiters,
+			List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
-		return concat(//
-				ctrlLimitTotalDischarges.stream() //
-						.map(ctrl -> ctrl.getMinSoc().get()) //
-						.filter(Objects::nonNull) //
-						.mapToInt(v -> max(0, v)), // only positives
-				ctrlEmergencyCapacityReserves.stream() //
-						.map(ctrl -> ctrl.getActualReserveSoc().get()) //
-						.filter(Objects::nonNull) //
-						.mapToInt(v -> max(0, v))) // only positives
-				.max().orElse(0);
-	}
+		// Null checks for lists before processing streams
+		int minDischargeSoc = (ctrlLimitTotalDischarges != null)
+				? ctrlLimitTotalDischarges.stream().map(ctrl -> ctrl.getMinSoc().orElse(null)) // Defensive null
+																								// handling
+						.filter(Objects::nonNull).mapToInt(v -> max(0, v)).max().orElse(0)
+				: 0; // defaults to 0 if list is null or empty
 
+		int minReserveSoc = (ctrlEmergencyCapacityReserves != null)
+				? ctrlEmergencyCapacityReserves.stream().map(ctrl -> ctrl.getActualReserveSoc().orElse(null)) // Defensive
+																												// null
+																												// handling
+						.filter(Objects::nonNull).mapToInt(v -> max(0, v)).max().orElse(0)
+				: 0; // defaults to 0 if list is null or empty
+
+		int minLimiterSoc = (ctrlChargeDischargeLimiters != null)
+				? ctrlChargeDischargeLimiters.stream().map(ctrl -> ctrl.getMinSoc().orElse(null)) // Defensive null
+																									// handling
+						.filter(Objects::nonNull).mapToInt(v -> max(0, v)).max().orElse(0)
+				: 0; // defaults to 0 if list is null or empty
+
+		// take the max value for min Soc out of three controllers
+		int minSoc = max(minDischargeSoc, max(minReserveSoc, minLimiterSoc));
+
+		// get the max. SoC
+		int maxSoc = (ctrlChargeDischargeLimiters != null)
+				? ctrlChargeDischargeLimiters.stream().map(ctrl -> ctrl.getMaxSoc().orElse(null)) // Defensive null
+																									// handling
+						.filter(Objects::nonNull).mapToInt(v -> min(100, v)) // no values above 100%
+						.min().orElse(100)
+				: 100; // defaults to 100 if list is null or empty
+
+
+		// compute useable SoC range
+		return new int[] { minSoc, maxSoc };
+	}
+	
+	
 	/**
 	 * Calculate Automatic Mode.
 	 * 

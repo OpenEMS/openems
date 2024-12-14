@@ -9,6 +9,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.calculateLimitChargePowerFor14aEnWG;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.getEssMinSocPercentage;
+import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.getEssUsableSocRange;
 import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_DISCHARGE_POWER;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_SOC;
@@ -93,10 +94,12 @@ public final class UtilsV1 {
 		// Ess information.
 		var context = globalContext.energyScheduleHandler().getContext();
 		final var essTotalEnergy = context.ess().getCapacity().getOrError();
+
 		final var essMinSocEnergy = getEssMinSocEnergy(context, essTotalEnergy);
-		final var essMaxSocEnergy = round(ESS_MAX_SOC / 100F * essTotalEnergy);
+		//final var essMaxSocEnergy = round(ESS_MAX_SOC / 100F * essTotalEnergy);
+		final var essMaxSocEnergy = getEssMaxSocEnergy(context, essTotalEnergy);
 		final var essSoc = context.ess().getSoc().getOrError();
-		final var essSocEnergy = essTotalEnergy /* [Wh] */ / 100 * essSoc;
+		final var essSocEnergy = essTotalEnergy /* [Wh] */ / 100 * essSoc; // current SoC?
 
 		// Power Values for scheduling battery for individual periods.
 		var maxDischargePower = globalContext.sum().getEssMaxDischargePower().orElse(1000 /* at least 1000 */);
@@ -183,8 +186,21 @@ public final class UtilsV1 {
 	protected static int getEssMinSocEnergy(ContextV1 context, int essCapacity) {
 		return essCapacity /* [Wh] */ / 100 //
 				* getEssMinSocPercentage(//
+						context.ctrlChargeDischargeLimiters(), //
 						context.ctrlLimitTotalDischarges(), //
 						context.ctrlEmergencyCapacityReserves());
+	}
+
+	protected static int getEssMaxSocEnergy(ContextV1 context, int essCapacity) {
+	    // Retrieve the max SoC percentage using the same logic as getEssUsableSocRange
+	    int maxSocPercentage = getEssUsableSocRange(
+	        context.ctrlChargeDischargeLimiters(),
+	        context.ctrlLimitTotalDischarges(),
+	        context.ctrlEmergencyCapacityReserves()
+	    )[1]; // Use the second element of the range array (max value)
+
+	    // Calculate the max SoC energy in Wh
+	    return essCapacity /* [Wh] */ / 100 * maxSocPercentage;
 	}
 
 	/**

@@ -128,8 +128,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			return;
 		}
 
-		initializeEssProperties();
-
 	}
 
 	@Override
@@ -173,9 +171,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		return this.timedata;
 	}
 
-	private void initializeEssProperties() {
+	private void setEssProperties() {
 		// Überprüfen, ob ESS bereit und initialisiert ist
-		if (this.ess != null && this.ess.getAllowedChargePower().isDefined()) {
+		if (this.ess != null && this.ess.getAllowedChargePower().get() < 0) {
 
 			this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
 			this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
@@ -185,15 +183,13 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		} else {
 			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
 		}
+
 	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		if (this.ess == null || !this.ess.getAllowedChargePower().isDefined()) {
-			initializeEssProperties();
-			return;
-		}
+		setEssProperties();
 
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = this.getEssChargePower().get(); // no matter if AC or DC charging
@@ -294,23 +290,23 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			// Check wether it has reached desired SOC
 			if (!shouldBalance()) {
 				this.changeState(State.NORMAL);
-			} 
-			
+			}
+
 			calculatedPower = this.forceChargePower * -1;
-			
+
 			if (currentSoc >= this.forceChargeSoc) {
 				this.changeState(State.BALANCING_ACTIVE);
-			} 
+			}
 			break;
 		case BALANCING_WANTED:
 			// State can be used to check things. Don´t know what, yet ;o)
-			
+
 			// Check again if balancing is necessary
-		    if (!shouldBalance()) {
-		        this.changeState(State.NORMAL);
-		        break;
-		    }
-			
+			if (!shouldBalance()) {
+				this.changeState(State.NORMAL);
+				break;
+			}
+
 			this.changeState(State.FORCE_CHARGE_ACTIVE);
 			break;
 		case BALANCING_ACTIVE:
@@ -332,13 +328,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				this.changeState(State.NORMAL);
 				break;
 			}
-			
+
 			// Check if balancing duration has passed
 			if (isBalancingDurationExceeded()) {
 				// Balancing time is over, transition to NORMAL state
 				this.resetBalancingTimers(true);
 				this.changeState(State.NORMAL);
-				
 
 			} else {
 				this.balancingRemainingTime = (int) (this.balancingHysteresisTime - this.balancingTime);
@@ -388,7 +383,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this.logDebug(this.log, "\nBalancing finished. Going back to normal operation. Resetting counters ");
 		this.balancingStartTime = Instant.MIN; // Reset balancing start time
 		this.balancingRemainingTime = this.balancingHysteresisTime; // Reset remaining balancing time
-		
+
 		if (fullReset) {
 			this.resetChargedEnergy = true; // Flag to reset charged energy
 			this.cumulatedchargedEnergy = 0; // Optional: reset cumulative charge energy here
@@ -442,7 +437,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.logDebug(this.log, "Balancing necessary because charged energy between balancing cycles exceeded");
 			return true;
 		}
-		
+
 		this.logDebug(this.log, "No Balancing necessary");
 		return false;
 	}
@@ -466,28 +461,38 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		try {
 			switch (this.state) {
-			case MAX_SOC_REACHED, ABOVE_MAX_SOC -> // Block further charging
+			case MAX_SOC_REACHED, ABOVE_MAX_SOC -> { // Block further charging
 				ess.setActivePowerGreaterOrEquals(calculatedPower);
+				this.logDebug(this.log, "ApplyPowerMethod -> setActivePowerGreaterOrEquals " + calculatedPower);
 
-			case MIN_SOC_REACHED, BELOW_MIN_SOC -> // Block further discharging
+			}
+
+			case MIN_SOC_REACHED, BELOW_MIN_SOC -> { // Block further discharging
 				ess.setActivePowerLessOrEquals(calculatedPower);
+				this.logDebug(this.log, "ApplyPowerMethod -> setActivePowerLessOrEquals " + calculatedPower);
+
+			}
 
 			case FORCE_CHARGE_ACTIVE, BALANCING_ACTIVE -> {
 				// Fit calculated power within min/max limits and apply
 				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
 						calculatedPower);
 				ess.setActivePowerLessOrEquals(calculatedPower);
+
 			}
 			case NORMAL -> {
 				if (calculatedPower < 0) { // ramp down charge power
 					ess.setActivePowerGreaterOrEquals(calculatedPower);
+					this.logDebug(this.log, "ApplyPowerMethod -> setActivePowerGreaterOrEquals " + calculatedPower);
 				}
 			}
 			case BALANCING_WANTED -> // do nothing
 				{
+
 				}
 			case UNDEFINED -> // do nothing
 				{
+
 				}
 
 			default -> throw new IllegalArgumentException("Unexpected State: " + this.state);
@@ -607,7 +612,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 
 	}
-
 
 	private Value<Long> getEssChargedEnergy() {
 		if (this.ess instanceof HybridEss hss) {

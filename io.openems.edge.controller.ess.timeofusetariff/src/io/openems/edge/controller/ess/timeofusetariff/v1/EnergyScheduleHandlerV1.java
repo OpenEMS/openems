@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
@@ -19,7 +20,8 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 @Deprecated
 public class EnergyScheduleHandlerV1 {
 
-	public static record ContextV1(List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves,
+	public static record ContextV1(List<ControllerEssChargeDischargeLimiter> ctrlChargeDischargeLimiters,
+			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves,
 			List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssLimiter14a> ctrlLimiter14as, ManagedSymmetricEss ess, ControlMode controlMode,
 			int maxChargePowerFromGrid) {

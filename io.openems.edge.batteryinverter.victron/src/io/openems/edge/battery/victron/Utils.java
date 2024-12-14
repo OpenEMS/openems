@@ -56,7 +56,7 @@ public final class Utils {
 	 *                                      {@link ControllerEssEmergencyCapacityReserve}
 	 * @return the value in [%]
 	 */
-	public static int getEssMinSocPercentage(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
+	public static int getEssMinSocPercentage_old(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
 		return concat(//
 				ctrlLimitTotalDischarges.stream() //
@@ -69,6 +69,53 @@ public final class Utils {
 						.mapToInt(v -> max(0, v))) // only positives
 				.max().orElse(0);
 	}
+	
+	/**
+	 * Returns the minimum SoC [%] considering charge/discharge limiters, total discharge
+	 * limits, and emergency capacity reserves.
+	 * 
+	 * @param ctrlChargeDischargeLimiters   the list of
+	 *                                      {@link ControllerEssChargeDischargeLimiter}
+	 * @param ctrlLimitTotalDischarges      the list of
+	 *                                      {@link ControllerEssLimitTotalDischarge}
+	 * @param ctrlEmergencyCapacityReserves the list of
+	 *                                      {@link ControllerEssEmergencyCapacityReserve}
+	 * @return the minimum SoC in [%]
+	 */
+	public static int getEssMinSocPercentage(
+	        List<ControllerEssChargeDischargeLimiter> ctrlChargeDischargeLimiters,
+	        List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
+	        List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
+
+	    // Null checks for lists before processing streams
+	    int minDischargeSoc = (ctrlLimitTotalDischarges != null)
+	            ? ctrlLimitTotalDischarges.stream()
+	                .map(ctrl -> ctrl.getMinSoc().orElse(null)) // Defensive null handling
+	                .filter(Objects::nonNull)
+	                .mapToInt(v -> max(0, v)) // Only positive values
+	                .max().orElse(0) // Default to 0 if no values
+	            : 0;
+
+	    int minReserveSoc = (ctrlEmergencyCapacityReserves != null)
+	            ? ctrlEmergencyCapacityReserves.stream()
+	                .map(ctrl -> ctrl.getActualReserveSoc().orElse(null)) // Defensive null handling
+	                .filter(Objects::nonNull)
+	                .mapToInt(v -> max(0, v)) // Only positive values
+	                .max().orElse(0) // Default to 0 if no values
+	            : 0;
+
+	    int minLimiterSoc = (ctrlChargeDischargeLimiters != null)
+	            ? ctrlChargeDischargeLimiters.stream()
+	                .map(ctrl -> ctrl.getMinSoc().orElse(null)) // Defensive null handling
+	                .filter(Objects::nonNull)
+	                .mapToInt(v -> max(0, v)) // Only positive values
+	                .max().orElse(0) // Default to 0 if no values
+	            : 0;
+
+	    // Calculate the overall minimum SoC from all controllers
+	    return max(minDischargeSoc, max(minReserveSoc, minLimiterSoc));
+	}
+
 	
 	public static void filterControllersByEssId(List<ControllerEssChargeDischargeLimiter> controllers, String myEssId) {
 	    Iterator<ControllerEssChargeDischargeLimiter> iterator = controllers.iterator();

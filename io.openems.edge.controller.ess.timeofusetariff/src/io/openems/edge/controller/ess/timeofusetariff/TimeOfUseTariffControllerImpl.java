@@ -45,6 +45,7 @@ import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
@@ -101,6 +102,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	private volatile Timedata timedata;
 
 	@Deprecated
+	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isChargeDischargeLimiterEnabled=true))")
+	private volatile List<ControllerEssChargeDischargeLimiter> ctrlEssChargeDischargeLimiters = new CopyOnWriteArrayList<>();
+	
+	@Deprecated
 	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
 	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
@@ -130,7 +135,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
 				() -> this.config.controlMode().states, //
-				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
+				() -> new ContextV1(this.ctrlEssChargeDischargeLimiters ,this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
 
