@@ -54,7 +54,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	 * Length of hysteresis in minutes. States are not changed quicker than this.
 	 * 
 	 */
-	private static final int HYSTERESIS = 3; // seconds
+	private static final int HYSTERESIS = 10; // seconds
 	private Instant lastStateChangeTime = Instant.MIN;
 	private Instant balancingStartTime = Instant.MIN;
 	private long balancingTime = 0; // Time used for balancing so far
@@ -181,7 +181,11 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			this.logDebug(this.log, "Initialized slow charge and discharge power.");
 		} else {
-			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power.");
+			this.slowChargePower = 500;
+			this.slowDisChargePower = 500;
+			this.fullChargePower = 500;
+			
+			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");
 		}
 
 	}
@@ -411,9 +415,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	 * @return if battery should be balanced
 	 */
 	private boolean shouldBalance() {
-		// this.logDebug(this.log, "\nCharged " + this.getActiveChargeEnergy().get() + "
-		// since last balancing cycle");
-		if (this.getChargedEnergy().get() == null) {
+
+		Integer chargedEnergy = this.getChargedEnergy().get();
+		
+		if (chargedEnergy == null) {
 			this.logDebug(this.log, "ERROR: Cannot determine charged energy");
 			return false;
 		}
@@ -432,10 +437,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		if (this.state == State.BALANCING_ACTIVE) {
 			this.logDebug(this.log, "Balancing already active");
-			return false;
+			return true;
 		}
 
-		if (this.getChargedEnergy().get() > this.energyBetweenBalancingCycles) {
+		if (chargedEnergy > this.energyBetweenBalancingCycles) {
 			this.logDebug(this.log, "Balancing necessary because charged energy between balancing cycles exceeded");
 			return true;
 		}
@@ -512,6 +517,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	 * @return whether the state was changed
 	 */
 	private boolean changeState(State nextState) {
+		this.logDebug(this.log, "Change state " + this.state + "->" + nextState);
 		if (this.state == nextState) {
 			this._setAwaitingHysteresisValue(false);
 			return false;
@@ -575,7 +581,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.cumulatedchargedEnergy = 0;
 			this.resetChargedEnergy = false;
 		}
-		this.logDebug(this.log, "Writing charged energy");
+		this.logDebug(this.log, "Writing charged energy " + this.cumulatedchargedEnergy + "[Wh]" );
 		// Set the updated charged energy in the controller's channel
 		this._setChargedEnergy(this.cumulatedchargedEnergy);
 
@@ -590,20 +596,33 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.logInfo(this.log, message);
 		}
 	}
-
+	
 	private boolean isPeakshavingActive() {
-		// ToDo: Checkk other peakshaving controller
-		// check all ess' connected peakshavers if any of them is active
-		for (ControllerEssThresholdPeakshaver peakshaver : this.ctrlEssThresholdPeakshavers) {
+	    // Check all connected peakshaving controllers to determine if any are active
+	    if (this.ctrlEssThresholdPeakshavers == null || this.ctrlEssThresholdPeakshavers.isEmpty()) {
+	        this.logDebug(this.log, "No peakshaving controllers connected.");
+	        return false;
+	    }
 
-			if (peakshaver.getStateMachine().toString() == "PEAKSHAVING_ACTIVE") {
-				this.logDebug(this.log, "Peakshaving Controller " + peakshaver.alias() + " is active");
-				return true;
-			}
-		}
+	    for (ControllerEssThresholdPeakshaver peakshaver : this.ctrlEssThresholdPeakshavers) {
+	        if (peakshaver == null) {
+	            this.logDebug(this.log, "ERROR: A peakshaver instance is null.");
+	            continue; // Skip null entries without breaking the loop
+	        }
 
-		return false;
+	        String state = peakshaver.getStateMachine() != null ? peakshaver.getStateMachine().toString() : "null";
+	        this.logDebug(this.log, "Peakshaver state: " + state);
+
+	        if ("PEAKSHAVING_ACTIVE".equals(state)) { // Use .equals for string comparison
+	            this.logDebug(this.log, "Peakshaving Controller " + peakshaver.alias() + " is active.");
+	            return true;
+	        }
+	    }
+
+	    this.logDebug(this.log, "No active peakshaving controllers detected.");
+	    return false;
 	}
+
 
 	@Override
 	public String getEssId() {

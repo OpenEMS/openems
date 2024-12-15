@@ -28,15 +28,10 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 		 */
 		FORCE_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).persistencePriority(HIGH).accessMode(AccessMode.READ_WRITE)), // ), // Priority high
-																								// for testing
-
 		BALANCING_REMAINING_SECONDS(Doc.of(OpenemsType.INTEGER) //
-
 				.unit(Unit.SECONDS).persistencePriority(HIGH)), //
 		CHARGED_ENERGY(Doc.of(OpenemsType.INTEGER) // change name
 				.unit(Unit.WATT_HOURS).persistencePriority(HIGH)),
-		
-		
 		BALANCING_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT).persistencePriority(HIGH)), //
 		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
