@@ -413,6 +413,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		// this.logDebug(this.log, "\nCharged " + this.getActiveChargeEnergy().get() + "
 		// since last balancing cycle");
 		if (this.getChargedEnergy().get() == null) {
+			this.logDebug(this.log, "ERROR: Cannot determine charged energy");
 			return false;
 		}
 
