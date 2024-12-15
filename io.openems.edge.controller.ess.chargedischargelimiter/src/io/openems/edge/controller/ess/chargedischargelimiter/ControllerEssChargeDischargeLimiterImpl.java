@@ -290,6 +290,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			// Check wether it has reached desired SOC
 			if (!shouldBalance()) {
 				this.changeState(State.NORMAL);
+				break;
 			}
 
 			calculatedPower = this.forceChargePower * -1;
