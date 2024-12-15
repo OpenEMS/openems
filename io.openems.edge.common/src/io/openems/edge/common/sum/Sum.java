@@ -629,6 +629,168 @@ public interface Sum extends OpenemsComponent {
 		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Production to Consumption: Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive
+		 * </ul>
+		 */
+		PRODUCTION_TO_CONSUMPTION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Production to Consumption: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Long
+		 * <li>Unit: Wh_Σ
+		 * </ul>
+		 */
+		PRODUCTION_TO_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Production to Grid: Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive
+		 * </ul>
+		 */
+		PRODUCTION_TO_GRID_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Production to Grid: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Long
+		 * <li>Unit: Wh_Σ
+		 * </ul>
+		 */
+		PRODUCTION_TO_GRID_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Production to ESS: Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: Wh_W
+		 * <li>Range: only positive
+		 * </ul>
+		 */
+		PRODUCTION_TO_ESS_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Production to ESS: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Long
+		 * <li>Unit: Wh_Σ
+		 * </ul>
+		 */
+		PRODUCTION_TO_ESS_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Grid to Consumption: Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive
+		 * </ul>
+		 */
+		GRID_TO_CONSUMPTION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Grid to Consumption: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Long
+		 * <li>Unit: Wh_Σ
+		 * </ul>
+		 */
+		GRID_TO_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * ESS to Consumption: Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive
+		 * </ul>
+		 */
+		ESS_TO_CONSUMPTION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * ESS to Consumption: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Long
+		 * <li>Unit: Wh_Σ
+		 * </ul>
+		 */
+		ESS_TO_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Grid to ESS: Power.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: discharge-to-grid negative, charge-from-grid positive
+		 * </ul>
+		 */
+		GRID_TO_ESS_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * Grid to ESS: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Long
+		 * <li>Unit: Wh_Σ
+		 * </ul>
+		 */
+		GRID_TO_ESS_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
+		 * ESS to Grid: Energy.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Long
+		 * <li>Unit: Wh_Σ
+		 * </ul>
+		 */
+		ESS_TO_GRID_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 
 		/**
 		 * Is there any Component Info/Warning/Fault that is getting ignored/hidden
