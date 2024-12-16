@@ -4,6 +4,8 @@
     "actualPower": "e-car Carga",
     "autarchy": "Autosuficiencia",
     "automatic": "Automático",
+    "auto": "Auto",
+    "onDateAtTime": "en {{date}} a las {{time}}",
     "cancel": "cancelar",
     "capacity": "Capacidad",
     "changeAccepted": "Cambio aceptado",
@@ -206,6 +208,11 @@
           "sellToGridPowerLimit": "Cargar arriba",
           "continuousSellToGridPower": "Descarga a continuación",
           "relationError": "El límite de carga debe ser mayor que el límite de descarga"
+        },
+        "Timeframe": {
+          "targetSoc": "Estado de carga objetivo",
+          "endTime": "Hora de finalización",
+          "startTime": "Hora de inicio"
         },
         "Peakshaving": {
           "asymmetricInfo": "Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.",
