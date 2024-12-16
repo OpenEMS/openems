@@ -74,6 +74,7 @@
         "@angular-eslint/use-lifecycle-interface": [
           "error"
         ],
+        "@angular-eslint/prefer-standalone": "off",
         "@angular-eslint/directive-selector": [
           "error",
           {

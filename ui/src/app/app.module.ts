@@ -65,7 +65,7 @@ import { UserModule } from "./user/user.module";
     CheckForUpdateService,
     AppService,
     AppStateTracker,
-    provideCharts(withDefaultRegisterables())
+    provideCharts(withDefaultRegisterables()),
   ],
   bootstrap: [AppComponent],
 })
