@@ -88,10 +88,9 @@
                   <ion-row>
                     <ion-col class="ion-no-padding" size="12">
                       <ion-item lines="none" class="noPadding">
-                        <ion-label class="regularFont" translate>Edge.Index.Widgets.Singlethreshold.dependendOn
-                        </ion-label>
                         <ion-select formControlName="inputMode" [value]="inputMode.value"
-                          (ionChange)="updateInputMode($event)">
+                          (ionChange)="updateInputMode($event)"
+                          [label]="'Edge.Index.Widgets.Singlethreshold.dependendOn' | translate">
                           <ion-select-option value="SOC" translate>General.soc</ion-select-option>
                           <ion-select-option value="PRODUCTION" translate>General.production</ion-select-option>
                           <ion-select-option value="GRIDSELL" translate>General.gridSell</ion-select-option>

@@ -90,7 +90,8 @@
                                         </ng-container>
                                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
                                             [disabled]="limitReached">
-                                            <ion-infinite-scroll-content [name]="'crescent'" ngClass="custom-spinner">
+                                            <ion-infinite-scroll-content [loadingSpinner]="'crescent'"
+                                                ngClass="custom-spinner">
                                             </ion-infinite-scroll-content>
                                         </ion-infinite-scroll>
 

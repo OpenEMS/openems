@@ -47,14 +47,6 @@ ion-card-content {
     color: var(--ion-card-content-color);
 }
 
-.custom-ion-popover {
-
-    white-space: inherit;
-
-    // Overwrites default width of popover
-    --min-width: min-content;
-}
-
 .footer-color {
     background-color: var(--ion-color-toolbar-secondary) !important;
 }
@@ -151,6 +143,14 @@ formly-field-ion-radio {
 }
 
 .custom-ion-popover {
+
+    --border-width: 0;
+
+    // Floating label
+    &::part(label) {
+        color: var(--ion-color-primary) !important;
+    }
+
     // Overwrites default width of popover
     white-space: inherit;
     --min-width: min-content;

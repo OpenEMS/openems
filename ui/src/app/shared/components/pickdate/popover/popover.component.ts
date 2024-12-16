@@ -29,6 +29,9 @@ export class PickDatePopoverComponent implements OnInit {
         stylesData: {
             selector: "dp1",
             styles: `
+            .dp1 {
+                overflow-x: hidden;
+            }
             .dp1 .myDpIconLeftArrow, 
             .dp1 .myDpIconRightArrow,
             .dp1 .myDpHeaderBtn {
