@@ -96,7 +96,7 @@ export class UserComponent implements OnInit {
     if (theme === Theme.SYSTEM) {
       attr = window.matchMedia("(prefers-color-scheme: dark)").matches ? Theme.DARK : Theme.LIGHT;
     }
-    document.documentElement.setAttribute("data-theme", attr);
+    document.body.setAttribute("data-theme", attr);
   }
 
   public static getPreferedColorSchemeFromTheme(theme: Theme) {
