@@ -222,16 +222,5 @@
   },
   "cli": {
     "analytics": false
-  },
-  "schematics": {
-    "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
-    },
-    "@ionic/angular-toolkit:page": {
-      "styleext": "scss"
-    },
-    "@schematics/angular:component": {
-      "standalone": false
-    }
   }
 }
