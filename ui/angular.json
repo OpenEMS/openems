@@ -4,17 +4,6 @@
   "newProjectRoot": "projects",
   "projects": {
     "app": {
-      "schematics": {
-        "@schematics/angular:component": {
-          "standalone": false
-        },
-        "@schematics/angular:directive": {
-          "standalone": false
-        },
-        "@schematics/angular:pipe": {
-          "standalone": false
-        }
-      },
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -54,7 +43,7 @@
               "aot": true,
               "buildOptimizer": true,
               "extractLicenses": true,
-              "optimization": true,
+              "optimization": false,
               "outputHashing": "all",
               "sourceMap": false,
               "serviceWorker": true
