@@ -44,18 +44,8 @@
         "import/order": [
           "error",
           {
-            "groups": [
-              "builtin",
-              "external",
-              "internal",
-              "parent",
-              "sibling",
-              "index"
-            ],
-            "alphabetize": {
-              "order": "asc",
-              "caseInsensitive": true
-            }
+            "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+            "alphabetize": { "order": "asc", "caseInsensitive": true }
           }
         ],
         "@typescript-eslint/explicit-member-accessibility": [
@@ -74,7 +64,6 @@
         "@angular-eslint/use-lifecycle-interface": [
           "error"
         ],
-        "@angular-eslint/prefer-standalone": "off",
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -104,16 +93,28 @@
             "args": "none"
           }
         ],
-        "@typescript-eslint/no-unused-expressions": "off",
-        "@typescript-eslint/no-empty-object-type": "off",
         "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/no-namespace": 0,
-        "@typescript-eslint/no-restricted-types": 0,
+        "@typescript-eslint/ban-types": [
+          "error",
+          {
+            "extendDefaults": true,
+            "types": {
+              "{}": false
+            }
+          }
+        ],
         "@typescript-eslint/member-ordering": "error",
         "@stylistic/no-multiple-empty-lines": "error",
         "@stylistic/quotes": [
           "error",
           "double"
+        ],
+        "@typescript-eslint/switch-exhaustiveness-check": [
+          "error",
+          {
+            "allowDefaultCaseForExhaustiveSwitch": false
+          }
         ],
         "no-restricted-syntax": [
           "error",
