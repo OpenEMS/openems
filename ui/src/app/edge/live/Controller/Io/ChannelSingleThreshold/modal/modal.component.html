@@ -112,9 +112,8 @@
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
                           <ion-input class="regularFont" type="number" formControlName="switchedLoadPower"
-                            style="text-align: end;">
+                            style="text-align: end;" label="&nbsp;W" class="regularFont">
                           </ion-input>
-                          <ion-label class="regularFont">&nbsp;W</ion-label>
                         </ion-item>
                       </td>
                     </tr>
@@ -192,15 +191,11 @@
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
                           <ion-input class="regularFont" style="text-align: end;" type="number"
-                            formControlName="threshold">
+                            formControlName="threshold"
+                            [label]="inputMode.value !== 'OTHER' 
+                            ? '&nbsp;W' 
+                            : ((inputMode.value === 'OTHER' && inputChannelUnit) ? '&nbsp;{{ inputChannelUnit }}' : '')" class="regularFont">
                           </ion-input>
-                          <ion-label *ngIf="inputMode.value !== 'OTHER'" class="regularFont">&nbsp;W
-                          </ion-label>
-                          <ion-label *ngIf="inputMode.value === 'OTHER'" class="regularFont">
-                            <div *ngIf="inputChannelUnit">
-                              &nbsp;{{ inputChannelUnit }}
-                            </div>
-                          </ion-label>
                         </ion-item>
                       </td>
                     </tr>

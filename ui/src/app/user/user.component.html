@@ -166,10 +166,9 @@
                 </ion-item>
               </div>
               <ion-item lines="none">
-                <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode"
-                  label="Debug-Mode">
+                <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode"
+                  label="Debug-Mode" justify="space-between">Debug-Mode
                 </ion-checkbox>
-                <ion-label>Debug-Mode</ion-label>
               </ion-item>
               <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
                 <small>
