@@ -105,7 +105,7 @@
 			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
 			<groupId>de.bytefish</groupId>
 			<artifactId>pgbulkinsert</artifactId>
-			<version>8.1.4</version>
+			<version>8.1.5</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>fr.turri</groupId>
 			<artifactId>aXMLRPC</artifactId>
-			<version>1.14.0</version>
+			<version>1.15.0</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
