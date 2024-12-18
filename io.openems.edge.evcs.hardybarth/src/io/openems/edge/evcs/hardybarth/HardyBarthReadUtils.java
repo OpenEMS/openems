@@ -26,7 +26,6 @@ import io.openems.edge.evcs.api.Status;
 public class HardyBarthReadUtils {
 	private final EvcsHardyBarthImpl parent;
 
-	private int chargingFinishedCounter = 0;
 	private int errorCounter = 0;
 
 	public HardyBarthReadUtils(EvcsHardyBarthImpl parent) {
@@ -122,17 +121,8 @@ public class HardyBarthReadUtils {
 				var tmpStatus = Status.READY_FOR_CHARGING;
 
 				// Detect if the car is full
-				if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)
-						&& activePower <= 0) {
-
-					if (this.chargingFinishedCounter >= 90) {
-						tmpStatus = Status.CHARGING_FINISHED;
-					} else {
-						this.chargingFinishedCounter++;
-					}
-				} else {
-					this.chargingFinishedCounter = 0;
-
+				if (!(this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)
+						&& activePower <= 0)) {
 					// Charging rejected because we are forcing to pause charging
 					if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
 						tmpStatus = Status.CHARGING_REJECTED;
@@ -156,9 +146,6 @@ public class HardyBarthReadUtils {
 			}
 			};
 
-			if (!stringValue.equals("B")) {
-				this.chargingFinishedCounter = 0;
-			}
 			if (!stringValue.equals("E") || !stringValue.equals("F")) {
 				this.errorCounter = 0;
 			}

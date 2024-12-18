@@ -451,7 +451,8 @@ formly-input-section {
     }
 
     ion-toggle {
-        --background-checked: var(--ion-color-primary-tint);
+        --background-checked: var(--ion-color-toggle-background);
+        --background: #9C9C9C;
     }
 
     ion-spinner {

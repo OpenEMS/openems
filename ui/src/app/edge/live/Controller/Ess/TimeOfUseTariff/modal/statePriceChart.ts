@@ -181,7 +181,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
         this.options.scales[ChartAxis.LEFT] = {
             ...this.options.scales[ChartAxis.LEFT],
-            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "line", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
+            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "bar", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
         };
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
         this.options.scales[ChartAxis.RIGHT_2].suggestedMin = 0;

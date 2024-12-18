@@ -252,12 +252,12 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 			 * Maps the raw state into a {@link Status}.
 			 */
 			currentStatus = switch (rawState) {
-			case CHARGING -> Status.CHARGING;
+			case CHARGING, FINISHING -> Status.CHARGING;
 			case FAULTED -> Status.ERROR;
-			case FINISHING -> Status.CHARGING_FINISHED;
 			case PREPARING -> Status.READY_FOR_CHARGING;
 			case RESERVED -> Status.NOT_READY_FOR_CHARGING;
-			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE, OCCUPIED -> Status.CHARGING_REJECTED;
+			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE -> Status.CHARGING_REJECTED;
+			case OCCUPIED -> this.getActivePower().orElse(0) > 0 ? Status.CHARGING : Status.CHARGING_REJECTED;
 			case UNAVAILABLE -> Status.ERROR;
 			case UNDEFINED -> currentStatus;
 			};

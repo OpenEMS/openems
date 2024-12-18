@@ -249,6 +249,11 @@ export class ChartComponent extends AbstractHistoryChart {
             })
             .reduce((acc, curr) => acc.concat(curr), []);
 
-        return finalArray.length > 0 ? Math.floor(Math.min(...finalArray)) : 0;
+        if (finalArray.length === 0) {
+            return 0;
+        }
+
+        const min = Math.floor(Math.min(...finalArray));
+        return Math.floor(min - (min * 0.05));
     }
 }

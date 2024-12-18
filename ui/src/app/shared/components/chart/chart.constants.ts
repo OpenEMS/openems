@@ -161,6 +161,12 @@ export namespace ChartConstants {
         let currMin: number | null;
         if (yAxis.scale?.dynamicScale) {
           currMin = ArrayUtils.findSmallestNumber(dataset.data as number[]);
+
+          if (chartType === "bar") {
+            // to start the y-axis a few percent below the lowest value
+            // Applies only bar charts with dynamic scale set to true (schedule charts)
+            currMin = Math.floor(currMin - (currMin * 0.05));
+          }
         } else {
 
           // Starts yAxis at least at 0
