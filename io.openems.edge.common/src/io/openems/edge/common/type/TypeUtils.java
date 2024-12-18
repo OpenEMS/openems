@@ -881,6 +881,19 @@ public class TypeUtils {
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}
+	
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the long lower boundary
+	 * @param highLimit the long upper boundary
+	 * @param value     the long actual value
+	 * @return the adjusted long value
+	 */
+	public static long fitWithin(long lowLimit, long highLimit, long value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
 
 	/**
 	 * Fits a value within a lower and upper boundary.

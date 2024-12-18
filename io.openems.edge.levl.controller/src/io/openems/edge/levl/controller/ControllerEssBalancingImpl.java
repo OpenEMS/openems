@@ -31,6 +31,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
@@ -40,7 +41,6 @@ import io.openems.edge.levl.controller.common.Efficiency;
 
 import static java.lang.Math.round;
 import static java.lang.Math.min;
-import static java.lang.Math.max;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Levl.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -252,8 +252,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		this.log.debug("pucBatteryPower without limits: " + pucBatteryPower);
 
 		// apply ess power limits
-		pucBatteryPower = max(min(pucBatteryPower, maxEssPower), minEssPower);
-		pucBatteryPower = (int) this.applyBound(pucBatteryPower, minEssPower, maxEssPower);
+		pucBatteryPower = TypeUtils.fitWithin(minEssPower, maxEssPower, pucBatteryPower);
 		this.log.debug("pucBatteryPower with ess power limits: " + pucBatteryPower);
 
 		// apply soc bounds
@@ -288,7 +287,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			powerUpperBound = 0;
 		}
 
-		return (int) this.applyBound(pucPower, powerLowerBound, powerUpperBound);
+		return (int) TypeUtils.fitWithin(powerLowerBound, powerUpperBound, pucPower);
 	}
 
 	/**
@@ -367,7 +366,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			int maxEssPower) {
 		var levlPowerLowerBound = Long.valueOf(minEssPower) - pucBatteryPower;
 		var levlPowerUpperBound = Long.valueOf(maxEssPower) - pucBatteryPower;
-		return this.applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
+		return TypeUtils.fitWithin(levlPowerLowerBound, levlPowerUpperBound, levlPower);
 	}
 
 	/**
@@ -403,7 +402,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		var levlPowerLowerBound = Efficiency.unapply(round(levlDischargeEnergyLowerBoundWs / cycleTimeS), efficiency);
 		var levlPowerUpperBound = Efficiency.unapply(round(levlDischargeEnergyUpperBoundWs / cycleTimeS), efficiency);
 
-		return this.applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
+		return TypeUtils.fitWithin(levlPowerLowerBound, levlPowerUpperBound, levlPower);
 	}
 
 	/**
@@ -419,7 +418,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 			long sellToGridLimit) {
 		var levlPowerLowerBound = -(buyFromGridLimit - pucGridPower);
 		var levlPowerUpperBound = -(sellToGridLimit - pucGridPower);
-		return this.applyBound(levlPower, levlPowerLowerBound, levlPowerUpperBound);
+		return TypeUtils.fitWithin(levlPowerLowerBound, levlPowerUpperBound, levlPower);
 	}
 
 	/**
@@ -587,9 +586,5 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 	private boolean hasSignChanged(long a, long b) {
 		return a < 0 && b > 0 || a > 0 && b < 0;
-	}
-
-	private long applyBound(long power, long lowerBound, long upperBound) {
-		return max(min(power, upperBound), lowerBound);
 	}
 }
