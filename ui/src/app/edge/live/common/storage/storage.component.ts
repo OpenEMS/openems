@@ -75,11 +75,7 @@ export class StorageComponent extends AbstractFlatWidget {
             component: StorageModalComponent,
             componentProps: {
                 edge: this.edge,
-                config: this.config,
                 component: this.component,
-                essComponents: this.essComponents,
-                chargerComponents: this.chargerComponents,
-                singleComponent: this.component,
             },
         });
         return await modal.present();

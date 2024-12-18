@@ -255,7 +255,14 @@
           },
           "OVERALL_SYSTEM": "Overall system"
         },
-        "FIX_DIGITAL_OUTPUT": "Digital Outputcontroller"
+        "FIX_DIGITAL_OUTPUT": "Digital Outputcontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Planned Schedule (Only for Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Activate maintenance of the emergency power reserve from the grid",
+          "GRID_CHARGE_WARNING": "The storage system can actively recharge from the grid to maintain the set emergency power reserve in order to compensate for losses due to internal self-consumption in the event of a prolonged absence of generation. <br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: precondition for German \"Gesetz für den Ausbau erneuerbarer Energien (EEG)\" grant is, that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function, the battery is charged with energy from grid. This energy is, depending on the individual power-supply contract, probably made from fossil sources and/or nuclear power plants. Because of this we can not guarantee, that the battery is only charged with energy from renewable sources and/or pit gas."
+        }
       },
       "RETROFITTING": {
         "OPTIMAL": "Capacity expansion",
