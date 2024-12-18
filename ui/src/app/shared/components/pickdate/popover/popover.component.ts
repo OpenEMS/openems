@@ -3,8 +3,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from "@nodro7/angular-mydatepicker";
-import { endOfMonth, startOfMonth } from "date-fns";
-import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from "date-fns/esm";
+import { addDays, endOfMonth, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { EdgePermission, Service, Utils } from "src/app/shared/shared";
 
@@ -13,6 +12,7 @@ import { Edge } from "../../edge/edge";
 @Component({
     selector: "pickdatepopover",
     templateUrl: "./popover.component.html",
+    standalone: false,
 })
 export class PickDatePopoverComponent implements OnInit {
 
@@ -29,6 +29,9 @@ export class PickDatePopoverComponent implements OnInit {
         stylesData: {
             selector: "dp1",
             styles: `
+            .dp1 {
+                overflow-x: hidden;
+            }
             .dp1 .myDpIconLeftArrow, 
             .dp1 .myDpIconRightArrow,
             .dp1 .myDpHeaderBtn {

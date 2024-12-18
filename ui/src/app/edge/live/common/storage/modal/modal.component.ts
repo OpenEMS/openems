@@ -10,6 +10,7 @@ import { Role } from "src/app/shared/type/role";
 @Component({
     selector: "storage-modal",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
 

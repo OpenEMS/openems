@@ -10,6 +10,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
   selector: "productionMeterChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {
 

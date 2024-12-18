@@ -5,6 +5,7 @@ import { Edge, EdgeConfig, Service } from "../../../../../shared/shared";
 @Component({
     selector: SymmetricPeakshavingChartOverviewComponent.SELECTOR,
     templateUrl: "./symmetricpeakshavingchartoverview.component.html",
+    standalone: false,
 })
 export class SymmetricPeakshavingChartOverviewComponent implements OnInit {
 

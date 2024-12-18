@@ -9,6 +9,7 @@ import { Mode, WorkMode } from "src/app/shared/type/general";
 @Component({
     selector: "heatingelement-modal",
     templateUrl: "./modal.html",
+    standalone: false,
 })
 export class ModalComponent extends AbstractModal implements OnInit {
 

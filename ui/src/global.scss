@@ -10,26 +10,26 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import "~@ionic/angular/css/core.css";
-@import "~@ionic/angular/css/display.css";
-@import "~@ionic/angular/css/flex-utils.css";
-@import "~@ionic/angular/css/float-elements.css";
+@use "node_modules/@ionic/angular/css/core.css" as *;
+@use "node_modules/@ionic/angular/css/display.css" as *;
+@use "node_modules/@ionic/angular/css/flex-utils.css" as *;
+@use "node_modules/@ionic/angular/css/float-elements.css" as *;
 /* Basic CSS for apps built with Ionic */
-@import "~@ionic/angular/css/normalize.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/typography.css";
+@use "node_modules/@ionic/angular/css/normalize.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
 
 /* Optional CSS utils that can be commented out */
-@import "~@ionic/angular/css/padding.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/text-alignment.css";
-@import "~@ionic/angular/css/text-transformation.css";
-@import "~@ionic/angular/css/typography.css";
+@use "node_modules/@ionic/angular/css/padding.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/text-alignment.css" as *;
+@use "node_modules/@ionic/angular/css/text-transformation.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
 /* ngx-spinner */
-@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
-@import "./environments/index.scss";
-@import "variables";
-@import "./global-ion-custom.scss";
+@use "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css" as *;
+@use "./environments/index.scss" as *;
+@use "variables" as *;
+@use "./global-ion-custom.scss" as *;
 
 ion-alert {
     color: green;
@@ -45,14 +45,6 @@ ion-refresher-content {
 
 ion-card-content {
     color: var(--ion-card-content-color);
-}
-
-.custom-ion-popover {
-
-    white-space: inherit;
-
-    // Overwrites default width of popover
-    --min-width: min-content;
 }
 
 .footer-color {
@@ -151,6 +143,14 @@ formly-field-ion-radio {
 }
 
 .custom-ion-popover {
+
+    --border-width: 0;
+
+    // Floating label
+    &::part(label) {
+        color: var(--ion-color-primary) !important;
+    }
+
     // Overwrites default width of popover
     white-space: inherit;
     --min-width: min-content;

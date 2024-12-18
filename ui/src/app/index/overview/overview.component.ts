@@ -15,6 +15,7 @@ import { ChosenFilter } from "../filter/filter.component";
 @Component({
     selector: "overview",
     templateUrl: "./overview.component.html",
+    standalone: false,
 })
 export class OverViewComponent implements ViewWillEnter, OnDestroy {
     public environment = environment;

@@ -10,6 +10,7 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/share
 @Component({
   selector: "detailChart",
   templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 

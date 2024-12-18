@@ -6,6 +6,7 @@ import { Pipe, PipeTransform } from "@angular/core";
  */
 @Pipe({
   name: "isclass",
+  standalone: false,
 })
 export class IsclassPipe implements PipeTransform {
   transform(object: any, classname: string): boolean {

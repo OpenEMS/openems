@@ -8,6 +8,7 @@ import { Controller_Io_FixDigitalOutputModalComponent } from "./modal/modal.comp
 @Component({
   selector: "Controller_Io_FixDigitalOutput",
   templateUrl: "./Io_FixDigitalOutput.html",
+  standalone: false,
 })
 export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget {
 

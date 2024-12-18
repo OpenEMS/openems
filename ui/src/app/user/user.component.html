@@ -94,13 +94,10 @@
         </ion-card>
 
         <ion-card *ngIf="companyInformationFields.length > 0">
-          <ion-item lines="full" color="light">
+          <ion-item lines="full" color="light"
+            [label]="('Register.Form.contactDetails' | translate) + ' (' + ('Register.Form.company' | translate) + ')'">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
-              <span translate>
-                Register.Form.contactDetails
-              </span>
-              (<span translate>Register.Form.company</span>)
             </ion-label>
           </ion-item>
           <ion-card-content>
@@ -149,9 +146,9 @@
           </ion-item>
           <ion-card-content>
             <ion-item lines="none">
-              <ion-label translate>About.language</ion-label>
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage"
-                interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }">
+                interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }"
+                [label]="'About.language' |translate">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
                   {{ language.title }}
                 </ion-select-option>
@@ -160,9 +157,8 @@
             <ng-container *ngIf="isAtLeastAdmin">
               <div class="page-content">
                 <ion-item id="theme-switcher" lines="none">
-                  <ion-label>Theme</ion-label>
                   <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="currentTheme"
-                    interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }">
+                    interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" label="Theme">
                     <ion-select-option *ngFor="let theme of themes" [value]="theme.value">
                       {{ theme.key }}
                     </ion-select-option>
@@ -170,9 +166,9 @@
                 </ion-item>
               </div>
               <ion-item lines="none">
-                <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
+                <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode"
+                  label="Debug-Mode" justify="space-between">Debug-Mode
                 </ion-checkbox>
-                <ion-label>Debug-Mode</ion-label>
               </ion-item>
               <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
                 <small>

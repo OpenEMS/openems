@@ -12,6 +12,7 @@ import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 @Component({
     selector: "scheduleChart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 

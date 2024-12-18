@@ -10,6 +10,7 @@ import { ChannelAddress, ChartConstants, Edge, EdgeConfig } from "src/app/shared
 @Component({
     selector: "evcsChart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class EvcsChartDetailsComponent extends AbstractHistoryChart {
 

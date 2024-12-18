@@ -34,6 +34,7 @@ type Entry = {
     useClass: LiveDataService,
     provide: DataService,
   }],
+  standalone: false,
 })
 export class PowerAssistantComponent extends AbstractFlatWidget {
 
