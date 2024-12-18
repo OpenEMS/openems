@@ -256,7 +256,8 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 			case FAULTED -> Status.ERROR;
 			case PREPARING -> Status.READY_FOR_CHARGING;
 			case RESERVED -> Status.NOT_READY_FOR_CHARGING;
-			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE, OCCUPIED -> Status.CHARGING_REJECTED;
+			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE -> Status.CHARGING_REJECTED;
+			case OCCUPIED -> this.getActivePower().orElse(0) > 0 ? Status.CHARGING : Status.CHARGING_REJECTED;
 			case UNAVAILABLE -> Status.ERROR;
 			case UNDEFINED -> currentStatus;
 			};
