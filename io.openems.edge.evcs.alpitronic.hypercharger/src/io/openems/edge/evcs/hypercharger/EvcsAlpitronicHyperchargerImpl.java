@@ -234,7 +234,6 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 											this._setEnergySession(0);
 											return;
 										case CHARGING:
-										case CHARGING_FINISHED:
 										case CHARGING_REJECTED:
 										case ENERGY_LIMIT_REACHED:
 										case ERROR:
@@ -306,10 +305,8 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 				-> Status.READY_FOR_CHARGING;
 			case CHARGING, PREPARING_EV_READY //
 				-> Status.CHARGING;
-			case RESERVED, SUSPENDED_EV, SUSPENDED_EV_SE //
+			case RESERVED, SUSPENDED_EV, SUSPENDED_EV_SE, FINISHING //
 				-> Status.CHARGING_REJECTED;
-			case FINISHING //
-				-> Status.CHARGING_FINISHED;
 			case FAULTED, UNAVAILABLE, UNAVAILABLE_CONNECTION_OBJECT //
 				-> Status.ERROR;
 			case UNAVAILABLE_FW_UPDATE, UNDEFINED //
