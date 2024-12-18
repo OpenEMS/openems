@@ -43,8 +43,16 @@ import static java.lang.Math.round;
 import static java.lang.Math.min;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Levl.Symmetric.Balancing", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-@EventTopics({ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, })
+@Component(//
+		name = "Controller.Levl.Symmetric.Balancing", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, //
+})
 
 public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, ControllerEssBalancing, ComponentJsonApi, EventHandler {
@@ -58,7 +66,7 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private ConfigurationAdmin cm;
-	
+
 	@Reference
 	protected ComponentManager componentManager;
 
