@@ -1,8 +1,8 @@
 export namespace StringUtils {
 
     /**
-     * Checks if the value does not occur in array 
-     * 
+     * Checks if the value does not occur in array
+     *
      * @param val the value
      * @param arr the array
      * @returns true if passed value is not contained by the array
