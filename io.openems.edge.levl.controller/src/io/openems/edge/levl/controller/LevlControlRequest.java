@@ -5,22 +5,19 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
-
-import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
-public class LevlControlRequest {
+public class LevlControlRequest {	
 	public static final String METHOD = "sendLevlControlRequest";
 	public static final int QUARTER_HOUR_SECONDS = 900;
-	protected static Clock clock = Clock.systemDefaultZone();
 	protected int sellToGridLimitW;
 	protected int buyFromGridLimitW;
 	protected String levlRequestId;
 	protected String timestamp;
 	protected long energyWs;
-	protected LocalDateTime start;
-	protected LocalDateTime deadline;
+	protected Instant start;
+	protected Instant deadline;
 	protected int levlSocWh;
 	protected double socLowerBoundPercent;
 	protected double socUpperBoundPercent;
@@ -28,9 +25,9 @@ public class LevlControlRequest {
 	protected boolean influenceSellToGrid;
 	
 	
-	protected LevlControlRequest(JsonObject params) throws OpenemsError.OpenemsNamedException {
+	protected LevlControlRequest(JsonObject params, Instant now) throws OpenemsError.OpenemsNamedException {
 		try {
-			this.parseFields(params);
+			this.parseFields(params, now);
 		} catch (NullPointerException e) {
 			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("missing fields in request: " + e.getMessage());
 		} catch (NumberFormatException e) {
@@ -51,7 +48,7 @@ public class LevlControlRequest {
 
 	//Just for testing
 	protected LevlControlRequest(int sellToGridLimitW, int buyFromGridLimitW, String levlRequestId, String timestamp,
-			long energyWs, LocalDateTime start, LocalDateTime deadline, int levlSocWh, int socLowerBoundPercent,
+			long energyWs, Instant start, Instant deadline, int levlSocWh, int socLowerBoundPercent,
 			int socUpperBoundPercent, double efficiencyPercent, boolean influenceSellToGrid) {
 		this.sellToGridLimitW = sellToGridLimitW;
 		this.buyFromGridLimitW = buyFromGridLimitW;
@@ -68,8 +65,8 @@ public class LevlControlRequest {
 	}
 
 	//Just for testing
-	protected LevlControlRequest(int startDelay, int duration) {
-		this.start = LocalDateTime.now(LevlControlRequest.clock).plusSeconds(startDelay);
+	protected LevlControlRequest(int startDelay, int duration, Instant now) {
+		this.start = now.plusSeconds(startDelay);
 		this.deadline = this.start.plusSeconds(duration);
 	}
 
@@ -77,20 +74,20 @@ public class LevlControlRequest {
 	 * Generates a levl control request object based on the JSON-RPC request.
 	 * 
 	 * @param request the JSON-RPC request
+	 * @param now the current time
 	 * @return the levl control request
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static LevlControlRequest from(JsonrpcRequest request) throws OpenemsNamedException {
+	protected static LevlControlRequest from(JsonrpcRequest request, Instant now) throws OpenemsNamedException {
 		var params = request.getParams();
-		return new LevlControlRequest(params);
+		return new LevlControlRequest(params, now);
 	}
 
-	private void parseFields(JsonObject params) throws OpenemsNamedException {
+	private void parseFields(JsonObject params, Instant now) throws OpenemsNamedException {
 		this.levlRequestId = JsonUtils.getAsString(params, "levlRequestId");
 		this.timestamp = JsonUtils.getAsString(params, "levlRequestTimestamp");
 		this.energyWs = JsonUtils.getAsLong(params, "levlPowerW") * QUARTER_HOUR_SECONDS;
-		this.start = LocalDateTime.now(LevlControlRequest.clock)
-				.plusSeconds(JsonUtils.getAsInt(params, "levlChargeDelaySec"));
+		this.start = now.plusSeconds(JsonUtils.getAsInt(params, "levlChargeDelaySec"));
 		this.deadline = this.start.plusSeconds(JsonUtils.getAsInt(params, "levlChargeDurationSec"));
 		this.levlSocWh = JsonUtils.getAsInt(params, "levlSocWh");
 		this.socLowerBoundPercent = JsonUtils.getAsDouble(params, "levlSocLowerBoundPercent");

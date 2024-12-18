@@ -1,9 +1,9 @@
 package io.openems.edge.levl.controller;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
+
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 
 import org.junit.Assert;
@@ -20,6 +20,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.Call;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
@@ -138,17 +139,17 @@ public class ControllerEssBalancingImplTest {
 
 	@Test
 	public void testHandleEvent_before_currentActive() {
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC); // 2024-10-24T14:00:00
-		ControllerEssBalancingImpl.clock = clock;
+		Clock clock = createDummyClock();
+		this.underTest.componentManager = new DummyComponentManager(clock);
 
 		LevlControlRequest currentRequest = new LevlControlRequest();
-		currentRequest.start = LocalDateTime.of(2024, 10, 24, 14, 0, 0);
-		currentRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 14, 59);
+		currentRequest.start = Instant.now(clock); //2020-01-01T00:00:00
+		currentRequest.deadline = Instant.now(clock).plusSeconds(899); //2020-01-01T00:14:59
 		this.underTest.currentRequest = currentRequest;
 
 		LevlControlRequest nextRequest = new LevlControlRequest();
-		nextRequest.start = LocalDateTime.of(2024, 10, 24, 14, 15, 0);
-		nextRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 29, 59);
+		nextRequest.start = Instant.now(clock).plusSeconds(900); //2020-01-01T00:15:00
+		nextRequest.deadline = Instant.now(clock).plusSeconds(900 + 899); //2020-01-01T00:29:59
 		this.underTest.nextRequest = nextRequest;
 
 		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
@@ -160,18 +161,17 @@ public class ControllerEssBalancingImplTest {
 
 	@Test
 	public void testHandleEvent_before_nextRequestIsActive() {
-		// 2024-10-24T14:15:00
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC);
-		ControllerEssBalancingImpl.clock = clock;
+		Clock clock = createDummyClock();
+		this.underTest.componentManager = new DummyComponentManager(clock);
 
 		LevlControlRequest currentRequest = new LevlControlRequest();
-		currentRequest.start = LocalDateTime.of(2024, 10, 24, 14, 0, 0);
-		currentRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 14, 59);
+		currentRequest.start = Instant.now(clock).minusSeconds(900); //2019-12-31T23:45:00
+		currentRequest.deadline = Instant.now(clock).minusSeconds(1); //2019-12-31T23:59:59
 		this.underTest.currentRequest = currentRequest;
 
 		LevlControlRequest nextRequest = new LevlControlRequest();
-		nextRequest.start = LocalDateTime.of(2024, 10, 24, 14, 15, 0);
-		nextRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 29, 59);
+		nextRequest.start = Instant.now(clock); //2020-01-01T00:00:00
+		nextRequest.deadline = Instant.now(clock).plusSeconds(899); //2020-01-01T00:14:59
 		this.underTest.nextRequest = nextRequest;
 
 		this.setNextChannelValue(this.underTest.getRealizedEnergyGridChannel(), 100L);
@@ -189,17 +189,17 @@ public class ControllerEssBalancingImplTest {
 
 	@Test
 	public void testHandleEvent_before_gapBetweenRequests() {
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC); // 2024-10-24T14:15:00
-		ControllerEssBalancingImpl.clock = clock;
+		Clock clock = createDummyClock();
+		this.underTest.componentManager = new DummyComponentManager(clock);
 
 		LevlControlRequest currentRequest = new LevlControlRequest();
-		currentRequest.start = LocalDateTime.of(2024, 10, 24, 14, 0, 0);
-		currentRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 14, 59);
+		currentRequest.start = Instant.now(clock).minusSeconds(900); //2019-12-31T23:45:00
+		currentRequest.deadline = Instant.now(clock).minusSeconds(1); //2019-12-31T23:59:59
 		this.underTest.currentRequest = currentRequest;
 
 		LevlControlRequest nextRequest = new LevlControlRequest();
-		nextRequest.start = LocalDateTime.of(2024, 10, 24, 14, 16, 0);
-		nextRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 29, 59);
+		nextRequest.start = Instant.now(clock).plusSeconds(60); //2020-01-01T00:01:00
+		nextRequest.deadline = Instant.now(clock).plusSeconds(899);; //2020-01-01T00:14:59
 		this.underTest.nextRequest = nextRequest;
 
 		this.setNextChannelValue(this.underTest.getRealizedEnergyGridChannel(), 100L);
@@ -217,13 +217,12 @@ public class ControllerEssBalancingImplTest {
 
 	@Test
 	public void testHandleEvent_before_noNextRequest() {
-		// 2024-10-24T14:15:00
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC);
-		ControllerEssBalancingImpl.clock = clock;
+		Clock clock = createDummyClock();
+		this.underTest.componentManager = new DummyComponentManager(clock);
 
 		LevlControlRequest currentRequest = new LevlControlRequest();
-		currentRequest.start = LocalDateTime.of(2024, 10, 24, 14, 0, 0);
-		currentRequest.deadline = LocalDateTime.of(2024, 10, 24, 14, 14, 59);
+		currentRequest.start = Instant.now(clock).minusSeconds(900); //2019-12-31T23:45:00
+		currentRequest.deadline = Instant.now(clock).minusSeconds(1); //2019-12-31T23:59:59
 		this.underTest.currentRequest = currentRequest;
 
 		this.setNextChannelValue(this.underTest.getRealizedEnergyGridChannel(), 100L);
@@ -243,8 +242,8 @@ public class ControllerEssBalancingImplTest {
 	public void testHandleEvent_before_noRequests() {
 		Event event = new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>());
 
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729779300), ZoneOffset.UTC); // 2024-10-24T14:15:00
-		ControllerEssBalancingImpl.clock = clock;
+		Clock clock = createDummyClock();
+		this.underTest.componentManager = new DummyComponentManager(clock);
 
 		this.underTest.handleEvent(event);
 
@@ -280,10 +279,10 @@ public class ControllerEssBalancingImplTest {
 	public void testHandleRequest() throws OpenemsNamedException {
 		JsonObject params = new JsonObject();
 		params.addProperty("levlRequestId", "id");
-		params.addProperty("levlRequestTimestamp", "2024-10-24T14:15:00Z");
+		params.addProperty("levlRequestTimestamp", "2020-01-01T00:15:00Z");
 		params.addProperty("levlPowerW", 500);
 		params.addProperty("levlChargeDelaySec", 900);
-		params.addProperty("levlChargeDurationSec", 900);
+		params.addProperty("levlChargeDurationSec", 899);
 		params.addProperty("levlSocWh", 10000);
 		params.addProperty("levlSocLowerBoundPercent", 20);
 		params.addProperty("levlSocUpperBoundPercent", 80);
@@ -294,10 +293,10 @@ public class ControllerEssBalancingImplTest {
 		JsonrpcRequest request = new GenericJsonrpcRequest("sendLevlControlRequest", params);
 		Call<JsonrpcRequest, JsonrpcResponse> call = new Call<JsonrpcRequest, JsonrpcResponse>(request);
 
-		Clock clock = Clock.fixed(Instant.ofEpochSecond(1729778400), ZoneOffset.UTC); // 2024-10-24T14:00:00
-		LevlControlRequest.clock = clock;
-		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2024-10-24T14:15:00Z",
-				(500 * 900), LocalDateTime.of(2024, 10, 24, 14, 15, 0), LocalDateTime.of(2024, 10, 24, 14, 30, 0),
+		Clock clock = createDummyClock();
+		this.underTest.componentManager = new DummyComponentManager(clock);
+		LevlControlRequest expectedNextRequest = new LevlControlRequest(3000, 4000, "id", "2020-01-01T00:15:00Z",
+				(500 * 900), Instant.now(clock).plusSeconds(900) /*2020-01-01T00:15:00*/, Instant.now(clock).plusSeconds(900 + 899) /*2020-01-01T00:29:59*/,
 				10000, 20, 80, 90, true);
 		this.setActiveChannelValue(this.underTest.getRealizedEnergyBatteryChannel(), -100L);
 

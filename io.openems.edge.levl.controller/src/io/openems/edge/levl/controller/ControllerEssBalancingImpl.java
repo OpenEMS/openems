@@ -1,7 +1,6 @@
 package io.openems.edge.levl.controller;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -25,6 +24,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -54,12 +54,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	private static final double MILLISECONDS_PER_SECOND = 1000.0;
 	private static final String METHOD = "sendLevlControlRequest";
 
-	protected static Clock clock = Clock.systemDefaultZone();
-
 	private final Logger log = LoggerFactory.getLogger(ControllerEssBalancingImpl.class);
 
 	@Reference
 	private ConfigurationAdmin cm;
+	
+	@Reference
+	protected ComponentManager componentManager;
 
 	@Reference
 	protected ManagedSymmetricEss ess;
@@ -458,7 +459,8 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	protected JsonrpcResponse handleRequest(Call<JsonrpcRequest, JsonrpcResponse> call) throws OpenemsNamedException {
-		var request = LevlControlRequest.from(call.getRequest());
+		var now = Instant.now(this.componentManager.getClock());
+		var request = LevlControlRequest.from(call.getRequest(), now);
 		this.log.info("Received new levl request: {}", request);
 		this.nextRequest = request;
 		var realizedEnergyBatteryWs = this.getRealizedEnergyBattery().getOrError();
@@ -477,8 +479,8 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 		return response;
 	}
 
-	private static boolean isActive(LevlControlRequest request) {
-		LocalDateTime now = LocalDateTime.now(clock);
+	private boolean isActive(LevlControlRequest request) {
+		var now = Instant.now(this.componentManager.getClock());
 		return !(request == null || now.isBefore(request.start) || now.isAfter(request.deadline));
 	}
 
@@ -486,12 +488,12 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-			if (isActive(this.nextRequest)) {
+			if (this.isActive(this.nextRequest)) {
 				if (this.currentRequest != null) {
 					this.finishRequest();
 				}
 				this.startNextRequest();
-			} else if (this.currentRequest != null && !isActive(this.currentRequest)) {
+			} else if (this.currentRequest != null && !this.isActive(this.currentRequest)) {
 				this.finishRequest();
 			}
 		}

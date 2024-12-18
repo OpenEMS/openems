@@ -1,9 +1,14 @@
 package io.openems.edge.levl.controller;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
+
+import java.time.Instant;
+
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.controller.test.ControllerTest;
@@ -41,8 +46,10 @@ public class BalancingImplTest {
 
 	@Test
 	public void testWithoutLevlRequest() throws Exception {
+		final var clock = createDummyClock();
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
@@ -116,8 +123,12 @@ public class BalancingImplTest {
 
 	@Test
 	public void testWithLevlDischargeRequest() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
@@ -125,7 +136,7 @@ public class BalancingImplTest {
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -169,8 +180,12 @@ public class BalancingImplTest {
 
 	@Test
 	public void testWithLevlChargeRequest() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
@@ -178,7 +193,7 @@ public class BalancingImplTest {
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -224,8 +239,12 @@ public class BalancingImplTest {
 	// limit.
 	@Test
 	public void testWithLargeLevlDischargeRequest() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
@@ -233,7 +252,7 @@ public class BalancingImplTest {
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -277,15 +296,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testWithReservedChargeCapacityLevlChargesPucMustNotCharge() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -331,15 +354,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testWithReservedChargeCapacityLevlDischargesPucMustNotCharge() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500_000) // 1,800,000,000 Ws
 						.withMaxApparentPower(500_000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -386,15 +413,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testWithReservedChargeCapacityLevlChargesPucMayCharge() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500_000) // 1,800,000,000 Ws
 						.withMaxApparentPower(500_000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -439,15 +470,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testWithReservedChargeCapacityLevlChargesPucMayDischarge() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500_000) // 1,800,000,000 Ws
 						.withMaxApparentPower(500_000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -493,15 +528,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testInfluenceSellToGrid_PucSellToGrid_LevlChargeForbidden() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -528,15 +567,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testInfluenceSellToGrid_PucSellToGrid_LevlDischargeForbidden() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -563,15 +606,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testInfluenceSellToGrid_PucBuyFromGrid_LevlChargeAllowed() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -598,15 +645,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testInfluenceSellToGrid_PucBuyFromGrid_LevlDischargeLimited() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(500000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -633,15 +684,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testUpperSocLimit() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(20_000_000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -688,15 +743,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testUpperSocLimit_levlHasCharged() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(30_000_000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -761,15 +820,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testLowerSocLimit() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(20_000_000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -816,15 +879,19 @@ public class BalancingImplTest {
 
 	@Test
 	public void testLowerSocLimit_levlHasDischarged() throws Exception {
+		final var clock = createDummyClock();
+		var now = Instant.now(clock);
+		
 		new ControllerTest(new ControllerEssBalancingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID) //
 						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withCapacity(500000) // 1.800.000.000 Ws
 						.withMaxApparentPower(30_000_000)) //
 				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("cycle", new DummyCycle(1000)) //
-				.addReference("currentRequest", new LevlControlRequest(0, 100)) //
+				.addReference("currentRequest", new LevlControlRequest(0, 100, now)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
