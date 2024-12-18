@@ -1,8 +1,7 @@
 <ng-container *ngIf="edge">
     <ion-header>
-        <ion-toolbar class="ion-justify-content-center"
-            style="--ion-background-color: var(--ion-color-toolbar-primary);">
-            <ion-title class="ion-text-start ion-padding-left" style="color: var(--ion-color-white);"
+        <ion-toolbar class="ion-justify-content-center" style="--background: var(--ion-color-toolbar-primary);">
+            <ion-title class="ion-text-start ion-padding-left" style="color: var(--ion-title-color);"
                 translate>General.storageSystem
             </ion-title>
             <ion-buttons style="color: var(--ion-color-white);" slot="start">
@@ -11,7 +10,7 @@
             </ion-buttons>
             <ion-buttons style="color: var(--ion-color-white);" slot="end">
                 <ion-button routerLink="/device/{{edge.id}}/history">
-                    <ion-icon name="close-outline"></ion-icon>
+                    <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
                 </ion-button>
             </ion-buttons>
         </ion-toolbar>
