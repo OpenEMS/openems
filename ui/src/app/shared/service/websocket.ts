@@ -84,7 +84,7 @@ export class Websocket implements WebsocketInterface {
         this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
 
         this.service.currentUser.set(authenticateResponse.user);
-        UserComponent.applyUserSettings(authenticateResponse.user, document);
+        UserComponent.applyUserSettings(authenticateResponse.user);
 
         // Metadata
         this.service.metadata.next({

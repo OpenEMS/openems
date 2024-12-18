@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { DOCUMENT, KeyValue } from "@angular/common";
-import { Component, Inject, OnInit, effect } from "@angular/core";
+import { KeyValue } from "@angular/common";
+import { Component, OnInit, effect } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -77,7 +77,6 @@ export class UserComponent implements OnInit {
     public service: Service,
     private route: ActivatedRoute,
     private websocket: Websocket,
-    @Inject(DOCUMENT) private document: Document,
   ) {
     effect(() => {
       const user = this.service.currentUser();
@@ -89,7 +88,7 @@ export class UserComponent implements OnInit {
     });
   }
 
-  public static applyUserSettings(user: User, document: Document): void {
+  public static applyUserSettings(user: User): void {
     const theme = UserComponent.getCurrentTheme(user);
     let attr: Exclude<`${Theme}`, Theme.SYSTEM> = theme;
     localStorage.setItem("THEME", theme);
@@ -125,7 +124,7 @@ export class UserComponent implements OnInit {
       const currentUser = this.service.currentUser();
       if (currentUser) {
         currentUser.settings["theme"] = theme;
-        UserComponent.applyUserSettings(currentUser, document);
+        UserComponent.applyUserSettings(currentUser);
       }
     });
   }

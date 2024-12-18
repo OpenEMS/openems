@@ -145,7 +145,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     }
 
     // True when InputAddress doesnt match any of the following channelIds
-    this.isOtherInputAddress = StringUtils.isNot(this.inputChannel.toString(),
+    this.isOtherInputAddress = StringUtils.isNotIn(this.inputChannel.toString(),
       [null, "_sum/EssSoc", "_sum/GridActivePower", "_sum/ProductionActivePower"]);
 
     // Switch ON / OF,&& BELOW / ABOVE

@@ -34,14 +34,7 @@
             "aot": false,
             "buildOptimizer": false,
             "extractLicenses": false,
-            "optimization": {
-              "scripts": true,
-              "styles": {
-                "minify": true,
-                "inlineCritical": true
-              },
-              "fonts": true
-            },
+            "optimization": false,
             "outputHashing": "none",
             "sourceMap": true
           },

@@ -42,7 +42,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     effect(() => {
       const user = this.service.currentUser();
       this.currentThemeMode = UserComponent.getPreferedColorSchemeFromTheme(UserComponent.getCurrentTheme(user));
-      UserComponent.applyUserSettings(user, document);
+      UserComponent.applyUserSettings(user);
     });
   }
 
