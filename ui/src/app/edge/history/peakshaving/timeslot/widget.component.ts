@@ -6,6 +6,7 @@ import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
 @Component({
     selector: TimeslotPeakshavingWidgetComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class TimeslotPeakshavingWidgetComponent implements OnInit {
 

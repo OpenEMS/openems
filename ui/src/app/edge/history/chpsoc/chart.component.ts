@@ -10,6 +10,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "chpsocchart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

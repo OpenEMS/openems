@@ -1,5 +1,5 @@
 <ion-header *ngIf="isHeaderAllowed">
-  <ion-toolbar style="--ion-background-color: var(--ion-color-toolbar-primary);" mode="md">
+  <ion-toolbar style="--background: var(--ion-color-toolbar-primary);" mode="md">
     <ion-buttons *ngIf="backUrl" slot="start">
       <ion-button [routerLink]="backUrl" replaceUrl="true">
         <ion-icon [ngStyle]="{'color': 'var(--ion-menu-color)'}" name="arrow-back-outline"></ion-icon>
@@ -9,8 +9,8 @@
       <ion-menu-button autoHide="false" class="custom-menu-button"></ion-menu-button>
     </ion-buttons>
     <!-- page title is shown if the current page isn't Live nor History -->
-    <ion-title *ngIf="currentPage !== 'IndexLive' && currentPage !== 'IndexHistory'" class="ion-hide-md-up"
-      slot="start">
+    <ion-title style="color: var(--ion-title-color);"
+      *ngIf="currentPage !== 'IndexLive' && currentPage !== 'IndexHistory'" class="ion-hide-md-up" slot="start">
       {{ service.currentPageTitle }}
     </ion-title>
     <!-- page title is hidden when 'smartphone resolution' is reached -->

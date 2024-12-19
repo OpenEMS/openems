@@ -12,6 +12,7 @@ import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 @Component({
     selector: "scheduleChart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -248,6 +249,11 @@ export class ChartComponent extends AbstractHistoryChart {
             })
             .reduce((acc, curr) => acc.concat(curr), []);
 
-        return finalArray.length > 0 ? Math.floor(Math.min(...finalArray)) : 0;
+        if (finalArray.length === 0) {
+            return 0;
+        }
+
+        const min = Math.floor(Math.min(...finalArray));
+        return Math.floor(min - (min * 0.05));
     }
 }

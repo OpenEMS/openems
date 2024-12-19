@@ -175,7 +175,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 				this.resetMinMaxChannels();
 				return;
 			}
-			case CHARGING_REJECTED, READY_FOR_CHARGING, CHARGING_FINISHED -> {
+			case CHARGING_REJECTED, READY_FOR_CHARGING -> {
 				this.evcs._setMaximumPower(null);
 			}
 			case CHARGING -> {
@@ -476,7 +476,6 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 					case CHARGING:
 					case READY_FOR_CHARGING:
 						break;
-					case CHARGING_FINISHED:
 					case CHARGING_REJECTED:
 					case ENERGY_LIMIT_REACHED:
 					case ERROR:

@@ -19,6 +19,7 @@ const COMMANDS: { [key: string]: CommandFunction; } = {
 @Component({
   selector: SystemExecuteComponent.SELECTOR,
   templateUrl: "./systemexecute.component.html",
+  standalone: false,
 })
 export class SystemExecuteComponent implements OnInit {
 

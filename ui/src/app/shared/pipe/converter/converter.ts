@@ -4,6 +4,7 @@ import { Converter } from "../../components/shared/converter";
 
 @Pipe({
     name: "converter",
+    standalone: false,
 })
 export class ConverterPipe implements PipeTransform {
 

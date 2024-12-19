@@ -12,6 +12,7 @@ export type NavigationOption = {
 @Component({
   selector: "oe-footer-subnavigation",
   templateUrl: "footerNavigation.html",
+  standalone: false,
 })
 export class FooterNavigationComponent implements AfterViewInit {
 

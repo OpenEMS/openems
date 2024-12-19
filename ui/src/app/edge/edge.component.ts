@@ -11,6 +11,7 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
     <ion-content></ion-content>
          <ion-router-outlet id="content"></ion-router-outlet>
     `,
+    standalone: false,
 })
 export class EdgeComponent implements OnInit, OnDestroy {
 

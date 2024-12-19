@@ -11,6 +11,7 @@ import { AbstractHistoryChart } from "../../abstracthistorychart";
 @Component({
     selector: "timeslotpeakshavingchart",
     templateUrl: "../../abstracthistorychart.html",
+    standalone: false,
 })
 export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

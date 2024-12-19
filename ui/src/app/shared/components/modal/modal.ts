@@ -22,6 +22,7 @@ export enum Status {
             font-size: 0.9em;
         }
     `],
+    standalone: false,
 })
 export class ModalComponent {
 

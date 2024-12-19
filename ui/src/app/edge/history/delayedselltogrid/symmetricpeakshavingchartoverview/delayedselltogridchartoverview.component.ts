@@ -5,6 +5,7 @@ import { Edge, EdgeConfig, Service } from "../../../../shared/shared";
 @Component({
     selector: DelayedSellToGridChartOverviewComponent.SELECTOR,
     templateUrl: "./delayedselltogridchartoverview.component.html",
+    standalone: false,
 })
 export class DelayedSellToGridChartOverviewComponent implements OnInit {
 

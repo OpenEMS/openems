@@ -28,6 +28,7 @@ enum SystemRestartState {
         }
     }
     `],
+    standalone: false,
 })
 export class MaintenanceComponent implements OnInit {
 

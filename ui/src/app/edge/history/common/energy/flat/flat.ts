@@ -11,6 +11,7 @@ import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared
 @Component({
     selector: "energy",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

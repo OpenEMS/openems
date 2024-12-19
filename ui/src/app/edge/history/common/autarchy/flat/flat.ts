@@ -6,6 +6,7 @@ import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared
 @Component({
     selector: "autarchyWidget",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

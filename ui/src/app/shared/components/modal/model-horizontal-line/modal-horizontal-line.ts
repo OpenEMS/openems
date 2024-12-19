@@ -6,6 +6,7 @@ import { Component, Input } from "@angular/core";
 @Component({
     selector: "oe-modal-horizontal-line",
     templateUrl: "./modal-horizontal-line.html",
+    standalone: false,
 })
 export class ModalHorizontalLineComponent {
 

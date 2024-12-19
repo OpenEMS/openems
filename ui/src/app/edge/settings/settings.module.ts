@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { ChangelogComponent } from "src/app/changelog/view/component/changelog.component";
+import { ComponentsModule } from "src/app/shared/components/components.module";
 import { SharedModule } from "./../../shared/shared.module";
 import { AlertingComponent } from "./alerting/alerting.component";
 import { AppModule } from "./app/app.module";
@@ -25,6 +26,7 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
     SharedModule,
     ChangelogComponent,
     PowerAssistantModule,
+    ComponentsModule,
   ],
   declarations: [
     AlertingComponent,

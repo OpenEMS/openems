@@ -6,6 +6,7 @@ import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
 @Component({
     selector: AsymmetricPeakshavingWidgetComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class AsymmetricPeakshavingWidgetComponent implements OnInit {
 

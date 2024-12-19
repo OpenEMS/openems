@@ -12,6 +12,7 @@ type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER" | "OFF";
 @Component({
   selector: "Controller_Evcs",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

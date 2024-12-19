@@ -16,6 +16,7 @@ import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/g
 @Component({
     selector: "powerSocChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

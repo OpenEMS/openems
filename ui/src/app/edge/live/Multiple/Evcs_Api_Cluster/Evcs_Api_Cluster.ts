@@ -8,6 +8,7 @@ import { Evcs_Api_ClusterModalComponent } from "./modal/evcsCluster-modal.page";
 @Component({
   selector: "Evcs_Api_Cluster",
   templateUrl: "./Evcs_Api_Cluster.html",
+  standalone: false,
 })
 export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
 

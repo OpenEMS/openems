@@ -8,6 +8,7 @@ import { ChannelAddress, Utils } from "src/app/shared/shared";
 @Component({
   selector: "autarchychart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 

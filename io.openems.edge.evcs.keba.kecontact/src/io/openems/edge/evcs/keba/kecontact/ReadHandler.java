@@ -116,25 +116,6 @@ public class ReadHandler implements Consumer<String> {
 					status = Status.CHARGING_REJECTED;
 				}
 
-				// Charging is Finished if 'Plug' is connected, State was charging or already
-				// finished and the EVCS is still ready for charging.
-				switch (keba.getStatus()) {
-				case CHARGING_REJECTED:
-				case ENERGY_LIMIT_REACHED:
-				case ERROR:
-				case NOT_READY_FOR_CHARGING:
-				case STARTING:
-				case UNDEFINED:
-					break;
-				case READY_FOR_CHARGING:
-				case CHARGING:
-				case CHARGING_FINISHED:
-					if (status.equals(Status.READY_FOR_CHARGING) && keba.getSetChargePowerLimit().orElse(0) > 0) {
-						status = Status.CHARGING_FINISHED;
-					}
-					break;
-				}
-
 				/*
 				 * Check if the maximum energy limit is reached, informs the user and sets the
 				 * status

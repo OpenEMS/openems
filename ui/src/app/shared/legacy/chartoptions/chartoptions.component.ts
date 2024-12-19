@@ -9,6 +9,7 @@ import { ChartOptionsPopoverComponent } from "./popover/popover.component";
 @Component({
     selector: "chartOptions",
     templateUrl: "./chartoptions.component.html",
+    standalone: false,
 })
 export class ChartOptionsComponent {
 

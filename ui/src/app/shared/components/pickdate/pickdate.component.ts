@@ -2,8 +2,7 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, isAfter, isBefore, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths, subYears } from "date-fns";
-import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from "date-fns/esm";
+import { addDays, addMonths, addWeeks, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfWeek, endOfYear, isAfter, isBefore, isFuture, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from "date-fns";
 
 import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
@@ -13,6 +12,7 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
 @Component({
     selector: "pickdate",
     templateUrl: "./pickdate.component.html",
+    standalone: false,
 })
 export class PickDateComponent implements OnInit, OnDestroy {
 

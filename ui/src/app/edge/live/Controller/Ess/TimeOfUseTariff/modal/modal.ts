@@ -7,6 +7,7 @@ import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
 
 @Component({
     templateUrl: "./modal.html",
+    standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 

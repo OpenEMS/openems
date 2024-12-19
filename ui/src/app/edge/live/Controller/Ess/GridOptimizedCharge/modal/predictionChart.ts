@@ -12,6 +12,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared
 @Component({
     selector: "predictionChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

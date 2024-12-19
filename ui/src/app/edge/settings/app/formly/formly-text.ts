@@ -10,6 +10,7 @@ import { FieldType, FieldTypeConfig } from "@ngx-formly/core";
     </ion-item>
     `,
     encapsulation: ViewEncapsulation.None,
+    standalone: false,
 })
 export class FormlyTextComponent extends FieldType<FieldTypeConfig> {
 

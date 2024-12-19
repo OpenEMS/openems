@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve.statemachine;
 
-import static io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.ForceChargeHandler.getAcPvProduction;
+import static io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.ForceChargePvHandler.getAcPvProduction;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;

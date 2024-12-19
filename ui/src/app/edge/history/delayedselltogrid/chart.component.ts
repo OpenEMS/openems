@@ -11,6 +11,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "delayedselltogridgchart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

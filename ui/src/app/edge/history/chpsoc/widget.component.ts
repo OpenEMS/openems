@@ -10,6 +10,7 @@ import { calculateActiveTimeOverPeriod } from "../shared";
 @Component({
     selector: ChpSocWidgetComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 

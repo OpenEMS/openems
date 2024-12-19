@@ -7,6 +7,7 @@ import { EdgeConfig } from "src/app/shared/shared";
 @Component({
     selector: "DigitalOutputWidget",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
     protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(this.translate.currentLang);

@@ -41,6 +41,7 @@ export enum SumState {
     font-size: 20pt !important;
 }
   `],
+  standalone: false,
 })
 export class SumStateComponent implements OnInit {
 

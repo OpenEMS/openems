@@ -4,7 +4,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
-import { NgChartsModule } from "ng2-charts";
+import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 
 import { PipeModule } from "../../pipe/pipe";
@@ -18,7 +18,7 @@ import { ChartComponent } from "./chart";
     IonicModule,
     PipeModule,
     TranslateModule,
-    NgChartsModule,
+    BaseChartDirective,
     CommonModule,
     NgxSpinnerModule.forRoot({
       type: "ball-clip-rotate-multiple",

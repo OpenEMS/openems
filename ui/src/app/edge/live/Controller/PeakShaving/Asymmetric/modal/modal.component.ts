@@ -9,6 +9,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/s
 @Component({
     selector: "asymmetricpeakshaving-modal",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
 

@@ -8,6 +8,7 @@ import { ChannelAddress, EdgeConfig, Service } from "../../../../../shared/share
 
 @Component({
   templateUrl: "./overview.html",
+  standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
   protected chargerComponents: EdgeConfig.Component[] = [];

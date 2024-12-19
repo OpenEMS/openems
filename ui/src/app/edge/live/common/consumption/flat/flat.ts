@@ -7,6 +7,7 @@ import { ModalComponent } from "../modal/modal";
 @Component({
   selector: "consumption",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

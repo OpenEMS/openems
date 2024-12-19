@@ -7,6 +7,7 @@ import { Role } from "src/app/shared/type/role";
 @Component({
     selector: "oe-electricity-meter",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class ElectricityMeterComponent extends AbstractModalLine implements OnInit {
 

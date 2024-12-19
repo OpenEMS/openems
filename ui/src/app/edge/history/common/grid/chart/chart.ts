@@ -13,6 +13,7 @@ import { ChartAnnotationState } from "src/app/shared/type/general";
 @Component({
   selector: "gridchart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 

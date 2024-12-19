@@ -14,6 +14,7 @@ import { CategorizedComponents, EdgeConfig } from "../../edge/edgeconfig";
 @Component({
     selector: StatusSingleComponent.SELECTOR,
     templateUrl: "./status.component.html",
+    standalone: false,
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "statussingle";

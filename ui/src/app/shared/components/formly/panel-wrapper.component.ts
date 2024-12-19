@@ -15,6 +15,7 @@ import { FieldWrapper } from "@ngx-formly/core";
         </ion-grid>
     </ion-item>
     `,
+    standalone: false,
 })
 export class PanelWrapperComponent extends FieldWrapper {
 }

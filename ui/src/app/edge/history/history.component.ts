@@ -10,6 +10,7 @@ import { environment } from "src/environments";
 @Component({
   selector: "history",
   templateUrl: "./history.component.html",
+  standalone: false,
 })
 export class HistoryComponent implements OnInit {
 
