@@ -6,6 +6,7 @@ import { ChannelAddress, Edge, Service, Websocket } from "../../../shared/shared
 @Component({
   selector: EnergymonitorComponent.SELECTOR,
   templateUrl: "./energymonitor.component.html",
+  standalone: false,
 })
 export class EnergymonitorComponent implements OnInit, OnDestroy {
 

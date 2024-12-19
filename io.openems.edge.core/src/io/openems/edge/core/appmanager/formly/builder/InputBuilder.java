@@ -140,9 +140,9 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 
 	/**
 	 * Sets the validation of the Input.
+	 * 
 	 * <p>
 	 * e. g. to set the validation of an IP use {@link Validation#IP}
-	 * </p>
 	 *
 	 * @param validation the validation to be set
 	 * @return this

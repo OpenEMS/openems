@@ -7,6 +7,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../shared/shar
 @Component({
   selector: AdministrationComponent.SELECTOR,
   templateUrl: "./administration.component.html",
+  standalone: false,
 })
 export class AdministrationComponent implements OnInit {
 

@@ -9,6 +9,7 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 @Component({
   selector: "live",
   templateUrl: "./live.component.html",
+  standalone: false,
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
@@ -57,7 +58,7 @@ export class LiveComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const lastUpdate: Date | null = this.dataService.timestamp();
+      const lastUpdate: Date | null = this.dataService.lastUpdated();
       if (lastUpdate == null) {
         this.showRefreshDragDown = true;
         return;

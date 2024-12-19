@@ -9,6 +9,7 @@ import { environment } from "src/environments";
 @Component({
   selector: JsonrpcTestComponent.SELECTOR,
   templateUrl: "./jsonrpctest.html",
+  standalone: false,
 })
 export class JsonrpcTestComponent implements OnInit {
 

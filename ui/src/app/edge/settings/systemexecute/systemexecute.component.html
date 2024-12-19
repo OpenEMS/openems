@@ -26,26 +26,22 @@
           <ion-card-content>
             <form [formGroup]="form" (ngSubmit)="submit()">
               <ion-item>
-                <ion-label>Username</ion-label>
-                <ion-input formControlName="username" type="text">
+                <ion-input formControlName="username" type="text" label="Username">
                 </ion-input>
               </ion-item>
               <ion-item>
-                <ion-label>Password</ion-label>
-                <ion-input formControlName="password" type="password"></ion-input>
+                <ion-input formControlName="password" type="password" label="Password"></ion-input>
               </ion-item>
               <ion-item>
-                <ion-label>Timeout</ion-label>
-                <ion-input formControlName="timeoutSeconds" type="number"></ion-input>
+                <ion-input formControlName="timeoutSeconds" type="number" label="Timeout"></ion-input>
               </ion-item>
               <ion-item>
-                <ion-label>Run in background</ion-label>
-                <ion-toggle formControlName="runInBackground"></ion-toggle>
+                <ion-toggle formControlName="runInBackground" label="Run in Background" justify="space-between">Run in
+                  background</ion-toggle>
               </ion-item>
               <ion-item>
-                <ion-label position="floating">Command</ion-label>
-                <ion-textarea class="command-textbox" auto-grow="true" formControlName="command"
-                  type="text"></ion-textarea>
+                <ion-textarea class="command-textbox" auto-grow="true" formControlName="command" type="text"
+                  label="Command" label-placement="floating"></ion-textarea>
               </ion-item>
               <ion-button expand="block" type=" submit" color="primary">Send</ion-button>
             </form>

@@ -9,6 +9,7 @@ import { Controller_Asymmetric_PeakShavingModalComponent } from "./modal/modal.c
 @Component({
     selector: "Controller_Asymmetric_PeakShaving",
     templateUrl: "./Asymmetric.html",
+    standalone: false,
 })
 export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidget {
 

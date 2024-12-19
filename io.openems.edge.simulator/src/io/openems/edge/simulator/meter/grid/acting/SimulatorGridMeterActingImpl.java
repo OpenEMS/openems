@@ -195,12 +195,12 @@ public class SimulatorGridMeterActingImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Converts a string representation of time to an Instant object.
+	 * 
 	 * <p>
 	 * If the input time is null or empty, the current time is returned. If the
 	 * input time is successfully parsed, it is converted to an Instant object. If
 	 * the parsed time is in the past, and the current time is returned. If there's
 	 * an error parsing the input time, and the current time is returned.
-	 * </p>
 	 *
 	 * @param inputTime the string representation of time to be converted
 	 * @return an Instant converted time

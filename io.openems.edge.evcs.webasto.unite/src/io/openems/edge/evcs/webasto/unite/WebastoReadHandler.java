@@ -23,8 +23,7 @@ public class WebastoReadHandler {
 		case 0 -> Status.NOT_READY_FOR_CHARGING;
 		case 1 -> Status.READY_FOR_CHARGING;
 		case 2 -> Status.CHARGING;
-		case 3, 4 -> Status.CHARGING_REJECTED;
-		case 5 -> Status.CHARGING_FINISHED;
+		case 3, 4, 5 -> Status.CHARGING_REJECTED;
 		// TODO Check if this state is also reached while paused
 		case 7, 8 -> Status.ERROR;
 		default -> null;

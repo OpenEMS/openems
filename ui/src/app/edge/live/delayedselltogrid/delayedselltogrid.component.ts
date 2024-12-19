@@ -9,6 +9,7 @@ import { DelayedSellToGridModalComponent } from "./modal/modal.component";
 @Component({
     selector: DelayedSellToGridComponent.SELECTOR,
     templateUrl: "./delayedselltogrid.component.html",
+    standalone: false,
 })
 export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 

@@ -4,9 +4,7 @@ import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { AlertController } from "@ionic/angular";
-import { FileOpener } from "@ionic-native/file-opener";
 import { TranslateService } from "@ngx-translate/core";
-import { saveAs } from "file-saver-es";
 import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
 import { BehaviorSubject, Subject } from "rxjs";
 import { environment } from "src/environments";
@@ -54,34 +52,6 @@ export class AppService {
       }
     }
     return null;
-  }
-
-  static async writeAndOpenFile(data: Blob, fileName: string) {
-    if (!AppService.platform) {
-      saveAs(data, fileName);
-    }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(data);
-    reader.onloadend = async function () {
-      try {
-        const result = await Filesystem.writeFile({
-          path: fileName,
-          data: reader.result.toString(),
-          directory: Directory.Data,
-          recursive: true,
-          encoding: Encoding.UTF8,
-        });
-
-        FileOpener.open(result.uri, data.type)
-          .then(() => console.log("File is opened"))
-          .catch(e => console.log("Error opening file", e));
-
-        console.log("Wrote file", result.uri);
-      } catch (e) {
-        console.error("Unable to write file", e);
-      }
-    };
   }
 
   public listen() {

@@ -6,6 +6,7 @@ import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 

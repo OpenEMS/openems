@@ -5,6 +5,7 @@ import { Edge, EdgeConfig, Service } from "../../../../../shared/shared";
 @Component({
     selector: TimeslotPeakshavingChartOverviewComponent.SELECTOR,
     templateUrl: "./timeslotpeakshavingchartoverview.component.html",
+    standalone: false,
 })
 export class TimeslotPeakshavingChartOverviewComponent implements OnInit {
 

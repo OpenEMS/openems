@@ -8,11 +8,13 @@ import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
     selector: "storageTotalChart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class StorageTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -110,7 +112,8 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                     backgroundColor: "rgba(0,223,0,0.05)",
                                     borderColor: "rgba(0,223,0,1)",
                                 });
-                            } if ("_sum/EssActivePowerL1" && "_sum/EssActivePowerL2" && "_sum/EssActivePowerL3" in result.data && this.showPhases == true) {
+
+                            } if (ObjectUtils.hasKeys(result.data, ["_sum/EssActivePowerL1", "_sum/EssActivePowerL2", "_sum/EssActivePowerL3"]) && this.showPhases == true) {
                                 if (channelAddress.channelId == "EssActivePowerL1") {
                                     datasets.push({
                                         label: this.translate.instant("General.phase") + " " + "L1",

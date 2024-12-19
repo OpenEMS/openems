@@ -8,6 +8,7 @@ import { ChannelAddress, CurrentData } from "../../../../shared/shared";
 @Component({
   selector: "Controller_Channelthreshold",
   templateUrl: "./Channelthreshold.html",
+  standalone: false,
 })
 export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
 
@@ -15,7 +16,7 @@ export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
   public icon: Icon = {
     name: "",
     size: "large",
-    color: "dark",
+    color: "normal",
   };
   public state: string = "?";
 

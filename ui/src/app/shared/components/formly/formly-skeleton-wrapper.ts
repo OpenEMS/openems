@@ -21,6 +21,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
   <formly-form *ngIf="show" [form]="form" [fields]="fields" [model]="model"></formly-form>
 </div>
   `,
+  standalone: false,
 })
 export class FormlyFieldWithLoadingAnimationComponent {
   @Input() public show: boolean = false;

@@ -4,6 +4,7 @@ import { FieldType } from "@ngx-formly/core";
 @Component({
     selector: "form-field-multi-step",
     templateUrl: "./form-field-multi-step.html",
+    standalone: false,
 })
 export class FormlyFieldMultiStepComponent extends FieldType implements OnInit {
 
