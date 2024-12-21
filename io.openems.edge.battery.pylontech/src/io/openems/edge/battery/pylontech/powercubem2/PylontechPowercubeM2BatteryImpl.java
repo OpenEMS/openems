@@ -74,7 +74,8 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 				ModbusComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				BatteryProtection.ChannelId.values(), PylontechPowercubeM2Battery.ChannelId.values() //
+				BatteryProtection.ChannelId.values(), 
+				PylontechPowercubeM2Battery.ChannelId.values() //
 		);
 	}
 
@@ -741,75 +742,10 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	 */
 	private int getOffsetForPile(int pileNumber) {
 
-		switch (pileNumber) {
-		case 1:
-			return 0x1400;
-		case 2:
-			return 0x1B00;
-		case 3:
-			return 0x2200;
-		case 4:
-			return 0x2900;
-		case 5:
-			return 0x3000;
-		case 6:
-			return 0x3700;
-		case 7:
-			return 0x3E00;
-		case 8:
-			return 0x4500;
-		case 9:
-			return 0x4C00;
-		case 10:
-			return 0x5300;
-		case 11:
-			return 0x5A00;
-		case 12:
-			return 0x6100;
-		case 13:
-			return 0x6800;
-		case 14:
-			return 0x6F00;
-		case 15:
-			return 0x7600;
-		case 16:
-			return 0x7D00;
-		case 17:
-			return 0x8400;
-		case 18:
-			return 0x8B00;
-		case 19:
-			return 0x9200;
-		case 20:
-			return 0x9900;
-		case 21:
-			return 0xA000;
-		case 22:
-			return 0xA700;
-		case 23:
-			return 0xAE00;
-		case 24:
-			return 0xB500;
-		case 25:
-			return 0xBC00;
-		case 26:
-			return 0xC300;
-		case 27:
-			return 0xCA00;
-		case 28:
-			return 0xD100;
-		case 29:
-			return 0xD800;
-		case 30:
-			return 0xDF00;
-		case 31:
-			return 0xE600;
-		case 32:
-			return 0xED00;
+		if (pileNumber < 1 || pileNumber > 32) {
+		    return -1;
 		}
-		;
-
-		return -1;
+		return 0x0D00 + pileNumber * 0x0700;
 
 	}
 
