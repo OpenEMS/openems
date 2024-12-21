@@ -1,0 +1,31 @@
+= Heater 
+
+The heat sector is separated into different kind of Heaters.  
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/Chp.java[Chp icon:code[]]::
+Combined heat and power plants to monitor.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/ManagedChp.java[ManagedChp icon:code[]]::
+Controllable combined heat and power plants.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/Heatpump.java[Heatpump icon:code[]]::
+Heatpumps to monitor.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/ManagedHeatpump.java[ManagedHeatpump icon:code[]]::
+Controllable heatpumps (SG ready like heatpumps).
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/Heater.java[Heater icon:code[]]::
+Heater devices base nature. Also usable for e.g. gas heaters.    
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/ManagedHeaterByOperationMode.java[ManagedHeaterByOperationMode icon:code[]]::
+Controllable heater devices - managed by operation mode.
+
+
+*Note:* 
+
+There are four different ways to control a ManagedHeater:
+
+* controlled by electric production power - see _ManagedChp_.
+* controlled by operation mode - see _ManagedHeaterByOperationMode_. 
+* controlled by thermal heat power setpoint - planned to be added in the future.
+* controlled by flow temperature setpoint - planned to be added in the future.
