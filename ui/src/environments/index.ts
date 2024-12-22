@@ -96,3 +96,10 @@ export interface Environment {
     },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null
 }
+
+/*
+ * Return the proper websocket scheme (WS or WSS) depending on whether the page is accessed via HTTP or HTTPS.
+*/
+export function getWebsocketScheme() : string {
+  return window.location.protocol === "https:" ? "wss://" : "ws://";
+}
