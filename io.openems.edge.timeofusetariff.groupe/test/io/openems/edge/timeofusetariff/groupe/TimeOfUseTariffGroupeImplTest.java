@@ -1,19 +1,15 @@
 package io.openems.edge.timeofusetariff.groupe;
 
 import static io.openems.edge.common.currency.Currency.CHF;
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.groupe.TimeOfUseTariffGroupeImpl.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.oem.DummyOpenemsEdgeOem;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -21,7 +17,6 @@ import io.openems.edge.common.test.DummyMeta;
 
 public class TimeOfUseTariffGroupeImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
 	private static final double GROUPE_E_EXCHANGE_RATE = 1;
 
 	private static final String PRICE_RESULT_STRING = """
@@ -407,19 +402,16 @@ public class TimeOfUseTariffGroupeImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = createDummyClock();
 		var groupe = new TimeOfUseTariffGroupeImpl();
 		var dummyMeta = new DummyMeta("foo0") //
 				.withCurrency(CHF);
 		new ComponentTest(groupe) //
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.addReference("meta", dummyMeta) //
-				.addReference("oem", new DummyOpenemsEdgeOem()) //
-				.addReference("componentManager", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setExchangerateAccesskey("") //
+						.setId("ctrl0") //
 						.build()) //
 		;
 	}

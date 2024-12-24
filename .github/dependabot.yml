@@ -14,6 +14,12 @@ updates:
         patterns:
           - "org.dhatim:fastexcel"
           - "org.dhatim:fastexcel-reader"
+      bouncycastle:
+        patterns:
+          - "org.bouncycastle:*"
+      pax-logging:
+        patterns:
+          - "org.ops4j.pax.logging:*"
 
   - package-ecosystem: npm
     directory: "/ui"
@@ -25,6 +31,8 @@ updates:
       angular:
         patterns:
           - "@angular/*"
+          - "@angular-devkit/*"
+          - "@angular-eslint/*"
       capacitor:
         patterns:
           - "@capacitor/*"
@@ -40,7 +48,6 @@ updates:
           - "karma"
       eslint:
         patterns:
-          - "@angular-eslint/*"
           - "@stylistic/eslint-plugin"
           - "@typescript-eslint/*"
           - "eslint-*"

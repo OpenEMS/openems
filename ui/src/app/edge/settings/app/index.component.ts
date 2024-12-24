@@ -24,6 +24,7 @@ import { canEnterKey } from "./permissions";
 @Component({
   selector: IndexComponent.SELECTOR,
   templateUrl: "./index.component.html",
+  standalone: false,
 })
 export class IndexComponent implements OnInit, OnDestroy {
 
@@ -104,6 +105,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     }
     this.installedApps.appCategories = [];
     this.availableApps.appCategories = [];
+    this.incompatibleApps.appCategories = [];
 
     const sortedApps = [];
     this.apps.forEach(app => {

@@ -1,7 +1,10 @@
 // @ts-strict-ignore
 import * as Chart from "chart.js";
+/* eslint-disable import/no-duplicates */
+// cf. https://github.com/import-js/eslint-plugin-import/issues/1479
 import { differenceInDays, differenceInMinutes, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
+/* eslint-enable import/no-duplicates */
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Service } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
@@ -10,6 +13,12 @@ export interface Dataset {
     label: string;
     data: number[];
     hidden: boolean;
+}
+
+export enum Theme {
+    LIGHT = "light",
+    DARK = "dark",
+    SYSTEM = "system",
 }
 
 export const EMPTY_DATASET = [{
@@ -128,7 +137,7 @@ export type ChartOptions = {
             ticks: {
                 source?: string,
                 maxTicksLimit?: number
-            }
+            },
         }]
     },
     tooltips: {
@@ -204,8 +213,7 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             stacked: true,
             offset: false,
             type: "time",
-            ticks: {
-            },
+            ticks: {},
             bounds: "data",
             adapters: {
                 date: {

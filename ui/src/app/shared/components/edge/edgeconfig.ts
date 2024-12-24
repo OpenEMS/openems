@@ -115,7 +115,7 @@ export class EdgeConfig {
                 category: { title: "Zähler", icon: "speedometer-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
-                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.ElectricityMeter"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.ElectricityMeter", "io.openems.edge.evcs.api.Evcs"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.ess.dccharger.api.EssDcCharger"),
                 ].flat(2),
             },
@@ -258,13 +258,20 @@ export class EdgeConfig {
     /**
      * Get Factories of Nature.
      *
-     * @param natureId the given Nature.
+     * @param factories the given EdgeConfig.Factory
+     * @param includeNature the name of the Nature to be included
+     * @param excludeNature an optional name of a Nature to be excluded
      */
-    public static getFactoriesByNature(factories: { [id: string]: EdgeConfig.Factory }, natureId: string): EdgeConfig.Factory[] {
+    public static getFactoriesByNature(factories: { [id: string]: EdgeConfig.Factory }, includeNature: string, excludeNature?: string): EdgeConfig.Factory[] {
         const result = [];
-        const nature = EdgeConfig.getNaturesOfFactories(factories)[natureId];
-        if (nature) {
-            for (const factoryId of nature.factoryIds) {
+        const natures = EdgeConfig.getNaturesOfFactories(factories);
+        const include = natures[includeNature];
+        const excludes = excludeNature != null && excludeNature in natures ? natures[excludeNature].factoryIds : [];
+        if (include) {
+            for (const factoryId of include.factoryIds) {
+                if (excludes.includes(factoryId)) {
+                    continue;
+                }
                 if (factoryId in factories) {
                     result.push(factories[factoryId]);
                 }
@@ -509,25 +516,19 @@ export class EdgeConfig {
         if (component.properties["type"] == "PRODUCTION") {
             return true;
         }
+        const natureIds = this.getNatureIdsByFactoryId(component.factoryId);
+        if (natureIds.includes("io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter")
+            || natureIds.includes("io.openems.edge.ess.dccharger.api.EssDcCharger")) {
+            return true;
+        }
         // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
         switch (component.factoryId) {
             case "Fenecon.Dess.PvMeter":
             case "Fenecon.Mini.PvMeter":
             case "Fenecon.Pro.PvMeter":
-            case "Kaco.BlueplanetHybrid10.PvInverter":
-            case "Kostal.Piko.Charger":
-            case "PV-Inverter.Fronius":
-            case "PV-Inverter.KACO.blueplanet":
-            case "PV-Inverter.Kostal":
-            case "PV-Inverter.SMA.SunnyTripower":
-            case "PV-Inverter.Solarlog":
-            case "PV-Inverter.SunSpec":
             case "Simulator.ProductionMeter.Acting":
-            case "Simulator.PvInverter":
-            case "SolarEdge.PV-Inverter":
                 return true;
         }
-
         return false;
     }
 
@@ -540,11 +541,14 @@ export class EdgeConfig {
     public isTypeConsumptionMetered(component: EdgeConfig.Component) {
         if (component.properties["type"] == "CONSUMPTION_METERED") {
             return true;
-        } else {
-            switch (component.factoryId) {
-                case "GoodWe.EmergencyPowerMeter":
-                    return true;
-            }
+        }
+        switch (component.factoryId) {
+            case "GoodWe.EmergencyPowerMeter":
+                return true;
+        }
+        const natures = this.getNatureIdsByFactoryId(component.factoryId);
+        if (natures.includes("io.openems.edge.evcs.api.Evcs") && !natures.includes("io.openems.edge.evcs.api.MetaEvcs")) {
+            return true;
         }
         return false;
     }
@@ -680,6 +684,17 @@ export class EdgeConfig {
             return null;
         }
     }
+
+    /**
+     * Safely gets a property from a component if it exists, else returns null.
+     *
+     * @param component The component from which to retrieve the property.
+     * @param property The property name to retrieve.
+     * @returns The property value if it exists, otherwise null.
+     */
+    public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
+        return component?.properties[property] ?? null;
+    }
 }
 
 export enum PersistencePriority {
@@ -710,7 +725,7 @@ export namespace PersistencePriority {
     }
 }
 
-export module EdgeConfig {
+export namespace EdgeConfig {
     export class ComponentChannel {
         public readonly type!: "BOOLEAN" | "SHORT" | "INTEGER" | "LONG" | "FLOAT" | "DOUBLE" | "STRING";
         public readonly accessMode!: "RO" | "RW" | "WO";

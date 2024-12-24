@@ -9,6 +9,7 @@ import { Service, Websocket } from "../../shared/shared";
 @Component({
   selector: "index",
   templateUrl: "./loading-screen.html",
+  standalone: false,
 })
 export class LoadingScreenComponent {
 

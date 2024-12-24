@@ -1,145 +1,270 @@
 package io.openems.edge.energy.optimizer;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
-import static io.openems.edge.energy.optimizer.Simulator.simulate;
+import static io.jenetics.engine.Limits.byExecutionTime;
+import static io.jenetics.engine.Limits.byFixedGeneration;
+import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
-import static io.openems.edge.energy.optimizer.Utils.createSimulatorParams;
+import static io.openems.edge.energy.optimizer.Utils.calculateSleepMillis;
+import static io.openems.edge.energy.optimizer.Utils.createSimulator;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
-import static io.openems.edge.energy.optimizer.Utils.logSchedule;
-import static io.openems.edge.energy.optimizer.Utils.updateSchedule;
+import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.lang.Thread.sleep;
+import static java.time.Duration.ofSeconds;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSortedMap;
-
+import io.jenetics.IntegerGene;
+import io.jenetics.engine.EvolutionResult;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
-import io.openems.common.test.TimeLeapClock;
-import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.energy.LogVerbosity;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.optimizer.Simulator.Period;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
  * minutes.
  */
-public class Optimizer extends AbstractImmediateWorker {
+public class Optimizer implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(Optimizer.class);
+	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	private final ThrowingSupplier<GlobalContext, OpenemsException> globalContext;
-	private final TreeMap<ZonedDateTime, Period> schedule = new TreeMap<>();
+	private final Supplier<LogVerbosity> logVerbosity;
+	private final ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier;
+	private final Channel<Integer> simulationsPerQuarterChannel;
+	private final AtomicBoolean rescheduleCurrentPeriod = new AtomicBoolean(false);
 
-	private Params params = null;
+	private Simulator simulator = null;
+	private SimulationResult simulationResult = EMPTY;
+	private ScheduledFuture<?> future;
 
-	public Optimizer(ThrowingSupplier<GlobalContext, OpenemsException> globalContext) {
-		this.globalContext = globalContext;
+	public Optimizer(Supplier<LogVerbosity> logVerbosity,
+			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, //
+			Channel<Integer> simulationsPerQuarterChannel) {
+		this.logVerbosity = logVerbosity;
+		this.gscSupplier = gscSupplier;
+		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
+	}
 
-		// Run Optimizer thread in LOW PRIORITY
-		this.setPriority(Thread.MIN_PRIORITY);
+	private synchronized void interruptTask() {
+		if (this.future != null) {
+			this.future.cancel(true);
+		}
+	}
+
+	/**
+	 * Activate and start the {@link Optimizer}.
+	 */
+	public synchronized void activate() {
+		this.interruptTask();
+		this.future = this.executor.scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
+	}
+
+	/**
+	 * Deactivate the {@link Optimizer}.
+	 */
+	public synchronized void deactivate() {
+		this.interruptTask();
+		shutdownAndAwaitTermination(this.executor, 0);
+	}
+
+	/**
+	 * Triggers Rescheduling.
+	 */
+	public void triggerReschedule() {
+		this.traceLog(() -> "Trigger Reschedule");
+		this.activate(); // interrupt + reschedule
+		this.rescheduleCurrentPeriod.set(true);
 	}
 
 	@Override
-	public void forever() throws InterruptedException, OpenemsException {
-		this.log.info("# Start next run of Optimizer");
+	public void run() {
+		SimulationResult simulationResult = SimulationResult.EMPTY;
+		try {
+			this.traceLog(() -> "Run...");
 
-		this.createParams(); // this possibly takes forever
-
-		final var globalContext = this.globalContext.get();
-		final var start = Instant.now(globalContext.clock());
-
-		long executionLimitSeconds;
-
-		// Calculate max execution time till next quarter (with buffer)
-		executionLimitSeconds = calculateExecutionLimitSeconds(globalContext.clock());
-
-		// Find best Schedule
-		var schedule = Simulator.getBestSchedule(this.params, executionLimitSeconds);
-
-		// Re-Simulate and keep best Schedule
-		var newSchedule = simulate(this.params, schedule);
-
-		// Debug Log best Schedule
-		logSchedule(this.params, newSchedule);
-
-		// Update Schedule from newly simulated Schedule
-		synchronized (this.schedule) {
-			updateSchedule(ZonedDateTime.now(globalContext.clock()), this.schedule, newSchedule);
-		}
-
-		// Send Schedule to Controller
-		globalContext.energyScheduleHandler().setSchedule(this.schedule.entrySet().stream()//
-				.collect(toImmutableMap(//
-						Entry::getKey, //
-						e -> new EnergyScheduleHandler.Period<>(e.getValue().state(),
-								e.getValue().op().essChargeInChargeGrid()))));
-
-		// Sleep remaining time
-		if (!(globalContext.clock() instanceof TimeLeapClock)) {
-			var remainingExecutionLimit = Duration
-					.between(Instant.now(globalContext.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
-			if (remainingExecutionLimit > 0) {
-				this.log.info("Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
-				sleep(remainingExecutionLimit * 1000);
+			if (this.rescheduleCurrentPeriod.getAndSet(false) || this.simulationResult == EMPTY) {
+				simulationResult = this.runQuickOptimization();
+			} else {
+				simulationResult = this.runRegularOptimization();
 			}
+
+		} catch (InterruptedException | ExecutionException | IllegalArgumentException e) {
+			this.traceLog(() -> "Optimizer::run() " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+
+		this.applySimulationResult(simulationResult);
+	}
+
+	/**
+	 * Creates a new {@link Simulator} using the `gscSupplier` and updates
+	 * `this.simulator`.
+	 * 
+	 * @return a {@link Simulator} or null
+	 * @throws InterruptedException on interrupted sleep
+	 */
+	private Simulator updateSimulator() throws InterruptedException {
+		// Create the Simulator with GlobalSimulationsContext
+		createSimulator(this.gscSupplier, //
+				simulator -> this.simulator = simulator, //
+				error -> {
+					this.traceLog(error);
+					this.applySimulationResult(EMPTY);
+				});
+		final var simulator = this.simulator;
+		if (simulator == null) {
+			this.traceLog(() -> "Simulator is null");
+		} else {
+			this.traceLog(() -> "Simulator is " + simulator.toLogString(""));
+		}
+		return simulator;
+	}
+
+	/**
+	 * Runs a quick optimization with only one generation.
+	 * 
+	 * @return a {@link SimulationResult} or null
+	 * @throws InterruptedException on interrupted sleep
+	 * @throws ExecutionException   on simulation error
+	 */
+	protected SimulationResult runQuickOptimization() throws InterruptedException, ExecutionException {
+		var simulator = this.updateSimulator();
+		if (simulator == null) {
+			return SimulationResult.EMPTY;
+		}
+
+		if (this.simulationResult == EMPTY) {
+			this.traceLog(() -> "reschedule because previous simulationresult is EMPTY");
+		} else {
+			this.traceLog(() -> "triggerReschedule() had been called -> reschedule");
+		}
+		return this.runSimulation(simulator, //
+				false, // current period can get adjusted
+				byFixedGeneration(1)) // simulate only one generation
+				.get();
+	}
+
+	/**
+	 * Runs a regular optimization for upcoming periods.
+	 * 
+	 * @return a {@link SimulationResult} or null
+	 * @throws InterruptedException on interrupted sleep
+	 * @throws ExecutionException   on simulation error
+	 */
+	protected SimulationResult runRegularOptimization() throws InterruptedException, ExecutionException {
+		// Run regular optimization for upcoming periods
+		var millisTillNextQuarter = calculateSleepMillis();
+		if (millisTillNextQuarter < 60_000 /* 60s */) {
+			this.traceLog(() -> "Run Simulation in " + millisTillNextQuarter + "ms...");
+			sleep(millisTillNextQuarter);
+		}
+		var simulator = this.updateSimulator();
+		if (simulator == null) {
+			return SimulationResult.EMPTY;
+		}
+
+		this.traceLog(() -> "Run Simulation");
+		return this.runSimulation(simulator, //
+				true, // current period should not get adjusted
+				byExecutionTime(ofSeconds(calculateExecutionLimitSeconds()))) // Limit by execution time
+				.get();
+	}
+
+	protected CompletableFuture<SimulationResult> runSimulation(Simulator simulator, boolean isCurrentPeriodFixed,
+			Predicate<? super EvolutionResult<IntegerGene, Double>> executionLimit) {
+		this.traceLog(() -> "Run next Simulation");
+		return CompletableFuture.supplyAsync(() -> {
+			this.traceLog(() -> "Executing async Simulation");
+
+			var bestSchedule = simulator.getBestSchedule(this.simulationResult, isCurrentPeriodFixed, null, //
+					stream -> stream //
+							// Stop till next quarter
+							.limit(executionLimit));
+
+			return bestSchedule;
+		});
+	}
+
+	/**
+	 * Applies the Schedule to all {@link EnergyScheduleHandler}s and stores the
+	 * {@link SimulationResult} in `this.simulationResult`.
+	 *
+	 * @param simulationResult the {@link SimulationResult}
+	 */
+	protected void applySimulationResult(SimulationResult simulationResult) {
+		if (simulationResult == EMPTY /* no result */) {
+			this.traceLog(() -> "Simulation gave no result!");
+		}
+
+		final var simulator = this.simulator;
+		if (simulator != null) {
+			// Debug Log best Schedule
+			logSimulationResult(simulator, simulationResult);
+
+			// Calculate metrics
+			var stats = simulator.cache.stats();
+			this.simulationsPerQuarterChannel.setNextValue(stats.loadCount());
+		}
+
+		// Store result
+		this.simulationResult = simulationResult;
+
+		// Send Schedule to Controllers
+		simulationResult.schedules().forEach((esh, schedule) -> {
+			esh.applySchedule(schedule);
+		});
+	}
+
+	private void traceLog(Supplier<String> message) {
+		switch (this.logVerbosity.get()) {
+		case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+		case TRACE -> this.log.info("OPTIMIZER " + message.get());
 		}
 	}
 
 	/**
-	 * Try forever till all data is available (e.g. ESS Capacity)
+	 * Gets the {@link SimulationResult}.
 	 * 
-	 * @throws InterruptedException during sleep
+	 * @return {@link SimulationResult}
 	 */
-	private void createParams() throws InterruptedException {
-		while (true) {
-			try {
-				synchronized (this.schedule) {
-					this.params = createSimulatorParams(this.globalContext.get(), //
-							this.schedule.entrySet().stream() //
-									.collect(toImmutableSortedMap(//
-											ZonedDateTime::compareTo, //
-											Entry::getKey, e -> e.getValue().state())));
-					return;
-				}
-
-			} catch (OpenemsException e) {
-				this.log.info("# Stuck trying to get Params. " + e.getMessage());
-				this.params = null;
-				synchronized (this.schedule) {
-					this.schedule.clear();
-				}
-				sleep(30_000);
-			}
-		}
+	public SimulationResult getSimulationResult() {
+		return this.simulationResult;
 	}
 
 	/**
-	 * Gets the current {@link Params} or null.
-	 * 
-	 * @return the {@link Params} or null
+	 * Output for Controller.Debug.Log.
+	 *
+	 * @return the debug log output
 	 */
-	public Params getParams() {
-		return this.params;
-	}
-
-	/**
-	 * Gets a copy of the Schedule.
-	 * 
-	 * @return {@link ImmutableSortedMap}
-	 */
-	public ImmutableSortedMap<ZonedDateTime, Period> getSchedule() {
-		synchronized (this.schedule) {
-			return ImmutableSortedMap.copyOf(this.schedule);
+	public String debugLog() {
+		var b = new StringBuilder();
+		if (this.simulationResult.periods().isEmpty()) {
+			b.append("No Schedule available");
+		} else {
+			b.append("ScheduledPeriods:" + this.simulationResult.periods().size());
 		}
+		var simulator = this.simulator;
+		if (simulator != null) {
+			var stats = simulator.cache.stats();
+			b.append("|SimulationCounter:" + stats.loadCount());
+		}
+		b.append("|PerQuarter:" + this.simulationsPerQuarterChannel.value());
+		return b.toString();
 	}
 }

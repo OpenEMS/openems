@@ -7,7 +7,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		private String accessToken;
+		private String zipcode;
+		private String clientId;
+		private String clientSecret;
 
 		private Builder() {
 		}
@@ -17,8 +19,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setAccessToken(String accessToken) {
-			this.accessToken = accessToken;
+		public Builder setZipcode(String zipcode) {
+			this.zipcode = zipcode;
+			return this;
+		}
+
+		public Builder setClientId(String clientId) {
+			this.clientId = clientId;
+			return this;
+		}
+
+		public Builder setClientSecret(String clientSecret) {
+			this.clientSecret = clientSecret;
 			return this;
 		}
 
@@ -44,8 +56,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String accessToken() {
-		return this.builder.accessToken;
+	public String zipcode() {
+		return this.builder.zipcode;
+	}
+
+	@Override
+	public String clientId() {
+		return this.builder.clientId;
+	}
+
+	@Override
+	public String clientSecret() {
+		return this.builder.clientSecret;
 	}
 
 }

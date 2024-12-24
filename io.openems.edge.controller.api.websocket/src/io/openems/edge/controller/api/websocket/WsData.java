@@ -142,14 +142,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		String tokenString;
-		if (this.sessionToken != null) {
-			tokenString = this.sessionToken.toString();
-		} else {
-			tokenString = "UNKNOWN";
-		}
-		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + this.user + "]";
+	public String toLogString() {
+		return new StringBuilder("WebsocketApi.WsData [sessionToken=") //
+				.append(this.sessionToken != null //
+						? this.sessionToken.toString() //
+						: "UNKNOWN") //
+				.append(", user=") //
+				.append(this.user) //
+				.append("]") //
+				.toString();
 	}
 
 	/**

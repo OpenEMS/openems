@@ -7,8 +7,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvcsOcppAbl extends Evcs, MeasuringEvcs, ManagedEvcs, OpenemsComponent, EventHandler {
+public interface EvcsOcppAbl
+		extends Evcs, MeasuringEvcs, ManagedEvcs, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

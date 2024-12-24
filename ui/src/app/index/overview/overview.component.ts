@@ -1,8 +1,8 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { InfiniteScrollCustomEvent } from "@ionic/angular";
+import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { filter, take } from "rxjs/operators";
@@ -10,14 +10,14 @@ import { Pagination } from "src/app/shared/service/pagination";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
-
 import { ChosenFilter } from "../filter/filter.component";
 
 @Component({
     selector: "overview",
     templateUrl: "./overview.component.html",
+    standalone: false,
 })
-export class OverViewComponent implements OnInit, OnDestroy {
+export class OverViewComponent implements ViewWillEnter, OnDestroy {
     public environment = environment;
     /** True, if there is no access to any Edge. */
     public noEdges: boolean = false;
@@ -50,7 +50,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
         public pagination: Pagination,
     ) { }
 
-    ngOnInit() {
+    ionViewWillEnter() {
         this.page = 0;
         this.filteredEdges = [];
         this.limitReached = false;
@@ -139,7 +139,6 @@ export class OverViewComponent implements OnInit, OnDestroy {
                     take(1),
                 )
                 .subscribe(metadata => {
-
                     const edgeIds = Object.keys(metadata.edges);
                     this.noEdges = edgeIds.length === 0;
                     this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");

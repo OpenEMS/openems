@@ -23,17 +23,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.ChargingType;
+import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -44,12 +47,13 @@ import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
-		implements EvcsKebaKeContact, ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
+public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implements EvcsKebaKeContact, ManagedEvcs, Evcs,
+		DeprecatedEvcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
+
+	protected final ReadHandler readHandler = new ReadHandler(this);
 
 	private final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
-	private final ReadHandler readHandler = new ReadHandler(this);
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -65,10 +69,21 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 	public EvcsKebaKeContactImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
+				DeprecatedEvcs.ChannelId.values(), //
 				EvcsKebaKeContact.ChannelId.values() //
 		);
+		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+
+		// Set ReactivePower defaults
+		this._setReactivePower(0);
+		this._setReactivePowerL1(0);
+		this._setReactivePowerL2(0);
+		this._setReactivePowerL3(0);
 	}
 
 	@Activate
@@ -125,6 +140,11 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent
 			}
 			break;
 		}
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	/**

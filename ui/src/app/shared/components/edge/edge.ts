@@ -22,9 +22,9 @@ import { GetChannelResponse } from "../../jsonrpc/response/getChannelResponse";
 import { Channel, GetChannelsOfComponentResponse } from "../../jsonrpc/response/getChannelsOfComponentResponse";
 import { GetEdgeConfigResponse } from "../../jsonrpc/response/getEdgeConfigResponse";
 import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getPropertiesOfFactoryResponse";
-import { ArrayUtils } from "../../service/arrayutils";
 import { ChannelAddress, EdgePermission, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
+import { ArrayUtils } from "../../utils/array/array.utils";
 import { CurrentData } from "./currentdata";
 import { EdgeConfig } from "./edgeconfig";
 

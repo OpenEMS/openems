@@ -8,6 +8,7 @@ import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./modal
 @Component({
     selector: "Controller_Symmetric_TimeSlot_PeakShaving",
     templateUrl: "./Symmetric_TimeSlot.html",
+    standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends AbstractFlatWidget {
 

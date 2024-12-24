@@ -1,18 +1,16 @@
 package io.openems.edge.scheduler.daily;
 
+import static io.openems.common.utils.JsonUtils.buildJsonArray;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static org.junit.Assert.assertEquals;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.test.TimeLeapClock;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -21,56 +19,49 @@ import io.openems.edge.scheduler.api.Scheduler;
 
 public class SchedulerDailyImplTest {
 
-	private static final String SCHEDULER_ID = "scheduler0";
-
-	private static final String CTRL0_ID = "ctrl0";
-	private static final String CTRL1_ID = "ctrl1";
-	private static final String CTRL2_ID = "ctrl2";
-	private static final String CTRL3_ID = "ctrl3";
-	private static final String CTRL4_ID = "ctrl4";
-
 	@Test
 	public void test() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = createDummyClock();
 		final SchedulerDaily sut = new SchedulerDailyImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addComponent(new DummyController(CTRL0_ID)) //
-				.addComponent(new DummyController(CTRL1_ID)) //
-				.addComponent(new DummyController(CTRL2_ID)) //
-				.addComponent(new DummyController(CTRL3_ID)) //
-				.addComponent(new DummyController(CTRL4_ID)) //
+				.addComponent(new DummyController("ctrl0")) //
+				.addComponent(new DummyController("ctrl1")) //
+				.addComponent(new DummyController("ctrl2")) //
+				.addComponent(new DummyController("ctrl3")) //
+				.addComponent(new DummyController("ctrl4")) //
 				.activate(MyConfig.create() //
-						.setId(SCHEDULER_ID) //
-						.setAlwaysRunBeforeControllerIds(CTRL2_ID).setControllerScheduleJson(JsonUtils.buildJsonArray() //
-								.add(JsonUtils.buildJsonObject() //
+						.setId("scheduler0") //
+						.setAlwaysRunBeforeControllerIds("ctrl2") //
+						.setControllerScheduleJson(buildJsonArray() //
+								.add(buildJsonObject() //
 										.addProperty("time", "08:00:00") //
-										.add("controllers", JsonUtils.buildJsonArray() //
-												.add(CTRL0_ID) //
+										.add("controllers", buildJsonArray() //
+												.add("ctrl0") //
 												.build()) //
 										.build()) //
-								.add(JsonUtils.buildJsonObject() //
+								.add(buildJsonObject() //
 										.addProperty("time", "13:45:00") //
-										.add("controllers", JsonUtils.buildJsonArray() //
-												.add(CTRL4_ID) //
+										.add("controllers", buildJsonArray() //
+												.add("ctrl4") //
 												.build()) //
 										.build()) //
 								.build().toString())
-						.setAlwaysRunAfterControllerIds(CTRL3_ID, CTRL1_ID) //
+						.setAlwaysRunAfterControllerIds("ctrl3", "ctrl1") //
 						.build()) //
 				.next(new TestCase("00:00") //
 						.onBeforeControllersCallbacks(() -> assertEquals(//
-								Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
+								List.of("ctrl2", "ctrl4", "ctrl3", "ctrl1"), //
 								getControllerIds(sut)))) //
 				.next(new TestCase("12:00") //
-						.timeleap(clock, 12, ChronoUnit.HOURS) //
+						.timeleap(clock, 12, HOURS) //
 						.onBeforeControllersCallbacks(() -> assertEquals(//
-								Arrays.asList(CTRL2_ID, CTRL0_ID, CTRL3_ID, CTRL1_ID), //
+								List.of("ctrl2", "ctrl0", "ctrl3", "ctrl1"), //
 								getControllerIds(sut))))
 				.next(new TestCase("14:00") //
-						.timeleap(clock, 12, ChronoUnit.HOURS) //
+						.timeleap(clock, 12, HOURS) //
 						.onBeforeControllersCallbacks(() -> assertEquals(//
-								Arrays.asList(CTRL2_ID, CTRL4_ID, CTRL3_ID, CTRL1_ID), //
+								List.of("ctrl2", "ctrl4", "ctrl3", "ctrl1"), //
 								getControllerIds(sut))));
 	}
 

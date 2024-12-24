@@ -1,4 +1,5 @@
-<td style="width: fit-content; display: inline;  margin-right: 0%; text-align: end;" *ngIf="displayValue">
+<td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" *ngIf="displayValue">
   <!-- 'Normal' line, name and value  -->
-  <span style="width: fit-content;">&nbsp;&nbsp;{{ displayValue }}</span>
+  <span style="width: fit-content;">{{displayName ? displayName + ": " + displayValue: '&nbsp;&nbsp;' +
+    displayValue}}</span>
 </td>

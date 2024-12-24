@@ -92,12 +92,7 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected WsData createWsData(WebSocket ws) {
-		return new WsData(ws) {
-			@Override
-			public String toString() {
-				return "TestClient.WsData []";
-			}
-		};
+		return new WsData(ws);
 	}
 
 	@Override

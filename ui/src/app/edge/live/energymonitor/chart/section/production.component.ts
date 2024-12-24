@@ -24,6 +24,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
             transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
+    standalone: false,
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -38,7 +39,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super("General.production", "up", "#36aed1", translate, service, "Common_Production");
+        super("General.production", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
     }
 

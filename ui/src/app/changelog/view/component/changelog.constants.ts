@@ -2,7 +2,7 @@ import { Role } from "src/app/shared/type/role";
 
 export class Changelog {
 
-    public static readonly UI_VERSION = "2024.10.0-SNAPSHOT";
+    public static readonly UI_VERSION = "2025.1.0-SNAPSHOT";
 
     public static product(...products: Product[]) {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + ". ";
@@ -27,7 +27,7 @@ export class Changelog {
     }
 
     public static link(title: string, url: string) {
-        return "<a target=\"_blank\" href=\"" + url + "\">" + title + "</a>";
+        return "<a class='ion-link' target=\"_blank\" href=\"" + url + "\">" + title + "</a>";
     }
 }
 

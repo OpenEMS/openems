@@ -9,14 +9,12 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class SimulatorGridMeterReactingImplTest {
 
-	private static final String COMPONENT_ID = "meter0";
-
 	@Test
 	public void test() throws OpenemsException, Exception {
 		new ComponentTest(new SimulatorGridMeterReactingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("meter0") //
 						.build()) //
 				.next(new TestCase());
 	}

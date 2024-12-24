@@ -1,5 +1,7 @@
 package io.openems.edge.common.test;
 
+import static io.openems.edge.common.test.TestUtils.createDummyClock;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 	private ConfigurationAdmin configurationAdmin = null;
 
 	public DummyComponentManager() {
-		this(Clock.systemDefaultZone());
+		this(createDummyClock());
 	}
 
 	public DummyComponentManager(Clock clock) {

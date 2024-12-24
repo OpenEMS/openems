@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.hardybarth;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evcs.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -10,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String ip;
 		private int minHwCurrent;
 		private int maxHwCurrent;
+		private PhaseRotation phaseRotation;
 
 		private Builder() {
 		}
@@ -31,6 +33,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMaxHwCurrent(int maxHwCurrent) {
 			this.maxHwCurrent = maxHwCurrent;
+			return this;
+		}
+
+		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
+			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -73,5 +80,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int maxHwCurrent() {
 		return this.builder.maxHwCurrent;
+	}
+
+	@Override
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 }

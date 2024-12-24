@@ -10,7 +10,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 * @input model the model
 */
 @Component({
-  selector: "formly-skeleton-wrapper",
+  selector: "oe-formly-skeleton-wrapper",
   template: `
 <div>
   <ion-list *ngIf="!show">
@@ -21,6 +21,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
   <formly-form *ngIf="show" [form]="form" [fields]="fields" [model]="model"></formly-form>
 </div>
   `,
+  standalone: false,
 })
 export class FormlyFieldWithLoadingAnimationComponent {
   @Input() public show: boolean = false;

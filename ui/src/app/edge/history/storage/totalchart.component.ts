@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { formatNumber } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -7,12 +8,13 @@ import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 
-import { formatNumber } from "@angular/common";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
     selector: "storageTotalChart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class StorageTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -110,7 +112,8 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                     backgroundColor: "rgba(0,223,0,0.05)",
                                     borderColor: "rgba(0,223,0,1)",
                                 });
-                            } if ("_sum/EssActivePowerL1" && "_sum/EssActivePowerL2" && "_sum/EssActivePowerL3" in result.data && this.showPhases == true) {
+
+                            } if (ObjectUtils.hasKeys(result.data, ["_sum/EssActivePowerL1", "_sum/EssActivePowerL2", "_sum/EssActivePowerL3"]) && this.showPhases == true) {
                                 if (channelAddress.channelId == "EssActivePowerL1") {
                                     datasets.push({
                                         label: this.translate.instant("General.phase") + " " + "L1",
@@ -252,9 +255,9 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
             const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
             // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
             if (value < -0.005) {
-                label += " " + translate.instant("General.chargePower");
+                label += " " + translate.instant("General.CHARGE");
             } else if (value > 0.005) {
-                label += " " + translate.instant("General.dischargePower");
+                label += " " + translate.instant("General.DISCHARGE");
             }
             return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
         };
