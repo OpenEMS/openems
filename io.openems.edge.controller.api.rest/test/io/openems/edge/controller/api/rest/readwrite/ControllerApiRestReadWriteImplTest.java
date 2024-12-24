@@ -1,9 +1,11 @@
 package io.openems.edge.controller.api.rest.readwrite;
 
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.common.test.DummyUser.DUMMY_GUEST;
 import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
 import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
+import static io.openems.edge.controller.api.rest.readwrite.ControllerApiRestReadWrite.ChannelId.API_WORKER_LOG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,11 +13,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.Base64;
 
 import org.junit.Test;
+import org.osgi.framework.Constants;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -25,7 +29,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Doc;
@@ -36,28 +39,50 @@ import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyUserService;
 import io.openems.edge.common.test.TestUtils;
+import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
+import io.openems.edge.controller.api.common.handler.ComponentRequestHandler;
+import io.openems.edge.controller.api.common.handler.RoutesJsonApiHandler;
+import io.openems.edge.controller.api.rest.DummyJsonRpcRestHandlerFactory;
+import io.openems.edge.controller.api.rest.JsonRpcRestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingComponentConfigRequestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingComponentRequestHandler;
+import io.openems.edge.controller.api.rest.handler.BindingRoutesJsonApiHandler;
+import io.openems.edge.controller.api.rest.handler.RootRequestHandler;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 public class ControllerApiRestReadWriteImplTest {
-
-	private static final String CTRL_ID = "ctrlApiRest0";
-	private static final String DUMMY_ID = "dummy0";
 
 	@Test
 	public void test() throws OpenemsException, Exception {
 		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
 
+		final var componentManager = new DummyComponentManager();
+
+		final var rootHandler = new RootRequestHandler(new BindingRoutesJsonApiHandler(new RoutesJsonApiHandler()));
+		rootHandler.bindJsonApi(
+				new BindingComponentConfigRequestHandler(new ComponentConfigRequestHandler(componentManager)));
+		final var componentRequestHandler = new ComponentRequestHandler();
+		componentRequestHandler.bindJsonApi(componentManager, ImmutableMap.<String, Object>builder() //
+				.put(Constants.SERVICE_ID, 0L) //
+				.build());
+		rootHandler.bindJsonApi(new BindingComponentRequestHandler(componentRequestHandler));
+
+		final var factory = new DummyJsonRpcRestHandlerFactory(() -> {
+			final var restHandler = new JsonRpcRestHandler();
+			restHandler.bindRootHandler(rootHandler);
+			return restHandler;
+		});
+
 		var sut = new ControllerApiRestReadWriteImpl();
 		var test = new ControllerTest(sut) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("componentManager", componentManager) //
 				.addReference("userService", new DummyUserService(//
 						DUMMY_GUEST, DUMMY_OWNER, DUMMY_INSTALLER, DUMMY_ADMIN)) //
-				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addComponent(new DummyComponent(DUMMY_ID) //
+				.addReference("restHandlerFactory", factory) //
+				.addComponent(new DummyComponent("dummy0") //
 						.withReadChannel(1234)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrlApiRest0") //
 						.setApiTimeout(60) //
 						.setConnectionlimit(5) //
 						.setDebugMode(false) //
@@ -71,7 +96,7 @@ public class ControllerApiRestReadWriteImplTest {
 		var channelGet = sendGetRequest(port, DUMMY_GUEST.password, "/rest/channel/dummy0/ReadChannel");
 		assertEquals(JsonUtils.buildJsonObject() //
 				.addProperty("address", "dummy0/ReadChannel") //
-				.addProperty("type", "INTEGER") //
+				.addProperty("type", "INTEGER") // s
 				.addProperty("accessMode", "RO") //
 				.addProperty("text", "This is a Read-Channel") //
 				.addProperty("unit", "W") //
@@ -86,8 +111,8 @@ public class ControllerApiRestReadWriteImplTest {
 		assertEquals(new JsonObject(), channelPost);
 		test //
 				.next(new TestCase() //
-						.output(new ChannelAddress("dummy0", "WriteChannel"), 4321) //
-						.output(new ChannelAddress(CTRL_ID, "ApiWorkerLog"), "dummy0/WriteChannel:4321"));
+						.output("dummy0", DummyComponent.ChannelId.WRITE_CHANNEL, 4321) //
+						.output(API_WORKER_LOG, "dummy0/WriteChannel:4321"));
 
 		// POST fails as GUEST
 		try {
@@ -105,7 +130,7 @@ public class ControllerApiRestReadWriteImplTest {
 		// POST successful as OWNER
 		var request = new GetEdgeConfigRequest().toJsonObject();
 		JsonrpcResponseSuccess.from(//
-				JsonUtils.getAsJsonObject(//
+				getAsJsonObject(//
 						sendPostRequest(port, DUMMY_OWNER.password, "/jsonrpc", request)));
 
 		// POST fails as GUEST
@@ -131,7 +156,8 @@ public class ControllerApiRestReadWriteImplTest {
 	private static JsonElement sendRequest(int port, String requestMethod, String password, String endpoint,
 			JsonObject request) throws OpenemsNamedException {
 		try {
-			var url = new URL("http://127.0.0.1:" + port + endpoint);
+			var uri = URI.create("http://127.0.0.1:" + port + endpoint);
+			var url = uri.toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestProperty("Authorization",
 					"Basic " + new String(Base64.getEncoder().encode(("x:" + password).getBytes())));

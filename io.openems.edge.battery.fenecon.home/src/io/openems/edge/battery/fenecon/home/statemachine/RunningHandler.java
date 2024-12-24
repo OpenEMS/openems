@@ -11,7 +11,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 		var battery = context.getParent();
 
 		if (battery.hasFaults()) {
-			return State.UNDEFINED;
+			return State.ERROR;
 		}
 
 		// Is Battery still started?

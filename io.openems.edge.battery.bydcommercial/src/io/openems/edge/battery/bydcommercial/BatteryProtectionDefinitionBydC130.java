@@ -80,4 +80,14 @@ public class BatteryProtectionDefinitionBydC130 implements BatteryProtectionDefi
 	public Double getMaxIncreaseAmperePerSecond() {
 		return 0.1; // [A] per second
 	}
+
+	@Override
+	public PolyLine getChargeSocToPercent() {
+		return PolyLine.empty();
+	}
+
+	@Override
+	public PolyLine getDischargeSocToPercent() {
+		return PolyLine.empty();
+	}
 }

@@ -1,24 +1,21 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { YAxisTitle } from 'src/app/shared/service/utils';
+// @ts-strict-ignore
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { YAxisType } from "src/app/shared/service/utils";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
-    selector: 'chpsocchart',
-    templateUrl: '../abstracthistorychart.html',
+    selector: "chpsocchart",
+    templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
-
-    ngOnChanges() {
-        this.updateChart();
-    };
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
     constructor(
         protected override service: Service,
@@ -28,13 +25,20 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         super("chpsoc-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent('', this.route);
     }
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 1.3;
     }
 
     protected updateChart() {
@@ -44,26 +48,26 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(() => {
                 this.service.getConfig().then(config => {
-                    let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
-                    let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
-                    let lowThreshold = this.componentId + '/_PropertyLowThreshold';
-                    let highThreshold = this.componentId + '/_PropertyHighThreshold';
-                    let result = response.result;
+                    const outputChannel = config.getComponentProperties(this.componentId)["outputChannelAddress"];
+                    const inputChannel = config.getComponentProperties(this.componentId)["inputChannelAddress"];
+                    const lowThreshold = this.componentId + "/_PropertyLowThreshold";
+                    const highThreshold = this.componentId + "/_PropertyHighThreshold";
+                    const result = response.result;
                     // convert labels
-                    let labels: Date[] = [];
-                    for (let timestamp of result.timestamps) {
+                    const labels: Date[] = [];
+                    for (const timestamp of result.timestamps) {
                         labels.push(new Date(timestamp));
                     }
                     this.labels = labels;
 
                     // convert datasets
-                    let datasets = [];
+                    const datasets = [];
 
                     // convert datasets
-                    for (let channel in result.data) {
+                    for (const channel in result.data) {
                         if (channel == outputChannel) {
-                            let address = ChannelAddress.fromString(channel);
-                            let data = result.data[channel].map(value => {
+                            const address = ChannelAddress.fromString(channel);
+                            const data = result.data[channel].map(value => {
                                 if (value == null) {
                                     return null;
                                 } else {
@@ -75,11 +79,11 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                                 data: data,
                             });
                             this.colors.push({
-                                backgroundColor: 'rgba(0,191,255,0.05)',
-                                borderColor: 'rgba(0,191,255,1)',
+                                backgroundColor: "rgba(0,191,255,0.05)",
+                                borderColor: "rgba(0,191,255,1)",
                             });
                         } else {
-                            let data = result.data[channel].map(value => {
+                            const data = result.data[channel].map(value => {
                                 if (value == null) {
                                     return null;
                                 } else if (value > 100 || value < 0) {
@@ -90,34 +94,34 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             });
                             if (channel == inputChannel) {
                                 datasets.push({
-                                    label: this.translate.instant('General.soc'),
+                                    label: this.translate.instant("General.soc"),
                                     data: data,
                                 });
                                 this.colors.push({
-                                    backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,223,0,1)',
+                                    backgroundColor: "rgba(0,0,0,0)",
+                                    borderColor: "rgba(0,223,0,1)",
                                 });
                             }
                             if (channel == lowThreshold) {
                                 datasets.push({
-                                    label: this.translate.instant('Edge.Index.Widgets.CHP.lowThreshold'),
+                                    label: this.translate.instant("Edge.Index.Widgets.CHP.lowThreshold"),
                                     data: data,
                                     borderDash: [3, 3],
                                 });
                                 this.colors.push({
-                                    backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,191,255,1)',
+                                    backgroundColor: "rgba(0,0,0,0)",
+                                    borderColor: "rgba(0,191,255,1)",
                                 });
                             }
                             if (channel == highThreshold) {
                                 datasets.push({
-                                    label: this.translate.instant('Edge.Index.Widgets.CHP.highThreshold'),
+                                    label: this.translate.instant("Edge.Index.Widgets.CHP.highThreshold"),
                                     data: data,
                                     borderDash: [3, 3],
                                 });
                                 this.colors.push({
-                                    backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,191,255,1)',
+                                    backgroundColor: "rgba(0,0,0,0)",
+                                    borderColor: "rgba(0,191,255,1)",
                                 });
                             }
                         }
@@ -140,20 +144,20 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
             this.initializeChart();
             return;
         }).finally(() => {
-            this.unit = YAxisTitle.PERCENTAGE;
+            this.unit = YAxisType.PERCENTAGE;
             this.setOptions(this.options);
-        });;
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-            const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-            let result: ChannelAddress[] = [
+            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)["outputChannelAddress"]);
+            const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)["inputChannelAddress"]);
+            const result: ChannelAddress[] = [
                 outputChannel,
                 inputChannel,
-                new ChannelAddress(this.componentId, '_PropertyHighThreshold'),
-                new ChannelAddress(this.componentId, '_PropertyLowThreshold'),
+                new ChannelAddress(this.componentId, "_PropertyHighThreshold"),
+                new ChannelAddress(this.componentId, "_PropertyLowThreshold"),
             ];
             resolve(result);
         });
@@ -163,7 +167,4 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
         this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 1.3;
-    }
 }

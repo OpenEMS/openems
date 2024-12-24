@@ -33,7 +33,7 @@ public class TestOfflineEdgeHandler {
 	public void testGetterSetter() {
 		final var mss = new MessageSchedulerServiceImpl();
 		final var meta = new SimpleMetadataImpl();
-		final var timer = new MinuteTimer(null);
+		final var timer = new MinuteTimer(Clock.systemUTC());
 		final var handler = new OfflineEdgeHandler(mss, timer, null, meta, 1);
 		assertEquals(OfflineEdgeMessage.class, handler.getGeneric());
 	}
@@ -41,7 +41,7 @@ public class TestOfflineEdgeHandler {
 	@Test
 	public void testActivate() {
 		final var service = new MessageSchedulerServiceImpl();
-		final var timer = new MinuteTimer(null);
+		final var timer = new MinuteTimer(Clock.systemUTC());
 		var handler = new OfflineEdgeHandler(service, timer, null, new SimpleMetadataImpl(), 1);
 		assertEquals(1, service.msgScheduler.size());
 		assertTrue(service.msgScheduler.get(0).isFor(handler));
@@ -78,7 +78,7 @@ public class TestOfflineEdgeHandler {
 	public void checkmetadata() {
 		final var metadata = Utility.getTestMetadata();
 		final var msgsch = new MessageSchedulerServiceImpl();
-		final var timer = new MinuteTimer(null);
+		final var timer = new MinuteTimer(Clock.systemUTC());
 		final var handler = new OfflineEdgeHandler(msgsch, timer, null, metadata, 0);
 
 		final var expected = (int) metadata.getOfflineSettings().values().stream() //
@@ -105,7 +105,7 @@ public class TestOfflineEdgeHandler {
 		final var msgMeta = new Utility.ToManyMsgsMetadata();
 		final var msgMsgsch = new MessageSchedulerServiceImpl();
 		final var msgCount = new AtomicInteger();
-		final var timer = new MinuteTimer(null);
+		final var timer = new MinuteTimer(Clock.systemUTC());
 		msgMeta.getAllOfflineEdges().stream().map(e -> msgMeta.getEdgeOfflineAlertingSettings(e.getId())).forEach(e -> {
 			e.forEach(s -> {
 				if (s.lastNotification().plusMinutes(s.delay()).isBefore(Utility.now)) {

@@ -53,9 +53,10 @@ public class MinuteTimerAsync extends MinuteTimer {
 	@Override
 	protected void stop() {
 		super.stop();
-		if (this.scheduler != null) {
-			this.scheduler.shutdownNow();
-			this.scheduler = null;
+		if (this.scheduler == null) {
+			return;
 		}
+		this.scheduler.shutdownNow();
+		this.scheduler = null;
 	}
 }

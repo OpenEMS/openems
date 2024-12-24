@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+// @ts-strict-ignore
+import { Component } from "@angular/core";
 
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { Converter } from 'src/app/shared/genericComponents/shared/converter';
-import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Converter } from "src/app/shared/components/shared/converter";
+import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 
 @Component({
-    selector: 'channelthresholdWidget',
-    templateUrl: './flat.html',
+    selector: "channelthresholdWidget",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -19,14 +21,14 @@ export class FlatComponent extends AbstractFlatWidget {
 
     protected override getChannelAddresses(): ChannelAddress[] {
 
-        this.controllers = this.config.getComponentsByFactory('Controller.ChannelThreshold').concat(this.config.getComponentsImplementingNature('io.openems.impl.controller.channelthreshold.ChannelThresholdController'));
+        this.controllers = this.config.getComponentsByFactory("Controller.ChannelThreshold").concat(this.config.getComponentsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController"));
 
-        let channelAddresses: ChannelAddress[] = [];
+        const channelAddresses: ChannelAddress[] = [];
 
-        for (let controller of this.controllers) {
-            let output: ChannelAddress | null = ChannelAddress.fromString(controller.properties['outputChannelAddress']);
+        for (const controller of this.controllers) {
+            const output: ChannelAddress | null = ChannelAddress.fromString(controller.properties["outputChannelAddress"]);
             this.displayName.set(controller.id, this.getDisplayName(controller, output));
-            channelAddresses.push(new ChannelAddress(controller.id, 'CumulatedActiveTime'));
+            channelAddresses.push(new ChannelAddress(controller.id, "CumulatedActiveTime"));
         }
         return channelAddresses;
     }

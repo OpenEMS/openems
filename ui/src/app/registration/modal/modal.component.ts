@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { RegisterUserRequest } from 'src/app/shared/jsonrpc/request/registerUserRequest';
-import { Service, Websocket } from 'src/app/shared/shared';
-import { COUNTRY_OPTIONS } from 'src/app/shared/type/country';
-import { environment } from 'src/environments';
+// @ts-strict-ignore
+import { Component, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { RegisterUserRequest } from "src/app/shared/jsonrpc/request/registerUserRequest";
+import { Service, Websocket } from "src/app/shared/shared";
+import { COUNTRY_OPTIONS } from "src/app/shared/type/country";
+import { environment } from "src/environments";
 
 @Component({
-  selector: 'registration-modal',
-  templateUrl: './modal.component.html',
+  selector: "registration-modal",
+  templateUrl: "./modal.component.html",
+  standalone: false,
 })
 export class RegistrationModalComponent implements OnInit {
 
@@ -43,27 +45,27 @@ export class RegistrationModalComponent implements OnInit {
    */
   onSubmit() {
     if (!this.formGroup.valid) {
-      this.service.toast(this.translate.instant("Register.errors.requiredFields"), 'danger');
+      this.service.toast(this.translate.instant("Register.errors.requiredFields"), "danger");
       return;
     }
 
-    let password = this.formGroup.value.password;
-    let confirmPassword = this.formGroup.value.confirmPassword;
+    const password = this.formGroup.value.password;
+    const confirmPassword = this.formGroup.value.confirmPassword;
 
     if (password != confirmPassword) {
-      this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), 'danger');
+      this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), "danger");
       return;
     }
 
-    let email = this.formGroup.value.email;
-    let confirmEmail = this.formGroup.value.confirmEmail;
+    const email = this.formGroup.value.email;
+    const confirmEmail = this.formGroup.value.confirmEmail;
 
     if (email != confirmEmail) {
-      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
+      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), "danger");
       return;
     }
 
-    let request = new RegisterUserRequest({
+    const request = new RegisterUserRequest({
       user: {
         firstname: this.formGroup.value.firstname,
         lastname: this.formGroup.value.lastname,
@@ -82,7 +84,7 @@ export class RegistrationModalComponent implements OnInit {
       oem: environment.theme,
     });
 
-    let companyName = this.formGroup.value.companyName;
+    const companyName = this.formGroup.value.companyName;
     if (companyName) {
       request.params.user.company = {
         name: companyName,
@@ -91,11 +93,11 @@ export class RegistrationModalComponent implements OnInit {
 
     this.websocket.sendRequest(request)
       .then(() => {
-        this.service.toast(this.translate.instant("Register.success"), 'success');
+        this.service.toast(this.translate.instant("Register.success"), "success");
         this.modalCtrl.dismiss();
       })
       .catch(reason => {
-        this.service.toast(reason.error.message, 'danger');
+        this.service.toast(reason.error.message, "danger");
       });
   }
 
@@ -104,7 +106,7 @@ export class RegistrationModalComponent implements OnInit {
    * If no role matches then the default (owner) from will be returnd.
    */
   private getForm(role: string): FormGroup {
-    if (role === 'installer') {
+    if (role === "installer") {
       return this.formBuilder.group({
         companyName: new FormControl("", Validators.required),
         firstname: new FormControl("", Validators.required),

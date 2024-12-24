@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 export namespace ColorUtils {
 
   /**
@@ -13,7 +14,7 @@ export namespace ColorUtils {
       return null;
     }
 
-    return 'rgba(' + color.split('(').pop().split(')')[0] + ',' + (opacity ?? 0) + ')';
+    return "rgba(" + color.split("(").pop().split(")")[0] + "," + (opacity ?? 0) + ")";
   }
 
   /**
@@ -29,9 +30,9 @@ export namespace ColorUtils {
       return null;
     }
 
-    var rgba = color.split('(').pop().split(')')[0];
-    var rgb = rgba.split(',').slice(0, -1).join(',');
+    const rgba = color.split("(").pop().split(")")[0];
+    const rgb = rgba.split(",").slice(0, -1).join(",");
 
-    return 'rgba(' + rgb + ',' + (opacity ?? 0) + ')';
+    return "rgba(" + rgb + "," + (opacity ?? 0) + ")";
   }
 }

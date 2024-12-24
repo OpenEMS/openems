@@ -1,10 +1,11 @@
-import { DecimalPipe } from '@angular/common';
-import { Pipe, PipeTransform } from '@angular/core';
+import { DecimalPipe } from "@angular/common";
+import { Pipe, PipeTransform } from "@angular/core";
 
-import { Converter } from '../../genericComponents/shared/converter';
+import { Converter } from "../../components/shared/converter";
 
 @Pipe({
-    name: 'formatSecondsToDuration',
+    name: "formatSecondsToDuration",
+    standalone: false,
 })
 export class FormatSecondsToDurationPipe implements PipeTransform {
 
@@ -14,12 +15,12 @@ export class FormatSecondsToDurationPipe implements PipeTransform {
 
         return Converter.IF_NUMBER(value, (val) => {
             let minutes = val / 60;
-            let hours = Math.floor(minutes / 60);
+            const hours = Math.floor(minutes / 60);
             minutes -= hours * 60;
             if (hours <= 23) {
-                return this.decimalPipe.transform(hours, '1.0-0') + 'h' + " " + this.decimalPipe.transform(minutes, '1.0-0') + 'm';
+                return this.decimalPipe.transform(hours, "1.0-0") + "h" + " " + this.decimalPipe.transform(minutes, "1.0-0") + "m";
             } else {
-                return this.decimalPipe.transform(hours, '1.0-0') + 'h';
+                return this.decimalPipe.transform(hours, "1.0-0") + "h";
             }
         });
     }

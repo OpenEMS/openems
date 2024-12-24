@@ -4,6 +4,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.prediction.Predictor;
 
 public interface PredictorManager extends OpenemsComponent {
 
@@ -29,8 +30,8 @@ public interface PredictorManager extends OpenemsComponent {
 	 * given {@link ChannelAddress}.
 	 *
 	 * @param channelAddress the {@link ChannelAddress}
-	 * @return the {@link Prediction}; {@link Prediction#EMPTY_PREDICTION} if no Predictor
-	 *         matches the Channel-Address
+	 * @return the {@link Prediction}; {@link Prediction#EMPTY_PREDICTION} if no
+	 *         Predictor matches the Channel-Address
 	 */
 	public Prediction getPrediction(ChannelAddress channelAddress);
 }

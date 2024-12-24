@@ -82,6 +82,7 @@ public class PostgresHandler {
 			pgds.setPassword(config.pgPassword());
 		}
 		var result = new HikariDataSource();
+		result.setMaximumPoolSize(config.pgConnectionPoolSize());
 		result.setDataSource(pgds);
 		return result;
 	}

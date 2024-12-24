@@ -11,8 +11,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.",
-        "emergencyReserve": "Notstromreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.",
+        "EMERGENCY_RESERVE": "Notstromreserve"
       },
       "Energymonitor": {
         "activePower": "Ausgabeleistung",
@@ -126,7 +126,8 @@
             "passedEndTime": "Endzeitpunkt der begrenzten Beladung überschritten",
             "storageAlreadyFull": "Speicher bereits voll"
           },
-          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)"
+          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale Netzeinspeisung durch Batteriebeladung"
         },
         "CHP": {
           "highThreshold": "Oberer Schwellenwert",
@@ -199,7 +200,9 @@
             "name": "Erzwungene Beladung",
             "shortName": "Manuell"
           },
-          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden."
+          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden.",
+          "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
+          "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt."
         },
         "Heatingelement": {
           "activeForced": "Aktiv (Mindestlaufzeit)",
@@ -234,16 +237,30 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
           "PRICE": "Aktueller Bezugsstrompreis",
           "STATE": {
             "DELAY_DISCHARGE": "Entladung verzögert",
             "BALANCING": "Eigenverbrauchsoptimierung",
             "CHARGE_GRID": "Beladung aus dem Netz freigegeben"
           },
-          "CHART_TITLE": "Aktueller Fahrplan (BETA-Test)",
+          "CHART_TITLE": "Aktueller Fahrplan",
           "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
           "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)"
+        },
+        "SYSTEM": {
+          "INDUSTRIAL": {
+            "NOTE": "Startet oder stoppt das Gesamtsystem, inklusive Batteriewechselrichter und Batterien."
+          },
+          "OVERALL_SYSTEM": "Gesamtsystem"
+        },
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
+          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
         }
       },
       "RETROFITTING": {
@@ -263,6 +280,8 @@
       "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "PHASE_ACCURATE": "Phasengenau",
+      "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
       "endDate": "Enddatum wählen",
@@ -302,7 +321,10 @@
       "oct": "Okt",
       "nov": "Nov",
       "dec": "Dez",
-      "activeDuration": "Einschaltdauer"
+      "activeDuration": "Einschaltdauer",
+      "ACTIVE_DURATION_WITH_LEVEL": "Einschaltdauer Level {{level}}",
+      "CURRENT": "Strom",
+      "VOLTAGE": "Spannung"
     },
     "Config": {
       "Index": {
@@ -321,7 +343,8 @@
         "systemExecute": "System-Befehl ausführen",
         "systemProfile": "Anlagenprofil",
         "alerting": "Benachrichtigung",
-        "networkConfiguration": "Netzwerkkonfiguration"
+        "networkConfiguration": "Netzwerkkonfiguration",
+        "SYSTEM": "System"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
@@ -349,7 +372,8 @@
         "level": "Level",
         "message": "Nachricht",
         "source": "Quelle",
-        "timestamp": "Zeitpunkt"
+        "timestamp": "Zeitpunkt",
+        "CONDENSED_OUTPUT": "Komprimierte Ausgabe"
       },
       "Controller": {
         "app": "Anwendung:",
@@ -360,25 +384,16 @@
         "newConnection": "Neue Verbindung...",
         "newDevice": "Neues Gerät..."
       },
-      "Alerting": {
-        "offlineAlerting": "Offline Benachrichtigung",
-        "faultAlerting": "Fehler Benachrichtigung",
-        "warningAlerting": "Warnungs Benachrichtigung",
-        "deactivated": "Deaktiviert",
-        "activate": "Aktivieren",
-        "delay": "Verzögerung",
-        "save": "Speichern",
-        "toast": {
-          "success": "Einstellungen übernommen",
-          "error": "Fehler beim Laden der Einstellungen"
-        },
-        "interval": {
-          "hour": "Stunde",
-          "hours": "Stunden",
-          "minute": "Minute",
-          "minutes": "Minuten",
-          "day": "Tag",
-          "days": "Tage"
+      "ALERTING": {
+        "OFFLINE": "Offline Benachrichtigung",
+        "FAULT": "Fehler Benachrichtigung",
+        "WARNING": "Warnungs Benachrichtigung",
+        "DEACTIVATED": "Deaktiviert",
+        "ACTIVATE": "Aktivieren",
+        "DELAY": "Verzögerung",
+        "TOAST": {
+          "SUCCESS": "Einstellungen übernommen",
+          "ERROR": "Fehler beim Laden der Einstellungen"
         }
       },
       "App": {
@@ -386,6 +401,7 @@
         "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "Der App-Manager befindet sich aktuell in einer ersten Testversion.",
         "updateAvailable": "Es ist eine neue {{ edgeShortName }} Version verfügbar! Bitte aktualisieren Sie das {{ edgeShortName }}, damit alle neuen {{ edgeShortName }} Apps im App Center angezeigt werden.",
+        "UNUSED_REGISTERED_KEY_AVAILABLE": "Es steht noch eine App zur Installation bereit! Klicken Sie auf 'Lizenzschlüssel einlösen', um sie zu installieren.",
         "installed": "Installiert",
         "available": "Verfügbar",
         "incompatible": "Inkompatibel",
@@ -393,6 +409,7 @@
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
+        "DELETE_CONFIRM": "entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
         "errorCompatible": "Kompatibilitäts fehler",
@@ -422,7 +439,9 @@
         "successUpdate": "App erfolgreich aktualisiert",
         "failUpdate": "Fehler während der Aktualisierung: {{error}}",
         "successDelete": "App erfolgreich entfernt",
-        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}"
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
+        "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
       }
     },
     "Service": {
@@ -445,7 +464,10 @@
       "advancedMode": "erweiterte Ansicht",
       "submit": "Anwenden"
     },
-    "title": "{{ edgeShortName }}"
+    "title": "{{ edgeShortName }}",
+    "FOOTER": {
+      "REFRESHED_LAST": "vor {{period}} aktualisiert"
+    }
   },
   "General": {
     "active": "Aktiv",
@@ -459,7 +481,6 @@
     "changeAccepted": "Änderung übernommen",
     "changeFailed": "Änderung fehlgeschlagen",
     "chargeDischarge": "Be-/Entladung",
-    "chargePower": "Beladung",
     "componentCount": "Anzahl Komponenten",
     "componentInactive": "Komponente ist inaktiv!",
     "connectionLost": "Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.",
@@ -471,7 +492,6 @@
     "digitalInputs": "Digitaleingänge",
     "numberOfComponents": "Anzahl der Komponenten",
     "directConsumption": "Direktverbrauch",
-    "dischargePower": "Entladung",
     "energyLimit": "Energielimit",
     "fault": "Fehler",
     "grid": "Netz",
@@ -514,6 +534,7 @@
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
+    "VISIBLE_FOR_ADMINS_ONLY": "Sichtbar nur für Service & Administration",
     "warning": "Warnung",
     "Week": {
       "monday": "Montag",
@@ -551,7 +572,30 @@
     "yes": "Ja",
     "no": "Nein",
     "value": "Wert",
-    "SUM_STATE": "Systemzustand"
+    "SUM_STATE": "Systemzustand",
+    "SYSTEM": "System",
+    "RESTART": "Neu starten",
+    "TIME": {
+      "HOUR": "Stunde",
+      "HOURS": "Stunden",
+      "MINUTE": "Minute",
+      "MINUTES": "Minuten",
+      "DAY": "Tag",
+      "DAYS": "Tage"
+    },
+    "CHARGE": "Beladung",
+    "DISCHARGE": "Entladung"
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+      "MORE_INFO": "mehr Infos",
+      "EMS_OFFLINE": "{{edgeShortName}} ist offline"
+    }
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
@@ -662,14 +706,13 @@
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
       "WARRANTY_TERMS": "Garantiebedingungen",
-      "APPS": "Apps",
-      "HECKERT": "Ihre gewählte kostenlose App",
       "ACCEPT": "akzeptieren",
-      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
-      "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
-      "ORIENTATION_WITH_LABEL_HOME_DC": "Ausrichtung MPPT{{ mppt }} PV{{ pv }}",
-      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Modultyp MPPT{{ mppt }} PV{{ pv }}",
-      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }} PV{{ pv }}",
+      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}}",
+      "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} {{ symbol }}",
+      "ORIENTATION_WITH_LABEL_HOME_DC": "Ausrichtung MPPT{{ mppt }}",
+      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Modultyp MPPT{{ mppt }}",
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }}",
+      "BOTH_SELECTED_LABEL": "Beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt",
       "DEVICE_CONNECTION_CHECKED": "Das Stromspeichersystem ist an das Stromnetz angeschlossen",
       "ENERGY_FLOW_METER": {
         "LABEL": "Installierter Netzzähler"
@@ -753,13 +796,16 @@
         "SOUTH": "Sued",
         "WEST": "West"
       },
-      "INSTALLED_POWER": "Installierte leistung [Wₚ]",
+      "INSTALLED_POWER": "Installierte Leistung [Wₚ]",
+      "INSTALLED_POWER_PER_STRING": "Installierte Leistung pro String [Wₚ]",
       "MARKED_AS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv }}\")",
+      "MARKED_AS_BOTH_STRINGS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv1 }}\" & \"PV{{ pv2 }}\")",
       "MODULE_TYPE_DESCRIPTION": "z. B. Hersteller und Leistung",
       "MODULE_TYPE_WITH_LABEL": "Modultyp {{ label }}{{ number }}",
       "MODULE_TYPE": "Modultyp",
       "NUMBER_OF_MODULES_WITH_LABEL": "Anzahl PV-Module {{ label }}{{ number }}",
       "NUMBER_OF_MODULES": "Anzahl PV-Module",
+      "NUMBER_OF_MODULES_PER_STRING": "Anzahl PV-Module pro String",
       "OPEN_MANUAL": "Anleitung öffnen",
       "ORIENTATION_WITH_LABEL": "Ausrichtung {{ label }}{{ number }}",
       "ORIENTATION": "Ausrichtung",
@@ -767,7 +813,8 @@
       "SHADE_MANAGEMENT_DESCRIPTION": "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
       "TITLE_DC": "DC-PV-Installation",
-      "DUPLICATE": " MPPT {{ mppt }} doppelt belegt (beschriftet mit \"PV{{ pv }}\")"
+      "DUPLICATE": " MPPT {{ mppt }} doppelt belegt (beschriftet mit \"PV{{ pv }}\")",
+      "BOTH_SELECTED_LABEL": "Sind beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt?"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",
@@ -834,7 +881,23 @@
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
-    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Dimmung nach §14a EnWG",
+      "IS_ACTIVATE": "Möglichkeit der Dimmung nach §14a EnWG aktivieren",
+      "INFO_NOTE": "Um eine Überlastung des Netzes zu vermeiden, erhält der Netzbetreiber bei allen, seit dem 01.01.2024 installierten Verbrauchseinrichtungen, zukünftig die Möglichkeit, diese auf eine Netzbezugsleistung des Stromspeichers von 4,2 kW zu dimmen.",
+      "IS_ACTIVATE_LABEL": "Die Verdrahtung ist entsprechend der Montageanleitung anzubringen."
+    }
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
+  },
+  "LOADING_SCREEN": {
+    "LOADING": "Wird geladen",
+    "SERVER_NOT_ACCESSIBLE": "Server nicht erreichbar",
+    "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Probieren Sie bitte in 10 Minuten den Browser neu zu laden.",
+    "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Lokal zugreifen",
+    "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich. Die Daten werden lokal gespeichert und gehen nicht verloren."
   },
   "Login": {
     "title": "Login",
@@ -892,7 +955,8 @@
       "email": "E-Mail Adresse",
       "password": "Passwort",
       "confirmPassword": "Passwort wiederholen",
-      "confirmEmail": "E-Mail Adresse wiederholen"
+      "confirmEmail": "E-Mail Adresse wiederholen",
+      "PRIVATE": "Privat"
     },
     "button": "Anlegen",
     "errors": {
@@ -916,11 +980,26 @@
       "NEW_VERSION_INSTALLING": "Neueste Version installieren",
       "NEW_VERSION": "Neueste Version:",
       "OFFLINE": "Das {{ edgeShortName }} ist offline.",
-      "RESTARTING": "Das {{ edge }} wird neu gestartet...",
+      "EDGE_RESTARTING": "Das {{ edge }} wird neu gestartet...",
       "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
       "UPDATE_PROGRESS": "Update wird ausgeführt...",
       "UPDATE_SEARCH": "Suche nach Updates...",
-      "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)"
+      "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)",
+      "EMS_RESTARTING": "{{edgeShortName}} neu starten",
+      "RESTARTING": "{{system}} wird neu gestartet (Dies kann bis zu {{minutes}} Minuten dauern)",
+      "RESTARTED": "{{system}} neu starten war erfolgreich.",
+      "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
+      "RESTART_CONFIRMATION": "Möchten Sie {{system}} neu starten?",
+      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "CONFIRMATION_INFO": "Möchten Sie ihr {{edgeShortName}} aktualisieren?",
+      "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "UPDATE_EXECUTE": "Systemupdate durchführen",
+      "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "Zur Analyse",
+      "CURRENT_NUMBER_OF_MODULES": "Aktuell",
+      "SIMULATION_NOT_STARTED": "Simulation nicht gestartet"
     }
   },
   "CHANNELS": {
@@ -933,5 +1012,32 @@
     "SET_VALUE": "Eingestellter Wert",
     "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
     "CHANNEL": "Kanal"
+  },
+  "MODBUS_TCP_API_READ_WRITE": {
+    "CURRENT_STATE": "Aktueller Status",
+    "CUMULATED_ACTIVE_TIME": "Externe Vorgaben berücksichtigt",
+    "CUMULATED_INACTIVE_TIME": "Keine externe Vorgabe vorhanden",
+    "NO_OVERRIDDEN_CHANNELS": "Es wurden noch keine Kanäle überschrieben.",
+    "NOT_OVERRIDING": "Keine externe Vorgabe vorhanden",
+    "OVERRIDING": "Externe Vorgabe wird berücksichtigt",
+    "LAST_COMMAND": "Letzter Schreibbefehl",
+    "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",
+    "REGISTER": "Register",
+    "LIMITATION": "Vorgabe",
+    "ACTUAL_VALUE": "Tatsächlicher Wert",
+    "INFO_TEXT": "Tatsächlicher Wert kann von der Vorgabe abweichen. Negative Werte entsprechen Speicherbeladung - postive Speicherentladung. Eine detaillierte Erklärung finden Sie in der Anleitung.",
+    "SET_ACTIVE_POWER_EQUALS": "Vorgabe Be- bzw. Entladeleistung",
+    "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimale Beladeleistung",
+    "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximale Beladeleistung",
+    "DOWNLOAD_PROTOCOL": "Protokoll Herunterladen"
+  },
+  "GRID_STATES": {
+    "OFF_GRID": "Netzausfall",
+    "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
+    "RIPPLE_CONTROL_RECEIVER": "Rundsteuerempfänger",
+    "RESTRICTION": "Dimmung nach §14a EnWG"
+  },
+  "APP": {
+    "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
   }
 }

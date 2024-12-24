@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -27,6 +29,7 @@ import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
+import io.openems.backend.common.jsonrpc.SimulationEngine;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -67,6 +70,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	@Reference
 	protected volatile TimedataManager timedataManager;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile SimulationEngine simulation;
+
 	public UiWebsocketImpl() {
 		super("Ui.Websocket");
 	}
@@ -92,8 +98,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
-					this.config.debugMode());
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize());
 			this.server.start();
 		}
 	}
@@ -124,37 +129,38 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	}
 
 	@Override
-	public void send(UUID websocketId, JsonrpcNotification notification) throws OpenemsNamedException {
-		var wsData = this.getWsDataForIdOrError(websocketId);
-		wsData.send(notification);
+	public boolean send(UUID websocketId, JsonrpcNotification notification) {
+		final WsData wsData;
+		try {
+			wsData = this.getWsDataForIdOrError(websocketId);
+		} catch (OpenemsNamedException e) {
+			return false;
+		}
+		return wsData.send(notification);
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(UUID websocketId, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		var wsData = this.getWsDataForIdOrError(websocketId);
+	public CompletableFuture<JsonrpcResponseSuccess> send(UUID websocketId, JsonrpcRequest request) {
+		WsData wsData;
+		try {
+			wsData = this.getWsDataForIdOrError(websocketId);
+		} catch (OpenemsNamedException e) {
+			return CompletableFuture.failedFuture(e);
+		}
 		return wsData.send(request);
 	}
 
 	@Override
-	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void sendBroadcast(String edgeId, JsonrpcNotification notification) {
 		if (this.server == null) {
 			return;
 		}
 		var wsDatas = this.getWsDatasForEdgeId(edgeId);
-		OpenemsNamedException exception = null;
 		for (WsData wsData : wsDatas) {
 			if (!wsData.isEdgeSubscribed(edgeId)) {
 				continue;
 			}
-			try {
-				wsData.send(notification);
-			} catch (OpenemsNamedException e) {
-				exception = e;
-			}
-		}
-		if (exception != null) {
-			throw exception;
+			wsData.send(notification);
 		}
 	}
 

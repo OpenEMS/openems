@@ -79,7 +79,7 @@ public class IoFilipowskiMrAo1Impl extends AbstractOpenemsModbusComponent implem
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var address = this.config.analogOutput().startAddress;
 		return new ModbusProtocol(this, //
 

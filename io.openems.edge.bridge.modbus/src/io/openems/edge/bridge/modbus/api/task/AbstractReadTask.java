@@ -2,6 +2,7 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -33,9 +34,9 @@ public abstract class AbstractReadTask<//
 	private final Priority priority;
 	private final Class<?> elementClazz;
 
-	public AbstractReadTask(String name, Class<RESPONSE> responseClazz, Class<ELEMENT> elementClazz, int startAddress,
-			Priority priority, ModbusElement... elements) {
-		super(name, responseClazz, startAddress, elements);
+	public AbstractReadTask(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz,
+			Class<ELEMENT> elementClazz, int startAddress, Priority priority, ModbusElement... elements) {
+		super(name, onExecute, responseClazz, startAddress, elements);
 		this.elementClazz = elementClazz;
 		this.priority = priority;
 	}
@@ -49,19 +50,26 @@ public abstract class AbstractReadTask<//
 			try {
 				var result = this.parseResponse(response);
 				validateResponse(result, this.length);
+
+				// NOTE: onExecute has to be called before filling elements; but OK could be
+				// wrong if fillElements throws an exception.
+				this.onExecute.accept(ExecuteState.OK);
 				this.fillElements(result);
+
+				return ExecuteState.OK;
 
 			} catch (OpenemsException e1) {
 				logError(this.log, e1, "Parsing Response failed.");
 				throw e1;
 			}
-			return ExecuteState.OK;
 
 		} catch (Exception e) {
+			var executeState = new ExecuteState.Error(e);
+			this.onExecute.accept(executeState);
+
 			// Invalidate Elements
 			Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
-
-			return ExecuteState.ERROR;
+			return executeState;
 		}
 	}
 

@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +24,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+
+import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -139,7 +140,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
 		var data = getAsJsonArray(parseToJsonObject(jsonData), "data");
 		for (var element : data) {
 			var marketPrice = getAsDouble(element, "marketprice");
@@ -149,14 +150,14 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 					.ofInstant(Instant.ofEpochMilli(getAsLong(element, "start_timestamp")), //
 							ZoneId.systemDefault())
 					.truncatedTo(ChronoUnit.HOURS);
-			
+
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
 			result.put(startTimeStamp.plusMinutes(15), marketPrice);
 			result.put(startTimeStamp.plusMinutes(30), marketPrice);
 			result.put(startTimeStamp.plusMinutes(45), marketPrice);
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	@Override

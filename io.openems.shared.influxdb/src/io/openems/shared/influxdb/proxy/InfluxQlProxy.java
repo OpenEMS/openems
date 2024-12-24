@@ -13,11 +13,14 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -33,7 +36,6 @@ import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.CollectorUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.DbDataUtils;
 import io.openems.shared.influxdb.InfluxConnector.InfluxConnection;
 
@@ -106,24 +108,34 @@ public class InfluxQlProxy extends QueryProxy {
 		var query = this.buildHistoricDataQuery(bucket, measurement, influxEdgeId, fromDate, toDate, channels,
 				resolution);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
-		return convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels, new Average());
+		return convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels, Average::new);
 	}
 
-	// TODO maybe remove?
-	private static class Average implements BiFunction<JsonElement, JsonElement, JsonElement> {
+	protected static class Average implements BiFunction<JsonElement, JsonElement, JsonElement> {
 
-		private int count = 0;
+		private int count = 1;
+		// used to have a more accurate end-result
+		private JsonElement lastUnrounded = JsonNull.INSTANCE;
 
 		@Override
 		public JsonElement apply(JsonElement first, JsonElement second) {
-			if (!first.isJsonPrimitive() || !second.isJsonPrimitive() //
-					|| !first.getAsJsonPrimitive().isNumber() || !second.getAsJsonPrimitive().isNumber()) {
-				return second;
+			if (JsonUtils.isNumber(this.lastUnrounded)) {
+				first = this.lastUnrounded;
 			}
-			final var numberFirst = first.getAsNumber().longValue();
-			final var numberSecond = first.getAsNumber().longValue();
+			if (!JsonUtils.isNumber(first)) {
+				return this.lastUnrounded = second;
+			}
+			if (!JsonUtils.isNumber(second)) {
+				if (this.lastUnrounded.isJsonNull()) {
+					return this.lastUnrounded;
+				}
+				return new JsonPrimitive(Math.round(this.lastUnrounded.getAsDouble()));
+			}
+			final var numberFirst = first.getAsNumber().doubleValue();
+			final var numberSecond = second.getAsNumber().doubleValue();
 			final var result = (numberFirst * this.count + numberSecond) / ++this.count;
-			return new JsonPrimitive(result);
+			this.lastUnrounded = new JsonPrimitive(result);
+			return new JsonPrimitive(Math.round(result));
 		}
 
 	}
@@ -142,7 +154,8 @@ public class InfluxQlProxy extends QueryProxy {
 		var query = this.buildHistoricEnergyPerPeriodQuery(bucket, measurement, influxEdgeId, fromDate, toDate,
 				channels, resolution);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
-		var result = convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels, InfluxQlProxy::last);
+		var result = convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels,
+				() -> InfluxQlProxy::last);
 		return DbDataUtils.normalizeTable(result, channels, resolution, fromDate, toDate);
 	}
 
@@ -185,7 +198,11 @@ public class InfluxQlProxy extends QueryProxy {
 					fromDate, channelsForBeforeValues);
 
 			if (result.firstKey().isBefore(fromDate)) {
-				result.put(result.firstKey(), beforeValues);
+				// only update values which are newly queried
+				if (beforeValues != null && !beforeValues.isEmpty()) {
+					final var firstElement = result.get(result.firstKey());
+					firstElement.putAll(beforeValues);
+				}
 			} else {
 				result.put(fromDate.minusDays(1), beforeValues);
 			}
@@ -245,6 +262,7 @@ public class InfluxQlProxy extends QueryProxy {
 		if (influxEdgeId.isPresent()) {
 			b.append(this.tag + " = '" + influxEdgeId.get() + "' AND ");
 		}
+
 		b //
 				.append("time >= ") //
 				.append(String.valueOf(fromDate.toEpochSecond())) //
@@ -254,6 +272,8 @@ public class InfluxQlProxy extends QueryProxy {
 				.append("s") //
 				.append(" GROUP BY time(") //
 				.append(resolution.toSeconds()) //
+				.append("s,") //
+				.append(Math.negateExact(fromDate.getOffset().getTotalSeconds())) //
 				.append("s)");
 		return b.toString();
 	}
@@ -481,13 +501,14 @@ public class InfluxQlProxy extends QueryProxy {
 			ZonedDateTime fromDate, //
 			Resolution resolution, //
 			Set<ChannelAddress> channels, //
-			BiFunction<JsonElement, JsonElement, JsonElement> aggregateFunction //
+			Supplier<BiFunction<JsonElement, JsonElement, JsonElement>> aggregateFunction //
 	) throws OpenemsNamedException {
 		if (queryResult == null) {
 			return null;
 		}
 
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
+		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, BiFunction<JsonElement, JsonElement, JsonElement>>> aggregations = new TreeMap<>();
 		for (var result : queryResult.getResults()) {
 			var seriess = result.getSeries();
 			if (seriess != null) {
@@ -515,6 +536,7 @@ public class InfluxQlProxy extends QueryProxy {
 								}
 							}
 						}
+
 						SortedMap<ChannelAddress, JsonElement> tableRow;
 						if (existingData != null) {
 							tableRow = existingData;
@@ -532,7 +554,9 @@ public class InfluxQlProxy extends QueryProxy {
 							var value = convertToJsonElement(record.getValueByKey(column));
 							final var existingValue = tableRow.get(channel);
 							if (existingValue != null) {
-								value = aggregateFunction.apply(existingValue, value);
+								final var subMap = aggregations.computeIfAbsent(timestamp, t -> new TreeMap<>());
+								final var aggregate = subMap.computeIfAbsent(channel, t -> aggregateFunction.get());
+								value = aggregate.apply(existingValue, value);
 							}
 
 							tableRow.put(ChannelAddress.fromString(column), value);
@@ -565,14 +589,19 @@ public class InfluxQlProxy extends QueryProxy {
 					var timestampInstant = Instant
 							.ofEpochMilli(Long.parseLong((String) t.second().getValueByKey("time")));
 					var zonedDateTime = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
-					if (resolution.getUnit() == ChronoUnit.MONTHS && zonedDateTime.isAfter(fromDate)) {
-						if (zonedDateTime.getMonthValue() == fromDate.getMonthValue() //
-								&& zonedDateTime.getYear() == fromDate.getYear()) {
-							zonedDateTime = fromDate;
-						} else {
-							zonedDateTime = zonedDateTime.withDayOfMonth(1);
-						}
+					if (!zonedDateTime.isAfter(fromDate)) {
+						return zonedDateTime;
 					}
+
+					if (resolution.getUnit() == ChronoUnit.MONTHS) {
+						zonedDateTime = zonedDateTime.withDayOfMonth(1);
+					} else if (resolution.getUnit() == ChronoUnit.YEARS) {
+						zonedDateTime = zonedDateTime.withDayOfYear(1);
+					}
+					if (zonedDateTime.isBefore(fromDate)) {
+						zonedDateTime = fromDate;
+					}
+
 					return zonedDateTime.truncatedTo(DurationUnit.ofDays(1));
 				}, TreeMap::new, Collectors.toMap(Pair::first, r -> {
 					final var channel = r.first();
@@ -600,17 +629,8 @@ public class InfluxQlProxy extends QueryProxy {
 		} else {
 			str = valueObj.toString();
 		}
-		if (str.isEmpty()) {
-			return JsonNull.INSTANCE;
-		}
-		if (StringUtils.matchesFloatPattern(str)) {
-			return new JsonPrimitive(Double.parseDouble(str));
-		}
-		if (StringUtils.matchesIntegerPattern(str)) {
-			return new JsonPrimitive(Long.parseLong(str));
-		}
 
-		return new JsonPrimitive(valueObj.toString());
+		return parseToJsonElement(str);
 	}
 
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResultSingleValueInDay(//
@@ -657,7 +677,7 @@ public class InfluxQlProxy extends QueryProxy {
 								continue;
 							}
 							var valueObj = record.getValueByKey(column);
-							JsonElement value;
+							final JsonElement value;
 							if (valueObj == null) {
 								value = JsonNull.INSTANCE;
 							} else if (valueObj instanceof Number n) {
@@ -669,15 +689,7 @@ public class InfluxQlProxy extends QueryProxy {
 								} else {
 									str = valueObj.toString();
 								}
-								if (str.isEmpty()) {
-									value = JsonNull.INSTANCE;
-								} else if (StringUtils.matchesFloatPattern(str)) {
-									value = new JsonPrimitive(Double.parseDouble(str));
-								} else if (StringUtils.matchesIntegerPattern(str)) {
-									value = new JsonPrimitive(Long.parseLong(str));
-								} else {
-									value = new JsonPrimitive(valueObj.toString());
-								}
+								value = parseToJsonElement(str);
 							}
 							try {
 								m.accept(new Pair<>(ChannelAddress.fromString(column), value));
@@ -730,15 +742,7 @@ public class InfluxQlProxy extends QueryProxy {
 								} else {
 									str = valueObj.toString();
 								}
-								if (str.isEmpty()) {
-									value = JsonNull.INSTANCE;
-								} else if (StringUtils.matchesFloatPattern(str)) {
-									value = assertPositive(Double.parseDouble(str), influxEdgeId, channels);
-								} else if (StringUtils.matchesIntegerPattern(str)) {
-									value = assertPositive(Long.parseLong(str), influxEdgeId, channels);
-								} else {
-									value = new JsonPrimitive(valueObj.toString());
-								}
+								value = parseToJsonElement(str);
 							}
 							map.put(ChannelAddress.fromString(column), value);
 						}
@@ -815,5 +819,33 @@ public class InfluxQlProxy extends QueryProxy {
 		} else {
 			return new JsonPrimitive(number);
 		}
+	}
+
+	/**
+	 * Parses a String to a JsonElement; handles null/empty, double and long.
+	 * 
+	 * @param str the String
+	 * @return the {@link JsonElement}
+	 */
+	protected static JsonElement parseToJsonElement(String str) {
+		// Null/Empty
+		if (str == null || str.isEmpty()) {
+			return JsonNull.INSTANCE;
+		}
+
+		// Try to parse long
+		var l = Longs.tryParse(str);
+		if (l != null) {
+			return new JsonPrimitive(l);
+		}
+
+		// Try to parse double
+		var d = Doubles.tryParse(str);
+		if (d != null) {
+			return new JsonPrimitive(d);
+		}
+
+		// Fallback
+		return new JsonPrimitive(str);
 	}
 }

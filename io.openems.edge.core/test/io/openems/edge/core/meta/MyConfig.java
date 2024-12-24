@@ -1,7 +1,7 @@
 package io.openems.edge.core.meta;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.common.currency.CurrencyConfig;
+import io.openems.common.types.CurrencyConfig;
 import io.openems.edge.common.meta.Meta;
 
 @SuppressWarnings("all")
@@ -10,12 +10,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public static class Builder {
 
 		private CurrencyConfig currency;
+		private boolean isEssChargeFromGridAllowed;
 
 		private Builder() {
 		}
 
 		public Builder setCurrency(CurrencyConfig currency) {
 			this.currency = currency;
+			return this;
+		}
+		
+		public Builder setIsEssChargeFromGridAllowed(boolean isEssChargeFromGridAllowed) {
+			this.isEssChargeFromGridAllowed = isEssChargeFromGridAllowed;
 			return this;
 		}
 
@@ -43,6 +49,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public CurrencyConfig currency() {
 		return this.builder.currency;
+	}
+
+	@Override
+	public boolean isEssChargeFromGridAllowed() {
+		return this.builder.isEssChargeFromGridAllowed;
 	}
 
 }

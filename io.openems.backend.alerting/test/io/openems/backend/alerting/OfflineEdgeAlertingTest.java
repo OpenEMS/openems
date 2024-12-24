@@ -14,6 +14,7 @@ import org.junit.Test;
 import io.openems.backend.alerting.Dummy.AlertingMetadataImpl;
 import io.openems.backend.alerting.Dummy.MailerImpl;
 import io.openems.backend.alerting.Dummy.TimeLeapMinuteTimer;
+import io.openems.backend.alerting.handler.OfflineEdgeHandler;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
@@ -128,7 +129,7 @@ public class OfflineEdgeAlertingTest {
 		env.setOnline("edge03", false);
 		env.setOnline("edge04", false);
 		env.setOnline("edge07", false);
-		env.timer.leap(1); /* inaccuracy */
+		env.timer.leap(1 + OfflineEdgeHandler.EDGE_REBOOT_MINUTES); /* inaccuracy */
 
 		/* edge05[user03], edge03[user01,user02], edge07[user04] */
 		assertEquals(3, env.scheduler.getScheduledMsgsCount());

@@ -1,6 +1,9 @@
 package io.openems.edge.app.timeofusetariff;
 
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -8,6 +11,7 @@ import java.util.function.Function;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -39,6 +43,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -63,7 +68,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.TimeOfUseTariff.ENTSO-E")
+@Component(name = "App.TimeOfUseTariff.ENTSO-E")
 public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.Parameter.BundleParameter>
 		implements OpenemsApp {
 	// TODO provide image in folder
@@ -82,7 +87,20 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(BiddingZone.optionsFactory(), l);
 					field.isRequired(true);
-				}));
+				})),
+
+		RESOLUTION(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".resolution.label") //
+				.setTranslatedDescriptionWithAppPrefix(".resolution.description") //
+				.setRequired(true)//
+				.setDefaultValue(Resolution.HOURLY)//
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(Resolution.optionsFactory(), l);
+					final var isInBiddingZone = Exp
+							.array(Exp.staticValue(BiddingZone.GERMANY), Exp.staticValue(BiddingZone.AUSTRIA))
+							.some(t -> t.equal(Exp.currentModelValue(BIDDING_ZONE)));
+					field.onlyShowIf(isInBiddingZone);
+				})));
 
 		private final AppDef<? super EntsoE, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -166,7 +184,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
 	}
 
 	@Override
@@ -190,6 +208,34 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		private final String translationKey;
 
 		private BiddingZone(String translationKey) {
+			this.translationKey = TRANSLATION_PREFIX + translationKey;
+		}
+
+		@Override
+		public final String getTranslation(Language l) {
+			final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
+			return TranslationUtil.getTranslation(bundle, this.translationKey);
+		}
+
+		/**
+		 * Creates a {@link OptionsFactory} of this enum.
+		 * 
+		 * @return the {@link OptionsFactory}
+		 */
+		public static final OptionsFactory optionsFactory() {
+			return OptionsFactory.of(values());
+		}
+	}
+
+	public enum Resolution implements TranslatableEnum {
+		HOURLY("hourly"), //
+		QUARTERLY("quarterly");
+
+		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.resolution.option.";
+
+		private final String translationKey;
+
+		private Resolution(String translationKey) {
 			this.translationKey = TRANSLATION_PREFIX + translationKey;
 		}
 

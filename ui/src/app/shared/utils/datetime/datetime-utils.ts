@@ -1,5 +1,9 @@
-import { format, startOfMonth, startOfYear } from "date-fns";
+// @ts-strict-ignore
+/* eslint-disable import/no-duplicates */
+// cf. https://github.com/import-js/eslint-plugin-import/issues/1479
+import { differenceInMilliseconds, format, startOfMonth, startOfYear } from "date-fns";
 import { de } from "date-fns/locale";
+/* eslint-enable import/no-duplicates */
 import { ChronoUnit } from "src/app/edge/history/shared";
 
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -18,38 +22,48 @@ export class DateTimeUtils {
   public static normalizeTimestamps(unit: ChronoUnit.Type, energyPerPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse): QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse {
 
     switch (unit) {
-      case ChronoUnit.Type.MONTHS:
+      case ChronoUnit.Type.MONTHS: {
 
         // Change first timestamp to start of month
         const formattedDate = startOfMonth(DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]));
-        energyPerPeriodResponse.result.timestamps[0] = format(formattedDate, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString() ?? energyPerPeriodResponse.result.timestamps[0];
+        energyPerPeriodResponse.result.timestamps[0] = format(formattedDate, "yyyy-MM-dd HH:mm:ss", { locale: de })?.toString() ?? energyPerPeriodResponse.result.timestamps[0];
 
         // show 12 stacks, even if no data and timestamps
-        let newTimestamps: string[] = [];
+        const newTimestamps: string[] = [];
         const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]);
 
         if (firstTimestamp.getMonth() !== 0) {
           for (let i = 0; i <= (firstTimestamp.getMonth() - 1); i++) {
             newTimestamps.push(new Date(firstTimestamp.getFullYear(), i).toString());
 
-            for (let channel of Object.keys(energyPerPeriodResponse.result.data)) {
+            for (const channel of Object.keys(energyPerPeriodResponse.result.data)) {
               energyPerPeriodResponse.result.data[channel.toString()]?.unshift(null);
             }
           }
         }
 
         energyPerPeriodResponse.result.timestamps = newTimestamps.concat(energyPerPeriodResponse.result.timestamps);
-        break;
+        return energyPerPeriodResponse;
+      }
 
-      case ChronoUnit.Type.YEARS:
+      case ChronoUnit.Type.YEARS: {
 
         // Change dates to be first day of year
         const formattedDates = energyPerPeriodResponse.result.timestamps.map((timestamp) =>
           startOfYear(DateUtils.stringToDate(timestamp)));
-        energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString());
-        break;
+        energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, "yyyy-MM-dd HH:mm:ss", { locale: de })?.toString());
+        return energyPerPeriodResponse;
+      }
+      default:
+        return energyPerPeriodResponse;
     }
+  }
 
-    return energyPerPeriodResponse;
+  public static isDifferenceInSecondsGreaterThan(seconds: number, currentDate: Date, dateToCompare: Date | null) {
+    if (dateToCompare == null) {
+      return false;
+    }
+    const milliSeconds = seconds * 1000;
+    return differenceInMilliseconds(currentDate, dateToCompare) > milliSeconds;
   }
 }

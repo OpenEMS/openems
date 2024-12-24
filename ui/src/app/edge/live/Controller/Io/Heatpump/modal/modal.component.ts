@@ -1,15 +1,17 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+// @ts-strict-ignore
+import { Component, Input, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
-type ManualMode = 'FORCE_ON' | 'RECOMMENDATION' | 'REGULAR' | 'LOCK';
-type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForceOnCtrlEnabled' | 'automaticLockCtrlEnabled'
+type ManualMode = "FORCE_ON" | "RECOMMENDATION" | "REGULAR" | "LOCK";
+type AutomaticEnableMode = "automaticRecommendationCtrlEnabled" | "automaticForceOnCtrlEnabled" | "automaticLockCtrlEnabled";
 
 @Component({
-  selector: 'heatpump-modal',
-  templateUrl: './modal.component.html',
+  selector: "heatpump-modal",
+  templateUrl: "./modal.component.html",
+  standalone: false,
 })
 export class Controller_Io_HeatpumpModalComponent implements OnInit {
 
@@ -42,22 +44,22 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
     });
-  };
+  }
 
   public updateControllerMode(event: CustomEvent) {
-    let oldMode = this.component.properties['mode'];
-    let newMode = event.detail.value;
+    const oldMode = this.component.properties["mode"];
+    const newMode = event.detail.value;
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.component.id, [
-        { name: 'mode', value: newMode },
+        { name: "mode", value: newMode },
       ]).then(() => {
         this.component.properties.mode = newMode;
         this.formGroup.markAsPristine();
-        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        this.service.toast(this.translate.instant("General.changeAccepted"), "success");
       }).catch(reason => {
         this.component.properties.mode = oldMode;
-        this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+        this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
         console.warn(reason);
       });
     }
@@ -69,15 +71,15 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
   }
 
   public updateManualMode(state: ManualMode) {
-    this.formGroup.controls['manualState'].setValue(state);
-    this.formGroup.controls['manualState'].markAsDirty();
+    this.formGroup.controls["manualState"].setValue(state);
+    this.formGroup.controls["manualState"].markAsDirty();
   }
 
   public applyChanges() {
     if (this.edge != null) {
-      if (this.edge.roleIsAtLeast('owner')) {
-        if (this.formGroup.controls['automaticRecommendationSurplusPower'].value < this.formGroup.controls['automaticForceOnSurplusPower'].value) {
-          let updateComponentArray = [];
+      if (this.edge.roleIsAtLeast("owner")) {
+        if (this.formGroup.controls["automaticRecommendationSurplusPower"].value < this.formGroup.controls["automaticForceOnSurplusPower"].value) {
+          const updateComponentArray = [];
           Object.keys(this.formGroup.controls).forEach((element, index) => {
             if (this.formGroup.controls[element].dirty) {
               updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
@@ -86,20 +88,20 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
           this.loading = true;
           this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
             this.component.properties.manualState = this.formGroup.value.manualState;
-            this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
             this.loading = false;
           }).catch(reason => {
-            this.formGroup.controls['minTime'].setValue(this.component.properties.manualState);
-            this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason, 'danger');
+            this.formGroup.controls["minTime"].setValue(this.component.properties.manualState);
+            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
             this.loading = false;
             console.warn(reason);
           });
           this.formGroup.markAsPristine();
         } else {
-          this.service.toast(this.translate.instant('Edge.Index.Widgets.HeatPump.relationError'), 'danger');
+          this.service.toast(this.translate.instant("Edge.Index.Widgets.HeatPump.relationError"), "danger");
         }
       } else {
-        this.service.toast(this.translate.instant('General.insufficientRights'), 'danger');
+        this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
       }
     }
   }

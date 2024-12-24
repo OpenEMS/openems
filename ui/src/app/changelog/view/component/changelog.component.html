@@ -42,11 +42,13 @@
             </div>
           </ng-container>
           <ion-row *ngIf="changelogs.length > slice && !showAll">
-            <ion-item lines="none">
-              <ion-button (click)="showAll = true">
-                Alle anzeigen
-              </ion-button>
-            </ion-item>
+            <ion-col>
+              <ion-item lines="none" class="ion-float-right">
+                <ion-button (click)="showAll = true">
+                  Alle anzeigen
+                </ion-button>
+              </ion-item>
+            </ion-col>
           </ion-row>
         </ion-card-content>
       </ion-card>

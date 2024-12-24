@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.java_websocket.WebSocket;
+
 import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -22,6 +24,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private final CompletableFuture<Void> isAuthenticated = new CompletableFuture<>();
 	public final EdgeCache edgeCache = new EdgeCache();
+
+	public WsData(WebSocket ws) {
+		super(ws);
+	}
 
 	/**
 	 * Asserts that the Edge-ID is available (i.e. properly authenticated).
@@ -70,10 +76,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		return "EdgeWebsocket.WsData [" //
-				+ "edgeId=" + this.edgeId.orElse("UNKNOWN") //
-				+ "]";
+	protected String toLogString() {
+		return new StringBuilder("EdgeWebsocket.WsData [edgeId=") //
+				.append(this.edgeId.orElse("UNKNOWN")) //
+				.append("]") //
+				.toString();
 	}
 
 }

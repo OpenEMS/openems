@@ -15,7 +15,8 @@ public interface ControllerIoHeatingElement {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LEVEL(Doc.of(Level.values()) //
-				.text("Current Level")),
+				.text("Current Level") //
+				.persistencePriority(HIGH)),
 		AWAITING_HYSTERESIS(Doc.of(INTEGER)), //
 		PHASE1_TIME(Doc.of(INTEGER)//
 				.unit(SECONDS)), //

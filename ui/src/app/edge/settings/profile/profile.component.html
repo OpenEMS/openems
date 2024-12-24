@@ -1,4 +1,3 @@
-<header></header>
 <ion-content>
   <ion-grid *ngIf="config">
     <ion-row class="ion-justify-content-center">
@@ -25,8 +24,9 @@
                 {{ edge.producttype }}
               </ion-item>
               <ion-item>
-                <ion-label style="white-space: initial;">{{ environment.edgeShortName }} Version</ion-label>
-                <a style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
+                <ion-label style="white-space: initial;">{{ environment.edgeShortName }}
+                  Version</ion-label>
+                <a class="ion-link" style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
                   routerLinkActive="active" routerLink="/changelog">{{ edge.version |
                   version:edge.role }}</a>
               </ion-item>
@@ -59,7 +59,7 @@
               <ng-container *ngFor="let category of components">
                 <ion-item-group>
                   <ion-item lines="inset">
-                    <ion-icon name="{{ category.category.icon }}"></ion-icon>
+                    <ion-icon class="normal-icon" name="{{ category.category.icon }}"></ion-icon>
                     <ion-label class="ion-padding-start">
                       {{ category.category.title }}
                     </ion-label>

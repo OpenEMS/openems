@@ -1,5 +1,6 @@
 package io.openems.edge.edge2edge.ess;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -13,8 +14,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-
-import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -54,9 +53,9 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 		super.setModbus(modbus);
 	}
 
-	public Edge2EdgeEssImpl() throws OpenemsException {
+	public Edge2EdgeEssImpl() {
 		super(//
-				Lists.newArrayList(//
+				List.of(//
 						OpenemsComponent::getModbusSlaveNatureTable, //
 						SymmetricEss::getModbusSlaveNatureTable, //
 						AsymmetricEss::getModbusSlaveNatureTable, //
@@ -105,8 +104,8 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 	@Override
 	protected io.openems.edge.common.channel.ChannelId getWriteChannelId(ModbusSlaveNatureTable modbusSlaveNatureTable,
 			ModbusRecord record) {
-		if (record instanceof ModbusRecordChannel) {
-			var c = ((ModbusRecordChannel) record).getChannelId();
+		if (record instanceof ModbusRecordChannel r) {
+			var c = r.getChannelId();
 			if (c == ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS) {
 				return Edge2EdgeEss.ChannelId.REMOTE_SET_ACTIVE_POWER_EQUALS;
 

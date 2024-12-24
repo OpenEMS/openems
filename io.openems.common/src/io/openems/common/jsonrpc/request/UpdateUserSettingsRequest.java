@@ -52,7 +52,7 @@ public class UpdateUserSettingsRequest extends JsonrpcRequest {
 				.add("settings", this.settings) //
 				.build();
 	}
-	
+
 	public JsonObject getSettings() {
 		return this.settings;
 	}

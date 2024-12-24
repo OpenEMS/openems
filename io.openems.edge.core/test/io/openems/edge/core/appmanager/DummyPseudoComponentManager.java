@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -30,13 +29,9 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.ActualEdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
@@ -157,27 +152,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(//
-			final User user, //
-			final JsonrpcRequest request //
-	) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
-
-		switch (request.getMethod()) {
-
-		case CreateComponentConfigRequest.METHOD:
-			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
-		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
-		case DeleteComponentConfigRequest.METHOD:
-			return this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
-
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
-	}
-
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(//
+	public void handleCreateComponentConfigRequest(//
 			final User user, //
 			final CreateComponentConfigRequest request //
 	) throws OpenemsNamedException {
@@ -189,11 +164,10 @@ public class DummyPseudoComponentManager implements ComponentManager {
 		);
 
 		this.components.add(component);
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(//
+	@Override
+	public void handleUpdateComponentConfigRequest(//
 			final User user, //
 			final UpdateComponentConfigRequest request //
 	) throws OpenemsNamedException {
@@ -207,7 +181,6 @@ public class DummyPseudoComponentManager implements ComponentManager {
 			);
 			this.components.removeIf(t -> t.id().equals(request.getComponentId()));
 			this.components.add(component);
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		}
 		if (this.configurationAdmin == null) {
 			throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
@@ -227,18 +200,17 @@ public class DummyPseudoComponentManager implements ComponentManager {
 				}
 				configuration.update(properties);
 			}
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		} catch (IOException | InvalidSyntaxException e) {
 			throw new OpenemsException("Can not update Component Config.");
 		}
 	}
 
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(//
+	@Override
+	public void handleDeleteComponentConfigRequest(//
 			final User user, //
 			final DeleteComponentConfigRequest request //
 	) throws OpenemsNamedException {
 		this.components.removeIf(t -> t.id().equals(request.getComponentId()));
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.ess;
 
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
@@ -14,7 +15,7 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 	}
 
 	@Override
-	public void accept(ClockProvider clockProvider, Battery battery) {
+	public void accept(ClockProvider clockProvider, Battery battery, SymmetricBatteryInverter inverter) {
 		this.accept(clockProvider);
 	}
 
@@ -48,5 +49,4 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		this.parent._setAllowedChargePower(batteryAllowedChargePower * -1 /* invert charge power */);
 		this.parent._setAllowedDischargePower(batteryAllowedDischargePower + pvProduction);
 	}
-
 }

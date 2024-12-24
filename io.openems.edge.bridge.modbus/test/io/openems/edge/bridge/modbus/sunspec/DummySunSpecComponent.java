@@ -16,17 +16,20 @@ public class DummySunSpecComponent extends AbstractOpenemsSunSpecComponent {
 	/**
 	 * All models are active with low priority.
 	 */
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = Stream.of(DefaultSunSpecModel.values())
-			.collect(Collectors.toMap(model -> model, model -> Priority.LOW, (a, b) -> a, TreeMap::new));
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = Stream.of(DefaultSunSpecModel.values()) //
+			.collect(Collectors.toMap(//
+					model -> model, //
+					model -> Priority.LOW, //
+					(a, b) -> a, TreeMap::new));
 
-	public DummySunSpecComponent() throws OpenemsException {
+	public DummySunSpecComponent() {
 		super(ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values()); //
 		this.addBlocks();
 	}
 
-	private void addBlocks() throws OpenemsException {
+	private void addBlocks() {
 		var startAddress = 40000;
 		for (var entry : ACTIVE_MODELS.keySet()) {
 			this.addBlock(startAddress, entry, ACTIVE_MODELS.get(entry));

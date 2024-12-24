@@ -66,7 +66,7 @@ public class IoKmtronicRelay4PortImpl extends AbstractKmtronicRelay
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				/*
 				 * For Read: Read Coils

@@ -80,27 +80,46 @@ public class ReadWorker extends AbstractWorker {
 	@Override
 	protected int getCycleTime() {
 		// get minimum required time till next report
-		var now = LocalDateTime.now();
-		if (this.lastReport1.isBefore(now.minusSeconds(Report.REPORT1.getRequestSeconds()))
-				|| this.lastReport2.isBefore(now.minusSeconds(Report.REPORT2.getRequestSeconds()))
-				|| this.lastReport3.isBefore(now.minusSeconds(Report.REPORT3.getRequestSeconds()))) {
+		return getCycleTimeLogic(this.lastReport1, this.lastReport2, this.lastReport3, LocalDateTime.now());
+	}
+
+	/**
+	 * Calculates the cycletime for given dateTimes.
+	 * 
+	 * @param lastReport1 last time report 1 was read
+	 * @param lastReport2 last time report 2 was read
+	 * @param lastReport3 last time report 3 was read
+	 * @param now         current time
+	 * @return the time until the next cycle
+	 */
+	public static int getCycleTimeLogic(LocalDateTime lastReport1, LocalDateTime lastReport2, LocalDateTime lastReport3,
+			LocalDateTime now) {
+		if (lastReport1.isBefore(now.minusSeconds(Report.REPORT1.getRequestSeconds()))
+				|| lastReport2.isBefore(now.minusSeconds(Report.REPORT2.getRequestSeconds()))
+				|| lastReport3.isBefore(now.minusSeconds(Report.REPORT3.getRequestSeconds()))) {
 			return 0;
 		}
-		var tillReport1 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT1.getRequestSeconds()),
-				this.lastReport1);
-		var tillReport2 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT2.getRequestSeconds()),
-				this.lastReport2);
-		var tillReport3 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT3.getRequestSeconds()),
-				this.lastReport3);
-		var min = Math.min(Math.min(tillReport1, tillReport2), tillReport3);
-		if (min < 0) {
+		try {
+			var tillReport1 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT1.getRequestSeconds()),
+					lastReport1);
+			var tillReport2 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT2.getRequestSeconds()),
+					lastReport2);
+			var tillReport3 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT3.getRequestSeconds()),
+					lastReport3);
+			var min = Math.min(Math.min(tillReport1, tillReport2), tillReport3);
+			if (min < 0) {
+				return 0;
+			}
+			if (min > Integer.MAX_VALUE) {
+				return Integer.MAX_VALUE;
+			} else {
+				return (int) min;
+			}
+		} catch (ArithmeticException e) {
+			// if difference in tillReportX is too large a longOverflow might be thrown
 			return 0;
 		}
-		if (min > Integer.MAX_VALUE) {
-			return Integer.MAX_VALUE;
-		} else {
-			return (int) min;
-		}
+
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
@@ -144,15 +143,12 @@ public class PersistencePredictorAggregateTaskImpl implements PersistencePredict
 		existingChannels.addAll(channelsToAdd);
 		existingChannels.removeAll(channelsToRemove);
 
-		try {
-			componentManager.handleJsonrpcRequest(user, new UpdateComponentConfigRequest(predictor.id(), List.of(//
-					new UpdateComponentConfigRequest.Property("channelAddresses", existingChannels.stream() //
-							.map(JsonPrimitive::new) //
-							.collect(toJsonArray())) //
-			))).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new OpenemsException("Unable to update Persistence Predictor", e);
-		}
+		componentManager.handleUpdateComponentConfigRequest(user,
+				new UpdateComponentConfigRequest(predictor.id(), List.of(//
+						new UpdateComponentConfigRequest.Property("channelAddresses", existingChannels.stream() //
+								.map(JsonPrimitive::new) //
+								.collect(toJsonArray())) //
+				)));
 	}
 
 	private static Set<String> getAllChannels(List<AppConfiguration> otherAppConfigurations) {

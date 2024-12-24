@@ -72,6 +72,7 @@ import static io.openems.common.utils.JsonUtils.isEmptyJsonObject;
 import static io.openems.common.utils.JsonUtils.parse;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.common.utils.JsonUtils.prettyToString;
 import static io.openems.common.utils.JsonUtils.toJson;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.common.utils.JsonUtils.toJsonObject;
@@ -98,6 +99,7 @@ import org.junit.function.ThrowingRunnable;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -697,6 +699,31 @@ public class JsonUtilsTest {
 	@Test
 	public void testParseToJsonArray() throws OpenemsNamedException {
 		assertEquals(buildJsonArray().add("foo").build(), parseToJsonArray("[\"foo\"]"));
+	}
+
+	@Test
+	public void testPrettyToString() throws OpenemsNamedException {
+		assertEquals("""
+				{
+				  "Hello": "World",
+				  "Foo": [
+				    "A",
+				    123,
+				    true
+				  ],
+				  "Bar": null,
+				  "BarBar": null
+				}""", prettyToString(//
+				buildJsonObject() //
+						.addProperty("Hello", "World") //
+						.add("Foo", buildJsonArray() //
+								.add("A") //
+								.add(123) //
+								.add(true) //
+								.build()) //
+						.add("Bar", null) //
+						.add("BarBar", JsonNull.INSTANCE) //
+						.build()));
 	}
 
 	@Test

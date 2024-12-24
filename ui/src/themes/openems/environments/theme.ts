@@ -1,4 +1,4 @@
-import { Theme } from 'src/environments';
+import { Theme } from "src/environments";
 
 export const theme = {
     theme: "OpenEMS" as Theme,
@@ -68,6 +68,10 @@ export const theme = {
             APP_IMAGE: (language: string, appId: string): string | null => {
                 return null;
             },
+        },
+        APP: {
+            ANDROID: null,
+            IOS: null,
         },
     },
     PRODUCT_TYPES: () => null,

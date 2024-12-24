@@ -81,7 +81,7 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter
 		super.setModbus(modbus);
 	}
 
-	public SolarEdgePvInverterImpl() throws OpenemsException {
+	public SolarEdgePvInverterImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //

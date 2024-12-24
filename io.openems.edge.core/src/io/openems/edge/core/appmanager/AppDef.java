@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.FunctionUtils.supplier;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,11 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.Parameter;
@@ -27,7 +32,7 @@ import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
  * 
  * @param <APP>       the type of the app
  * @param <PROPERTY>  the type of the property
- * @param <PARAMETER> the type of the paramters
+ * @param <PARAMETER> the type of the parameters
  */
 public class AppDef<APP extends OpenemsApp, //
 		PROPERTY extends Nameable, //
@@ -1003,11 +1008,23 @@ public class AppDef<APP extends OpenemsApp, //
 				return null;
 			}
 			final var componentManager = componentManagerFunction.apply(app);
-			final var optionalComponent = componentManager.getEdgeConfig() //
-					.getComponent(componentId.getAsString());
-			return optionalComponent.map(component -> {
-				return component.getProperty(property).orElse(null);
-			}).map(mapper).orElseGet(() -> this.getDefaultValue().get(app, prop, l, param));
+			final var defaultValueSupplier = supplier(() -> {
+				final var a = this.getDefaultValue();
+				if (a != null) {
+					return a.get(app, prop, l, param);
+				}
+				return JsonNull.INSTANCE;
+			});
+
+			try {
+				final var component = componentManager.getComponent(componentId.getAsString());
+				return Optional.ofNullable(component.getComponentContext().getProperties().get(property)) //
+						.map(JsonUtils::getAsJsonElement) //
+						.map(mapper) //
+						.orElseGet(defaultValueSupplier);
+			} catch (OpenemsNamedException e) {
+				return defaultValueSupplier.get();
+			}
 		};
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;

@@ -25,7 +25,7 @@ public class StartDischargeHandler extends StateHandler<State, Context> {
 			return context.waitForChangeState(State.START_DISCHARGE, State.CONTINUE_WITH_CHARGE);
 		}
 
-		if (ess.getSoc().get() <= config.minSoc()) {
+		if (ess.getSoc().get() < config.minSoc()) {
 			return context.waitForChangeState(State.START_DISCHARGE, State.CONTINUE_WITH_CHARGE);
 		}
 
@@ -38,10 +38,5 @@ public class StartDischargeHandler extends StateHandler<State, Context> {
 				+ "out of " + config.totalCycleNumber() + "]");
 
 		return State.START_DISCHARGE;
-	}
-
-	@Override
-	protected void onExit(Context context) {
-		context.updateLastStateChangeTime();
 	}
 }

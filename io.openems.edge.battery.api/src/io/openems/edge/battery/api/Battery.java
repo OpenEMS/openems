@@ -207,7 +207,21 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH));
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Battery Inner Resistance.
+		 *
+		 * <ul>
+		 * <li>Interface: Battery
+		 * <li>Type: Integer
+		 * <li>Unit: mOhm
+		 * </ul>
+		 */
+		INNER_RESISTANCE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIOHM) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+		;
 
 		private final Doc doc;
 
@@ -243,6 +257,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 				.channel(18, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
 				.channel(20, ChannelId.MIN_CELL_VOLTAGE, ModbusType.FLOAT32) //
 				.channel(22, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(24, ChannelId.INNER_RESISTANCE, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -734,6 +749,44 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 */
 	public default void _setMaxCellVoltage(int value) {
 		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#INNER_RESISTANCE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getInnerResistanceChannel() {
+		return this.channel(ChannelId.INNER_RESISTANCE);
+	}
+
+	/**
+	 * Gets the Inner Resistance [mOhm]. See {@link ChannelId#INNER_RESISTANCE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getInnerResistance() {
+		return this.getInnerResistanceChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#INNER_RESISTANCE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setInnerResistance(Integer value) {
+		this.getInnerResistanceChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#INNER_RESISTANCE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setInnerResistance(int value) {
+		this.getInnerResistanceChannel().setNextValue(value);
 	}
 
 	/**

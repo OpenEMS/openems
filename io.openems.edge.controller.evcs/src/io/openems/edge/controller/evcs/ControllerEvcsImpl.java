@@ -1,7 +1,15 @@
 package io.openems.edge.controller.evcs;
 
+import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -19,13 +27,19 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.evcs.api.ChargeMode;
+import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -33,13 +47,26 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
+public class ControllerEvcsImpl extends AbstractOpenemsComponent
+		implements Controller, OpenemsComponent, ModbusSlave, EnergySchedulable, ControllerEvcs {
 
 	private static final int CHARGE_POWER_BUFFER = 200;
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvcsImpl.class);
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
+	private final Clock clock;
+	private final EnergyScheduleHandler energyScheduleHandler;
+	private final BiConsumer<Value<Status>, Value<Status>> onEvcsStatusChange;
+
+	// Time of last charge power change, used for the hysteresis
+	private Instant lastInitialCharge = Instant.MIN;
+
+	// Time of last charge pause, used for the hysteresis
+	private Instant lastChargePause = Instant.MIN;
+
+	// Last charge power, used for the hysteresis
+	private int lastChargePower = 0;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -62,7 +89,18 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				Controller.ChannelId.values(), //
 				ControllerEvcs.ChannelId.values() //
 		);
+		this.clock = clock;
 		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(clock);
+		this.energyScheduleHandler = buildEnergyScheduleHandler(() -> new EshContext(//
+				this.config.evcs_id(), this.config.enabledCharging(), this.config.chargeMode(), this.config.priority(),
+				this.config.defaultChargeMinPower(), this.config.forceChargeMinPower(),
+				this.config.energySessionLimit() > 0 //
+						? this.config.energySessionLimit() //
+						: 30_000 // Apply a default limit
+		));
+		this.onEvcsStatusChange = (oldStatus, newStatus) -> {
+			this.energyScheduleHandler.triggerReschedule(); // Trigger Reschedule on Status change
+		};
 	}
 
 	@Activate
@@ -85,11 +123,13 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 			return;
 		}
 		this.evcs._setMaximumPower(null);
+		this.evcs.getStatusChannel().onChange(this.onEvcsStatusChange);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		this.evcs.getStatusChannel().removeOnChangeCallback(this.onEvcsStatusChange);
 		super.deactivate();
 	}
 
@@ -99,6 +139,11 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
+		if (this.evcs.isReadOnly()) {
+			this.setEvcsIsReadOnlyChannel(true);
+			return;
+		}
+		this.setEvcsIsReadOnlyChannel(false);
 
 		final var isClustered = this.evcs.getIsClustered().orElse(false);
 
@@ -130,7 +175,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				this.resetMinMaxChannels();
 				return;
 			}
-			case CHARGING_REJECTED, READY_FOR_CHARGING, CHARGING_FINISHED -> {
+			case CHARGING_REJECTED, READY_FOR_CHARGING -> {
 				this.evcs._setMaximumPower(null);
 			}
 			case CHARGING -> {
@@ -165,7 +210,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				};
 		this.evcs._setMinimumPower(nextMinPower);
 
-		nextChargePower = Math.max(nextChargePower, nextMinPower);
+		nextChargePower = max(nextChargePower, nextMinPower);
 
 		// Charging under minimum hardware power isn't possible
 		var minimumHardwarePower = this.evcs.getMinimumHardwarePower().orElse(0);
@@ -178,7 +223,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		 */
 		if (nextChargePower != 0) {
 
-			int chargePower = this.evcs.getChargePower().orElse(0);
+			int activePower = this.evcs.getActivePower().orElse(0);
 
 			/**
 			 * Check the difference of the current charge power and the previous charging
@@ -196,13 +241,18 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				int currMax = this.evcs.getMaximumPower().orElse(0);
 
 				/**
-				 * If the charge power would increases again above the current maximum power, it
-				 * resets the maximum Power.
+				 * If the power would increases again above the current maximum power, it resets
+				 * the maximum Power.
 				 */
-				if (chargePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
+				if (activePower > currMax * (1 + DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT)) {
 					this.evcs._setMaximumPower(null);
 				}
 			}
+		}
+
+		if (this.config.chargeMode().equals(ChargeMode.EXCESS_POWER)) {
+			// Apply hysteresis
+			nextChargePower = this.applyHysteresis(nextChargePower);
 		}
 
 		if (isClustered) {
@@ -251,7 +301,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	private static int calculateChargePowerFromExcessPower(Sum sum, ManagedEvcs evcs) throws OpenemsNamedException {
 		int buyFromGrid = sum.getGridActivePower().orElse(0);
 		int essDischarge = sum.getEssDischargePower().orElse(0);
-		int evcsCharge = evcs.getChargePower().orElse(0);
+		int evcsCharge = evcs.getActivePower().orElse(0);
 
 		return evcsCharge - buyFromGrid - essDischarge;
 	}
@@ -265,7 +315,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 */
 	private static int calculateExcessPowerAfterEss(Sum sum, ManagedEvcs evcs) {
 		int buyFromGrid = sum.getGridActivePower().orElse(0);
-		int evcsCharge = evcs.getChargePower().orElse(0);
+		int evcsCharge = evcs.getActivePower().orElse(0);
 
 		var result = evcsCharge - buyFromGrid;
 
@@ -273,6 +323,82 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		result -= 200;
 
 		return result > 0 ? result : 0;
+	}
+
+	/**
+	 * Applies the hysteresis to avoid too quick changes between a charge process
+	 * and a pause.
+	 *
+	 * @param nextChargePower the next charge power limit
+	 * @return next charge power or the last power if hysteresis is active
+	 */
+	private int applyHysteresis(int nextChargePower) {
+		int targetChargePower = nextChargePower;
+		boolean showWarning = false;
+		var now = Instant.now(this.clock);
+
+		// Wait at least the EVCS-specific response time, required to increase and
+		// decrease the charging power
+		if (awaitLastChanges(this.evcs.getChargeState().asEnum())) {
+			// Still waiting for increasing, decreasing the power or undefined
+			return this.lastChargePower;
+		}
+		// TODO: Show info, test and check if bellow logic still needed or need to be
+		// different (Change only when we would change for xSeconds)
+
+		// New charge power limit
+		if (this.lastChargePower <= 0 && nextChargePower > 0) {
+			var hysteresis = Duration.ofSeconds(this.config.excessChargePauseHysteresis());
+			if (this.lastChargePause.plus(hysteresis).isBefore(now)) {
+
+				// Start charing
+				this.lastInitialCharge = now;
+			} else {
+				// Wait for hysteresis
+				showWarning = true;
+				targetChargePower = this.lastChargePower;
+			}
+		}
+
+		// Pause charging by limiting to zero
+		if (this.lastChargePower > 0 && nextChargePower <= 0) {
+			var hysteresis = Duration.ofSeconds(this.config.excessChargeHystersis());
+			if (this.lastInitialCharge.plus(hysteresis).isBefore(now)) {
+
+				// Pause charing
+				targetChargePower = 0;
+				this.lastChargePause = now;
+			} else {
+				// Wait for hysteresis
+				showWarning = true;
+				targetChargePower = this.lastChargePower;
+			}
+		}
+
+		// Apply results
+		this.lastChargePower = targetChargePower;
+		this.channel(ControllerEvcs.ChannelId.AWAITING_HYSTERESIS).setNextValue(showWarning);
+
+		return targetChargePower;
+	}
+
+	/**
+	 * Check if the evcs should wait for last changes.
+	 * 
+	 * <p>
+	 * Since the charging stations and each car have their own response time until
+	 * they charge at the set power, the controller waits until everything runs
+	 * normally.
+	 * 
+	 * @param chargeState current evcs charge state
+	 * @return The cvcs should await or not
+	 */
+	private static boolean awaitLastChanges(ChargeState chargeState) {
+		if (chargeState.equals(ChargeState.INCREASING) || chargeState.equals(ChargeState.INCREASING)) {
+			// Still waiting for increasing, decreasing the power
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -325,5 +451,80 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
+	}
+
+	/**
+	 * Builds the {@link EnergyScheduleHandler}.
+	 * 
+	 * <p>
+	 * This is public so that it can be used by the EnergyScheduler integration
+	 * test.
+	 * 
+	 * @param context a supplier for the configured {@link EshContext}
+	 * @return a {@link EnergyScheduleHandler}
+	 */
+	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<EshContext> context) {
+		return EnergyScheduleHandler.of(//
+				simContext -> context.get(), //
+				(simContext, period, energyFlow, ctrlContext) -> {
+					final var evcsGlobal = simContext.global.evcss().get(ctrlContext.evcsId);
+					final var evcsOne = simContext.evcss.get(ctrlContext.evcsId);
+					if (!ctrlContext.enabledCharging || evcsGlobal == null || evcsOne == null) {
+						return;
+					}
+					switch (evcsGlobal.status()) {
+					case CHARGING:
+					case READY_FOR_CHARGING:
+						break;
+					case CHARGING_REJECTED:
+					case ENERGY_LIMIT_REACHED:
+					case ERROR:
+					case NOT_READY_FOR_CHARGING:
+					case STARTING:
+					case UNDEFINED:
+						return;
+					}
+
+					// Evaluate Charge-Energy per mode
+					final var chargeEnergy = switch (ctrlContext.chargeMode) {
+					case EXCESS_POWER //
+						-> switch (ctrlContext.priority) {
+						case CAR //
+							-> toEnergy(//
+									max(ctrlContext.defaultChargeMinPower,
+											energyFlow.production - energyFlow.unmanagedConsumption));
+						case STORAGE -> 0; // TODO not implemented
+						};
+					case FORCE_CHARGE //
+						-> toEnergy(ctrlContext.forceChargeMinPower);
+					};
+
+					if (chargeEnergy <= 0) {
+						return; // stop early
+					}
+
+					// Apply Session Limit
+					final int limitedChargeEnergy;
+					if (ctrlContext.energySessionLimit > 0) {
+						limitedChargeEnergy = min(chargeEnergy,
+								max(0, ctrlContext.energySessionLimit - evcsOne.getInitialEnergySession()));
+					} else {
+						limitedChargeEnergy = chargeEnergy;
+					}
+
+					if (limitedChargeEnergy > 0) {
+						energyFlow.addConsumption(limitedChargeEnergy);
+						evcsOne.calculateInitialEnergySession(limitedChargeEnergy);
+					}
+				});
+	}
+
+	public static record EshContext(String evcsId, boolean enabledCharging, ChargeMode chargeMode, Priority priority,
+			int defaultChargeMinPower, int forceChargeMinPower, int energySessionLimit) {
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }

@@ -36,7 +36,7 @@ function start_service {
 }
 
 case "$1" in
-	configure)
+	configure|upgrade)
 		# Always restart openems
 		/bin/systemctl stop openems
 		

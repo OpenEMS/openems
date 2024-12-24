@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { RegistrationModalComponent } from './modal/modal.component';
+import { Component } from "@angular/core";
+import { ModalController } from "@ionic/angular";
+import { RegistrationModalComponent } from "./modal/modal.component";
 
 @Component({
-  selector: 'registration',
-  templateUrl: './registration.component.html',
+  selector: "registration",
+  templateUrl: "./registration.component.html",
+  standalone: false,
 })
 export class RegistrationComponent {
 

@@ -26,11 +26,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Control-Mode", description = "Set the control-mode.")
 	ControlMode controlMode() default ControlMode.DELAY_DISCHARGE;
 
-	@AttributeDefinition(name = "Risk level of the customer", description = """
-			Low Risk: Less dependence on predictions; charge/discharge of the battery should always be according to the expected behavior. \
-			High Risk: High dependence on predictions; Battery is scheduled to charge/discharge completely based on predictions.""")
-	RiskLevel riskLevel() default RiskLevel.MEDIUM;
-
 	// TODO This will eventually be moved globally/to a 'PowerOptimizer" Controller;
 	// should be per Phase (fuse)
 	@AttributeDefinition(name = "Max Charge Power from the grid [W]", description = "Maximum charge power from the grid")

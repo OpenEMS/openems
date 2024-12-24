@@ -42,7 +42,6 @@ import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -111,8 +110,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
-					this.config.debugMode());
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize());
 			this.server.start();
 		}
 	}
@@ -140,11 +138,10 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request) {
 		var ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws == null) {
-			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(edgeId);
+			return CompletableFuture.failedFuture(OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(edgeId));
 		}
 		WsData wsData = ws.getAttachment();
 		// Wrap Request in AuthenticatedRpc
@@ -173,12 +170,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 	}
 
 	@Override
-	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsException {
+	public boolean send(String edgeId, JsonrpcNotification notification) {
 		var ws = this.getWebSocketForEdgeId(edgeId);
-		if (ws != null) {
-			WsData wsData = ws.getAttachment();
-			wsData.send(notification);
+		if (ws == null) {
+			return false;
 		}
+		WsData wsData = ws.getAttachment();
+		return wsData.send(notification);
 	}
 
 	/**
@@ -247,7 +245,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID websocketId, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+			UUID websocketId, SubscribeSystemLogRequest request) {
 		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, websocketId, request);
 	}
 

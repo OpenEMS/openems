@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Supplier;
 
 import io.openems.common.timedata.DurationUnit;
+import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.edge.bridge.http.time.DelayTimeProvider.Delay;
 
 public class DelayTimeProviderChain {
 
@@ -20,17 +22,18 @@ public class DelayTimeProviderChain {
 	 * @return a {@link DelayTimeProviderChain} of zero delay
 	 */
 	public static DelayTimeProviderChain immediate() {
-		return new DelayTimeProviderChain(() -> Duration.ZERO);
+		return fixedDelay(Duration.ZERO);
 	}
 
 	/**
 	 * Creates a {@link DelayTimeProviderChain} which returns a fixed
 	 * {@link Duration} on request.
 	 * 
-	 * @param delay the {@link Duration} to return when requested
+	 * @param duration the {@link Duration} to return when requested
 	 * @return a {@link DelayTimeProviderChain} of the given {@link Duration}
 	 */
-	public static DelayTimeProviderChain fixedDelay(Duration delay) {
+	public static DelayTimeProviderChain fixedDelay(Duration duration) {
+		final var delay = Delay.of(duration);
 		return new DelayTimeProviderChain(() -> delay);
 	}
 
@@ -52,18 +55,34 @@ public class DelayTimeProviderChain {
 		return new DelayTimeProviderChain(() -> {
 			final var now = LocalDateTime.now(clock);
 
-			return Duration.between(now, now.truncatedTo(durationUnit) //
-					.plus(durationUnit.getDuration()));
+			return Delay.of(Duration.between(now, now.truncatedTo(durationUnit) //
+					.plus(durationUnit.getDuration())));
 		});
 	}
 
-	private final Supplier<Duration> supplier;
+	/**
+	 * Creates a {@link DelayTimeProviderChain} which returns a {@link Delay} which
+	 * indicates that the next run should never happen. May be used if
+	 * {@link Endpoint} credentials are wrong or expired.
+	 * 
+	 * <p>
+	 * NOTE: Do not use a very large {@link Duration} to indicate that a task should
+	 * not be executed anymore. An Overflow exception could happen if additional
+	 * delay gets added and the task would still be queued but never executed.
+	 * 
+	 * @return a {@link DelayTimeProviderChain} which returns the {@link Delay}
+	 */
+	public static DelayTimeProviderChain runNeverAgain() {
+		return new DelayTimeProviderChain(Delay::infinite);
+	}
 
-	public DelayTimeProviderChain(Supplier<Duration> supplier) {
+	private final Supplier<Delay> supplier;
+
+	public DelayTimeProviderChain(Supplier<Delay> supplier) {
 		this.supplier = supplier;
 	}
 
-	public Duration getDelay() {
+	public Delay getDelay() {
 		return this.supplier.get();
 	}
 
@@ -80,7 +99,7 @@ public class DelayTimeProviderChain {
 	 */
 	public static DelayTimeProviderChain plusFixedAmount(DelayTimeProviderChain origin, Duration duration) {
 		return new DelayTimeProviderChain(() -> {
-			return origin.getDelay().plus(duration);
+			return origin.getDelay().plus(Delay.of(duration));
 		});
 	}
 
@@ -114,7 +133,7 @@ public class DelayTimeProviderChain {
 	 */
 	public static DelayTimeProviderChain plusRandomDelay(DelayTimeProviderChain origin, int bound, TemporalUnit unit) {
 		return new DelayTimeProviderChain(() -> {
-			return origin.getDelay().plus(Duration.of(new Random().nextInt(bound), unit));
+			return origin.getDelay().plus(Delay.of(Duration.of(new Random().nextInt(bound), unit)));
 		});
 	}
 
