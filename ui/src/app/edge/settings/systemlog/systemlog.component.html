@@ -15,9 +15,7 @@
                   <ion-item lines="none">
                     <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed">
                     </ion-checkbox>
-                    <ion-label class="ion-text-wrap" translate>
-                      Edge.Config.Log.automaticUpdating
-                    </ion-label>
+                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.automaticUpdating</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col *ngIf="isCondensedOutput !== null && isAtLeastGuest">
@@ -25,9 +23,7 @@
                     <ion-toggle (ionChange)="toggleCondensedOutput($event)" slot="start"
                       [(ngModel)]="isCondensedOutput">
                     </ion-toggle>
-                    <ion-label class="ion-text-wrap" translate>
-                      Edge.Config.Log.CONDENSED_OUTPUT
-                    </ion-label>
+                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.CONDENSED_OUTPUT</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
@@ -36,8 +32,7 @@
                       class="custom-ion-popover" style="white-space: initial; --color: var(--ion-color-primary)"
                       (ionDismiss)="searchOnChange($event)" style="white-space: initial;">
                       <ng-container *ngFor="let filter of filters.options">
-                        <ion-select-option [value]="filter.value">
-                          {{filter.name}}
+                        <ion-select-option [value]="filter.value">{{filter.name}}
                         </ion-select-option>
                       </ng-container>
                     </ion-select>
@@ -71,7 +66,7 @@
                   {{ line.source }}
                 </ion-col>
               </ion-row>
-              <ion-row style="font-family: monospace;" [style.color]="line.color">
+              <ion-row style="font-family: monospace" [style.color]="line.color">
                 <ion-col size="12">
                   <ion-text [innerHTML]="line.message"></ion-text>
                 </ion-col>
