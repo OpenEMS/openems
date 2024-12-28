@@ -177,7 +177,7 @@
 			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
 			<groupId>io.jenetics</groupId>
 			<artifactId>jenetics</artifactId>
-			<version>7.2.0</version>
+			<version>8.1.0</version>
 		</dependency>
 		<!-- javax -->
 		<dependency>
@@ -190,7 +190,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.15.0</version>
+			<version>5.16.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
