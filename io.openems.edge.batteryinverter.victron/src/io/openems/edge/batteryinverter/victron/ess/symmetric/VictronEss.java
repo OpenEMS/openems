@@ -292,34 +292,34 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		SUSTAIN_ACTIVE(Doc.of(ActiveInactive.values()).accessMode(AccessMode.READ_ONLY)),
 
 		ENERGY_FROM_AC_IN_1_TO_AC_OUT(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_AC_IN_1_TO_BATTERY(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_AC_IN_2_TO_AC_OUT(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_AC_IN_2_TO_BATTERY(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_AC_OUT_TO_AC_IN_1(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_AC_OUT_TO_AC_IN_2(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_BATTERY_TO_AC_IN_1(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_BATTERY_TO_AC_IN_2(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_BATTERY_TO_AC_OUT(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		ENERGY_FROM_AC_OUT_TO_BATTERY(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
 		LOW_CELL_VOLTAGE_IMMINENT(Doc.of(Alarm.values()) // 0=OK;1=Warning
 				.accessMode(AccessMode.READ_ONLY)),
