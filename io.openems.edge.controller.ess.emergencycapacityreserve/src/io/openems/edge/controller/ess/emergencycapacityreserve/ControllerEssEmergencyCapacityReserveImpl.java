@@ -24,6 +24,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.RampFilter;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.Context;
@@ -49,7 +50,7 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssEmergencyCapacityReserveImpl.class);
 	private final EnergyScheduleHandler energyScheduleHandler;
-	private final StateMachine stateMachine = new StateMachine(State.NO_LIMIT);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final RampFilter rampFilter = new RampFilter();
 
 	@Reference
@@ -60,6 +61,9 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 
 	@Reference
 	private Sum sum;
+
+	@Reference
+	private Meta meta;
 
 	@Reference
 	private ManagedSymmetricEss ess;
@@ -173,8 +177,8 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 		if (socToUse == null || !maxApparentPower.isDefined()) {
 			this.stateMachine.forceNextState(State.NO_LIMIT);
 		}
-
-		var context = new Context(this, this.sum, maxApparentPower.get(), socToUse, this.config.reserveSoc());
+		var context = new Context(this, this.sum, maxApparentPower.get(), socToUse, this.config.reserveSoc(),
+				this.meta.getIsEssChargeFromGridAllowed());
 		try {
 			this.stateMachine.run(context);
 

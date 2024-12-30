@@ -14,6 +14,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "heatpumpchart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

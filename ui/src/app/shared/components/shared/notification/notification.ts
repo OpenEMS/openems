@@ -4,6 +4,7 @@ import { ToastController } from "@ionic/angular";
 @Component({
   selector: "oe-notification",
   template: "",
+  standalone: false,
 })
 export class NotificationComponent implements OnInit, OnChanges {
 

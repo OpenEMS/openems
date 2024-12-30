@@ -8,7 +8,7 @@ import { IonicModule } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { FormlyIonicModule } from "@ngx-formly/ionic";
 import { TranslateModule } from "@ngx-translate/core";
-import { NgChartsModule } from "ng2-charts";
+import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from "../app-routing.module";
 import { ComponentsModule } from "./components/components.module";
@@ -93,7 +93,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorModule,
     IonicModule,
     MeterModule,
-    NgChartsModule,
+    BaseChartDirective,
     NgxSpinnerModule.forRoot({
       type: "ball-clip-rotate-multiple",
     }),
@@ -137,7 +137,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorModule,
     IonicModule,
     MeterModule,
-    NgChartsModule,
+    BaseChartDirective,
     NgxSpinnerModule,
     PercentageBarComponent,
     PipeModule,

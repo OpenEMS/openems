@@ -11,6 +11,7 @@ type inputMode = "SOC" | "GRIDSELL" | "GRIDBUY" | "PRODUCTION" | "OTHER";
 @Component({
   selector: "Io_ChannelSingleThresholdModalComponent",
   templateUrl: "./modal.component.html",
+  standalone: false,
 })
 export class Controller_Io_ChannelSingleThresholdModalComponent implements OnInit {
 

@@ -6,6 +6,7 @@ import { Edge, Service, UserPermission, Utils } from "../../../shared/shared";
 @Component({
   selector: SystemComponent.SELECTOR,
   templateUrl: "./system.component.html",
+  standalone: false,
 })
 export class SystemComponent {
 

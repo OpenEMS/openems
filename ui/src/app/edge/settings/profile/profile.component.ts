@@ -14,6 +14,7 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
 @Component({
   selector: ProfileComponent.SELECTOR,
   templateUrl: "./profile.component.html",
+  standalone: false,
 })
 export class ProfileComponent implements OnInit {
 

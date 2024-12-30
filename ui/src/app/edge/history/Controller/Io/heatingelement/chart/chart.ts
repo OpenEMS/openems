@@ -9,6 +9,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
     selector: "controller-io-heatingelement-chart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
     public static getChartData(component: EdgeConfig.Component, phaseColors: string[], chartType: "line" | "bar"): HistoryUtils.ChartData {

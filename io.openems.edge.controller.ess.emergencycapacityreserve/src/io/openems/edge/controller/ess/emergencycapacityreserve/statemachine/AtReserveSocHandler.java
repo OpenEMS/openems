@@ -23,8 +23,13 @@ public class AtReserveSocHandler extends StateHandler<State, Context> {
 			return State.BELOW_RESERVE_SOC;
 		}
 
+		int reserveSocBuffer = switch (context.getLastActiveState()) {
+		case FORCE_CHARGE_GRID -> 1;
+		default -> 0;
+		};
+
 		// SoC is under configured reserveSoC
-		if (soc > reserveSoc) {
+		if (soc > reserveSoc + reserveSocBuffer) {
 			return State.ABOVE_RESERVE_SOC;
 		}
 

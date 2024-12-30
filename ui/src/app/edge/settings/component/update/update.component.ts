@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
   templateUrl: "./update.component.html",
+  standalone: false,
 })
 export class ComponentUpdateComponent implements OnInit {
 

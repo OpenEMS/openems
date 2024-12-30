@@ -119,7 +119,7 @@ export class Language {
      * @returns translations params
      */
     public static async setAdditionalTranslationFile(translationFile: any, translate: TranslateService): Promise<{ lang: string; translations: {}; shouldMerge?: boolean; }> {
-        const lang = (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise()).lang;
+        const lang = (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise())?.lang ?? Language.DEFAULT.key;
         let translationKey: string = lang;
         if (!(lang in translationFile)) {
 

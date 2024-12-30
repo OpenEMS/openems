@@ -6,6 +6,7 @@ import { FieldType, FieldTypeConfig, FormlyFieldConfig, FormlyFieldProps } from 
 @Component({
     selector: "reorder-array",
     templateUrl: "./formly-reorder-array.component.html",
+    standalone: false,
 })
 export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<FormlyFieldProps & {
     allowDuplicates?: boolean,

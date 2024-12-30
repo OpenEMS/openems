@@ -10,6 +10,7 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../shared/s
 
 @Component({
   templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractFormlyComponent {
 

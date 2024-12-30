@@ -10,6 +10,7 @@ import { ModalComponent } from "../modal/modal";
 @Component({
   selector: "grid",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

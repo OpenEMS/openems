@@ -8,6 +8,7 @@ import { ChannelAddress, CurrentData } from "../../../../shared/shared";
 @Component({
   selector: "Controller_Channelthreshold",
   templateUrl: "./Channelthreshold.html",
+  standalone: false,
 })
 export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
 

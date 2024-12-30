@@ -265,11 +265,11 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		Status evcsStatus = null;
 		var ocppStatus = request.getStatus();
 		switch (ocppStatus) {
-		case Available:
+		case Available -> {
 			evcs._setChargingstationCommunicationFailed(false);
 			evcsStatus = Status.NOT_READY_FOR_CHARGING;
-			break;
-		case Charging:
+		}
+		case Charging -> {
 			evcsStatus = Status.CHARGING;
 
 			// Reset the end charge session stamp
@@ -279,12 +279,12 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcs.getSessionStart().setChargeSessionStampIfNotPresent(//
 					Instant.now(this.parent.componentManager.getClock()), //
 					evcs.getActiveProductionEnergy().orElse(0L));
-			break;
-		case Faulted:
+		}
+		case Faulted -> {
 			evcsStatus = Status.ERROR;
-			break;
-		case Finishing:
-			evcsStatus = Status.CHARGING_FINISHED;
+		}
+		case Finishing -> {
+			evcsStatus = Status.CHARGING_REJECTED;
 
 			// Reset the start charge session stamp
 			evcs.getSessionStart().resetChargeSessionStampIfPresent();
@@ -292,24 +292,25 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			evcs.getSessionEnd().setChargeSessionStampIfNotPresent(//
 					Instant.now(this.parent.componentManager.getClock()), //
 					evcs.getActiveProductionEnergy().orElse(0L));
-			break;
-		case Preparing:
+
+		}
+		case Preparing -> {
 			evcsStatus = Status.READY_FOR_CHARGING;
-			break;
-		case Reserved:
+		}
+		case Reserved -> {
 			this.logDebug("Reservation currently not supported");
-			break;
-		case SuspendedEV:
+		}
+		case SuspendedEV -> {
 			evcsStatus = Status.CHARGING_REJECTED;
-			break;
-		case SuspendedEVSE:
+		}
+		case SuspendedEVSE -> {
 			evcsStatus = Status.CHARGING_REJECTED;
-			break;
-		case Unavailable:
+		}
+		case Unavailable -> {
 			this.logDebug("Charging Station is Unavailable.");
 			evcs._setChargingstationCommunicationFailed(true);
 			evcsStatus = Status.ERROR;
-			break;
+		}
 		}
 
 		if (ocppStatus != ChargePointStatus.Unavailable) {
@@ -349,7 +350,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		} else {
 			evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getTransactionId());
 		}
-		evcs._setStatus(Status.CHARGING_FINISHED);
+		evcs._setStatus(Status.CHARGING_REJECTED);
 
 		var response = new StopTransactionConfirmation();
 		response.setIdTagInfo(tag);

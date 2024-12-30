@@ -11,6 +11,7 @@ import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.
 
 @Component({
   templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractFormlyComponent {
 

@@ -6,6 +6,7 @@ import { Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
 @Component({
     selector: StorageChartOverviewComponent.SELECTOR,
     templateUrl: "./storagechartoverview.component.html",
+    standalone: false,
 })
 export class StorageChartOverviewComponent implements OnInit {
 

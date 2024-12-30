@@ -24,6 +24,7 @@ import { canEnterKey } from "./permissions";
 @Component({
   selector: IndexComponent.SELECTOR,
   templateUrl: "./index.component.html",
+  standalone: false,
 })
 export class IndexComponent implements OnInit, OnDestroy {
 

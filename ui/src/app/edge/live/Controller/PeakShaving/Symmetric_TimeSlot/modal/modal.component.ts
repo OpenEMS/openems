@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/s
 @Component({
     selector: "timeslotpeakshaving-modal",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements OnInit {
 

@@ -5,6 +5,7 @@ import { Logger } from "../shared";
 
 @Directive({
   selector: "[appAutofill]",
+  standalone: false,
 })
 export class AutofillDirective implements OnInit {
 

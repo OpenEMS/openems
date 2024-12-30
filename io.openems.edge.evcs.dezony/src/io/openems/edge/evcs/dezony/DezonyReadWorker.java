@@ -34,10 +34,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 			"IDLE", Status.NOT_READY_FOR_CHARGING, //
 			"CAR_CONNECTED", Status.READY_FOR_CHARGING, //
 			"CHARGING", Status.CHARGING, //
-			"CHARGING_FINISHED", Status.CHARGING_FINISHED, //
 			"CHARGING_ERROR", Status.ERROR);
-
-	private int chargingFinishedCounter = 0;
 
 	public DezonyReadWorker(EvcsDezonyImpl parent) {
 		this.parent = parent;
@@ -95,18 +92,8 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 			int setChargePowerLimit = this.parent.getSetChargePowerLimit().orElse(0);
 			int minimumHardwarePower = this.parent.getMinimumHardwarePower().orElse(0);
 
-			if (setChargePowerLimit >= minimumHardwarePower) {
-				if (this.chargingFinishedCounter >= 90) {
-					status = Status.CHARGING_FINISHED;
-				} else {
-					this.chargingFinishedCounter++;
-				}
-			} else {
-				this.chargingFinishedCounter = 0;
-
-				if (setChargePowerLimit == 0) {
-					status = Status.CHARGING_REJECTED;
-				}
+			if (setChargePowerLimit < minimumHardwarePower && setChargePowerLimit == 0) {
+				status = Status.CHARGING_REJECTED;
 			}
 		}
 

@@ -11,6 +11,7 @@ import { ChannelAddress, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 @Component({
   selector: "consumptionchart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 

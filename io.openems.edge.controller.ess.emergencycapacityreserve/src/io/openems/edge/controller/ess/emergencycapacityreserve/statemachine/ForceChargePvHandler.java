@@ -7,7 +7,7 @@ import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine.State;
 
-public class ForceChargeHandler extends StateHandler<State, Context> {
+public class ForceChargePvHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected State runAndGetNextState(Context context) throws OpenemsNamedException {
@@ -20,12 +20,16 @@ public class ForceChargeHandler extends StateHandler<State, Context> {
 		var reserveSoc = context.reserveSoc;
 		int soc = context.soc;
 
-		// SoC is greater or equals then configured reserveSoC
-		if (soc >= reserveSoc) {
+		// SoC is greater or equals then configured reserveSoC or 100
+		if (soc >= reserveSoc + 1 || soc == 100) {
 			return State.AT_RESERVE_SOC;
 		}
 
-		return State.FORCE_CHARGE;
+		if (soc <= reserveSoc - 2 && context.isEssChargeFromGridAllowed) {
+			return State.FORCE_CHARGE_GRID;
+		}
+
+		return State.FORCE_CHARGE_PV;
 	}
 
 	/**

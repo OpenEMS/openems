@@ -7,6 +7,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 @Component({
   selector: "fixdigitaloutput-modal",
   templateUrl: "./modal.component.html",
+  standalone: false,
 })
 export class Controller_Io_FixDigitalOutputModalComponent {
 

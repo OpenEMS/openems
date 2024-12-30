@@ -218,27 +218,14 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 			/**
 			 * Maps the raw state into a {@link Status}.
 			 */
-			switch (state) {
-			case CHARGING:
-				this._setStatus(Status.CHARGING);
-				break;
-			case NO_PERMISSION:
-			case CHARGING_STATION_RESERVED:
-				this._setStatus(Status.CHARGING_REJECTED);
-				break;
-			case ERROR:
-				this._setStatus(Status.ERROR);
-				break;
-			case NO_VEHICLE_ATTACHED:
-				this._setStatus(Status.NOT_READY_FOR_CHARGING);
-				break;
-			case CHARGING_PAUSED:
-				this._setStatus(Status.CHARGING_FINISHED);
-				break;
-			case UNDEFINED:
-			default:
-				this._setStatus(Status.UNDEFINED);
-			}
+			this._setStatus(switch (state) {
+			case CHARGING -> Status.CHARGING;
+			case NO_PERMISSION, CHARGING_STATION_RESERVED -> Status.CHARGING_REJECTED;
+			case ERROR -> Status.ERROR;
+			case NO_VEHICLE_ATTACHED -> Status.NOT_READY_FOR_CHARGING;
+			case CHARGING_PAUSED -> Status.CHARGING_REJECTED;
+			case UNDEFINED -> Status.UNDEFINED;
+			});
 		});
 	}
 

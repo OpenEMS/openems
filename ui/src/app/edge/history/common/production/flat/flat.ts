@@ -6,6 +6,7 @@ import { ChannelAddress, EdgeConfig, Utils } from "../../../../../shared/shared"
 @Component({
   selector: "productionWidget",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

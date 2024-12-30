@@ -7,6 +7,7 @@ import { Io_Api_DigitalInput_ModalComponent } from "./modal/modal.component";
 @Component({
     selector: "Io_Api_DigitalInput",
     templateUrl: "./Io_Api_DigitalInput.html",
+    standalone: false,
 })
 
 export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {

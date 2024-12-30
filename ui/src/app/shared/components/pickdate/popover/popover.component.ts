@@ -3,16 +3,17 @@ import { Component, Input, OnInit } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from "@nodro7/angular-mydatepicker";
-import { endOfMonth, startOfMonth } from "date-fns";
-import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from "date-fns/esm";
+import { addDays, endOfMonth, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { EdgePermission, Service, Utils } from "src/app/shared/shared";
 
+import { Language } from "src/app/shared/type/language";
 import { Edge } from "../../edge/edge";
 
 @Component({
     selector: "pickdatepopover",
     templateUrl: "./popover.component.html",
+    standalone: false,
 })
 export class PickDatePopoverComponent implements OnInit {
 
@@ -20,19 +21,28 @@ export class PickDatePopoverComponent implements OnInit {
     @Input() public edge: Edge | null = null;
     @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
-    public locale: string = "de";
+    public locale: string = Language.DEFAULT.key;
     public showCustomDate: boolean = false;
 
     protected periods: string[] = [];
     protected readonly TOMORROW = addDays(new Date(), 1);
     protected myDpOptions: IAngularMyDpOptions = {
+
         stylesData: {
             selector: "dp1",
             styles: `
+            .dp1 {
+                overflow-x: hidden;
+            }
+            .myDpSelector{
+                background-color: var(--ion-color-background);
+                color: var(--color);
+                background: var(--ion-color-background);
+            }
             .dp1 .myDpIconLeftArrow, 
             .dp1 .myDpIconRightArrow,
             .dp1 .myDpHeaderBtn {
-                color: #004d8c;
+                color: var(--ion-color-primary);
             }
             .dp1 .myDpHeaderBtn:focus,
             .dp1 .myDpMonthLabel:focus,
@@ -65,6 +75,16 @@ export class PickDatePopoverComponent implements OnInit {
             background-color: #dbeaff;
             }
 
+            .ng-mydp * {
+                background-color: var(--ion-color-background);
+                color: var(--color);
+                border: 0;
+            }
+
+            .myDpDisabled {
+                color: var(--color);
+                background: repeating-linear-gradient(-45deg, darkgrey 7px, darkgrey 8px, transparent 7px, transparent 14px) !important;
+            }
              `,
         },
         calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
@@ -81,7 +101,6 @@ export class PickDatePopoverComponent implements OnInit {
     protected readonly DefaultTypes = DefaultTypes;
     private readonly TODAY = new Date();
 
-
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
@@ -95,6 +114,8 @@ export class PickDatePopoverComponent implements OnInit {
     }
 
     ngOnInit() {
+
+        this.locale = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).key;
         // Restrict user to pick date before ibn-date
         this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 },
             this.locale = this.translate.getBrowserLang();

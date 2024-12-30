@@ -10,6 +10,7 @@ import { ChannelAddress } from "../../../../../shared/shared";
 @Component({
   selector: "productionTotalChart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 

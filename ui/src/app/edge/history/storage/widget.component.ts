@@ -9,6 +9,7 @@ import { AbstractHistoryWidget } from "../abstracthistorywidget";
 @Component({
     selector: StorageComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class StorageComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 

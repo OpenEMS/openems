@@ -6,6 +6,7 @@ import { FieldWrapper } from "@ngx-formly/core";
     selector: "form-field-checkbox-hyperlink",
     templateUrl: "./form-field-checkbox-hyperlink.wrapper.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false,
 })
 export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implements OnInit {
 

@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.3.1-jre</version>
+			<version>33.4.0-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -105,7 +105,7 @@
 			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
 			<groupId>de.bytefish</groupId>
 			<artifactId>pgbulkinsert</artifactId>
-			<version>8.1.4</version>
+			<version>8.1.5</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>fr.turri</groupId>
 			<artifactId>aXMLRPC</artifactId>
-			<version>1.14.0</version>
+			<version>1.15.0</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
@@ -177,7 +177,7 @@
 			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
 			<groupId>io.jenetics</groupId>
 			<artifactId>jenetics</artifactId>
-			<version>7.2.0</version>
+			<version>8.1.0</version>
 		</dependency>
 		<!-- javax -->
 		<dependency>
