@@ -92,7 +92,7 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
 		super.modified(context, id, alias, enabled);
 		this.updateConfig(this.config);
-		this.energyScheduleHandler.triggerReschedule();
+		this.energyScheduleHandler.triggerReschedule("ControllerEssEmergencyCapacityReserveImpl::modified()");
 	}
 
 	@Override
@@ -219,15 +219,16 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	 * @return a {@link EnergyScheduleHandler}
 	 */
 	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Integer> minSoc) {
-		return EnergyScheduleHandler.of(//
-				simContext -> minSoc.get() == null //
+		return EnergyScheduleHandler.WithOnlyOneState.<Integer>create() //
+				.setContextFunction(simContext -> minSoc.get() == null //
 						? null //
-						: socToEnergy(simContext.ess().totalEnergy(), minSoc.get()), //
-				(simContext, period, energyFlow, minEnergy) -> {
+						: socToEnergy(simContext.ess().totalEnergy(), minSoc.get())) //
+				.setSimulator((simContext, period, energyFlow, minEnergy) -> {
 					if (minEnergy != null) {
 						energyFlow.setEssMaxDischarge(max(0, simContext.ess.getInitialEnergy() - minEnergy));
 					}
-				});
+				}) //
+				.build();
 	}
 
 	@Override
