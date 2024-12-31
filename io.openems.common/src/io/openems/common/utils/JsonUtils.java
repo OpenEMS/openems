@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import static io.openems.common.utils.EnumUtils.toEnum;
 
 import java.net.Inet4Address;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,7 +38,11 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 
-public class JsonUtils {
+public final class JsonUtils {
+
+	private JsonUtils() {
+	}
+
 	/**
 	 * Provide a easy way to generate a JsonArray from a list using the given
 	 * convert function to add each element.
@@ -287,6 +292,24 @@ public class JsonUtils {
 		public JsonObjectBuilder addProperty(String property, ZonedDateTime value) {
 			if (value != null) {
 				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_INSTANT));
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link LocalDateTime} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_DATE_TIME}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, LocalDateTime value) {
+			if (value != null) {
+				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 			}
 			return this;
 		}
@@ -1721,6 +1744,32 @@ public class JsonUtils {
 		} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
 			throw OpenemsError.JSON_NO_DATE_MEMBER.exception(memberName, element.toString(), e.getMessage());
 		}
+	}
+
+	/**
+	 * Takes a JSON in the form '2020-01-01T00:00:00' and converts it to a
+	 * {@link LocalDateTime}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member of the JsonObject
+	 * @return the {@link ZonedDateTime}
+	 */
+	public static LocalDateTime getAsLocalDateTime(JsonElement jElement, String memberName)
+			throws OpenemsNamedException {
+		return DateUtils.parseLocalDateTimeOrError(toString(toPrimitive(toSubElement(jElement, memberName))));
+	}
+
+	/**
+	 * Takes a JSON in the form '2020-01-01T00:00:00Z' and converts it to a
+	 * {@link ZonedDateTime}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member of the JsonObject
+	 * @return the {@link ZonedDateTime}
+	 */
+	public static ZonedDateTime getAsZonedDateTime(JsonElement jElement, String memberName)
+			throws OpenemsNamedException {
+		return DateUtils.parseZonedDateTimeOrError(toString(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
