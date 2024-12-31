@@ -1,5 +1,4 @@
-import { Environment } from "src/environments";
-import { getWebsocketScheme } from "src/environments";
+import { Environment , getWebsocketScheme } from "src/environments";
 import { theme } from "./theme";
 
 export const environment: Environment = {
