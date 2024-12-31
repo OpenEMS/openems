@@ -49,9 +49,11 @@ public class EnergyFlow {
 	private static final Logger LOG = LoggerFactory.getLogger(EnergyFlow.class);
 
 	private final double[] point;
+	private final int managedConsumption;
 
-	private EnergyFlow(PointValuePair pvp) {
+	private EnergyFlow(PointValuePair pvp, int managedConsumption) {
 		this.point = pvp.getPointRef();
+		this.managedConsumption = managedConsumption;
 	}
 
 	/**
@@ -70,6 +72,15 @@ public class EnergyFlow {
 	 */
 	public int getCons() {
 		return this.getValue(CONS);
+	}
+
+	/**
+	 * Gets the part of {@link Coefficient#CONS} that is actively managed.
+	 * 
+	 * @return the value
+	 */
+	public int getManagedCons() {
+		return this.managedConsumption;
 	}
 
 	/**
@@ -213,7 +224,7 @@ public class EnergyFlow {
 
 		private final List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
 
-		private int addedConsumption = 0;
+		private int managedConsumption = 0;
 
 		public Model(int production, int unmanagedConsumption, int essMaxCharge, int essMaxDischarge, int gridMaxBuy,
 				int gridMaxSell) {
@@ -359,8 +370,8 @@ public class EnergyFlow {
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
 		public synchronized double addConsumption(int value) {
-			this.addedConsumption += value;
-			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.addedConsumption);
+			this.managedConsumption += value;
+			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.managedConsumption);
 		}
 
 		/**
@@ -605,7 +616,8 @@ public class EnergyFlow {
 			var coefficients = initializeCoefficients();
 			Arrays.fill(coefficients, 1);
 			try {
-				return new EnergyFlow(solve(MINIMIZE, this.constraints, new LinearObjectiveFunction(coefficients, 0)));
+				return new EnergyFlow(solve(MINIMIZE, this.constraints, new LinearObjectiveFunction(coefficients, 0)),
+						this.managedConsumption);
 			} catch (MathIllegalStateException e) {
 				LOG.warn("[solve] " //
 						+ "Unable to solve EnergyFlow.Model: " + e.getMessage() + " " //

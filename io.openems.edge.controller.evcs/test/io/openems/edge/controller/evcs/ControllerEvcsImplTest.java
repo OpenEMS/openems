@@ -23,7 +23,10 @@ import org.junit.Test;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.controller.evcs.Utils.EshContext.EshSmartContext;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
@@ -327,5 +330,45 @@ public class ControllerEvcsImplTest {
 						.output("evcs0", SET_CHARGE_POWER_LIMIT, 5000) //
 						.output(AWAITING_HYSTERESIS, false)) //
 				.deactivate();
+	}
+
+	@Test
+	public void smartTest() throws Exception {
+		final var clock = createDummyClock();
+		final var sut = new ControllerEvcsImpl(clock);
+		new ControllerTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
+						.setEvcsId("evcs0") //
+						.setSmartMode(true) //
+						.setSmartConfig("""
+								[{
+								  "@type": "Task",
+								  "uid": "00000000-0000-0000-0000-000000000000",
+								  "updated": "2020-01-01T00:00:00Z",
+								  "start": "2024-06-17T00:00:00",
+								  "recurrenceRules": [
+								    {
+								      "frequency": "weekly",
+								      "byDay": [
+								        "sa",
+								        "su"
+								      ]
+								    }
+								  ],
+								  "payload": {
+								    "sessionEnergy": 10001
+								  }
+								}]""") //
+						.build()) //
+				.next(new TestCase()) //
+				.deactivate();
+		@SuppressWarnings("unchecked")
+		var esh = (EnergyScheduleHandler.WithDifferentStates<SmartMode, EshSmartContext>) sut
+				.getEnergyScheduleHandler();
+		esh.initialize(new GlobalSimulationsContext(clock, null, null, null, null, null, null, null, null));
 	}
 }
