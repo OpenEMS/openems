@@ -25,7 +25,7 @@
     "@ngx-formly/core": "^6.3.12",
     "@ngx-formly/ionic": "^6.3.12",
     "@ngx-formly/schematics": "^6.3.12",
-    "@ngx-translate/core": "^16.0.3",
+    "@ngx-translate/core": "^16.0.4",
     "@nodro7/angular-mydatepicker": "^0.14.0",
     "capacitor-blob-writer": "^1.1.17",
     "capacitor-ios-autofill-save-password": "^4.0.0",
