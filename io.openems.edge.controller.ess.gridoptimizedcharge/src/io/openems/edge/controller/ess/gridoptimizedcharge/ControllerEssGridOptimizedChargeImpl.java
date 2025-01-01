@@ -472,8 +472,8 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	 */
 	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Mode> mode,
 			Supplier<LocalTime> manualTargetTime) {
-		return EnergyScheduleHandler.of(//
-				simContext -> {
+		return EnergyScheduleHandler.WithOnlyOneState.<EshContext>create() //
+				.setContextFunction(simContext -> {
 					// TODO try to reuse existing logic for parsing, calculating limits, etc.; for
 					// now this only works for current day and MANUAL mode
 					final var limits = ImmutableSortedMap.<ZonedDateTime, OptionalInt>naturalOrder();
@@ -526,8 +526,8 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 					}
 
 					return new EshContext(limits.build());
-				}, //
-				(simContext, period, energyFlow, ctrlContext) -> {
+				}) //
+				.setSimulator((simContext, period, energyFlow, ctrlContext) -> {
 					var limitEntry = ctrlContext.limits.floorEntry(period.time());
 					if (limitEntry == null) {
 						return;
@@ -536,7 +536,8 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 					if (limit.isPresent()) {
 						energyFlow.setEssMaxCharge(limit.getAsInt());
 					}
-				});
+				}) //
+				.build();
 	}
 
 	private static record EshContext(ImmutableSortedMap<ZonedDateTime, OptionalInt> limits) {
