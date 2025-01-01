@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "19.0.3",
-    "@angular/common": "19.0.3",
+    "@angular/common": "19.0.5",
     "@angular/core": "19.0.3",
     "@angular/forms": "19.0.3",
     "@angular/platform-browser": "19.0.3",
@@ -53,8 +53,8 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.0.3",
-    "@angular-devkit/core": "^19.0.5",
-    "@angular-devkit/schematics": "^19.0.5",
+    "@angular-devkit/core": "^19.0.6",
+    "@angular-devkit/schematics": "^19.0.6",
     "@angular-eslint/builder": "^19.0.2",
     "@angular-eslint/eslint-plugin": "^19.0.2",
     "@angular-eslint/eslint-plugin-template": "^19.0.2",
