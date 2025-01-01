@@ -83,9 +83,21 @@ public class UtilsV1Test {
 						new DummySum() //
 								.withGridActivePower(100), //
 						new DummyManagedSymmetricEss("ess0") //
+								.withSoc(93) //
 								.withActivePower(500), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 400, //
+						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
+						CHARGE_GRID));
+		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyState(DELAY_DISCHARGE, 0), //
+				calculateAutomaticMode(//
+						new DummySum() //
+								.withGridActivePower(100), //
+						new DummyManagedSymmetricEss("ess0") //
+								.withActivePower(500) //
+								.withSoc(94), //
+						/* essChargeInChargeGrid */ 1000, //
+						/* maxChargePowerFromGrid */ 1000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						CHARGE_GRID));
 		assertEquals("CHARGE_GRID to BALANCING", new ApplyState(BALANCING, null), //

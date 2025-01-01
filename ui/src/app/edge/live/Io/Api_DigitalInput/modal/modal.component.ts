@@ -9,6 +9,7 @@ import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } 
 @Component({
     selector: "Io_Api_DigitalInputModal",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "Io_Api_DigitalInput_ModalComponent";

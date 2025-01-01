@@ -778,8 +778,12 @@ export namespace HistoryUtils {
     yAxisId: ChartAxis,
     /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
     customTitle?: string
-    /** Default: true */
-    displayGrid?: boolean
+    /** Default: true _> {@link https://www.chartjs.org/docs/latest/axes/styling.html#grid-line-configuration Chartjs Grid Display} */
+    displayGrid?: boolean,
+    scale?: {
+      /** Default: false, if true scale starts at minimum value of all datasets */
+      dynamicScale?: boolean,
+    }
   };
 
   export namespace ValueConverter {

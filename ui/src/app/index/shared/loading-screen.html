@@ -17,7 +17,11 @@
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-card>
                 <ion-card-content>
-                  <ng-container *ngTemplateOutlet="content"></ng-container>
+                  @if (environment.backend === 'OpenEMS Backend') {
+                  <ng-container *ngTemplateOutlet="connectionToBackendFailed"></ng-container>
+                  }@else {
+                  <ng-container *ngTemplateOutlet="connectionToEdgeFailed"></ng-container>
+                  }
                 </ion-card-content>
               </ion-card>
             </ion-col>
@@ -30,7 +34,7 @@
 </ion-content>
 
 
-<ng-template #content>
+<ng-template #connectionToBackendFailed>
   <ion-row class="ion-justify-content-center ion-align-items-center ion-no-padding">
     <ion-col
       style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
@@ -60,4 +64,37 @@
     </ion-col>
   </ion-row>
 
+</ng-template>
+
+<ng-template #connectionToEdgeFailed>
+  <ion-row class="ion-justify-content-center ion-align-items-center">
+    <ion-col
+      style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
+      <ion-icon name="file-tray-full-outline" color="primary" size="large" style="padding-right: 5%;"></ion-icon>
+      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;" translate>
+        OFFLINE.EDGE.LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE
+      </ion-label>
+    </ion-col>
+  </ion-row>
+
+  <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
+    <ion-col size="12">
+      <ion-item lines="none" class="ion-text-center">
+        <ion-label class="ion-text-wrap ion-font-size-smaller"
+          [translateParams]="{edgeShortName: environment.edgeShortName}" translate>
+          OFFLINE.EDGE.DESCRIPTION
+        </ion-label>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+  <ion-row class="ion-justify-content-center ion-align-items-center">
+    <ion-col size="12">
+      <ion-item lines="none" class="ion-text-center">
+        <ion-label class="ion-text-wrap" style="font-weight: bolder;" translate>
+          LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING
+        </ion-label>
+      </ion-item>
+    </ion-col>
+  </ion-row>
 </ng-template>

@@ -19,6 +19,7 @@ import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
 @Component({
     selector: "statePriceChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -122,6 +123,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
         this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
+        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
         this.options.scales.x.ticks.maxTicksLimit = 30;
         this.options.scales.x["offset"] = false;
         this.options.scales.x.ticks.callback = function (value) {
@@ -172,14 +174,14 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
             return el;
         });
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit };
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit, scale: { dynamicScale: true } };
         [rightYaxisSoc, rightYAxisPower].forEach((element) => {
             this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", locale, this.datasets, true);
         });
 
         this.options.scales[ChartAxis.LEFT] = {
             ...this.options.scales[ChartAxis.LEFT],
-            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "line", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
+            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "bar", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
         };
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
         this.options.scales[ChartAxis.RIGHT_2].suggestedMin = 0;

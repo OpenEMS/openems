@@ -5,5 +5,6 @@ import { FieldWrapper } from "@ngx-formly/core";
     selector: "formly-wrapper-ion-form-field",
     templateUrl: "./form-field.wrapper.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false,
 })
 export class FormlyWrapperFormFieldComponent extends FieldWrapper { }

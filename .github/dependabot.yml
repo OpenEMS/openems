@@ -17,6 +17,9 @@ updates:
       bouncycastle:
         patterns:
           - "org.bouncycastle:*"
+      pax-logging:
+        patterns:
+          - "org.ops4j.pax.logging:*"
 
   - package-ecosystem: npm
     directory: "/ui"
@@ -30,6 +33,7 @@ updates:
           - "@angular/*"
           - "@angular-devkit/*"
           - "@angular-eslint/*"
+          - "@schematics/angular"
       capacitor:
         patterns:
           - "@capacitor/*"

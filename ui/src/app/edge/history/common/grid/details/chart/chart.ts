@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
@@ -10,6 +11,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
   selector: "gridDetailsChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -34,7 +36,7 @@ export class ChartComponent extends AbstractHistoryChart {
               converter: () => {
                 return data["GridActivePower"];
               },
-              color: "rgba(0,0,200)",
+              color: ChartConstants.Colors.BLUE,
               stack: 1,
             },
             ...Phase.THREE_PHASE.map((phase, index) => ({

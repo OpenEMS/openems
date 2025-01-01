@@ -48,7 +48,7 @@ export class AppStateTracker {
         effect(() => {
             const state = this.websocket.state();
             this.startStateHandler(state);
-        }, { allowSignalWrites: true });
+        });
     }
 
     /**

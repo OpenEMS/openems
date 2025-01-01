@@ -8,6 +8,7 @@ import { Controller_Symmetric_PeakShavingModalComponent } from "./modal/modal.co
 @Component({
     selector: "Controller_Symmetric_PeakShaving",
     templateUrl: "./Symmetric.html",
+    standalone: false,
 })
 export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidget {
 

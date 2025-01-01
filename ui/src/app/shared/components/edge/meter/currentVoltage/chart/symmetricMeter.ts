@@ -6,6 +6,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
   selector: "currentVoltageChart",
   templateUrl: "../../../../../components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart {
 

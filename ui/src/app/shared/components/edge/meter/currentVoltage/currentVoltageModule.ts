@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
-import { NgChartsModule } from "ng2-charts";
+import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { FooterNavigationModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
 import { ChartModule } from "../../../chart/chart.module";
@@ -18,8 +18,8 @@ import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
     IonicModule,
     FooterNavigationModule,
     TranslateModule,
-    NgChartsModule,
-    NgChartsModule,
+    BaseChartDirective,
+    BaseChartDirective,
     HistoryDataErrorModule,
     NgxSpinnerModule.forRoot({
       type: "ball-clip-rotate-multiple",

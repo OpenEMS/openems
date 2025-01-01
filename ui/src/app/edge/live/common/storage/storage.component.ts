@@ -2,7 +2,7 @@
 import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { CurrentData , ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
 import { StorageModalComponent } from "./modal/modal.component";
@@ -10,6 +10,7 @@ import { StorageModalComponent } from "./modal/modal.component";
 @Component({
     selector: "storage",
     templateUrl: "./storage.component.html",
+    standalone: false,
 })
 export class StorageComponent extends AbstractFlatWidget {
 
@@ -74,11 +75,7 @@ export class StorageComponent extends AbstractFlatWidget {
             component: StorageModalComponent,
             componentProps: {
                 edge: this.edge,
-                config: this.config,
                 component: this.component,
-                essComponents: this.essComponents,
-                chargerComponents: this.chargerComponents,
-                singleComponent: this.component,
             },
         });
         return await modal.present();

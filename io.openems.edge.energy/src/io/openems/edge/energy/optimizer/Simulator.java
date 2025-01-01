@@ -125,11 +125,12 @@ public class Simulator {
 		final var eshs = simulation.global.eshs();
 		final var model = EnergyFlow.Model.from(simulation, period);
 
+		double cost = 0.;
 		var eshIndex = 0;
 		for (var esh : eshs) {
 			if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
 				// Simulate with state given by Genotype
-				e.simulatePeriod(simulation, period, model, schedule[periodIndex][eshIndex++]);
+				cost += e.simulatePeriod(simulation, period, model, schedule[periodIndex][eshIndex++]);
 			} else if (esh instanceof EnergyScheduleHandler.WithOnlyOneState<?> e) {
 				e.simulatePeriod(simulation, period, model);
 			}
@@ -149,19 +150,17 @@ public class Simulator {
 		// Calculate Cost
 		// TODO should be done also by ESH to enable this use-case:
 		// https://community.openems.io/t/limitierung-bei-negativen-preisen-und-lastgang-einkauf/2713/2
-		double cost;
 		if (energyFlow.getGrid() > 0) {
 			// Filter negative prices
 			var price = Math.max(0, period.price());
 
-			cost = // Cost for direct Consumption
+			cost += // Cost for direct Consumption
 					energyFlow.getGridToCons() * price
 							// Cost for future Consumption after storage
 							+ energyFlow.getGridToEss() * price * simulation.global.riskLevel().efficiencyFactor;
 
 		} else {
-			// Sell-to-Grid
-			cost = 0.;
+			// Sell-to-Grid -> no cost
 		}
 		if (bestScheduleCollector != null) {
 			final var srp = SimulationResult.Period.from(period, energyFlow, simulation.ess.getInitialEnergy());

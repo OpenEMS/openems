@@ -8,6 +8,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
     selector: "modbusTcpApiChart",
     templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
