@@ -19,12 +19,14 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class SimulatorTest {
 
-	public static final EnergyScheduleHandler.WithOnlyOneState<Integer> ESH0 = EnergyScheduleHandler.<Integer>of(//
-			simContext -> simContext.ess().totalEnergy(), //
-			(simContext, period, energyFlow, ctrlContext) -> {
-				var minEnergy = socToEnergy(simContext.global.ess().totalEnergy(), 10 /* [%] */);
-				energyFlow.setEssMaxDischarge(Math.max(0, simContext.ess.getInitialEnergy() - minEnergy));
-			});
+	public static final EnergyScheduleHandler.WithOnlyOneState<Integer> ESH0 = //
+			EnergyScheduleHandler.WithOnlyOneState.<Integer>create() //
+					.setContextFunction(simContext -> simContext.ess().totalEnergy()) //
+					.setSimulator((simContext, period, energyFlow, ctrlContext) -> {
+						var minEnergy = socToEnergy(simContext.global.ess().totalEnergy(), 10 /* [%] */);
+						energyFlow.setEssMaxDischarge(Math.max(0, simContext.ess.getInitialEnergy() - minEnergy));
+					}) //
+					.build();
 
 	public static final ManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0") //
 			.withMaxApparentPower(10_000) //
@@ -41,12 +43,15 @@ public class SimulatorTest {
 		FOO, BAR;
 	}
 
-	public static final EnergyScheduleHandler.WithDifferentStates<Esh2State, Object> ESH2 = EnergyScheduleHandler.of(//
-			Esh2State.BAR, //
-			() -> Esh2State.values(), //
-			simContext -> null, //
-			(simContext, period, energyFlow, ctrlContext, state) -> {
-			});
+	public static final EnergyScheduleHandler.WithDifferentStates<Esh2State, Object> ESH2 = //
+			EnergyScheduleHandler.WithDifferentStates.<Esh2State, Object>create() //
+					.setDefaultState(Esh2State.BAR) //
+					.setAvailableStates(() -> Esh2State.values()) //
+					.setContextFunction(simContext -> null) //
+					.setSimulator((simContext, period, energyFlow, ctrlContext, state) -> {
+						return 0.;
+					}) //
+					.build();
 
 	public static final Simulator DUMMY_SIMULATOR = new Simulator(//
 			DummyGlobalSimulationsContext.fromHandlers(ESH0, ESH_TIME_OF_USE_TARIFF_CTRL, ESH2));
