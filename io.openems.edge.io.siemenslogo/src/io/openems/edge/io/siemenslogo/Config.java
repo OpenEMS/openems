@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Siemens LOGO!", //
-		description = "Siemens Logo! 8 digital Input/Output")
+		description = "Siemens LOGO! 8 digital Input/Output")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

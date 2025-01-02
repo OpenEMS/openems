@@ -28,6 +28,9 @@ public class SiemensLogoRelayImplTest {
 
 		var mst = sut.getModbusSlaveTable(AccessMode.READ_WRITE);
 		assertEquals(180, mst.getLength());
+
+		assertEquals(8, sut.digitalOutputChannels().length);
+		assertEquals(12, sut.digitalInputChannels().length);
 	}
 
 }
