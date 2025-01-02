@@ -1,29 +1,33 @@
 package io.openems.edge.io.siemenslogo;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 
-
 public class SiemensLogoRelayImplTest {
-	
-	private static final String IO_ID = "io0";
-	private static final String MODBUS_ID = "modbus0";
 
 	@Test
 	public void test() throws Exception {
+		var sut = new SiemensLogoRelayImpl();
 		new ComponentTest(new SiemensLogoRelayImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(IO_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("io0") //
+						.setModbusId("modbus0") //
 						.build()) //
-		;
-	}
-	
+				.next(new TestCase()) //
+				.deactivate();
+		assertEquals("Output:????????|Input:????????????", sut.debugLog());
 
+		var mst = sut.getModbusSlaveTable(AccessMode.READ_WRITE);
+		assertEquals(180, mst.getLength());
+	}
 
 }

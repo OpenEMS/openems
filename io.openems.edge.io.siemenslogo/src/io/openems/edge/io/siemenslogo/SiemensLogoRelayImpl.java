@@ -1,5 +1,10 @@
 package io.openems.edge.io.siemenslogo;
 
+import static io.openems.common.channel.AccessMode.READ_ONLY;
+import static io.openems.common.channel.AccessMode.READ_WRITE;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,12 +19,15 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -29,26 +37,23 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "SiemensLogo.IO", //
+		name = "IO.Siemens.LOGO", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
+public class SiemensLogoRelayImpl extends AbstractOpenemsModbusComponent
 		implements SiemensLogoRelay, DigitalOutput, DigitalInput, ModbusComponent, OpenemsComponent, ModbusSlave {
+
+	private final BooleanWriteChannel[] digitalOutputChannels;
+	private final BooleanReadChannel[] digitalInputChannels;
 
 	private int writeOffset = 0;
 	private int readOffset = 0;
 
 	@Reference
-	protected ConfigurationAdmin cm;
-
-	private Config config;
-
-
-	
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -56,15 +61,29 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 	}
 
 	public SiemensLogoRelayImpl() {
-		super(SiemensLogoRelay.ChannelId.values());
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				DigitalOutput.ChannelId.values(), //
+				DigitalInput.ChannelId.values(), //
+				SiemensLogoRelay.ChannelId.values() //
+		);
+		this.digitalOutputChannels = stream(SiemensLogoRelay.ChannelId.values()) //
+				.filter(channelId -> channelId.doc().getAccessMode() == READ_WRITE) //
+				.map(channelId -> this.channel(channelId)) //
+				.toArray(BooleanWriteChannel[]::new);
+		this.digitalInputChannels = stream(SiemensLogoRelay.ChannelId.values()) //
+				.filter(channelId -> channelId.doc().getAccessMode() == READ_ONLY) //
+				.map(channelId -> this.channel(channelId)) //
+				.toArray(BooleanReadChannel[]::new);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
-		this.config = config;
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.writeOffset = config.modbusOffsetWriteAddress();
+		this.readOffset = config.modbusOffsetReadAddress();
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
-
 	}
 
 	@Deactivate
@@ -73,11 +92,17 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	public BooleanWriteChannel[] digitalOutputChannels() {
+		return this.digitalOutputChannels;
+	}
 
-		this.writeOffset = this.config.modbusOffsetWriteAddress();
-		this.readOffset = this.config.modbusOffsetReadAddress();
-		
+	@Override
+	public BooleanReadChannel[] digitalInputChannels() {
+		return this.digitalInputChannels;
+	}
+
+	@Override
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				// Read Inputs
 				new FC1ReadCoilsTask(this.readOffset, Priority.HIGH, //
@@ -86,8 +111,7 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 						m(SiemensLogoRelay.ChannelId.INPUT_3, new CoilElement(2 + this.readOffset)), //
 						m(SiemensLogoRelay.ChannelId.INPUT_4, new CoilElement(3 + this.readOffset)) //
 				),
-				
-				
+
 				/*
 				 * For Read: Read Coils
 				 */
@@ -135,14 +159,26 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 						.channel(5 + this.writeOffset, SiemensLogoRelay.ChannelId.RELAY_6, ModbusType.UINT16) //
 						.channel(6 + this.writeOffset, SiemensLogoRelay.ChannelId.RELAY_7, ModbusType.UINT16) //
 						.channel(7 + this.writeOffset, SiemensLogoRelay.ChannelId.RELAY_8, ModbusType.UINT16) //
-						
+
 						.channel(8 + this.readOffset, SiemensLogoRelay.ChannelId.INPUT_1, ModbusType.UINT16) //
 						.channel(9 + this.readOffset, SiemensLogoRelay.ChannelId.INPUT_2, ModbusType.UINT16) //
 						.channel(10 + this.readOffset, SiemensLogoRelay.ChannelId.INPUT_3, ModbusType.UINT16) //
-						.channel(11 + this.readOffset, SiemensLogoRelay.ChannelId.INPUT_4, ModbusType.UINT16) //						
-						
+						.channel(11 + this.readOffset, SiemensLogoRelay.ChannelId.INPUT_4, ModbusType.UINT16) //
+
 						.build()//
 		);
 	}
 
+	@Override
+	public String debugLog() {
+		var outputLog = stream(this.digitalOutputChannels) //
+				.map(c -> c.value().asOptional()) //
+				.map(t -> t.isPresent() ? (t.get() ? "X" : "-") : "?") //
+				.collect(joining(""));
+		var inputLog = stream(this.digitalInputChannels) //
+				.map(c -> c.value().asOptional()) //
+				.map(t -> t.isPresent() ? (t.get() ? "I" : "O") : "?") //
+				.collect(joining(""));
+		return "Output:" + outputLog + "|Input:" + inputLog;
+	}
 }
