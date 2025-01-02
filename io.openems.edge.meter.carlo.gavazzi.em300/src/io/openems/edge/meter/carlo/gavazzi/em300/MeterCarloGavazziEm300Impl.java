@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -28,7 +29,6 @@ import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -85,7 +85,7 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = 300000 + 1;
 		/**
 		 * See Modbus definition PDF-file in doc directory and
@@ -116,14 +116,11 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_2)),
 				new FC4ReadInputRegistersTask(300013 - offset, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.CURRENT_L1,
-								new SignedDoublewordElement(300013 - offset).wordOrder(WordOrder.LSWMSW),
-								SCALE_FACTOR_2),
+								new SignedDoublewordElement(300013 - offset).wordOrder(WordOrder.LSWMSW)),
 						m(ElectricityMeter.ChannelId.CURRENT_L2,
-								new SignedDoublewordElement(300015 - offset).wordOrder(WordOrder.LSWMSW),
-								SCALE_FACTOR_2),
+								new SignedDoublewordElement(300015 - offset).wordOrder(WordOrder.LSWMSW)),
 						m(ElectricityMeter.ChannelId.CURRENT_L3,
-								new SignedDoublewordElement(300017 - offset).wordOrder(WordOrder.LSWMSW),
-								SCALE_FACTOR_2),
+								new SignedDoublewordElement(300017 - offset).wordOrder(WordOrder.LSWMSW)),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
 								new SignedDoublewordElement(300019 - offset).wordOrder(WordOrder.LSWMSW),
 								SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),

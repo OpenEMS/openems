@@ -4,6 +4,8 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -226,20 +228,11 @@ public class BatterySoltaroSingleRackVersionBImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public String debugLog() {
-		return new StringBuilder() //
-				.append(this.stateMachine.debugLog()) //
-				.append("|SoC:").append(this.getSoc()) //
-				.append("|Actual:").append(this.getVoltage()) //
-				.append(";").append(this.getCurrent()) //
-				.append("|Charge:").append(this.getChargeMaxVoltage()) //
-				.append(";").append(this.getChargeMaxCurrent()) //
-				.append("|Discharge:").append(this.getDischargeMinVoltage()) //
-				.append(";").append(this.getDischargeMaxCurrent()) //
-				.toString();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 
 		var protocol = new ModbusProtocol(this, //
 				// Main switch
@@ -923,22 +916,10 @@ public class BatterySoltaroSingleRackVersionBImpl extends AbstractOpenemsModbusC
 	 * Gets the Number of Modules.
 	 *
 	 * @return the Number of Modules as a {@link CompletableFuture}.
-	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		final var result = new CompletableFuture<Integer>();
-		try {
-			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(0x20C1), true)
-					.thenAccept(numberOfModules -> {
-						if (numberOfModules == null) {
-							return;
-						}
-						result.complete(numberOfModules);
-					});
-		} catch (OpenemsException e) {
-			result.completeExceptionally(e);
-		}
-		return result;
+		return readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull,
+				new UnsignedWordElement(0x20C1));
 	}
 
 	/**
@@ -964,41 +945,35 @@ public class BatterySoltaroSingleRackVersionBImpl extends AbstractOpenemsModbusC
 	 * @param numberOfModules the number of battery modules
 	 */
 	private void createDynamicChannels(int numberOfModules) {
-		try {
-			for (var i = 0; i < numberOfModules; i++) {
-				var ameVolt = new ModbusElement[SENSORS_PER_MODULE];
-				var ameTemp = new ModbusElement[SENSORS_PER_MODULE];
-				for (var j = 0; j < SENSORS_PER_MODULE; j++) {
-					var sensor = i * SENSORS_PER_MODULE + j;
-					{
-						// Create Voltage Channel
-						var channelId = new ChannelIdImpl(
-								"CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_VOLTAGE",
-								Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
-						this.addChannel(channelId);
-						// Create Modbus-Mapping for Voltages
-						var uwe = new UnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + sensor);
-						ameVolt[j] = m(channelId, uwe);
-					}
-					{
-						// Create Temperature Channel
-						var channelId = new ChannelIdImpl(
-								"CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_TEMPERATURE",
-								Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
-						this.addChannel(channelId);
-						// Create Modbus-Mapping for Temperatures
-						var uwe = new UnsignedWordElement(TEMPERATURE_ADDRESS_OFFSET + sensor);
-						ameTemp[j] = m(channelId, uwe);
-					}
+		for (var i = 0; i < numberOfModules; i++) {
+			var ameVolt = new ModbusElement[SENSORS_PER_MODULE];
+			var ameTemp = new ModbusElement[SENSORS_PER_MODULE];
+			for (var j = 0; j < SENSORS_PER_MODULE; j++) {
+				var sensor = i * SENSORS_PER_MODULE + j;
+				{
+					// Create Voltage Channel
+					var channelId = new ChannelIdImpl("CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_VOLTAGE",
+							Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
+					this.addChannel(channelId);
+					// Create Modbus-Mapping for Voltages
+					var uwe = new UnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + sensor);
+					ameVolt[j] = m(channelId, uwe);
 				}
-				this.getModbusProtocol().addTasks(//
-						new FC3ReadRegistersTask(VOLTAGE_ADDRESS_OFFSET + i * SENSORS_PER_MODULE, Priority.LOW,
-								ameVolt), //
-						new FC3ReadRegistersTask(TEMPERATURE_ADDRESS_OFFSET + i * SENSORS_PER_MODULE, Priority.LOW,
-								ameTemp));
+				{
+					// Create Temperature Channel
+					var channelId = new ChannelIdImpl(
+							"CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_TEMPERATURE",
+							Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
+					this.addChannel(channelId);
+					// Create Modbus-Mapping for Temperatures
+					var uwe = new UnsignedWordElement(TEMPERATURE_ADDRESS_OFFSET + sensor);
+					ameTemp[j] = m(channelId, uwe);
+				}
 			}
-		} catch (OpenemsException e) {
-			e.printStackTrace();
+			this.getModbusProtocol().addTasks(//
+					new FC3ReadRegistersTask(VOLTAGE_ADDRESS_OFFSET + i * SENSORS_PER_MODULE, Priority.LOW, ameVolt), //
+					new FC3ReadRegistersTask(TEMPERATURE_ADDRESS_OFFSET + i * SENSORS_PER_MODULE, Priority.LOW,
+							ameTemp));
 		}
 	}
 }

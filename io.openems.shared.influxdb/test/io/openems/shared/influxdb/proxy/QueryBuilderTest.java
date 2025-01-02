@@ -27,8 +27,8 @@ public class QueryBuilderTest {
 			new ChannelAddress("_sum", "EssActiveChargeEnergy"));
 	private static final Resolution RESOLUTION = new Resolution(5, ChronoUnit.MINUTES);
 
-	private static final QueryProxy FLUX = QueryProxy.flux();
-	private static final QueryProxy INFLUX_QL = QueryProxy.influxQl();
+	private static final QueryProxy FLUX = QueryProxy.flux("tag");
+	private static final QueryProxy INFLUX_QL = QueryProxy.influxQl("tag");
 
 	@Test
 	public void testFluxBuildHistoricDataQuery() throws OpenemsNamedException {

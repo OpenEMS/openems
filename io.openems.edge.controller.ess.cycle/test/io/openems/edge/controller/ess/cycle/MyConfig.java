@@ -15,6 +15,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int maxSoc;
 		private int minSoc;
 		private int power;
+		private Mode mode;
+		private HybridEssMode hybridEssMode;
 		private int totalCycleNumber;
 		private int finalSoc;
 
@@ -58,6 +60,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPower(int power) {
 			this.power = power;
+			return this;
+		}
+
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
+			return this;
+		}
+
+		public Builder setHybridEssMode(HybridEssMode hybridEssMode) {
+			this.hybridEssMode = hybridEssMode;
 			return this;
 		}
 
@@ -125,6 +137,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int power() {
 		return this.builder.power;
+	}
+
+	@Override
+	public Mode mode() {
+		return this.builder.mode;
+	}
+
+	@Override
+	public HybridEssMode hybridEssMode() {
+		return this.builder.hybridEssMode;
 	}
 
 	@Override

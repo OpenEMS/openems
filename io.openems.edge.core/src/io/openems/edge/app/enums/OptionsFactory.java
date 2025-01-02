@@ -1,10 +1,9 @@
 package io.openems.edge.app.enums;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import io.openems.common.session.Language;
 
@@ -33,7 +32,7 @@ public interface OptionsFactory {
 	public static OptionsFactory of(TranslatableEnum[] values) {
 		return l -> Arrays.stream(values) //
 				.map(e -> Map.entry(e.getTranslation(l), e.getValue())) //
-				.collect(Collectors.toSet());
+				.toList();
 	}
 
 	/**
@@ -57,5 +56,5 @@ public interface OptionsFactory {
 	 * @param l the language of the options
 	 * @return the options where the key is the label and the value the value
 	 */
-	public Set<Entry<String, String>> options(Language l);
+	public List<Entry<String, String>> options(Language l);
 }

@@ -1,5 +1,6 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -9,11 +10,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
@@ -21,10 +18,7 @@ import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 
 public class TestModbusTcpApiReadWrite {
 
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
-
 	private AppManagerTestBundle appManagerTestBundle;
-
 	private ModbusTcpApiReadOnly modbusTcpApiReadOnly;
 	private ModbusTcpApiReadWrite modbusTcpApiReadWrite;
 
@@ -41,7 +35,7 @@ public class TestModbusTcpApiReadWrite {
 	@Test
 	public void testDeactivateReadOnly() throws Exception {
 		// create ReadOnly app
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
 				this.modbusTcpApiReadOnly.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -55,7 +49,7 @@ public class TestModbusTcpApiReadWrite {
 		}
 
 		// create ReadWrite app
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.modbusTcpApiReadWrite.getAppId(), "key", "alias",
 						JsonUtils.buildJsonObject() //
 								.addProperty("API_TIMEOUT", 60) //
@@ -76,7 +70,7 @@ public class TestModbusTcpApiReadWrite {
 		assertFalse(isActiv);
 
 		// remove ReadWrite to see if the ReadOnly gets activated
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
 				new DeleteAppInstance.Request(readWriteApp.instanceId));
 
 		// ACTIVE not set or true

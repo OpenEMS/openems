@@ -7,21 +7,18 @@ import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerEssMinimumDischargePowerImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-	private static final String ESS_ID = "ess0";
-
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssMinimumDischargePowerImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setEssId(ESS_ID) //
+						.setId("ctrl0") //
+						.setEssId("ess0") //
 						.setActivateDischargePower(0) //
 						.setDischargeTime(0) //
 						.setMinDischargePower(0) //
-						.build()); //
-		;
+						.build()) //
+				.deactivate();
 	}
 
 }

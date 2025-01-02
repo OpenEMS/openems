@@ -1,11 +1,12 @@
-<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/heatpumpchart" *ngIf="component && edge">
-    <ion-item lines="full" color="light">
-        <ion-icon slot="start" color="danger" name="flame"></ion-icon>
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/heatpumpchart" *ngIf="component && edge"
+    class="all-edges-shadow">
+    <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
+        <ion-icon slot="start" color="normal" name="flame"></ion-icon>
         <ion-label>{{ component.alias }}</ion-label>
     </ion-item>
     <ng-container *ngIf="component && service.currentEdge | async as edge">
         <ng-container *ngIf="edge.currentData | async as currentData">
-            <ion-card-content>
+            <ion-card-content style="color: var(--ion-card-content-color);">
                 <table class="full_width">
                     <tr *ngIf="activeTimeOverPeriodRegular !== null && activeTimeOverPeriodRegular > 59">
                         <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.normalOperation</td>

@@ -18,7 +18,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
-import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
@@ -28,7 +28,7 @@ public class AppManagerImplTest {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
-	private FeneconHome homeApp;
+	private FeneconHome10 homeApp;
 
 	private KebaEvcs kebaEvcsApp;
 	private AwattarHourly awattarApp;
@@ -46,6 +46,7 @@ public class AppManagerImplTest {
 		final var emergencyReserveEnabled = false;
 
 		final var shadowManagmentDisabled = false;
+		final var naProtectionEnabled = false;
 
 		// Battery-Inverter Settings
 		final var safetyCountry = "AUSTRIA";
@@ -129,8 +130,11 @@ public class AppManagerImplTest {
 								.addProperty("backupEnable", "DISABLE") //
 								.addProperty("feedPowerEnable", "ENABLE") //
 								.addProperty("feedPowerPara", 10000) //
+								.addProperty("controlMode", "SMART") //
+								.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 								.addProperty("setfeedInPowerSettings", "LAGGING_0_95") //
 								.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
+								.addProperty("rcrEnable", "DISABLE") //
 								.build()) //
 						.build()) //
 				.add("predictor0", JsonUtils.buildJsonObject() //
@@ -253,6 +257,7 @@ public class AppManagerImplTest {
 										.addProperty("HAS_DC_PV2", false) //
 										.addProperty("EMERGENCY_RESERVE_ENABLED", emergencyReserveEnabled) //
 										.addProperty("SHADOW_MANAGEMENT_DISABLED", shadowManagmentDisabled) //
+										.addProperty("NA_PROTECTION_ENABLED", naProtectionEnabled) //
 										.build()) //
 								.build()) //
 						.add(JsonUtils.buildJsonObject() //
@@ -287,7 +292,7 @@ public class AppManagerImplTest {
 
 		this.appManagerTestBundle = new AppManagerTestBundle(componentConfig, initialConfig, t -> {
 			return ImmutableList.of(//
-					this.homeApp = Apps.feneconHome(t), //
+					this.homeApp = Apps.feneconHome10(t), //
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
 					Apps.prepareBatteryExtension(t), //
@@ -297,11 +302,13 @@ public class AppManagerImplTest {
 					this.stromdao = Apps.stromdaoCorrently(t) //
 			);
 		});
-
 	}
 
 	@Test
 	public void testAppValidateWorker() throws OpenemsException, Exception {
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+
 		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
 
 		this.appManagerTestBundle.assertNoValidationErrors();
@@ -319,7 +326,7 @@ public class AppManagerImplTest {
 
 	@Test
 	public void testCheckCardinalitySingle() throws Exception {
-		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality;
+		var checkable = this.appManagerTestBundle.getCheckCardinality();
 		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.homeApp) //
 				.build());
@@ -333,7 +340,7 @@ public class AppManagerImplTest {
 				UUID.randomUUID(), JsonUtils.buildJsonObject().build(), null));
 		this.appManagerTestBundle.sut.instantiatedApps.add(new OpenemsAppInstance(this.kebaEvcsApp.getAppId(), "alias",
 				UUID.randomUUID(), JsonUtils.buildJsonObject().build(), null));
-		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality;
+		var checkable = this.appManagerTestBundle.getCheckCardinality();
 		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.kebaEvcsApp) //
 				.build());
@@ -345,12 +352,11 @@ public class AppManagerImplTest {
 	public void testCheckCardinalitySingleInCategorie() throws Exception {
 		this.appManagerTestBundle.sut.instantiatedApps.add(new OpenemsAppInstance(this.awattarApp.getAppId(), "alias",
 				UUID.randomUUID(), JsonUtils.buildJsonObject().build(), null));
-		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality;
+		var checkable = this.appManagerTestBundle.getCheckCardinality();
 		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.stromdao) //
 				.build());
 		assertFalse(checkable.check());
 		assertNotNull(checkable.getErrorMessage(Language.DEFAULT));
 	}
-
 }

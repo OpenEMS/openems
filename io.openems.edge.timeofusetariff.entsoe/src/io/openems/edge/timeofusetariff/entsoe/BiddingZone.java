@@ -28,6 +28,14 @@ public enum BiddingZone {
 	 * BZN|SE4.
 	 */
 	SWEDEN_SE4("10Y1001A1001A47J"), //
+	/**
+	 * BZN|BE.
+	 */
+	BELGIUM("10YBE----------2"), //
+	/**
+	 * BZN|NL.
+	 */
+	NETHERLANDS("10YNL----------L"), //
 	;
 
 	public final String code;

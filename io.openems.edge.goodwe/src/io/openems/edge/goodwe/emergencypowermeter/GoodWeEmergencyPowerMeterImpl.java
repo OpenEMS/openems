@@ -1,6 +1,6 @@
 package io.openems.edge.goodwe.emergencypowermeter;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -35,7 +36,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -100,33 +100,33 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 
 				// Power of each backup up phase
 				new FC3ReadRegistersTask(35145, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35145), //
-								SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35146), //
-								SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_2), //
 						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L1, new UnsignedWordElement(35147), //
 								SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35148), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(35149)), //
 
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35151), //
-								SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35152), //
-								SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_2), //
 						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L2, new UnsignedWordElement(35153), //
 								SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35154), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(35155)), //
 
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35157), //
-								SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35158), //
-								SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_2), //
 						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L3, new UnsignedWordElement(35159), //
 								SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35160), //

@@ -41,9 +41,11 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		 *
 		 * @param key   the property key
 		 * @param value the property value
+		 * @return myself
 		 */
-		public void addProperty(String key, Object value) {
+		public DummyConfiguration addProperty(String key, Object value) {
 			this.properties.put(key, value);
+			return this;
 		}
 
 		@Override
@@ -186,9 +188,11 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 	 *
 	 * @param key           the PID
 	 * @param configuration the {@link DummyConfiguration}.
+	 * @return myself
 	 */
-	public void addConfiguration(String key, DummyConfiguration configuration) {
+	public DummyConfigurationAdmin addConfiguration(String key, DummyConfiguration configuration) {
 		this.configurations.put(key, configuration);
+		return this;
 	}
 
 }

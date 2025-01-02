@@ -11,7 +11,6 @@
     "changeAccepted": "Changement accepté",
     "changeFailed": "Changement échoué",
     "chargeDischarge": "Puissance de Charge/Décharge",
-    "chargePower": "Puissance de charge",
     "componentInactive": "Component is not active!",
     "connectionLost": "Connection lost. Trying to reconnect.",
     "consumption": "Consommation",
@@ -19,7 +18,6 @@
     "currentName": "current name",
     "currentValue": "current value",
     "dateFormat": "yyyy-MM-dd",
-    "dischargePower": "Puissance de décharge",
     "digitalInputs": "Entrées numériques",
     "fault": "Fault",
     "grid": "Réseau",
@@ -58,7 +56,7 @@
     "soc": "état de charge",
     "state": "Etat",
     "storageSystem": "Système de stockage",
-    "systemState": "System state",
+    "SYSTEM_STATE": "État du système",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
@@ -85,7 +83,17 @@
       "november": "November",
       "december": "December"
     },
-    "save": "sauvegarder"
+    "save": "sauvegarder",
+    "TIME": {
+      "HOUR": "Heure",
+      "HOURS": "Heures",
+      "MINUTE": "Minute",
+      "MINUTES": "Minutes",
+      "DAY": "Journée",
+      "DAYS": "Journées"
+    },
+    "DISCHARGE": "Décharge",
+    "CHARGE": "Charge"
   },
   "Menu": {
     "accessLevel": "Niveau d'accès",
@@ -108,9 +116,9 @@
     "connectionFailed": "Connection avec {{ value }} échouée.",
     "deviceOffline": "Ld'appareil n d'est pas connecté!",
     "isOffline": "OpenEMS est hors ligne!",
-    "loggedInAs": "Enregistré en tant que:",
+    "LOGGED_IN_AS": "Enregistré en tant que",
     "toEnergymonitor": "Vers le moniteur d'énergie...",
-    "type": "Type:"
+    "TYPE": "Type"
   },
   "Login": {
     "title": "Login",
@@ -155,8 +163,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "En activant la réserve d'énergie de secours, la valeur peut être librement choisie entre 5 % et 100 %.",
-        "emergencyReserve": "réserve d'urgence"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "En activant la réserve d'énergie de secours, la valeur peut être librement choisie entre 5 % et 100 %.",
+        "EMERGENCY_RESERVE": "réserve d'urgence"
       },
       "Energymonitor": {
         "activePower": "Puissance Active",
@@ -368,17 +376,6 @@
           "switchOnRec": "Recommandation de mise en marche",
           "switchOnRecShort": "Recommandation",
           "undefined": "Indéfinie"
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Prix actuel",
-          "delayedDischarge": "Sortie retardée",
-          "STORAGE_DISCHARGE": "Décharge de stockage",
-          "State": {
-            "notStarted": "Le contrôleur n'a pas encore démarré",
-            "delayed": "Retardé",
-            "allowsDischarge": "Libéré",
-            "standby": "Standby"
-          }
         }
       }
     },
@@ -483,22 +480,12 @@
         "newConnection": "Nouvelle connexion...",
         "newDevice": "Nouvel appareil..."
       },
-      "Alerting": {
-        "activate": "Activer",
-        "delay": "Retard",
-        "save": "Enregistrer",
-        "options": {},
-        "toast": {
-          "success": "Paramètres adoptés",
-          "error": "Erreur lors du chargement des paramètres"
-        },
-        "interval": {
-          "hours": "Heures",
-          "minute": "Minute",
-          "minutes": "Minutes",
-          "day": "Journée",
-          "days": "Journées",
-          "hour": "Heure"
+      "ALERTING": {
+        "ACTIVATE": "Activer",
+        "DELAY": "Retard",
+        "TOAST": {
+          "SUCCESS": "Paramètres adoptés",
+          "ERROR": "Erreur lors du chargement des paramètres"
         }
       },
       "App": {

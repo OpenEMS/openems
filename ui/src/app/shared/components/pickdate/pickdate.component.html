@@ -1,0 +1,13 @@
+<ion-button (click)="goBackward()" [disabled]="!isBackArrowAllowed">
+    <ion-icon class="ion-padding-start" name="arrow-back-outline" slot="start"
+        style="color: var(--ion-color-pickdate-toolbar);">
+    </ion-icon>
+</ion-button>
+<ion-button *ngIf="translate" (click)="presentPopover($event)" style="color: var(--ion-color-pickdate-toolbar);">
+    {{service.historyPeriod.value.getText(translate, service)}}
+</ion-button>
+<ion-button [disabled]="!isForwardArrowAllowed" (click)="goForward()">
+    <ion-icon class="ion-padding-end" style="color: var(--ion-color-pickdate-toolbar);" slot="end"
+        name="arrow-forward-outline">
+    </ion-icon>
+</ion-button>

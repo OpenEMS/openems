@@ -34,7 +34,7 @@ public interface KacoBlueplanetHybrid10Ess extends OpenemsComponent {
 		 * 'user' via the KACO Hy-Sys tool.
 		 */
 		EXTERNAL_CONTROL_FAULT_VERSION_8(Doc.of(Level.FAULT) //
-				.text("Starting with Firmware Version 8 KACO inverter cannot be controlled via OpenEMS")),
+				.text("Starting with Firmware Version 8 KACO inverter cannot be controlled")),
 
 		NO_GRID_METER_DETECTED(Doc.of(Level.WARNING) //
 				.text("No hy-switch Grid-Meter detected. Read-Only mode can not work correctly"));

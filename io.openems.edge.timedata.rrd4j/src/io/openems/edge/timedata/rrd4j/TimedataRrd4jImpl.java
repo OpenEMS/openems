@@ -12,7 +12,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -20,6 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -41,7 +41,8 @@ import io.openems.edge.timedata.api.Timeranges;
 public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 		implements TimedataRrd4j, Timedata, OpenemsComponent, EventHandler {
 
-	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	@Reference
+	private RecordWorkerFactory workerFactory;
 	private RecordWorker worker;
 
 	@Reference
@@ -62,6 +63,7 @@ public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.debugMode = config.debugMode();
 
+		this.worker = this.workerFactory.get();
 		this.worker.setConfig(new RecordWorker.Config(//
 				this.id(), //
 				config.isReadOnly(), //
@@ -78,6 +80,8 @@ public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.workerFactory.unget(this.worker);
+		this.worker = null;
 	}
 
 	@Override
@@ -133,6 +137,12 @@ public final class TimedataRrd4jImpl extends AbstractOpenemsComponent
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		return this.readHandler.getLatestValue(this.id(), channelAddress);
+	}
+
+	@Override
+	public CompletableFuture<Optional<Object>> getLatestValueOfNotExistingChannel(ChannelAddress channelAddress,
+			Unit unit) {
+		return this.readHandler.getLatestValueOfNotExistingChannel(this.id(), channelAddress, unit);
 	}
 
 	@Override

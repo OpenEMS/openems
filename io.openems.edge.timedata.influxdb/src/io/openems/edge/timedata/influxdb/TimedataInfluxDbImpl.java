@@ -27,7 +27,9 @@ import com.google.gson.JsonElement;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -62,6 +64,9 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
+	@Reference
+	private OpenemsEdgeOem oem;
+
 	private InfluxConnector influxConnector = null;
 
 	/** Counts the number of Cycles till data is written to InfluxDB. */
@@ -86,7 +91,8 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		}
 
 		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
-				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), 5, config.maxQueueSize(), //
+				config.org(), config.apiKey(), config.bucket(), this.oem.getInfluxdbTag(), config.isReadOnly(), 5,
+				config.maxQueueSize(), //
 				(e) -> {
 					// ignore
 				});
@@ -122,56 +128,37 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 			final var point = Point.measurement(this.config.measurement()).time(timestamp, WritePrecision.MS);
 			final var addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
-			this.componentManager.getEnabledComponents().stream().filter(OpenemsComponent::isEnabled)
-					.forEach(component -> {
-						component.channels().forEach(channel -> {
-							switch (channel.channelDoc().getAccessMode()) {
-							case WRITE_ONLY:
-								// ignore Write-Only-Channels
-								return;
-							case READ_ONLY:
-							case READ_WRITE:
-								break;
+			this.componentManager.getEnabledComponents().stream() //
+					.flatMap(component -> component.channels().stream()) //
+					.filter(channel -> {
+						final var doc = channel.channelDoc();
+						return doc.getPersistencePriority().isAtLeast(this.config.persistencePriority())
+								&& doc.getAccessMode() != AccessMode.WRITE_ONLY; //
+					}) //
+					.forEach(channel -> {
+						Optional<?> valueOpt = channel.value().asOptional();
+						if (!valueOpt.isPresent()) {
+							// ignore not available channels
+							return;
+						}
+						Object value = valueOpt.get();
+						var address = channel.address().toString();
+						try {
+							switch (channel.getType()) {
+							case BOOLEAN -> point.addField(address, (Boolean) value ? 1 : 0);
+							case SHORT -> point.addField(address, (Short) value);
+							case INTEGER -> point.addField(address, (Integer) value);
+							case LONG -> point.addField(address, (Long) value);
+							case FLOAT -> point.addField(address, (Float) value);
+							case DOUBLE -> point.addField(address, (Double) value);
+							case STRING -> point.addField(address, (String) value);
 							}
-
-							Optional<?> valueOpt = channel.value().asOptional();
-							if (!valueOpt.isPresent()) {
-								// ignore not available channels
-								return;
-							}
-							Object value = valueOpt.get();
-							var address = channel.address().toString();
-							try {
-								switch (channel.getType()) {
-								case BOOLEAN:
-									point.addField(address, (Boolean) value ? 1 : 0);
-									break;
-								case SHORT:
-									point.addField(address, (Short) value);
-									break;
-								case INTEGER:
-									point.addField(address, (Integer) value);
-									break;
-								case LONG:
-									point.addField(address, (Long) value);
-									break;
-								case FLOAT:
-									point.addField(address, (Float) value);
-									break;
-								case DOUBLE:
-									point.addField(address, (Double) value);
-									break;
-								case STRING:
-									point.addField(address, (String) value);
-									break;
-								}
-							} catch (IllegalArgumentException e) {
-								this.log.warn("Unable to add Channel [" + address + "] value [" + value + "]: "
-										+ e.getMessage());
-								return;
-							}
-							addedAtLeastOneChannelValue.set(true);
-						});
+						} catch (IllegalArgumentException e) {
+							this.log.warn(
+									"Unable to add Channel [" + address + "] value [" + value + "]: " + e.getMessage());
+							return;
+						}
+						addedAtLeastOneChannelValue.set(true);
 					});
 
 			if (addedAtLeastOneChannelValue.get()) {
@@ -218,8 +205,29 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
-		// TODO implement this method
-		return CompletableFuture.completedFuture(Optional.empty());
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				SortedMap<ChannelAddress, JsonElement> sortedMap = this.influxConnector.queryLastData(Optional.empty(),
+						channelAddress, this.config.measurement());
+
+				if (sortedMap != null && !sortedMap.isEmpty() && sortedMap.containsKey(channelAddress)) {
+					JsonElement latestValue = sortedMap.get(channelAddress);
+
+					// Check if it´s a number and can be converted to long
+					if (latestValue.isJsonPrimitive()) {
+						if (latestValue.getAsJsonPrimitive().isNumber()) {
+							return Optional.of(latestValue.getAsLong());
+						}
+					}
+				} else {
+					// No data found
+					return Optional.empty();
+				}
+			} catch (Exception e) {
+				this.log.error("Error getting latest value", e);
+			}
+			return Optional.empty();
+		});
 	}
 
 	@Override
@@ -228,5 +236,4 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		// TODO implement this method
 		return new Timeranges();
 	}
-
 }

@@ -50,7 +50,7 @@ export class RegisterUserRequest extends JsonrpcRequest {
                 role: string
             },
             oem: string
-        }
+        },
     ) {
         super(RegisterUserRequest.METHOD, params);
     }

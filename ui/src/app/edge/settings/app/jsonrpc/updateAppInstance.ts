@@ -3,10 +3,10 @@ import { GetAppInstances } from "./getAppInstances";
 
 /**
  * Updates an instance of an {@link OpenemsApp}.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,10 +19,10 @@ import { GetAppInstances } from "./getAppInstances";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -42,7 +42,7 @@ export namespace UpdateAppInstance {
                 instanceId: string,
                 alias: string,
                 properties: {}
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -55,8 +55,8 @@ export namespace UpdateAppInstance {
             public override readonly id: string,
             public override readonly result: {
                 instance: GetAppInstances.AppInstance,
-                warnings: String[]
-            }
+                warnings: string[]
+            },
         ) {
             super(id, result);
         }

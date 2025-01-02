@@ -1,68 +1,46 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
-import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoStoppedHandler extends StateHandler<State, Context> {
 
-	private Instant lastAttempt = Instant.MIN;
-	private int attemptCounter = 0;
+	private Instant entryAt = Instant.MIN;
 
 	@Override
 	protected void onEntry(Context context) {
-		this.lastAttempt = Instant.MIN;
-		this.attemptCounter = 0;
+		this.entryAt = Instant.now(context.clock);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		var inverter = context.getParent();
+		final var inverter = context.getParent();
 
-		switch (inverter.getCurrentState()) {
-		case OFF:
-		case STANDBY:
-			// All Good
+		// Due to the low battery DC voltage, the inverter receives a battery low
+		// voltage error in the stop process and goes into a fault state that can be
+		// ignored during this time. Due to this situation, hasFault is preferred
+		// instead of hasFailure.
+		if (inverter.hasFaults()) {
+			inverter._setInverterCurrentStateFault(true);
+			return State.ERROR;
+		}
+
+		final var now = Instant.now(context.clock);
+		if (context.isTimeout(now, this.entryAt)) {
+			inverter._setMaxStartTimeout(true);
+			return State.ERROR;
+		}
+
+		if (inverter.isShutdown()) {
 			return State.STOPPED;
-
-		case GRID_CONNECTED:
-		case THROTTLED:
-		case FAULT:
-		case GRID_PRE_CONNECTED:
-		case MPPT:
-		case NO_ERROR_PENDING:
-		case PRECHARGE:
-		case SHUTTING_DOWN:
-		case SLEEPING:
-		case STARTING:
-		case UNDEFINED:
-			// Not yet running...
 		}
 
-		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
-		if (!isMaxStartTimePassed) {
-			// Still waiting...
-			return State.GO_STOPPED;
-		}
-		if (this.attemptCounter > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
-			// Too many tries
-			inverter._setMaxStopAttempts(true);
-			return State.UNDEFINED;
-
-		} else {
-			// Trying to switch off
-			inverter.setRequestedState(S64201RequestedState.OFF);
-			this.lastAttempt = Instant.now();
-			this.attemptCounter++;
-			return State.GO_STOPPED;
-
-		}
+		// Trying to switch off
+		inverter.setRequestedState(S64201RequestedState.OFF);
+		return State.GO_STOPPED;
 	}
-
 }

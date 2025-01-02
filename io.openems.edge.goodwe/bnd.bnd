@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.battery.api,\
+	io.openems.edge.battery.fenecon.home,\
 	io.openems.edge.batteryinverter.api,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\

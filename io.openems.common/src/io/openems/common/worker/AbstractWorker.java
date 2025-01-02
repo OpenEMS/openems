@@ -38,9 +38,10 @@ public abstract class AbstractWorker {
 	/**
 	 * Initializes the worker and starts the worker thread.
 	 *
-	 * @param name               the name of the worker thread
-	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()} method
-	 *                           should get called immediately; if not false
+	 * @param name                    the name of the worker thread
+	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()}
+	 *                                method should get called immediately; if not
+	 *                                false
 	 */
 	public void activate(String name, boolean initiallyTriggerNextRun) {
 		this.startWorker(name, initiallyTriggerNextRun);
@@ -58,14 +59,13 @@ public abstract class AbstractWorker {
 	/**
 	 * Modifies the worker thread.
 	 * 
-	 * @param name               the name of the worker thread
-	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()} method
-	 *                           should get called immediately; if not false
+	 * @param name                    the name of the worker thread
+	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()}
+	 *                                method should get called immediately; if not
+	 *                                false
 	 */
 	public void modified(String name, boolean initiallyTriggerNextRun) {
-		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
-			this.startWorker(name, initiallyTriggerNextRun);
-		}
+		this.startWorker(name, initiallyTriggerNextRun);
 	}
 
 	/**
@@ -77,12 +77,13 @@ public abstract class AbstractWorker {
 		this.modified(name, true);
 	}
 
-	private void startWorker(String name, boolean autoTriggerNextRun) {
+	private synchronized void startWorker(String name, boolean autoTriggerNextRun) {
 		if (name != null) {
 			this.thread.setName(name);
 		}
-		this.thread.start();
-
+		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
+			this.thread.start();
+		}
 		if (autoTriggerNextRun) {
 			this.triggerNextRun();
 		}
@@ -198,5 +199,23 @@ public abstract class AbstractWorker {
 			}
 		} while (targetTime > System.currentTimeMillis());
 		return duration;
+	}
+
+	/**
+	 * Changes the priority of this thread.
+	 * 
+	 * <p>
+	 * See {@link Thread#setPriority(int)}, {@link Thread#MIN_PRIORITY},
+	 * {@link Thread#NORM_PRIORITY}, {@link Thread#MAX_PRIORITY}}.
+	 *
+	 * @param newPriority priority to set this thread to
+	 * @throws IllegalArgumentException If the priority is not in the range
+	 *                                  {@code MIN_PRIORITY} to
+	 *                                  {@code MAX_PRIORITY}.
+	 * @throws SecurityException        if the current thread cannot modify this
+	 *                                  thread.
+	 */
+	public final void setPriority(int newPriority) {
+		this.thread.setPriority(newPriority);
 	}
 }

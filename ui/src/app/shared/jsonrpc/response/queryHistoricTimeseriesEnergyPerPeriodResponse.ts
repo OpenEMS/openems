@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -20,7 +20,7 @@ export class QueryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcRespo
         public override readonly result: {
             timestamps: string[],
             data: { [channelAddress: string]: any[] }
-        }
+        },
     ) {
         super(id, result);
     }

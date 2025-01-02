@@ -134,4 +134,9 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 		return null;
 	}
 
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		throw new UnsupportedOperationException();
+	}
+
 }

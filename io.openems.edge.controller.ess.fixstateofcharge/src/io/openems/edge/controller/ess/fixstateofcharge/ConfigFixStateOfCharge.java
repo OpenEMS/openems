@@ -43,7 +43,7 @@ public @interface ConfigFixStateOfCharge {
 	@AttributeDefinition(name = "Terminate time buffer in min", description = "Terminate itself after this time buffer. If zero is given, it will terminate instantly.")
 	int terminationBuffer() default 0;
 
-	@AttributeDefinition(name = "Terminates itself after separate conditon", description = "Terminate itself after separate end condition given by the property endCondition.")
+	@AttributeDefinition(name = "Terminates itself after separate condition", description = "Terminate itself after separate end condition given by the property endCondition.")
 	boolean conditionalTermination() default false;
 
 	@AttributeDefinition(name = "Condition for termination", description = "Terminates itself if the conditionalTermination is true and this end condition was fulfilled.")

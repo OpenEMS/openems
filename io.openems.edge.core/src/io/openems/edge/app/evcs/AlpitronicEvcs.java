@@ -18,12 +18,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -32,6 +32,7 @@ import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.AlpitronicEvcs.ParentProperty;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.host.Host;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -39,6 +40,7 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -48,6 +50,8 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Case;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -79,8 +83,9 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
  * </pre>
  */
 @Component(name = "App.Evcs.Alpitronic")
-public class AlpitronicEvcs extends
-		AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter> implements OpenemsApp {
+public class AlpitronicEvcs
+		extends AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter>
+		implements OpenemsApp, HostSupplier {
 
 	public static interface ParentProperty extends Type<ParentProperty, AlpitronicEvcs, Parameter.BundleParameter> {
 
@@ -101,7 +106,7 @@ public class AlpitronicEvcs extends
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		NUMBER_OF_CONNECTORS(AppDef.copyOfGeneric(EvcsProps.numberOfChargePoints(4))),
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.1.100")), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
@@ -204,15 +209,18 @@ public class AlpitronicEvcs extends
 	private static final IntFunction<String> CTRL_EVCS_ID = value -> "CTRL_EVCS_ID_" + value;
 
 	private final Map<String, ParentProperty> chargePointsDef = new TreeMap<>();
+	private final Host host;
 
 	@Activate
 	public AlpitronicEvcs(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
-			@Reference ComponentUtil componentUtil //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Host host //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.host = host;
 		for (int i = 0; i < MAX_NUMBER_OF_CHARGEPOINTS; i++) {
 			final var name = EVCS_ALIAS.apply(i);
 			this.chargePointsDef.put(name,
@@ -238,7 +246,7 @@ public class AlpitronicEvcs extends
 			}
 
 			final var components = new ArrayList<EdgeConfig.Component>();
-			final var schedulerIds = new ArrayList<String>();
+			final var schedulerIds = new ArrayList<SchedulerComponent>();
 			final var addedEvcsIds = new ArrayList<String>();
 
 			final var ip = this.getString(p, l, Property.IP);
@@ -252,7 +260,7 @@ public class AlpitronicEvcs extends
 				final var evcsCtrlIdDef = this.chargePointsDef.get(CTRL_EVCS_ID.apply(i));
 				final var ctrlEvcsId = this.getId(t, p, evcsCtrlIdDef);
 
-				schedulerIds.add(ctrlEvcsId);
+				schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
 				addedEvcsIds.add(evcsId);
 
 				components.add(new EdgeConfig.Component(evcsId, this.getString(p, l, aliasDef),
@@ -272,27 +280,23 @@ public class AlpitronicEvcs extends
 							.addProperty("ip", ip) //
 							.build()));
 
-			schedulerIds.add("ctrlBalancing0");
-
-			var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							// range from 192.168.1.96 - 192.168.1.111
-							.addIp("Evcs", "192.168.1.97/28") //
-			);
-
-			return new AppConfiguration(//
-					components, //
-					schedulerIds, //
-					ip.startsWith("192.168.1.") ? ips : null, //
-					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							addedEvcsIds.stream().toArray(String[]::new)) //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(schedulerIds)) //
+					.throwingOnlyIf(ip.startsWith("192.168.1."),
+							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
+									// range from 192.168.1.96 - 192.168.1.111
+									.addIp("Evcs", "192.168.1.97/28")))) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, addedEvcsIds.stream().toArray(String[]::new))) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -325,6 +329,11 @@ public class AlpitronicEvcs extends
 		builder.add(Property.MAX_HARDWARE_POWER);
 
 		return builder.build().toArray(ParentProperty[]::new);
+	}
+
+	@Override
+	public Host getHost() {
+		return this.host;
 	}
 
 }

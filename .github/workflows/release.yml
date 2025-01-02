@@ -9,30 +9,39 @@ jobs:
   build-java:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
           cache: gradle
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
-      - name: Validate BackendApp.bndrun and EdgeApp.bndrun
-        run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun  io.openems.edge.application/EdgeApp.bndrun
+      - name: Checkstyle
+        run: ./gradlew checkstyleAll --console=plain --warn
 
-      - name: Clean Edge+Backend assets
-        run: ./gradlew cleanEdge cleanBackend
+      - name: Build all Java packages
+        run: ./gradlew build --console=plain --warn
+
+      - name: Resolve OpenEMS bundles
+        run: ./gradlew resolve --console=plain --warn
+
+      - name: Validate BackendApp.bndrun
+        run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+
+      - name: Validate EdgeApp.bndrun
+        run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       - name: Prepare Edge+Backend assets
-        run: ./gradlew buildEdge buildBackend
+        run: ./gradlew buildEdge buildBackend --console=plain --warn
 
       - name: Save build-artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: java-build-artifacts
           path: |
             build/openems-edge.jar
             build/openems-backend.jar
@@ -40,15 +49,15 @@ jobs:
   build-ui:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Setup Cache for Node.js
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.npm
@@ -59,38 +68,44 @@ jobs:
       - name: Build OpenEMS UI
         run: |
           cd ui
-          npm install 
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
+          node_modules/.bin/ng lint
+          export CHROME_BIN=/usr/bin/google-chrome-stable
+          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
       - name: Prepare UI asset
         run: |
-          mkdir build
-          cd ui/target
-          zip -r ../../build/openems-ui.zip ./*
+          tar --xz --transform 's|^ui/target|openems-ui|' -cvf openems-ui.tar.xz ui/target/
 
       - name: Save build-artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
-          path: build/openems-ui.zip
+          name: ui-build-artifacts
+          path: openems-ui.tar.xz
 
   release:
     runs-on: ubuntu-latest
     needs: [build-java, build-ui]
     steps:
-      - name: Load build-artifacts
-        uses: actions/download-artifact@v3
+      - name: Load Java build-artifacts
+        uses: actions/download-artifact@v4
         with:
-          name: build-artifacts
+          name: java-build-artifacts
+          path: build
+      
+      - name: Load UI build-artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-build-artifacts
           path: build
 
       - name: Create draft Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: |
             build/openems-edge.jar
             build/openems-backend.jar
-            build/openems-ui.zip
+            build/openems-ui.tar.xz

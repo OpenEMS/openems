@@ -9,7 +9,6 @@
     "changeAccepted": "Wijziging geaccepteerd",
     "changeFailed": "Wijziging mislukt",
     "chargeDischarge": "Debet/ontlaad",
-    "chargePower": "Laad vermogen",
     "componentCount": "Aantal componenten",
     "componentInactive": "Component is inactief!",
     "connectionLost": "Verbinding verbroken. Probeer opnieuw verbinding te maken.",
@@ -20,7 +19,6 @@
     "digitalInputs": "Digitale Ingangen",
     "numberOfComponents": "aantal componenten",
     "directConsumption": "Directe consumptie",
-    "dischargePower": "Ontlaad vermogen",
     "fault": "Fout",
     "grid": "Net",
     "gridBuy": "Netafname",
@@ -53,7 +51,7 @@
     "soc": "Laadstatus",
     "state": "Staat",
     "storageSystem": "Batterij",
-    "systemState": "Systeemstatus",
+    "SYSTEM_STATE": "Systeemstatus",
     "TOTAL": "totale verbruik",
     "totalState": "Algemene staat",
     "warning": "Waarschuwing",
@@ -80,7 +78,17 @@
       "november": "November",
       "december": "December"
     },
-    "save": "Opslaan"
+    "save": "Opslaan",
+    "TIME": {
+      "HOUR": "Uur",
+      "HOURS": "Uur",
+      "MINUTE": "Minuut",
+      "MINUTES": "Minuten",
+      "DAY": "Dag",
+      "DAYS": "Dagen"
+    },
+    "DISCHARGE": "Afvoer",
+    "CHARGE": "Laden"
   },
   "Menu": {
     "accessLevel": "Toegangsniveau",
@@ -103,9 +111,9 @@
     "connectionSuccessful": "Succesvol verbonden met {{ value }}.",
     "deviceOffline": "Het apparaat is niet aangesloten!",
     "isOffline": "OpenEMS is offline!",
-    "loggedInAs": "Geregistreerd als:",
+    "LOGGED_IN_AS": "Geregistreerd als",
     "toEnergymonitor": "Naar Energiemonitor...",
-    "type": "Type:"
+    "TYPE": "Type"
   },
   "Login": {
     "title": "Login",
@@ -150,8 +158,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.",
-        "emergencyReserve": "noodreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.",
+        "EMERGENCY_RESERVE": "noodreserve"
       },
       "Energymonitor": {
         "activePower": "Actief vermogen",
@@ -362,17 +370,6 @@
           "normalOperationShort": "",
           "switchOnComShort": "",
           "switchOnRecShort": ""
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Huidige prijs",
-          "delayedDischarge": "Vertraagd ontslag",
-          "STORAGE_DISCHARGE": "Opslag ontlading",
-          "State": {
-            "notStarted": "De regelaar is nog niet gestart",
-            "delayed": "Vertraagd",
-            "allowsDischarge": "Vrijgegeven",
-            "standby": "Standby"
-          }
         }
       }
     },
@@ -478,22 +475,12 @@
         "newConnection": "Nieuwe verbinding...",
         "newDevice": "Nieuw apparaat…"
       },
-      "Alerting": {
-        "activate": "Activeer",
-        "delay": "Vertraging",
-        "save": "Save",
-        "options": {},
-        "toast": {
-          "success": "Goedgekeurde instellingen",
-          "error": "Fout bij het laden van de instellingen"
-        },
-        "interval": {
-          "hours": "Uur",
-          "minute": "Minuut",
-          "minutes": "Minuten",
-          "day": "Dag",
-          "days": "Dagen",
-          "hour": "Uur"
+      "ALERTING": {
+        "ACTIVATE": "Activeer",
+        "DELAY": "Vertraging",
+        "TOAST": {
+          "SUCCESS": "Goedgekeurde instellingen",
+          "ERROR": "Fout bij het laden van de instellingen"
         }
       },
       "App": {

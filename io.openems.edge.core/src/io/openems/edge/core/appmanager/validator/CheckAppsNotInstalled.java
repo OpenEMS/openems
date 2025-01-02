@@ -80,4 +80,9 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 				appNameStream.collect(Collectors.joining(", ")));
 	}
 
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		throw new UnsupportedOperationException();
+	}
+
 }

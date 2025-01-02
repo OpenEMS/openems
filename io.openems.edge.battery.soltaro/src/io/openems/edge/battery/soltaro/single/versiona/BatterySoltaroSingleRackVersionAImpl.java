@@ -435,7 +435,7 @@ public class BatterySoltaroSingleRackVersionAImpl extends AbstractOpenemsModbusC
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC6WriteRegisterTask(0x2010, //
 						m(BatterySoltaroSingleRackVersionA.ChannelId.BMS_CONTACTOR_CONTROL,

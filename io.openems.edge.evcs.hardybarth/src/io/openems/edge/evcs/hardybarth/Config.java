@@ -3,6 +3,8 @@ package io.openems.edge.evcs.hardybarth;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.evcs.api.PhaseRotation;
+
 @ObjectClassDefinition(//
 		name = "EVCS Hardy Barth", //
 		description = "Implements the Hardy Barth - Salia electric vehicle charging station.")
@@ -28,6 +30,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Maximum hardware current", description = "Maximum current of the Charger in mA.", required = true)
 	int maxHwCurrent() default 32000;
+
+	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
+	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
 	String webconsole_configurationFactory_nameHint() default "EVCS Hardy Barth [{id}]";
 

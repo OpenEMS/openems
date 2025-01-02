@@ -18,8 +18,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Ident Key", description = "The proprietary ident key for the inverter as a hex string of the form '0xF0BA...'", type = AttributeType.PASSWORD)
-	String identkey();
+	@AttributeDefinition(name = "Ident Key", description = "The proprietary ident key for the inverter as a hex string of the form '0xF0BA...'", type = AttributeType.PASSWORD, required = false)
+	String identkey() default "";
 
 	@AttributeDefinition(name = "Serial Number", description = "The serial number of the inverter", required = false)
 	String serialnumber();

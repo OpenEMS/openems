@@ -90,6 +90,8 @@ public enum PersistencePriority {
 		this.value = value;
 	}
 
+	public static final PersistencePriority DEFAULT_PERSISTENCE_PRIORITY = PersistencePriority.VERY_LOW;
+
 	/**
 	 * Is this {@link PersistencePriority} at least as high as the given
 	 * {@link PersistencePriority}?.

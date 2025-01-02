@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +18,9 @@ public abstract class AbstractWriteTask<//
 		RESPONSE extends ModbusResponse> //
 		extends AbstractTask<REQUEST, RESPONSE> implements WriteTask {
 
-	public AbstractWriteTask(String name, Class<RESPONSE> responseClazz, int startAddress, ModbusElement... elements) {
-		super(name, responseClazz, startAddress, elements);
+	public AbstractWriteTask(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz,
+			int startAddress, ModbusElement... elements) {
+		super(name, onExecute, responseClazz, startAddress, elements);
 	}
 
 	/**
@@ -45,19 +48,26 @@ public abstract class AbstractWriteTask<//
 
 		private final Logger log = LoggerFactory.getLogger(Single.class);
 
-		public Single(String name, Class<RESPONSE> responseClazz, int startAddress, ELEMENT element) {
-			super(name, responseClazz, startAddress, element);
+		public Single(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz, int startAddress,
+				ELEMENT element) {
+			super(name, onExecute, responseClazz, startAddress, element);
 			this.element = element;
 		}
 
 		@Override
 		public final ExecuteState execute(AbstractModbusBridge bridge) {
+			var result = this._execute(bridge);
+			this.onExecute.accept(result);
+			return result;
+		}
+
+		private ExecuteState _execute(AbstractModbusBridge bridge) {
 			final REQUEST request;
 			try {
 				request = this.createModbusRequest();
 			} catch (OpenemsException e) {
 				logError(this.log, e, "Creating Modbus Request failed.");
-				return ExecuteState.ERROR;
+				return new ExecuteState.Error(e);
 			}
 
 			if (request == null) {
@@ -70,7 +80,7 @@ public abstract class AbstractWriteTask<//
 
 			} catch (Exception e) {
 				// On error a log message has already been logged
-				return ExecuteState.ERROR;
+				return new ExecuteState.Error(e);
 			}
 		}
 

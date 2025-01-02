@@ -11,12 +11,14 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsComponent, StartStoppable {
+public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsComponent, StartStoppable, ModbusHelper {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#BMS_CONTROL}.
@@ -29,21 +31,17 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 
 	/**
 	 * Gets the BmsControl, see {@link ChannelId#BMS_CONTROL}.
+	 * 
+	 * <ul>
+	 * <li>true: is started
+	 * <li>false: is not started
+	 * <li>null: undefined (e.g. Modbus Communication Failed)
+	 * </ul>
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getBmsControl() {
-		return this.getBmsControlChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#BMS_CONTROL}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setBmsControl(Boolean value) {
-		this.getBmsControlChannel().setNextValue(value);
+	public default Boolean getBmsControl() {
+		return this.getBmsControlChannel().value().get();
 	}
 
 	/**
@@ -62,6 +60,25 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 	 */
 	public default BatteryFeneconHomeHardwareType getBatteryHardwareType() {
 		return this.getBatteryHardwareTypeChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#NUMBER_OF_MODULES_PER_TOWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getNumberOfModulesPerTowerChannel() {
+		return this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
+	}
+
+	/**
+	 * Gets the number of modules per tower. See
+	 * {@link ChannelId#NUMBER_OF_MODULES_PER_TOWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getNumberOfModulesPerTower() {
+		return this.getNumberOfModulesPerTowerChannel().value();
 	}
 
 	/**
@@ -108,7 +125,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Rack Under Temperature Alarm")), //
 		RACK_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Rack Cell VOltage Difference Alarm")), //
+				.text("Rack Cell Voltage Difference Alarm")), //
 		RACK_PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack BCU Temp Difference Alarm")), //
@@ -150,7 +167,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		RACK_LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Discharging warning")), //
-		RACK_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.WARNING) //
+		RACK_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.INFO) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Over Voltage Fault")), //
 		RACK_LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(Level.WARNING) //
@@ -255,7 +272,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Warning BCU 10 Position")), //
 
 		// Fault BCU Position
-		FAULT_POSITION_BCU_1(Doc.of(Level.WARNING) //
+		FAULT_POSITION_BCU_1(Doc.of(Level.INFO) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Fault BCU 1 Position")), //
 		FAULT_POSITION_BCU_2(Doc.of(Level.WARNING) //
@@ -605,7 +622,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.accessMode(AccessMode.READ_ONLY) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of modules per tower") //
-				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
@@ -613,32 +630,61 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of towers of the built system")),
 
+		TOWER_4_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms software version of fifth tower") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+
+		TOWER_3_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms software version of fourth tower") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+
 		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of third tower") //
-				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of second tower") //
-				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		TOWER_0_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of first tower")),
+				.text("Bms software version of first tower") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
-				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
-		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
-				.text("BMS CONTROL(1: Shutdown, 0: no action)")),
+		/**
+		 * true: started; false: not-started.
+		 * 
+		 * <p>
+		 * NOTE that Modbus Bit is inverted: 1: is-not-started; 0: is-started
+		 */
+		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN)),
+
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
+		LOW_MIN_VOLTAGE_WARNING(Doc.of(Level.WARNING) //
+				.text("Low min voltage warning "
+						+ "| Niedriger Ladezustand der Batterie, da die Batterie nicht durch den Wechselrichter beladen werden kann. Ohne Beladung schaltet sich die Batterie demnächst ab, um sich selbst zu schützen")),
+		LOW_MIN_VOLTAGE_FAULT(Doc.of(Level.FAULT) //
+				.text("Low min voltage fault "
+						+ "| Niedriger Ladezustand. Die Batterie schaltet sich demnächst ab, um sich selbst zu schützen")),
+		LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED(Doc.of(Level.FAULT) //
+				.text("Low min voltage fault - Battery stopped "
+						+ "| Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur")),
+
 		;
 
 		private final Doc doc;
@@ -651,5 +697,92 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#LOW_MIN_VOLTAGE_WARNING}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getLowMinVoltageWarningChannel() {
+		return this.channel(ChannelId.LOW_MIN_VOLTAGE_WARNING);
+	}
+
+	/**
+	 * Gets the Warning state channel for a low minimum voltage. See
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_WARNING}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getLowMinVoltageWarning() {
+		return this.getLowMinVoltageWarningChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_WARNING} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLowMinVoltageWarning(boolean value) {
+		this.getLowMinVoltageWarningChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#LOW_MIN_VOLTAGE_FAULT}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getLowMinVoltageFaultChannel() {
+		return this.channel(ChannelId.LOW_MIN_VOLTAGE_FAULT);
+	}
+
+	/**
+	 * Gets the fault state channel for a low minimum voltage. See
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_FAULT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getLowMinVoltage() {
+		return this.getLowMinVoltageFaultChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_FAULT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLowMinVoltageFault(boolean value) {
+		this.getLowMinVoltageFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getLowMinVoltageFaultBatteryStoppedChannel() {
+		return this.channel(ChannelId.LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED);
+	}
+
+	/**
+	 * Gets the fault state channel for a low minimum voltage when battery is
+	 * stopped. See {@link ChannelId#LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getLowMinVoltageFaultBatteryStopped() {
+		return this.getLowMinVoltageFaultBatteryStoppedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLowMinVoltageFaultBatteryStopped(boolean value) {
+		this.getLowMinVoltageFaultBatteryStoppedChannel().setNextValue(value);
 	}
 }

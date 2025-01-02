@@ -1,6 +1,9 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -13,6 +16,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +26,20 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.fenecon.home.BatteryFeneconHome;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
@@ -40,6 +48,9 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
+import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
+import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine.State;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
@@ -56,16 +67,22 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class GoodWeBatteryInverterImpl extends AbstractGoodWe
-		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+})
+public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeBatteryInverter, GoodWe,
+		HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
+		ModbusComponent, OpenemsComponent, EventHandler, StartStoppable {
 
 	// Fenecon Home Battery Static module min voltage, used to calculate battery
 	// module number per tower
 	// TODO get from Battery
 	private static final int MODULE_MIN_VOLTAGE = 42;
 
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -73,6 +90,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference
 	private Power power;
@@ -95,7 +115,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	protected static record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
 	}
 
-	private Config config;
+	private Config config = null;
 
 	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
 		super(//
@@ -125,7 +145,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		this.applyConfig(config);
+		this.config = config;
+		this.applyConfigIfNotSet(config, true);
 	}
 
 	@Modified
@@ -134,7 +155,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		this.applyConfig(config);
+		this.config = config;
+		this.applyConfigIfNotSet(config, true);
 	}
 
 	@Override
@@ -143,120 +165,181 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		super.deactivate();
 	}
 
+	@Override
+	public void handleEvent(Event event) {
+		if (this.config == null || !this.isEnabled()) {
+			return;
+		}
+		super.handleEvent(event);
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.handleStateMachine();
+		}
+	}
+
 	/**
-	 * Apply the configuration on Activate and Modified.
+	 * Handles the State-Machine.
+	 */
+	private void handleStateMachine() {
+		// Store the current State
+		this.channel(GoodWeBatteryInverter.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
+
+		// Initialize 'Start-Stop' Channel
+		this._setStartStop(StartStop.UNDEFINED);
+
+		var context = new Context(this, this.componentManager.getClock());
+		// Call the StateMachine
+		try {
+
+			this.stateMachine.run(context);
+
+			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(false);
+
+		} catch (OpenemsNamedException e) {
+			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
+			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public void setStartStop(StartStop value) {
+		if (this.startStopTarget.getAndSet(value) != value) {
+			// Set only if value changed
+			this.stateMachine.forceNextState(State.UNDEFINED);
+		}
+	}
+
+	@Override
+	public StartStop getStartStopTarget() {
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
+	}
+
+	/**
+	 * Apply the configuration on if the values are not already set.
 	 *
 	 * <p>
 	 * Feed In Power Setting consist of: Installed inverter country, feeding method:
 	 * whether according to the power factor or power and frequency. In addition, it
 	 * consist backup power availability.
 	 *
-	 * @param config Configuration parameters.
+	 * @param config         Configuration parameters.
+	 * @param onConfigUpdate true when called on activate()/modified(), i.e. not in
+	 *                       run()
+	 * 
 	 * @throws OpenemsNamedException on error
 	 */
-	private void applyConfig(Config config) throws OpenemsNamedException {
-		this.config = config;
+	private void applyConfigIfNotSet(Config config, boolean onConfigUpdate) throws OpenemsNamedException {
 
 		// TODO: Set later. SELECT_WORK_MODE mapped after reading the dsp version
 		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
 		// 'Backup Mode' or (0x03) 'Economic Mode'.
-		this.writeToChannel(GoodWe.ChannelId.SELECT_WORK_MODE, AppModeIndex.SELF_USE);
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SELECT_WORK_MODE), AppModeIndex.SELF_USE);
 
 		// country setting
-		this.writeToChannel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE, config.safetyCountry());
-
-		// Mppt Shadow enable / disable
-		this.writeToChannel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, config.mpptForShadowEnable());
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE), config.safetyCountry());
 
 		// Backup Power on / off
-		this.writeToChannel(GoodWe.ChannelId.BACK_UP_ENABLE, config.backupEnable());
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.BACK_UP_ENABLE), config.backupEnable().booleanValue);
 
 		// Should be updated according to backup power
-		this.writeToChannel(GoodWe.ChannelId.AUTO_START_BACKUP, config.backupEnable());
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.AUTO_START_BACKUP), config.backupEnable().booleanValue);
 
 		// Feed-in limitation on / off
-		this.writeToChannel(GoodWe.ChannelId.FEED_POWER_ENABLE, config.feedPowerEnable());
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), config.feedPowerEnable().booleanValue);
 
 		// Feed-in limitation
-		this.writeToChannel(GoodWe.ChannelId.FEED_POWER_PARA_SET, config.feedPowerPara());
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), config.feedPowerPara());
 
 		// Set to feed in power settings to default
-		this.writeToChannel(GoodWe.ChannelId.QU_CURVE, EnableCurve.DISABLE);
-		this.writeToChannel(GoodWe.ChannelId.ENABLE_CURVE_PU, EnableCurve.DISABLE);
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.QU_CURVE), EnableCurve.DISABLE);
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_CURVE_PU), EnableCurve.DISABLE);
 
-		// Feed-in settings
-		var setFeedInPowerSettings = config.setfeedInPowerSettings();
-		switch (setFeedInPowerSettings) {
-		case UNDEFINED:
-			break;
-		case QU_ENABLE_CURVE:
-			this.writeToChannel(GoodWe.ChannelId.LOCK_IN_POWER_QU, 200);
-			this.writeToChannel(GoodWe.ChannelId.LOCK_OUT_POWER_QU, 50);
-			this.writeToChannel(GoodWe.ChannelId.V1_VOLTAGE, 214);
-			this.writeToChannel(GoodWe.ChannelId.V1_VALUE, 436);
-			this.writeToChannel(GoodWe.ChannelId.V2_VOLTAGE, 223);
-			this.writeToChannel(GoodWe.ChannelId.V2_VALUE, 0);
-			this.writeToChannel(GoodWe.ChannelId.V3_VOLTAGE, 237);
-			this.writeToChannel(GoodWe.ChannelId.V3_VALUE, 0);
-			this.writeToChannel(GoodWe.ChannelId.V4_VOLTAGE, 247);
-			this.writeToChannel(GoodWe.ChannelId.V4_VALUE, -526);
-			break;
-		case PU_ENABLE_CURVE:
-			this.writeToChannel(GoodWe.ChannelId.A_POINT_POWER, 2000);
-			this.writeToChannel(GoodWe.ChannelId.A_POINT_COS_PHI, 0);
-			this.writeToChannel(GoodWe.ChannelId.B_POINT_POWER, 2000);
-			this.writeToChannel(GoodWe.ChannelId.B_POINT_COS_PHI, 0);
-			this.writeToChannel(GoodWe.ChannelId.C_POINT_POWER, 2000);
-			this.writeToChannel(GoodWe.ChannelId.C_POINT_COS_PHI, 0);
-			break;
-		case LAGGING_0_80:
-		case LAGGING_0_81:
-		case LAGGING_0_82:
-		case LAGGING_0_83:
-		case LAGGING_0_84:
-		case LAGGING_0_85:
-		case LAGGING_0_86:
-		case LAGGING_0_87:
-		case LAGGING_0_88:
-		case LAGGING_0_89:
-		case LAGGING_0_90:
-		case LAGGING_0_91:
-		case LAGGING_0_92:
-		case LAGGING_0_93:
-		case LAGGING_0_94:
-		case LAGGING_0_95:
-		case LAGGING_0_96:
-		case LAGGING_0_97:
-		case LAGGING_0_98:
-		case LAGGING_0_99:
-		case LEADING_0_80:
-		case LEADING_0_81:
-		case LEADING_0_82:
-		case LEADING_0_83:
-		case LEADING_0_84:
-		case LEADING_0_85:
-		case LEADING_0_86:
-		case LEADING_0_87:
-		case LEADING_0_88:
-		case LEADING_0_89:
-		case LEADING_0_90:
-		case LEADING_0_91:
-		case LEADING_0_92:
-		case LEADING_0_93:
-		case LEADING_0_94:
-		case LEADING_0_95:
-		case LEADING_0_96:
-		case LEADING_0_97:
-		case LEADING_0_98:
-		case LEADING_0_99:
-		case LEADING_1:
-			if (setFeedInPowerSettings.fixedPowerFactor == null) {
-				throw new IllegalArgumentException(
-						"Feed-In-Power-Setting [" + setFeedInPowerSettings + "] has no fixed power factor");
+		if (onConfigUpdate) {
+			// Mppt Shadow enable / disable
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE), false);
+
+			// Feed-in settings
+			var setFeedInPowerSettings = config.setfeedInPowerSettings();
+			switch (setFeedInPowerSettings) {
+			case UNDEFINED:
+				break;
+			case QU_ENABLE_CURVE:
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_IN_POWER_QU), 200);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_OUT_POWER_QU), 50);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VOLTAGE), 214);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VALUE), 436);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VOLTAGE), 223);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VALUE), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VOLTAGE), 237);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VALUE), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VOLTAGE), 247);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -526);
+				break;
+			case PU_ENABLE_CURVE:
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_POWER), 2000);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_COS_PHI), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_POWER), 2000);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_COS_PHI), 0);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_POWER), 2000);
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_COS_PHI), 0);
+				break;
+			case LAGGING_0_80:
+			case LAGGING_0_81:
+			case LAGGING_0_82:
+			case LAGGING_0_83:
+			case LAGGING_0_84:
+			case LAGGING_0_85:
+			case LAGGING_0_86:
+			case LAGGING_0_87:
+			case LAGGING_0_88:
+			case LAGGING_0_89:
+			case LAGGING_0_90:
+			case LAGGING_0_91:
+			case LAGGING_0_92:
+			case LAGGING_0_93:
+			case LAGGING_0_94:
+			case LAGGING_0_95:
+			case LAGGING_0_96:
+			case LAGGING_0_97:
+			case LAGGING_0_98:
+			case LAGGING_0_99:
+			case LEADING_0_80:
+			case LEADING_0_81:
+			case LEADING_0_82:
+			case LEADING_0_83:
+			case LEADING_0_84:
+			case LEADING_0_85:
+			case LEADING_0_86:
+			case LEADING_0_87:
+			case LEADING_0_88:
+			case LEADING_0_89:
+			case LEADING_0_90:
+			case LEADING_0_91:
+			case LEADING_0_92:
+			case LEADING_0_93:
+			case LEADING_0_94:
+			case LEADING_0_95:
+			case LEADING_0_96:
+			case LEADING_0_97:
+			case LEADING_0_98:
+			case LEADING_0_99:
+			case LEADING_1:
+				if (setFeedInPowerSettings.fixedPowerFactor == null) {
+					throw new IllegalArgumentException(
+							"Feed-In-Power-Setting [" + setFeedInPowerSettings + "] has no fixed power factor");
+				}
+				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR),
+						config.setfeedInPowerSettings().fixedPowerFactor);
+				break;
 			}
-			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, config.setfeedInPowerSettings().fixedPowerFactor);
-			break;
 		}
+
+		// Multi-functional Block for Ripple Control Receiver and NA protection on / off
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE),
+				config.rcrEnable().booleanValue || config.naProtectionEnable().booleanValue);
 	}
 
 	/**
@@ -282,18 +365,49 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		var bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
 
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
-		var setChargeMaxCurrent = this.getGoodweHardwareType().maxDcCurrent;
-		var setDischargeMaxCurrent = this.getGoodweHardwareType().maxDcCurrent;
-		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
-		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
+		final int setChargeMaxCurrent;
+		final int setDischargeMaxCurrent;
+		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(210);
+		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(210);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
+
+		if (battery.isStarted() && battery instanceof BatteryFeneconHome homeBattery) {
+
+			setBatteryStrings = homeBattery.getNumberOfModulesPerTower().orElse(setBatteryStrings);
+
+			final var batteryType = homeBattery.getBatteryHardwareType();
+
+			/*
+			 * Check combination of GoodWe inverter and FENECON Home battery to avoid
+			 * invalid combinations for FENECON Home Systems
+			 */
+			if (this.getGoodweType().isInvalidBattery.test(batteryType)) {
+				this._setImpossibleFeneconHomeCombination(true);
+
+				// Set zero limits to avoid charging and discharging
+				setChargeMaxCurrent = 0;
+				setDischargeMaxCurrent = 0;
+			} else {
+				setChargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(batteryType);
+				setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(batteryType);
+				this._setImpossibleFeneconHomeCombination(false);
+			}
+		} else {
+			setChargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(null);
+			setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(null);
+		}
+
+		/*
+		 * Check correct BMS register values. Goodwe recommends setting the values once
+		 */
 		if (bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), setChargeMaxCurrent)
 				|| bmsDischargeMaxCurrent.isDefined()
 						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent)
 				|| bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin)
 				|| bmsOfflineSocUnderMin.isDefined()
 						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin)) {
+
 			// Update is required
 			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
 					+ " Voltages" //
@@ -317,6 +431,24 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		}
 
 		/*
+		 * Check correct BMS register value for voltage. Handled separately to avoid
+		 * sending other values multiple times if the voltage registers are not written
+		 * immediately
+		 */
+		if (doSetBmsVoltage(battery, bmsChargeMaxVoltage, setChargeMaxVoltage, bmsDischargeMinVoltage,
+				setDischargeMinVoltage)) {
+			// Update is required
+			this.logInfo(this.log, "Update for BMS Registers." //
+					+ " Voltages" //
+					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
+					+ " [Charge " + bmsChargeMaxVoltage.get() + " -> " + setChargeMaxVoltage
+					+ "]. This can take up to 10 minutes.");
+
+			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage);
+			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage);
+		}
+
+		/*
 		 * Regularly write all WBMS Channels.
 		 */
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VERSION, 1);
@@ -324,6 +456,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		// TODO is writing WBMS_STRINGS still required with latest firmware?
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
+
 				preprocessAmpereValue47900(battery.getChargeMaxCurrent(), setChargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
@@ -346,6 +479,25 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.writeToChannel(GoodWe.ChannelId.WBMS_ALARM_CODE, 0);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_STATUS, 0);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, 0);
+	}
+
+	protected static boolean doSetBmsVoltage(Battery battery, Value<Integer> bmsChargeMaxVoltage,
+			Integer setChargeMaxVoltage, Value<Integer> bmsDischargeMinVoltage, Integer setDischargeMinVoltage) {
+		if (!battery.getChargeMaxCurrent().isDefined() || !battery.getDischargeMaxCurrent().isDefined()
+				|| !bmsChargeMaxVoltage.isDefined() || !bmsChargeMaxVoltage.isDefined()) {
+			// Do not set channels if input data is missing/not yet available
+			return false;
+		}
+		if (battery.getChargeMaxCurrent().get() == 0 || battery.getDischargeMaxCurrent().get() == 0) {
+			// Exclude times with full or empty battery, due to inverter mis-behaviour
+			return false;
+		}
+		if (Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage)
+				&& Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage)) {
+			// Values are already set
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -382,19 +534,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		channel.setNextWriteValue(value);
 	}
 
-	private void writeToChannel(GoodWe.ChannelId channelId, EnableDisable value)
-			throws IllegalArgumentException, OpenemsNamedException {
-		BooleanWriteChannel channel = this.channel(channelId);
-		switch (value) {
-		case ENABLE:
-			channel.setNextWriteValue(true);
-			break;
-		case DISABLE:
-			channel.setNextWriteValue(false);
-			break;
-		}
-	}
-
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
 			throws IllegalArgumentException, OpenemsNamedException {
 		IntegerWriteChannel channel = this.channel(channelId);
@@ -420,7 +559,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	public Integer getSurplusPower() {
 		var productionPower = this.calculatePvProduction();
 		return calculateSurplusPower(this.latestBatteryData, productionPower,
-				this.getGoodweHardwareType().maxDcCurrent);
+				this.getGoodweType().maxDcCurrent.apply(null));
 
 	}
 
@@ -449,12 +588,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	@Override
-	public void setStartStop(StartStop value) throws OpenemsNamedException {
-		// GoodWe is always started. This has no effect.
-	}
-
-	@Override
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
+
+		// ApplyConfig
+		this.applyConfigIfNotSet(this.config, false);
+
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels();
 		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
@@ -496,5 +634,4 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	public boolean isOffGridPossible() {
 		return this.config.backupEnable().equals(EnableDisable.ENABLE);
 	}
-
 }

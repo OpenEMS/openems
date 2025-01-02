@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.task.AbstractReadTask;
+import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -36,6 +38,13 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 	/** Counts for how many cycles no valid value was read. */
 	private int invalidValueCounter = 0;
 
+	public static enum FillElementsPriority {
+		DEFAULT, HIGH
+	}
+
+	/** Priority handling in {@link AbstractReadTask#fillElements()}. */
+	private FillElementsPriority fillElementsPriority = FillElementsPriority.DEFAULT;
+
 	protected AbstractModbusElement(OpenemsType type, int startAddress, int length) {
 		super(startAddress, length);
 		this.type = type;
@@ -57,6 +66,37 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 	 * @return myself
 	 */
 	protected abstract SELF self();
+
+	/**
+	 * Sets the {@link FillElementsPriority}.
+	 * 
+	 * <p>
+	 * By default ({@link FillElementsPriority#DEFAULT} all Element-to-Channel
+	 * mappings are handled in array order of the {@link ReadTask}. Elements marked
+	 * {@link FillElementsPriority#HIGH} are handled first.
+	 * 
+	 * <p>
+	 * This feature is useful for SunSpec devices, where the dynamic ScaleFactor for
+	 * a Element is only at the end of the SunSpec block. Without HIGH priority, the
+	 * ScaleFactor would always get applied too late.
+	 * 
+	 * @param fillElementsPriority the {@link FillElementsPriority}
+	 * @return myself
+	 */
+	public SELF fillElementsPriority(FillElementsPriority fillElementsPriority) {
+		this.fillElementsPriority = fillElementsPriority;
+		return this.self();
+	}
+
+	/**
+	 * FillElementsPriority. Used internally.
+	 * 
+	 * @return the {@link FillElementsPriority}
+	 */
+	@Deprecated
+	public FillElementsPriority _getFillElementsPriority() {
+		return this.fillElementsPriority;
+	}
 
 	/**
 	 * Set the input/read value.

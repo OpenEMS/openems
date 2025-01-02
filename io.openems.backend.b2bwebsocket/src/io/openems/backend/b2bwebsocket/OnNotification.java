@@ -17,7 +17,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsException {
+	public void accept(WebSocket ws, JsonrpcNotification notification) throws OpenemsException {
 		this.parent.logWarn(this.log, "Unhandled Notification: " + notification);
 	}
 

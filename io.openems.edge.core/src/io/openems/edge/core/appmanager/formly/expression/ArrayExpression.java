@@ -75,6 +75,16 @@ public record ArrayExpression(String array) {
 		return new BooleanExpression(this.methodWithVariable("some", predicate));
 	}
 
+	/**
+	 * Takes the n-Element of this array and returns it as a {@link Variable}.
+	 * 
+	 * @param index the index of the element
+	 * @return the created {@link Variable}
+	 */
+	public Variable elementAt(int index) {
+		return Exp.dynamic(this.array() + "[" + index + "]");
+	}
+
 	private String methodWithVariable(String method, Function<Variable, BooleanExpression> inside) {
 		final var variable = Exp.dynamic("i");
 		return this.array() //

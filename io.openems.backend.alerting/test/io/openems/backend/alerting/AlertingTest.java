@@ -12,6 +12,8 @@ import io.openems.backend.common.test.DummyMetadata;
 
 public class AlertingTest {
 
+	private static final int HANDLER_COUNT = 2;
+
 	private static final Config testConf = new Config() {
 
 		@Override
@@ -27,6 +29,16 @@ public class AlertingTest {
 		@Override
 		public int initialDelay() {
 			return 15;
+		}
+
+		@Override
+		public boolean notifyOnOffline() {
+			return true;
+		}
+
+		@Override
+		public boolean notifyOnSumStateChange() {
+			return true;
 		}
 	};
 
@@ -45,6 +57,16 @@ public class AlertingTest {
 		public int initialDelay() {
 			return 15;
 		}
+
+		@Override
+		public boolean notifyOnOffline() {
+			return true;
+		}
+
+		@Override
+		public boolean notifyOnSumStateChange() {
+			return true;
+		}
 	};
 
 	@Test
@@ -55,7 +77,7 @@ public class AlertingTest {
 		// Activate
 		alerting.activate(conf);
 
-		assertEquals(1, alerting.handlerCount());
+		assertEquals(HANDLER_COUNT, alerting.handlerCount());
 
 		// Deactivate
 		alerting.deactivate();
@@ -86,10 +108,7 @@ public class AlertingTest {
 		}
 
 		private int handlerCount() {
-			if (super.handlers == null) {
-				return 0;
-			}
-			return super.handlers.length;
+			return super.handler.size();
 		}
 
 		@Override

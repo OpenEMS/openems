@@ -24,7 +24,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
 		var user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
@@ -52,7 +52,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubscribeEdgesChannelsRequest(WsData wsData,
 			User user, UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
-		for (String edgeId : request.getEdgeIds()) {
+		for (var edgeId : request.getEdgeIds()) {
+			if (user.getRole(edgeId).isEmpty()) {
+				this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
+			}
+
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(SubscribeEdgesChannelsRequest.METHOD, edgeId, Role.GUEST);
 		}

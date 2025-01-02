@@ -4,7 +4,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
 
 /**
  * Represents a JSON-RPC Request for 'getAppDescriptor'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -15,10 +15,10 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -38,7 +38,7 @@ export namespace GetAppDescriptor {
         public constructor(
             public override readonly params: {
                 appId: string
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -48,7 +48,7 @@ export namespace GetAppDescriptor {
 
         public constructor(
             public override readonly id: string,
-            public override readonly result: AppDescriptor
+            public override readonly result: AppDescriptor,
         ) {
             super(id, result);
         }

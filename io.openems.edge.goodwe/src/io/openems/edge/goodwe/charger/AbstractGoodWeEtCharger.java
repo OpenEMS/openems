@@ -6,7 +6,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -47,7 +46,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
@@ -89,17 +88,11 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		var goodWe = this.getEssOrBatteryInverter();
 		Boolean hasNoDcPv = null;
 		if (goodWe != null) {
-			switch (goodWe.getGoodweType().getSeries()) {
-			case BT:
-				hasNoDcPv = true;
-				break;
-			case ET:
-				hasNoDcPv = false;
-				break;
-			case UNDEFINED:
-				hasNoDcPv = null;
-				break;
-			}
+			hasNoDcPv = switch (goodWe.getGoodweType().getSeries()) {
+			case BT -> true;
+			case ET, ETT, EUB -> false;
+			case UNDEFINED -> null;
+			};
 		}
 		this._setHasNoDcPv(hasNoDcPv);
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
 
@@ -33,6 +34,42 @@ public interface AppManagerUtil {
 		return this.getInstantiatedApps().stream() //
 				.filter(instance -> appId.equals(instance.appId)) //
 				.toList();
+	}
+
+	/**
+	 * Gets a {@link List} of the current installed {@link OpenemsAppInstance} which
+	 * match the given appIds.
+	 * 
+	 * @param appIds the appIds which should match with
+	 *               {@link OpenemsAppInstance#appId}
+	 * @return a {@link List} of {@link OpenemsAppInstance}
+	 */
+	public default List<OpenemsAppInstance> getInstantiatedAppsOf(String... appIds) {
+		return this.getInstantiatedApps().stream() //
+				.filter(instance -> Stream.of(appIds) //
+						.anyMatch(appId -> appId.equals(instance.appId))) //
+				.toList();
+	}
+
+	/**
+	 * Gets the installed apps which matches at least one of the provided
+	 * {@link OpenemsAppCategory OpenemsAppCategories}.
+	 * 
+	 * @param categories the {@link OpenemsAppCategory} to be contained by the app
+	 * @return the found {@link OpenemsAppInstance OpenemsAppInstances}
+	 */
+	public List<OpenemsAppInstance> getInstantiatedAppsByCategories(OpenemsAppCategory... categories);
+
+	/**
+	 * Gets the first found installed app which matches at least one of the provided
+	 * {@link OpenemsAppCategory OpenemsAppCategories}.
+	 * 
+	 * @param categories the {@link OpenemsAppCategory} to be contained by the app
+	 * @return the found {@link OpenemsAppInstance}; or null if non found
+	 */
+	public default OpenemsAppInstance getFirstInstantiatedAppByCategories(OpenemsAppCategory... categories) {
+		final var instances = this.getInstantiatedAppsByCategories(categories);
+		return instances.isEmpty() ? null : instances.get(0);
 	}
 
 	/**

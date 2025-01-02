@@ -10,19 +10,15 @@ import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
 public class EssFeneconCommercial40Pv2ImplTest {
 
-	private static final String CHARGER_ID = "charger1";
-	private static final String ESS_ID = "ess0";
-	private static final String MODBUS_ID = "modbus0";
-
 	@Test
 	public void test() throws Exception {
 		var ess = new EssFeneconCommercial40Impl();
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(io.openems.edge.ess.fenecon.commercial40.MyConfig.create() //
-						.setId(ESS_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("ess0") //
+						.setModbusId("modbus0") //
 						.setSurplusFeedInSocLimit(90) //
 						.setSurplusFeedInAllowedChargePowerLimit(-8000) //
 						.setSurplusFeedInIncreasePowerFactor(1.1) //
@@ -34,11 +30,11 @@ public class EssFeneconCommercial40Pv2ImplTest {
 		new ComponentTest(new EssFeneconCommercial40Pv2Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfigPv2.create() //
-						.setId(CHARGER_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setEssId(ESS_ID) //
+						.setId("charger1") //
+						.setModbusId("modbus0") //
+						.setEssId("ess0") //
 						.setMaxActualPower(0) //
 						.build()) //
 		;

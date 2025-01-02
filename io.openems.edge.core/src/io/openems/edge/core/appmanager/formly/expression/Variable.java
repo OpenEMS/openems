@@ -95,6 +95,15 @@ public record Variable(String variable) {
 	}
 
 	/**
+	 * Uses this variable as an array.
+	 * 
+	 * @return the {@link ArrayExpression} of this variable
+	 */
+	public ArrayExpression asArray() {
+		return new ArrayExpression(this.variable());
+	}
+
+	/**
 	 * Checks if the current value of the variable is not null.
 	 * 
 	 * @return the created {@link BooleanExpression}

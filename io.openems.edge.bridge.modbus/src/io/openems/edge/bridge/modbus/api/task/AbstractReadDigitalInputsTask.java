@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,9 +18,9 @@ public abstract class AbstractReadDigitalInputsTask<//
 		RESPONSE extends ModbusResponse> //
 		extends AbstractReadTask<REQUEST, RESPONSE, CoilElement, Boolean> {
 
-	public AbstractReadDigitalInputsTask(String name, Class<RESPONSE> responseClazz, int startAddress,
-			Priority priority, CoilElement... elements) {
-		super(name, responseClazz, CoilElement.class, startAddress, priority, elements);
+	public AbstractReadDigitalInputsTask(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz,
+			int startAddress, Priority priority, CoilElement... elements) {
+		super(name, onExecute, responseClazz, CoilElement.class, startAddress, priority, elements);
 	}
 
 	@Override

@@ -6,7 +6,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -41,7 +40,7 @@ public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusCo
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = this.getOffset();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(offset + 2, Priority.LOW, //

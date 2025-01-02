@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
@@ -17,9 +18,9 @@ public abstract class AbstractReadRegistersTask<//
 		RESPONSE extends ModbusResponse> //
 		extends AbstractReadTask<REQUEST, RESPONSE, ModbusRegisterElement, Register> {
 
-	public AbstractReadRegistersTask(String name, Class<RESPONSE> responseClazz, int startAddress, Priority priority,
-			ModbusElement... elements) {
-		super(name, responseClazz, ModbusRegisterElement.class, startAddress, priority, elements);
+	public AbstractReadRegistersTask(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz,
+			int startAddress, Priority priority, ModbusElement... elements) {
+		super(name, onExecute, responseClazz, ModbusRegisterElement.class, startAddress, priority, elements);
 	}
 
 	@SuppressWarnings("unchecked")

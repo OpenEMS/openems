@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +29,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
@@ -148,7 +150,7 @@ public class Rrd4jReadHandler {
 	 * @param rrdDbId             the id of the rrdb
 	 * @param notSendChannel      the channel with the timestamps where the data got
 	 *                            not send
-	 * @param lastResendTimestamp the timstamp of the last resend
+	 * @param lastResendTimestamp the timestamp of the last resend
 	 * @param debugMode           if debugMode is active
 	 * @return the {@link Timeranges}
 	 * @throws OpenemsNamedException on error
@@ -478,10 +480,10 @@ public class Rrd4jReadHandler {
 				}, (t, u) -> t, TreeMap::new));
 	}
 
-	private static record Range(ZonedDateTime from, ZonedDateTime to) {
+	protected static record Range(ZonedDateTime from, ZonedDateTime to) {
 	}
 
-	private static Stream<Range> streamRanges(//
+	protected static Stream<Range> streamRanges(//
 			final ZonedDateTime from, //
 			final ZonedDateTime to, //
 			final Resolution resolution //
@@ -492,7 +494,8 @@ public class Rrd4jReadHandler {
 		final var builder = Stream.<Range>builder();
 
 		var fromRange = from;
-		var toRange = increase(from, resolution);
+
+		var toRange = truncate(increase(from, resolution), resolution);
 		if (toRange.isAfter(to)) {
 			toRange = to;
 		}
@@ -500,13 +503,25 @@ public class Rrd4jReadHandler {
 		while (!fromRange.equals(toRange)) {
 			builder.accept(new Range(fromRange, toRange));
 			fromRange = toRange;
-			toRange = increase(toRange, resolution);
+			toRange = truncate(increase(fromRange, resolution), resolution);
 			if (toRange.isAfter(to)) {
 				toRange = to;
 			}
 		}
 
 		return builder.build();
+	}
+
+	private static ZonedDateTime truncate(ZonedDateTime date, Resolution resolution) {
+		return switch (resolution.getUnit()) {
+		case DAYS, HALF_DAYS, HOURS, SECONDS, MINUTES, MILLIS, NANOS, MICROS -> {
+			yield date.truncatedTo(resolution.getUnit());
+		}
+		case CENTURIES, DECADES, ERAS, FOREVER, MILLENNIA, YEARS, WEEKS -> {
+			throw new UnsupportedOperationException();
+		}
+		case MONTHS -> date.withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+		};
 	}
 
 	private static ZonedDateTime increase(ZonedDateTime date, Resolution resolution) {
@@ -537,13 +552,54 @@ public class Rrd4jReadHandler {
 			try {
 				channel = this.componentManager.getChannel(channelAddress);
 			} catch (Exception e) {
-				// unable to get channel
-				this.log.warn("Unable to query RRD4j", e);
+				this.log.warn("Unable to query [" + channelAddress + "] from RRD4j: " + e.getMessage());
 				return Optional.empty();
 			}
 
 			try (var database = this.rrd4jSupplier.getExistingUpdatedRrdDb(rrdDbId, channelAddress,
 					channel.channelDoc().getUnit())) {
+				if (database == null) {
+					return Optional.empty();
+				}
+
+				// search for last value in robin
+				final var robin = database.getArchive(0).getRobin(0);
+				for (int i = robin.getSize() - 1; i >= 0; i--) {
+					final var value = robin.getValue(i);
+					if (Double.isNaN(value)) {
+						continue;
+					}
+					return Optional.of(value);
+				}
+
+				return Optional.empty();
+			} catch (Exception e) {
+				return Optional.empty();
+			}
+		});
+	}
+
+	/**
+	 * Gets the latest known value for the given {@link ChannelAddress} of a not
+	 * existing channel.
+	 * 
+	 * <p>
+	 * Gets the latest known value even if the ChannelAddress is not longer
+	 * existing.
+	 *
+	 * @param rrdDbId        the id of the rrdb
+	 * @param channelAddress the ChannelAddress to be queried
+	 * @param unit           unit
+	 * @return the latest known value or Empty
+	 */
+	public CompletableFuture<Optional<Object>> getLatestValueOfNotExistingChannel(//
+			final String rrdDbId, //
+			final ChannelAddress channelAddress, //
+			final Unit unit //
+	) {
+		return CompletableFuture.supplyAsync(() -> {
+
+			try (var database = this.rrd4jSupplier.getExistingUpdatedRrdDb(rrdDbId, channelAddress, unit)) {
 				if (database == null) {
 					return Optional.empty();
 				}

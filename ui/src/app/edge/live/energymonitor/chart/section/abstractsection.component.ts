@@ -1,9 +1,10 @@
-import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service } from 'src/app/shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import * as d3 from 'd3';
+// @ts-strict-ignore
+import { TranslateService } from "@ngx-translate/core";
+import * as d3 from "d3";
+import { GridMode, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "../../../../../shared/service/defaulttypes";
 
-export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
+export type Ratio = "Only Positive [0,1]" | "Negative and Positive [-1,1]";
 
 export class SectionValue {
     public absolute: number;
@@ -13,7 +14,7 @@ export class SectionValue {
 export class SvgSquarePosition {
     constructor(
         public x: number,
-        public y: number
+        public y: number,
     ) { }
 }
 
@@ -22,7 +23,7 @@ export class SvgSquare {
         public length: number,
         public valueRatio: SvgTextPosition,
         public valueText: SvgTextPosition,
-        public image: SvgImagePosition
+        public image: SvgImagePosition,
     ) { }
 }
 
@@ -31,7 +32,7 @@ export class SvgTextPosition {
         public x: number,
         public y: number,
         public anchor: "start" | "middle" | "end",
-        public fontsize: number
+        public fontsize: number,
     ) { }
 }
 
@@ -40,7 +41,7 @@ export class SvgImagePosition {
         public image: string,
         public x: number,
         public y: number,
-        public length: number
+        public length: number,
     ) { }
 }
 
@@ -58,6 +59,7 @@ export interface SvgEnergyFlow {
 export class EnergyFlow {
     public points: string = "0,0 0,0";
     public animationPoints: string = "0,0 0,0";
+    public state: "one" | "two" | "three" = "one";
 
     constructor(
         public radius: number,
@@ -66,14 +68,14 @@ export class EnergyFlow {
             y1: string,
             x2: string,
             y2: string
-        }
+        },
     ) { }
 
     public update(energyFlow: SvgEnergyFlow, animationEnergyFlow: SvgEnergyFlow) {
         if (energyFlow == null) {
             this.points = "0,0 0,0";
         } else {
-            let p = energyFlow;
+            const p = energyFlow;
             this.points = p.topLeft.x + "," + p.topLeft.y
                 + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
                 + " " + p.topRight.x + "," + p.topRight.y
@@ -86,7 +88,7 @@ export class EnergyFlow {
         if (animationEnergyFlow == null) {
             this.animationPoints = "0,0 0,0";
         } else {
-            let p = animationEnergyFlow;
+            const p = animationEnergyFlow;
             this.animationPoints = p.topLeft.x + "," + p.topLeft.y
                 + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
                 + " " + p.topRight.x + "," + p.topRight.y
@@ -98,27 +100,19 @@ export class EnergyFlow {
         }
     }
 
-    public state: "one" | "two" | "three" = "one";
-
     public switchState() {
-        if (this.state == 'one') {
-            this.state = 'two';
-        } else if (this.state == 'two') {
-            this.state = 'one';
+        if (this.state == "one") {
+            this.state = "two";
+        } else if (this.state == "two") {
+            this.state = "one";
         } else {
-            this.state = 'one';
+            this.state = "one";
         }
     }
 
     public hide() {
-        this.state = 'three';
+        this.state = "three";
     }
-}
-
-export enum GridMode {
-    "undefined",
-    "ongrid",
-    "offgrid"
 }
 
 export abstract class AbstractSection {
@@ -126,7 +120,7 @@ export abstract class AbstractSection {
     public fillRef: string = "";
     public valuePath: string = "";
     public outlinePath: string = "";
-    public energyFlow: EnergyFlow = null;
+    public energyFlow: EnergyFlow | null = null;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
@@ -140,16 +134,17 @@ export abstract class AbstractSection {
     protected height: number = 0;
     protected width: number = 0;
     protected gridMode: GridMode;
+    protected restrictionMode: number;
 
-    private lastCurrentData: DefaultTypes.Summary = null;
+    private lastCurrentData: DefaultTypes.Summary | null = null;
 
     constructor(
         translateName: string,
         protected direction: "left" | "right" | "down" | "up" = "left",
         public color: string,
         protected translate: TranslateService,
-        service: Service,
-        widgetClass: string
+        protected service: Service,
+        widgetClass: string,
     ) {
         this.sectionId = translateName;
         this.name = translate.instant(translateName);
@@ -161,6 +156,49 @@ export abstract class AbstractSection {
                 }
             });
         });
+    }
+
+    /**
+    * Updates the Values for this Section.
+     *
+     * @param sum the CurrentData.Summary
+    */
+    public updateCurrentData(sum: DefaultTypes.Summary): void {
+        this.lastCurrentData = sum;
+        this._updateCurrentData(sum);
+    }
+
+    /**
+    * This method is called on every change of resolution of the browser window.
+     */
+    public updateOnWindowResize(outerRadius: number, innerRadius: number, height: number, width: number) {
+        this.outerRadius = outerRadius;
+        this.innerRadius = innerRadius;
+        this.height = height;
+        this.width = width;
+        const outlineArc = this.getArc()
+            .startAngle(this.deg2rad(this.getStartAngle()))
+            .endAngle(this.deg2rad(this.getEndAngle()));
+        this.outlinePath = outlineArc();
+
+        /**
+         * imaginary positioning "square"
+         */
+        this.square = this.getSquare(innerRadius);
+        this.squarePosition = this.getSquarePosition(this.square, innerRadius);
+        /**
+         * energy flow rectangle
+         */
+        const availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
+        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
+
+        // now update also the value specific elements
+        if (this.lastCurrentData) {
+            this.updateCurrentData(this.lastCurrentData);
+        }
+
+        // update correct positioning for Image + Text
+        this.setElementHeight();
     }
 
     /**
@@ -176,61 +214,23 @@ export abstract class AbstractSection {
         }
     }
 
-    /**
-     * Gets the Start-Angle in Degree
-     */
-    protected abstract getStartAngle(): number;
+    protected getArc(): any {
+        return d3.arc()
+            .innerRadius(this.innerRadius)
+            .outerRadius(this.outerRadius);
+    }
 
-    /**
-     * Gets the End-Angle in Degree
-     */
-    protected abstract getEndAngle(): number;
-
-    /**
-     * Gets the Ratio-Type of this Section
-     */
-    protected abstract getRatioType(): Ratio;
-
-    /**
-     * Gets the SVG for EnergyFlow
-     * 
-     * @param ratio  the ratio of the value [-1,1] * scale factor
-     * @param radius the available radius
-     */
-    protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
-
-    /**
-     * Gets the SVG for EnergyFlowAnimation
-     * 
-     * @param ratio  the ratio of the value [-1,1] * scale factor
-     * @param radius the available radius
-     */
-    protected abstract getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
-
-    /**
-     * Updates the Values for this Section.
-     * 
-     * @param sum the CurrentData.Summary
-     */
-    public updateCurrentData(sum: DefaultTypes.Summary): void {
-        this.lastCurrentData = sum;
-        this._updateCurrentData(sum);
+    protected deg2rad(value: number): number {
+        return value * (Math.PI / 180);
     }
 
     /**
-     * Updates the Values for this Section. Should internally call updateSectionData().
-     * 
-     * @param sum the CurrentData.Summary
-     */
-    protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
-
-    /**
-     * This method is called on every change of values.
-     * 
-     * @param valueAbsolute the absolute value of the Section
-     * @param valueRatio    the relative value of the Section in [-1,1]
-     * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
-     */
+    * This method is called on every change of values.
+    *
+    * @param valueAbsolute the absolute value of the Section
+    * @param valueRatio    the relative value of the Section in [-1,1]
+    * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
+    */
     protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
         if (!this.isEnabled) {
             return;
@@ -253,13 +253,13 @@ export abstract class AbstractSection {
                 valueRatio = Math.min(1, Math.max(-1, valueRatio));
                 break;
         }
-        let valueEndAngle = (this.getEndAngle() - startAngle) * valueRatio + startAngle;
-        let valueArc = this.getArc()
+        const valueEndAngle = (this.getEndAngle() - startAngle) * valueRatio + startAngle;
+        const valueArc = this.getArc()
             .startAngle(this.deg2rad(startAngle))
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
 
-        /* 
+        /*
          * Create the energy flow direction arrow
          */
         if (!sumRatio) {
@@ -272,42 +272,9 @@ export abstract class AbstractSection {
         sumRatio *= 10;
 
         //radius * 1.2 for longer arrows
-        let svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
-        let svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+        const svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+        const svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
         this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
-    }
-
-    /**
-     * This method is called on every change of resolution of the browser window.
-     */
-    public updateOnWindowResize(outerRadius: number, innerRadius: number, height: number, width: number) {
-        this.outerRadius = outerRadius;
-        this.innerRadius = innerRadius;
-        this.height = height;
-        this.width = width;
-        let outlineArc = this.getArc()
-            .startAngle(this.deg2rad(this.getStartAngle()))
-            .endAngle(this.deg2rad(this.getEndAngle()));
-        this.outlinePath = outlineArc();
-
-        /**
-         * imaginary positioning "square"
-         */
-        this.square = this.getSquare(innerRadius);
-        this.squarePosition = this.getSquarePosition(this.square, innerRadius);
-        /**
-         * energy flow rectangle
-         */
-        let availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
-        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
-
-        // now update also the value specific elements
-        if (this.lastCurrentData) {
-            this.updateCurrentData(this.lastCurrentData);
-        }
-
-        // update correct positioning for Image + Text
-        this.setElementHeight();
     }
 
     /**
@@ -316,44 +283,71 @@ export abstract class AbstractSection {
      * ...x and y of text and image;
      * ...fontsize of text;
      */
-    private getSquare(innerRadius: any): SvgSquare {
-        let width = innerRadius / 2.5;
+    private getSquare(innerRadius: number): SvgSquare {
+        const width = innerRadius / 2.5;
 
-        let textSize = width / 4;
-        let yText = textSize;
+        const textSize = width / 4;
+        const yText = textSize;
 
-        let numberSize = textSize - 3;
-        let yNumber = yText + 5 + numberSize;
+        const numberSize = textSize - 3;
+        const yNumber = yText + 5 + numberSize;
 
-        let imageSize = width;
-        let yImage = yNumber + 5;
+        const imageSize = width;
+        const yImage = yNumber + 5;
 
-        let length = yImage + imageSize;
+        const length = yImage + imageSize;
 
-        let xText = length / 2;
+        const xText = length / 2;
 
         return new SvgSquare(
             length,
             new SvgTextPosition(xText, yText, "middle", textSize),
             new SvgTextPosition(xText, yNumber, "middle", numberSize),
-            new SvgImagePosition("assets/img/" + this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize)
+            new SvgImagePosition("assets/img/" + this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
         );
     }
 
+    /**
+     * Gets the Start-Angle in Degree
+     */
+    protected abstract getStartAngle(): number;
+
+    /**
+     * Gets the End-Angle in Degree
+     */
+    protected abstract getEndAngle(): number;
+
+    /**
+     * Gets the Ratio-Type of this Section
+     */
+    protected abstract getRatioType(): Ratio;
+
+    /**
+     * Gets the SVG for EnergyFlow
+     *
+     * @param ratio  the ratio of the value [-1,1] * scale factor
+     * @param radius the available radius
+     */
+    protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+
+    /**
+     * Gets the SVG for EnergyFlowAnimation
+     *
+     * @param ratio  the ratio of the value [-1,1] * scale factor
+     * @param radius the available radius
+     */
+    protected abstract getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+
+    /**
+     * Updates the Values for this Section. Should internally call updateSectionData().
+     *
+     * @param sum the CurrentData.Summary
+     */
+    protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
     protected abstract getImagePath(): string;
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
     protected abstract setElementHeight();
-
-    protected getArc(): any {
-        return d3.arc()
-            .innerRadius(this.innerRadius)
-            .outerRadius(this.outerRadius);
-    }
-
-    protected deg2rad(value: number): number {
-        return value * (Math.PI / 180);
-    }
 
 }

@@ -1,12 +1,13 @@
-import { ErrorHandler } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
-import { Edge } from '../edge/edge';
-import { EdgeConfig } from '../edge/edgeconfig';
-import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress } from '../shared';
-import { Language } from '../type/language';
-import { DefaultTypes } from './defaulttypes';
+// @ts-strict-ignore
+import { ErrorHandler } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
+import { Edge } from "../components/edge/edge";
+import { EdgeConfig } from "../components/edge/edgeconfig";
+import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress } from "../shared";
+import { Language } from "../type/language";
+import { DefaultTypes } from "./defaulttypes";
 
 export abstract class AbstractService extends ErrorHandler {
 
@@ -32,6 +33,8 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Parses the route params and sets the current edge
+   *
+   * @deprecated use the angular routing module to set page title, getCurrentEdge for retrieving the edge
   */
   abstract setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge>;
 
@@ -52,14 +55,14 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Gets the ChannelAddresses for cumulated values that should be queried.
-   * 
+   *
    * @param edge the current Edge
    */
   abstract getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]>;
 
   /**
    * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-   * 
+   *
    * @param fromDate the From-Date
    * @param toDate   the To-Date
    * @param edge     the current Edge
@@ -69,24 +72,24 @@ export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Start NGX-Spinner
-   * 
-   * The spinner has a transparent background set 
+   *
+   * The spinner has a transparent background set
    * and the spinner color is the primary environment color
    * Spinner will appear inside html tag only
-   * 
+   *
    * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-   * 
+   *
    * @param selector selector for specific spinner
    */
   abstract startSpinnerTransparentBackground(selector: string);
 
   /**
    * Start NGX-Spinner
-   * 
+   *
    * Spinner will appear inside html tag only
-   * 
+   *
    * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-   * 
+   *
    * @param selector selector for specific spinner
    */
   abstract startSpinner(selector: string);
@@ -97,6 +100,6 @@ export abstract class AbstractService extends ErrorHandler {
    */
   abstract stopSpinner(selector: string);
 
-  abstract toast(message: string, level: 'success' | 'warning' | 'danger');
+  abstract toast(message: string, level: "success" | "warning" | "danger");
 
 }

@@ -1,5 +1,10 @@
 package io.openems.edge.io.shelly.shelly25;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
@@ -7,6 +12,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -14,33 +20,40 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
+import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.ShellyApi;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "IO.Shelly.25", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
+
 public class IoShelly25Impl extends AbstractOpenemsComponent
 		implements IoShelly25, DigitalOutput, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(IoShelly25Impl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
-	private ShellyApi shellyApi = null;
+	private String baseUrl;
+
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
 	public IoShelly25Impl() {
 		super(//
@@ -57,12 +70,18 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.shellyApi = new ShellyApi(config.ip());
+		this.baseUrl = "http://" + config.ip();
+		this.httpBridge = this.httpBridgeFactory.get();
+
+		if (this.isEnabled()) {
+			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+		}
 	}
 
-	@Override
 	@Deactivate
 	protected void deactivate() {
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
 		super.deactivate();
 	}
 
@@ -73,24 +92,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder();
-		var i = 1;
-		for (WriteChannel<Boolean> channel : this.digitalOutputChannels) {
-			String valueText;
-			var valueOpt = channel.value().asOptional();
-			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "x" : "-";
-			} else {
-				valueText = "?";
-			}
-			b.append(i + valueText);
-
-			// add space for all but the last
-			if (++i <= this.digitalOutputChannels.length) {
-				b.append(" ");
-			}
-		}
-		return b.toString();
+		return generateDebugLog(this.digitalOutputChannels);
 	}
 
 	@Override
@@ -100,68 +102,84 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.eventBeforeProcessImage();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.eventExecuteWrite();
+		}
+	}
 
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.eventExecuteWrite();
-			break;
+	private record RelayState(Boolean relayIsOn, Boolean overtemp, Boolean overpower) {
+		private static RelayState from(JsonElement relay) throws OpenemsNamedException {
+			var relayIsOn = getAsBoolean(relay, "ison");
+			var overtemp = getAsBoolean(relay, "overtemperature");
+			var overpower = getAsBoolean(relay, "overpower");
+			return new RelayState(relayIsOn, overtemp, overpower);
+		}
+
+		private void applyChannels(IoShelly25 component, IoShelly25.ChannelId relayChannel,
+				IoShelly25.ChannelId overtempChannel, IoShelly25.ChannelId overpowerChannel) {
+			component.channel(relayChannel).setNextValue(this.relayIsOn);
+			component.channel(overtempChannel).setNextValue(this.overtemp);
+			component.channel(overpowerChannel).setNextValue(this.overpower);
 		}
 	}
 
 	/**
 	 * Execute on Cycle Event "Before Process Image".
+	 * 
+	 * @param result The JSON element containing the result of the HTTP request.
+	 * @param error  The throwable error, if any occurred during the HTTP request.
+	 * @throws OpenemsNamedException if the processing of the HTTP result fails or
+	 *                               communication with the slave device is
+	 *                               unsuccessful.
 	 */
-	private void eventBeforeProcessImage() {
-		Boolean relay1IsOn;
-		Boolean relay2IsOn;
-		try {
-			var json = this.shellyApi.getStatus();
-			var relays = JsonUtils.getAsJsonArray(json, "relays");
-			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			relay1IsOn = JsonUtils.getAsBoolean(relay1, "ison");
-			var relay2 = JsonUtils.getAsJsonObject(relays.get(1));
-			relay2IsOn = JsonUtils.getAsBoolean(relay2, "ison");
+	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
+		var slaveCommunicationFailed = result == null;
+		var relay1State = new RelayState(null, null, null);
+		var relay2State = new RelayState(null, null, null);
 
-			this._setSlaveCommunicationFailed(false);
+		try {
+			final var relays = getAsJsonArray(result.data(), "relays");
+			relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
+			relay2State = RelayState.from(getAsJsonObject(relays.get(1)));
 
 		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
-			relay1IsOn = null;
-			relay2IsOn = null;
-			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
-			this._setSlaveCommunicationFailed(true);
+			this.logDebug(this.log, e.getMessage());
+			slaveCommunicationFailed = true;
 		}
-		this._setRelay1(relay1IsOn);
-		this._setRelay2(relay2IsOn);
+
+		this._setSlaveCommunicationFailed(slaveCommunicationFailed);
+		relay1State.applyChannels(this, IoShelly25.ChannelId.RELAY_1, //
+				IoShelly25.ChannelId.RELAY_1_OVERTEMP, IoShelly25.ChannelId.RELAY_1_OVERPOWER);
+		relay2State.applyChannels(this, IoShelly25.ChannelId.RELAY_2, //
+				IoShelly25.ChannelId.RELAY_2_OVERTEMP, IoShelly25.ChannelId.RELAY_2_OVERPOWER);
 	}
 
 	/**
 	 * Execute on Cycle Event "Execute Write".
 	 */
 	private void eventExecuteWrite() {
-		try {
-			this.executeWrite(this.getRelay1Channel(), 0);
-			this.executeWrite(this.getRelay2Channel(), 1);
-
-			this._setSlaveCommunicationFailed(false);
-		} catch (OpenemsNamedException e) {
-			this._setSlaveCommunicationFailed(true);
+		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
+			this.executeWrite(this.digitalOutputChannels[i], i);
 		}
 	}
 
-	private void executeWrite(BooleanWriteChannel channel, int index) throws OpenemsNamedException {
+	private void executeWrite(BooleanWriteChannel channel, int index) {
 		var readValue = channel.value().get();
 		var writeValue = channel.getNextWriteValueAndReset();
-		if (!writeValue.isPresent()) {
-			// no write value
+		if (writeValue.isEmpty()) {
 			return;
 		}
 		if (Objects.equals(readValue, writeValue.get())) {
-			// read value = write value
 			return;
 		}
-		this.shellyApi.setRelayTurn(index, writeValue.get());
+		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		this.httpBridge.get(url).whenComplete((t, e) -> {
+			this._setSlaveCommunicationFailed(e != null);
+			if (e == null) {
+				this.logInfo(this.log, "Executed write successfully for URL: " + url);
+			} else {
+				this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
+			}
+		});
 	}
-
 }

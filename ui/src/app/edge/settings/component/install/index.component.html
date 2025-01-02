@@ -1,6 +1,6 @@
-<header></header>
 <ion-content>
-  <ion-searchbar (ionChange)="updateFilter($event.detail.value)"></ion-searchbar>
+  <ion-searchbar style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
+    (ionChange)="updateFilter($event.detail.value)"></ion-searchbar>
   <ion-list>
     <ng-container *ngFor="let entry of list">
       <ion-item-group>
@@ -18,7 +18,7 @@
             <ion-text color="primary">
               <h3>{{ item.name }}</h3>
             </ion-text>
-            <small>{{ item.description }}</small>
+            <small class="custom-channels-text">{{ item.description }}</small>
           </ion-label>
         </ion-item>
       </ng-container>

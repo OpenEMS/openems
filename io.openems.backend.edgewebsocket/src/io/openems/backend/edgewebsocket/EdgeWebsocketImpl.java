@@ -1,13 +1,13 @@
 package io.openems.backend.edgewebsocket;
 
-import java.time.Instant;
+import static java.util.stream.Collectors.toUnmodifiableMap;
+
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,12 +28,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
@@ -42,17 +42,14 @@ import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
-import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -63,14 +60,13 @@ import io.openems.common.utils.ThreadPoolUtils;
 @EventTopics({ //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
-public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
+public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
+		implements EdgeWebsocket, EventHandler, DebugLoggable {
 
-	private static final String EDGE_ID = "backend0";
-	private static final String COMPONENT_ID = "edgewebsocket";
+	private static final String COMPONENT_ID = "edgewebsocket0";
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 	private final SystemLogHandler systemLogHandler;
-	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	@Reference
 	protected volatile Metadata metadata;
@@ -98,13 +94,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
-		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			var data = TreeBasedTable.<Long, String, JsonElement>create();
-			var now = Instant.now().toEpochMilli();
-			data.put(now, COMPONENT_ID + "/Connections",
-					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
-			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
-		}, 10, 10, TimeUnit.SECONDS);
 
 		if (this.metadata.isInitialized()) {
 			this.startServer();
@@ -113,7 +102,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Deactivate
 	private void deactivate() {
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.stopServer();
 	}
 
@@ -122,8 +110,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
-					this.config.debugMode());
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize());
 			this.server.start();
 		}
 	}
@@ -151,11 +138,10 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request) {
 		var ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws == null) {
-			throw OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(edgeId);
+			return CompletableFuture.failedFuture(OpenemsError.BACKEND_EDGE_NOT_CONNECTED.exception(edgeId));
 		}
 		WsData wsData = ws.getAttachment();
 		// Wrap Request in AuthenticatedRpc
@@ -184,12 +170,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
-	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsException {
+	public boolean send(String edgeId, JsonrpcNotification notification) {
 		var ws = this.getWebSocketForEdgeId(edgeId);
-		if (ws != null) {
-			WsData wsData = ws.getAttachment();
-			wsData.send(notification);
+		if (ws == null) {
+			return false;
 		}
+		WsData wsData = ws.getAttachment();
+		return wsData.send(notification);
 	}
 
 	/**
@@ -258,8 +245,8 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
+			UUID websocketId, SubscribeSystemLogRequest request) {
+		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, websocketId, request);
 	}
 
 	/**
@@ -300,4 +287,31 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		}
 		return result;
 	}
+
+	public String getId() {
+		return COMPONENT_ID;
+	}
+
+	@Override
+	public String debugLog() {
+		return new StringBuilder() //
+				.append("[").append(this.getName()).append("] ") //
+				.append(this.server != null //
+						? this.server.debugLog() //
+						: "NOT STARTED") //
+				.toString();
+	}
+
+	@Override
+	public Map<String, JsonElement> debugMetrics() {
+		if (this.server == null) {
+			return null;
+		}
+
+		return this.server.debugMetrics().entrySet().stream() //
+				.collect(toUnmodifiableMap(//
+						e -> this.getId() + "/" + e.getKey(), //
+						e -> new JsonPrimitive(e.getValue())));
+	}
+
 }

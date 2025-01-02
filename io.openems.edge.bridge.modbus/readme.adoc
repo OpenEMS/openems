@@ -4,11 +4,11 @@ Modbus is a widely used standard for fieldbus communications. It is used by all 
 
 == Modbus/TCP
 
-https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusTcpImpl.java[Bridge Modbus/RTU Serial] for fieldbus communication via TCP/IP network.
+https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusTcpImpl.java[Bridge Modbus/TCP] for fieldbus communication via TCP/IP network.
 
 == Modbus/RTU
 
-https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusSerialImpl.java[Bridge Modbus/TCP] for fieldbus communication via RS485 serial bus.
+https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusSerialImpl.java[Bridge Modbus/RTU Serial] for fieldbus communication via RS485 serial bus.
 
 == Implementation details
 

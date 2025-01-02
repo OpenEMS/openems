@@ -1,11 +1,12 @@
+// @ts-strict-ignore
 import { ChannelAddress } from "../../../shared/type/channeladdress";
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
- * Represents a JSON-RPC Request to subscribe to channels. The actual channel 
+ * Represents a JSON-RPC Request to subscribe to channels. The actual channel
  * data is then sent as JSON-RPC Notification
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -26,11 +27,11 @@ export class SubscribeChannelsRequest extends JsonrpcRequest {
     private static METHOD: string = "subscribeChannels";
 
     public constructor(
-        private channels: ChannelAddress[]
+        private channels: ChannelAddress[],
     ) {
         super(SubscribeChannelsRequest.METHOD, {
             count: SubscribeChannelsRequest.lastCount++,
-            channels: JsonRpcUtils.channelsToStringArray(channels)
+            channels: JsonRpcUtils.channelsToStringArray(channels),
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
         delete this.channels;

@@ -6,7 +6,7 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 @SuppressWarnings("all")
 public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private String ip;
 		private int port;

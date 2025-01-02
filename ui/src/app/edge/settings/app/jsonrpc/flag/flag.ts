@@ -1,4 +1,4 @@
 export interface Flag {
-    name: string,
     [additionalProperties: string]: any;
+    name: string,
 }

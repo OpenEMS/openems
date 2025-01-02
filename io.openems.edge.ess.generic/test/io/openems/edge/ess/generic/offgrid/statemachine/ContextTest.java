@@ -6,53 +6,47 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
+import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.ess.offgrid.api.OffGridSwitch;
 
 public class ContextTest {
 
-	private static class DummyOffGridSwitch extends AbstractOpenemsComponent implements OffGridSwitch {
+	private static class DummyOffGridSwitch extends AbstractDummyOpenemsComponent<DummyOffGridSwitch>
+			implements OffGridSwitch {
 
 		public DummyOffGridSwitch(String id) {
-			this(id, new io.openems.edge.common.channel.ChannelId[0]);
+			super(id, //
+					OpenemsComponent.ChannelId.values(), //
+					OffGridSwitch.ChannelId.values());
 		}
 
-		public DummyOffGridSwitch(String id, io.openems.edge.common.channel.ChannelId[] additionalChannelIds) {
-			super(//
-					OpenemsComponent.ChannelId.values(), //
-					OffGridSwitch.ChannelId.values(), //
-					additionalChannelIds //
-			);
-			for (Channel<?> channel : this.channels()) {
-				channel.nextProcessImage();
-			}
-			super.activate(null, id, "", true);
+		@Override
+		protected DummyOffGridSwitch self() {
+			return this;
 		}
 
 		/**
-		 * Sets and applies the {@link OffGridSwitch.ChannelId#MAIN_CONTACTOR}.
+		 * Set {@link OffGridSwitch.ChannelId#MAIN_CONTACTOR}.
 		 *
-		 * @param value the state of the MainContactor
+		 * @param value the value
 		 * @return myself
 		 */
 		public DummyOffGridSwitch withMainContactor(boolean value) {
-			this._setMainContactor(value);
-			this.getMainContactorChannel().nextProcessImage();
-			return this;
+			TestUtils.withValue(this, OffGridSwitch.ChannelId.MAIN_CONTACTOR, value);
+			return this.self();
 		}
 
 		/**
-		 * Sets and applies the {@link OffGridSwitch.ChannelId#GROUNDING_CONTACTOR}.
+		 * Set {@link OffGridSwitch.ChannelId#GROUNDING_CONTACTOR}.
 		 *
-		 * @param value the state of the GroundingContactor
+		 * @param value the value
 		 * @return myself
 		 */
 		public DummyOffGridSwitch withGroundingContactor(boolean value) {
-			this._setGroundingContactor(value);
-			this.getGroundingContactorChannel().nextProcessImage();
-			return this;
+			TestUtils.withValue(this, OffGridSwitch.ChannelId.GROUNDING_CONTACTOR, value);
+			return this.self();
 		}
 
 		@Override
@@ -70,20 +64,24 @@ public class ContextTest {
 		var sut = new DummyOffGridSwitch("offGridSwitch0");
 		var context = new Context(null, null, null, sut, null, null);
 
-		sut.withMainContactor(false);
-		sut.withGroundingContactor(false);
+		sut //
+				.withMainContactor(false) //
+				.withGroundingContactor(false);
 		assertTrue(context.isOnGridContactorsSet());
 
-		sut.withMainContactor(true);
-		sut.withGroundingContactor(false);
+		sut //
+				.withMainContactor(true) //
+				.withGroundingContactor(false);
 		assertFalse(context.isOnGridContactorsSet());
 
-		sut.withMainContactor(false);
-		sut.withGroundingContactor(true);
+		sut //
+				.withMainContactor(false) //
+				.withGroundingContactor(true);
 		assertFalse(context.isOnGridContactorsSet());
 
-		sut.withMainContactor(true);
-		sut.withGroundingContactor(true);
+		sut //
+				.withMainContactor(true) //
+				.withGroundingContactor(true);
 		assertFalse(context.isOnGridContactorsSet());
 	}
 
@@ -92,20 +90,24 @@ public class ContextTest {
 		var sut = new DummyOffGridSwitch("offGridSwitch0");
 		var context = new Context(null, null, null, sut, null, null);
 
-		sut.withMainContactor(false);
-		sut.withGroundingContactor(false);
+		sut //
+				.withMainContactor(false) //
+				.withGroundingContactor(false);
 		assertFalse(context.isOffGridContactorsSet());
 
-		sut.withMainContactor(true);
-		sut.withGroundingContactor(false);
+		sut //
+				.withMainContactor(true) //
+				.withGroundingContactor(false);
 		assertFalse(context.isOffGridContactorsSet());
 
-		sut.withMainContactor(false);
-		sut.withGroundingContactor(true);
+		sut //
+				.withMainContactor(false) //
+				.withGroundingContactor(true);
 		assertFalse(context.isOffGridContactorsSet());
 
-		sut.withMainContactor(true);
-		sut.withGroundingContactor(true);
+		sut //
+				.withMainContactor(true) //
+				.withGroundingContactor(true);
 		assertTrue(context.isOffGridContactorsSet());
 	}
 

@@ -106,6 +106,34 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)//
+		), //
+
+		/**
+		 * Inverter DC Minimum Voltage.
+		 *
+		 * <ul>
+		 * <li>Interface: SymmetricBatteryInverter
+		 * <li>Type: Integer
+		 * <li>Unit: V
+		 * </ul>
+		 */
+		DC_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.persistencePriority(PersistencePriority.HIGH)//
+		), //
+
+		/**
+		 * Inverter DC Max Voltage.
+		 *
+		 * <ul>
+		 * <li>Interface: SymmetricBatteryInverter
+		 * <li>Type: Integer
+		 * <li>Unit: V
+		 * </ul>
+		 */
+		DC_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.HIGH) //
 		);
 
@@ -358,4 +386,81 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		this.getActiveDischargeEnergyChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#DC_MIN_VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDcMinVoltageChannel() {
+		return this.channel(ChannelId.DC_MIN_VOLTAGE);
+	}
+
+	/**
+	 * Gets the Minimum Inverter DC Voltage in [V]. See
+	 * {@link ChannelId#DC_MIN_VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDcMinVoltage() {
+		return this.getDcMinVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#DC_MIN_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDcMinVoltage(Integer value) {
+		this.getDcMinVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#DC_MIN_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDcMinVoltage(int value) {
+		this.getDcMinVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DC_MAX_VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDcMaxVoltageChannel() {
+		return this.channel(ChannelId.DC_MAX_VOLTAGE);
+	}
+
+	/**
+	 * Gets the Maximum Inverter DC Voltage in [V]. See
+	 * {@link ChannelId#DC_MAX_VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDcMaxVoltage() {
+		return this.getDcMaxVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#DC_MAX_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDcMaxVoltage(Integer value) {
+		this.getDcMaxVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#DC_MAX_VOLTAGE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDcMaxVoltage(int value) {
+		this.getDcMaxVoltageChannel().setNextValue(value);
+	}
 }
