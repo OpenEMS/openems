@@ -18,7 +18,8 @@ import com.google.common.math.Quantiles;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.controller.evcs.JSCalendar.Task;
+import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.edge.controller.evcs.Utils.EshContext.EshManualContext;
 import io.openems.edge.controller.evcs.Utils.EshContext.EshSmartContext;
 import io.openems.edge.energy.api.EnergyScheduleHandler;

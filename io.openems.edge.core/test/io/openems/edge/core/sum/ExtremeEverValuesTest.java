@@ -1,7 +1,7 @@
 package io.openems.edge.core.sum;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.test.TestUtils.activateNextProcessImage;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;

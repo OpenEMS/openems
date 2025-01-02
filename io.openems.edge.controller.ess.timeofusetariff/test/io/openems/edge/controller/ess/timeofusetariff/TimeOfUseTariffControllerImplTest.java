@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.ess.timeofusetariff.ControlMode.CHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.Mode.AUTOMATIC;
 

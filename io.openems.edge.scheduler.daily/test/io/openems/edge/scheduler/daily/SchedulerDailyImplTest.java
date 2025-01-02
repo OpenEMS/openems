@@ -1,8 +1,8 @@
 package io.openems.edge.scheduler.daily;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static org.junit.Assert.assertEquals;
 

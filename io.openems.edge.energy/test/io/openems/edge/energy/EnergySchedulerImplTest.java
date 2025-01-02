@@ -1,8 +1,8 @@
 package io.openems.edge.energy;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.energy.LogVerbosity.TRACE;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;

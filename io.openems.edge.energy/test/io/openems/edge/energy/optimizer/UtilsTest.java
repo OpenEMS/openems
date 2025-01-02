@@ -1,6 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.calculateSleepMillis;
 import static io.openems.edge.energy.optimizer.Utils.sortByScheduler;

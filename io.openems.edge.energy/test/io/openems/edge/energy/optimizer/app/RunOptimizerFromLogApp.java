@@ -1,7 +1,7 @@
 package io.openems.edge.energy.optimizer.app;
 
 import static io.jenetics.engine.Limits.byExecutionTime;
-import static io.openems.edge.controller.evcs.JSCalendar.RecurrenceFrequency.WEEKLY;
+import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
 import static io.openems.edge.energy.optimizer.app.AppUtils.parseGlobalSimulationsContextFromLogString;
 import static java.time.DayOfWeek.FRIDAY;
@@ -16,6 +16,7 @@ import java.time.LocalTime;
 
 import com.google.common.collect.ImmutableList;
 
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserveImpl;
 import io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePowerImpl;
 import io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl;
@@ -23,7 +24,6 @@ import io.openems.edge.controller.ess.gridoptimizedcharge.Mode;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischargeImpl;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
-import io.openems.edge.controller.evcs.JSCalendar;
 import io.openems.edge.controller.evcs.Utils.EshContext.EshSmartContext;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyUtils;

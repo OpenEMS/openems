@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.http.api;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.bridge.http.time.DelayTimeProviderChain.fixedDelay;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
