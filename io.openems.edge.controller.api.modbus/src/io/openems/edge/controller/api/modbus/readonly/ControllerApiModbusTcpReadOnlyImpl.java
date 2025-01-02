@@ -66,8 +66,8 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 	@Activate
 	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
 		super.activate(context, this.cm,
-				new ConfigRecord(config.id(), config.alias(), config.enabled(),this.metaComponent, config.component_ids(), 0 /* no timeout */, config.port(),
-						config.maxConcurrentConnections()));
+				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
+						config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections()));
 	}
 
 	@Override
@@ -83,7 +83,8 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 
 	@Override
 	protected Consumer<Entry<WriteChannel<?>, WriteObject>> handleWrites() {
-		return entry -> { };
+		return entry -> {
+		};
 	}
 
 	@Override
@@ -92,6 +93,7 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 
 	@Override
 	protected Runnable handleTimeouts() {
-		return () -> { };
+		return () -> {
+		};
 	}
 }

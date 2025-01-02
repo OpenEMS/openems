@@ -8,7 +8,6 @@ public class NearEqualSolverTest {
 
 	@Test
 	public void solverTest() {
-		
 		double[] essUpperLimit = { 10000, 10000, 10000, 1900 };
 		double[] essLowerLimit = { 0, 0, 0, 1800 };
 		double setValue = 50000;

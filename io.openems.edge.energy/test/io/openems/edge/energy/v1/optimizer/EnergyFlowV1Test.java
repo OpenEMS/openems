@@ -58,8 +58,8 @@ public class EnergyFlowV1Test {
 		// essChargeInChargeGrid = 2375
 	}
 
-	private static EnergyFlowV1 execute(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function, int essInitial,
-			ParamsV1.Builder pb) {
+	private static EnergyFlowV1 execute(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function,
+			int essInitial, ParamsV1.Builder pb) {
 		var p = pb.build();
 		return function.apply(p, p.optimizePeriods().get(0), essInitial);
 	}

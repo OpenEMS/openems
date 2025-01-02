@@ -70,7 +70,7 @@ public interface OperatingSystem {
 	 * @throws OpenemsNamedException on error
 	 */
 	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException;
-	
+
 	/**
 	 * Gets the current operating system version.
 	 * 

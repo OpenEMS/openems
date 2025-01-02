@@ -704,7 +704,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 				.build();
 	}
 
-	/** Defines if the evcs is read only.
+	/**
+	 * Defines if the evcs is read only.
 	 * 
 	 * @return true if the evcs is read-only
 	 */
