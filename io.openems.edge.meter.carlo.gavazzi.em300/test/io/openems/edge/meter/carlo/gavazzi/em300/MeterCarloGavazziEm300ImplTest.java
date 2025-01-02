@@ -1,5 +1,6 @@
 package io.openems.edge.meter.carlo.gavazzi.em300;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.types.MeterType.GRID;
 
 import org.junit.Test;
@@ -9,7 +10,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public class MeterCarloGavazziEm300ImplTest {
@@ -34,7 +34,7 @@ public class MeterCarloGavazziEm300ImplTest {
 		var sut = new MeterCarloGavazziEm300Impl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addComponent(new DummyComponentManager(TestUtils.createDummyClock()))
+				.addComponent(new DummyComponentManager(createDummyClock()))
 				.addReference("setModbus", new DummyModbusBridge("modbus2") //
 						.withInputRegisters(300001 - this.offset, //
 								new int[] { 0x08c3, 0x0000, //

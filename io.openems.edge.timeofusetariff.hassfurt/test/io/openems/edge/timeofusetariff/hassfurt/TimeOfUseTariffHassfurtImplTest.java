@@ -1,6 +1,6 @@
 package io.openems.edge.timeofusetariff.hassfurt;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.hassfurt.TimeOfUseTariffHassfurtImpl.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

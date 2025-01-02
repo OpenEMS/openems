@@ -94,13 +94,20 @@ public class Optimizer implements Runnable {
 	 */
 	public void triggerReschedule(String reason) {
 		// NOTE: This is what happens here:
-		// [_cycle  ] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Trigger Reschedule. Reason: ControllerEvcsImpl::onEvcsStatusChange from 6:The charging limit reached to 1:Not ready for Charging
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Optimizer::run() InterruptedException: null
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Simulation gave no result!
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Run Quick Optimization...
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER updateSimulator()...
-		
-		// TODO On interrupt: keep best "regularOptimization" up till now as input for next InitialPopulation
+		// [_cycle ] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Trigger Reschedule.
+		// Reason: ControllerEvcsImpl::onEvcsStatusChange from 6:The charging limit
+		// reached to 1:Not ready for Charging
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Optimizer::run()
+		// InterruptedException: null
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Simulation gave no
+		// result!
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Run Quick
+		// Optimization...
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER
+		// updateSimulator()...
+
+		// TODO On interrupt: keep best "regularOptimization" up till now as input for
+		// next InitialPopulation
 		this.traceLog(() -> "Trigger Reschedule. Reason: " + reason);
 		this.rescheduleCurrentPeriod.set(true);
 		this.activate(); // interrupt + reschedule

@@ -1,10 +1,10 @@
-package io.openems.edge.controller.evcs;
+package io.openems.common.jscalendar;
 
+import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.prettyToString;
 import static io.openems.common.utils.UuidUtils.getNilUuid;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.controller.evcs.JSCalendar.RecurrenceFrequency.WEEKLY;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SATURDAY;
@@ -22,6 +22,7 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 
 //CHECKSTYLE:OFF
 public class JSCalendarTest {
@@ -78,8 +79,10 @@ public class JSCalendarTest {
 		assertEquals("2024-06-24T07:00Z", next.toString()); // same
 
 		// Parse JSON
-		var fromJson = JSCalendar.Task.fromJson(sut.toJson(identity()), identity());
-		assertEquals(sut.toJson(identity()), fromJson.toJson(identity()));
+		var fromJson = JSCalendar.Task.fromJson(JsonUtils.buildJsonArray() //
+				.add(sut.toJson(identity())) //
+				.build(), j -> j);
+		assertEquals(sut.toJson(identity()), fromJson.get(0).toJson(identity()));
 	}
 
 	@Test

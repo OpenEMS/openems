@@ -82,7 +82,8 @@ public class BridgeOnewireImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(GetDevicesRequest.METHOD, call -> this.taskWorker.handleGetDevicesRequest(call.getRequest()));
+		builder.handleRequest(GetDevicesRequest.METHOD,
+				call -> this.taskWorker.handleGetDevicesRequest(call.getRequest()));
 	}
 
 }

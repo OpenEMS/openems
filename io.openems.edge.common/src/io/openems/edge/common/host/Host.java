@@ -106,7 +106,7 @@ public interface Host extends OpenemsComponent {
 	 * @throws OpenemsNamedException exception
 	 */
 	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException;
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#OS_VERSION}.
 	 *

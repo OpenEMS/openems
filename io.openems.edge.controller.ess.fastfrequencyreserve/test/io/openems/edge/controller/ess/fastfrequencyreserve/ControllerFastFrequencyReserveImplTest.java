@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.fastfrequencyreserve;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.ess.fastfrequencyreserve.ControllerFastFrequencyReserve.ChannelId.STATE_MACHINE;
 import static io.openems.edge.controller.ess.fastfrequencyreserve.enums.ActivationTime.LONG_ACTIVATION_RUN;
 import static io.openems.edge.controller.ess.fastfrequencyreserve.enums.SupportDuration.LONG_SUPPORT_DURATION;

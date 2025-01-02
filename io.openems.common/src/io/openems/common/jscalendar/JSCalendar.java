@@ -1,7 +1,8 @@
-package io.openems.edge.controller.evcs;
+package io.openems.common.jscalendar;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSortedSet.toImmutableSortedSet;
+import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
 import static io.openems.common.utils.JsonUtils.getAsEnum;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
@@ -11,7 +12,6 @@ import static io.openems.common.utils.JsonUtils.getAsUUID;
 import static io.openems.common.utils.JsonUtils.getAsZonedDateTime;
 import static io.openems.common.utils.JsonUtils.stream;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
-import static io.openems.edge.controller.evcs.JSCalendar.RecurrenceFrequency.WEEKLY;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SATURDAY;
@@ -47,13 +47,12 @@ import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * This implementation is based on RFC 8984 "JSCalendar: A JSON Representation
- * of Calendar Data".
+ * Implementation of RFC 8984 "JSCalendar: A JSON Representation of Calendar
+ * Data".
  * 
  * <p>
- * 
- * @link <a href=
- *       "https://www.rfc-editor.org/rfc/rfc8984.html">https://www.rfc-editor.org/rfc/rfc8984.html</a>
+ * See <a href=
+ * "https://www.rfc-editor.org/rfc/rfc8984.html">https://www.rfc-editor.org/rfc/rfc8984.html</a>
  */
 // CHECKSTYLE:OFF
 public class JSCalendar<PAYLOAD> {

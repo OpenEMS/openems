@@ -1,6 +1,7 @@
 package io.openems.edge.energy.api.test;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentStates;
 
 import java.time.ZonedDateTime;
@@ -10,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.test.TimeLeapClock;
-import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
@@ -22,7 +22,7 @@ public class DummyGlobalSimulationsContext {
 	private DummyGlobalSimulationsContext() {
 	}
 
-	public static final TimeLeapClock CLOCK = TestUtils.createDummyClock();
+	public static final TimeLeapClock CLOCK = createDummyClock();
 	public static final ZonedDateTime TIME = ZonedDateTime.now(CLOCK);
 
 	/**

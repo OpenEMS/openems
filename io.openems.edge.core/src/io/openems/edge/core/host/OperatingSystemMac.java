@@ -26,7 +26,7 @@ public class OperatingSystemMac implements OperatingSystem {
 	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
 		throw new NotImplementedException("SetNetworkConfigRequest is not implemented for Mac");
-		
+
 	}
 
 	@Override

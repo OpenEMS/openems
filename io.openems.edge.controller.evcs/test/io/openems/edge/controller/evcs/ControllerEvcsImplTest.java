@@ -1,9 +1,9 @@
 package io.openems.edge.controller.evcs;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_DISCHARGE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_SOC;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.evcs.ControllerEvcs.ChannelId.AWAITING_HYSTERESIS;
 import static io.openems.edge.controller.evcs.Priority.CAR;
 import static io.openems.edge.evcs.api.ChargeMode.EXCESS_POWER;
