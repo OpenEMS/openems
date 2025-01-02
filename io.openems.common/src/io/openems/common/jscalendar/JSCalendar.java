@@ -50,7 +50,9 @@ import io.openems.common.utils.JsonUtils;
  * Implementation of RFC 8984 "JSCalendar: A JSON Representation of Calendar
  * Data".
  * 
- * @see https://www.rfc-editor.org/rfc/rfc8984.html
+ * <p>
+ * See <a href=
+ * "https://www.rfc-editor.org/rfc/rfc8984.html">https://www.rfc-editor.org/rfc/rfc8984.html</a>
  */
 // CHECKSTYLE:OFF
 public class JSCalendar<PAYLOAD> {
