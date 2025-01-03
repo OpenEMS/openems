@@ -4,11 +4,11 @@ import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { Language } from "src/app/shared/type/language";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Currency, EdgeConfig } from "../shared";
-import { Language } from "src/app/shared/type/language"
 
 export class Utils {
 
@@ -402,7 +402,7 @@ export class Utils {
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
     const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     return (value: number | null | undefined): string =>
-      (value == null ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
+      (value == null ? "-" : formatNumber(value / 10, locale, "1.0-" + decimal)) + " " + label;
   };
 
   /**

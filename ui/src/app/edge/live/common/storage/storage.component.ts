@@ -3,8 +3,8 @@ import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
-import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 
 import { StorageModalComponent } from "./modal/modal.component";
 

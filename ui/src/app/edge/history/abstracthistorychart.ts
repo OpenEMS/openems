@@ -116,7 +116,6 @@ export abstract class AbstractHistoryChart {
     public setOptions(options: Chart.ChartOptions): Promise<void> {
 
         return new Promise<void>((resolve) => {
-            const locale = this.service.translate.currentLang;
             const yAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT };
             const chartObject: HistoryUtils.ChartData = {
                 input: [],

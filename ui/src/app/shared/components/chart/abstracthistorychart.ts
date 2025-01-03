@@ -130,7 +130,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     const datasets: Chart.ChartDataset[] = [];
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
     const legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean; }[] = [];
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     displayValues.forEach((displayValue, index) => {
       let nameSuffix = null;
 
