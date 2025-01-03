@@ -11,6 +11,7 @@ export interface Environment {
     readonly uiTitle: string;
     readonly edgeShortName: string;
     readonly edgeLongName: string;
+    readonly defaultLanguage: string;
 
     readonly url: string;
     readonly backend: DefaultTypes.Backend;

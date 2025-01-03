@@ -6,6 +6,7 @@ export const theme = {
     uiTitle: "OpenEMS UI",
     edgeShortName: "OpenEMS",
     edgeLongName: "Open Energy Management System",
+    defaultLanguage: "de",
 
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     links: {
