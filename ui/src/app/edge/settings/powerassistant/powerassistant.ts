@@ -3,7 +3,7 @@ import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { Language } from "src/app/shared/type/language"
+import { Language } from "src/app/shared/type/language";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../shared/shared";
 import { LiveDataService } from "../../live/livedataservice";
 

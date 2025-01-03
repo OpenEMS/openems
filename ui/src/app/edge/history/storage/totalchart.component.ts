@@ -7,7 +7,7 @@ import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
-import { Language } from "src/app/shared/type/language"
+import { Language } from "src/app/shared/type/language";
 
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { AbstractHistoryChart } from "../abstracthistorychart";
