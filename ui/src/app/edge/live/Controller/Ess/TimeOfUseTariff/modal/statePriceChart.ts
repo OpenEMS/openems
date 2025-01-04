@@ -114,12 +114,11 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     }
 
     private applyControllerSpecificOptions() {
-        const locale = this.service.translate.currentLang;
         const rightYaxisSoc: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT, displayGrid: true };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, "line", locale, this.datasets, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, "line", this.datasets, true);
 
         const rightYAxisPower: HistoryUtils.yAxes = { position: "right", unit: YAxisType.POWER, yAxisId: ChartAxis.RIGHT_2 };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, "line", locale, this.datasets, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, "line", this.datasets, true);
 
         this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
@@ -176,7 +175,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         });
         const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit, scale: { dynamicScale: true } };
         [rightYaxisSoc, rightYAxisPower].forEach((element) => {
-            this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", locale, this.datasets, true);
+            this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", this.datasets, true);
         });
 
         this.options.scales[ChartAxis.LEFT] = {
