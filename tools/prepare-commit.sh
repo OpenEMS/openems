@@ -78,7 +78,7 @@ EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -150,6 +150,7 @@ head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bnd
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.http.servlet-api',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
@@ -175,6 +176,7 @@ echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.n
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.http.servlet-api',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"

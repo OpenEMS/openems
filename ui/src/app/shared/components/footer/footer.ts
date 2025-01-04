@@ -32,6 +32,7 @@ import { Role } from "../../type/role";
     }
   `],
   templateUrl: "footer.html",
+  standalone: false,
 })
 export class FooterComponent implements OnInit {
 

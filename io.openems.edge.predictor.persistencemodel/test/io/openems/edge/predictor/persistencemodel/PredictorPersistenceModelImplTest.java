@@ -1,6 +1,6 @@
 package io.openems.edge.predictor.persistencemodel;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.predictor.api.prediction.LogVerbosity.NONE;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -62,7 +62,7 @@ public class PredictorPersistenceModelImplTest {
 		assertEquals((Integer) 6, p[21]);
 		assertEquals((Integer) 146, p[22]);
 		assertEquals((Integer) 297, p[23]);
-		assertEquals(190, prediction.valuePerQuarter.size());
+		assertEquals(190, prediction.asArray().length);
 	}
 
 	@Test

@@ -6,6 +6,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.function.Supplier;
 
@@ -178,15 +179,16 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								this.ignoreZeroAndScaleFactor1)));
 
 		// Handles different DSP versions
-		readElementOnce(protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016)).thenAccept(dspVersion -> {
-			if (dspVersion >= 4 || dspVersion == 0) {
-				this.handleDspVersion4(protocol);
-			}
-		});
+		readElementOnce(FC3, protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016))
+				.thenAccept(dspVersion -> {
+					if (dspVersion >= 4 || dspVersion == 0) {
+						this.handleDspVersion4(protocol);
+					}
+				});
 
 		switch (this.config.goodWeMeterCategory()) {
 		case COMMERCIAL_METER -> this.handleExternalMeter(protocol);
-		case SMART_METER -> {
+		case SMART_METER, INTEGRATED_METER -> {
 		}
 		}
 
@@ -238,7 +240,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 			switch (this.config.goodWeMeterCategory()) {
 			case COMMERCIAL_METER -> this.setExternalMeterValue();
-			case SMART_METER -> {
+			case SMART_METER, INTEGRATED_METER -> {
 			}
 			}
 		}

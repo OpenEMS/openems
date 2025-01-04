@@ -10,6 +10,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "storageESSChart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

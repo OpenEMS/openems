@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +18,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -24,21 +26,26 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.InetAddressUtils;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.user.User;
@@ -577,6 +584,52 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		return new NetworkInterface<>(name.get(), //
 				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), metric.get(),
 				attachment);
+	}
+
+	@Override
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		var req = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
+		try {
+			var result = this.handleExecuteSystemCommandRequest(req).get().getResult().toString();
+			return parseIpJson(result);
+		} catch (InterruptedException | ExecutionException e) {
+			return Collections.emptyList();
+		}
+
+	}
+
+	/**
+	 * Parses the json returned by ip address get command.
+	 * 
+	 * @param result the json to be parsed
+	 * @return a list of parsed ips
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static List<Inet4Address> parseIpJson(String result) throws OpenemsNamedException {
+		final var stdout = JsonUtils.getAsJsonArray(JsonUtils.getAsJsonObject(JsonUtils.parse(result)), "stdout");
+		final var networkData = stdout.get(0).getAsString();
+		final var networkDataJson = JsonUtils.parseOptional(networkData);
+		if (networkDataJson.isPresent() && networkDataJson.get().isJsonArray()) {
+			final var networkInterfaces = JsonUtils.getAsJsonArray(JsonUtils.parse(networkData));
+
+			if (networkData.startsWith("[")) {
+				return networkInterfaces.asList().stream().map(JsonElement::getAsJsonObject)
+						.map(interfaceObject -> interfaceObject.getAsJsonArray("addr_info"))
+						.flatMap(addrInfoArray -> StreamSupport.stream(addrInfoArray.spliterator(), false))
+						.map(JsonElement::getAsJsonObject)
+						.filter(addrInfoObject -> "inet".equals(addrInfoObject.get("family").getAsString()))
+						.map(addrInfoObject -> addrInfoObject.get("local").getAsString()) //
+						.<Inet4Address>mapMulti((t, u) -> {
+							try {
+								u.accept((Inet4Address) Inet4Address.getByName(t));
+							} catch (UnknownHostException e) {
+								// do nothing
+							}
+						}) //
+						.toList();//
+			}
+		}
+		return Collections.emptyList();
 	}
 
 	@Override

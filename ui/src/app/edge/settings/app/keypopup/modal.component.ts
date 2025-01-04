@@ -19,6 +19,7 @@ import { Key } from "./key";
 @Component({
     selector: KeyModalComponent.SELECTOR,
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class KeyModalComponent implements OnInit {
 

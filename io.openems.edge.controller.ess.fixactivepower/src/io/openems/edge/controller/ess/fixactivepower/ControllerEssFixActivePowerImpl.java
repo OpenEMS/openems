@@ -85,7 +85,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		if (this.applyConfig(context, config)) {
 			return;
 		}
-		this.energyScheduleHandler.triggerReschedule();
+		this.energyScheduleHandler.triggerReschedule("ControllerEssFixActivePowerImpl::modified()");
 	}
 
 	private boolean applyConfig(ComponentContext context, Config config) {
@@ -165,9 +165,9 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	 * @return a {@link EnergyScheduleHandler}
 	 */
 	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<EshContext> context) {
-		return EnergyScheduleHandler.of(//
-				simContext -> context.get(), //
-				(simContext, period, energyFlow, ctrlContext) -> {
+		return EnergyScheduleHandler.WithOnlyOneState.<EshContext>create() //
+				.setContextFunction(simContext -> context.get()) //
+				.setSimulator((simContext, period, energyFlow, ctrlContext) -> {
 					switch (ctrlContext.mode) {
 					case MANUAL_ON:
 						switch (ctrlContext.relationship) {
@@ -179,7 +179,8 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 					case MANUAL_OFF:
 						break;
 					}
-				});
+				}) //
+				.build();
 	}
 
 	public static record EshContext(Mode mode, int energy, Relationship relationship) {

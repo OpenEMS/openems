@@ -8,6 +8,7 @@ import { OverrideStatus } from "src/app/shared/type/general";
 
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 

@@ -6,8 +6,10 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -17,7 +19,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.PostProcessor;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.simulation.OneSimulationContext;
@@ -25,68 +26,11 @@ import io.openems.edge.energy.api.simulation.OneSimulationContext;
 public sealed interface EnergyScheduleHandler {
 
 	/**
-	 * Creates an {@link EnergyScheduleHandler} for a {@link Controller} with
-	 * different states that can be evaluated.
-	 * 
-	 * @param <STATE>         the type of the State
-	 * @param <CONTEXT>       the type of the Context
-	 * @param defaultState    the default State if no other is explicitly scheduled
-	 * @param statesSupplier  a {@link Supplier} for available States
-	 * @param contextFunction a {@link Function} to create a Context
-	 * @param simulator       a simulator that modifies a given {@link EnergyFlow}
-	 * @return an {@link EnergyScheduleHandler}
-	 */
-	public static <STATE, CONTEXT> EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT> of(//
-			STATE defaultState, //
-			Supplier<STATE[]> statesSupplier, //
-			Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
-			WithDifferentStates.Simulator<STATE, CONTEXT> simulator) {
-		return new EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT>(defaultState, statesSupplier,
-				contextFunction, simulator, EnergyScheduleHandler.WithDifferentStates.PostProcessor.doNothing());
-	}
-
-	/**
-	 * Creates an {@link EnergyScheduleHandler} for a {@link Controller} with
-	 * different states that can be evaluated.
-	 * 
-	 * @param <STATE>         the type of the State
-	 * @param <CONTEXT>       the type of the Context
-	 * @param defaultState    the default State if no other is explicitly scheduled
-	 * @param statesSupplier  a {@link Supplier} for available States
-	 * @param contextFunction a {@link Function} to create a Context
-	 * @param simulator       a simulator that modifies a given {@link EnergyFlow}
-	 * @param postProcessor   a {@link PostProcessor}
-	 * @return an {@link EnergyScheduleHandler}
-	 */
-	public static <STATE, CONTEXT> EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT> of(//
-			STATE defaultState, //
-			Supplier<STATE[]> statesSupplier, //
-			Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
-			WithDifferentStates.Simulator<STATE, CONTEXT> simulator, //
-			WithDifferentStates.PostProcessor<STATE> postProcessor) {
-		return new EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT>(defaultState, statesSupplier,
-				contextFunction, simulator, postProcessor);
-	}
-
-	/**
-	 * Creates an {@link EnergyScheduleHandler} for a {@link Controller} with only a
-	 * single state.
-	 * 
-	 * @param <CONTEXT>       the type of the Context
-	 * @param contextFunction a {@link Function} to create a Context
-	 * @param simulator       a simulator that modifies a given {@link EnergyFlow}
-	 * @return an {@link EnergyScheduleHandler}
-	 */
-	public static <CONTEXT> EnergyScheduleHandler.WithOnlyOneState<CONTEXT> of(//
-			Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
-			WithOnlyOneState.Simulator<CONTEXT> simulator) {
-		return new EnergyScheduleHandler.WithOnlyOneState<CONTEXT>(contextFunction, simulator);
-	}
-
-	/**
 	 * Triggers Rescheduling by the Energy Scheduler.
+	 * 
+	 * @param reason a reason
 	 */
-	public void triggerReschedule();
+	public void triggerReschedule(String reason);
 
 	public abstract static sealed class AbstractEnergyScheduleHandler<CONTEXT> implements EnergyScheduleHandler {
 
@@ -94,7 +38,7 @@ public sealed interface EnergyScheduleHandler {
 
 		protected Clock clock;
 		protected CONTEXT context;
-		private Runnable onRescheduleCallback;
+		private Consumer<String> onRescheduleCallback;
 
 		public AbstractEnergyScheduleHandler(Function<GlobalSimulationsContext, CONTEXT> contextFunction) {
 			this.contextFunction = contextFunction;
@@ -116,9 +60,9 @@ public sealed interface EnergyScheduleHandler {
 		/**
 		 * This method sets the callback for events that require Rescheduling.
 		 * 
-		 * @param callback the {@link Runnable} callback
+		 * @param callback the {@link Consumer} callback with a reason
 		 */
-		public synchronized void setOnRescheduleCallback(Runnable callback) {
+		public synchronized void setOnRescheduleCallback(Consumer<String> callback) {
 			this.onRescheduleCallback = callback;
 		}
 
@@ -130,10 +74,10 @@ public sealed interface EnergyScheduleHandler {
 		}
 
 		@Override
-		public void triggerReschedule() {
+		public void triggerReschedule(String reason) {
 			var onRescheduleCallback = this.onRescheduleCallback;
 			if (onRescheduleCallback != null) {
-				onRescheduleCallback.run();
+				onRescheduleCallback.accept(reason);
 			}
 		}
 
@@ -155,6 +99,110 @@ public sealed interface EnergyScheduleHandler {
 
 	public static final class WithDifferentStates<STATE, CONTEXT> extends AbstractEnergyScheduleHandler<CONTEXT> {
 
+		public static final class Builder<STATE, CONTEXT> {
+
+			private STATE defaultState;
+			private Supplier<STATE[]> availableStatesSupplier;
+			private Function<GlobalSimulationsContext, CONTEXT> contextFunction;
+			private Function<GlobalSimulationsContext, List<InitialPopulation<STATE>>> initialPopulationsFunction = gsc -> List
+					.of();
+			private WithDifferentStates.Simulator<STATE, CONTEXT> simulator;
+			private WithDifferentStates.PostProcessor<STATE, CONTEXT> postProcessor = PostProcessor.doNothing();
+
+			/**
+			 * Sets the default State if no other is explicitly scheduled.
+			 * 
+			 * @param state a state
+			 * @return myself
+			 */
+			public Builder<STATE, CONTEXT> setDefaultState(STATE state) {
+				this.defaultState = state;
+				return this;
+			}
+
+			/**
+			 * Sets a {@link Function} to create a {@link GlobalSimulationsContext}.
+			 * 
+			 * @param contextFunction the context function
+			 * @return myself
+			 */
+			public Builder<STATE, CONTEXT> setContextFunction(
+					Function<GlobalSimulationsContext, CONTEXT> contextFunction) {
+				this.contextFunction = contextFunction;
+				return this;
+			}
+
+			/**
+			 * Sets a {@link Function} to provide {@link InitialPopulation}s.
+			 * 
+			 * @param initialPopulationsFunction the function
+			 * @return myself
+			 */
+			public Builder<STATE, CONTEXT> setInitialPopulationsFunction(
+					Function<GlobalSimulationsContext, List<InitialPopulation<STATE>>> initialPopulationsFunction) {
+				this.initialPopulationsFunction = initialPopulationsFunction;
+				return this;
+			}
+
+			/**
+			 * Sets a {@link Supplier} for available States.
+			 * 
+			 * @param supplier a states supplier
+			 * @return myself
+			 */
+			public Builder<STATE, CONTEXT> setAvailableStates(Supplier<STATE[]> supplier) {
+				this.availableStatesSupplier = supplier;
+				return this;
+			}
+
+			/**
+			 * Sets a {@link WithDifferentStates.Simulator} that modifies a given
+			 * {@link EnergyFlow}.
+			 * 
+			 * @param simulator a simulator
+			 * @return myself
+			 */
+			public Builder<STATE, CONTEXT> setSimulator(WithDifferentStates.Simulator<STATE, CONTEXT> simulator) {
+				this.simulator = simulator;
+				return this;
+			}
+
+			/**
+			 * Sets a {@link PostProcessor}.
+			 * 
+			 * @param postProcessor a {@link PostProcessor}
+			 * @return myself
+			 */
+			public Builder<STATE, CONTEXT> setPostProcessor(
+					WithDifferentStates.PostProcessor<STATE, CONTEXT> postProcessor) {
+				this.postProcessor = postProcessor;
+				return this;
+			}
+
+			/**
+			 * Builds the {@link EnergyScheduleHandler.WithDifferentStates} instance.
+			 *
+			 * @return a {@link EnergyScheduleHandler.WithDifferentStates}
+			 */
+			public WithDifferentStates<STATE, CONTEXT> build() {
+				return new EnergyScheduleHandler.WithDifferentStates<STATE, CONTEXT>(this.defaultState,
+						this.availableStatesSupplier, this.contextFunction, this.initialPopulationsFunction,
+						this.simulator, this.postProcessor);
+			}
+		}
+
+		/**
+		 * Create a {@link EnergyScheduleHandler.WithDifferentStates} for a
+		 * {@link Controller} with different states that can be evaluated.
+		 *
+		 * @param <STATE>   the type of the State
+		 * @param <CONTEXT> the type of the Context
+		 * @return a {@link Builder}
+		 */
+		public static <STATE, CONTEXT> Builder<STATE, CONTEXT> create() {
+			return new Builder<STATE, CONTEXT>();
+		}
+
 		public static interface Simulator<STATE, CONTEXT> {
 			/**
 			 * Simulates a Period.
@@ -164,21 +212,23 @@ public sealed interface EnergyScheduleHandler {
 			 * @param model   the {@link EnergyFlow.Model}
 			 * @param context the Controller Context
 			 * @param state   the simulated State
+			 * @return additional cost to be considered by the cost function
 			 */
-			public void simulate(OneSimulationContext osc, GlobalSimulationsContext.Period period,
+			public double simulate(OneSimulationContext osc, GlobalSimulationsContext.Period period,
 					EnergyFlow.Model model, CONTEXT context, STATE state);
 		}
 
-		public static interface PostProcessor<STATE> {
+		public static interface PostProcessor<STATE, CONTEXT> {
 
 			/**
 			 * A 'do-nothing' {@link PostProcessor}.
 			 * 
-			 * @param <STATE> the type of the State
+			 * @param <STATE>   the type of the State
+			 * @param <CONTEXT> the type of the Context
 			 * @return the same State
 			 */
-			public static <STATE> PostProcessor<STATE> doNothing() {
-				return (energyFlow, state) -> state;
+			public static <STATE, CONTEXT> PostProcessor<STATE, CONTEXT> doNothing() {
+				return (osc, energyFlow, context, state) -> state;
 			}
 
 			/**
@@ -189,17 +239,20 @@ public sealed interface EnergyScheduleHandler {
 			 * NOTE: heavy computation is ok here, because this method is called only at the
 			 * end with the best Schedule.
 			 * 
+			 * @param osc        the {@link OneSimulationContext}
 			 * @param energyFlow the {@link EnergyFlow}
+			 * @param context    the Controller Context
 			 * @param state      the initial state
 			 * @return the new state
 			 */
-			public STATE postProcess(EnergyFlow energyFlow, STATE state);
+			public STATE postProcess(OneSimulationContext osc, EnergyFlow energyFlow, CONTEXT context, STATE state);
 		}
 
 		private final STATE defaultState;
 		private final Supplier<STATE[]> availableStatesSupplier;
+		private final Function<GlobalSimulationsContext, List<InitialPopulation<STATE>>> initialPopulationsFunction;
 		private final Simulator<STATE, CONTEXT> simulator;
-		private final WithDifferentStates.PostProcessor<STATE> postProcessor;
+		private final WithDifferentStates.PostProcessor<STATE, CONTEXT> postProcessor;
 		private final SortedMap<ZonedDateTime, Period<STATE, CONTEXT>> schedule = new TreeMap<>();
 
 		private STATE[] availableStates;
@@ -208,11 +261,13 @@ public sealed interface EnergyScheduleHandler {
 				STATE defaultState, //
 				Supplier<STATE[]> availableStatesSupplier, //
 				Function<GlobalSimulationsContext, CONTEXT> contextFunction, //
+				Function<GlobalSimulationsContext, List<InitialPopulation<STATE>>> initialPopulationsFunction, //
 				Simulator<STATE, CONTEXT> simulator, //
-				WithDifferentStates.PostProcessor<STATE> postProcessor) {
+				WithDifferentStates.PostProcessor<STATE, CONTEXT> postProcessor) {
 			super(contextFunction);
 			this.defaultState = defaultState;
 			this.availableStatesSupplier = availableStatesSupplier;
+			this.initialPopulationsFunction = initialPopulationsFunction;
 			this.simulator = simulator;
 			this.postProcessor = postProcessor;
 		}
@@ -221,6 +276,32 @@ public sealed interface EnergyScheduleHandler {
 		public void initialize(GlobalSimulationsContext asc) {
 			super.initialize(asc);
 			this.availableStates = this.availableStatesSupplier.get();
+		}
+
+		public static record InitialPopulation<STATE>(List<ZonedDateTime> periods, STATE state) {
+
+			/**
+			 * Creates a {@link InitialPopulation} record.
+			 * 
+			 * @param <STATE> the type of the State
+			 * @param periods a List of {@link ZonedDateTime}s
+			 * @param state   the state
+			 * @return a {@link InitialPopulation} record
+			 */
+			public static <STATE> InitialPopulation<STATE> of(List<ZonedDateTime> periods, STATE state) {
+				return new InitialPopulation<STATE>(periods, state);
+			}
+		}
+
+		/**
+		 * Generates {@link InitialPopulation}s for this
+		 * {@link EnergyScheduleHandler.WithDifferentStates}.
+		 * 
+		 * @param gsc the {@link GlobalSimulationsContext}
+		 * @return a List of {@link InitialPopulation}s
+		 */
+		public List<InitialPopulation<STATE>> getInitialPopulations(GlobalSimulationsContext gsc) {
+			return this.initialPopulationsFunction.apply(gsc);
 		}
 
 		/**
@@ -265,10 +346,11 @@ public sealed interface EnergyScheduleHandler {
 		 * @param period     the simulated {@link GlobalSimulationsContext.Period}
 		 * @param model      the {@link EnergyFlow.Model}
 		 * @param stateIndex the index of the simulated state
+		 * @return additional cost to be considered by the cost function
 		 */
-		public void simulatePeriod(OneSimulationContext osc, GlobalSimulationsContext.Period period,
+		public double simulatePeriod(OneSimulationContext osc, GlobalSimulationsContext.Period period,
 				EnergyFlow.Model model, int stateIndex) {
-			this.simulator.simulate(osc, period, model, this.context, this.availableStates[stateIndex]);
+			return this.simulator.simulate(osc, period, model, this.context, this.availableStates[stateIndex]);
 		}
 
 		/**
@@ -286,7 +368,8 @@ public sealed interface EnergyScheduleHandler {
 		 */
 		public int postProcessPeriod(GlobalSimulationsContext.Period period, OneSimulationContext osc,
 				EnergyFlow energyFlow, int stateIndex) {
-			return this.getStateIndex(this.postProcessor.postProcess(energyFlow, this.availableStates[stateIndex]));
+			return this.getStateIndex(
+					this.postProcessor.postProcess(osc, energyFlow, this.context, this.availableStates[stateIndex]));
 		}
 
 		public static record Period<STATE, CONTEXT>(
@@ -432,6 +515,55 @@ public sealed interface EnergyScheduleHandler {
 	}
 
 	public static final class WithOnlyOneState<CONTEXT> extends AbstractEnergyScheduleHandler<CONTEXT> {
+
+		public static final class Builder<CONTEXT> {
+
+			private Function<GlobalSimulationsContext, CONTEXT> contextFunction;
+			private WithOnlyOneState.Simulator<CONTEXT> simulator;
+
+			/**
+			 * Sets a {@link Function} to create a {@link GlobalSimulationsContext}.
+			 * 
+			 * @param contextFunction the context function
+			 * @return myself
+			 */
+			public Builder<CONTEXT> setContextFunction(Function<GlobalSimulationsContext, CONTEXT> contextFunction) {
+				this.contextFunction = contextFunction;
+				return this;
+			}
+
+			/**
+			 * Sets a {@link WithDifferentStates.Simulator} that modifies a given
+			 * {@link EnergyFlow}.
+			 * 
+			 * @param simulator a simulator
+			 * @return myself
+			 */
+			public Builder<CONTEXT> setSimulator(WithOnlyOneState.Simulator<CONTEXT> simulator) {
+				this.simulator = simulator;
+				return this;
+			}
+
+			/**
+			 * Builds the {@link EnergyScheduleHandler.WithDifferentStates} instance.
+			 *
+			 * @return a {@link EnergyScheduleHandler.WithDifferentStates}
+			 */
+			public WithOnlyOneState<CONTEXT> build() {
+				return new EnergyScheduleHandler.WithOnlyOneState<CONTEXT>(this.contextFunction, this.simulator);
+			}
+		}
+
+		/**
+		 * Create a {@link EnergyScheduleHandler.WithOnlyOneState} for a
+		 * {@link Controller} with only a single state.
+		 *
+		 * @param <CONTEXT> the type of the Context
+		 * @return a {@link Builder}
+		 */
+		public static <CONTEXT> Builder<CONTEXT> create() {
+			return new Builder<CONTEXT>();
+		}
 
 		public static interface Simulator<CONTEXT> {
 			/**

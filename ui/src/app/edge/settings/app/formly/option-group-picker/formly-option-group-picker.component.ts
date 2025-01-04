@@ -6,6 +6,7 @@ import { Option, OptionGroup, OptionGroupConfig, getTitleFromOptionConfig } from
 @Component({
     selector: "formly-option-group-picker",
     templateUrl: "./formly-option-group-picker.component.html",
+    standalone: false,
 })
 export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig> implements OnInit {
 

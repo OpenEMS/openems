@@ -349,23 +349,9 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 					var guaranteedPower = this.getGuaranteedPower(managedEvcs);
 					var status = managedEvcs.getStatus();
 					switch (status) {
-					case CHARGING_FINISHED:
-						managedEvcs.setChargePowerLimitWithFilter(requestedPower);
-						/*
-						 * TODO: Change state from CHARGING_FINISHED to CHARGING should increase the
-						 * minimumPower. e.g. ZOE that is nearly on 100 percent, does not charge with a
-						 * set point of 13kW, but 22kW by charging with less power.
-						 */
-						break;
-					case ERROR:
-					case STARTING:
-					case UNDEFINED:
-					case NOT_READY_FOR_CHARGING:
-					case ENERGY_LIMIT_REACHED:
+					case ERROR, STARTING, UNDEFINED, NOT_READY_FOR_CHARGING, ENERGY_LIMIT_REACHED ->
 						managedEvcs.setChargePowerLimit(0);
-						break;
-					case READY_FOR_CHARGING:
-
+					case READY_FOR_CHARGING -> {
 						// Check if there is enough power for an initial charge
 						if (totalPowerLimit - initialChargePower - this.getActivePower().orElse(0) >= guaranteedPower) {
 
@@ -385,11 +371,10 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 						// Reduce the total power by the initial power to be able to send an initial
 						// charge request in the next cycles
 						totalPowerLeftMinusGuarantee -= guaranteedPower;
-						break;
-
+					}
 					// EVCS is active.
-					case CHARGING_REJECTED:
-					case CHARGING:
+					case CHARGING_REJECTED, CHARGING -> {
+
 						/*
 						 * Reduces the available power by the guaranteed power of each charging station.
 						 * Sets the minimum power depending on the guaranteed and the maximum Power.
@@ -401,7 +386,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 						} else {
 							managedEvcs.setChargePowerLimit(0);
 						}
-						break;
+					}
 					}
 				}
 			}

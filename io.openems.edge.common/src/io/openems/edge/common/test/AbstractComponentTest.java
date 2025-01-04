@@ -532,11 +532,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				final Channel<?> channel = this.getChannel(act, output);
 
 				Object got;
+				final String readWriteInfo;
 				if (channel instanceof WriteChannel wc) {
 					got = wc.getNextWriteValueAndReset().orElse(null);
+					readWriteInfo = "WriteValue";
 				} else {
 					var value = channel.getNextValue();
 					got = value.orElse(null);
+					readWriteInfo = "ReadValue";
 				}
 				// Try to parse an Enum
 				if (channel.channelDoc() instanceof EnumDoc) {
@@ -546,7 +549,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				}
 				if (!Objects.equals(output.value(), got)) {
 					throw new Exception("On TestCase [" + this.description + "]: " //
-							+ "expected [" + output.value() + "] " //
+							+ "expected " + readWriteInfo + " [" + output.value() + "] " //
 							+ "got [" + got + "] " //
 							+ "for Channel [" + output.toString() + "] " //
 							+ "on Inputs [" + this.inputs + "]");

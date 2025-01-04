@@ -1,5 +1,6 @@
-<ion-card style="cursor: pointer;">
-    <ion-item color="light" lines="full">
+<ion-card style="cursor: pointer;" class="all-edges-shadow">
+    <ion-item style="--background: var(--ion-background-color-card-header)" lines="full">
+        <!-- color="light" -->
 
         <!-- Check if img or icon is handed over. -->
         <ion-avatar *ngIf="img" slot="start" [class]="'iconify' + (img.large? ' icon-large' : '')">
@@ -15,7 +16,7 @@
         <ng-content select="[button]"></ng-content>
     </ion-item>
 
-    <ion-card-content>
+    <ion-card-content style="--background: var(--ion-color-primary)">
         <ng-content></ng-content>
     </ion-card-content>
 </ion-card>

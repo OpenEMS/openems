@@ -34,6 +34,7 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
 @Component({
   selector: SystemLogComponent.SELECTOR,
   templateUrl: "./systemlog.component.html",
+  standalone: false,
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
 

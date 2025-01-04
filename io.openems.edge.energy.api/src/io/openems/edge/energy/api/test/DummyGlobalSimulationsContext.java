@@ -1,25 +1,28 @@
 package io.openems.edge.energy.api.test;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentStates;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period;
+import io.openems.edge.evcs.api.Status;
 
 public class DummyGlobalSimulationsContext {
 
 	private DummyGlobalSimulationsContext() {
 	}
 
-	public static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
+	public static final TimeLeapClock CLOCK = createDummyClock();
 	public static final ZonedDateTime TIME = ZonedDateTime.now(CLOCK);
 
 	/**
@@ -30,11 +33,15 @@ public class DummyGlobalSimulationsContext {
 	 * @return a {@link GlobalSimulationsContext}
 	 */
 	public static GlobalSimulationsContext fromHandlers(EnergyScheduleHandler... handlers) {
+		final var eshs = Arrays.stream(handlers).collect(toImmutableList());
+
 		return new GlobalSimulationsContext(//
-				CLOCK, TIME, //
-				Arrays.stream(handlers).collect(toImmutableList()), //
+				CLOCK, RiskLevel.MEDIUM, TIME, //
+				eshs, filterEshsWithDifferentStates(eshs).collect(toImmutableList()), //
 				new GlobalSimulationsContext.Grid(4000, 20000), //
 				new GlobalSimulationsContext.Ess(5000, 22000, 4000, 4000), //
+				ImmutableMap.of(//
+						"evcs0", new GlobalSimulationsContext.Evcs(Status.CHARGING, 0)), //
 				ImmutableList.of(//
 						new Period.Quarter(time(0, 0), 0, 106, 293.70), //
 						new Period.Quarter(time(0, 15), 0, 86, 293.70), //

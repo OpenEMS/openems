@@ -1,14 +1,13 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static java.lang.Thread.sleep;
+import static java.lang.Math.max;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.random.RandomGeneratorFactory;
@@ -36,8 +35,7 @@ public final class Utils {
 	public static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
 	public static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
-	protected static final long EXECUTION_LIMIT_SECONDS_BUFFER = 30;
-	protected static final long EXECUTION_LIMIT_SECONDS_MINIMUM = 60;
+	protected static final long EXECUTION_LIMIT_SECONDS_BUFFER = 5;
 
 	/**
 	 * Initializes the Jenetics {@link RandomRegistry} for production.
@@ -82,38 +80,62 @@ public final class Utils {
 	 * This will possibly run forever and call the callbacks multiple times before
 	 * returning.
 	 * 
-	 * @param gscSupplier   a {@link Supplier} for {@link GlobalSimulationsContext}
-	 * @param interruptFlag a flag to interrupt the threads
-	 * @param simulator     a callback for a {@link Simulator}; possibly null
-	 * @param error         a callback for a error string
+	 * @param simulator   a callback for a {@link GlobalSimulationsContext};
+	 *                    possibly null
+	 * @param gscSupplier a {@link Supplier} for {@link GlobalSimulationsContext}
+	 * @param error       a callback for a error string
+	 * @throws InterruptedException on interrupted sleep
 	 */
 	public static synchronized void createSimulator(
-			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, AtomicBoolean interruptFlag,
-			Consumer<Simulator> simulator, Consumer<Supplier<String>> error) {
-		while (!interruptFlag.get()) {
-			try {
-				simulator.accept(new Simulator(gscSupplier.get()));
-				return;
+			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, Consumer<Simulator> simulator,
+			Consumer<Supplier<String>> error) throws InterruptedException {
+		final GlobalSimulationsContext gsc;
+		try {
+			// Create GlobalSimulationsContext -> this might fail a few times during
+			// initialization of OpenEMS
+			gsc = gscSupplier.get();
 
-			} catch (OpenemsException | IllegalArgumentException e) {
-				e.printStackTrace();
-
-				simulator.accept(null);
-				error.accept(() -> "Stuck trying to get GlobalSimulationsContext. " + e.getMessage());
-
-				try {
-					sleep(10_000);
-				} catch (InterruptedException e1) {
-					e.printStackTrace();
-
-					simulator.accept(null);
-					error.accept(() -> "Unable to create global simulations context: " + e1.getMessage());
-				}
-			}
+		} catch (OpenemsException | IllegalArgumentException e) {
+			simulator.accept(null);
+			error.accept(() -> "Unable to create GlobalSimulationsContext. " + e.getClass().getSimpleName() + ": "
+					+ e.getMessage());
+			Thread.sleep(10 * 1000);
+			return;
 		}
 
+		// Are there any schedulable ESHs?
+		if (gsc.eshsWithDifferentStates().size() > 0) {
+			simulator.accept(new Simulator(gsc));
+			return;
+		}
+
+		// None. Freeze till interrupt
 		simulator.accept(null);
-		error.accept(() -> "Unable to create global simulations context -> abort");
+		error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> freeze till interrupt");
+		while (true) {
+			Thread.sleep(5 * 60 * 1000);
+		}
+	}
+
+	/**
+	 * Calculates the milliseconds to sleep start of next Quarter.
+	 * 
+	 * @return sleep time in [ms]
+	 */
+	public static long calculateSleepMillis() {
+		return calculateSleepMillis(Clock.systemDefaultZone());
+	}
+
+	/**
+	 * Calculates the milliseconds to sleep start of next Quarter.
+	 * 
+	 * @param clock a {@link Clock}
+	 * @return sleep time in [ms]
+	 */
+	public static long calculateSleepMillis(Clock clock) {
+		var now = ZonedDateTime.now(clock);
+		var nextQuarter = roundDownToQuarter(now).plusMinutes(15);
+		return Duration.between(now, nextQuarter).toMillis() + 100 /* buffer */;
 	}
 
 	/**
@@ -128,18 +150,13 @@ public final class Utils {
 	/**
 	 * Calculates the ExecutionLimitSeconds for the {@link Optimizer}.
 	 * 
-	 * @param clock a clock
+	 * @param clock a {@link Clock}
 	 * @return execution limit in [s]
 	 */
 	public static long calculateExecutionLimitSeconds(Clock clock) {
 		var now = ZonedDateTime.now(clock);
 		var nextQuarter = roundDownToQuarter(now).plusMinutes(15).minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
-		var duration = Duration.between(now, nextQuarter).getSeconds();
-		if (duration >= EXECUTION_LIMIT_SECONDS_MINIMUM) {
-			return duration;
-		}
-		// Otherwise add 15 more minutes
-		return Duration.between(now, nextQuarter.plusMinutes(15)).getSeconds();
+		return max(0, Duration.between(now, nextQuarter).getSeconds());
 	}
 
 	/**

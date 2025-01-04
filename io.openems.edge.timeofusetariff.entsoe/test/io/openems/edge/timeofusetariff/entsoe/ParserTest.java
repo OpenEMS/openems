@@ -1,12 +1,17 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.timeofusetariff.entsoe.Utils.getDuration;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collections;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableTable;
 
 import io.openems.edge.common.currency.Currency;
 
@@ -783,17 +788,43 @@ public class ParserTest {
 	@Test
 	public void testParsePrices() throws Exception {
 		var currencyExchangeValue = 1.0;
-		var prices = parsePrices(XML, currencyExchangeValue);
+
+		// Quarterly resolution.
+		var preferredResolution = Resolution.QUARTERLY;
+		var prices = parsePrices(XML, currencyExchangeValue, preferredResolution);
+		var startTime = prices.getFirstTime();
 		assertEquals(109.93, prices.getFirst(), 0.001);
-		var lastKey = Collections.max(prices.pricePerQuarter.keySet());
-		assertEquals(65.07, prices.pricePerQuarter.get(lastKey), 0.001);
+
+		var secondPrice = prices.getAt(startTime.plusMinutes(15));
+		assertEquals(85.84, secondPrice, 0.001);
+
+		var thirdPrice = prices.getAt(startTime.plusMinutes(30));
+		assertEquals(65.09, thirdPrice, 0.001);
+
+		// Last price
+		assertEquals(65.07, prices.getAt(prices.getLastTime()), 0.001);
+
+		// Hourly resolution.
+		preferredResolution = Resolution.HOURLY;
+		prices = parsePrices(XML, currencyExchangeValue, preferredResolution);
+		assertEquals(84.15, prices.getFirst(), 0.001);
+
+		secondPrice = prices.getAt(startTime.plusMinutes(15));
+		assertEquals(84.15, secondPrice, 0.001);
+
+		thirdPrice = prices.getAt(startTime.plusMinutes(60));
+		assertEquals(74.3, thirdPrice, 0.001);
+
+		// Last price
+		assertEquals(86.53, prices.getAt(prices.getLastTime()), 0.001);
 	}
 
 	@Test
 	public void testParsePrices2() throws Exception {
 		var currencyExchangeValue = 1.0;
-		var prices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, currencyExchangeValue);
-		assertEquals(192, prices.pricePerQuarter.size());
+		var preferredResolution = Resolution.QUARTERLY;
+		var prices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, currencyExchangeValue, preferredResolution);
+		assertEquals(192, prices.asArray().length);
 		var array = prices.asArray();
 		assertEquals(array[96], array[97], 0.001); // Missing value check
 		assertEquals(array[0], 0, 0.001); // Making sure that Periods are sorted before prices are stored.
@@ -803,5 +834,44 @@ public class ParserTest {
 	public void testParseCurrency() throws Exception {
 		var res = parseCurrency(XML);
 		assertEquals(res, Currency.EUR.toString());
+	}
+
+	@Test
+	public void testPreferredResolutionExists() {
+		final var clock = createDummyClock();
+		// Create sample data
+		var table = ImmutableTable.<Duration, ZonedDateTime, Double>builder()
+				.put(Duration.ofMinutes(15), ZonedDateTime.now(clock), 100.0)
+				.put(Duration.ofMinutes(15), ZonedDateTime.now(clock).plusMinutes(15), 200.0)
+				.put(Duration.ofMinutes(60), ZonedDateTime.now(clock), 300.0) //
+				.build();
+
+		// Preferred resolution
+		Resolution preferredResolution = Resolution.QUARTERLY;
+
+		// Call the method
+		Duration result = getDuration(table, preferredResolution);
+
+		// Assert
+		assertEquals("The preferred resolution should match.", Duration.ofMinutes(15), result);
+	}
+
+	@Test
+	public void testPreferredResolutionDoesNotExist() {
+		// Create sample data
+		ImmutableTable<Duration, ZonedDateTime, Double> table = ImmutableTable
+				.<Duration, ZonedDateTime, Double>builder().put(Duration.ofMinutes(15), ZonedDateTime.now(), 100.0)
+				.put(Duration.ofMinutes(15), ZonedDateTime.now().plusMinutes(15), 200.0)
+				.put(Duration.ofMinutes(15), ZonedDateTime.now().plusMinutes(30), 300.0).build();
+
+		// Preferred resolution that does not exist
+		Resolution preferredResolution = Resolution.HOURLY;
+
+		// Call the method
+		Duration result = getDuration(table, preferredResolution);
+
+		// Assert
+		assertEquals("The shortest duration should be returned when preferred is unavailable.", Duration.ofMinutes(15),
+				result);
 	}
 }

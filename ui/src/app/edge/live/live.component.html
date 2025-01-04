@@ -1,9 +1,8 @@
-<ion-content>
+<oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
   <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
-
-  <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
+  <ion-grid *ngIf="edge && edge.isOnline">
     <ion-row class="ion-justify-content-center" *ngIf="widgets">
       <!-- Energymonitor -->
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
@@ -102,7 +101,8 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <Controller_Symmetric_PeakShaving [componentId]="widget.componentId"></Controller_Symmetric_PeakShaving>
+                <Controller_Symmetric_PeakShaving [componentId]="widget.componentId">
+                </Controller_Symmetric_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
@@ -159,8 +159,9 @@
   <ion-grid *ngIf="edge && !edge.isOnline">
     <ion-row class="ion-justify-content-center">
       <ion-col size-xl="8" size-lg="10" size-md="11" size-sm="12">
-        <offline></offline>
+        <oe-offline></oe-offline>
       </ion-col>
     </ion-row>
   </ion-grid>
-</ion-content>
+
+</oe-refresh-view>

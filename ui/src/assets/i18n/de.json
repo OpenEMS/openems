@@ -254,7 +254,14 @@
           },
           "OVERALL_SYSTEM": "Gesamtsystem"
         },
-        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller"
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
+          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
+        }
       },
       "RETROFITTING": {
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
@@ -402,6 +409,7 @@
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
+        "DELETE_CONFIRM": "entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
         "errorCompatible": "Kompatibilitäts fehler",
@@ -431,7 +439,9 @@
         "successUpdate": "App erfolgreich aktualisiert",
         "failUpdate": "Fehler während der Aktualisierung: {{error}}",
         "successDelete": "App erfolgreich entfernt",
-        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}"
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
+        "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
       }
     },
     "Service": {
@@ -575,6 +585,17 @@
     },
     "CHARGE": "Beladung",
     "DISCHARGE": "Entladung"
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+      "MORE_INFO": "mehr Infos",
+      "EMS_OFFLINE": "{{edgeShortName}} ist offline"
+    }
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
@@ -860,7 +881,16 @@
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
-    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Dimmung nach §14a EnWG",
+      "IS_ACTIVATE": "Möglichkeit der Dimmung nach §14a EnWG aktivieren",
+      "INFO_NOTE": "Um eine Überlastung des Netzes zu vermeiden, erhält der Netzbetreiber bei allen, seit dem 01.01.2024 installierten Verbrauchseinrichtungen, zukünftig die Möglichkeit, diese auf eine Netzbezugsleistung des Stromspeichers von 4,2 kW zu dimmen.",
+      "IS_ACTIVATE_LABEL": "Die Verdrahtung ist entsprechend der Montageanleitung anzubringen."
+    }
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
   },
   "LOADING_SCREEN": {
     "LOADING": "Wird geladen",

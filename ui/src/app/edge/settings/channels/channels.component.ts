@@ -14,6 +14,7 @@ import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } 
 @Component({
   selector: ChannelsComponent.SELECTOR,
   templateUrl: "./channels.component.html",
+  standalone: false,
 })
 export class ChannelsComponent {
 

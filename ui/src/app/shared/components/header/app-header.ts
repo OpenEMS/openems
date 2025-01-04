@@ -13,6 +13,7 @@ import { StatusSingleComponent } from "../status/single/status.component";
 @Component({
     selector: "app-header",
     templateUrl: "./header.component.html",
+    standalone: false,
 })
 export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 

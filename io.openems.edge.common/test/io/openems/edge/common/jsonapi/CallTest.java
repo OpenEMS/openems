@@ -43,7 +43,7 @@ public class CallTest {
 		class DummyRequestClass {
 
 		}
-		
+
 		final var dummyRequest = new DummyRequestClass();
 		final var newCall = call.mapRequest(dummyRequest);
 
@@ -58,7 +58,7 @@ public class CallTest {
 		class DummyResponseClass {
 
 		}
-		
+
 		final var mappedCall = call.<DummyResponseClass>mapResponse();
 
 		final var originalResponse = new GenericJsonrpcResponseSuccess(call.getRequest().getId());

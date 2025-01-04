@@ -96,7 +96,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the value of a Register.
+	 * Sets the value of a FC3HoldingRegister.
 	 * 
 	 * @param address the Register address
 	 * @param b1      first byte
@@ -108,7 +108,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the value of a Register.
+	 * Sets the value of a FC3HoldingRegister.
 	 * 
 	 * @param address the Register address
 	 * @param value   the value
@@ -119,7 +119,30 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the values of Registers.
+	 * Sets the value of a FC4InputRegister.
+	 * 
+	 * @param address the Register address
+	 * @param value   the value
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegister(int address, int value) {
+		return this.withProcessImage(pi -> pi.addInputRegister(address, new SimpleRegister(value)));
+	}
+
+	/**
+	 * Sets the value of a FC4InputRegister.
+	 * 
+	 * @param address the Register address
+	 * @param b1      first byte
+	 * @param b2      second byte
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegister(int address, byte b1, byte b2) {
+		return this.withProcessImage(pi -> pi.addInputRegister(address, new SimpleRegister(b1, b2)));
+	}
+
+	/**
+	 * Sets the values of FC3HoldingRegisters.
 	 * 
 	 * @param startAddress the start Register address
 	 * @param values       the values
@@ -133,7 +156,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the values of Registers.
+	 * Sets the values of FC3HoldingRegisters.
 	 * 
 	 * @param startAddress the start Register address
 	 * @param values       the values
@@ -143,6 +166,36 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		for (var a : values) {
 			for (var b : a) {
 				this.withRegister(startAddress++, b);
+			}
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the values of FC4InputRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegisters(int startAddress, int... values) {
+		for (var value : values) {
+			this.withInputRegister(startAddress++, value);
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the values of FC4InputRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegisters(int startAddress, int[]... values) {
+		for (var a : values) {
+			for (var b : a) {
+				this.withInputRegister(startAddress++, b);
 			}
 		}
 		return this;

@@ -2,7 +2,8 @@
 import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { CurrentData , ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
 import { StorageModalComponent } from "./modal/modal.component";
@@ -10,6 +11,7 @@ import { StorageModalComponent } from "./modal/modal.component";
 @Component({
     selector: "storage",
     templateUrl: "./storage.component.html",
+    standalone: false,
 })
 export class StorageComponent extends AbstractFlatWidget {
 
@@ -50,6 +52,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         if (value == null) {
             return "-";
         }
@@ -58,7 +61,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         // Round thisValue to Integer when decimal place equals 0
         if (thisValue > 0) {
-            return formatNumber(thisValue, "de", "1.0-1") + " kW"; // TODO get locale dynamically
+            return formatNumber(thisValue, locale, "1.0-1") + " kW";
 
         } else if (thisValue == 0 && isCharge) {
             // if thisValue is 0, then show only when charge and not discharge
@@ -74,11 +77,7 @@ export class StorageComponent extends AbstractFlatWidget {
             component: StorageModalComponent,
             componentProps: {
                 edge: this.edge,
-                config: this.config,
                 component: this.component,
-                essComponents: this.essComponents,
-                chargerComponents: this.chargerComponents,
-                singleComponent: this.component,
             },
         });
         return await modal.present();

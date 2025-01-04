@@ -36,6 +36,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.host.DummyHost;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentContext;
@@ -74,6 +75,7 @@ public class AppManagerTestBundle {
 	public final ComponentManager componentManger;
 	public final ComponentUtil componentUtil;
 	public final Validator validator;
+	public final DummyHost host = new DummyHost();
 
 	public final DummyAppManagerAppHelper appHelper;
 	public final AppManagerImpl sut;

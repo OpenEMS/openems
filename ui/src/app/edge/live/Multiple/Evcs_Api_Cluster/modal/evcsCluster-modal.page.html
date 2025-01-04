@@ -1,6 +1,7 @@
 <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
     <ion-header>
-        <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-toolbar class="ion-justify-content-center"
+            style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
             <ion-title>
                 <ion-label *ngIf="config.properties.alias as alias">
                     {{ alias }}

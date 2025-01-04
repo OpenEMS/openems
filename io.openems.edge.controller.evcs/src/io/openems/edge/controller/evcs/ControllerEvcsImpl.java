@@ -1,9 +1,17 @@
 package io.openems.edge.controller.evcs;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.edge.controller.evcs.Utils.FORCE_CHARGE_POWER;
+import static io.openems.edge.controller.evcs.Utils.MIN_CHARGE_POWER;
+import static io.openems.edge.controller.evcs.Utils.buildEshManual;
+import static io.openems.edge.controller.evcs.Utils.buildEshSmart;
+import static java.lang.Math.max;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.BiConsumer;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -21,15 +29,26 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.evcs.Utils.EshContext.EshManualContext;
+import io.openems.edge.controller.evcs.Utils.EshContext.EshSmartContext;
+import io.openems.edge.controller.evcs.jsonrpc.GetScheduleRequest;
+import io.openems.edge.controller.evcs.jsonrpc.GetScheduleResponse;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
 import io.openems.edge.evcs.api.ChargeMode;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -37,7 +56,8 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
+public class ControllerEvcsImpl extends AbstractOpenemsComponent
+		implements Controller, ControllerEvcs, EnergySchedulable, OpenemsComponent, ModbusSlave, ComponentJsonApi {
 
 	private static final int CHARGE_POWER_BUFFER = 200;
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
@@ -45,6 +65,9 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	private final Logger log = LoggerFactory.getLogger(ControllerEvcsImpl.class);
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 	private final Clock clock;
+
+	private EnergyScheduleHandler energyScheduleHandler;
+	private BiConsumer<Value<Status>, Value<Status>> onEvcsStatusChange;
 
 	// Time of last charge power change, used for the hysteresis
 	private Instant lastInitialCharge = Instant.MIN;
@@ -94,17 +117,29 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		}
 
 		this.config = config;
+
+		this.energyScheduleHandler = config.smartMode() //
+				? buildEshSmart(() -> EshSmartContext.fromConfig(this.config)) //
+				: buildEshManual(() -> EshManualContext.fromConfig(this.config));
+		this.onEvcsStatusChange = (oldStatus, newStatus) -> {
+			// Trigger Reschedule on Status change
+			this.energyScheduleHandler
+					.triggerReschedule("ControllerEvcsImpl::onEvcsStatusChange from " + oldStatus + " to " + newStatus);
+		};
+
 		this.evcs._setChargeMode(config.chargeMode());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
 		}
 		this.evcs._setMaximumPower(null);
+		this.evcs.getStatusChannel().onChange(this.onEvcsStatusChange);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		this.evcs.getStatusChannel().removeOnChangeCallback(this.onEvcsStatusChange);
 		super.deactivate();
 	}
 
@@ -114,6 +149,11 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
+		if (this.evcs.isReadOnly()) {
+			this.setEvcsIsReadOnlyChannel(true);
+			return;
+		}
+		this.setEvcsIsReadOnlyChannel(false);
 
 		final var isClustered = this.evcs.getIsClustered().orElse(false);
 
@@ -145,21 +185,44 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				this.resetMinMaxChannels();
 				return;
 			}
-			case CHARGING_REJECTED, READY_FOR_CHARGING, CHARGING_FINISHED -> {
-				this.evcs._setMaximumPower(null);
-			}
-			case CHARGING -> {
-			}
+			case CHARGING_REJECTED, READY_FOR_CHARGING //
+				-> this.evcs._setMaximumPower(null);
+			case CHARGING //
+				-> doNothing();
 			}
 		}
+
+		// Read parameters from Config or scheduled Period
+		final SmartMode smartMode;
+		final ChargeMode chargeMode;
+		final Priority priority;
+		final int forceChargePower;
+		final int defaultChargeMinPower;
+		var p = getCurrentPeriod(this.energyScheduleHandler);
+		if (p != null) {
+			this.logInfo(this.log, "ESH: " + p);
+			smartMode = p.state();
+			chargeMode = p.state().chargeMode;
+			priority = p.state().priority;
+			forceChargePower = FORCE_CHARGE_POWER;
+			defaultChargeMinPower = MIN_CHARGE_POWER;
+		} else {
+			smartMode = null;
+			chargeMode = this.config.chargeMode();
+			priority = this.config.priority();
+			forceChargePower = this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+			defaultChargeMinPower = this.config.defaultChargeMinPower();
+		}
+		this.channel(ControllerEvcs.ChannelId.SMART_MODE).setNextValue(smartMode);
 
 		/*
 		 * Calculates the next charging power depending on the charge mode and priority
 		 */
-		var nextChargePower = //
-				switch (this.config.chargeMode()) {
+		var nextChargePower = chargeMode == null //
+				? 0 //
+				: switch (chargeMode) {
 				case EXCESS_POWER -> //
-					switch (this.config.priority()) {
+					switch (priority) {
 					case CAR -> calculateChargePowerFromExcessPower(this.sum, this.evcs);
 					case STORAGE -> {
 						// SoC > 97 % or always, when there is no ESS is available
@@ -170,17 +233,18 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 						}
 					}
 					};
-				case FORCE_CHARGE -> this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+				case FORCE_CHARGE -> forceChargePower;
 				};
 
-		var nextMinPower = //
-				switch (this.config.chargeMode()) {
-				case EXCESS_POWER -> this.config.defaultChargeMinPower();
+		var nextMinPower = chargeMode == null //
+				? 0 //
+				: switch (chargeMode) {
+				case EXCESS_POWER -> defaultChargeMinPower;
 				case FORCE_CHARGE -> 0;
 				};
 		this.evcs._setMinimumPower(nextMinPower);
 
-		nextChargePower = Math.max(nextChargePower, nextMinPower);
+		nextChargePower = max(nextChargePower, nextMinPower);
 
 		// Charging under minimum hardware power isn't possible
 		var minimumHardwarePower = this.evcs.getMinimumHardwarePower().orElse(0);
@@ -220,7 +284,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 			}
 		}
 
-		if (this.config.chargeMode().equals(ChargeMode.EXCESS_POWER)) {
+		if (chargeMode == ChargeMode.EXCESS_POWER) {
 			// Apply hysteresis
 			nextChargePower = this.applyHysteresis(nextChargePower);
 		}
@@ -421,5 +485,34 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetScheduleRequest.METHOD, call -> GetScheduleResponse.from(call.getRequest().getId(), //
+				this.energyScheduleHandler));
+	}
+
+	@Override
+	public String debugLog() {
+		var p = getCurrentPeriod(this.energyScheduleHandler);
+		if (p == null) {
+			return null;
+		}
+		return p.state().name();
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
+	}
+
+	private static Period<SmartMode, ?> getCurrentPeriod(EnergyScheduleHandler esh) {
+		if (esh == null || esh instanceof EnergyScheduleHandler.WithOnlyOneState<?>) {
+			return null;
+		}
+		@SuppressWarnings("unchecked")
+		var e = (EnergyScheduleHandler.WithDifferentStates<SmartMode, ?>) esh;
+		return e.getCurrentPeriod();
 	}
 }

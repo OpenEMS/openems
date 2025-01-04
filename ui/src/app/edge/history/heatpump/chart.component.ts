@@ -3,15 +3,18 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis } from "src/app/shared/service/utils";
 
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { ChannelAddress, EdgeConfig, Service } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
     selector: "heatpumpchart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -76,8 +79,8 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     hidden: false,
                 });
                 this.colors.push({
-                    backgroundColor: "rgba(200,0,0,0.05)",
-                    borderColor: "rgba(200,0,0,1)",
+                    backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.05),
+                    borderColor: ChartConstants.Colors.RED,
                 });
             }
             this.datasets = datasets;

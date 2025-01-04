@@ -16,18 +16,18 @@ import io.openems.edge.controller.api.common.Status;
 public interface ControllerApiModbusTcpReadWrite extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		
+
 		OVERRIDE_STATUS(Doc.of(Status.values()) //
 				.persistencePriority(PersistencePriority.HIGH)), //
-		
+
 		CUMULATED_ACTIVE_TIME(Doc.of(LONG)//
 				.unit(CUMULATED_SECONDS) //
 				.persistencePriority(HIGH)), //
-		
+
 		CUMULATED_INACTIVE_TIME(Doc.of(LONG)//
 				.unit(CUMULATED_SECONDS) //
 				.persistencePriority(HIGH)), //
-		
+
 		API_WORKER_LOG(Doc.of(OpenemsType.STRING) //
 				.text("Logs Write-Commands via ApiWorker")); //
 
@@ -71,7 +71,8 @@ public interface ControllerApiModbusTcpReadWrite extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#OVERRIDE_STATUS} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#OVERRIDE_STATUS}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */

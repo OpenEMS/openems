@@ -1,5 +1,7 @@
 package io.openems.common.oem;
 
+import io.openems.common.types.Tuple;
+
 public interface OpenemsEdgeOem {
 
 	// NOTE: Following values are adopted from SunSpec "Common Model"
@@ -130,6 +132,22 @@ public interface OpenemsEdgeOem {
 	 * @return the value
 	 */
 	public default String getEntsoeToken() {
+		return null;
+	}
+
+	public record OAuthClientRegistration(String clientId, String clientSecret) {
+	}
+
+	public default OAuthClientRegistration getRabotChargeCredentials() {
+		return null;
+	}
+
+	/**
+	 * Gets the OEM authorization for Battery.BMW.
+	 * 
+	 * @return the value
+	 */
+	public default Tuple<String, String> getBmwBatteryAuth() {
 		return null;
 	}
 

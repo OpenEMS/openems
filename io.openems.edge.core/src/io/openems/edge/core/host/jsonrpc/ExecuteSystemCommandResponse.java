@@ -13,8 +13,6 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemComma
 /**
  * JSON-RPC Response to {@link ExecuteSystemCommandRequest}.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

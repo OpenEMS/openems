@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
-import java.net.URL;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -122,7 +122,7 @@ public class ReadWorker extends AbstractCycleWorker {
 	 */
 	private JsonObject getResponse(String path) throws OpenemsNamedException {
 		try {
-			var url = new URL(this.baseUrl + path);
+			var url = URI.create(this.baseUrl + path).toURL();
 			var connection = (HttpsURLConnection) url.openConnection();
 			connection.setHostnameVerifier((hostname, session) -> true);
 			try (var reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
