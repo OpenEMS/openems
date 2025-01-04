@@ -93,4 +93,59 @@ public class DummySum extends AbstractDummyOpenemsComponent<DummySum> implements
 		return this.self();
 	}
 
+	/**
+	 * Set {@link Sum.ChannelId#GRID_BUY_ACTIVE_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withGridBuyActiveEnergy(long value) {
+		withValue(this, Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#GRID_SELL_ACTIVE_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withGridSellActiveEnergy(long value) {
+		withValue(this, Sum.ChannelId.GRID_SELL_ACTIVE_ENERGY, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#ESS_ACTIVE_CHARGE_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssActiveChargeEnergy(long value) {
+		withValue(this, Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#ESS_ACTIVE_DISCHARGE_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssActiveDischargeEnergy(long value) {
+		withValue(this, Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#CONSUMPTION_ACTIVE_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withConsumptionActiveEnergy(long value) {
+		withValue(this, Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY, value);
+		return this.self();
+	}
+
 }
