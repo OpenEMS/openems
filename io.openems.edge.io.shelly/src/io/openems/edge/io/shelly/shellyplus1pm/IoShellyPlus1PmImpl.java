@@ -123,7 +123,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
+		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
 	}
 
 	@Override
