@@ -1,7 +1,6 @@
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { SumState } from "src/app/index/shared/sumState";
-
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
 import { Language } from "../../type/language";
@@ -11,12 +10,12 @@ import { DefaultTypes } from "../defaulttypes";
 
 export class DummyService extends AbstractService {
 
-    private readonly edge = new Edge("edge0", "comment", "productype"
+    public readonly edge = new Edge("edge0", "comment", "productype"
         , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date());
 
-    private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
-
     public currentEdge: BehaviorSubject<Edge> = new BehaviorSubject(this.edge);
+
+    private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
 
     setLang(id: Language) {
         throw new Error("Method not implemented.");
@@ -62,6 +61,8 @@ export class DummyService extends AbstractService {
     isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
+    // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     override handleError(error: any): void {
         throw new Error("Method not implemented.");
     }

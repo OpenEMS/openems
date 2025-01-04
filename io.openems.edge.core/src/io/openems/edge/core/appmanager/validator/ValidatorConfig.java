@@ -74,6 +74,17 @@ public class ValidatorConfig {
 			);
 		}
 
+		/**
+		 * Creates a {@link CheckableConfig} which checks if the current check is
+		 * successful or the other check.
+		 * 
+		 * @param other the other check
+		 * @return the {@link CheckableConfig}
+		 */
+		public CheckableConfig or(CheckableConfig other) {
+			return Checkables.checkOr(this, other);
+		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {

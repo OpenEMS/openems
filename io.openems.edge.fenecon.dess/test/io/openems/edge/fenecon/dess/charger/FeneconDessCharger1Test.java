@@ -10,19 +10,15 @@ import io.openems.edge.fenecon.dess.ess.MyEssConfig;
 
 public class FeneconDessCharger1Test {
 
-	private static final String CHARGER_ID = "charger0";
-	private static final String ESS_ID = "ess0";
-	private static final String MODBUS_ID = "modbus0";
-
 	@Test
 	public void test() throws Exception {
 		var ess = new FeneconDessEssImpl();
 		new ComponentTest(ess) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyEssConfig.create() //
-						.setId(ESS_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("ess0") //
+						.setModbusId("modbus0") //
 						.build()) //
 		;
 
@@ -30,9 +26,9 @@ public class FeneconDessCharger1Test {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.activate(MyChargerConfig.create() //
-						.setId(CHARGER_ID) //
-						.setEssId(ESS_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("charger0") //
+						.setEssId("ess0") //
+						.setModbusId("modbus0") //
 						.build()) //
 		;
 	}

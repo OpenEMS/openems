@@ -36,7 +36,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void accept(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		// Validate authentication
 		WsData wsData = ws.getAttachment();
 		final String edgeId;
@@ -92,8 +92,6 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (this.parent.uiWebsocket != null) {
 				this.parent.uiWebsocket.sendBroadcast(edgeId, new EdgeRpcNotification(edgeId, message));
 			}
-		} catch (OpenemsNamedException e) {
-			this.parent.logWarn(this.log, edgeId, "Unable to forward EdgeConfigNotification to UI: " + e.getMessage());
 		} catch (NullPointerException e) {
 			this.parent.logWarn(this.log, edgeId,
 					"Unable to forward EdgeConfigNotification to UI: NullPointerException");

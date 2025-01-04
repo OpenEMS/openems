@@ -120,6 +120,13 @@ public abstract class WriteObject {
 	public abstract String valueToString();
 
 	/**
+	 * Gets the value of the current object.
+	 *
+	 * @return the value as the corresponding type
+	 */
+	public abstract Object value();
+
+	/**
 	 * Is there a defined value?.
 	 *
 	 * @return true if no value is there; false if a value is available.

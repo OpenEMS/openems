@@ -58,7 +58,9 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 	public static final class ProductionSchedulerOrderDefinition extends SchedulerOrderDefinition {
 
 		public ProductionSchedulerOrderDefinition() {
-			this.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
+			this//
+					.thenByFactoryId("Controller.Ess.Limiter14a") //
+					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
 					.thenByFactoryId("Controller.Ess.FixStateOfCharge")//
 					.thenByFactoryId("Controller.Ess.EmergencyCapacityReserve") //

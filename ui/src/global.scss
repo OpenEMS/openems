@@ -10,28 +10,45 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import "~@ionic/angular/css/core.css";
-@import "~@ionic/angular/css/display.css";
-@import "~@ionic/angular/css/flex-utils.css";
-@import "~@ionic/angular/css/float-elements.css";
+@use "node_modules/@ionic/angular/css/core.css" as *;
+@use "node_modules/@ionic/angular/css/display.css" as *;
+@use "node_modules/@ionic/angular/css/flex-utils.css" as *;
+@use "node_modules/@ionic/angular/css/float-elements.css" as *;
 /* Basic CSS for apps built with Ionic */
-@import "~@ionic/angular/css/normalize.css";
+@use "node_modules/@ionic/angular/css/normalize.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
+
 /* Optional CSS utils that can be commented out */
-@import "~@ionic/angular/css/padding.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/text-alignment.css";
-@import "~@ionic/angular/css/text-transformation.css";
-@import "~@ionic/angular/css/typography.css";
+@use "node_modules/@ionic/angular/css/padding.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/text-alignment.css" as *;
+@use "node_modules/@ionic/angular/css/text-transformation.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
 /* ngx-spinner */
-@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
-@import "variables";
+@use "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css" as *;
+@use "./environments/index.scss" as *;
+@use "variables" as *;
+@use "./global-ion-custom.scss" as *;
 
-.custom-ion-popover {
+ion-alert {
+    color: green;
+    --color: red;
+}
 
-    white-space: inherit;
+/* Live- and HistoryComponent*/
+ion-refresher-content {
+    ion-spinner {
+        left: 0 !important;
+    }
+}
 
-    // Overwrites default width of popover
-    --min-width: min-content;
+ion-card-content {
+    color: var(--ion-card-content-color);
+}
+
+.footer-color {
+    background-color: var(--ion-color-toolbar-secondary) !important;
 }
 
 .hide-empty-list-header {
@@ -45,6 +62,13 @@
         display: none;
     }
 
+}
+
+.disabled {
+    color: gray;
+    pointer-events: none;
+    opacity: 0.5;
+    /* Makes it semi-transparent */
 }
 
 formly-wrapper-ion-form-field,
@@ -74,6 +98,81 @@ formly-field-ion-radio {
     }
 }
 
+.normal-icon {
+    color: var(--ion-color-primary-shade) !important;
+
+    ion-icon {
+        color: var(--ion-color-primary-shade) !important;
+    }
+}
+
+.percentage-style {
+    fill: var(--ion-color-text-percentage-bar);
+    text-shadow: var(--ion-text-shadow);
+}
+
+.ion-card-style {
+    ion-item {
+        --background: var(--ion-color-primary);
+
+        ion-icon {
+            color: var(--ion-color-primary-contrast);
+        }
+    }
+}
+
+.custom-channels-text {
+    color: var(--ion-color-text-channels) !important;
+}
+
+//* Color of Menu button *//
+.custom-menu-button {
+    color: var(--ion-menu-color);
+}
+
+.custom-theme-text {
+    color: var(--ion-color-text-menu) !important;
+}
+
+.custom-menu-text-dark {
+    color: var(--ion-color-text-menu-dark) !important;
+}
+
+.item-devider {
+    border-color: white;
+}
+
+.custom-ion-popover {
+
+    --border-width: 0;
+    --background: var(--ion-background-color);
+
+    // Floating label
+    &::part(label) {
+        color: var(--ion-color-primary) !important;
+    }
+
+    // Overwrites default width of popover
+    white-space: inherit;
+    --min-width: min-content;
+
+    [aria-checked="true"] {
+        .alert-radio-label {
+            color: var(--ion-color-text) !important;
+        }
+    }
+
+    .alert-radio-label {
+        color: var(--ion-color-text);
+    }
+
+    // Color of the selected Language from the list.
+    .item-radio-checked {
+        --background: var(--ion-color-primary-tint);
+        --background-opacity: 0.9;
+    }
+}
+
 .line-break {
 
     formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
@@ -91,7 +190,7 @@ formly-field-ion-radio {
 
 .command-textbox {
     font-family: monospace;
-    color: rgb(52, 52, 52);
+    color: var(--ion-color-text);
 }
 
 .margin-top {
@@ -101,7 +200,7 @@ formly-field-ion-radio {
 }
 
 .active {
-    color: $primary-color;
+    color: var(--ion-color-dark);
 }
 
 .primary-color {
@@ -190,16 +289,41 @@ table {
 }
 
 .underline {
-    border-bottom: 1pt solid lightgray;
+    border-bottom: 1pt solid var(--ion-color-medium);
 }
 
 .gray_color {
-    color: gray;
+    color: var(--ion-color-medium);
 }
 
 button.activated {
-    color: black;
-    background-color: lightgreen;
+    color: var(--ion-color-dark);
+    background-color: var(--ion-color-success);
+}
+
+svg::part('container') {
+    --border-color: white;
+    --checkmark-color: red;
+}
+
+ion-item,
+ion-checkbox {
+    .checkbox-icon {
+        display: none;
+    }
+}
+
+#theme-switcher {
+    --transition: checkmark-color 5s ease-in-out;
+
+    :host {
+        --checkmark-color: red;
+    }
+
+    ion-checkbox::part('mark') {
+        --border-color: white;
+        --checkmark-color: red;
+    }
 }
 
 #toast-container {
@@ -250,6 +374,7 @@ formly-input-section {
 
         .alert-button-group {
             justify-content: space-between;
+
             .alert-button {
                 color: $primary-color;
                 font-size: small;
@@ -259,6 +384,13 @@ formly-input-section {
 }
 
 :root {
+
+    --ion-color-primary-item: shade($primary-color, #000);
+
+    ion-segment {
+        --color: var(--ion-text-color);
+        color: var(--ion-text-color);
+    }
 
     // Used in IBN, dynamicFeedInLimitation
     formly-field-ion-select {
@@ -291,6 +423,22 @@ formly-input-section {
     ion-select {
         font-family: $font-family;
         font-size: 14px;
+        color: var(--ion-text-color);
+    }
+
+    ion-alert {
+        color: var(--ion-text-color) !important;
+        --color: red;
+
+        [aria-checked="true"] {
+            .alert-radio-label {
+                color: var(--ion-color-primary) !important;
+            }
+        }
+
+        .alert-radio-label {
+            color: var(--ion-text-color);
+        }
     }
 
     .alert-wrapper {
@@ -304,7 +452,8 @@ formly-input-section {
     }
 
     ion-toggle {
-        --background-checked: var(--ion-color-primary-tint);
+        --background-checked: var(--ion-color-toggle-background);
+        --background: #9C9C9C;
     }
 
     ion-spinner {
@@ -395,4 +544,22 @@ ion-modal.full-width {
     --storage-segment-2: block;
     --storage-segment-3: block;
     --storage-segment-4: block;
+}
+
+.card-with-primary-border {
+    border: 2px solid $primary-color;
+}
+
+ion-avatar.iconify {
+    margin-inline-end: 32px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    --border-radius: 0;
+    max-height: 24px;
+    max-width: 24px;
+}
+
+ion-avatar.iconify.icon-large {
+    max-height: 32px;
+    max-width: 32px;
 }

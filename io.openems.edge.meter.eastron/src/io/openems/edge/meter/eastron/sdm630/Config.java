@@ -3,7 +3,7 @@ package io.openems.edge.meter.eastron.sdm630;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(name = "Meter Eastron SDM 630", //
 		description = "Implements the Eastron SDM630 meter.")

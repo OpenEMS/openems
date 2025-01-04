@@ -66,7 +66,7 @@ export namespace GetApps {
 
     export interface App {
         categorys: Category[],
-        cardinality: 'SINGLE' | 'SINGLE_IN_CATEGORY' | 'MULTIPLE',
+        cardinality: "SINGLE" | "SINGLE_IN_CATEGORY" | "MULTIPLE",
         appId: string,
         name: string,
         shortName?: string,
@@ -78,7 +78,7 @@ export namespace GetApps {
     }
 
     export interface Status {
-        name: 'INCOMPATIBLE' | 'COMPATIBLE' | 'INSTALLABLE',
+        name: "INCOMPATIBLE" | "COMPATIBLE" | "INSTALLABLE",
         errorCompatibleMessages: string[],
         errorInstallableMessages: string[]
     }

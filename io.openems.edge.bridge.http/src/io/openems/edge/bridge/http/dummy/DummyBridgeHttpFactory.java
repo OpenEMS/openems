@@ -128,12 +128,37 @@ public class DummyBridgeHttpFactory extends BridgeHttpFactory {
 	 * Creates a {@link DummyBridgeHttpExecutor} to handle the execution of the
 	 * requests to fetch an {@link Endpoint}.
 	 * 
+	 * @param handleTasksImmediately true if all tasks which are not scheduled
+	 *                               should be executed immediately in the same
+	 *                               thread; false if only executed during the
+	 *                               {@link DummyBridgeHttpExecutor#update()}
+	 *                               method.
+	 * @return the created {@link DummyBridgeHttpExecutor}
+	 */
+	public static DummyBridgeHttpExecutor dummyBridgeHttpExecutor(boolean handleTasksImmediately) {
+		return new DummyBridgeHttpExecutor(handleTasksImmediately);
+	}
+
+	/**
+	 * Creates a {@link DummyBridgeHttpExecutor} to handle the execution of the
+	 * requests to fetch an {@link Endpoint}.
+	 * 
 	 * @param clock the {@link Clock} to provide the current time for scheduled
 	 *              tasks
 	 * @return the created {@link DummyBridgeHttpExecutor}
 	 */
 	public static DummyBridgeHttpExecutor dummyBridgeHttpExecutor(Clock clock) {
 		return new DummyBridgeHttpExecutor(clock);
+	}
+
+	/**
+	 * Creates a {@link DummyBridgeHttpExecutor} to handle the execution of the
+	 * requests to fetch an {@link Endpoint}.
+	 * 
+	 * @return the created {@link DummyBridgeHttpExecutor}
+	 */
+	public static DummyBridgeHttpExecutor dummyBridgeHttpExecutor() {
+		return new DummyBridgeHttpExecutor();
 	}
 
 	private DummyBridgeHttpFactory(Supplier<BridgeHttp> supplier) {

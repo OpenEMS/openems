@@ -76,7 +76,6 @@ import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ThreadPoolUtils;
-import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -455,6 +454,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public Optional<String> getSerialNumberForEdge(Edge edge) {
 		return this.odooHandler.getSerialNumberForEdge(edge);
+	}
+
+	@Override
+	public Optional<String> getEmsTypeForEdge(String edgeId) {
+		return this.odooHandler.getEmsTypeForEdge(edgeId);
 	}
 
 	@Override

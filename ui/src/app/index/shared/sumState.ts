@@ -1,18 +1,18 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Filter } from "../filter/filter.component";
-import { Role } from "src/app/shared/type/role";
 import { Service } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
+import { Filter } from "../filter/filter.component";
 
 export enum SumState {
-  OK = 'OK',
-  INFO = 'INFO',
-  WARNING = 'WARNING',
-  FAULT = 'FAULT',
+  OK = "OK",
+  INFO = "INFO",
+  WARNING = "WARNING",
+  FAULT = "FAULT",
 }
 
 @Component({
-  selector: 'oe-sum-state',
+  selector: "oe-sum-state",
   template: `
   <ion-col class="sum-state-icon">
     <ng-container *ngIf="!isEdgeOnline, else showSystemState">
@@ -41,13 +41,14 @@ export enum SumState {
     font-size: 20pt !important;
 }
   `],
+  standalone: false,
 })
 export class SumStateComponent implements OnInit {
 
-  protected readonly SUM_STATE = SumState;
   @Input() protected sumState: SumState = SumState.OK;
   @Input() protected isEdgeOnline: boolean = false;
   protected isAtLeastInstaller: boolean = false;
+  protected readonly SUM_STATE = SumState;
 
   constructor(private service: Service) { }
 
@@ -65,15 +66,15 @@ export const SUM_STATES = (translate: TranslateService): Filter => ({
   category: "sumState",
   options: [
     {
-      name: 'Ok',
+      name: "Ok",
       value: "ok",
     },
     {
-      name: translate.instant('General.info'),
+      name: translate.instant("General.info"),
       value: "Info",
     },
     {
-      name: translate.instant('General.warning'),
+      name: translate.instant("General.warning"),
       value: "Warning",
     },
     {
@@ -82,7 +83,7 @@ export const SUM_STATES = (translate: TranslateService): Filter => ({
     },
   ],
   setAdditionalFilter: () => ({
-    key: 'isOnline',
+    key: "isOnline",
     value: true,
   }),
 });

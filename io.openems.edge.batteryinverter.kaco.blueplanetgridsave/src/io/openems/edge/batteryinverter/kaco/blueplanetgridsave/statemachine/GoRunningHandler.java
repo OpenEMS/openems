@@ -5,7 +5,6 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
-import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoRunningHandler extends StateHandler<State, Context> {
@@ -28,10 +27,6 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		if (context.isTimeout(now, this.entryAt)) {
 			inverter._setMaxStartTimeout(true);
 			return State.ERROR;
-		}
-
-		if (inverter.getStartStopTarget() == StartStop.STOP) {
-			return State.GO_STOPPED;
 		}
 
 		if (inverter.isRunning()) {

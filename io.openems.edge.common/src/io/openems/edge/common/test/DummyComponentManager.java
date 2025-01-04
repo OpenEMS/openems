@@ -1,10 +1,12 @@
 package io.openems.edge.common.test;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static java.util.Collections.unmodifiableList;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 	private ConfigurationAdmin configurationAdmin = null;
 
 	public DummyComponentManager() {
-		this(Clock.systemDefaultZone());
+		this(createDummyClock());
 	}
 
 	public DummyComponentManager(Clock clock) {
@@ -56,12 +58,12 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 
 	@Override
 	public List<OpenemsComponent> getEnabledComponents() {
-		return Collections.unmodifiableList(this.components);
+		return unmodifiableList(this.components);
 	}
 
 	@Override
 	public List<OpenemsComponent> getAllComponents() {
-		return Collections.unmodifiableList(this.components);
+		return unmodifiableList(this.components);
 	}
 
 	@Override

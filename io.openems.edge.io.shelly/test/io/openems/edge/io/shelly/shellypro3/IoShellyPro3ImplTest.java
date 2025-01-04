@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
@@ -13,29 +12,20 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class IoShellyPro3ImplTest {
 
-	private static final String COMPONENT_ID = "io25";
-
-	private static final ChannelAddress RELAY_1 = new ChannelAddress(COMPONENT_ID, "Relay1");
-	private static final ChannelAddress RELAY_2 = new ChannelAddress(COMPONENT_ID, "Relay2");
-	private static final ChannelAddress RELAY_3 = new ChannelAddress(COMPONENT_ID, "Relay3");
-	private static final ChannelAddress SLAVE_COMMUNICATION_FAILED = new ChannelAddress(COMPONENT_ID,
-			"SlaveCommunicationFailed");
-
 	@Test
 	public void test() throws Exception {
 		final var httpTestBundle = new DummyBridgeHttpBundle();
-
 		final var sut = new IoShellyPro3Impl();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("io0") //
 						.setIp("127.0.0.1") //
 						.build()) //
 
 				// Test case for successful JSON responses for all relays
 				.next(new TestCase("Successful read response for all relays") //
-						.onBeforeControllersCallbacks(() -> {
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
 									    {
 									        "id": 0,
@@ -59,19 +49,26 @@ public class IoShellyPro3ImplTest {
 									"""));
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(SLAVE_COMMUNICATION_FAILED, false)) //
+						.onAfterProcessImage(() -> assertEquals("x x -", sut.debugLog()))
+
+						.output(IoShellyPro3.ChannelId.RELAY_1, null) // expecting WriteValue
+						.output(IoShellyPro3.ChannelId.RELAY_2, null) // expecting WriteValue
+						.output(IoShellyPro3.ChannelId.RELAY_3, null) // expecting WriteValue
+						.output(IoShellyPro3.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				// Test case for an invalid JSON response
 				.next(new TestCase("Invalid read response for all relays") //
-						.onBeforeControllersCallbacks(() -> {
-							assertEquals("Expected initial debug log", sut.debugLog(), "x|x|-");
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(RELAY_1, null)
-						.output(RELAY_2, null)
-						.output(RELAY_3, null)
-						.output(SLAVE_COMMUNICATION_FAILED, true))
+						.onAfterProcessImage(() -> assertEquals("? ? ?", sut.debugLog()))
+
+						.output(IoShellyPro3.ChannelId.RELAY_1, null) //
+						.output(IoShellyPro3.ChannelId.RELAY_2, null) //
+						.output(IoShellyPro3.ChannelId.RELAY_3, null) //
+						.output(IoShellyPro3.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
+
 				.deactivate(); //
 	}
 }

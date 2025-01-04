@@ -1,6 +1,7 @@
 package io.openems.edge.edge2edge.common;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 import java.util.ArrayDeque;
@@ -79,7 +80,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 				return;
 			}
 
-			readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(1))
+			readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(1))
 					.thenAccept(value -> {
 						if (value == null) {
 							return;
@@ -124,7 +125,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @return a future true if it is OpenEMS; otherwise false
 	 */
 	private CompletableFuture<Boolean> isOpenems() {
-		return readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0)) //
+		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0)) //
 				.thenCompose(value -> completedFuture(isHashEqual(value, "OpenEMS")));
 	}
 
@@ -161,7 +162,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	}
 
 	private void _findComponentBlock(CompletableFuture<Integer> result, String componentId, int startAddress) {
-		readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new StringWordElement(startAddress, 16)) //
+		readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new StringWordElement(startAddress, 16)) //
 				.thenAccept(remoteComponentId -> {
 					if (remoteComponentId == null) {
 						result.completeExceptionally(
@@ -173,7 +174,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 						result.complete(startAddress);
 						return;
 					}
-					readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull,
+					readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull,
 							new UnsignedWordElement(startAddress + 16)) //
 							.thenAccept(lengthOfBlock -> {
 								this._findComponentBlock(result, componentId, startAddress + lengthOfBlock);
@@ -182,7 +183,8 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	}
 
 	private CompletableFuture<Void> readNatureBlocks(int startAddress) {
-		return readElementOnce(this.modbusProtocol, ModbusUtils::doNotRetry, new UnsignedWordElement(startAddress + 16))
+		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::doNotRetry,
+				new UnsignedWordElement(startAddress + 16)) //
 				.thenCompose(lengthOfComponentBlock ->
 				// TODO fix length of last component blocks in Slave Modbus/TCP-Api
 				this.readNatureStartAddresses(startAddress + 20,
@@ -344,20 +346,14 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @return the {@link AbstractModbusElement}
 	 */
 	private static ModbusElement generateModbusElement(ModbusType type, int address) {
-		switch (type) {
-		case ENUM16:
-		case UINT16:
-			return new UnsignedWordElement(address);
-		case UINT32:
-			return new UnsignedDoublewordElement(address);
-		case FLOAT32:
-			return new FloatDoublewordElement(address);
-		case FLOAT64:
-			return new UnsignedQuadruplewordElement(address);
-		case STRING16:
-			return new StringWordElement(address, 16);
-		}
-		return null;
+		return switch (type) {
+		case ENUM16, UINT16 -> new UnsignedWordElement(address);
+		case UINT32 -> new UnsignedDoublewordElement(address);
+		case UINT64 -> new UnsignedQuadruplewordElement(address);
+		case FLOAT32 -> new FloatDoublewordElement(address);
+		case FLOAT64 -> new UnsignedQuadruplewordElement(address);
+		case STRING16 -> new StringWordElement(address, 16);
+		};
 	}
 
 	/**
@@ -419,7 +415,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 
 	private void _readNatureStartAddresses(CompletableFuture<TreeMap<Integer, Short>> result, int startAddress,
 			int lastAddress, final TreeMap<Integer, Short> natureStartAddresses) {
-		readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(startAddress))
+		readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(startAddress))
 				.thenAccept(rawHash -> {
 					if (rawHash == null) {
 						result.completeExceptionally(new OpenemsException("Unable to read hash at " + startAddress));
@@ -427,7 +423,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					}
 					var hash = (short) (int) rawHash;
 
-					readElementOnce(this.modbusProtocol, ModbusUtils::doNotRetry,
+					readElementOnce(FC3, this.modbusProtocol, ModbusUtils::doNotRetry,
 							new UnsignedWordElement(startAddress + 1)).thenAccept(lengthOfNatureBlock -> {
 								this.logInfo(this.log, "Found Remote-Nature '0x" + Integer.toHexString(hash & 0xffff)
 										+ "' on address " + startAddress);

@@ -40,7 +40,8 @@ buildpath: \
 	org.osgi.service.metatype;version='1.4.1',\
 	org.osgi.service.metatype.annotations;version='1.4.1',\
 	org.osgi.util.promise;version='1.2.0',\
-	com.google.guava;version='33.2.1.jre',\
+	com.google.guava;version='33.4.0.jre',\
+	com.google.guava.failureaccess;version='1.0.2',\
 	com.google.gson;version='2.11.0',\
 
 testpath: \
@@ -74,5 +75,5 @@ testpath: \
 	Edge_Timedata;member=${filter;${p};io\.openems\.edge\.timedata\..*},\
 	Edge_TimeOfUseTariff;member=${filter;${p};io\.openems\.edge\.timeofusetariff\..*},\
 
-javac.source: 17
-javac.target: 17
+javac.source: 21
+javac.target: 21

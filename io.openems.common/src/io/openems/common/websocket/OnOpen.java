@@ -1,21 +1,25 @@
 package io.openems.common.websocket;
 
+import java.util.function.BiFunction;
+
 import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.Handshakedata;
 
-import com.google.gson.JsonObject;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsError;
 
 @FunctionalInterface
-public interface OnOpen {
+public interface OnOpen extends BiFunction<WebSocket, Handshakedata, OpenemsError> {
+
+	public static final OnOpen NO_OP = (ws, handshakedata) -> {
+		return null;
+	};
 
 	/**
 	 * Handles OnOpen event of WebSocket.
 	 *
-	 * @param ws        the WebSocket
-	 * @param handshake the HTTP handshake/headers
-	 * @throws OpenemsNamedException on error
+	 * @param ws            the {@link WebSocket}
+	 * @param handshakedata the {@link Handshakedata} with HTTP headers
+	 * @return {@link OpenemsError} or null
 	 */
-	public void run(WebSocket ws, JsonObject handshake) throws OpenemsNamedException;
-
+	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata);
 }

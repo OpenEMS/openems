@@ -1,50 +1,38 @@
 package io.openems.edge.io.shelly.shellyplusplugs;
 
+import static io.openems.common.types.MeterType.PRODUCTION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class IoShellyPlusPlugImplTest {
 
-	private static final String COMPONENT_ID = "io0";
-
-	private static final ChannelAddress ACTIVE_POWER = new ChannelAddress(COMPONENT_ID, "ActivePower");
-	private static final ChannelAddress ACTIVE_POWER_L1 = new ChannelAddress(COMPONENT_ID, "ActivePowerL1");
-	private static final ChannelAddress ACTIVE_POWER_L2 = new ChannelAddress(COMPONENT_ID, "ActivePowerL2");
-	private static final ChannelAddress CURRENT = new ChannelAddress(COMPONENT_ID, "Current");
-	private static final ChannelAddress VOLTAGE = new ChannelAddress(COMPONENT_ID, "Voltage");
-	private static final ChannelAddress PRODUCTION_ENERGY = new ChannelAddress(COMPONENT_ID, "ActiveProductionEnergy");
-	private static final ChannelAddress CONSUMPTION_ENERGY = new ChannelAddress(COMPONENT_ID,
-			"ActiveConsumptionEnergy");
-
 	@Test
 	public void test() throws Exception {
 		final var httpTestBundle = new DummyBridgeHttpBundle();
-
 		final var sut = new IoShellyPlusPlugsImpl();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("io0") //
 						.setPhase(SinglePhase.L1) //
 						.setIp("127.0.0.1") //
-						.setType(MeterType.PRODUCTION) //
+						.setType(PRODUCTION) //
 						.build()) //
 
 				.next(new TestCase("Successful read response") //
-						.onBeforeControllersCallbacks(() -> {
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
 									{
 									  "sys": {
@@ -62,31 +50,51 @@ public class IoShellyPlusPlugImplTest {
 									"""));
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(ACTIVE_POWER, 789) //
-						.output(ACTIVE_POWER_L1, 789) //
-						.output(ACTIVE_POWER_L2, null) //
-						.output(CURRENT, 1234) //
-						.output(VOLTAGE, 231500)) //
+						.onAfterProcessImage(() -> assertEquals("-|789 W", sut.debugLog()))
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 789) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 789) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 231500) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 231500) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 1234) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 1234) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+						.output(IoShellyPlusPlugs.ChannelId.RELAY, null) //
+						.output(IoShellyPlusPlugs.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Invalid read response") //
-						.onBeforeControllersCallbacks(() -> assertEquals("-|789 W", sut.debugLog()))
-
-						.onBeforeControllersCallbacks(() -> {
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(ACTIVE_POWER, null) //
-						.output(ACTIVE_POWER_L1, null) //
-						.output(ACTIVE_POWER_L2, null) //
-						.output(CURRENT, null) //
-						.output(VOLTAGE, null) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 
-						.output(PRODUCTION_ENERGY, 0L) //
-						.output(CONSUMPTION_ENERGY, 0L)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
+						.output(IoShellyPlusPlugs.ChannelId.RELAY, null) //
+						.output(IoShellyPlusPlugs.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				// Test case for writing to relay
 				.next(new TestCase("Write") //
-						.onBeforeControllersCallbacks(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 						.onBeforeControllersCallbacks(() -> {
 							sut.setRelay(true);
 						}) //
@@ -94,12 +102,9 @@ public class IoShellyPlusPlugImplTest {
 							final var relayTurnedOn = httpTestBundle
 									.expect("http://127.0.0.1/rpc/Switch.Set?id=0&on=true").toBeCalled();
 
-							testCase.onBeforeControllersCallbacks(() -> {
-								httpTestBundle.triggerNextCycle();
-							});
-							testCase.onAfterWriteCallbacks(() -> {
-								assertTrue("Failed to turn on relay", relayTurnedOn.get());
-							});
+							testCase.onBeforeControllersCallbacks(() -> httpTestBundle.triggerNextCycle());
+							testCase.onAfterWriteCallbacks(
+									() -> assertTrue("Failed to turn on relay", relayTurnedOn.get()));
 						})) //
 
 				.deactivate();//

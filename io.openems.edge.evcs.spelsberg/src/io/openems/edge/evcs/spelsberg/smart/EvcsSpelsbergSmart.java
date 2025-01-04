@@ -64,30 +64,6 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Maximum current signaled to the EV for charging")),
 
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
-				.text("Current on L1")),
-
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
-				.text("Current on L2")),
-
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
-				.text("Current on L3")),
-
-		POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
-				.text("Charging power on L1")),
-
-		POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
-				.text("Charging power on L2")),
-
-		POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
-				.text("Charging power on L3")),
-
 		POWER_TOTAL(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
 				.text("Sum of active charging power")),
@@ -130,60 +106,6 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 	 */
 	public default void setApplyChargePowerLimit(Integer value) throws OpenemsNamedException {
 		this.getApplyChargePowerLimitChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#POWER_L1}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getChargePowerL1Channel() {
-		return this.channel(ChannelId.POWER_L1);
-	}
-
-	/**
-	 * Gets the Power on phase L1 in [W]. See {@link ChannelId#POWER_L1}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getChargePowerL1() {
-		return this.getChargePowerL1Channel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#POWER_L2}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getChargePowerL2Channel() {
-		return this.channel(ChannelId.POWER_L2);
-	}
-
-	/**
-	 * Gets the Power on phase L2 in [W]. See {@link ChannelId#POWER_L2}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getChargePowerL2() {
-		return this.getChargePowerL2Channel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#POWER_L3}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getChargePowerL3Channel() {
-		return this.channel(ChannelId.POWER_L3);
-	}
-
-	/**
-	 * Gets the Power on phase L3 in [W]. See {@link ChannelId#POWER_L3}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getChargePowerL3() {
-		return this.getChargePowerL3Channel().value();
 	}
 
 	/**

@@ -30,12 +30,12 @@ public class Data {
 	/**
 	 * Holds all Inverters, always roughly sorted by weight.
 	 */
-	private final List<Inverter> inverters = new ArrayList<>();
+	private final List<Inverter> inverters = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Holds all Ess.
 	 */
-	private final List<ManagedSymmetricEss> esss = new ArrayList<>();
+	private final List<ManagedSymmetricEss> esss = new CopyOnWriteArrayList<>();
 
 	private final List<Constraint> constraints = new CopyOnWriteArrayList<>();
 	private final Coefficients coefficients = new Coefficients();

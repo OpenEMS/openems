@@ -1,5 +1,8 @@
 package io.openems.edge.io.api;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -44,21 +47,12 @@ public class ShellyUtils {
 	 */
 	public static String generateDebugLog(BooleanWriteChannel[] digitalOutputChannels) {
 		// TODO share code with AbstractKmtronicRelay.debugLog()
-		var b = new StringBuilder();
-		var i = 1;
-		for (var channel : digitalOutputChannels) {
-			var valueOpt = channel.value().asOptional();
-			if (valueOpt.isPresent()) {
-				b.append(valueOpt.get() ? "x" : "-");
-			} else {
-				b.append("?");
-			}
-			if (i < digitalOutputChannels.length) {
-				b.append("|");
-			}
-			i++;
-		}
-		return b.toString();
+		return stream(digitalOutputChannels) //
+				.map(c -> c.value().asOptional().map(v -> v //
+						? "x" //
+						: "-") //
+						.orElse("?")) //
+				.collect(joining(" "));
 	}
 
 	/**

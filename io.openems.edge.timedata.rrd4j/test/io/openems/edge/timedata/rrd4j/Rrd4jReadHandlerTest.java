@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.rrd4j;
 
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static java.util.stream.Collectors.toMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +28,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
@@ -80,9 +80,9 @@ public class Rrd4jReadHandlerTest {
 		final var versionHandler = new VersionHandler();
 		versionHandler.bindVersion(version3);
 
-		ReflectionUtils.setAttribute(Rrd4jReadHandler.class, this.readHandler, "componentManager", dcm);
-		ReflectionUtils.setAttribute(Rrd4jReadHandler.class, this.readHandler, "rrd4jSupplier", rrd4jSupplier);
-		ReflectionUtils.setAttribute(Rrd4jSupplier.class, rrd4jSupplier, "versionHandler", versionHandler);
+		setAttributeViaReflection(this.readHandler, "componentManager", dcm);
+		setAttributeViaReflection(this.readHandler, "rrd4jSupplier", rrd4jSupplier);
+		setAttributeViaReflection(rrd4jSupplier, "versionHandler", versionHandler);
 
 	}
 
@@ -161,6 +161,21 @@ public class Rrd4jReadHandlerTest {
 				Tuple.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
 				Tuple.of(START.plus(15, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400) //
 		), this.query(new Resolution(15, ChronoUnit.MINUTES)));
+	}
+
+	@Test
+	public void testStreamRanges() throws Exception {
+		final var utc = ZoneId.of("UTC");
+		final var from = ZonedDateTime.of(2023, 12, 26, 0, 0, 0, 0, utc);
+		final var to = ZonedDateTime.of(2024, 3, 8, 0, 0, 0, 0, utc);
+		final var result = Rrd4jReadHandler.streamRanges(from, to, new Resolution(1, ChronoUnit.MONTHS)).toList();
+		assertEquals(4, result.size());
+		assertEquals(new Rrd4jReadHandler.Range(from, ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, utc)), result.get(0));
+		assertEquals(new Rrd4jReadHandler.Range(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, utc),
+				ZonedDateTime.of(2024, 2, 1, 0, 0, 0, 0, utc)), result.get(1));
+		assertEquals(new Rrd4jReadHandler.Range(ZonedDateTime.of(2024, 2, 1, 0, 0, 0, 0, utc),
+				ZonedDateTime.of(2024, 3, 1, 0, 0, 0, 0, utc)), result.get(2));
+		assertEquals(new Rrd4jReadHandler.Range(ZonedDateTime.of(2024, 3, 1, 0, 0, 0, 0, utc), to), result.get(3));
 	}
 
 	private SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> query(Resolution resolution)

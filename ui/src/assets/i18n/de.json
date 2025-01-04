@@ -126,7 +126,8 @@
             "passedEndTime": "Endzeitpunkt der begrenzten Beladung überschritten",
             "storageAlreadyFull": "Speicher bereits voll"
           },
-          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)"
+          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale Netzeinspeisung durch Batteriebeladung"
         },
         "CHP": {
           "highThreshold": "Oberer Schwellenwert",
@@ -199,7 +200,9 @@
             "name": "Erzwungene Beladung",
             "shortName": "Manuell"
           },
-          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden."
+          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden.",
+          "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
+          "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt."
         },
         "Heatingelement": {
           "activeForced": "Aktiv (Mindestlaufzeit)",
@@ -234,16 +237,30 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
           "PRICE": "Aktueller Bezugsstrompreis",
           "STATE": {
             "DELAY_DISCHARGE": "Entladung verzögert",
             "BALANCING": "Eigenverbrauchsoptimierung",
             "CHARGE_GRID": "Beladung aus dem Netz freigegeben"
           },
-          "CHART_TITLE": "Aktueller Fahrplan (BETA-Test)",
+          "CHART_TITLE": "Aktueller Fahrplan",
           "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
           "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)"
+        },
+        "SYSTEM": {
+          "INDUSTRIAL": {
+            "NOTE": "Startet oder stoppt das Gesamtsystem, inklusive Batteriewechselrichter und Batterien."
+          },
+          "OVERALL_SYSTEM": "Gesamtsystem"
+        },
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
+          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
         }
       },
       "RETROFITTING": {
@@ -263,6 +280,8 @@
       "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "PHASE_ACCURATE": "Phasengenau",
+      "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
       "endDate": "Enddatum wählen",
@@ -302,7 +321,10 @@
       "oct": "Okt",
       "nov": "Nov",
       "dec": "Dez",
-      "activeDuration": "Einschaltdauer"
+      "activeDuration": "Einschaltdauer",
+      "ACTIVE_DURATION_WITH_LEVEL": "Einschaltdauer Level {{level}}",
+      "CURRENT": "Strom",
+      "VOLTAGE": "Spannung"
     },
     "Config": {
       "Index": {
@@ -387,6 +409,7 @@
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
+        "DELETE_CONFIRM": "entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
         "errorCompatible": "Kompatibilitäts fehler",
@@ -416,7 +439,9 @@
         "successUpdate": "App erfolgreich aktualisiert",
         "failUpdate": "Fehler während der Aktualisierung: {{error}}",
         "successDelete": "App erfolgreich entfernt",
-        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}"
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
+        "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
       }
     },
     "Service": {
@@ -456,7 +481,6 @@
     "changeAccepted": "Änderung übernommen",
     "changeFailed": "Änderung fehlgeschlagen",
     "chargeDischarge": "Be-/Entladung",
-    "chargePower": "Beladung",
     "componentCount": "Anzahl Komponenten",
     "componentInactive": "Komponente ist inaktiv!",
     "connectionLost": "Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.",
@@ -468,7 +492,6 @@
     "digitalInputs": "Digitaleingänge",
     "numberOfComponents": "Anzahl der Komponenten",
     "directConsumption": "Direktverbrauch",
-    "dischargePower": "Entladung",
     "energyLimit": "Energielimit",
     "fault": "Fehler",
     "grid": "Netz",
@@ -511,6 +534,7 @@
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
+    "VISIBLE_FOR_ADMINS_ONLY": "Sichtbar nur für Service & Administration",
     "warning": "Warnung",
     "Week": {
       "monday": "Montag",
@@ -558,6 +582,19 @@
       "MINUTES": "Minuten",
       "DAY": "Tag",
       "DAYS": "Tage"
+    },
+    "CHARGE": "Beladung",
+    "DISCHARGE": "Entladung"
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+      "MORE_INFO": "mehr Infos",
+      "EMS_OFFLINE": "{{edgeShortName}} ist offline"
     }
   },
   "Index": {
@@ -844,7 +881,23 @@
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
-    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Dimmung nach §14a EnWG",
+      "IS_ACTIVATE": "Möglichkeit der Dimmung nach §14a EnWG aktivieren",
+      "INFO_NOTE": "Um eine Überlastung des Netzes zu vermeiden, erhält der Netzbetreiber bei allen, seit dem 01.01.2024 installierten Verbrauchseinrichtungen, zukünftig die Möglichkeit, diese auf eine Netzbezugsleistung des Stromspeichers von 4,2 kW zu dimmen.",
+      "IS_ACTIVATE_LABEL": "Die Verdrahtung ist entsprechend der Montageanleitung anzubringen."
+    }
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
+  },
+  "LOADING_SCREEN": {
+    "LOADING": "Wird geladen",
+    "SERVER_NOT_ACCESSIBLE": "Server nicht erreichbar",
+    "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Probieren Sie bitte in 10 Minuten den Browser neu zu laden.",
+    "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Lokal zugreifen",
+    "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich. Die Daten werden lokal gespeichert und gehen nicht verloren."
   },
   "Login": {
     "title": "Login",
@@ -942,6 +995,11 @@
       "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
       "UPDATE_EXECUTE": "Systemupdate durchführen",
       "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "Zur Analyse",
+      "CURRENT_NUMBER_OF_MODULES": "Aktuell",
+      "SIMULATION_NOT_STARTED": "Simulation nicht gestartet"
     }
   },
   "CHANNELS": {
@@ -954,6 +1012,30 @@
     "SET_VALUE": "Eingestellter Wert",
     "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
     "CHANNEL": "Kanal"
+  },
+  "MODBUS_TCP_API_READ_WRITE": {
+    "CURRENT_STATE": "Aktueller Status",
+    "CUMULATED_ACTIVE_TIME": "Externe Vorgaben berücksichtigt",
+    "CUMULATED_INACTIVE_TIME": "Keine externe Vorgabe vorhanden",
+    "NO_OVERRIDDEN_CHANNELS": "Es wurden noch keine Kanäle überschrieben.",
+    "NOT_OVERRIDING": "Keine externe Vorgabe vorhanden",
+    "OVERRIDING": "Externe Vorgabe wird berücksichtigt",
+    "LAST_COMMAND": "Letzter Schreibbefehl",
+    "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",
+    "REGISTER": "Register",
+    "LIMITATION": "Vorgabe",
+    "ACTUAL_VALUE": "Tatsächlicher Wert",
+    "INFO_TEXT": "Tatsächlicher Wert kann von der Vorgabe abweichen. Negative Werte entsprechen Speicherbeladung - postive Speicherentladung. Eine detaillierte Erklärung finden Sie in der Anleitung.",
+    "SET_ACTIVE_POWER_EQUALS": "Vorgabe Be- bzw. Entladeleistung",
+    "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimale Beladeleistung",
+    "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximale Beladeleistung",
+    "DOWNLOAD_PROTOCOL": "Protokoll Herunterladen"
+  },
+  "GRID_STATES": {
+    "OFF_GRID": "Netzausfall",
+    "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
+    "RIPPLE_CONTROL_RECEIVER": "Rundsteuerempfänger",
+    "RESTRICTION": "Dimmung nach §14a EnWG"
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."

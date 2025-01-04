@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.mqtt;
 
+import static io.openems.common.channel.PersistencePriority.VERY_LOW;
 import static io.openems.edge.controller.api.mqtt.ControllerApiMqttImpl.createTopicPrefix;
 import static org.junit.Assert.assertEquals;
 
@@ -8,15 +9,12 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 
 public class ControllerApiMqttImplTest {
-
-	private static final String CTRL_ID = "ctrl0";
 
 	@Test
 	public void test() throws Exception {
@@ -26,13 +24,13 @@ public class ControllerApiMqttImplTest {
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummySum()) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setClientId("edge0") //
 						.setTopicPrefix("") //
 						.setUsername("guest") //
 						.setPassword("guest") //
 						.setUri("ws://localhost:1883") //
-						.setPersistencePriority(PersistencePriority.VERY_LOW) //
+						.setPersistencePriority(VERY_LOW) //
 						.setDebugMode(true) //
 						.setCertPem("") //
 						.setPrivateKeyPem("") //

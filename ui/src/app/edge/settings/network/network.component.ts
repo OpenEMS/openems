@@ -1,25 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
-import { TranslateService } from '@ngx-translate/core';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Role } from 'src/app/shared/type/role';
-import { Edge, Service, Websocket } from '../../../shared/shared';
-import { GetNetworkConfigRequest } from './getNetworkConfigRequest';
-import { GetNetworkConfigResponse } from './getNetworkConfigResponse';
-import { SetNetworkConfigRequest } from './setNetworkConfigRequest';
-import { InterfaceForm, InterfaceModel, IpAddress, NetworkConfig, NetworkInterface, NetworkUtils } from './shared';
+import { Component, OnInit } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { FormlyFieldConfig, FormlyForm } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { Role } from "src/app/shared/type/role";
+import { Edge, Service, Websocket } from "../../../shared/shared";
+import { GetNetworkConfigRequest } from "./getNetworkConfigRequest";
+import { GetNetworkConfigResponse } from "./getNetworkConfigResponse";
+import { SetNetworkConfigRequest } from "./setNetworkConfigRequest";
+import { InterfaceForm, InterfaceModel, IpAddress, NetworkConfig, NetworkInterface, NetworkUtils } from "./shared";
 
 @Component({
   selector: NetworkComponent.SELECTOR,
-  templateUrl: './network.component.html',
+  templateUrl: "./network.component.html",
+  standalone: false,
 })
 export class NetworkComponent implements OnInit {
 
-  private static readonly SELECTOR: string = 'network';
-  private static readonly ETH_0: string = 'eth0';
-  private static readonly STATIC_LABEL: string = 'static';
-  private static readonly NO_LABEL: string = '';
+  private static readonly SELECTOR: string = "network";
+  private static readonly ETH_0: string = "eth0";
+  private static readonly STATIC_LABEL: string = "static";
+  private static readonly NO_LABEL: string = "";
 
   public edge: Edge | null = null;
   protected forms: InterfaceForm[] = [];
@@ -35,15 +36,47 @@ export class NetworkComponent implements OnInit {
     this.initializeComponent();
   }
 
+  public submit(iface: InterfaceForm): void {
+    if (!iface.formGroup.valid) {
+      this.service.toast(this.translate.instant("Edge.Network.mandatoryFields"), "danger");
+      return;
+    }
+
+    // Adds the static addresses entered in form field "Statische IP-Adressen hinzufügen" to addressJson in json format.
+    const addressJson: IpAddress[] = this.buildAddressJson(iface);
+    const request: NetworkConfig = this.buildRequest(iface, addressJson);
+    const interfaceName: string = iface.name === NetworkComponent.ETH_0 ? NetworkComponent.ETH_0 : iface.name;
+
+    this.sendRequest(interfaceName, request);
+  }
+
+  /**
+   * Hide expression dosent work with custom type 'repeat'.
+   * So this is the workaround for that functionality.
+   *
+   * @param form the form fields that need to be changed.
+   */
+  protected hideOrShowFields(form: FormlyForm): void {
+
+    const addressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == "addressesList");
+    const linkLocalAddressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == "linkLocalAddressing");
+    const metric: FormlyFieldConfig | undefined = form.fields.find(element => element.key == "metric");
+    const advancedMode: boolean = form.model.advancedMode;
+
+    if (addressField) { addressField.hide = !advancedMode; }
+    if (linkLocalAddressField) { linkLocalAddressField.hide = !advancedMode; }
+    if (metric) { metric.hide = !advancedMode; }
+  }
+
   private async initializeComponent() {
     try {
       this.edge = await this.service.getCurrentEdge();
       if (this.edge) {
-        const response: GetNetworkConfigResponse = await this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({ componentId: '_host', payload: new GetNetworkConfigRequest() })) as GetNetworkConfigResponse;
+        const response: GetNetworkConfigResponse = await this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })) as GetNetworkConfigResponse;
         this.handleNetworkConfigResponse(response);
       }
     } catch (reason: any) {
-      this.service.toast(this.translate.instant('Edge.Network.errorReading') + reason?.error?.message ?? 'Unknown error', 'danger');
+      this.service.toast(this.translate.instant("Edge.Network.errorReading") + reason?.error?.message, "danger");
     }
   }
 
@@ -59,20 +92,6 @@ export class NetworkComponent implements OnInit {
         }
       }
     }
-  }
-
-  public submit(iface: InterfaceForm): void {
-    if (!iface.formGroup.valid) {
-      this.service.toast(this.translate.instant('Edge.Network.mandatoryFields'), 'danger');
-      return;
-    }
-
-    // Adds the static addresses entered in form field "Statische IP-Adressen hinzufügen" to addressJson in json format.
-    const addressJson: IpAddress[] = this.buildAddressJson(iface);
-    const request: NetworkConfig = this.buildRequest(iface, addressJson);
-    const interfaceName: string = iface.name === NetworkComponent.ETH_0 ? NetworkComponent.ETH_0 : iface.name;
-
-    this.sendRequest(interfaceName, request);
   }
 
   /**
@@ -101,10 +120,10 @@ export class NetworkComponent implements OnInit {
     if (iface.model.addressesList) {
       for (const addr of iface.model.addressesList) {
         if (!this.ipRegex.test(addr)) {
-          this.service.toast(this.translate.instant('Edge.Network.validAddressWarning'), 'danger');
+          this.service.toast(this.translate.instant("Edge.Network.validAddressWarning"), "danger");
           return [];
         }
-        const [address, subnet] = addr.split('/');
+        const [address, subnet] = addr.split("/");
         const subnetmask = NetworkUtils.getSubnetmaskAsString(Number.parseInt(subnet));
 
         addressJson.push({
@@ -164,32 +183,15 @@ export class NetworkComponent implements OnInit {
   private async sendRequest(interfaceName: string, request: NetworkConfig): Promise<void> {
     try {
       await this.edge?.sendRequest(this.websocket, new ComponentJsonApiRequest({
-        componentId: '_host',
+        componentId: "_host",
         payload: new SetNetworkConfigRequest(request),
       }));
-      this.service.toast(this.translate.instant('Edge.Network.successUpdate') + `[${interfaceName}].`, 'success');
+      this.service.toast(this.translate.instant("Edge.Network.successUpdate") + `[${interfaceName}].`, "success");
     } catch (reason: any) {
-      this.service.toast(this.translate.instant('Edge.Network.errorUpdating') + `[${interfaceName}].` + reason?.error?.message ?? 'Unknown error', 'danger');
+      this.service.toast(this.translate.instant("Edge.Network.errorUpdating") + `[${interfaceName}].` + reason?.error?.message, "danger");
     }
   }
 
-  /**
-   * Hide expression dosent work with custom type 'repeat'.
-   * So this is the workaround for that functionality.
-   *
-   * @param form the form fields that need to be changed.
-   */
-  protected hideOrShowFields(form: FormlyForm): void {
-
-    const addressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'addressesList');
-    const linkLocalAddressField: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'linkLocalAddressing');
-    const metric: FormlyFieldConfig | undefined = form.fields.find(element => element.key == 'metric');
-    const advancedMode: boolean = form.model.advancedMode;
-
-    if (addressField) { addressField.hide = !advancedMode; }
-    if (linkLocalAddressField) { linkLocalAddressField.hide = !advancedMode; }
-    if (metric) { metric.hide = !advancedMode; }
-  }
 
   /**
    * Generates the interface configuration based on the provided name and source data.
@@ -210,7 +212,7 @@ export class NetworkComponent implements OnInit {
         } else {
           // Converts ip:"192.168.1.50" and subnetmask:"255.255.255.0" -> ["192.168.1.50/24"]
           const cidr: number = NetworkUtils.getCidrFromSubnetmask(address.subnetmask);
-          const ip: string = address.address.concat('/' + cidr.toString());
+          const ip: string = address.address.concat("/" + cidr.toString());
           addressArray.push(ip);
         }
       }
@@ -237,100 +239,100 @@ export class NetworkComponent implements OnInit {
   private fillFields(addressArray: string[]): FormlyFieldConfig[] {
     const fields: FormlyFieldConfig[] = [
       {
-        key: 'dhcp',
-        type: 'checkbox',
+        key: "dhcp",
+        type: "checkbox",
         defaultValue: true,
         templateOptions: {
-          label: 'DHCP',
+          label: "DHCP",
         },
       },
       {
-        hideExpression: 'model.dhcp',
-        key: 'ip',
-        type: 'input',
+        hideExpression: "model.dhcp",
+        key: "ip",
+        type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: this.translate.instant('Edge.Network.ipAddress'),
-          placeholder: 'z.B. 192.168.0.50',
+          label: this.translate.instant("Edge.Network.ipAddress"),
+          placeholder: "z.B. 192.168.0.50",
           required: true,
         },
         validators: {
-          validation: ['ip'],
+          validation: ["ip"],
         },
       },
       {
-        hideExpression: 'model.dhcp',
-        key: 'subnetmask',
-        type: 'input',
+        hideExpression: "model.dhcp",
+        key: "subnetmask",
+        type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: this.translate.instant('Edge.Network.subnetmask'),
-          placeholder: 'z.B. 255.255.255.0',
+          label: this.translate.instant("Edge.Network.subnetmask"),
+          placeholder: "z.B. 255.255.255.0",
           required: true,
         },
         validators: {
-          validation: ['subnetmask'],
+          validation: ["subnetmask"],
         },
       },
       {
-        hideExpression: 'model.dhcp',
-        key: 'gateway',
-        type: 'input',
+        hideExpression: "model.dhcp",
+        key: "gateway",
+        type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: 'Gateway',
-          placeholder: 'z.B. 192.168.0.1',
+          label: "Gateway",
+          placeholder: "z.B. 192.168.0.1",
           required: true,
         },
         validators: {
-          validation: ['ip'],
+          validation: ["ip"],
         },
       },
       {
-        hideExpression: 'model.dhcp',
-        key: 'dns',
-        type: 'input',
+        hideExpression: "model.dhcp",
+        key: "dns",
+        type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: 'DNS-Server',
-          placeholder: 'z.B. 192.168.0.1',
+          label: "DNS-Server",
+          placeholder: "z.B. 192.168.0.1",
           required: true,
         },
         validators: {
-          validation: ['ip'],
+          validation: ["ip"],
         },
       },
       {
-        key: 'linkLocalAddressing',
-        type: 'checkbox',
+        key: "linkLocalAddressing",
+        type: "checkbox",
         resetOnHide: false,
         templateOptions: {
-          label: 'Link-Local Address (z. B. 169.254.XXX.XXX)',
+          label: "Link-Local Address (z. B. 169.254.XXX.XXX)",
         },
         hide: true,
       },
       {
         hide: true,
-        key: 'addressesList',
-        type: 'repeat',
+        key: "addressesList",
+        type: "repeat",
         resetOnHide: false,
         defaultValue: addressArray,
         templateOptions: {
-          label: this.translate.instant('Edge.Network.addIP'),
+          label: this.translate.instant("Edge.Network.addIP"),
         },
         fieldArray: {
-          type: 'input',
+          type: "input",
           resetOnHide: false,
         },
       },
       {
         hide: true,
-        key: 'metric',
-        type: 'input',
+        key: "metric",
+        type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: 'Metric',
-          placeholder: 'z.B. 512, 1024 ...',
+          label: "Metric",
+          placeholder: "z.B. 512, 1024 ...",
         },
         defaultValue: 1024,
         parsers: [Number],

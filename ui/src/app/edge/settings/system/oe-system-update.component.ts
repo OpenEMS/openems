@@ -1,17 +1,26 @@
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AlertController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, presentAlert, Service, Websocket } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
-import { ExecuteSystemUpdate } from './executeSystemUpdate';
-import { SystemUpdateState } from './getSystemUpdateStateResponse';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { AlertController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { DataService } from "src/app/shared/components/shared/dataservice";
+import { Edge, presentAlert, Service, Websocket } from "src/app/shared/shared";
+import { environment } from "src/environments";
+import { LiveDataService } from "../../live/livedataservice";
+import { ExecuteSystemUpdate } from "./executeSystemUpdate";
+import { SystemUpdateState } from "./getSystemUpdateStateResponse";
 
 @Component({
   selector: OeSystemUpdateComponent.SELECTOR,
-  templateUrl: './oe-system-update.component.html',
+  templateUrl: "./oe-system-update.component.html",
+  standalone: false,
+  providers: [{
+    useClass: LiveDataService,
+    provide: DataService,
+  }],
 })
 export class OeSystemUpdateComponent implements OnInit, OnDestroy {
+
+  private static readonly SELECTOR = "oe-system-update";
 
   @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
   @Input() public executeUpdateInstantly: boolean = false;
@@ -19,18 +28,8 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
   public readonly environment = environment;
   public readonly spinnerId: string = OeSystemUpdateComponent.SELECTOR;
 
-  protected executeUpdate: ExecuteSystemUpdate = null;
+  protected executeUpdate: ExecuteSystemUpdate | null = null;
   protected isWaiting: boolean;
-  protected confirmationAlert: () => void = () => presentAlert(this.alertCtrl, this.translate, {
-    message: this.translate.instant('SETTINGS.SYSTEM_UPDATE.WARNING', { system: environment.edgeShortName }),
-    subHeader: this.translate.instant('SETTINGS.SYSTEM_UPDATE.SUB_HEADER'),
-    buttons: [{
-      text: this.translate.instant('SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE'),
-      handler: () => this.executeSystemUpdate(),
-    }],
-  });
-
-  private static readonly SELECTOR = "oe-system-update";
 
   constructor(
     private websocket: Websocket,
@@ -73,4 +72,14 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
     this.isWaiting = true;
     this.executeUpdate.executeSystemUpdate();
   }
+
+  protected confirmationAlert: () => void = () => presentAlert(this.alertCtrl, this.translate, {
+    message: this.translate.instant("SETTINGS.SYSTEM_UPDATE.WARNING", { system: environment.edgeShortName }),
+    subHeader: this.translate.instant("SETTINGS.SYSTEM_UPDATE.SUB_HEADER"),
+    buttons: [{
+      text: this.translate.instant("SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE"),
+      handler: () => this.executeSystemUpdate(),
+    }],
+  });
+
 }

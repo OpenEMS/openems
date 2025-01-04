@@ -29,6 +29,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
@@ -38,11 +39,12 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = false)
@@ -52,7 +54,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		property = { //
 				"enabled=true" //
 		})
-public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave {
+public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave, TimedataProvider {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -65,6 +67,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	private final EnergyValuesHandler energyValuesHandler;
 	private final Set<String> ignoreStateComponents = new HashSet<>();
+
+	private final CalculateActiveTime calculateOffGridTime = new CalculateActiveTime(this,
+			Sum.ChannelId.GRID_MODE_OFF_GRID_TIME);
 
 	private final ExtremeEverValues extremeEverValues = ExtremeEverValues.create(SINGLETON_SERVICE_PID) //
 			.add(Sum.ChannelId.GRID_MIN_ACTIVE_POWER, "gridMinActivePower", //
@@ -143,6 +148,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	public void updateChannelsBeforeProcessImage() {
 		this.calculateChannelValues();
 		this.calculateState();
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
 	/**
@@ -256,6 +266,14 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					// Consumption is positive
 					break;
 
+				case MANAGED_CONSUMPTION_METERED: //
+					if (meter instanceof MetaEvcs) {
+						// ignore this Evcs
+					} else {
+						managedConsumptionActivePower.addValue(meter.getActivePowerChannel());
+					}
+					break;
+
 				case CONSUMPTION_NOT_METERED:
 					// TODO CONSUMPTION_NOT_METERED
 					// Consumption is positive
@@ -295,17 +313,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				productionDcActualPower.addValue(charger.getActualPowerChannel());
 				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
 
-			} else if (component instanceof Evcs evcs) {
-				/*
-				 * Electric Vehicle Charging Station
-				 */
-				if (evcs instanceof MetaEvcs) {
-					// ignore this Evcs
-					continue;
-				}
-
-				managedConsumptionActivePower.addValue(evcs.getChargePowerChannel());
-
 			} else if (component instanceof TimeOfUseTariff tou) {
 				/*
 				 * Time-of-Use-Tariff
@@ -333,7 +340,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 		var essMaxApparentPowerSum = essMaxApparentPower.calculate();
 		this._setEssMaxApparentPower(essMaxApparentPowerSum);
-		this._setGridMode(essGridMode.calculate());
+		var gridMode = essGridMode.calculate();
+		this._setGridMode(gridMode);
+		this.calculateOffGridTime.update(gridMode == GridMode.OFF_GRID);
 
 		var essActiveChargeEnergySum = essActiveChargeEnergy.calculate();
 		essActiveChargeEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY,
@@ -451,7 +460,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				highestLevel = Level.INFO;
 			}
 		}
-
 		this.getStateChannel().setNextValue(highestLevel);
 	}
 

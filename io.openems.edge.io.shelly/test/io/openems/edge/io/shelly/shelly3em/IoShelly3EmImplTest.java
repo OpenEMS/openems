@@ -1,60 +1,34 @@
 package io.openems.edge.io.shelly.shelly3em;
 
+import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.timedata.test.DummyTimedata;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class IoShelly3EmImplTest {
 
-	private static final String COMPONENT_ID = "io0";
-
-	private static final ChannelAddress RELAY_OVERPOWER = new ChannelAddress(COMPONENT_ID, "RelayOverpowerException");
-	private static final ChannelAddress HAS_UPDATE = new ChannelAddress(COMPONENT_ID, "HasUpdate");
-	private static final ChannelAddress ACTIVE_POWER = new ChannelAddress(COMPONENT_ID, "ActivePower");
-	private static final ChannelAddress ACTIVE_POWER_L1 = new ChannelAddress(COMPONENT_ID, "ActivePowerL1");
-	private static final ChannelAddress ACTIVE_POWER_L2 = new ChannelAddress(COMPONENT_ID, "ActivePowerL2");
-	private static final ChannelAddress ACTIVE_POWER_L3 = new ChannelAddress(COMPONENT_ID, "ActivePowerL3");
-	private static final ChannelAddress VOLTAGE_L1 = new ChannelAddress(COMPONENT_ID, "VoltageL1");
-	private static final ChannelAddress VOLTAGE_L2 = new ChannelAddress(COMPONENT_ID, "VoltageL2");
-	private static final ChannelAddress VOLTAGE_L3 = new ChannelAddress(COMPONENT_ID, "VoltageL3");
-	private static final ChannelAddress CURRENT_L1 = new ChannelAddress(COMPONENT_ID, "CurrentL1");
-	private static final ChannelAddress CURRENT_L2 = new ChannelAddress(COMPONENT_ID, "CurrentL2");
-	private static final ChannelAddress CURRENT_L3 = new ChannelAddress(COMPONENT_ID, "CurrentL3");
-	private static final ChannelAddress EMETER1_EXCEPTION = new ChannelAddress(COMPONENT_ID, "Emeter1Exception");
-	private static final ChannelAddress EMETER2_EXCEPTION = new ChannelAddress(COMPONENT_ID, "Emeter2Exception");
-	private static final ChannelAddress EMETER3_EXCEPTION = new ChannelAddress(COMPONENT_ID, "Emeter3Exception");
-	private static final ChannelAddress SLAVE_COMMUNICATION_FAILED = new ChannelAddress(COMPONENT_ID,
-			"SlaveCommunicationFailed");
-	private static final ChannelAddress PRODUCTION_ENERGY = new ChannelAddress(COMPONENT_ID, "ActiveProductionEnergy");
-	private static final ChannelAddress CONSUMPTION_ENERGY = new ChannelAddress(COMPONENT_ID,
-			"ActiveConsumptionEnergy");
-
 	@Test
 	public void test() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
-
 		final var sut = new IoShelly3EmImpl();
+		final var httpTestBundle = new DummyBridgeHttpBundle();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
-				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("io0") //
 						.setIp("127.0.0.1") //
-						.setType(MeterType.GRID) //
+						.setType(CONSUMPTION_METERED) //
 						.build()) //
 
 				.next(new TestCase("Successful read response") //
-						.onBeforeControllersCallbacks(() -> {
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
 									{
 									  "relays": [
@@ -98,48 +72,59 @@ public class IoShelly3EmImplTest {
 									"""));
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(RELAY_OVERPOWER, false) //
-						.output(HAS_UPDATE, false) //
-						.output(ACTIVE_POWER, 99) //
-						.output(ACTIVE_POWER_L1, 9) //
-						.output(ACTIVE_POWER_L2, 31) //
-						.output(ACTIVE_POWER_L3, 59) //
-						.output(VOLTAGE_L1, 230000) //
-						.output(VOLTAGE_L2, 231000) //
-						.output(VOLTAGE_L3, 232000) //
-						.output(CURRENT_L1, 1000) //
-						.output(CURRENT_L2, 2000) //
-						.output(CURRENT_L3, 3000) //
-						.output(EMETER1_EXCEPTION, false) //
-						.output(EMETER2_EXCEPTION, false) //
-						.output(EMETER3_EXCEPTION, true)) //
+						.onAfterProcessImage(() -> assertEquals("x|99 W", sut.debugLog())) //
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 99) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 9) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 31) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 59) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 231000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 231000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 232000) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 6000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 1000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, 2000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, 3000) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+						.output(IoShelly3Em.ChannelId.RELAY_OVERPOWER_EXCEPTION, false) //
+						.output(IoShelly3Em.ChannelId.HAS_UPDATE, false) //
+						.output(IoShelly3Em.ChannelId.EMETER1_EXCEPTION, false) //
+						.output(IoShelly3Em.ChannelId.EMETER2_EXCEPTION, false) //
+						.output(IoShelly3Em.ChannelId.EMETER3_EXCEPTION, true) //
+						.output(IoShelly3Em.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Invalid read response") //
-						.onBeforeControllersCallbacks(() -> assertEquals("x|99 W", sut.debugLog()))
-
-						.onBeforeControllersCallbacks(() -> {
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(RELAY_OVERPOWER, false) //
-						.output(HAS_UPDATE, false) //
-						.output(ACTIVE_POWER, null) //
-						.output(ACTIVE_POWER_L1, null) //
-						.output(ACTIVE_POWER_L2, null) //
-						.output(ACTIVE_POWER_L3, null) //
-						.output(VOLTAGE_L1, null) //
-						.output(VOLTAGE_L2, null) //
-						.output(VOLTAGE_L3, null) //
-						.output(CURRENT_L1, null) //
-						.output(CURRENT_L2, null) //
-						.output(CURRENT_L3, null) //
-						.output(PRODUCTION_ENERGY, 0L) //
-						.output(CONSUMPTION_ENERGY, 0L) //
-						.output(SLAVE_COMMUNICATION_FAILED, true)) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+						.output(IoShelly3Em.ChannelId.RELAY_OVERPOWER_EXCEPTION, false) //
+						.output(IoShelly3Em.ChannelId.HAS_UPDATE, false) //
+						.output(IoShelly3Em.ChannelId.EMETER1_EXCEPTION, false) //
+						.output(IoShelly3Em.ChannelId.EMETER2_EXCEPTION, false) //
+						.output(IoShelly3Em.ChannelId.EMETER3_EXCEPTION, true) //
+						.output(IoShelly3Em.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				// Test case for writing to relay
 				.next(new TestCase("Write") //
-						.onBeforeControllersCallbacks(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 						.onBeforeControllersCallbacks(() -> {
 							sut.setRelay(true);
 						}) //
@@ -155,6 +140,6 @@ public class IoShelly3EmImplTest {
 							});
 						})) //
 
-				.deactivate();//
+				.deactivate();
 	}
 }

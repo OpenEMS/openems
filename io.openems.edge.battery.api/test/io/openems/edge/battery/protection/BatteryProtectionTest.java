@@ -1,14 +1,24 @@
 package io.openems.edge.battery.protection;
 
+import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
+import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MAX_CURRENT;
+import static io.openems.edge.battery.api.Battery.ChannelId.MAX_CELL_TEMPERATURE;
+import static io.openems.edge.battery.api.Battery.ChannelId.MAX_CELL_VOLTAGE;
+import static io.openems.edge.battery.api.Battery.ChannelId.MIN_CELL_TEMPERATURE;
+import static io.openems.edge.battery.api.Battery.ChannelId.MIN_CELL_VOLTAGE;
+import static io.openems.edge.battery.protection.BatteryProtection.ChannelId.BP_CHARGE_BMS;
+import static io.openems.edge.battery.protection.BatteryProtection.ChannelId.BP_DISCHARGE_BMS;
+import static io.openems.edge.common.startstop.StartStoppable.ChannelId.START_STOP;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.test.TimeLeapClock;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.protection.currenthandler.ChargeMaxCurrentHandler;
 import io.openems.edge.battery.protection.currenthandler.DischargeMaxCurrentHandler;
@@ -18,7 +28,6 @@ import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 import io.openems.edge.common.startstop.StartStop;
-import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -102,22 +111,6 @@ public class BatteryProtectionTest {
 
 	private static final String BATTERY_ID = "battery0";
 
-	private static final ChannelAddress BATTERY_START_STOP = new ChannelAddress(BATTERY_ID,
-			StartStoppable.ChannelId.START_STOP.id());
-	private static final ChannelAddress BATTERY_BP_CHARGE_BMS = new ChannelAddress(BATTERY_ID,
-			BatteryProtection.ChannelId.BP_CHARGE_BMS.id());
-	private static final ChannelAddress BATTERY_BP_DISCHARGE_BMS = new ChannelAddress(BATTERY_ID,
-			BatteryProtection.ChannelId.BP_DISCHARGE_BMS.id());
-	private static final ChannelAddress BATTERY_MIN_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MinCellVoltage");
-	private static final ChannelAddress BATTERY_MAX_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MaxCellVoltage");
-	private static final ChannelAddress BATTERY_MIN_CELL_TEMPERATURE = new ChannelAddress(BATTERY_ID,
-			"MinCellTemperature");
-	private static final ChannelAddress BATTERY_MAX_CELL_TEMPERATURE = new ChannelAddress(BATTERY_ID,
-			"MaxCellTemperature");
-	private static final ChannelAddress BATTERY_CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID, "ChargeMaxCurrent");
-	private static final ChannelAddress BATTERY_DISCHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID,
-			"DischargeMaxCurrent");
-
 	@Test
 	public void test() throws Exception {
 		final var battery = new DummyBattery(BATTERY_ID);
@@ -137,169 +130,168 @@ public class BatteryProtectionTest {
 						.setForceCharge(FORCE_CHARGE) //
 						.build()) //
 				.build();
-		new ComponentTest(new DummyBattery(BATTERY_ID)) //
-				.addComponent(battery) //
+		new ComponentTest(battery) //
 				.next(new TestCase() //
-						.input(BATTERY_START_STOP, StartStop.START) //
-						.input(BATTERY_BP_CHARGE_BMS, 80) //
-						.input(BATTERY_BP_DISCHARGE_BMS, 80) //
-						.input(BATTERY_MIN_CELL_VOLTAGE, 2950) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3300) //
-						.input(BATTERY_MIN_CELL_TEMPERATURE, 16) //
-						.input(BATTERY_MAX_CELL_TEMPERATURE, 17) //
+						.input(START_STOP, StartStop.START) //
+						.input(BP_CHARGE_BMS, 80) //
+						.input(BP_DISCHARGE_BMS, 80) //
+						.input(MIN_CELL_VOLTAGE, 2950) //
+						.input(MAX_CELL_VOLTAGE, 3300) //
+						.input(MIN_CELL_TEMPERATURE, 16) //
+						.input(MAX_CELL_TEMPERATURE, 17) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 0)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 0)) //
 				.next(new TestCase("open, but maxIncreaseAmpereLimit") //
-						.timeleap(clock, 2, ChronoUnit.SECONDS) //
-						.input(BATTERY_MIN_CELL_VOLTAGE, 3000) //
+						.timeleap(clock, 2, SECONDS) //
+						.input(MIN_CELL_VOLTAGE, 3000) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 1) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 1)) //
+						.output(CHARGE_MAX_CURRENT, 1) //
+						.output(DISCHARGE_MAX_CURRENT, 1)) //
 				.next(new TestCase() //
-						.timeleap(clock, 2, ChronoUnit.SECONDS) //
-						.input(BATTERY_MIN_CELL_VOLTAGE, 3050) //
+						.timeleap(clock, 2, SECONDS) //
+						.input(MIN_CELL_VOLTAGE, 3050) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 2) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 2)) //
+						.output(CHARGE_MAX_CURRENT, 2) //
+						.output(DISCHARGE_MAX_CURRENT, 2)) //
 				.next(new TestCase() //
-						.timeleap(clock, 10, ChronoUnit.SECONDS) //
+						.timeleap(clock, 10, SECONDS) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 7) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 7)) //
+						.output(CHARGE_MAX_CURRENT, 7) //
+						.output(DISCHARGE_MAX_CURRENT, 7)) //
 				.next(new TestCase() //
-						.timeleap(clock, 10, ChronoUnit.MINUTES) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3300) //
+						.timeleap(clock, 10, MINUTES) //
+						.input(MAX_CELL_VOLTAGE, 3300) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 80) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 80) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
-						.timeleap(clock, 10, ChronoUnit.MINUTES) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3499) //
+						.timeleap(clock, 10, MINUTES) //
+						.input(MAX_CELL_VOLTAGE, 3499) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 54) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 54) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
-						.timeleap(clock, 10, ChronoUnit.MINUTES) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3649) //
+						.timeleap(clock, 10, MINUTES) //
+						.input(MAX_CELL_VOLTAGE, 3649) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 2) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 2) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
-						.timeleap(clock, 10, ChronoUnit.MINUTES) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3649) //
+						.timeleap(clock, 10, MINUTES) //
+						.input(MAX_CELL_VOLTAGE, 3649) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 2) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 2) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
-						.timeleap(clock, 10, ChronoUnit.MINUTES) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3650) //
+						.timeleap(clock, 10, MINUTES) //
+						.input(MAX_CELL_VOLTAGE, 3650) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Start Force-Discharge: wait 60 seconds") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3660) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3660) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Start Force-Discharge") //
-						.timeleap(clock, 60, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3660) //
+						.timeleap(clock, 60, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3660) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -2) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -2) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Force-Discharge") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3640) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3640) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -2) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -2) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #1") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3639) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3639) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -1) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -1) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #1 still reduce by 1") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3638) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3638) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -1) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -1) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #1 still reduce by 1") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3610) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3610) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #2") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3600) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3600) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 
 				.next(new TestCase("Start Force-Discharge again") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3660) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3660) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -2) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -2) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Force-Discharge") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3640) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3640) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -2) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -2) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #1") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3639) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3639) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -1) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -1) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #1 still reduce by 1") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3638) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3638) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, -1) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, -1) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #1 still reduce by 1") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3637) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3637) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #2") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3600) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3600) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Block Charge #3") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3450) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3450) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Finish Force-Discharge") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3449) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3449) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase() //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3400) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3400) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 0) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 0) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 				.next(new TestCase("Allow Charge") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.input(BATTERY_MAX_CELL_VOLTAGE, 3350) //
+						.timeleap(clock, 1, SECONDS) //
+						.input(MAX_CELL_VOLTAGE, 3350) //
 						.onAfterProcessImage(() -> sut.apply()) //
-						.output(BATTERY_CHARGE_MAX_CURRENT, 1) //
-						.output(BATTERY_DISCHARGE_MAX_CURRENT, 80)) //
+						.output(CHARGE_MAX_CURRENT, 1) //
+						.output(DISCHARGE_MAX_CURRENT, 80)) //
 		;
 	}
 

@@ -196,8 +196,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	/**
 	 * formats the given apps into a JSON array string.
 	 *
-	 * @param apps that should be formated
-	 * @return formated apps string
+	 * @param apps that should be formatted
+	 * @return formatted apps string
 	 */
 	private static String getJsonAppsString(List<OpenemsAppInstance> apps) {
 		return JsonUtils

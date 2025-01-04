@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormlyExtension, FormlyFieldConfig } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
 
 export class TranslateExtension implements FormlyExtension {
     constructor(private translate: TranslateService) { }
@@ -13,7 +13,7 @@ export class TranslateExtension implements FormlyExtension {
         props._translated = true;
         field.expressions = {
             ...(field.expressions || {}),
-            'props.label': this.translate.stream(props.label),
+            "props.label": this.translate.stream(props.label),
         };
     }
 }
@@ -23,7 +23,7 @@ export function registerTranslateExtension(translate: TranslateService) {
         validationMessages: [],
         extensions: [
             {
-                name: 'translate',
+                name: "translate",
                 extension: new TranslateExtension(translate),
             },
         ],
@@ -39,5 +39,5 @@ export function registerTranslateExtension(translate: TranslateService) {
  * @returns the validation error message.
  */
 export function serialNumber(translate: TranslateService, field: FormlyFieldConfig, length: number) {
-    return translate.stream('INSTALLATION.FORM.BATTERY_SERIAL_NUMBER', { serialNumber: ((field.props.prefix ?? "") + field.formControl.value), length: length });
+    return translate.stream("INSTALLATION.FORM.BATTERY_SERIAL_NUMBER", { serialNumber: ((field.props.prefix ?? "") + field.formControl.value), length: length });
 }

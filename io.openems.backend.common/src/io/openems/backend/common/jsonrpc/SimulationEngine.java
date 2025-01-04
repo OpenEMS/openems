@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import io.openems.backend.common.jsonrpc.request.SimulationRequest;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 public interface SimulationEngine {

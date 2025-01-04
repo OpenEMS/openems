@@ -9,9 +9,6 @@ import java.util.regex.Pattern;
 
 public class ChannelFilter {
 
-	private static final Predicate<String> SUNSPEC_PATTERN = //
-			Pattern.compile("^S[0-9]+[A-Z][a-zA-Z0-9]*$").asPredicate();
-
 	/**
 	 * Pattern for Component-IDs.
 	 * 
@@ -82,15 +79,7 @@ public class ChannelFilter {
 			return false;
 		}
 
-		// Valid Channel-ID
-		final var channelId = c[1];
-		if (SUNSPEC_PATTERN.test(channelId)) {
-			// SunSpec Channels
-			return false;
-		}
-
 		return true;
 	}
-
 
 }

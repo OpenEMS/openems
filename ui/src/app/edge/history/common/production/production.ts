@@ -1,41 +1,43 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { CurrentVoltageModule } from "src/app/shared/components/edge/meter/currentVoltage/currentVoltageModule";
+import { FooterNavigationModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
+import { SharedModule } from "src/app/shared/shared.module";
 
-import { ChargerChartComponent } from './chart/chargerChart';
-import { ProductionMeterChartComponent } from './chart/productionMeterChart';
-import { TotalAcChartComponent } from './chart/totalAcChart';
-import { TotalChartComponent } from './chart/totalChart';
-import { TotalDcChartComponent } from './chart/totalDcChart';
-import { ChartComponent } from './details/chart/chart';
-import { DetailsOverviewComponent } from './details/details.overview';
-import { FlatComponent } from './flat/flat';
-import { OverviewComponent } from './overview/overview';
+import { TotalChartComponent } from "./chart/totalChart";
+import { ChargerChartDetailsComponent } from "./details/chart/charger";
+import { ProductionMeterChartDetailsComponent } from "./details/chart/productionMeter";
+import { SumChartDetailsComponent } from "./details/chart/sum";
+import { DetailsOverviewComponent } from "./details/details.overview";
+import { FlatComponent } from "./flat/flat";
+import { OverviewComponent } from "./overview/overview";
 
 @NgModule({
   imports: [
     BrowserModule,
     SharedModule,
+    FooterNavigationModule,
+    CurrentVoltageModule,
   ],
   declarations: [
     FlatComponent,
     OverviewComponent,
-    ProductionMeterChartComponent,
-    TotalDcChartComponent,
-    TotalAcChartComponent,
     TotalChartComponent,
-    ChargerChartComponent,
+
+    ChargerChartDetailsComponent,
     DetailsOverviewComponent,
-    ChartComponent,
+    ProductionMeterChartDetailsComponent,
+    SumChartDetailsComponent,
   ],
   exports: [
     FlatComponent,
     OverviewComponent,
-    ProductionMeterChartComponent,
-    TotalDcChartComponent,
-    TotalAcChartComponent,
     TotalChartComponent,
-    ChargerChartComponent,
+
+    ChargerChartDetailsComponent,
+    DetailsOverviewComponent,
+    ProductionMeterChartDetailsComponent,
+    SumChartDetailsComponent,
   ],
 })
 export class Common_Production { }
