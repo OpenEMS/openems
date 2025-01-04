@@ -1,4 +1,4 @@
-package io.openems.edge.io.api;
+package io.openems.edge.io.shelly.common;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
@@ -13,9 +13,9 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class ShellyUtils {
+public class Utils {
 
-	private ShellyUtils() {
+	private Utils() {
 	}
 
 	/**

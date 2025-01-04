@@ -1,6 +1,6 @@
 package io.openems.edge.io.shelly.shellyplug;
 
-import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 
 import java.util.Objects;
 

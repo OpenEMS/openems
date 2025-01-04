@@ -3,7 +3,7 @@ package io.openems.edge.io.shelly.shelly25;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 
 import java.util.Objects;
 

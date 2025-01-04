@@ -2,7 +2,7 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -28,7 +28,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.api.ShellyUtils;
+import io.openems.edge.io.shelly.common.Utils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -138,7 +138,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 
 	private void executeWrite() {
 		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
-			ShellyUtils.executeWrite(this.digitalOutputChannels[i], this.baseUrl, this.httpBridge, i);
+			Utils.executeWrite(this.digitalOutputChannels[i], this.baseUrl, this.httpBridge, i);
 		}
 	}
 

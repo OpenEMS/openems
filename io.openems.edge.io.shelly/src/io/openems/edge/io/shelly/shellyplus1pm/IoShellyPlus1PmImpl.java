@@ -3,7 +3,7 @@ package io.openems.edge.io.shelly.shellyplus1pm;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.edge.io.api.ShellyUtils.generateDebugLog;
+import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 
 import java.util.Objects;
