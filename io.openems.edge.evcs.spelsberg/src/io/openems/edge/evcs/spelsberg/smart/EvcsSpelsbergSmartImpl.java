@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -44,6 +45,7 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -54,8 +56,8 @@ import io.openems.edge.evcs.api.WriteHandler;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
-		implements EvcsSpelsbergSmart, Evcs, ManagedEvcs, ModbusComponent, OpenemsComponent, EventHandler {
+public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent implements EvcsSpelsbergSmart, Evcs,
+		ManagedEvcs, ModbusComponent, OpenemsComponent, EventHandler, ElectricityMeter {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsSpelsbergSmartImpl.class);
 	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
@@ -77,6 +79,7 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 	public EvcsSpelsbergSmartImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
@@ -127,23 +130,24 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 						m(EvcsSpelsbergSmart.ChannelId.CABLE_STATE, new UnsignedWordElement(1004))),
 
 				new FC3ReadRegistersTask(1008, Priority.LOW,
-						m(EvcsSpelsbergSmart.ChannelId.CURRENT_L1, new UnsignedWordElement(1008)),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(1008)),
 						new DummyRegisterElement(1009),
-						m(EvcsSpelsbergSmart.ChannelId.CURRENT_L2, new UnsignedWordElement(1010)),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(1010)),
 						new DummyRegisterElement(1011),
-						m(EvcsSpelsbergSmart.ChannelId.CURRENT_L3, new UnsignedWordElement(1012))),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(1012))),
 
 				new FC3ReadRegistersTask(1020, Priority.HIGH,
-						m(Evcs.ChannelId.CHARGE_POWER, new UnsignedDoublewordElement(1020)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020)),
+						// TODO whats the difference between 1020 and 1022?
 						m(EvcsSpelsbergSmart.ChannelId.POWER_TOTAL, new UnsignedDoublewordElement(1022)),
-						m(EvcsSpelsbergSmart.ChannelId.POWER_L1, new UnsignedDoublewordElement(1024)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(1024)),
 						new DummyRegisterElement(1026, 1027),
-						m(EvcsSpelsbergSmart.ChannelId.POWER_L2, new UnsignedDoublewordElement(1028)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(1028)),
 						new DummyRegisterElement(1030, 1031),
-						m(EvcsSpelsbergSmart.ChannelId.POWER_L3, new UnsignedDoublewordElement(1032))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(1032))),
 
 				new FC3ReadRegistersTask(1036, Priority.LOW,
-						m(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(1036))),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(1036))),
 
 				new FC3ReadRegistersTask(1100, Priority.LOW,
 						m(EvcsSpelsbergSmart.ChannelId.MAX_HARDWARE_CURRENT, new UnsignedWordElement(1100)),
@@ -179,6 +183,11 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 		this.addPhaseDetectionCallback();
 		this.addPowerConsumptionCallback();
 		return modbusProtocol;
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	@Override
@@ -290,21 +299,13 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 	 */
 	private void addPhaseDetectionCallback() {
 		final Consumer<Value<Integer>> setPhasesCallback = ignore -> {
-
-			var phases = 0;
-			if (this.getChargePowerL1().isDefined() && this.getChargePowerL1().get() > 0) {
-				phases++;
-			}
-			if (this.getChargePowerL2().isDefined() && this.getChargePowerL2().get() > 0) {
-				phases++;
-			}
-			if (this.getChargePowerL3().isDefined() && this.getChargePowerL3().get() > 0) {
-				phases++;
-			}
-
-			this._setPhases(phases);
+			this._setPhases(Evcs.evaluatePhaseCount(//
+					this.getActivePowerL1().get(), //
+					this.getActivePowerL2().get(), //
+					this.getActivePowerL3().get()));
 		};
 
+		// TODO remove this channel
 		this.getChargePowerTotalChannel().onUpdate(setPhasesCallback);
 	}
 

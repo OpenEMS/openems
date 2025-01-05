@@ -49,7 +49,7 @@ public class SimulatorPredictorImplTest {
 		assertEquals(Integer.valueOf(20), p.asArray()[0]);
 		assertEquals(Integer.valueOf(23), p.asArray()[1]);
 		assertEquals(Integer.valueOf(27), p.asArray()[2]);
-		assertEquals(ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")), p.valuePerQuarter.firstKey());
+		assertEquals(ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")), p.getFirstTime());
 	}
 
 }

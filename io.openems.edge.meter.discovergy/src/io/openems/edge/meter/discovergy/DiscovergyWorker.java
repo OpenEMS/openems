@@ -136,6 +136,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 				break;
 			case CONSUMPTION_NOT_METERED: // to be validated
 			case CONSUMPTION_METERED: // to be validated
+			case MANAGED_CONSUMPTION_METERED:
 			case PRODUCTION_AND_CONSUMPTION:
 			case PRODUCTION:
 				this.parent._setActivePower(TypeUtils.multiply(activePower, -1)); // invert

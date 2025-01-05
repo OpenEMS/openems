@@ -8,6 +8,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
     selector: "channelthresholdWidget",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

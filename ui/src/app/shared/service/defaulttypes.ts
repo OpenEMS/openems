@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
-import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from "date-fns";
+import { differenceInDays, endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from "date-fns";
 
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Service } from "../shared";
@@ -157,6 +157,7 @@ export namespace DefaultTypes {
       public to: Date = new Date(),
     ) { }
 
+
     /**
  * Returns a translated weekday name.
  *
@@ -236,6 +237,15 @@ export namespace DefaultTypes {
         });
       }
     }
+
+    /**
+     * Checks if current period is week or day
+     *
+     * @returns true if period is week or day, false if not
+     */
+    public isWeekOrDay(): boolean {
+      return Math.abs(differenceInDays(this.to, this.from)) <= 6;
+    }
   }
 }
 
@@ -246,3 +256,41 @@ export type TKeyValue<T> = {
 };
 /**  */
 export type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
+
+type Range<N extends number, Acc extends number[] = []> = Acc["length"] extends N
+  ? Acc[number]
+  : Range<N, [...Acc, Acc["length"]]>;
+
+export type RGBValue = Range<256>; // 0 to 255
+
+export class RGBColor<T extends RGBValue = RGBValue> {
+  private static INVALID_RGB_VALUES_ERROR = new Error("All values need to be valid");
+  private readonly red: T;
+  private readonly green: T;
+  private readonly blue: T;
+
+  constructor(red: T, green: T, blue: T) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+  }
+
+  public static fromString(rgbString: string) {
+    const rgb: string[] = rgbString.split(",").map(el => el.trim());
+    const red: RGBValue = parseInt(rgb[0]) as RGBValue;
+    const green: RGBValue = parseInt(rgb[1]) as RGBValue;
+    const blue: RGBValue = parseInt(rgb[2]) as RGBValue;
+
+    if (!red || !green || !blue) {
+      throw RGBColor.INVALID_RGB_VALUES_ERROR;
+    }
+    return new RGBColor(red, green, blue);
+  }
+
+  public toString(): string {
+    if (this.red == null || this.green == null || this.blue == null) {
+      throw RGBColor.INVALID_RGB_VALUES_ERROR;
+    }
+    return `rgb(${this.red},${this.green},${this.blue})`;
+  }
+}

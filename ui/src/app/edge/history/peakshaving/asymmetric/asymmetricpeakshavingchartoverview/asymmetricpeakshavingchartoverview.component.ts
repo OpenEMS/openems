@@ -5,6 +5,7 @@ import { Edge, EdgeConfig, Service } from "../../../../../shared/shared";
 @Component({
     selector: AsymmetricPeakshavingChartOverviewComponent.SELECTOR,
     templateUrl: "./asymmetricpeakshavingchartoverview.component.html",
+    standalone: false,
 })
 export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
 

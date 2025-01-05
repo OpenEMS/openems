@@ -3,14 +3,14 @@ import { Injectable } from "@angular/core";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { FileOpener } from "@ionic-native/file-opener";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { saveAs } from "file-saver-es";
 import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
 import { BehaviorSubject, Subject } from "rxjs";
 import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
+import { PreviousRouteService } from "./shared/service/previousRouteService";
+import { ArrayUtils } from "./shared/utils/array/array.utils";
 
 @Injectable()
 export class AppService {
@@ -28,6 +28,7 @@ export class AppService {
     private alertCtrl: AlertController,
     private translate: TranslateService,
     private deviceService: DeviceDetectorService,
+    private routeService: PreviousRouteService,
   ) {
     AppService.deviceInfo = this.deviceService.getDeviceInfo();
     AppService.isMobile = this.deviceService.isMobile();
@@ -51,34 +52,6 @@ export class AppService {
       }
     }
     return null;
-  }
-
-  static async writeAndOpenFile(data: Blob, fileName: string) {
-    if (!AppService.platform) {
-      saveAs(data, fileName);
-    }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(data);
-    reader.onloadend = async function () {
-      try {
-        const result = await Filesystem.writeFile({
-          path: fileName,
-          data: reader.result.toString(),
-          directory: Directory.Data,
-          recursive: true,
-          encoding: Encoding.UTF8,
-        });
-
-        FileOpener.open(result.uri, data.type)
-          .then(() => console.log("File is opened"))
-          .catch(e => console.log("Error opening file", e));
-
-        console.log("Wrote file", result.uri);
-      } catch (e) {
-        console.error("Unable to write file", e);
-      }
-    };
   }
 
   public listen() {
@@ -162,11 +135,26 @@ export class AppService {
 
   private async updateState() {
     const { isActive } = await App.getState();
-
-    if (isActive === true && AppService.isActive?.getValue() === false) {
-      window.location.reload();
-    }
-
+    this.reloadBehavior(isActive);
     AppService.isActive.next(isActive);
   }
+
+  /**
+   * Controls the reload behaviour after app was running in background und got active again
+   *
+   * @param isAppCurrentlyActive is app currently active
+   */
+  private reloadBehavior(isAppCurrentlyActive: boolean) {
+
+    const route = this.routeService.getCurrentUrl();
+    const isForbiddenToReload: boolean = ArrayUtils.containsStrings(route.split("/"), FORBIDDEN_ROUTES_TO_RELOAD);
+
+    if (isAppCurrentlyActive === true
+      && AppService.isActive?.getValue() === false
+      && !isForbiddenToReload) {
+      window.location.reload();
+    }
+  }
 }
+
+export const FORBIDDEN_ROUTES_TO_RELOAD: string[] = ["login", "installation", "index"];

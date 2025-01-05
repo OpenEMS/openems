@@ -2,6 +2,7 @@ package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -38,8 +39,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -74,12 +73,7 @@ public class StromdaoCorrently extends
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ZIP_CODE(AppDef.of(StromdaoCorrently.class)//
-				.setTranslatedLabelWithAppPrefix(".zipCode.label") //
-				.setTranslatedDescriptionWithAppPrefix(".zipCode.description") //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, f) -> //
-				f.setInputType(InputType.NUMBER) //
-						.isRequired(true)));
+		ZIP_CODE(TimeOfUseProps.zipCode());
 
 		private final AppDef<? super StromdaoCorrently, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -164,7 +158,7 @@ public class StromdaoCorrently extends
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
+				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
 	}
 
 	@Override

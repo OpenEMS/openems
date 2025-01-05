@@ -1,19 +1,15 @@
 package io.openems.edge.controller.io.fixdigitaloutput;
 
+import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT0;
+
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class ControllerIoFixDigitalOutputImplTest {
-
-	private static final String CTRL_ID = "ctrl0";
-
-	private static final String IO_ID = "io0";
-	private static final ChannelAddress IO_INPUT_OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
 
 	@Test
 	public void testOn() throws Exception {
@@ -28,14 +24,14 @@ public class ControllerIoFixDigitalOutputImplTest {
 	private void testSwitch(boolean on) throws Exception {
 		new ControllerTest(new ControllerIoFixDigitalOutputImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyInputOutput(IO_ID)) //
+				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setOutputChannelAddress(IO_INPUT_OUTPUT0.toString()) //
+						.setId("ctrl0") //
+						.setOutputChannelAddress("io0/InputOutput0") //
 						.setOn(on) //
 						.build())
 				.next(new TestCase() //
-						.output(IO_INPUT_OUTPUT0, on));
+						.output("io0", INPUT_OUTPUT0, on)) //
+				.deactivate();
 	}
-
 }

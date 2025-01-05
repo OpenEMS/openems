@@ -39,7 +39,6 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
@@ -267,6 +266,14 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					// Consumption is positive
 					break;
 
+				case MANAGED_CONSUMPTION_METERED: //
+					if (meter instanceof MetaEvcs) {
+						// ignore this Evcs
+					} else {
+						managedConsumptionActivePower.addValue(meter.getActivePowerChannel());
+					}
+					break;
+
 				case CONSUMPTION_NOT_METERED:
 					// TODO CONSUMPTION_NOT_METERED
 					// Consumption is positive
@@ -305,17 +312,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				var charger = (EssDcCharger) component;
 				productionDcActualPower.addValue(charger.getActualPowerChannel());
 				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
-
-			} else if (component instanceof Evcs evcs) {
-				/*
-				 * Electric Vehicle Charging Station
-				 */
-				if (evcs instanceof MetaEvcs) {
-					// ignore this Evcs
-					continue;
-				}
-
-				managedConsumptionActivePower.addValue(evcs.getChargePowerChannel());
 
 			} else if (component instanceof TimeOfUseTariff tou) {
 				/*
@@ -464,7 +460,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				highestLevel = Level.INFO;
 			}
 		}
-
 		this.getStateChannel().setNextValue(highestLevel);
 	}
 

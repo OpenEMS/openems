@@ -1,10 +1,11 @@
 // @ts-strict-ignore
-import { Injectable, WritableSignal, signal } from "@angular/core";
+import { Injectable, signal, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CookieService } from "ngx-cookie-service";
 import { delay, retryWhen } from "rxjs/operators";
-import { WebSocketSubject, webSocket } from "rxjs/webSocket";
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { UserComponent } from "src/app/user/user.component";
 import { environment } from "src/environments";
 
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
@@ -82,7 +83,8 @@ export class Websocket implements WebsocketInterface {
         // received login token -> save in cookie
         this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
 
-        this.service.currentUser = authenticateResponse.user;
+        this.service.currentUser.set(authenticateResponse.user);
+        UserComponent.applyUserSettings(authenticateResponse.user);
 
         // Metadata
         this.service.metadata.next({

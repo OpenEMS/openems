@@ -6,6 +6,7 @@ import { Edge, EdgeConfig, Service } from "../../../../shared/shared";
 @Component({
     selector: HeatPumpChartOverviewComponent.SELECTOR,
     templateUrl: "./heatpumpchartoverview.component.html",
+    standalone: false,
 })
 export class HeatPumpChartOverviewComponent implements OnInit {
 

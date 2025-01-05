@@ -2,14 +2,21 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Edge, presentAlert, Service, Websocket } from "src/app/shared/shared";
 import { environment } from "src/environments";
+import { LiveDataService } from "../../live/livedataservice";
 import { ExecuteSystemUpdate } from "./executeSystemUpdate";
 import { SystemUpdateState } from "./getSystemUpdateStateResponse";
 
 @Component({
   selector: OeSystemUpdateComponent.SELECTOR,
   templateUrl: "./oe-system-update.component.html",
+  standalone: false,
+  providers: [{
+    useClass: LiveDataService,
+    provide: DataService,
+  }],
 })
 export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 

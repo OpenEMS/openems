@@ -1,6 +1,8 @@
-<oe-chart [title]="component.alias" [showPhases]="showPhases" [showTotal]="showTotal"
+
+<oe-chart [title]="(title ?? component.alias) + '&nbsp;-&nbsp;' + ('Edge.History.PHASE_ACCURATE' | translate)" [showPhases]="showPhases" [showTotal]="showTotal"
   (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized && component"
   [period]="service.historyPeriod.value">
+  <pickdate custom-pickdate [historyPeriods]="['day', 'week']"></pickdate>
   <gridDetailsChart [isOnlyChart]="true"></gridDetailsChart>
 </oe-chart>
 <oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true"

@@ -23,6 +23,7 @@ import org.java_websocket.enums.HandshakeState;
 import org.java_websocket.enums.Opcode;
 import org.java_websocket.enums.ReadyState;
 import org.java_websocket.enums.Role;
+import org.java_websocket.exceptions.IncompleteException;
 import org.java_websocket.exceptions.InvalidDataException;
 import org.java_websocket.exceptions.InvalidFrameException;
 import org.java_websocket.exceptions.InvalidHandshakeException;

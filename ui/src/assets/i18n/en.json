@@ -201,7 +201,9 @@
             "name": "Force charging",
             "shortName": "Manually"
           },
-          "Uncontrollable": "This charging station can not be controlled."
+          "Uncontrollable": "This charging station can not be controlled.",
+          "HYSTERESIS": "Minimum switching time of the charging station active",
+          "HYSTERESIS_INFO": "For preventing charging interruptions due to frequent starting/pausing of the charing process, the charging mode currently selected will continue for the next few minutes."
         },
         "Heatingelement": {
           "activeForced": "Active (Minimum runtime)",
@@ -236,14 +238,14 @@
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid (BETA test)",
+          "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid",
           "PRICE": "Current price",
           "STATE": {
             "DELAY_DISCHARGE": "Delayed discharge",
             "BALANCING": "Self-Consumption optmization",
             "CHARGE_GRID": "Charge from grid allowed"
           },
-          "CHART_TITLE": "Planned Schedule (BETA test)",
+          "CHART_TITLE": "Planned Schedule",
           "CHART_WARNING_NOTE": "The graphic shows the past three hours as well as the future planned operating mode for the period for which the dynamic grid purchase prices are available. Please note that the planned schedule is subject to continuous recalculation and may change throughout the day.",
           "POWER_SOC_CHART_TITLE": "Forecasts (Only for Admins)"
         },
@@ -253,7 +255,14 @@
           },
           "OVERALL_SYSTEM": "Overall system"
         },
-        "FIX_DIGITAL_OUTPUT": "Digital Outputcontroller"
+        "FIX_DIGITAL_OUTPUT": "Digital Outputcontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Planned Schedule (Only for Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Activate maintenance of the emergency power reserve from the grid",
+          "GRID_CHARGE_WARNING": "The storage system can actively recharge from the grid to maintain the set emergency power reserve in order to compensate for losses due to internal self-consumption in the event of a prolonged absence of generation. <br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: precondition for German \"Gesetz für den Ausbau erneuerbarer Energien (EEG)\" grant is, that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function, the battery is charged with energy from grid. This energy is, depending on the individual power-supply contract, probably made from fossil sources and/or nuclear power plants. Because of this we can not guarantee, that the battery is only charged with energy from renewable sources and/or pit gas."
+        }
       },
       "RETROFITTING": {
         "OPTIMAL": "Capacity expansion",
@@ -311,10 +320,12 @@
       "oct": "Oxt",
       "nov": "Nov",
       "dec": "Dec",
-      "activeDuration": "active duration",
+      "activeDuration": "Active duration",
+      "ACTIVE_DURATION_WITH_LEVEL": "Active duration level {{level}}",
       "CURRENT_AND_VOLTAGE": "Current & Voltage",
       "CURRENT": "Current",
-      "VOLTAGE": "Voltage"
+      "VOLTAGE": "Voltage",
+      "PHASE_ACCURATE": "Phasengenau"
     },
     "Config": {
       "Index": {
@@ -398,7 +409,8 @@
         "buyApp": "Buy licence key",
         "modifyApp": "Modify app",
         "createApp": "Install app",
-        "deleteApp": "Delete app",
+        "deleteApp": "Uninstall app",
+        "DELETE_CONFIRM": "uninstall",
         "updateApp": "Update app",
         "errorInstallable": "Installation errors",
         "errorCompatible": "Compatibility errors",
@@ -428,7 +440,9 @@
         "successUpdate": "Successfully updated App",
         "failUpdate": "Error updating App '{{error}}'",
         "successDelete": "Successfully deleted App",
-        "failDelete": "Error deleting App '{{error}}'"
+        "failDelete": "Error deleting App '{{error}}'",
+        "DELETE_CONFIRM_HEADLINE": "Are you sure you wish to uninstall the app?",
+        "DELETE_CONFIRM_DESCRIPTION": "Uninstalling the app will remove all of its components and delete all settings made by it."
       }
     },
     "Service": {
@@ -467,8 +481,7 @@
     "capacity": "Capacity",
     "changeAccepted": "Change accepted",
     "changeFailed": "Change failed",
-    "chargeDischarge": "Charge/Discharge power",
-    "chargePower": "Charge power",
+    "chargeDischarge": "Charge/Discharge",
     "componentCount": "Number of components",
     "componentInactive": "Component is not active!",
     "connectionLost": "Connection lost. Trying to reconnect.",
@@ -480,7 +493,6 @@
     "digitalInputs": "Digital Inputs",
     "numberOfComponents": "Number of Components",
     "directConsumption": "Direct consumption",
-    "dischargePower": "Discharge power",
     "fault": "Fault",
     "FAILED": "failed",
     "WILL_BE_EXECUTED": "will be executed",
@@ -572,7 +584,9 @@
       "MINUTES": "Minutes",
       "DAY": "Day",
       "DAYS": "Days"
-    }
+    },
+    "CHARGE": "Charge",
+    "DISCHARGE": "Discharge"
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -590,6 +604,17 @@
     "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
     "FIRST_SETUP_PROTOCOL": "Initial commissioning"
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Local access currently not possible",
+      "DESCRIPTION": "If the {{edgeShortName}} has been restarted, please wait a moment until the restart has been completed."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Online access to the energy storage system is currently not available.<br>The data is stored locally and will not be lost.",
+      "MORE_INFO": "More Info",
+      "EMS_OFFLINE": "{{edgeShortName}} is offline"
+    }
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
@@ -859,6 +884,9 @@
       "CONVERTER_RATIO": "Converter ratio (200–5000A)"
     },
     "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Pull this banner to refresh"
   },
   "LOADING_SCREEN": {
     "LOADING": "Loading",

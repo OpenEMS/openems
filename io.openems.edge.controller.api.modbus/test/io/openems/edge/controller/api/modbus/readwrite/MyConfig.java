@@ -1,12 +1,7 @@
 package io.openems.edge.controller.api.modbus.readwrite;
 
-import java.nio.channels.Channels;
-
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.types.EdgeConfig.Component.Channel;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -23,12 +18,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		private Builder() {
 		}
-		
+
 		public Builder setWriteChannels(String... writeChannels) {
 			this.writeChannels = writeChannels;
 			return this;
 		}
-		
+
 		public Builder setReadChannels(String... readChannels) {
 			this.readChannels = readChannels;
 			return this;

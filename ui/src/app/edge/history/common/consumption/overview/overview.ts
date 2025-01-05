@@ -8,6 +8,7 @@ import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
     templateUrl: "./overview.html",
+    standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
 
@@ -34,7 +35,8 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
                 !component.isEnabled === false);
 
         this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
+            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component)
+                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs"));
 
         const sum: EdgeConfig.Component = this.config.getComponent("_sum");
         sum.alias = this.translate.instant("General.TOTAL");

@@ -5,11 +5,12 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
 
 @Component({
   selector: "detailChart",
   templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -53,7 +54,7 @@ export class ChartComponent extends AbstractHistoryChart {
               // TODO add logic to not have to adjust non power data manually
               ?.map(val => Utils.multiplySafely(val, 1000));
           },
-          color: "rgb(0,191,255)",
+          color: ChartConstants.Colors.YELLOW,
           stack: 0,
         });
 

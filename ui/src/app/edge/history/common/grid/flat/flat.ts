@@ -7,6 +7,7 @@ import { TimeUtils } from "src/app/shared/utils/time/timeutils";
 @Component({
   selector: "gridWidget",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

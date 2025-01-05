@@ -9,6 +9,7 @@ import { Controller_ChpSocModalComponent } from "./modal/modal.component";
 @Component({
     selector: "Controller_ChpSocComponent",
     templateUrl: "./ChpSoc.html",
+    standalone: false,
 })
 export class Controller_ChpSocComponent extends AbstractFlatWidget {
 
@@ -27,6 +28,11 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         size: "large",
         color: "primary",
     };
+
+    protected get thresholdDelta() {
+        const delta = this.highThresholdValue - this.lowThresholdValue;
+        return delta < 0 ? 0 : delta;
+    }
 
     async presentModal() {
         const modal = await this.modalController.create({

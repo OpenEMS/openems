@@ -193,6 +193,12 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 				.text("The Energy Storage System is in read-only mode and does not allow to be controlled.")), //
 
 		/**
+		 * Production values for prediction not available.
+		 */
+		NO_VALID_PRODUCTION_PREDICTION(Doc.of(Level.WARNING) //
+				.translationKey(ControllerEssGridOptimizedCharge.class, "noValidProductionPrediction")), //
+
+		/**
 		 * Cumulated seconds of the state delay charge.
 		 */
 		DELAY_CHARGE_TIME(Doc.of(OpenemsType.LONG) //
@@ -694,6 +700,25 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 	 */
 	public default void _setConfiguredEssIsNotManaged(Boolean value) {
 		this.getConfiguredEssIsNotManagedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#NO_VALID_PRODUCTION_PREDICTION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel noValidProductionPredictionChannel() {
+		return this.channel(ChannelId.NO_VALID_PRODUCTION_PREDICTION);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#NO_VALID_PRODUCTION_PREDICTION} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setNoValidProductionPredictionChannel(Boolean value) {
+		this.noValidProductionPredictionChannel().setNextValue(value);
 	}
 
 	/**

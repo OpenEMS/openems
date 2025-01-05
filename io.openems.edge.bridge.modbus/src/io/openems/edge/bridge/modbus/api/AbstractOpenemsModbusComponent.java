@@ -110,17 +110,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
-		// update filter for 'Modbus'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
-			return true;
-		}
-		this.unitId = unitId;
-		var modbus = this.modbus.get();
-		if (this.isEnabled() && modbus != null) {
-			modbus.addProtocol(this.id(), this.getModbusProtocol());
-			modbus.retryModbusCommunication(this.id());
-		}
-		return false;
+		return this.activateOrModified(unitId, cm, modbusReference, modbusId);
 	}
 
 	@Override
@@ -147,29 +137,46 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbusId        The ID of the Modbus bridge. Typically
 	 *                        'config.modbus_id()'
 	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
+	 *         modified() method.
 	 * @throws OpenemsException on error
 	 */
 	protected boolean modified(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.modified(context, id, alias, enabled);
+		return this.activateOrModified(unitId, cm, modbusReference, modbusId);
+	}
+
+	@Override
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
+		throw new IllegalArgumentException("Use the other modified() for Modbus components!");
+	}
+
+	/**
+	 * Common tasks for @Activate and @Modified.
+	 * 
+	 * @param unitId          Unit-ID of the Modbus target
+	 * @param cm              An instance of ConfigurationAdmin. Receive it
+	 *                        using @Reference
+	 * @param modbusReference The name of the @Reference setter method for the
+	 *                        Modbus bridge - e.g. 'Modbus' if you have a
+	 *                        setModbus()-method
+	 * @param modbusId        The ID of the Modbus bridge. Typically
+	 *                        'config.modbus_id()'
+	 * @return true if the target filter was updated. You may use it to abort the
+	 *         activate() or modified() method.
+	 */
+	private boolean activateOrModified(int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		// update filter for 'Modbus'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), modbusReference, modbusId)) {
 			return true;
 		}
 		this.unitId = unitId;
 		var modbus = this.modbus.get();
-		modbus.removeProtocol(this.id());
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
 			modbus.retryModbusCommunication(this.id());
 		}
 		return false;
-	}
-
-	@Override
-	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
-		throw new IllegalArgumentException("Use the other activate() for Modbus components!");
 	}
 
 	@Override

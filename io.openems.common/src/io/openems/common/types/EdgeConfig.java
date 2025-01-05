@@ -588,8 +588,7 @@ public class EdgeConfig {
 			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
-					if (!ignorePropertyKey(entry.getKey())
-							&& !ignoreComponentPropertyKey(componentId, entry.getKey())) {
+					if (!ignorePropertyKey(entry.getKey())) {
 						properties.put(entry.getKey(), entry.getValue());
 					}
 				}
@@ -1171,9 +1170,9 @@ public class EdgeConfig {
 			}
 
 			/**
-			 * Builds the {@link ActualEdgeConfig}.
+			 * Builds the ActualEdgeConfig.
 			 * 
-			 * @return {@link ActualEdgeConfig}
+			 * @return ActualEdgeConfig
 			 */
 			public ActualEdgeConfig build() {
 				return new ActualEdgeConfig(ImmutableSortedMap.copyOf(this.getComponents()),
@@ -1191,16 +1190,16 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Creates an empty {@link ActualEdgeConfig}.
+		 * Creates an empty ActualEdgeConfig.
 		 * 
-		 * @return {@link ActualEdgeConfig}
+		 * @return ActualEdgeConfig
 		 */
 		public static ActualEdgeConfig empty() {
 			return ActualEdgeConfig.create().build();
 		}
 
 		/**
-		 * Create a {@link ActualEdgeConfig.Builder} builder.
+		 * Create a ActualEdgeConfig builder.
 		 * 
 		 * @return a {@link Builder}
 		 */
@@ -1248,9 +1247,9 @@ public class EdgeConfig {
 	private volatile JsonObject _json = null;
 
 	/**
-	 * Build from {@link ActualEdgeConfig}.
+	 * Build from ActualEdgeConfig.
 	 * 
-	 * @param actual the {@link ActualEdgeConfig}
+	 * @param actual the ActualEdgeConfig
 	 */
 	private EdgeConfig(ActualEdgeConfig actual) {
 		this._actual = actual;
@@ -1261,10 +1260,10 @@ public class EdgeConfig {
 	}
 
 	/**
-	 * Gets the {@link ActualEdgeConfig}. Either by parsing it from {@link #json} or
-	 * by returning from cache.
+	 * Gets the ActualEdgeConfig. Either by parsing it from {@link #json} or by
+	 * returning from cache.
 	 * 
-	 * @return {@link ActualEdgeConfig}; empty on JSON parse error
+	 * @return ActualEdgeConfig; empty on JSON parse error
 	 */
 	private synchronized ActualEdgeConfig getActual() {
 		if (this._actual != null) {
@@ -1461,27 +1460,6 @@ public class EdgeConfig {
 				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
 				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
 			true;
-
-		default -> false;
-		};
-	}
-
-	/**
-	 * Internal Method to decide whether a configuration property should be ignored.
-	 *
-	 * @param componentId the Component-ID
-	 * @param key         the property key
-	 * @return true if it should get ignored
-	 */
-	public static boolean ignoreComponentPropertyKey(String componentId, String key) {
-		return switch (componentId) {
-		// Filter for _sum component
-		case "_sum" -> switch (key) {
-		case "productionMaxActivePower", "consumptionMaxActivePower", "gridMinActivePower", "gridMaxActivePower" ->
-			true;
-
-		default -> false;
-		};
 
 		default -> false;
 		};

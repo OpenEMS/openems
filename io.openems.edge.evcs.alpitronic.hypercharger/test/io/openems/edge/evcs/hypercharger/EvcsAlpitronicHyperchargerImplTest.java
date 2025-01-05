@@ -9,17 +9,14 @@ import io.openems.edge.evcs.hypercharger.EvcsAlpitronicHypercharger.Connector;
 
 public class EvcsAlpitronicHyperchargerImplTest {
 
-	private static final String EVCS_ID = "evcs0";
-	private static final String MODBUS_ID = "modbus0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new EvcsAlpitronicHyperchargerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setModbusId(MODBUS_ID) //
-						.setId(EVCS_ID) //
+						.setModbusId("modbus0") //
+						.setId("evcs0") //
 						.setModbusUnitId(1) //
 						.setConnector(Connector.SLOT_0) //
 						.setMaxHwPower(70_000) //

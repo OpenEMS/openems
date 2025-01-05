@@ -7,6 +7,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
   selector: "currentVoltageAsymmetricChart",
   templateUrl: "../../../../../components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart {
 
@@ -34,7 +35,7 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
           },
           hideShadow: true,
           color: currentPhasesColors[index],
-          yAxisId: ChartAxis.RIGHT,
+          yAxisId: ChartAxis.LEFT,
         })),
         ...Phase.THREE_PHASE.map((phase, index) => ({
           name: this.translate.instant("Edge.History.VOLTAGE") + " " + phase,
@@ -43,6 +44,7 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
           },
           hideShadow: true,
           color: voltagePhasesColors[index],
+          yAxisId: ChartAxis.RIGHT,
         })),
       ],
       tooltip: {
@@ -51,13 +53,14 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
       },
       yAxes: [{
         unit: YAxisType.VOLTAGE,
-        position: "left",
-        yAxisId: ChartAxis.LEFT,
+        position: "right",
+        yAxisId: ChartAxis.RIGHT,
+        displayGrid: false,
       },
       {
         unit: YAxisType.CURRENT,
-        position: "right",
-        yAxisId: ChartAxis.RIGHT,
+        position: "left",
+        yAxisId: ChartAxis.LEFT,
       },
       ],
     };

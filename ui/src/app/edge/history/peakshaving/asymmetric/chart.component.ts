@@ -11,6 +11,7 @@ import { AbstractHistoryChart } from "../../abstracthistorychart";
 @Component({
     selector: "asymmetricpeakshavingchart",
     templateUrl: "../../abstracthistorychart.html",
+    standalone: false,
 })
 export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -178,7 +179,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant("General.chargePower"),
+                    label: this.translate.instant("General.CHARGE"),
                     data: chargeData,
                 });
                 this.colors.push({
@@ -198,7 +199,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     }
                 });
                 datasets.push({
-                    label: this.translate.instant("General.dischargePower"),
+                    label: this.translate.instant("General.DISCHARGE"),
                     data: dischargeData,
                 });
                 this.colors.push({

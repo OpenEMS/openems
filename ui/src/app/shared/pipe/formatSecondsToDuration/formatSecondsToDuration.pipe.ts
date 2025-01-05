@@ -5,6 +5,7 @@ import { Converter } from "../../components/shared/converter";
 
 @Pipe({
     name: "formatSecondsToDuration",
+    standalone: false,
 })
 export class FormatSecondsToDurationPipe implements PipeTransform {
 
