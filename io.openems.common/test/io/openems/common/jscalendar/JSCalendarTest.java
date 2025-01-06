@@ -1,10 +1,11 @@
 package io.openems.common.jscalendar;
 
+import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
 import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.prettyToString;
-import static io.openems.common.utils.UuidUtils.getNilUuid;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SATURDAY;
@@ -22,17 +23,51 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 
 //CHECKSTYLE:OFF
 public class JSCalendarTest {
 	// CHECKSTYLE:ON
 
 	@Test
+	public void testDaily() throws OpenemsNamedException {
+		var clock = createDummyClock();
+		var sut = JSCalendar.Task.<JsonObject>create() //
+				.setStart("07:00:00") //
+				.addRecurrenceRule(b -> b //
+						.setFrequency(DAILY)) //
+				.build();
+
+		var next = sut.getNextOccurence(ZonedDateTime.now(clock));
+		assertEquals("2020-01-01T07:00Z", next.toString());
+		next = sut.getNextOccurence(next.plusSeconds(1));
+		assertEquals("2020-01-02T07:00Z", next.toString());
+		next = sut.getNextOccurence(next.plusSeconds(1));
+		assertEquals("2020-01-03T07:00Z", next.toString());
+	}
+
+	@Test
+	public void testDailyParse() throws OpenemsNamedException {
+		var sut = JSCalendar.Task.fromStringOrEmpty("""
+				[
+				   {
+				      "@type":"Task",
+				      "start":"19:00:00",
+				      "duration":"PT12H",
+				      "recurrenceRules":[
+				         {
+				            "frequency":"daily"
+				         }
+				      ]
+				   }
+				]""", j -> j);
+		assertEquals(1, sut.size());
+	}
+
+	@Test
 	public void testWeekday() throws OpenemsNamedException {
 		var clock = createDummyClock();
-		var sut = new JSCalendar.Task.Builder<JsonObject>(getNilUuid(), ZonedDateTime.now(clock)) //
-				.setStart("2024-06-17T07:00:00") //
+		var sut = JSCalendar.Task.<JsonObject>create() //
+				.setStart("07:00:00") //
 				.addRecurrenceRule(b -> b //
 						.setFrequency(WEEKLY) //
 						.addByDay(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)) //
@@ -40,12 +75,11 @@ public class JSCalendarTest {
 						.addProperty("sessionEnergy", 10000) //
 						.build()) //
 				.build();
+
 		assertEquals("""
 				{
 				  "@type": "Task",
-				  "uid": "00000000-0000-0000-0000-000000000000",
-				  "updated": "2020-01-01T00:00:00Z",
-				  "start": "2024-06-17T07:00:00",
+				  "start": "07:00:00",
 				  "recurrenceRules": [
 				    {
 				      "frequency": "weekly",
@@ -58,28 +92,28 @@ public class JSCalendarTest {
 				      ]
 				    }
 				  ],
-				  "payload": {
+				  "openems.io:payload": {
 				    "sessionEnergy": 10000
 				  }
 				}""", prettyToString(sut.toJson(identity())));
 
 		var next = sut.getNextOccurence(ZonedDateTime.now(clock));
-		assertEquals("2024-06-17T07:00Z", next.toString());
+		assertEquals("2020-01-01T07:00Z", next.toString());
 		next = sut.getNextOccurence(next.plusSeconds(1));
-		assertEquals("2024-06-18T07:00Z", next.toString());
+		assertEquals("2020-01-02T07:00Z", next.toString());
 		next = sut.getNextOccurence(next.plusSeconds(1));
-		assertEquals("2024-06-19T07:00Z", next.toString());
+		assertEquals("2020-01-03T07:00Z", next.toString());
 		next = sut.getNextOccurence(next.plusSeconds(1));
-		assertEquals("2024-06-20T07:00Z", next.toString());
+		assertEquals("2020-01-06T07:00Z", next.toString()); // next week
 		next = sut.getNextOccurence(next.plusSeconds(1));
-		assertEquals("2024-06-21T07:00Z", next.toString());
-		next = sut.getNextOccurence(next.plusSeconds(1)); // next week
-		assertEquals("2024-06-24T07:00Z", next.toString());
+		assertEquals("2020-01-07T07:00Z", next.toString());
+		next = sut.getNextOccurence(next.plusSeconds(1));
+		assertEquals("2020-01-08T07:00Z", next.toString());
 		next = sut.getNextOccurence(next);
-		assertEquals("2024-06-24T07:00Z", next.toString()); // same
+		assertEquals("2020-01-08T07:00Z", next.toString()); // same
 
 		// Parse JSON
-		var fromJson = JSCalendar.Task.fromJson(JsonUtils.buildJsonArray() //
+		var fromJson = JSCalendar.Task.fromJson(buildJsonArray() //
 				.add(sut.toJson(identity())) //
 				.build(), j -> j);
 		assertEquals(sut.toJson(identity()), fromJson.get(0).toJson(identity()));
@@ -88,7 +122,7 @@ public class JSCalendarTest {
 	@Test
 	public void testWeekend() throws OpenemsNamedException {
 		var clock = createDummyClock();
-		var sut = new JSCalendar.Task.Builder<JsonObject>(getNilUuid(), ZonedDateTime.now(clock)) //
+		var sut = JSCalendar.Task.<JsonObject>create() //
 				.setStart("2024-06-17T00:00:00") //
 				.addRecurrenceRule(b -> b //
 						.setFrequency(WEEKLY) //
@@ -100,8 +134,6 @@ public class JSCalendarTest {
 		assertEquals("""
 				{
 				  "@type": "Task",
-				  "uid": "00000000-0000-0000-0000-000000000000",
-				  "updated": "2020-01-01T00:00:00Z",
 				  "start": "2024-06-17T00:00:00",
 				  "recurrenceRules": [
 				    {
@@ -112,7 +144,7 @@ public class JSCalendarTest {
 				      ]
 				    }
 				  ],
-				  "payload": {
+				  "openems.io:payload": {
 				    "sessionEnergy": 10001
 				  }
 				}""", prettyToString(sut.toJson(identity())));

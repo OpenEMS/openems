@@ -3,6 +3,13 @@ package io.openems.edge.common.test;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -900,31 +907,30 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		testCase.applyTimeLeap();
 		this.onBeforeProcessImage();
 		executeCallbacks(testCase.onBeforeProcessImageCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
-		for (Channel<?> channel : this.getSut().channels()) {
-			channel.nextProcessImage();
-		}
+		this.handleEvent(TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
+		this.sut.channels() //
+				.forEach(Channel::nextProcessImage);
 		testCase.applyInputs(this);
 		this.onAfterProcessImage();
 		executeCallbacks(testCase.onAfterProcessImageCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
+		this.handleEvent(TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
 		this.onBeforeControllers();
 		executeCallbacks(testCase.onBeforeControllersCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS);
+		this.handleEvent(TOPIC_CYCLE_BEFORE_CONTROLLERS);
 		this.onExecuteControllers();
 		executeCallbacks(testCase.onExecuteControllersCallbacks);
 		this.onAfterControllers();
 		executeCallbacks(testCase.onAfterControllersCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS);
+		this.handleEvent(TOPIC_CYCLE_AFTER_CONTROLLERS);
 		this.onBeforeWrite();
 		executeCallbacks(testCase.onBeforeWriteCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE);
+		this.handleEvent(TOPIC_CYCLE_BEFORE_WRITE);
 		this.onExecuteWrite();
 		executeCallbacks(testCase.onExecuteWriteCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE);
+		this.handleEvent(TOPIC_CYCLE_EXECUTE_WRITE);
 		this.onAfterWrite();
 		executeCallbacks(testCase.onAfterWriteCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE);
+		this.handleEvent(TOPIC_CYCLE_AFTER_WRITE);
 		testCase.validateOutputs(this);
 		return this.self();
 	}
