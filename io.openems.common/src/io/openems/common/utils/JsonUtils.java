@@ -1760,6 +1760,19 @@ public final class JsonUtils {
 	}
 
 	/**
+	 * Takes a JSON in the form '2020-01-01T00:00:00' and converts it to a
+	 * {@link LocalDateTime}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member of the JsonObject
+	 * @return the {@link ZonedDateTime}
+	 */
+	public static Optional<LocalDateTime> getAsOptionalLocalDateTime(JsonElement jElement, String memberName) {
+		return JsonUtils.getAsOptionalString(jElement, memberName)//
+				.map(DateUtils::parseLocalDateTimeOrNull);
+	}
+
+	/**
 	 * Takes a JSON in the form '2020-01-01T00:00:00Z' and converts it to a
 	 * {@link ZonedDateTime}.
 	 *
