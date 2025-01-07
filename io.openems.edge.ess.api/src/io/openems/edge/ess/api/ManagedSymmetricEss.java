@@ -85,28 +85,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onChannelSetNextWrite(
-						new PowerConstraint("SetActivePowerEqualsWithPid", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS) {
-							@Override
-							public void accept(ManagedSymmetricEss ess, Integer value) throws OpenemsNamedException {
-								if (value != null) {
-									var power = ess.getPower();
-									var pidFilter = power.getPidFilter();
-
-									// configure PID filter
-									var minPower = power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-									var maxPower = power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-									if (maxPower < minPower) {
-										maxPower = minPower; // avoid rounding error
-									}
-									pidFilter.setLimits(minPower, maxPower);
-
-									int currentActivePower = ess.getActivePower().orElse(0);
-									var pidOutput = pidFilter.applyPidFilter(currentActivePower, value);
-
-									ess.setActivePowerEquals(pidOutput);
-								}
-							}
-						})),
+						new ActivePowerConstraintWithPid())),
 		/**
 		 * Sets a fixed Reactive Power.
 		 *
