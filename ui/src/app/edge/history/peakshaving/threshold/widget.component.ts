@@ -6,6 +6,7 @@ import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
 @Component({
     selector: ThresholdPeakshavingWidgetComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class ThresholdPeakshavingWidgetComponent implements OnInit {
 

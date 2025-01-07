@@ -99,63 +99,6 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                             borderColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-grey-primary"),
                                         });
                                     }
-
-                                    if (channelAddress.channelId === "ActualReserveSoc") {
-                                        datasets.push({
-                                            label:
-                                                this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
-                                            data: data,
-                                            borderDash: [3, 3],
-
-                                        });
-                                        this.colors.push({
-                                            backgroundColor: "rgba(1, 1, 1,0)",
-                                            borderColor: "rgba(1, 1, 1,1)",
-                                        });
-                                    }
-                                    // Add alias to label if more than 1 ESS
-                                    if (channelAddress.channelId === "MinSoc") {
-                                        datasets.push({
-                                            label:
-                                                this.chargeDischargeLimiterComponents.length > 1
-                                                    ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE")}`
-                                                    : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE")}`,
-                                            data: data,
-                                            borderDash: [5, 5],
-                                        });
-                                        this.colors.push({
-                                            backgroundColor: "rgba(0, 0, 255, 0.1)",
-                                            borderColor: "rgba(0, 0, 255, 1)",
-                                        });
-                                    }
-                                    if (channelAddress.channelId === "MaxSoc") {
-                                        datasets.push({
-                                            label:
-                                                this.chargeDischargeLimiterComponents.length > 1
-                                                    ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE")}`
-                                                    : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE")}`,
-                                            data: data,
-                                            borderDash: [5, 5],
-                                        });
-                                        this.colors.push({
-                                            backgroundColor: "rgba(255, 165, 0, 0.1)",
-                                            borderColor: "rgba(255, 165, 0, 1)",
-                                        });
-                                    }
-                                    if (channelAddress.channelId === "BalancingSoc") {
-                                        datasets.push({
-                                            label:
-                                                this.chargeDischargeLimiterComponents.length > 1
-                                                    ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE")}`
-                                                    : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE")}`,
-                                            data: data,
-                                            borderDash: [5, 5],
-                                        });
-                                        this.colors.push({
-                                            backgroundColor: "rgba(255, 0, 0, 0.1)",
-                                            borderColor: "rgba(255, 0, 0, 1)",
-                                        });
-                                    }
                                 }
                                 if (channelAddress.channelId === "ActualReserveSoc") {
                                     datasets.push({
@@ -168,6 +111,49 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     this.colors.push({
                                         backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-emergencyreserve-rgba"),
                                         borderColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-emergencyreserve-primary"),
+                                    });
+                                }
+                                // Add alias to label if more than 1 ESS
+                                if (channelAddress.channelId === "MinSoc") {
+                                    datasets.push({
+                                        label:
+                                            this.chargeDischargeLimiterComponents.length > 1
+                                                ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE")}`
+                                                : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE")}`,
+                                        data: data,
+                                        borderDash: [5, 5],
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: "rgba(0, 0, 255, 0.1)",
+                                        borderColor: "rgba(0, 0, 255, 1)",
+                                    });
+                                }
+                                if (channelAddress.channelId === "MaxSoc") {
+                                    datasets.push({
+                                        label:
+                                            this.chargeDischargeLimiterComponents.length > 1
+                                                ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE")}`
+                                                : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE")}`,
+                                        data: data,
+                                        borderDash: [5, 5],
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: "rgba(255, 165, 0, 0.1)",
+                                        borderColor: "rgba(255, 165, 0, 1)",
+                                    });
+                                }
+                                if (channelAddress.channelId === "BalancingSoc") {
+                                    datasets.push({
+                                        label:
+                                            this.chargeDischargeLimiterComponents.length > 1
+                                                ? `${component.alias} ${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE")}`
+                                                : `${this.translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE")}`,
+                                        data: data,
+                                        borderDash: [5, 5],
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                                        borderColor: "rgba(255, 0, 0, 1)",
                                     });
                                 }
                             });

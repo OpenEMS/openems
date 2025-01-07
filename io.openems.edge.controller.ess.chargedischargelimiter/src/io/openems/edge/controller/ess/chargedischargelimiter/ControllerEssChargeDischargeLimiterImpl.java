@@ -172,21 +172,28 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	}
 
 	private void setEssProperties() {
-		// Überprüfen, ob ESS bereit und initialisiert ist
-		if (this.ess != null && this.ess.getAllowedChargePower().get() < 0) {
+		// Initial values
+		this.slowChargePower = 500;
+		this.slowDisChargePower = 500;
+		this.fullChargePower = 500;		
 
-			this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
-			this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
-			this.fullChargePower = this.ess.getAllowedChargePower().get();
+		if(this.ess == null || this.ess.getAllowedChargePower().get() == null) {
+			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");			
+			return;
+		}		
 
-			this.logDebug(this.log, "Initialized slow charge and discharge power.");
-		} else {
-			this.slowChargePower = 500;
-			this.slowDisChargePower = 500;
-			this.fullChargePower = 500;
-			
-			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");
-		}
+		// Charge power must be positive
+		if(this.ess.getAllowedChargePower().get() > 0) {
+			this.logDebug(this.log, "Unable to set slow charge / discharge power");			
+			return;
+		}		
+
+		this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
+		this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
+		this.fullChargePower = this.ess.getAllowedChargePower().get();
+
+		this.logDebug(this.log, "Initialized slow charge and discharge power.");
+		return;
 
 	}
 

@@ -170,10 +170,10 @@ public interface VictronBattery extends Battery, OpenemsComponent {
 		), //
 		DISCHARGED_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.KILOWATT_HOURS).persistencePriority(PersistencePriority.HIGH) // ) //
+				.unit(Unit.WATT_HOURS).persistencePriority(PersistencePriority.HIGH) // ) //
 		), CHARGED_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.KILOWATT_HOURS).persistencePriority(PersistencePriority.HIGH) // ) //
+				.unit(Unit.WATT_HOURS).persistencePriority(PersistencePriority.HIGH) // ) //
 		), TIME_TO_GO(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.SECONDS) //

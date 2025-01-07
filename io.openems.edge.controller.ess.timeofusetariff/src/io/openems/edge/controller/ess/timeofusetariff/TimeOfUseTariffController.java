@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -7,6 +8,8 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -106,5 +109,18 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 	 */
 	public default void _setStateMachine(StateMachine value) {
 		this.getStateMachineChannel().setNextValue(value);
+	}
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
+	public default ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(TimeOfUseTariffController.class, accessMode, 100) //
+				.channel(0, ChannelId.QUARTERLY_PRICES, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.DELAYED_TIME, ModbusType.UINT32) //
+				.build();
 	}
 }

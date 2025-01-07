@@ -77,7 +77,11 @@ export class StorageComponent extends AbstractFlatWidget {
             component: StorageModalComponent,
             componentProps: {
                 edge: this.edge,
+                config: this.config,
                 component: this.component,
+                essComponents: this.essComponents,
+                chargerComponents: this.chargerComponents,
+                singleComponent: this.component,
             },
         });
         return await modal.present();
@@ -209,7 +213,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         for (const essId in this.prepareBatteryExtensionCtrl) {
             const controller = this.prepareBatteryExtensionCtrl[essId];
-            //console.log(`Checking Battery Extension for essId: ${essId}`, controller);
+
             this.possibleBatteryExtensionMessage.set(
                 essId,
                 this.getBatteryCapacityExtensionStatus(

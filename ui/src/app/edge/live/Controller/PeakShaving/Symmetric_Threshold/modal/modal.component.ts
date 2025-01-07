@@ -23,6 +23,7 @@ enum PeakShavingState {
 @Component({
     selector: "thresholdpeakshaving-modal",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 
 

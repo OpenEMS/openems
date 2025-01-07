@@ -8,6 +8,7 @@ import { Controller_Symmetric_Threshold_PeakShavingModalComponent } from "./moda
 @Component({
     selector: "Controller_Symmetric_Threshold_PeakShaving",
     templateUrl: "./Symmetric_Threshold.html",
+    standalone: false,
 })
 export class Controller_Symmetric_Threshold_PeakShavingComponent extends AbstractFlatWidget {
 

@@ -153,10 +153,27 @@ public abstract class QuarterlyValues<T> {
 		if (this.isEmpty()) {
 			sh.addValue("EMPTY");
 		} else {
+			/*
 			sh.add("start", this.getFirstTime().toString());
 			sh.add("values", this.toMapWithAllQuarters().values().stream() //
 					.map(Object::toString) //
 					.collect(Collectors.joining(",")));
+			*/
+			if (this.getFirstTime() != null) {
+			    sh.add("start", this.getFirstTime().toString());
+			} else {
+			    sh.add("start", "null");
+			}
+
+			var map = this.toMapWithAllQuarters();
+			if (map != null) {
+			    sh.add("values", map.values().stream()
+			        .map(value -> value != null ? value.toString() : "null")
+			        .collect(Collectors.joining(",")));
+			} else {
+			    sh.add("values", "map is null");
+			}
+			
 		}
 		return sh.toString();
 	}

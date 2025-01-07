@@ -57,10 +57,7 @@
           <timeslotPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </timeslotPeakshavingWidget>
         </ion-col>
-        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.ThresholdPeakshaving'">
-          <thresholdPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </thresholdPeakshavingWidget>
-        </ion-col>
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'">
           <delayedSellToGridWidget [componentId]="widget.componentId"></delayedSellToGridWidget>
         </ion-col>

@@ -424,7 +424,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 		var activeAcPower = this.getActivePower().get(); // AC-Power never gets negative. So it´s AC power out of the
 															// ESS. Actually we don´t need the following calculation
-
 		if (activeAcPower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);
@@ -455,8 +454,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-
-
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
@@ -602,25 +599,25 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 						this.m(VictronEss.ChannelId.SUSTAIN_ACTIVE, new UnsignedWordElement(73)),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT, new UnsignedDoublewordElement(74),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_1_TO_BATTERY, new UnsignedDoublewordElement(76),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_2_TO_AC_OUT, new UnsignedDoublewordElement(78),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_2_TO_BATTERY, new UnsignedDoublewordElement(80),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_1, new UnsignedDoublewordElement(82),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_2, new UnsignedDoublewordElement(84),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_IN_1, new UnsignedDoublewordElement(86),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_IN_2, new UnsignedDoublewordElement(88),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT, new UnsignedDoublewordElement(90),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_BATTERY, new UnsignedDoublewordElement(92),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.LOW_CELL_VOLTAGE_IMMINENT, new UnsignedWordElement(94)),
 						this.m(VictronEss.ChannelId.CHARGE_STATE, new UnsignedWordElement(95)),
 

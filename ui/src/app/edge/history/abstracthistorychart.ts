@@ -279,7 +279,6 @@ export abstract class AbstractHistoryChart {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
-                        console.log("Sending request with parameters:", request);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             resolve(response as QueryHistoricTimeseriesDataResponse);
                         }).catch(error => {
@@ -297,9 +296,7 @@ export abstract class AbstractHistoryChart {
                 this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            const normalizedResponse = DateTimeUtils.normalizeTimestamps(resolution.unit, response);
-            console.log("Normalized response:", normalizedResponse);
-            return normalizedResponse;
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
         });
 
         return result;
