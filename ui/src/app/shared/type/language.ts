@@ -42,7 +42,7 @@ export class Language {
     public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA);
 
     public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR, Language.JA];
-    public static readonly DEFAULT = Language.DE;
+    public static readonly DEFAULT = Language.getByKey(environment.defaultLanguage) as Language;
 
     constructor(
         public readonly title: string,
