@@ -76,6 +76,8 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		);
 
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Activate

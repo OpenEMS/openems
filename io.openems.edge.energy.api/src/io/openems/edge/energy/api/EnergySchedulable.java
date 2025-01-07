@@ -1,8 +1,8 @@
 package io.openems.edge.energy.api;
 
-import io.openems.edge.controller.api.Controller;
+import io.openems.edge.common.component.OpenemsComponent;
 
-public interface EnergySchedulable extends Controller {
+public interface EnergySchedulable extends OpenemsComponent {
 
 	/**
 	 * Get the {@link EnergyScheduleHandler}.

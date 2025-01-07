@@ -1320,7 +1320,7 @@ public interface GoodWe extends OpenemsComponent {
 		 * individually.
 		 */
 		DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE)), // 
+				.accessMode(AccessMode.READ_WRITE)), //
 
 		DEBUG_EMS_POWER_MODE(Doc.of(EmsPowerMode.values())), //
 		DEBUG_EMS_POWER_SET(Doc.of(OpenemsType.INTEGER)), //

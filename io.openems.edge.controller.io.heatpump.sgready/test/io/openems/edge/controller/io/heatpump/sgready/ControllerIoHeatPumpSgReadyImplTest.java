@@ -1,9 +1,9 @@
 package io.openems.edge.controller.io.heatpump.sgready;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_DISCHARGE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_SOC;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.io.heatpump.sgready.ControllerIoHeatPumpSgReady.ChannelId.AWAITING_HYSTERESIS;
 import static io.openems.edge.controller.io.heatpump.sgready.ControllerIoHeatPumpSgReady.ChannelId.STATUS;
 import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT0;

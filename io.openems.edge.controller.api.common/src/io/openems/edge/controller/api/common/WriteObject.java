@@ -118,7 +118,7 @@ public abstract class WriteObject {
 	 * @return the value as String
 	 */
 	public abstract String valueToString();
-	
+
 	/**
 	 * Gets the value of the current object.
 	 *

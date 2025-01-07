@@ -62,7 +62,8 @@ public class ExchangeRateApiTest {
 	// Remove '@Ignore' tag to test this API call.
 	@Ignore
 	@Test
-	public void testGetExchangeRate() throws IOException, OpenemsNamedException, ParserConfigurationException, SAXException {
+	public void testGetExchangeRate()
+			throws IOException, OpenemsNamedException, ParserConfigurationException, SAXException {
 		var rate = getExchangeRate("EUR", Currency.SEK);
 		System.out.println(rate);
 	}

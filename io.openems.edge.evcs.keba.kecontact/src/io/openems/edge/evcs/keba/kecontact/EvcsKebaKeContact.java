@@ -159,7 +159,7 @@ public interface EvcsKebaKeContact
 				.channel(75, EvcsKebaKeContact.ChannelId.TIMEOUT_CT, ModbusType.UINT16) //
 				.uint16Reserved(76) //
 				.channel(77, EvcsKebaKeContact.ChannelId.OUTPUT, ModbusType.UINT16)
-				.channel(78, EvcsKebaKeContact.ChannelId.INPUT, ModbusType.UINT16)
+				.channel(78, EvcsKebaKeContact.ChannelId.INPUT, ModbusType.UINT16) //
 				.build();
 	}
 }

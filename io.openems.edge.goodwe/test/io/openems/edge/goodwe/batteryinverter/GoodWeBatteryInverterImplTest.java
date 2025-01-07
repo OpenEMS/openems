@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
 import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.ACTIVE_POWER;
 import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER;
@@ -51,7 +52,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
@@ -750,7 +750,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager",
-						new DummyComponentManager(TestUtils.createDummyClock()))
+						new DummyComponentManager(createDummyClock()))
 				.addReference("setModbus", new DummyModbusBridge("modbus2") //
 						.withRegisters(35011, // Deprecated GoodWe type register
 								new int[] { 0x4757, 0x3135, 0x4b2d, 0x4554, 0x3230 })

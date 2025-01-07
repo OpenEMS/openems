@@ -12,7 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		private Builder() {
 		}
-		
+
 		public Builder setInputChannelAddress(String inputChannelAddress) {
 			this.inputChannelAddress = inputChannelAddress;
 			return this;
@@ -22,7 +22,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setEssId(String id) {
 			this.essId = id;
 			return this;

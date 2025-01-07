@@ -19,7 +19,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.currency = currency;
 			return this;
 		}
-		
+
 		public Builder setIsEssChargeFromGridAllowed(boolean isEssChargeFromGridAllowed) {
 			this.isEssChargeFromGridAllowed = isEssChargeFromGridAllowed;
 			return this;

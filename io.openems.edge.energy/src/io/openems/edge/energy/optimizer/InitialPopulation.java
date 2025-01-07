@@ -38,6 +38,8 @@ public class InitialPopulation {
 	 */
 	public static ISeq<Genotype<IntegerGene>> generateInitialPopulation(GlobalSimulationsContext gsc, EshCodec codec,
 			SimulationResult previousResult, boolean isCurrentPeriodFixed) {
+		// TODO read good variations from ESHs.
+		// Example: force charge car during cheapest hours
 		return Stream //
 				.concat(//
 						variationsOfAllStatesDefault(gsc, previousResult, isCurrentPeriodFixed), //

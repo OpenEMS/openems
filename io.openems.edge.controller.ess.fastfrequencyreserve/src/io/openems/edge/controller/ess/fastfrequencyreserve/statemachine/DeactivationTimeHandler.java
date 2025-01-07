@@ -10,7 +10,7 @@ import io.openems.edge.controller.ess.fastfrequencyreserve.statemachine.StateMac
 
 public class DeactivationTimeHandler extends StateHandler<State, Context> {
 
-	private static final int ZERO_WATT_POWER = 0; //[0 W]
+	private static final int ZERO_WATT_POWER = 0; // [0 W]
 	protected Instant deactivationStateStartTime;
 
 	private static enum SubState {

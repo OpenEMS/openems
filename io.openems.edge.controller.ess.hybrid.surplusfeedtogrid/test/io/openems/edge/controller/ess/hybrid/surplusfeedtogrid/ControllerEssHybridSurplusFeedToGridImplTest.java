@@ -38,7 +38,7 @@ public class ControllerEssHybridSurplusFeedToGridImplTest {
 		test.next(new TestCase() //
 				.output(SURPLUS_FEED_TO_GRID_IS_LIMITED, true) //
 				.output("ess0", SET_ACTIVE_POWER_GREATER_OR_EQUALS, 2000)) //
-		
+
 				.deactivate();
 	}
 }

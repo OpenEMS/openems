@@ -145,6 +145,7 @@ formly-field-ion-radio {
 .custom-ion-popover {
 
     --border-width: 0;
+    --background: var(--ion-background-color);
 
     // Floating label
     &::part(label) {

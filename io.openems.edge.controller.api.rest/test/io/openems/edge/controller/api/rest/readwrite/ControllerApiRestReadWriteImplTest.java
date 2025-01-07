@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.rest.readwrite;
 
+import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInterfaces;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.common.test.DummyUser.DUMMY_GUEST;
@@ -54,7 +55,7 @@ public class ControllerApiRestReadWriteImplTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		final var port = findRandomOpenPortOnAllLocalInterfaces();
 
 		final var componentManager = new DummyComponentManager();
 

@@ -13,7 +13,9 @@ public interface ControllerEvcs extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		AWAITING_HYSTERESIS(Doc.of(BOOLEAN) //
-				.persistencePriority(HIGH)),
+				.persistencePriority(HIGH)), //
+		SMART_MODE(Doc.of(SmartMode.values()) //
+				.persistencePriority(HIGH)), //
 		EVCS_IS_READ_ONLY(Doc.of(Level.INFO) //
 				.translationKey(ControllerEvcs.class, "evcsIsReadOnly")); //
 

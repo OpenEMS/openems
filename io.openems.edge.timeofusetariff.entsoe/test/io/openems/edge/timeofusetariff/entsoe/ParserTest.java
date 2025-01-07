@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.getDuration;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
@@ -13,7 +14,6 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableTable;
 
 import io.openems.edge.common.currency.Currency;
-import io.openems.edge.common.test.TestUtils;
 
 public class ParserTest {
 
@@ -838,7 +838,7 @@ public class ParserTest {
 
 	@Test
 	public void testPreferredResolutionExists() {
-		var clock = TestUtils.createDummyClock();
+		final var clock = createDummyClock();
 		// Create sample data
 		var table = ImmutableTable.<Duration, ZonedDateTime, Double>builder()
 				.put(Duration.ofMinutes(15), ZonedDateTime.now(clock), 100.0)

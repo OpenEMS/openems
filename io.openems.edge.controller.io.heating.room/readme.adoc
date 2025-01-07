@@ -1,0 +1,45 @@
+= IO Heating Room
+
+Controls electric floor and infrared heating in a room.
+
+The Controller activates electric floor and infrared heating in a room in order to keep a configured LOW or HIGH temperature. 
+The timings of LOW or HIGH are configured via a `schedule` configuration parameter. 
+It holds a JsonArray with JSCalendar information, e.g.
+
+----
+[
+   {
+      "@type":"Task",
+      "start":"05:30:00",
+      "duration":"PT2H30M",
+      "recurrenceRules":[
+         {
+            "frequency":"weekly",
+            "byDay":[
+               "mo",
+               "tu",
+               "we",
+               "th",
+               "fr"
+            ]
+         }
+      ]
+   },
+   {
+      "@type":"Task",
+      "start":"08:00:00",
+      "duration":"PT16H",
+      "recurrenceRules":[
+         {
+            "frequency":"weekly",
+            "byDay":[
+               "sa",
+               "su"
+            ]
+         }
+      ]
+   }
+]
+----
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heating.room[Source Code icon:github[]]

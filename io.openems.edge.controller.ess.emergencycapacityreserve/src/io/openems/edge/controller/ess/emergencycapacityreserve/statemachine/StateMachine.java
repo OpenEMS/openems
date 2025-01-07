@@ -92,20 +92,13 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	@Override
 	public StateHandler<StateMachine.State, Context> getStateHandler(State state) {
 		return switch (state) {
-		case NO_LIMIT ->
-			new NoLimitHandler();
-		case ABOVE_RESERVE_SOC -> 
-			new AboveReserveSocHandler();
-		case AT_RESERVE_SOC ->
-			new AtReserveSocHandler();
-		case BELOW_RESERVE_SOC ->
-			new BelowReserveSocHandler();
-		case FORCE_CHARGE_PV ->
-			new ForceChargePvHandler();
-		case FORCE_CHARGE_GRID ->
-			new ForceChargeGridHandler();
-		case UNDEFINED ->
-			new UndefinedHandler();
+		case NO_LIMIT -> new NoLimitHandler();
+		case ABOVE_RESERVE_SOC -> new AboveReserveSocHandler();
+		case AT_RESERVE_SOC -> new AtReserveSocHandler();
+		case BELOW_RESERVE_SOC -> new BelowReserveSocHandler();
+		case FORCE_CHARGE_PV -> new ForceChargePvHandler();
+		case FORCE_CHARGE_GRID -> new ForceChargeGridHandler();
+		case UNDEFINED -> new UndefinedHandler();
 		};
 	}
 

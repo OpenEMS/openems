@@ -57,7 +57,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
 		return Collections.emptyList();
 	}
-	
+
 	public CompletableFuture<String> getOperatingSystemVersion() {
 		return CompletableFuture.completedFuture(System.getProperty("os.name"));
 	}

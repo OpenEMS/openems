@@ -16,7 +16,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Tariff Type", description = "Tariff type that the customer has subscribed to")
 	TariffType tariffType() default TariffType.STROM_FLEX;
 

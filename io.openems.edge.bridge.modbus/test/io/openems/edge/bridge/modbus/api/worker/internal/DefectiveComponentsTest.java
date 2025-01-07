@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManagerTest.LOG_HANDLER;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;

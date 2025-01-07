@@ -33,6 +33,7 @@ updates:
           - "@angular/*"
           - "@angular-devkit/*"
           - "@angular-eslint/*"
+          - "@schematics/angular"
       capacitor:
         patterns:
           - "@capacitor/*"

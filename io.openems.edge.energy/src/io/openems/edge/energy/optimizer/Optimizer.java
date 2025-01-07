@@ -62,7 +62,10 @@ public class Optimizer implements Runnable {
 		initializeRandomRegistryForProduction();
 	}
 
-	private synchronized void interruptTask() {
+	/**
+	 * Interrupts the {@link Optimizer} Task.
+	 */
+	public synchronized void interruptTask() {
 		if (this.future != null) {
 			this.future.cancel(true);
 		}
@@ -86,22 +89,39 @@ public class Optimizer implements Runnable {
 
 	/**
 	 * Triggers Rescheduling.
+	 * 
+	 * @param reason a reason
 	 */
-	public void triggerReschedule() {
-		this.traceLog(() -> "Trigger Reschedule");
-		this.activate(); // interrupt + reschedule
+	public void triggerReschedule(String reason) {
+		// NOTE: This is what happens here:
+		// [_cycle ] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Trigger Reschedule.
+		// Reason: ControllerEvcsImpl::onEvcsStatusChange from 6:The charging limit
+		// reached to 1:Not ready for Charging
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Optimizer::run()
+		// InterruptedException: null
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Simulation gave no
+		// result!
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Run Quick
+		// Optimization...
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER
+		// updateSimulator()...
+
+		// TODO On interrupt: keep best "regularOptimization" up till now as input for
+		// next InitialPopulation
+		this.traceLog(() -> "Trigger Reschedule. Reason: " + reason);
 		this.rescheduleCurrentPeriod.set(true);
+		this.activate(); // interrupt + reschedule
 	}
 
 	@Override
 	public void run() {
-		SimulationResult simulationResult = SimulationResult.EMPTY;
+		var simulationResult = SimulationResult.EMPTY;
 		try {
-			this.traceLog(() -> "Run...");
-
 			if (this.rescheduleCurrentPeriod.getAndSet(false) || this.simulationResult == EMPTY) {
+				this.traceLog(() -> "Run Quick Optimization...");
 				simulationResult = this.runQuickOptimization();
 			} else {
+				this.traceLog(() -> "Run Regular Optimization...");
 				simulationResult = this.runRegularOptimization();
 			}
 
@@ -120,20 +140,26 @@ public class Optimizer implements Runnable {
 	 * @throws InterruptedException on interrupted sleep
 	 */
 	private Simulator updateSimulator() throws InterruptedException {
-		// Create the Simulator with GlobalSimulationsContext
-		createSimulator(this.gscSupplier, //
-				simulator -> this.simulator = simulator, //
-				error -> {
-					this.traceLog(error);
-					this.applySimulationResult(EMPTY);
-				});
-		final var simulator = this.simulator;
-		if (simulator == null) {
-			this.traceLog(() -> "Simulator is null");
-		} else {
-			this.traceLog(() -> "Simulator is " + simulator.toLogString(""));
+		try {
+			// Create the Simulator with GlobalSimulationsContext
+			this.traceLog(() -> "updateSimulator()...");
+			createSimulator(this.gscSupplier, //
+					simulator -> this.simulator = simulator, //
+					error -> {
+						this.traceLog(error);
+						this.applySimulationResult(EMPTY);
+					});
+			final var simulator = this.simulator;
+			if (simulator == null) {
+				this.traceLog(() -> "Simulator is null");
+			} else {
+				this.traceLog(() -> "Simulator is " + simulator.toLogString(""));
+			}
+			return simulator;
+		} catch (Exception e) {
+			e.printStackTrace(); // TODO remove
+			throw e;
 		}
-		return simulator;
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge.ChannelId.AWAITING_HYSTERESIS;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.SOC;

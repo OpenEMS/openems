@@ -1,6 +1,6 @@
 package io.openems.edge.bridge.http.dummy;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 
 import java.time.Clock;
 import java.time.Duration;

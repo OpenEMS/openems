@@ -31,7 +31,8 @@ public class EdgeRequestHandler implements JsonApi {
 			return new GetEdgeResponse(call.getRequest().getId(), Utils.getEdgeMetadata(user.getGlobalRole()));
 		});
 
-		builder.handleRequest(SubscribeEdgesRequest.METHOD, call -> new GenericJsonrpcResponseSuccess(call.getRequest().getId()));
+		builder.handleRequest(SubscribeEdgesRequest.METHOD,
+				call -> new GenericJsonrpcResponseSuccess(call.getRequest().getId()));
 	}
 
 }

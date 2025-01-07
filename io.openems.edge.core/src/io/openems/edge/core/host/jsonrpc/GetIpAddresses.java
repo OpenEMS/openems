@@ -16,7 +16,7 @@ import io.openems.edge.core.host.jsonrpc.GetIpAddresses.Response;
 
 public class GetIpAddresses implements EndpointRequestType<Request, Response> {
 	public record Request() {
-		
+
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link GetIpAddresses.Request}.
 		 * 
@@ -28,7 +28,7 @@ public class GetIpAddresses implements EndpointRequestType<Request, Response> {
 	}
 
 	public record Response(List<Inet4Address> ips) {
-		
+
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link GetIpAddresses.Response}.
 		 * 

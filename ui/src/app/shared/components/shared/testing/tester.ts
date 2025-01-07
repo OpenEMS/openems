@@ -308,7 +308,7 @@ export class OeChartTester {
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
-    let options: Chart.ChartOptions = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels);
+    let options: Chart.ChartOptions = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, config, datasets, xAxisType, labels);
     options = prepareOptionsForTesting(options, chartData);
 
     return {

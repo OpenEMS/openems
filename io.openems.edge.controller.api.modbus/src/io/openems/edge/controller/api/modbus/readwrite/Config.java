@@ -27,7 +27,7 @@ import io.openems.edge.controller.api.modbus.AbstractModbusTcpApi;
 
 	// TODO: Currently unused
 	@AttributeDefinition(name = "Read Channel-IDs", description = "Contains the channelnames of all read channels.")
-	String[] readChannels() default {  };
+	String[] readChannels() default {};
 
 	@AttributeDefinition(name = "Write Channel-IDs", description = "Contains the channelnames of all overridden channels.")
 	String[] writeChannels();

@@ -1,13 +1,6 @@
 package io.openems.edge.io.shelly.shellyplus1pm;
 
 import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L1;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L2;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.CURRENT;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;
 import static io.openems.edge.meter.api.SinglePhase.L1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -19,15 +12,15 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class IoShellyPlus1PmImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
 		final var sut = new IoShellyPlus1PmImpl();
-
+		final var httpTestBundle = new DummyBridgeHttpBundle();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
@@ -39,11 +32,10 @@ public class IoShellyPlus1PmImplTest {
 						.build()) //
 
 				.next(new TestCase("Successful read response") //
-						.onBeforeControllersCallbacks(() -> {
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
 									{
 									   "ble":{
-
 									   },
 									   "cloud":{
 									      "connected":true
@@ -91,7 +83,6 @@ public class IoShellyPlus1PmImplTest {
 									      "schedule_rev":0,
 									      "webhook_rev":0,
 									      "available_updates":{
-
 									      },
 									      "reset_reason":3
 									   },
@@ -109,29 +100,50 @@ public class IoShellyPlus1PmImplTest {
 									"""));
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(ACTIVE_POWER, 123) //
-						.output(ACTIVE_POWER_L1, 123) //
-						.output(ACTIVE_POWER_L2, null) //
-						.output(CURRENT, 500) //
-						.output(VOLTAGE, 231300)) //
+						.onAfterProcessImage(() -> assertEquals("-|123 W", sut.debugLog()))
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 123) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 123) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 231300) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 231300) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 500) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 500) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+						.output(IoShellyPlus1Pm.ChannelId.RELAY, null) //
+						.output(IoShellyPlus1Pm.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Invalid read response") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Off|123 W", sut.debugLog()))
-						.onBeforeControllersCallbacks(() -> {
+						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.output(ACTIVE_POWER, null) //
-						.output(ACTIVE_POWER_L1, null) //
-						.output(ACTIVE_POWER_L2, null) //
-						.output(CURRENT, null) //
-						.output(VOLTAGE, null) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 
-						.output(ACTIVE_PRODUCTION_ENERGY, 0L) //
-						.output(ACTIVE_CONSUMPTION_ENERGY, 0L)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
+						.output(IoShellyPlus1Pm.ChannelId.RELAY, null) //
+						.output(IoShellyPlus1Pm.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				.next(new TestCase("Write") //
-						.onBeforeControllersCallbacks(() -> assertEquals("Unknown|UNDEFINED", sut.debugLog()))
 						.onBeforeControllersCallbacks(() -> sut.setRelay(true)) //
 						.also(testCase -> {
 							final var relayTurnedOn = httpTestBundle.expect("http://127.0.0.1/relay/0?turn=on")

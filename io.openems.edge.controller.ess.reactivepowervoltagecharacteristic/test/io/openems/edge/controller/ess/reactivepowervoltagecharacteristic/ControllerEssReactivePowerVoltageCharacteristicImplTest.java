@@ -1,8 +1,8 @@
 package io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_APPARENT_POWER;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;

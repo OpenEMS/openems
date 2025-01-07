@@ -44,6 +44,7 @@ import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsLocalDateTime;
 import static io.openems.common.utils.JsonUtils.getAsLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalBoolean;
 import static io.openems.common.utils.JsonUtils.getAsOptionalDouble;
@@ -53,10 +54,12 @@ import static io.openems.common.utils.JsonUtils.getAsOptionalInet4Address;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalLocalDateTime;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalShort;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static io.openems.common.utils.JsonUtils.getAsOptionalUUID;
+import static io.openems.common.utils.JsonUtils.getAsOptionalZonedDateTime;
 import static io.openems.common.utils.JsonUtils.getAsPrimitive;
 import static io.openems.common.utils.JsonUtils.getAsShort;
 import static io.openems.common.utils.JsonUtils.getAsString;
@@ -64,6 +67,7 @@ import static io.openems.common.utils.JsonUtils.getAsStringArray;
 import static io.openems.common.utils.JsonUtils.getAsStringOrElse;
 import static io.openems.common.utils.JsonUtils.getAsType;
 import static io.openems.common.utils.JsonUtils.getAsUUID;
+import static io.openems.common.utils.JsonUtils.getAsZonedDateTime;
 import static io.openems.common.utils.JsonUtils.getAsZonedDateWithZeroTime;
 import static io.openems.common.utils.JsonUtils.getOptionalSubElement;
 import static io.openems.common.utils.JsonUtils.getSubElement;
@@ -80,11 +84,13 @@ import static java.util.Optional.empty;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -148,6 +154,8 @@ public class JsonUtilsTest {
 			.addProperty("Enum3", (Unit) null) //
 			.addProperty("Inet4Address", "192.168.1.2") //
 			.addProperty("UUID", "c48e2e28-09be-41d5-8e58-260d162991cc") //
+			.addProperty("ZonedDateTime", ZonedDateTime.of(1900, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))) //
+			.addProperty("LocalDateTime", LocalDateTime.of(1900, 1, 1, 0, 0, 0, 0)) //
 			.addPropertyIfNotNull("Boolean1", (Boolean) null) //
 			.addPropertyIfNotNull("Boolean2", Boolean.FALSE) //
 			.addPropertyIfNotNull("Double1", (Double) null) //
@@ -680,6 +688,19 @@ public class JsonUtilsTest {
 		assertOpenemsError(JSON_NO_DATE_MEMBER, //
 				() -> getAsZonedDateWithZeroTime(j, "foo", ZoneId.of("UTC")) //
 		);
+
+		assertEquals("1900-01-01T00:00Z", getAsZonedDateTime(JSON_OBJECT, "ZonedDateTime").toString());
+
+		assertTrue(getAsOptionalZonedDateTime(JSON_OBJECT, "foo").isEmpty());
+	}
+
+	@Test
+	public void testGetAsLocalDateTime() throws OpenemsNamedException {
+		assertEquals("1900-01-01T00:00", getAsLocalDateTime(JSON_OBJECT, "LocalDateTime").toString());
+
+		assertEquals("1900-01-01T00:00", getAsOptionalLocalDateTime(JSON_OBJECT, "LocalDateTime").get().toString());
+
+		assertTrue(getAsOptionalLocalDateTime(JSON_OBJECT, "foo").isEmpty());
 	}
 
 	@Test
@@ -744,6 +765,9 @@ public class JsonUtilsTest {
 
 	@Test
 	public void testGenerateJsonArray() {
+		assertNull(generateJsonArray(null));
+		assertEquals(JsonNull.INSTANCE, generateJsonArray(List.of(JsonNull.INSTANCE)).get(0));
+
 		var list = List.of("foo", "bar");
 		var r = generateJsonArray(list, v -> new JsonPrimitive(v));
 		assertEquals("foo", r.get(0).getAsString());

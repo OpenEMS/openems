@@ -145,7 +145,7 @@ public record SimulationResult(//
 	 */
 	public String toLogString(String prefix) {
 		var b = new StringBuilder(prefix) //
-				.append("Time   Price Production Consumption   Ess   Grid ProdToCons ProdToGrid ProdToEss GridToCons GridToEss EssToCons EssInitial\n");
+				.append("Time   Price Production Consumption ManagedCons    Ess   Grid ProdToCons ProdToGrid ProdToEss GridToCons GridToEss EssToCons EssInitial\n");
 		this.periods.entrySet().forEach(e -> {
 			final var time = e.getKey();
 			final var p = e.getValue();
@@ -155,7 +155,8 @@ public record SimulationResult(//
 			log(b, "%s ", time.format(TIME_FORMATTER));
 			log(b, "%6.2f ", c.price());
 			log(b, "%10d ", ef.getProd());
-			log(b, "%10d ", ef.getCons());
+			log(b, "%11d ", ef.getCons());
+			log(b, "%11d ", ef.getManagedCons());
 			log(b, "%6d ", ef.getEss());
 			log(b, "%6d ", ef.getGrid());
 			log(b, "%10d ", ef.getProdToCons());
@@ -170,6 +171,7 @@ public record SimulationResult(//
 			});
 			b.append("\n");
 		});
+		b.append(prefix).append("cost=").append(this.cost);
 		return b.toString();
 	}
 }

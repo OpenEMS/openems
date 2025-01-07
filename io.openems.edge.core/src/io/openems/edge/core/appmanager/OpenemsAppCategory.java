@@ -23,7 +23,7 @@ public enum OpenemsAppCategory {
 	 * Electric vehicle charging station.
 	 */
 	EVCS("evcs"),
-	
+
 	/**
 	 * Read only Electric vehicle charging station.
 	 */

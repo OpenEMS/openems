@@ -1,7 +1,8 @@
 package io.openems.edge.io.siemenslogo;
 
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -111,6 +112,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+		return generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 }

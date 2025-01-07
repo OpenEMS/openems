@@ -78,6 +78,8 @@ public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
 						for (var eshIndex = 0; eshIndex < numberOfEshs; eshIndex++) {
 							final int value = gt.get(eshIndex).get(periodIndex).intValue();
 							final int state;
+							// TODO Valid States per Period should be read from ESH here.
+							// Example: might be limited by a SmartConfig with JSCalendar payload
 							if (isFirstPeriodFixed && periodIndex == 0) {
 								final var time = gsc.periods().get(periodIndex).time();
 								final var esh = gsc.eshsWithDifferentStates().get(eshIndex);

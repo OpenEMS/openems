@@ -12,6 +12,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean debugMode = false;
 		private String evcsId = "evcs0";
 		private boolean enabledCharging = true;
+		private boolean smartMode = false;
+		private String smartConfig = "";
 		private ChargeMode chargeMode = ChargeMode.FORCE_CHARGE;
 		private int forceChargeMinPower = 7560;
 		private int defaultChargeMinPower = 0;
@@ -35,6 +37,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setSmartMode(boolean smartMode) {
+			this.smartMode = smartMode;
+			return this;
+		}
+
+		public Builder setSmartConfig(String smartConfig) {
+			this.smartConfig = smartConfig;
 			return this;
 		}
 
@@ -117,6 +129,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean enabledCharging() {
 		return this.builder.enabledCharging;
+	}
+
+	@Override
+	public boolean smartMode() {
+		return this.builder.smartMode;
+	}
+
+	@Override
+	public String smartConfig() {
+		return this.builder.smartConfig;
 	}
 
 	@Override

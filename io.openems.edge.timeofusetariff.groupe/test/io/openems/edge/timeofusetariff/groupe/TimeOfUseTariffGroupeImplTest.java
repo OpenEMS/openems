@@ -1,7 +1,7 @@
 package io.openems.edge.timeofusetariff.groupe;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.currency.Currency.CHF;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.groupe.TimeOfUseTariffGroupeImpl.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

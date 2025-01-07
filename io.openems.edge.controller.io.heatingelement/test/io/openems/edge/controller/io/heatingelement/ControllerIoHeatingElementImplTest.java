@@ -1,7 +1,7 @@
 package io.openems.edge.controller.io.heatingelement;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE1_TIME;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE2_TIME;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE3_TIME;

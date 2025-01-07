@@ -38,7 +38,7 @@ public class XlsxWorksheetWrapper {
 		for (int row = r1; row <= r2; row++) {
 			for (int col = c1; col <= c2; col++) {
 				var cell = this.getCellWrapper(row, col);
-				styleSetterFunc.accept(cell);;
+				styleSetterFunc.accept(cell);
 			}
 		}
 	}
