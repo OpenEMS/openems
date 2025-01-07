@@ -12,7 +12,7 @@
     "@angular/platform-browser-dynamic": "19.0.5",
     "@angular/router": "19.0.5",
     "@angular/service-worker": "19.0.5",
-    "@awesome-cordova-plugins/core": "^6.13.0",
+    "@awesome-cordova-plugins/core": "^6.14.0",
     "@awesome-cordova-plugins/file-opener": "^6.14.0",
     "@capacitor-community/file-opener": "^6.0.1",
     "@capacitor/android": "^6.2.0",
