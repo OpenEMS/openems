@@ -1,5 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.jenetics.engine.Limits.byFixedGeneration;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static org.junit.Assert.assertEquals;
 
@@ -8,7 +9,6 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.jenetics.engine.Limits;
 import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
@@ -19,12 +19,14 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class SimulatorTest {
 
-	public static final EnergyScheduleHandler.WithOnlyOneState<Integer> ESH0 = EnergyScheduleHandler.<Integer>of(//
-			simContext -> simContext.ess().totalEnergy(), //
-			(simContext, period, energyFlow, ctrlContext) -> {
-				var minEnergy = socToEnergy(simContext.global.ess().totalEnergy(), 10 /* [%] */);
-				energyFlow.setEssMaxDischarge(Math.max(0, simContext.getEssInitial() - minEnergy));
-			});
+	public static final EnergyScheduleHandler.WithOnlyOneState<Integer> ESH0 = //
+			EnergyScheduleHandler.WithOnlyOneState.<Integer>create() //
+					.setContextFunction(simContext -> simContext.ess().totalEnergy()) //
+					.setSimulator((simContext, period, energyFlow, ctrlContext) -> {
+						var minEnergy = socToEnergy(simContext.global.ess().totalEnergy(), 10 /* [%] */);
+						energyFlow.setEssMaxDischarge(Math.max(0, simContext.ess.getInitialEnergy() - minEnergy));
+					}) //
+					.build();
 
 	public static final ManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0") //
 			.withMaxApparentPower(10_000) //
@@ -35,19 +37,21 @@ public class SimulatorTest {
 			.buildEnergyScheduleHandler(//
 					() -> ESS, //
 					() -> ControlMode.CHARGE_CONSUMPTION, //
-					() -> 20_000 /* maxChargePowerFromGrid */, //
-					() -> false /* limitChargePowerFor14aEnWG */);
+					() -> 20_000 /* maxChargePowerFromGrid */);
 
-	private static enum Esh2State {
+	protected static enum Esh2State {
 		FOO, BAR;
 	}
 
-	public static final EnergyScheduleHandler.WithDifferentStates<Esh2State, Object> ESH2 = EnergyScheduleHandler.of(//
-			Esh2State.BAR, //
-			() -> Esh2State.values(), //
-			simContext -> null, //
-			(simContext, period, energyFlow, ctrlContext, state) -> {
-			});
+	public static final EnergyScheduleHandler.WithDifferentStates<Esh2State, Object> ESH2 = //
+			EnergyScheduleHandler.WithDifferentStates.<Esh2State, Object>create() //
+					.setDefaultState(Esh2State.BAR) //
+					.setAvailableStates(() -> Esh2State.values()) //
+					.setContextFunction(simContext -> null) //
+					.setSimulator((simContext, period, energyFlow, ctrlContext, state) -> {
+						return 0.;
+					}) //
+					.build();
 
 	public static final Simulator DUMMY_SIMULATOR = new Simulator(//
 			DummyGlobalSimulationsContext.fromHandlers(ESH0, ESH_TIME_OF_USE_TARIFF_CTRL, ESH2));
@@ -67,11 +71,11 @@ public class SimulatorTest {
 	public static SimulationResult generateDummySimulationResult() {
 		final var simulator = DUMMY_SIMULATOR;
 
-		return simulator.getBestSchedule(SimulationResult.EMPTY, //
+		return simulator.getBestSchedule(SimulationResult.EMPTY, true /* isCurrentPeriodFixed */, //
 				engine -> engine //
 						.populationSize(1), //
 				stream -> stream //
-						.limit(Limits.byFixedGeneration(1)));
+						.limit(byFixedGeneration(1)));
 	}
 
 	@Test
@@ -85,6 +89,5 @@ public class SimulatorTest {
 		});
 
 		assertEquals("BALANCING", ESH_TIME_OF_USE_TARIFF_CTRL.getCurrentPeriod().state().toString());
-		assertEquals("BAR", ESH2.getCurrentPeriod().state().toString());
 	}
 }

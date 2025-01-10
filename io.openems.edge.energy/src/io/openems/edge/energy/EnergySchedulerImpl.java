@@ -1,14 +1,13 @@
 package io.openems.edge.energy;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 import static io.openems.edge.energy.optimizer.Utils.sortByScheduler;
+import static java.util.stream.Collectors.joining;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -59,7 +58,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	/** The hard working Optimizer. */
 	private final OptimizerV1 optimizerV1;
 	private final Optimizer optimizer;
-	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -88,8 +86,8 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	private void addSchedulable(EnergySchedulable schedulable) {
 		this.schedulables.add(schedulable);
 		var esh = (AbstractEnergyScheduleHandler<?>) schedulable.getEnergyScheduleHandler(); // this is safe
-		esh.setOnRescheduleCallback(() -> this.optimizer.triggerReschedule());
-		this.resetOptimizer();
+		esh.setOnRescheduleCallback(reason -> this.triggerReschedule(reason));
+		this.triggerReschedule("EnergySchedulerImpl::addSchedulable() " + schedulable.id());
 	}
 
 	@SuppressWarnings("unused")
@@ -97,7 +95,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		this.schedulables.remove(schedulable);
 		var esh = (AbstractEnergyScheduleHandler<?>) schedulable.getEnergyScheduleHandler(); // this is safe
 		esh.removeOnRescheduleCallback();
-		this.resetOptimizer();
+		this.triggerReschedule("EnergySchedulerImpl::removeSchedulable() " + schedulable.id());
 	}
 
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -136,14 +134,21 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		this.optimizer = new Optimizer(//
 				() -> this.config.logVerbosity(), //
 				() -> {
+					System.out.println("OPTIMIZER gscSupplier: "
+							+ this.schedulables.stream().map(s -> s.id()).collect(joining(", ")));
 					// Sort Schedulables by the order in the Scheduler
 					var schedulables = sortByScheduler(this.scheduler, this.schedulables);
+					System.out.println("OPTIMIZER gscSupplier sorted: "
+							+ schedulables.stream().map(s -> s.id()).collect(joining(", ")));
 					var eshs = schedulables.stream() //
 							.map(EnergySchedulable::getEnergyScheduleHandler) //
 							.collect(toImmutableList());
+					System.out.println("OPTIMIZER gscSupplier eshs: "
+							+ eshs.stream().map(e -> e.getClass().getSimpleName()).collect(joining(", ")));
 
 					return GlobalSimulationsContext.create() //
-							.setClock(this.componentManager.getClock()) //
+							.setComponentManager(this.componentManager) //
+							.setRiskLevel(this.config.riskLevel()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
 							.setPredictorManager(this.predictorManager) //
@@ -157,10 +162,10 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 
-		if (this.applyConfig(config)) {
+		if (this.applyConfig(config, "activate")) {
 			switch (config.version()) {
 			case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
-			case V2_ENERGY_SCHEDULABLE -> this.executor.execute(this.optimizer);
+			case V2_ENERGY_SCHEDULABLE -> this.optimizer.activate();
 			}
 		}
 	}
@@ -168,16 +173,16 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		this.applyConfig(config);
+		this.applyConfig(config, "modified");
 	}
 
-	private void resetOptimizer() {
+	private void triggerReschedule(String reason) {
 		if (this.config == null) {
 			return; // Wait for @Activate
 		}
 		switch (this.config.version()) {
 		case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
-		case V2_ENERGY_SCHEDULABLE -> this.optimizer.triggerReschedule();
+		case V2_ENERGY_SCHEDULABLE -> this.optimizer.triggerReschedule(reason);
 		}
 	}
 
@@ -189,17 +194,17 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		return null;
 	}
 
-	private synchronized boolean applyConfig(Config config) {
+	private synchronized boolean applyConfig(Config config, String reason) {
 		this.config = config;
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return false;
 		}
 
 		if (config.enabled()) {
-			this.resetOptimizer();
+			this.triggerReschedule("EnergySchedulerImpl::applyConfig()" + reason);
 		} else {
 			this.optimizerV1.deactivate();
-			this.optimizer.deactivate();
+			this.optimizer.interruptTask();
 			return false;
 		}
 
@@ -211,7 +216,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	protected void deactivate() {
 		this.optimizerV1.deactivate();
 		this.optimizer.deactivate();
-		shutdownAndAwaitTermination(this.executor, 0);
 		super.deactivate();
 	}
 
@@ -222,5 +226,12 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 					this.timeOfUseTariff, id, ZonedDateTime.now(this.componentManager.getClock()));
 		}
 		throw new IllegalArgumentException("This should have been Version V1");
+	}
+
+	@Override
+	public Version getImplementationVersion() {
+		return Optional.ofNullable(this.config) //
+				.map(c -> c.version()) //
+				.orElse(null);
 	}
 }

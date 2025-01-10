@@ -15,4 +15,7 @@ import io.openems.common.types.CurrencyConfig;
 	@AttributeDefinition(name = "Currency", description = "Every monetary value is inherently expressed in this Currency. Values obtained in a different currency (e.g. energy prices from a web service) are internally converted to this Currency using the current exchange rate.")
 	CurrencyConfig currency() default CurrencyConfig.EUR;
 
+	@AttributeDefinition(name = "Is Ess Charge From Grid Allowed", description = "Charging the battery from grid is allowed.")
+	boolean isEssChargeFromGridAllowed() default false;
+
 }

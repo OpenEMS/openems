@@ -684,6 +684,17 @@ export class EdgeConfig {
             return null;
         }
     }
+
+    /**
+     * Safely gets a property from a component if it exists, else returns null.
+     *
+     * @param component The component from which to retrieve the property.
+     * @param property The property name to retrieve.
+     * @returns The property value if it exists, otherwise null.
+     */
+    public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
+        return component?.properties[property] ?? null;
+    }
 }
 
 export enum PersistencePriority {

@@ -1,6 +1,10 @@
 package io.openems.edge.energy.v1;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static io.openems.edge.energy.LogVerbosity.DEBUG_LOG;
+import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
+import static io.openems.edge.energy.api.Version.V1_ESS_ONLY;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
@@ -13,11 +17,14 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.common.utils.ReflectionUtils;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -25,9 +32,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.EnergySchedulerImpl;
-import io.openems.edge.energy.LogVerbosity;
 import io.openems.edge.energy.MyConfig;
-import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.v1.optimizer.GlobalContextV1;
 import io.openems.edge.energy.v1.optimizer.OptimizerV1;
 import io.openems.edge.predictor.api.prediction.Prediction;
@@ -72,13 +77,15 @@ public class EnergySchedulerImplTest {
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
+				.addReference("timeOfUseTariffController", ctrl) //
 				.addReference("schedulables", List.of(ctrl)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
 						.setEnabled(false) //
-						.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
-						.setVersion(Version.V1_ESS_ONLY) //
+						.setLogVerbosity(DEBUG_LOG) //
+						.setVersion(V1_ESS_ONLY) //
+						.setRiskLevel(MEDIUM) //
 						.build()) //
 				.next(new TestCase());
 		return sut;
@@ -89,25 +96,10 @@ public class EnergySchedulerImplTest {
 	 * 
 	 * @param energyScheduler the {@link EnergySchedulerImpl}
 	 * @return the object
-	 * @throws Exception on error
+	 * @throws ReflectionException on error
 	 */
-	public static OptimizerV1 getOptimizer(EnergySchedulerImpl energyScheduler) throws Exception {
-		var field = EnergySchedulerImpl.class.getDeclaredField("optimizerV1");
-		field.setAccessible(true);
-		return (OptimizerV1) field.get(energyScheduler);
-	}
-
-	/**
-	 * Calls the 'createParams()' method in the {@link OptimizerV1} via Java
-	 * Reflection.
-	 * 
-	 * @param optimizer the {@link OptimizerV1}
-	 * @throws Exception on error
-	 */
-	public static void callCreateParams(OptimizerV1 optimizer) throws Exception {
-		var method = OptimizerV1.class.getDeclaredMethod("createParams");
-		method.setAccessible(true);
-		method.invoke(optimizer);
+	public static OptimizerV1 getOptimizer(EnergySchedulerImpl energyScheduler) throws ReflectionException {
+		return getValueViaReflection(energyScheduler, "optimizerV1");
 	}
 
 	/**
@@ -117,11 +109,10 @@ public class EnergySchedulerImplTest {
 	 * @return the object
 	 * @throws Exception on error
 	 */
-	@SuppressWarnings("unchecked")
 	public static GlobalContextV1 getGlobalContext(EnergySchedulerImpl energyScheduler) throws Exception {
 		var optimizer = getOptimizer(energyScheduler);
-		var field = OptimizerV1.class.getDeclaredField("globalContext");
-		field.setAccessible(true);
-		return ((Supplier<GlobalContextV1>) field.get(optimizer)).get();
+		return ReflectionUtils
+				.<ThrowingSupplier<GlobalContextV1, OpenemsException>>getValueViaReflection(optimizer, "globalContext")
+				.get();
 	}
 }

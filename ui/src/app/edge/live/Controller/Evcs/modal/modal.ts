@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
@@ -13,6 +14,7 @@ import { PopoverComponent } from "../popover/popover";
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -38,6 +40,7 @@ export class ModalComponent extends AbstractModal {
   protected sessionLimit: number;
   protected helpKey: string;
   protected awaitingHysteresis: boolean;
+  protected isReadWrite: boolean = true;
 
   constructor(
     @Inject(Websocket) protected override websocket: Websocket,
@@ -105,7 +108,7 @@ export class ModalComponent extends AbstractModal {
 
     return [
       // channels for modal component, subscribe here for better UX
-      new ChannelAddress(this.component.id, "ChargePower"),
+      new ChannelAddress(this.component.id, this.getPowerChannelId()),
       new ChannelAddress(this.component.id, "Phases"),
       new ChannelAddress(this.component.id, "Plug"),
       new ChannelAddress(this.component.id, "Status"),
@@ -114,6 +117,7 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress(this.component.id, "MinimumHardwarePower"),
       new ChannelAddress(this.component.id, "MaximumHardwarePower"),
       new ChannelAddress(this.component.id, "SetChargePowerLimit"),
+      new ChannelAddress(this.component.id, "_PropertyReadOnly"),
       new ChannelAddress(this.controller?.id, "_PropertyChargeMode"),
       new ChannelAddress(this.controller?.id, "_PropertyEnabledCharging"),
       new ChannelAddress(this.controller?.id, "_PropertyDefaultChargeMinPower"),
@@ -124,10 +128,11 @@ export class ModalComponent extends AbstractModal {
   protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
     this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
+    this.isReadWrite = !this.component.properties["readOnly"];
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
-      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/ChargePower"]);
+      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/" + this.getPowerChannelId()]);
       this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
       this.state = currentData.allComponents[this.component.id + "/Status"];
       this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
@@ -279,7 +284,11 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
+  private getPowerChannelId(): string {
+    return EvcsUtils.getEvcsPowerChannelId(this.component, this.config, this.edge);
+  }
 }
+
 
 enum ChargeState {
   UNDEFINED = -1,           //Undefined

@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.utils.XmlUtils.getXmlRootDocument;
 import static io.openems.common.utils.XmlUtils.stream;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
@@ -35,14 +36,15 @@ public class Utils {
 	/**
 	 * Parses the XML response from the Entso-E API to get the Day-Ahead prices.
 	 * 
-	 * @param xml          The XML string to be parsed.
-	 * @param exchangeRate The exchange rate of user currency to EUR.
+	 * @param xml                 The XML string to be parsed.
+	 * @param exchangeRate        The exchange rate of user currency to EUR.
+	 * @param preferredResolution The user preferred resolution.
 	 * @return The {@link TimeOfUsePrices}
 	 * @throws ParserConfigurationException on error.
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static TimeOfUsePrices parsePrices(String xml, double exchangeRate)
+	protected static TimeOfUsePrices parsePrices(String xml, double exchangeRate, Resolution preferredResolution)
 			throws ParserConfigurationException, SAXException, IOException {
 		var root = getXmlRootDocument(xml);
 
@@ -52,13 +54,10 @@ public class Utils {
 			return TimeOfUsePrices.EMPTY_PRICES;
 		}
 
-		var shortestDuration = allPrices.rowKeySet().stream() //
-				.sorted() //
-				.findFirst().get();
-
-		final var prices = ImmutableSortedMap.copyOf(allPrices.row(shortestDuration));
+		final var duration = getDuration(allPrices, preferredResolution);
+		final var prices = ImmutableSortedMap.copyOf(allPrices.row(duration));
 		final var minTimestamp = prices.firstKey();
-		final var maxTimestamp = prices.lastKey().plus(shortestDuration);
+		final var maxTimestamp = prices.lastKey().plus(duration);
 
 		var result = Stream //
 				.iterate(minTimestamp, //
@@ -70,15 +69,6 @@ public class Utils {
 						t -> prices.floorEntry(t).getValue()));
 
 		return TimeOfUsePrices.from(result);
-	}
-
-	protected static Element getXmlRootDocument(String xml)
-			throws ParserConfigurationException, SAXException, IOException {
-		var dbFactory = DocumentBuilderFactory.newInstance();
-		var dBuilder = dbFactory.newDocumentBuilder();
-		var is = new InputSource(new StringReader(xml));
-		var doc = dBuilder.parse(is);
-		return doc.getDocumentElement();
 	}
 
 	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root, double exchangeRate) {
@@ -168,4 +158,33 @@ public class Utils {
 		return result;
 	}
 
+	/**
+	 * Determines the appropriate {@link Duration} from the given
+	 * {@link ImmutableTable}.
+	 * 
+	 * <p>
+	 * The method checks if the specified {@code preferredResolution} exists in the
+	 * table's row keys. If it exists, the corresponding {@link Duration} is
+	 * returned. Otherwise, the method selects the shortest duration from the
+	 * available row keys.
+	 * 
+	 * @param allPrices           the {@link ImmutableTable}.
+	 * @param preferredResolution the preferred resolution to look for, encapsulated
+	 *                            in a {@link Resolution}.
+	 * @return the matching {@link Duration} if the preferred resolution exists in
+	 *         the table's row keys, otherwise the shortest {@link Duration} from
+	 *         the row keys.
+	 */
+	protected static Duration getDuration(ImmutableTable<Duration, ZonedDateTime, Double> allPrices,
+			Resolution preferredResolution) {
+		return allPrices.rowKeySet().stream() //
+				// match preferredResolution
+				.filter(e -> e.equals(preferredResolution.duration)) //
+				.findFirst() //
+				// otherwise get shortest duration
+				.orElseGet(() -> allPrices.rowKeySet().stream() //
+						.sorted() //
+						.findFirst()//
+						.get());
+	}
 }

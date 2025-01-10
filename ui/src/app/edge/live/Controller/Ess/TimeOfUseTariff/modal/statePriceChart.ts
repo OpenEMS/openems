@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
+import { filter, take } from "rxjs/operators";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { calculateResolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -18,6 +19,7 @@ import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
 @Component({
     selector: "statePriceChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -26,6 +28,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     @Input({ required: true }) public component!: EdgeConfig.Component;
 
     private currencyLabel: Currency.Label; // Default
+    private currencyUnit: Currency.Unit; // Default
 
     constructor(
         protected override service: Service,
@@ -40,8 +43,13 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
     }
 
-    public ngOnChanges() {
-        this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+    public async ngOnChanges() {
+        this.edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1)).subscribe(config => {
+            const meta: EdgeConfig.Component = config?.getComponent("_meta");
+            const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+            this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
+            this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
+        });
         this.updateChart();
     }
 
@@ -106,15 +114,15 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     }
 
     private applyControllerSpecificOptions() {
-        const locale = this.service.translate.currentLang;
-        const rightYaxisSoc: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS);
+        const rightYaxisSoc: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT, displayGrid: true };
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, "line", this.datasets, true);
 
         const rightYAxisPower: HistoryUtils.yAxes = { position: "right", unit: YAxisType.POWER, yAxisId: ChartAxis.RIGHT_2 };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, "line", this.datasets, true);
 
         this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
+        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
         this.options.scales.x.ticks.maxTicksLimit = 30;
         this.options.scales.x["offset"] = false;
         this.options.scales.x.ticks.callback = function (value) {
@@ -165,13 +173,19 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
             return el;
         });
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit, scale: { dynamicScale: true } };
+        [rightYaxisSoc, rightYAxisPower].forEach((element) => {
+            this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", this.datasets, true);
+        });
 
-        this.options.scales[ChartAxis.LEFT]["title"].text = this.currencyLabel;
+        this.options.scales[ChartAxis.LEFT] = {
+            ...this.options.scales[ChartAxis.LEFT],
+            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "bar", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
+        };
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
         this.options.scales[ChartAxis.RIGHT_2].suggestedMin = 0;
         this.options.scales[ChartAxis.RIGHT_2].suggestedMax = 1;
         this.options.scales[ChartAxis.RIGHT_2].grid.display = false;
         this.options["animation"] = false;
     }
-
 }

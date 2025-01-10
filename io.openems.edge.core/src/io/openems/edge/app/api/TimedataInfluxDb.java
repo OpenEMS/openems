@@ -208,7 +208,7 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 	protected OpenemsAppStatus getStatus() {
 		return OpenemsAppStatus.BETA;
 	}
-	
+
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create()//

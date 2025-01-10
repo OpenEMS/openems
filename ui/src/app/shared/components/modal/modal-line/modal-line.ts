@@ -5,6 +5,7 @@ import { ButtonLabel } from "../modal-button/modal-button";
 @Component({
     selector: "oe-modal-line",
     templateUrl: "./modal-line.html",
+    standalone: false,
 })
 export class ModalLineComponent extends AbstractModalLine {
 

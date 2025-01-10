@@ -15,5 +15,6 @@ import { FieldWrapper } from "@ngx-formly/core";
         </ion-row>
     </ion-grid>
 `,
+    standalone: false,
 })
 export class FormlyInputWithUnitComponent extends FieldWrapper { }

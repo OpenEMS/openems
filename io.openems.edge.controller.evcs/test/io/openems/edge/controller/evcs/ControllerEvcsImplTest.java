@@ -1,9 +1,9 @@
 package io.openems.edge.controller.evcs;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_DISCHARGE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_SOC;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.evcs.ControllerEvcs.ChannelId.AWAITING_HYSTERESIS;
 import static io.openems.edge.controller.evcs.Priority.CAR;
 import static io.openems.edge.evcs.api.ChargeMode.EXCESS_POWER;
@@ -20,20 +20,18 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.controller.evcs.Utils.EshContext.EshSmartContext;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 
 public class ControllerEvcsImplTest {
-
-	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
-	private static final DummyManagedEvcs EVCS = new DummyManagedEvcs("evcs0", EVCS_POWER);
 
 	private static final int DEFAULT_FORCE_CHARGE_MIN_POWER = 7360;
 	private static final int DEFAULT_CHARGE_MIN_POWER = 0;
@@ -43,7 +41,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -68,7 +66,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -95,7 +93,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -120,7 +118,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -142,7 +140,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", cm) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -167,7 +165,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -215,7 +213,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -264,7 +262,7 @@ public class ControllerEvcsImplTest {
 		new ControllerTest(new ControllerEvcsImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
-				.addReference("evcs", EVCS) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId("evcs0") //
@@ -332,5 +330,45 @@ public class ControllerEvcsImplTest {
 						.output("evcs0", SET_CHARGE_POWER_LIMIT, 5000) //
 						.output(AWAITING_HYSTERESIS, false)) //
 				.deactivate();
+	}
+
+	@Test
+	public void smartTest() throws Exception {
+		final var clock = createDummyClock();
+		final var sut = new ControllerEvcsImpl(clock);
+		new ControllerTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
+						.setEvcsId("evcs0") //
+						.setSmartMode(true) //
+						.setSmartConfig("""
+								[{
+								  "@type": "Task",
+								  "uid": "00000000-0000-0000-0000-000000000000",
+								  "updated": "2020-01-01T00:00:00Z",
+								  "start": "2024-06-17T00:00:00",
+								  "recurrenceRules": [
+								    {
+								      "frequency": "weekly",
+								      "byDay": [
+								        "sa",
+								        "su"
+								      ]
+								    }
+								  ],
+								  "payload": {
+								    "sessionEnergy": 10001
+								  }
+								}]""") //
+						.build()) //
+				.next(new TestCase()) //
+				.deactivate();
+		@SuppressWarnings("unchecked")
+		var esh = (EnergyScheduleHandler.WithDifferentStates<SmartMode, EshSmartContext>) sut
+				.getEnergyScheduleHandler();
+		esh.initialize(new GlobalSimulationsContext(clock, null, null, null, null, null, null, null, null));
 	}
 }

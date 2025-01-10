@@ -19,6 +19,13 @@ import io.openems.edge.evcs.api.ChargeMode;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	// TODO this will change in future
+	@AttributeDefinition(name = "Enable EnergyScheduler SMART-Mode", description = "")
+	boolean smartMode() default false;
+
+	@AttributeDefinition(name = "JSON Configuration for SMART mode", description = "")
+	String smartConfig() default "";
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 

@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.emergencycapacityreserve.statemachine;
 
 import com.google.common.base.CaseFormat;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.AbstractStateMachine;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -9,6 +10,11 @@ import io.openems.edge.common.statemachine.StateHandler;
 public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
 
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
+
+		/**
+		 * Start state for new StateMachine, never entered again.
+		 */
+		UNDEFINED(-1), //
 
 		/**
 		 * State if SoC is greater then configured reserve SoC.
@@ -31,9 +37,15 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		BELOW_RESERVE_SOC(4), //
 
 		/**
-		 * State if SoC is 4% under configured reserve SoC.
+		 * State if SoC is 1% under configured reserve SoC.
 		 */
-		FORCE_CHARGE(5);
+		FORCE_CHARGE_PV(5), //
+
+		/**
+		 * State if SoC is 2 % under configured reserve SoC.
+		 */
+		FORCE_CHARGE_GRID(6), //
+		;
 
 		private final int value;
 
@@ -53,7 +65,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 		@Override
 		public OptionsEnum getUndefined() {
-			return NO_LIMIT;
+			return UNDEFINED;
 		}
 
 		@Override
@@ -62,25 +74,32 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		}
 	}
 
+	private State lastActiveState = State.UNDEFINED;
+
+	@Override
+	public void run(Context context) throws OpenemsNamedException {
+		if (!this.getPreviousState().equals(this.getCurrentState())) {
+			this.lastActiveState = this.getPreviousState();
+		}
+		context.setLastActiveState(this.lastActiveState);
+		super.run(context);
+	}
+
 	public StateMachine(State initialState) {
 		super(initialState);
 	}
 
 	@Override
 	public StateHandler<StateMachine.State, Context> getStateHandler(State state) {
-		switch (state) {
-		case NO_LIMIT:
-			return new NoLimitHandler();
-		case ABOVE_RESERVE_SOC:
-			return new AboveReserveSocHandler();
-		case AT_RESERVE_SOC:
-			return new AtReserveSocHandler();
-		case BELOW_RESERVE_SOC:
-			return new BelowReserveSocHandler();
-		case FORCE_CHARGE:
-			return new ForceChargeHandler();
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		return switch (state) {
+		case NO_LIMIT -> new NoLimitHandler();
+		case ABOVE_RESERVE_SOC -> new AboveReserveSocHandler();
+		case AT_RESERVE_SOC -> new AtReserveSocHandler();
+		case BELOW_RESERVE_SOC -> new BelowReserveSocHandler();
+		case FORCE_CHARGE_PV -> new ForceChargePvHandler();
+		case FORCE_CHARGE_GRID -> new ForceChargeGridHandler();
+		case UNDEFINED -> new UndefinedHandler();
+		};
 	}
 
 }

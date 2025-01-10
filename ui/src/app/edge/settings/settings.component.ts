@@ -8,6 +8,7 @@ import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
 @Component({
   selector: "settings",
   templateUrl: "./settings.component.html",
+  standalone: false,
 })
 export class SettingsComponent implements OnInit {
 

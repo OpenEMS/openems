@@ -2,7 +2,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
+import { XAxisType } from "src/app/shared/components/chart/chart.constants";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
@@ -10,6 +10,7 @@ import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/resp
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
@@ -115,7 +116,6 @@ export abstract class AbstractHistoryChart {
     public setOptions(options: Chart.ChartOptions): Promise<void> {
 
         return new Promise<void>((resolve) => {
-            const locale = this.service.translate.currentLang;
             const yAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT };
             const chartObject: HistoryUtils.ChartData = {
                 input: [],
@@ -152,19 +152,23 @@ export abstract class AbstractHistoryChart {
                     const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
-                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", locale, translate, conf);
+                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", translate, conf);
                 };
 
                 options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
-                    const color = colors[item.datasetIndex];
+                    let backgroundColor = item.dataset.backgroundColor;
 
-                    if (!color) {
-                        return;
+                    if (Array.isArray(backgroundColor)) {
+                        backgroundColor = backgroundColor[0];
+                    }
+
+                    if (!backgroundColor) {
+                        backgroundColor = item.dataset.borderColor || "rgba(0, 0, 0, 0.5)";
                     }
 
                     return {
-                        borderColor: color.borderColor,
-                        backgroundColor: color.backgroundColor,
+                        borderColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
+                        backgroundColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
                     };
                 };
 
@@ -234,19 +238,19 @@ export abstract class AbstractHistoryChart {
                         break;
                 }
 
-                // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, false);
-
-                options.scales.x["stacked"] = true;
-                options.scales[ChartAxis.LEFT]["stacked"] = false;
-                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
-
                 /** Overwrite default yAxisId */
                 this.datasets = this.datasets
                     .map(el => {
                         el["yAxisID"] = ChartAxis.LEFT;
                         return el;
                     });
+
+                // Only one yAxis defined
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", this.datasets, true);
+                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
+                options.scales[ChartAxis.LEFT]["stacked"] = false;
+                options.scales.x["stacked"] = true;
+                options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
             }).then(() => {
                 this.options = options;
                 resolve();
@@ -345,8 +349,7 @@ export abstract class AbstractHistoryChart {
      * @returns the ChartOptions
      */
     protected createDefaultChartOptions(): Chart.ChartOptions {
-        const options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        return options;
+        return <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     }
 
     /**

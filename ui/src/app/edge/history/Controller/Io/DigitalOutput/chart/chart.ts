@@ -4,11 +4,12 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
 
 @Component({
   selector: "totalChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
@@ -30,7 +31,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
       input: input,
       output: (data: HistoryUtils.ChannelData) => {
         const output: HistoryUtils.DisplayValue[] = [];
-        const colors: string[] = ["rgb(0,0,139)", "rgb(0,191,255)", "rgb(0,0,56)", "rgb(77,77,174)"];
 
         for (let i = 0; i < controllers.length; i++) {
           const controller = controllers[i];
@@ -40,12 +40,11 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return energyQueryResponse?.result.data[controller.id + "/CumulatedActiveTime"] ?? null;
             },
             converter: () => {
-
               return data[controller.id]
                 // TODO add logic to not have to adjust non power data manually
                 .map(val => Utils.multiplySafely(val, 1000));
             },
-            color: colors[i % colors.length],
+            color: ChartConstants.Colors.SHADES_OF_YELLOW[i % (ChartConstants.Colors.SHADES_OF_YELLOW.length - 1)],
             stack: 0,
           });
         }

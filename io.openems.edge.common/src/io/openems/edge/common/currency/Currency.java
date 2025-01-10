@@ -44,5 +44,4 @@ public enum Currency implements OptionsEnum {
 		case CHF -> Currency.CHF;
 		};
 	}
-	
 }

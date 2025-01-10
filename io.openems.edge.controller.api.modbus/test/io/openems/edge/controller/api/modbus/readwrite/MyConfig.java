@@ -18,12 +18,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		private Builder() {
 		}
-		
+
 		public Builder setWriteChannels(String... writeChannels) {
 			this.writeChannels = writeChannels;
 			return this;
 		}
-		
+
 		public Builder setReadChannels(String... readChannels) {
 			this.readChannels = readChannels;
 			return this;

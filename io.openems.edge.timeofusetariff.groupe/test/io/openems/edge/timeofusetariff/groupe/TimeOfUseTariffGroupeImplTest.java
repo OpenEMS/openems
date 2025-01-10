@@ -1,7 +1,7 @@
 package io.openems.edge.timeofusetariff.groupe;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.currency.Currency.CHF;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.groupe.TimeOfUseTariffGroupeImpl.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -10,7 +10,6 @@ import static org.junit.Assert.assertThrows;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -410,11 +409,9 @@ public class TimeOfUseTariffGroupeImplTest {
 		new ComponentTest(groupe) //
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.addReference("meta", dummyMeta) //
-				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
-						.setExchangerateAccesskey("") //
 						.build()) //
 		;
 	}

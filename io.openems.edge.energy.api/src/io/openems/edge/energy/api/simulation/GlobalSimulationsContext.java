@@ -5,27 +5,34 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.edge.common.type.TypeUtils.assertNull;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
+import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentStates;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 import static java.lang.Math.abs;
-import static java.lang.Math.min;
+import static java.util.Arrays.stream;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.util.function.Function;
+import java.util.Objects;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.DateUtils;
+import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Quarter;
+import io.openems.edge.evcs.api.Status;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
@@ -38,11 +45,14 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
  */
 public record GlobalSimulationsContext(//
 		Clock clock, //
+		RiskLevel riskLevel,
 		/** Start-Timestamp */
 		ZonedDateTime startTime, //
-		ImmutableList<EnergyScheduleHandler> handlers, //
+		ImmutableList<EnergyScheduleHandler> eshs, //
+		ImmutableList<EnergyScheduleHandler.WithDifferentStates<?, ?>> eshsWithDifferentStates, //
 		Grid grid, //
 		Ess ess, //
+		ImmutableMap<String, Evcs> evcss, //
 		/**
 		 * Period is either mixed, with {@link Hour}s and {@link Quarter}s, or
 		 * {@link Quarter}s only.
@@ -55,7 +65,8 @@ public record GlobalSimulationsContext(//
 				.add("startTime", this.startTime) //
 				.addValue(this.grid) //
 				.addValue(this.ess) //
-				.add("handlers", this.handlers) //
+				.add("evcss", this.evcss) //
+				.add("eshs", this.eshs) //
 				.toString();
 	}
 
@@ -68,6 +79,13 @@ public record GlobalSimulationsContext(//
 			int maxChargeEnergy, //
 			/** ESS Max Discharge Energy [Wh] */
 			int maxDischargeEnergy) {
+	}
+
+	public static record Evcs(//
+			// Plugged state
+			Status status, //
+			// Energy Session [Wh]
+			int energySession) {
 	}
 
 	public static record Grid(//
@@ -126,20 +144,32 @@ public record GlobalSimulationsContext(//
 	}
 
 	public static class Builder {
-		private Clock clock;
-		private ImmutableList<EnergyScheduleHandler> handlers;
+		private ComponentManager componentManager;
+		private RiskLevel riskLevel;
+		private ImmutableList<EnergyScheduleHandler> eshs;
 		private Sum sum;
 		private PredictorManager predictorManager;
 		private TimeOfUseTariff timeOfUseTariff;
 
 		/**
-		 * The {@link Clock}.
+		 * The {@link ComponentManager}.
 		 * 
-		 * @param clock the {@link Clock}
+		 * @param componentManager the {@link ComponentManager}
 		 * @return myself
 		 */
-		public Builder setClock(Clock clock) {
-			this.clock = clock;
+		public Builder setComponentManager(ComponentManager componentManager) {
+			this.componentManager = componentManager;
+			return this;
+		}
+
+		/**
+		 * The {@link RiskLevel}.
+		 * 
+		 * @param riskLevel the {@link RiskLevel}
+		 * @return myself
+		 */
+		public Builder setRiskLevel(RiskLevel riskLevel) {
+			this.riskLevel = riskLevel;
 			return this;
 		}
 
@@ -149,11 +179,11 @@ public record GlobalSimulationsContext(//
 		 * <p>
 		 * The list is sorted by Scheduler.
 		 * 
-		 * @param handlers the list of {@link EnergyScheduleHandler}s
+		 * @param eshs the list of {@link EnergyScheduleHandler}s
 		 * @return myself
 		 */
-		public Builder setEnergyScheduleHandlers(ImmutableList<EnergyScheduleHandler> handlers) {
-			this.handlers = handlers;
+		public Builder setEnergyScheduleHandlers(ImmutableList<EnergyScheduleHandler> eshs) {
+			this.eshs = eshs;
 			return this;
 		}
 
@@ -196,83 +226,122 @@ public record GlobalSimulationsContext(//
 		 * @return the {@link GlobalSimulationsContext} record
 		 */
 		public GlobalSimulationsContext build() throws OpenemsException, IllegalArgumentException {
-			assertNull("Clock is not available", this.clock);
-			assertNull("EnergyScheduleHandlers are not available", this.handlers);
-			assertNull("Sum is not available", this.sum);
-			assertNull("Predictor-Manager is not available", this.predictorManager);
-			assertNull("TimeOfUseTariff is not available", this.timeOfUseTariff);
+			try {
+				System.out.println("OPTIMIZER GlobalSimulationsContext::build()");
 
-			final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(this.clock));
+				assertNull("ComponentManager is not available", this.componentManager);
+				assertNull("EnergyScheduleHandlers are not available", this.eshs);
+				assertNull("Sum is not available", this.sum);
+				assertNull("Predictor-Manager is not available", this.predictorManager);
+				assertNull("TimeOfUseTariff is not available", this.timeOfUseTariff);
 
-			// Prediction values
-			final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION).asArray();
-			final var productions = generateProductionPrediction(//
-					this.predictorManager.getPrediction(SUM_PRODUCTION).asArray(), //
-					consumptions.length);
+				final var clock = this.componentManager.getClock();
+				final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
+				System.out.println("OPTIMIZER GlobalSimulationsContext::build() startTime=" + startTime);
 
-			// Prices contains the price values and the time it is retrieved.
-			final var prices = this.timeOfUseTariff.getPrices().asArray();
+				// Prediction values
+				final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
+				System.out.println(
+						"OPTIMIZER GlobalSimulationsContext::build() consumptions=" + consumptions.asArray().length);
+				final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
+				System.out.println(
+						"OPTIMIZER GlobalSimulationsContext::build() productions=" + productions.asArray().length);
 
-			final var numberOfPeriods = min(min(consumptions.length, productions.length), prices.length);
-			if (numberOfPeriods == 0) {
-				throw new IllegalArgumentException("No forecast periods available. " //
-						+ "Consumptions[" + consumptions.length + "] " //
-						+ "Productions[" + productions.length + "] " //
-						+ "Prices[" + prices.length + "]");
+				// Prices contains the price values and the time it is retrieved.
+				final var prices = this.timeOfUseTariff.getPrices();
+				System.out.println("OPTIMIZER GlobalSimulationsContext::build() prices=" + prices.asArray().length);
+
+				// Helpers
+				final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
+					final var time = startTime.plusMinutes(i * 15);
+					final var consumption = consumptions.getAt(time);
+					final var price = prices.getAt(time);
+					if (consumption == null || price == null) {
+						return null;
+					}
+					final var production = productions.getAtOrElse(time, 0);
+					return new Period.Quarter(time, toEnergy(production), toEnergy(consumption), price);
+				};
+				final IntFunction<Period.Hour> toHourPeriod = (i) -> {
+					final var rangeStart = startTime.plusMinutes(i * 15);
+					final var rangeEnd = startTime.plusMinutes(i * 15).plusMinutes(60);
+
+					final var consumption = consumptions //
+							.getBetween(rangeStart, rangeEnd) //
+							.mapToInt(Integer::intValue) //
+							.toArray();
+					final var priceRange = prices //
+							.getBetween(rangeStart, rangeEnd) //
+							.mapToDouble(Double::doubleValue) //
+							.toArray();
+					if (consumption.length == 0 || priceRange.length == 0) {
+						return null;
+					}
+					final var price = stream(priceRange).average().getAsDouble();
+					final var production = productions //
+							.getBetween(rangeStart, rangeEnd) //
+							.mapToInt(Integer::intValue) //
+							.sum();
+					final var quarterPeriods = IntStream.range(i, i + 4) //
+							.mapToObj(toQuarterPeriod) //
+							.filter(Objects::nonNull) //
+							.collect(toImmutableList());
+					return new Period.Hour(rangeStart, //
+							toEnergy(production), toEnergy(stream(consumption).sum()), //
+							price, quarterPeriods);
+				};
+
+				final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
+
+				var periods = Stream.concat(//
+						IntStream.range(0, periodLengthHourFromIndex) //
+								.<Period>mapToObj(toQuarterPeriod), //
+						IntStream.iterate(periodLengthHourFromIndex, i -> i + 4) //
+								.<Period>mapToObj(toHourPeriod) //
+								.takeWhile(Objects::nonNull)) //
+						.filter(Objects::nonNull) //
+						.collect(toImmutableList());
+				System.out.println("OPTIMIZER GlobalSimulationsContext::build() periods:" + periods.size());
+
+				if (periods.isEmpty()) {
+					throw new IllegalArgumentException("No forecast periods available. " //
+							+ "Consumptions[" + consumptions.asArray().length + "] " //
+							+ "Productions[" + productions.asArray().length + "] " //
+							+ "Prices[" + prices.asArray().length + "]");
+				}
+
+				final Ess ess;
+				{
+					var essTotalEnergy = this.sum.getEssCapacity().getOrError();
+					var essInitialEnergy = socToEnergy(essTotalEnergy, this.sum.getEssSoc().getOrError());
+
+					// Power Values for scheduling battery for individual periods.
+					var maxDischargePower = TypeUtils.max(1000 /* at least 1000 W */, //
+							this.sum.getEssMaxDischargePower().get());
+					var maxChargePower = TypeUtils.min(-1000 /* at least 1000 W */, //
+							this.sum.getEssMinDischargePower().get());
+
+					ess = new Ess(essInitialEnergy, essTotalEnergy, toEnergy(abs(maxChargePower)),
+							toEnergy(maxDischargePower));
+				}
+				final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
+
+				final var evcss = this.componentManager.getEnabledComponentsOfType(io.openems.edge.evcs.api.Evcs.class)
+						.stream() //
+						.collect(ImmutableMap.toImmutableMap(//
+								OpenemsComponent::id, //
+								evcs -> new Evcs(//
+										evcs.getStatus(), //
+										evcs.getEnergySession().orElse(0))));
+
+				System.out.println("OPTIMIZER GlobalSimulationsContext::build() finished");
+				return new GlobalSimulationsContext(clock, this.riskLevel, startTime, //
+						this.eshs, filterEshsWithDifferentStates(this.eshs).collect(toImmutableList()), //
+						grid, ess, evcss, periods);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw e;
 			}
-
-			// Helpers
-			final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> new Period.Quarter(//
-					startTime.plusMinutes(i * 15), //
-					toEnergy(productions[i]), //
-					toEnergy(consumptions[i]), //
-					prices[i]);
-			final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
-
-			var periods = ImmutableList.<Period>builder();
-
-			// Quarters
-			for (var i = 0; i < min(periodLengthHourFromIndex, numberOfPeriods); i++) {
-				periods.add(toQuarterPeriod.apply(i));
-			}
-
-			// Hours
-			final Function<Integer, IntStream> range = (i) -> IntStream.range(i, min(i + 4, numberOfPeriods));
-			for (int i = periodLengthHourFromIndex, hour = periodLengthHourFromIndex / 4; //
-					i < numberOfPeriods; //
-					i += 4, hour++) {
-				periods.add(new Period.Hour(//
-						startTime.plusHours(hour), //
-						toEnergy(range.apply(i).map(j -> productions[j]).sum()), //
-						toEnergy(range.apply(i).map(j -> consumptions[j]).sum()), //
-						range.apply(i).mapToDouble(j -> prices[j]).average().getAsDouble(), //
-						range.apply(i) //
-								.mapToObj(j -> toQuarterPeriod.apply(j)) //
-								.collect(toImmutableList())));
-			}
-
-			final Ess ess;
-			{
-				var essTotalEnergy = this.sum.getEssCapacity().getOrError();
-				var essInitialEnergy = socToEnergy(essTotalEnergy, this.sum.getEssSoc().getOrError());
-
-				// Power Values for scheduling battery for individual periods.
-				var maxDischargePower = TypeUtils.max(1000 /* at least 1000 W */, //
-						this.sum.getEssMaxDischargePower().get());
-				var maxChargePower = TypeUtils.min(-1000 /* at least 1000 W */, //
-						this.sum.getEssMinDischargePower().get());
-				// TODO
-				// if (context.limitChargePowerFor14aEnWG()) {
-				// maxChargePower = max(ESS_LIMIT_14A_ENWG, maxChargePower); // Apply §14a EnWG
-				// limit
-				// }
-
-				ess = new Ess(essInitialEnergy, essTotalEnergy, toEnergy(abs(maxChargePower)),
-						toEnergy(maxDischargePower));
-			}
-			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
-
-			return new GlobalSimulationsContext(this.clock, startTime, this.handlers, grid, ess, periods.build());
 		}
 	}
 
@@ -283,23 +352,6 @@ public record GlobalSimulationsContext(//
 	 */
 	public static Builder create() {
 		return new GlobalSimulationsContext.Builder();
-	}
-
-	/**
-	 * Postprocesses production prediction; makes sure length is at least the same
-	 * as consumption prediction - filling up with zeroes.
-	 * 
-	 * @param prediction the production prediction
-	 * @param minLength  the min length (= consumption prediction length)
-	 * @return new production prediction
-	 */
-	protected static Integer[] generateProductionPrediction(Integer[] prediction, int minLength) {
-		if (prediction.length >= minLength) {
-			return prediction;
-		}
-		return IntStream.range(0, minLength) //
-				.mapToObj(i -> i > prediction.length - 1 ? 0 : prediction[i]) //
-				.toArray(Integer[]::new);
 	}
 
 	/**

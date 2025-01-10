@@ -187,7 +187,7 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 		case 1 -> Status.NOT_READY_FOR_CHARGING; // ready for charging, car unplugged
 		case 2 -> Status.CHARGING; // charging
 		case 3 -> Status.READY_FOR_CHARGING; // waiting for car
-		case 4 -> Status.CHARGING_FINISHED; // charging finished, car plugged
+		case 4 -> Status.CHARGING_REJECTED; // charging finished, car plugged
 		default -> Status.UNDEFINED;
 		};
 	}

@@ -24,6 +24,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.RampFilter;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.Context;
@@ -49,7 +50,7 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssEmergencyCapacityReserveImpl.class);
 	private final EnergyScheduleHandler energyScheduleHandler;
-	private final StateMachine stateMachine = new StateMachine(State.NO_LIMIT);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final RampFilter rampFilter = new RampFilter();
 
 	@Reference
@@ -60,6 +61,9 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 
 	@Reference
 	private Sum sum;
+
+	@Reference
+	private Meta meta;
 
 	@Reference
 	private ManagedSymmetricEss ess;
@@ -88,7 +92,7 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
 		super.modified(context, id, alias, enabled);
 		this.updateConfig(this.config);
-		this.energyScheduleHandler.triggerReschedule();
+		this.energyScheduleHandler.triggerReschedule("ControllerEssEmergencyCapacityReserveImpl::modified()");
 	}
 
 	@Override
@@ -173,8 +177,8 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 		if (socToUse == null || !maxApparentPower.isDefined()) {
 			this.stateMachine.forceNextState(State.NO_LIMIT);
 		}
-
-		var context = new Context(this, this.sum, maxApparentPower.get(), socToUse, this.config.reserveSoc());
+		var context = new Context(this, this.sum, maxApparentPower.get(), socToUse, this.config.reserveSoc(),
+				this.meta.getIsEssChargeFromGridAllowed());
 		try {
 			this.stateMachine.run(context);
 
@@ -215,15 +219,16 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	 * @return a {@link EnergyScheduleHandler}
 	 */
 	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Integer> minSoc) {
-		return EnergyScheduleHandler.of(//
-				simContext -> minSoc.get() == null //
+		return EnergyScheduleHandler.WithOnlyOneState.<Integer>create() //
+				.setContextFunction(simContext -> minSoc.get() == null //
 						? null //
-						: socToEnergy(simContext.ess().totalEnergy(), minSoc.get()), //
-				(simContext, period, energyFlow, minEnergy) -> {
+						: socToEnergy(simContext.ess().totalEnergy(), minSoc.get())) //
+				.setSimulator((simContext, period, energyFlow, minEnergy) -> {
 					if (minEnergy != null) {
-						energyFlow.setEssMaxDischarge(max(0, simContext.getEssInitial() - minEnergy));
+						energyFlow.setEssMaxDischarge(max(0, simContext.ess.getInitialEnergy() - minEnergy));
 					}
-				});
+				}) //
+				.build();
 	}
 
 	@Override

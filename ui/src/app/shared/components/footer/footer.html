@@ -1,6 +1,6 @@
-<ion-footer *ngIf="!service.isSmartphoneResolution">
-  <ion-item color="primary" *ngIf="user && edge && displayValues" lines="none">
-    <ion-grid>
+<ion-footer *ngIf="!service.isSmartphoneResolution" style="--background: var(--ion-color-toolbar-primary);">
+  <ng-container *ngIf="user && edge && displayValues" lines="none">
+    <ion-grid style="background-color: var(--ion-color-toolbar-primary); color: var(--ion-color-primary-contrast)">
       <ion-row>
         <ion-col size="12">
           <span *ngIf="displayValues.comment">
@@ -19,5 +19,5 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </ion-item>
+  </ng-container>
 </ion-footer>

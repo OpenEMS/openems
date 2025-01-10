@@ -5,7 +5,7 @@ public enum TariffType {
 	 * haStrom Flex.
 	 */
 	STROM_FLEX, //
-	
+
 	/**
 	 * haStrom Flex Pro.
 	 */
