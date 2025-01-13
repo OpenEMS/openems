@@ -331,7 +331,7 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter
 				Integer value = internalChannel.value().getOrError().intValue();
 
 				if (value == 65535) { // return if "fill-values" are used
-					logError(log, "Error Channel: " + externalChannelName + " is 65535 (SF:" + scaleFactor
+					logDebug(log, "Error Channel: " + externalChannelName + " is 65535 (SF:" + scaleFactor
 							+ "). No values saved.");
 					return;
 				}
