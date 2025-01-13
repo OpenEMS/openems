@@ -373,22 +373,16 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
+		return switch (this.config.startStop()) {
+		    case AUTO -> this.startStopTarget.get(); // read StartStop-Channel
+		    case START -> StartStop.START;          // force START
+		    case STOP -> StartStop.STOP;            // force STOP
+		    default -> {
+		        assert false : "Unexpected startStop value";
+		        yield StartStop.UNDEFINED;          // can never happen
+		    }
+	};
 
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
 	}
 
 	@Override
