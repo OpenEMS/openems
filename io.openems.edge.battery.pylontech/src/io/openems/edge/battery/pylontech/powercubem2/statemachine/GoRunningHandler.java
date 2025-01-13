@@ -21,22 +21,20 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-
-		switch (this.state) {
-		case WAIT_FOR_WAKE_UP: {
-			if (context.isBatteryAwake()) { // If it's already awake (in charge or discharge mode - we are done)
-				this.state = BatterySwitchOnState.FINISHED;
-			} else { // If its not on, we switch it on
-				context.setBatteryWakeSleep(true);
-			}
-			break;
-		}
-		case FINISHED: {
-			return State.RUNNING;
-		}
-		}
-
-		return State.GO_RUNNING;
-	}
+		
+		return switch (this.state) {
+	        case WAIT_FOR_WAKE_UP -> {
+	            if (context.isBatteryAwake()) { // If already awake, we're done
+	                this.state = BatterySwitchOnState.FINISHED;
+	                yield State.GO_RUNNING; // Continue to GO_RUNNING
+	            } else { // If it's not awake, switch it on
+	                context.setBatteryWakeSleep(true);
+	                yield State.GO_RUNNING; // Continue to GO_RUNNING
+	            }
+	        }
+	        case FINISHED -> State.RUNNING; // Transition to RUNNING when finished
+	        default -> State.GO_RUNNING; // Default fallback state
+		};
+	} 
 
 }
