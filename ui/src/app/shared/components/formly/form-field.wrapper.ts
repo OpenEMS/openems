@@ -8,12 +8,8 @@ import { FieldWrapper } from "@ngx-formly/core";
     standalone: false,
     styles: [`
     :host {
-        formly-field-ion-toggle {
+        formly-field-ion-toggle, formly-field-ion-checkbox{
             width: 100%;
-        }
-
-        formly-field-ion-select {
-
         }
     }
     `]
