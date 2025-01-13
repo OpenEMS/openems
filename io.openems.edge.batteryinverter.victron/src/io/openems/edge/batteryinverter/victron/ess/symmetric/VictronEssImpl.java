@@ -243,6 +243,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			this.logError(this.log, "ApplyPower->Max. Apparent Power invalid");
 			return;
 		}
+		
+		this.logDebug(this.log,
+				"Setting max. apparent power to batteryInverter-Channel");
 		this._setMaxApparentPower(this.batteryInverter.getMaxApparentPower().get().intValue());
 
 		
@@ -255,6 +258,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		MaxChargePower = this.batteryInverter.getMaxChargePower();
 		MaxDischargePower = this.batteryInverter.getMaxDischargePower();
 
+		this.logDebug(this.log,
+				"Getting max. Charge/Discharge power values: " + MaxChargePower + "/" + MaxDischargePower + "W");
+		
 		if (MaxChargePower == null || MaxDischargePower == null) {
 			this.logError(this.log, "power Limits not set.");
 			return;
@@ -266,6 +272,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			return;
 		}
 
+		
+		this.logDebug(this.log,
+				"Setting max. Charge/Discharge power values: " + MaxChargePower + "/" + MaxDischargePower + "W");		
 		this._setAllowedChargePower(MaxChargePower * -1);
 		this._setAllowedDischargePower(MaxChargePower);
 
