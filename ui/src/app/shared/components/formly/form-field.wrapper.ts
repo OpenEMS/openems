@@ -6,5 +6,12 @@ import { FieldWrapper } from "@ngx-formly/core";
     templateUrl: "./form-field.wrapper.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
+    styles: [`
+    :host {
+        formly-field-ion-toggle, formly-field-ion-checkbox{
+            width: 100%;
+        }
+    }
+    `],
 })
 export class FormlyWrapperFormFieldComponent extends FieldWrapper { }
