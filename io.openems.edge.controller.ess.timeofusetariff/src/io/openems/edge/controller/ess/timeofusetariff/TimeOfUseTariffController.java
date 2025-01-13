@@ -87,7 +87,7 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 	 * @param value the next value
 	 */
 	public default void _setQuarterlyPrices(Double value) {
-		if (value.isNaN()) {
+		if (value == null || value.isNaN()) {
 			this.channel(TimeOfUseTariffController.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(true);
 		} else {
 			this.channel(TimeOfUseTariffController.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(false);
