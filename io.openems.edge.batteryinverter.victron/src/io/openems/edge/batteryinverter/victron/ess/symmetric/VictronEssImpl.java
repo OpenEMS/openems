@@ -227,11 +227,37 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			return;
 		}
 
+		if (this.battery == null) {
+			// battery = this.batteryInverter.getBattery();
+			this.logError(this.log, "ApplyPower->Battery not activated ");
+			return;
+		}
+		
+		if (this.batteryInverter.calculateHardwareLimits() == false) {
+			return;
+		}
+		
+		if (this.batteryInverter.getMaxApparentPower().get() == null
+				|| this.batteryInverter.getMaxApparentPower().get() == 0) {
+			this.logError(this.log, "ApplyPower->Max. Apparent Power invalid");
+			return;
+		}
+		this._setMaxApparentPower(this.batteryInverter.getMaxApparentPower().get().intValue());
+
+		
 		// Victron: Negative values for Discharge
 		// OpenEMS: Negative values for Charge
 
 		// if we are in symmetric mode we have to device the wanted power by 3
 		// In single phase
+		
+		MaxChargePower = this.batteryInverter.getMaxChargePower();
+		MaxDischargePower = this.batteryInverter.getMaxDischargePower();
+
+		if (MaxChargePower == null || MaxDischargePower == null) {
+			this.logError(this.log, "power Limits not set.");
+			return;
+		}
 
 		if (this.hasFaults() || (this.getVEBusBMSAllowBatteryCharge() != AllowDisallow.ALLOWED)
 				|| (this.getVEBusBMSAllowBatteryDischarge() != AllowDisallow.ALLOWED)) {
