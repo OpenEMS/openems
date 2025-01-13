@@ -8,24 +8,18 @@ public class StartedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		var ess = context.getParent();
+		final var ess = context.getParent();
 
-		if (ess.hasFaults()) {
-			return State.UNDEFINED;
+		if (context.hasEssFaults()) {
+			return State.ERROR;
 		}
 
-		if (!context.battery.isStarted()) {
-			return State.UNDEFINED;
-		}
-
-		if (!context.batteryInverter.isStarted()) {
-			return State.UNDEFINED;
+		if (!context.isEssStarted()) {
+			return State.ERROR;
 		}
 
 		// Mark as started
 		ess._setStartStop(StartStop.START);
-
 		return State.STARTED;
 	}
-
 }

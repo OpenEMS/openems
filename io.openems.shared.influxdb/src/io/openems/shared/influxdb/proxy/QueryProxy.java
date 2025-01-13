@@ -26,35 +26,40 @@ public abstract class QueryProxy {
 	 * Builds a {@link QueryProxy} from a {@link QueryLanguageConfig}.
 	 * 
 	 * @param config a {@link QueryLanguageConfig}
+	 * @param tag    the InfluxDB tag
 	 * @return a {@link QueryProxy} instance
 	 */
-	public static QueryProxy from(QueryLanguageConfig config) {
-		switch (config) {
-		case FLUX:
-			return flux();
-		case INFLUX_QL:
-			return influxQl();
-		}
-		// Will never happen
-		return null;
+	public static QueryProxy from(QueryLanguageConfig config, String tag) {
+		return switch (config) {
+		case FLUX -> flux(tag);
+		case INFLUX_QL -> influxQl(tag);
+		};
 	}
 
 	/**
 	 * Builds a {@link FluxProxy}.
 	 * 
+	 * @param tag the InfluxDB tag
 	 * @return a FluxProxy
 	 */
-	public static QueryProxy flux() {
-		return new FluxProxy();
+	public static QueryProxy flux(String tag) {
+		return new FluxProxy(tag);
 	}
 
 	/**
 	 * Builds a {@link InfluxQlProxy}.
 	 * 
+	 * @param tag the InfluxDB tag
 	 * @return a InfluxQlProxy
 	 */
-	public static QueryProxy influxQl() {
-		return new InfluxQlProxy();
+	public static QueryProxy influxQl(String tag) {
+		return new InfluxQlProxy(tag);
+	}
+
+	protected final String tag;
+
+	protected QueryProxy(String tag) {
+		this.tag = tag;
 	}
 
 	/**

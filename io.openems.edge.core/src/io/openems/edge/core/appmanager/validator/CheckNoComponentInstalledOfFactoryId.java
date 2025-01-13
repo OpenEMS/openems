@@ -46,4 +46,9 @@ public class CheckNoComponentInstalledOfFactoryId extends AbstractCheckable impl
 				"Validator.Checkable.CheckNoComponentInstalledOfFactorieId.Message", this.factorieId);
 	}
 
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		throw new UnsupportedOperationException();
+	}
+
 }

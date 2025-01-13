@@ -4,13 +4,13 @@ import { Key } from "./key";
 
 /**
  * Gets the registered keys to the current edge and if provided to the given app.
- * 
+ *
  * <p>
  * Note: This Request needs to be wrapped in a appCenter Request.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -21,10 +21,10 @@ import { Key } from "./key";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -44,7 +44,7 @@ export namespace AppCenterGetRegisteredKeys {
         public constructor(
             public override readonly params: {
                 appId?: string,
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -56,7 +56,7 @@ export namespace AppCenterGetRegisteredKeys {
             public override readonly id: string,
             public override readonly result: {
                 keys: Key[]
-            }
+            },
         ) {
             super(id, result);
         }

@@ -7,8 +7,9 @@ import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
+import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketImpl;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -90,12 +91,12 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	 * Waiting for https://github.com/TooTallNate/Java-WebSocket/pull/1251 to be
 	 * merged.
 	 * 
-	 * @param <T>                the type of the attachment
-	 * @param ws                 the {@link WebSocketClient}
-	 * @param attachmentSupplier the supplier for the new attachment
+	 * @param <T>    the type of the attachment
+	 * @param ws     the {@link WebSocketClient}
+	 * @param wsData {@link Function} to provide a the new attachment
 	 * @throws Exception on error
 	 */
-	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Supplier<T> attachmentSupplier)
+	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Function<WebSocket, T> wsData)
 			throws Exception {
 		/*
 		 * Get methods and fields via Reflection
@@ -168,8 +169,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		closeLatchField.set(ws, new CountDownLatch(1));
 		// this.engine = new WebSocketImpl(this, this.draft); -> to reflection
 		final var newEngine = new WebSocketImpl(ws, draft);
-		final var newAttachment = attachmentSupplier.get();
-		newAttachment.setWebsocket(ws);
+		final var newAttachment = wsData.apply(ws);
 		newEngine.setAttachment(newAttachment);
 		engineField.set(ws, newEngine);
 	}

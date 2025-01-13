@@ -5,6 +5,7 @@ import org.osgi.service.component.ComponentConstants;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.flag.Flag;
@@ -43,9 +44,10 @@ public interface OpenemsApp {
 	/**
 	 * Gets the {@link AppDescriptor} of the {@link OpenemsApp}.
 	 *
+	 * @param oem the {@link OpenemsEdgeOem}
 	 * @return the {@link AppDescriptor}
 	 */
-	public AppDescriptor getAppDescriptor();
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem);
 
 	/**
 	 * Gets the {@link OpenemsAppCategory} of the {@link OpenemsApp}.
@@ -120,13 +122,6 @@ public interface OpenemsApp {
 	public default Flag[] flags() {
 		return new Flag[] {};
 	}
-
-	/**
-	 * Validate the {@link OpenemsApp}.
-	 *
-	 * @param instance the app instance
-	 */
-	public void validate(OpenemsAppInstance instance) throws OpenemsNamedException;
 
 	public static final String FALLBACK_IMAGE = """
 			data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY5\

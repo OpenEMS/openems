@@ -44,7 +44,7 @@ export class SetUserInformationRequest extends JsonrpcRequest {
                     country: string
                 }
             }
-        }
+        },
     ) {
         super(SetUserInformationRequest.METHOD, params);
     }

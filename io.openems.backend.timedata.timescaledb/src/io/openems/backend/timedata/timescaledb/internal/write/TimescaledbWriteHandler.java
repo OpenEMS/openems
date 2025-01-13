@@ -153,7 +153,7 @@ public class TimescaledbWriteHandler {
 	 * 
 	 * @return metrics
 	 */
-	public Map<String, Number> debugMetrics() {
+	public Map<String, Long> debugMetrics() {
 		return ThreadPoolUtils.debugMetrics(this.executor);
 	}
 

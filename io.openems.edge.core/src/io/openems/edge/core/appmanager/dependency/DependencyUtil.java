@@ -110,7 +110,7 @@ public class DependencyUtil {
 			instances.addAll(appHelper.getTemporaryApps().currentlyCreatingApps());
 		}
 		for (var entry : appManagerImpl.appConfigs(instances, null)) {
-			if (entry.getValue().components.stream().anyMatch(c -> c.getId().equals(componentId))) {
+			if (entry.getValue().getComponents().stream().anyMatch(c -> c.getId().equals(componentId))) {
 				this.setCurrentlyRunning(false);
 				return entry.getKey();
 			}

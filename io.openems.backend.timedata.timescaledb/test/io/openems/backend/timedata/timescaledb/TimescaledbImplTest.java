@@ -35,20 +35,9 @@ public class TimescaledbImplTest {
 		var fromDate = ZonedDateTime.of(2022, 06, 23, 0, 0, 0, 0, zone);
 		var toDate = ZonedDateTime.of(2022, 06, 24, 0, 0, 0, 0, zone);
 
-		// queryHistoricData
-		// var result = sut.queryHistoricData("fems888", fromDate, toDate, //
-		// Set.of(new ChannelAddress("_sum", "EssSoc"), new ChannelAddress("_power",
-		// "_PropertyStrategy")),
-		// new Resolution(5, ChronoUnit.MINUTES));
-
-		// queryHistoricEnergy
-		// var result = sut.queryHistoricEnergy("fems888", fromDate, toDate, //
-		// Set.of(new ChannelAddress("_sum", "GridSellActiveEnergy"),
-		// new ChannelAddress("_sum", "GridBuyActiveEnergy")));
-
 		// queryHistoricEnergyPerPeriod
 		var result = sut
-				.queryHistoricEnergyPerPeriod("fems888", fromDate, toDate,
+				.queryHistoricEnergyPerPeriod("edge0", fromDate, toDate,
 						Set.of(new ChannelAddress("_sum", "GridSellActiveEnergy"),
 								new ChannelAddress("_sum", "GridBuyActiveEnergy")),
 						new Resolution(1, ChronoUnit.HOURS));

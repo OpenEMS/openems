@@ -12,6 +12,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.test.TestUtils;
 
 public class ModbusRecordChannelTest {
 
@@ -46,16 +47,12 @@ public class ModbusRecordChannelTest {
 		}
 
 		protected DummyComponent withReadWriteChannel(int value) {
-			var channel = this.channel(ChannelId.READ_WRITE_CHANNEL);
-			channel.setNextValue(value);
-			channel.nextProcessImage();
+			TestUtils.withValue(this, ChannelId.READ_WRITE_CHANNEL, value);
 			return this;
 		}
 
 		protected DummyComponent withReadOnlyChannel(int value) {
-			var channel = this.channel(ChannelId.READ_ONLY_CHANNEL);
-			channel.setNextValue(value);
-			channel.nextProcessImage();
+			TestUtils.withValue(this, ChannelId.READ_ONLY_CHANNEL, value);
 			return this;
 		}
 

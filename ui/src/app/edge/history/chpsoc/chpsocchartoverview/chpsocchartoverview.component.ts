@@ -1,27 +1,25 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Edge, EdgeConfig, Service } from "../../../../shared/shared";
 
 @Component({
     selector: ChpSocChartOverviewComponent.SELECTOR,
-    templateUrl: './chpsocchartoverview.component.html'
+    templateUrl: "./chpsocchartoverview.component.html",
 })
 export class ChpSocChartOverviewComponent implements OnInit {
 
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
-
-    public component: EdgeConfig.Component = null;
-
     private static readonly SELECTOR = "chpsoc-chart-overview";
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.config = config;

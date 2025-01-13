@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.FunctionUtils.supplier;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,11 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.Parameter;
@@ -27,7 +32,7 @@ import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
  * 
  * @param <APP>       the type of the app
  * @param <PROPERTY>  the type of the property
- * @param <PARAMETER> the type of the paramters
+ * @param <PARAMETER> the type of the parameters
  */
 public class AppDef<APP extends OpenemsApp, //
 		PROPERTY extends Nameable, //
@@ -169,6 +174,8 @@ public class AppDef<APP extends OpenemsApp, //
 	 * JsonArray, JsonPrimitiv(Number, String, Boolean, Character).
 	 */
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, JsonElement> defaultValue;
+
+	private boolean required = false;
 
 	/**
 	 * Function to get the {@link FormlyBuilder} for the input.
@@ -713,6 +720,11 @@ public class AppDef<APP extends OpenemsApp, //
 		return this.self();
 	}
 
+	public final AppDef<APP, PROPERTY, PARAMETER> setRequired(boolean required) {
+		this.required = required;
+		return this.self();
+	}
+
 	/**
 	 * Appends the given predicates and collections them into one which checks that
 	 * every predicate returns true to determine if the current field should be
@@ -904,6 +916,7 @@ public class AppDef<APP extends OpenemsApp, //
 			doIfPresent(app, property, l, parameter, this.label, field::setLabel);
 			doIfPresent(app, property, l, parameter, this.description, field::setDescription);
 			doIfPresent(app, property, l, parameter, this.defaultValue, field::setDefaultValue);
+			field.isRequired(this.required);
 			return field;
 		};
 	}
@@ -995,11 +1008,23 @@ public class AppDef<APP extends OpenemsApp, //
 				return null;
 			}
 			final var componentManager = componentManagerFunction.apply(app);
-			final var optionalComponent = componentManager.getEdgeConfig() //
-					.getComponent(componentId.getAsString());
-			return optionalComponent.map(component -> {
-				return component.getProperty(property).orElse(null);
-			}).map(mapper).orElseGet(() -> this.getDefaultValue().get(app, prop, l, param));
+			final var defaultValueSupplier = supplier(() -> {
+				final var a = this.getDefaultValue();
+				if (a != null) {
+					return a.get(app, prop, l, param);
+				}
+				return JsonNull.INSTANCE;
+			});
+
+			try {
+				final var component = componentManager.getComponent(componentId.getAsString());
+				return Optional.ofNullable(component.getComponentContext().getProperties().get(property)) //
+						.map(JsonUtils::getAsJsonElement) //
+						.map(mapper) //
+						.orElseGet(defaultValueSupplier);
+			} catch (OpenemsNamedException e) {
+				return defaultValueSupplier.get();
+			}
 		};
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;

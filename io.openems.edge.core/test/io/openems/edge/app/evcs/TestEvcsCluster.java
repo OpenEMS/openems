@@ -1,5 +1,6 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -19,12 +20,8 @@ import com.google.common.collect.Lists;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -36,8 +33,6 @@ import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestEvcsCluster {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -56,6 +51,10 @@ public class TestEvcsCluster {
 					this.kebaEvcs = Apps.kebaEvcs(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
+
+		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addStaticIpAggregateTask();
 	}
 
 	@Test
@@ -116,28 +115,28 @@ public class TestEvcsCluster {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs0"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.1") //
-				))).get();
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(this.user,
+				)));
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs0"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs0") //
-				))).get();
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(this.user,
+				)));
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs1"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.2") //
-				))).get();
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(this.user,
+				)));
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs1"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs1") //
-				))).get();
+				)));
 
-		ResolveDependencies.resolveDependencies(this.user, this.appManagerTestBundle.sut,
+		ResolveDependencies.resolveDependencies(DUMMY_ADMIN, this.appManagerTestBundle.sut,
 				this.appManagerTestBundle.appManagerUtil);
 
 		this.appManagerTestBundle.assertInstalledApps(3);
@@ -168,7 +167,7 @@ public class TestEvcsCluster {
 		this.installKeba("1.1.1.1");
 
 		final var clusterId = "evcsCluster0";
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
 				new CreateComponentConfigRequest("Evcs.Cluster.PeakShaving", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", clusterId), //
 						new UpdateComponentConfigRequest.Property("enabled", false), //
@@ -176,7 +175,7 @@ public class TestEvcsCluster {
 								.add("evcs0") //
 								.build()), //
 						new UpdateComponentConfigRequest.Property("hardwarePowerLimitPerPhase", 1234) //
-				))).get();
+				)));
 
 		this.assertIdsGotAdded("evcs0");
 
@@ -198,14 +197,13 @@ public class TestEvcsCluster {
 
 		this.appManagerTestBundle.assertInstalledApps(3);
 
-		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user,
-				new UpdateAppInstance.Request(response.instance.instanceId, "alias", JsonUtils.buildJsonObject() //
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
+				new UpdateAppInstance.Request(response.instance().instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty(HardyBarthEvcs.Property.NUMBER_OF_CHARGING_STATIONS.name(), 1) //
 						.addProperty(HardyBarthEvcs.SubPropertyFirstChargepoint.IP.name(), "2.1.1.1") //
-						.build()))
-				.get();
+						.build()));
 
-		final var evcsId = response.instance.properties.get(HardyBarthEvcs.Property.EVCS_ID.name()).getAsString();
+		final var evcsId = response.instance().properties.get(HardyBarthEvcs.Property.EVCS_ID.name()).getAsString();
 
 		this.assertIdsGotAdded("evcs0", evcsId);
 		this.assertClusterHasOnlyValidProps();
@@ -215,13 +213,12 @@ public class TestEvcsCluster {
 	public void setMaxHardwarePower() throws Exception {
 		this.installKeba("1.1.1.1");
 		final var hardwarePower = 9999;
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.kebaEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.2") //
 								.addProperty(KebaEvcs.Property.MAX_HARDWARE_POWER.name(), hardwarePower) //
-								.build()))
-				.get();
+								.build()));
 		final var clusterComponent = this.appManagerTestBundle.componentManger.getComponent("evcsCluster0");
 		final var hardwarePowerPerPhase = (int) clusterComponent.getComponentContext().getProperties()
 				.get("hardwarePowerLimitPerPhase");
@@ -243,8 +240,8 @@ public class TestEvcsCluster {
 		this.appManagerTestBundle.assertInstalledApps(3);
 		this.assertSingleClusterApp();
 
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
-				new DeleteAppInstance.Request(responseSecondEvcs.instance.instanceId)).get();
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
+				new DeleteAppInstance.Request(responseSecondEvcs.instance().instanceId));
 
 		this.appManagerTestBundle.assertInstalledApps(1);
 	}
@@ -282,15 +279,14 @@ public class TestEvcsCluster {
 
 	private AddAppInstance.Response installKeba(String ip)
 			throws InterruptedException, ExecutionException, OpenemsNamedException {
-		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.kebaEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
 								.addProperty(KebaEvcs.Property.IP.name(), ip) //
-								.build()))
-				.get();
+								.build()));
 
-		final var evcsId = response.instance.properties.get(KebaEvcs.Property.EVCS_ID.name()).getAsString();
-		final var evcsCtrlId = response.instance.properties.get(KebaEvcs.Property.CTRL_EVCS_ID.name()).getAsString();
+		final var evcsId = response.instance().properties.get(KebaEvcs.Property.EVCS_ID.name()).getAsString();
+		final var evcsCtrlId = response.instance().properties.get(KebaEvcs.Property.CTRL_EVCS_ID.name()).getAsString();
 		this.appManagerTestBundle.assertComponentsExist(//
 				new EdgeConfig.Component(evcsId, null, "Evcs.Keba.KeContact", JsonUtils.buildJsonObject() //
 						.addProperty("ip", ip) //
@@ -308,7 +304,7 @@ public class TestEvcsCluster {
 		final var fistIp = ips[0];
 		final var secondIp = count == 2 ? ips[1] : null;
 
-		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.hardyBarthEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
 								.addProperty(HardyBarthEvcs.Property.NUMBER_OF_CHARGING_STATIONS.name(), count) //
@@ -316,11 +312,10 @@ public class TestEvcsCluster {
 								.onlyIf(count == 2,
 										b -> b.addProperty(HardyBarthEvcs.SubPropertySecondChargepoint.IP_CP_2.name(),
 												secondIp)) //
-								.build()))
-				.get();
+								.build()));
 
-		final var evcsId = response.instance.properties.get(HardyBarthEvcs.Property.EVCS_ID.name()).getAsString();
-		final var evcsCtrlId = response.instance.properties.get(HardyBarthEvcs.Property.CTRL_EVCS_ID.name())
+		final var evcsId = response.instance().properties.get(HardyBarthEvcs.Property.EVCS_ID.name()).getAsString();
+		final var evcsCtrlId = response.instance().properties.get(HardyBarthEvcs.Property.CTRL_EVCS_ID.name())
 				.getAsString();
 		this.appManagerTestBundle.assertComponentsExist(//
 				new EdgeConfig.Component(evcsId, null, "Evcs.HardyBarth", JsonUtils.buildJsonObject() //
@@ -330,10 +325,10 @@ public class TestEvcsCluster {
 						.build()) //
 		);
 		if (count == 2) {
-			final var evcsIdCp2 = response.instance.properties.get(HardyBarthEvcs.Property.EVCS_ID_CP_2.name())
+			final var evcsIdCp2 = response.instance().properties.get(HardyBarthEvcs.Property.EVCS_ID_CP_2.name())
 					.getAsString();
-			final var evcsCtrlIdCp2 = response.instance.properties.get(HardyBarthEvcs.Property.CTRL_EVCS_ID_CP_2.name())
-					.getAsString();
+			final var evcsCtrlIdCp2 = response.instance().properties
+					.get(HardyBarthEvcs.Property.CTRL_EVCS_ID_CP_2.name()).getAsString();
 			this.appManagerTestBundle.assertComponentsExist(//
 					new EdgeConfig.Component(evcsIdCp2, null, "Evcs.HardyBarth", JsonUtils.buildJsonObject() //
 							.build()), //
@@ -347,16 +342,15 @@ public class TestEvcsCluster {
 
 	private AddAppInstance.Response installIesKeywatt()
 			throws InterruptedException, ExecutionException, OpenemsNamedException {
-		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.keywattEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
 								.addProperty(IesKeywattEvcs.Property.OCCP_CHARGE_POINT_IDENTIFIER.name(), "IES1") //
 								.addProperty(IesKeywattEvcs.Property.OCCP_CONNECTOR_IDENTIFIER.name(), 1) //
-								.build()))
-				.get();
+								.build()));
 
-		final var evcsId = response.instance.properties.get(IesKeywattEvcs.Property.EVCS_ID.name()).getAsString();
-		final var evcsCtrlId = response.instance.properties.get(IesKeywattEvcs.Property.CTRL_EVCS_ID.name())
+		final var evcsId = response.instance().properties.get(IesKeywattEvcs.Property.EVCS_ID.name()).getAsString();
+		final var evcsCtrlId = response.instance().properties.get(IesKeywattEvcs.Property.CTRL_EVCS_ID.name())
 				.getAsString();
 		this.appManagerTestBundle.assertComponentsExist(//
 				new EdgeConfig.Component(evcsId, null, "Evcs.Ocpp.IesKeywattSingle", JsonUtils.buildJsonObject() //

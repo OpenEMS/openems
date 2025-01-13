@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -11,18 +12,12 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestMultipleIds;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestSettingComponentIds {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -41,7 +36,7 @@ public class TestSettingComponentIds {
 	public void testSettingInitially() throws Exception {
 		final var installResponse = this.add(4);
 
-		final var installProps = installResponse.instance.properties;
+		final var installProps = installResponse.instance().properties;
 		final var initId1 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_1.name());
 		final var initId2 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_2.name());
 		final var initId3 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_3.name());
@@ -54,14 +49,14 @@ public class TestSettingComponentIds {
 	public void testSettingOnUpdate() throws Exception {
 		final var installResponse = this.add(2);
 
-		final var installProps = installResponse.instance.properties;
+		final var installProps = installResponse.instance().properties;
 		final var initId1 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_1.name());
 		final var initId2 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_2.name());
 		assertEquals(2, Sets.newHashSet(initId1, initId2).size());
 		assertEquals(3, installProps.size());
 
-		final var updateResponse = this.update(installResponse.instance.instanceId, 4);
-		final var updateProps = updateResponse.instance.properties;
+		final var updateResponse = this.update(installResponse.instance().instanceId, 4);
+		final var updateProps = updateResponse.instance().properties;
 		final var updatedId1 = JsonUtils.getAsString(updateProps, TestMultipleIds.Property.ID_1.name());
 		final var updatedId2 = JsonUtils.getAsString(updateProps, TestMultipleIds.Property.ID_2.name());
 		final var initId3 = JsonUtils.getAsString(updateProps, TestMultipleIds.Property.ID_3.name());
@@ -77,7 +72,7 @@ public class TestSettingComponentIds {
 	public void testRemoveIds() throws Exception {
 		final var installResponse = this.add(4);
 
-		final var installProps = installResponse.instance.properties;
+		final var installProps = installResponse.instance().properties;
 		final var initId1 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_1.name());
 		final var initId2 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_2.name());
 		final var initId3 = JsonUtils.getAsString(installProps, TestMultipleIds.Property.ID_3.name());
@@ -85,8 +80,8 @@ public class TestSettingComponentIds {
 
 		assertEquals(4, Sets.newHashSet(initId1, initId2, initId3, initId4).size());
 
-		final var updateResponse = this.update(installResponse.instance.instanceId, 2);
-		final var updateProps = updateResponse.instance.properties;
+		final var updateResponse = this.update(installResponse.instance().instanceId, 2);
+		final var updateProps = updateResponse.instance().properties;
 		final var updatedId1 = JsonUtils.getAsString(updateProps, TestMultipleIds.Property.ID_1.name());
 		final var updatedId2 = JsonUtils.getAsString(updateProps, TestMultipleIds.Property.ID_2.name());
 
@@ -97,19 +92,17 @@ public class TestSettingComponentIds {
 	}
 
 	private AddAppInstance.Response add(int setIds) throws Exception {
-		return this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		return this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.testMultipleIds.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 						.addProperty(TestMultipleIds.Property.SET_IDS.name(), setIds) //
-						.build()))
-				.get();
+						.build()));
 	}
 
 	private UpdateAppInstance.Response update(UUID instanceId, int setIds) throws Exception {
-		return this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user,
+		return this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty(TestMultipleIds.Property.SET_IDS.name(), setIds) //
-						.build()))
-				.get();
+						.build()));
 	}
 
 }

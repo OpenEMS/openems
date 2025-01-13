@@ -77,4 +77,9 @@ public class CheckHost extends AbstractCheckable implements Checkable {
 		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHost.NotReachable", address);
 	}
 
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		throw new UnsupportedOperationException();
+	}
+
 }

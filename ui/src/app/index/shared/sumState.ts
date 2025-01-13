@@ -1,18 +1,18 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Filter } from "../filter/filter.component";
-import { Role } from "src/app/shared/type/role";
 import { Service } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
+import { Filter } from "../filter/filter.component";
 
 export enum SumState {
-  OK = 'OK',
-  INFO = 'INFO',
-  WARNING = 'WARNING',
-  FAULT = 'FAULT'
+  OK = "OK",
+  INFO = "INFO",
+  WARNING = "WARNING",
+  FAULT = "FAULT",
 }
 
 @Component({
-  selector: 'oe-sum-state',
+  selector: "oe-sum-state",
   template: `
   <ion-col class="sum-state-icon">
     <ng-container *ngIf="!isEdgeOnline, else showSystemState">
@@ -40,19 +40,20 @@ export enum SumState {
   .sum-state-icon > ion-icon{
     font-size: 20pt !important;
 }
-  `]
+  `],
+  standalone: false,
 })
 export class SumStateComponent implements OnInit {
 
-  protected readonly SUM_STATE = SumState;
   @Input() protected sumState: SumState = SumState.OK;
   @Input() protected isEdgeOnline: boolean = false;
   protected isAtLeastInstaller: boolean = false;
+  protected readonly SUM_STATE = SumState;
 
   constructor(private service: Service) { }
 
   ngOnInit() {
-    let user = this.service.metadata?.value?.user ?? null;
+    const user = this.service.metadata?.value?.user ?? null;
 
     if (user) {
       this.isAtLeastInstaller = Role.isAtLeast(user.globalRole, Role.INSTALLER);
@@ -65,24 +66,24 @@ export const SUM_STATES = (translate: TranslateService): Filter => ({
   category: "sumState",
   options: [
     {
-      name: 'Ok',
-      value: "ok"
+      name: "Ok",
+      value: "ok",
     },
     {
-      name: translate.instant('General.info'),
-      value: "Info"
+      name: translate.instant("General.info"),
+      value: "Info",
     },
     {
-      name: translate.instant('General.warning'),
-      value: "Warning"
+      name: translate.instant("General.warning"),
+      value: "Warning",
     },
     {
       name: translate.instant("General.fault"),
-      value: "Fault"
-    }
+      value: "Fault",
+    },
   ],
   setAdditionalFilter: () => ({
-    key: 'isOnline',
-    value: true
-  })
+    key: "isOnline",
+    value: true,
+  }),
 });

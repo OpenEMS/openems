@@ -80,7 +80,7 @@ public class GetEdgesResponse extends JsonrpcResponseSuccess {
 		}
 	}
 
-	private final List<EdgeMetadata> edgeMetadata;
+	public final List<EdgeMetadata> edgeMetadata;
 
 	public GetEdgesResponse(UUID id, List<EdgeMetadata> edgeMetadata) {
 		super(id);

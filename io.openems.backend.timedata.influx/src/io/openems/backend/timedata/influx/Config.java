@@ -13,6 +13,12 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "timedata0";
 
+	@AttributeDefinition(name = "Startdate", description = "for example: 2023-12-30; optional", required = false)
+	String startDate();
+
+	@AttributeDefinition(name = "Enddate", description = "for example: 2023-12-31; optional", required = false)
+	String endDate();
+
 	@AttributeDefinition(name = "Query language", description = "Query language Flux or InfluxQL")
 	QueryLanguageConfig queryLanguage() default QueryLanguageConfig.INFLUX_QL;
 
@@ -39,6 +45,9 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 
 	@AttributeDefinition(name = "Number of max scheduled tasks", description = "Max-Size of Queued tasks.")
 	int maxQueueSize() default 5000;
+
+	@AttributeDefinition(name = "List of blacklisted channels", description = "Blacklisted channels which are not saved by this influx. e.g. \"kacoCore0/Serialnumber\"")
+	String[] blacklistedChannels() default {};
 
 	String webconsole_configurationFactory_nameHint() default "Timedata InfluxDB";
 

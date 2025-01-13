@@ -113,8 +113,6 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 
 		// ElectricityMeter
 		final var frequency = new CalculateAverage();
-		final var minActivePower = new CalculateIntegerSum();
-		final var maxActivePower = new CalculateIntegerSum();
 		final var activePower = new CalculateIntegerSum();
 		final var reactivePower = new CalculateIntegerSum();
 		final var activeProductionEnergy = new CalculateLongSum();
@@ -128,8 +126,6 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 		for (var pvInverter : pvInverters) {
 			// ElectricityMeter
 			frequency.addValue(pvInverter.getFrequencyChannel());
-			minActivePower.addValue(pvInverter.getMinActivePowerChannel());
-			maxActivePower.addValue(pvInverter.getMaxActivePowerChannel());
 			activePower.addValue(pvInverter.getActivePowerChannel());
 			reactivePower.addValue(pvInverter.getReactivePowerChannel());
 			activeProductionEnergy.addValue(pvInverter.getActiveProductionEnergyChannel());
@@ -143,8 +139,6 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 
 		// ElectricityMeter
 		this.getFrequencyChannel().setNextValue(frequency.calculate());
-		this._setMinActivePower(minActivePower.calculate());
-		this._setMaxActivePower(maxActivePower.calculate());
 		this._setActivePower(activePower.calculate());
 		this._setReactivePower(reactivePower.calculate());
 		this._setActiveProductionEnergy(activeProductionEnergy.calculate());

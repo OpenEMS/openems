@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
 import io.openems.common.exceptions.InvalidValueException;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.ScaledValuePoint;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -18,7 +18,17 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class ElementToChannelScaleFactorConverter extends ElementToChannelConverter {
 
-	public ElementToChannelScaleFactorConverter(OpenemsComponent component, SunSpecPoint point,
+	private static int getValueOrError(OpenemsComponent component, ChannelId channelId)
+			throws InvalidValueException, IllegalArgumentException {
+		var channel = (IntegerReadChannel) component.channel(channelId);
+		var value = channel.getNextValue().orElse(null);
+		if (value != null) {
+			return value;
+		}
+		return channel.value().getOrError();
+	}
+
+	public ElementToChannelScaleFactorConverter(OpenemsComponent component, ScaledValuePoint point,
 			ChannelId scaleFactorChannel) {
 		super(//
 				// element -> channel
@@ -27,8 +37,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 						return null;
 					}
 					try {
-						return apply(value,
-								((IntegerReadChannel) component.channel(scaleFactorChannel)).value().getOrError() * -1);
+						return apply(value, getValueOrError(component, scaleFactorChannel) * -1);
 					} catch (InvalidValueException | IllegalArgumentException e) {
 						return null;
 					}
@@ -37,8 +46,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 				// channel -> element
 				value -> {
 					try {
-						return apply(value,
-								((IntegerReadChannel) component.channel(scaleFactorChannel)).value().getOrError());
+						return apply(value, getValueOrError(component, scaleFactorChannel));
 					} catch (InvalidValueException | IllegalArgumentException e) {
 						return null;
 					}

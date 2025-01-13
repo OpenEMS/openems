@@ -1,19 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
+// @ts-strict-ignore
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
 
 @Component({
     selector: StorageChartOverviewComponent.SELECTOR,
-    templateUrl: './storagechartoverview.component.html'
+    templateUrl: "./storagechartoverview.component.html",
+    standalone: false,
 })
 export class StorageChartOverviewComponent implements OnInit {
 
-    public edge: Edge = null;
-
     private static readonly SELECTOR = "storage-chart-overview";
 
-    public essComponents: EdgeConfig.Component[] = null;
-    public chargerComponents: EdgeConfig.Component[] = null;
+    public edge: Edge | null = null;
+
+    public essComponents: EdgeConfig.Component[] | null = null;
+    public chargerComponents: EdgeConfig.Component[] | null = null;
 
     public showPhases: boolean = false;
     public showTotal: boolean = false;
@@ -24,11 +26,11 @@ export class StorageChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.essComponents = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster"));

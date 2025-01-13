@@ -10,7 +10,7 @@ export enum Level {
     DEBUG = "debug",
     INFO = "info",
     WARNING = "warning",
-    ERROR = "error"
+    ERROR = "error",
 }
 
 @Injectable()
@@ -19,21 +19,8 @@ export class Logger {
     public constructor(private service: Service) { }
 
     /**
-     * Sends the given message via a websocket request.
-     * 
-     * @param level the log level
-     * @param msg the message to be logged
-     */
-    private sendLogMessageNotification(level: Level, msg: string) {
-
-        if (environment.production == true) {
-            this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
-        }
-    }
-
-    /**
      * Log a messag at the DEBUG level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public debug(msg: string) {
@@ -42,7 +29,7 @@ export class Logger {
 
     /**
      * Log a messag at the INFO level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public info(msg: string) {
@@ -51,7 +38,7 @@ export class Logger {
 
     /**
      * Log a messag at the WARNING level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public warn(msg: string) {
@@ -60,11 +47,24 @@ export class Logger {
 
     /**
      * Log a messag at the ERROR level.
-     * 
+     *
      * @param msg the message to be logged
      */
     public error(msg: string) {
         this.sendLogMessageNotification(Level.ERROR, msg);
+    }
+
+    /**
+     * Sends the given message via a websocket request.
+     *
+     * @param level the log level
+     * @param msg the message to be logged
+     */
+    private sendLogMessageNotification(level: Level, msg: string) {
+
+        if (environment.production == true) {
+            this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
+        }
     }
 
 }

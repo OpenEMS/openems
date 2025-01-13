@@ -24,6 +24,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
+import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -61,6 +62,21 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	/** The configured parity. */
 	private Parity parity;
 
+	/** Enable internal bus termination. */
+	private boolean enableTermination;
+
+	/**
+	 * The configured delay between activating the transmitter and actually sending
+	 * data in microseconds.
+	 */
+	private int delayBeforeTx;
+
+	/**
+	 * The configured delay between the end of transmitting data and deactivating
+	 * transmitter in microseconds.
+	 */
+	private int delayAfterTx;
+
 	public BridgeModbusSerialImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -71,15 +87,15 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Activate
 	private void activate(ComponentContext context, ConfigSerial config) {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors());
+		super.activate(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
 	}
 
 	@Modified
 	private void modified(ComponentContext context, ConfigSerial config) {
-		super.modified(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors());
+		super.modified(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
 		this.closeModbusConnection();
 	}
@@ -90,6 +106,9 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		this.databits = config.databits();
 		this.stopbits = config.stopbits();
 		this.parity = config.parity();
+		this.enableTermination = config.enableTermination();
+		this.delayBeforeTx = config.delayBeforeTx();
+		this.delayAfterTx = config.delayAfterTx();
 	}
 
 	@Override
@@ -129,6 +148,13 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			params.setParity(this.parity.getValue());
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
+			/* RS485 Settings */
+			params.setRs485Mode(true);
+			params.setRs485RxDuringTx(false);
+			params.setRs485TxEnableActiveHigh(true);
+			params.setRs485EnableTermination(this.enableTermination);
+			params.setRs485DelayBeforeTxMicroseconds(this.delayBeforeTx);
+			params.setRs485DelayAfterTxMicroseconds(this.delayAfterTx);
 			var connection = new SerialConnection(params);
 			this._connection = connection;
 		}

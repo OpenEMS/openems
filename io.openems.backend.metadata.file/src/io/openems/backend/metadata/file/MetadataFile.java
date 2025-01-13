@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.file;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,14 +32,16 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.MetadataUtils;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
@@ -48,7 +52,6 @@ import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 
 /**
  * This implementation of MetadataService reads Edges configuration from a file.
@@ -84,6 +87,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	private static final String USER_ID = "admin";
 	private static final String USER_NAME = "Administrator";
 	private static final Role USER_GLOBAL_ROLE = Role.ADMIN;
+	private JsonObject settings = new JsonObject();
 
 	private static Language LANGUAGE = Language.DE;
 
@@ -225,7 +229,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			if (previousUser.hasMultipleEdges() != hasMultipleEdges) {
 				this.user = new User(previousUser.getId(), previousUser.getName(), previousUser.getToken(),
 						previousUser.getLanguage(), previousUser.getGlobalRole(), previousUser.getEdgeRoles(),
-						hasMultipleEdges);
+						hasMultipleEdges, previousUser.getSettings());
 			}
 		}
 		this.setInitialized();
@@ -233,7 +237,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 
 	private User generateUser() {
 		return new User(MetadataFile.USER_ID, MetadataFile.USER_NAME, UUID.randomUUID().toString(),
-				MetadataFile.LANGUAGE, MetadataFile.USER_GLOBAL_ROLE, this.edges.size() > 1);
+				MetadataFile.LANGUAGE, MetadataFile.USER_GLOBAL_ROLE, this.edges.size() > 1, this.settings);
 	}
 
 	@Override
@@ -267,7 +271,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("FileMetadata.registerUser() is not implemented");
 	}
 
@@ -303,59 +307,39 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+	public Optional<String> getEmsTypeForEdge(String edgeId) {
+		throw new UnsupportedOperationException("FileMetadata.getEmsTypeForEdge() is not implemented");
+	}
+
+	@Override
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		throw new UnsupportedOperationException("FileMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 		throw new UnsupportedOperationException("FileMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("FileMetadata.getEdgeOfflineAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("FileMetadata.getSumStateAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> users) {
 		throw new UnsupportedOperationException("FileMetadata.setUserAlertingSettings() is not implemented");
 	}
 
 	@Override
 	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
-		var pagesStream = this.edges.values().stream();
-		final var query = paginationOptions.getQuery();
-		if (query != null) {
-			pagesStream = pagesStream.filter(//
-					edge -> StringUtils.containsWithNullCheck(edge.getId(), query) //
-							|| StringUtils.containsWithNullCheck(edge.getComment(), query) //
-							|| StringUtils.containsWithNullCheck(edge.getProducttype(), query) //
-			);
-		}
-		final var searchParams = paginationOptions.getSearchParams();
-		if (searchParams != null) {
-			if (searchParams.searchIsOnline()) {
-				pagesStream = pagesStream.filter(edge -> edge.isOnline() == searchParams.isOnline());
-			}
-			if (searchParams.productTypes() != null) {
-				pagesStream = pagesStream.filter(edge -> searchParams.productTypes().contains(edge.getProducttype()));
-			}
-			// TODO sum state filter
-		}
-		return pagesStream //
-				.sorted((s1, s2) -> s1.getId().compareTo(s2.getId())) //
-				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
-				.limit(paginationOptions.getLimit()) //
-				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
-				.map(myEdge -> {
-					return new EdgeMetadata(//
-							myEdge.getId(), //
-							myEdge.getComment(), //
-							myEdge.getProducttype(), //
-							myEdge.getVersion(), //
-							Role.ADMIN, //
-							myEdge.isOnline(), //
-							myEdge.getLastmessage(), //
-							null, //
-							Level.OK);
-				}).toList();
+		return MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions);
 	}
 
 	@Override
@@ -374,9 +358,28 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				Role.ADMIN, //
 				edge.isOnline(), //
 				edge.getLastmessage(), //
-				null, //
+				null, // firstSetupProtocol
 				Level.OK //
 		);
+	}
+
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		throw new UnsupportedOperationException("FileMetadata.getSumState() is not implemented");
+	}
+
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		this.logInfo(this.log,
+				"%s on %s executed %s [%s]".formatted(systemLog.user().getId(), systemLog.edgeId(), systemLog.teaser(),
+						systemLog.getValues().entrySet().stream() //
+								.map(t -> t.getKey() + "=" + t.getValue()) //
+								.collect(joining(", "))));
+	}
+
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) {
+		this.settings = settings == null ? new JsonObject() : settings;
 	}
 
 }

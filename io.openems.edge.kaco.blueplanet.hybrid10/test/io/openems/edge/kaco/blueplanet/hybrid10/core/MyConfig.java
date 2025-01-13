@@ -7,10 +7,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
+		private String identkey;
 		private String serialnumber;
 		private String ip;
 		private String userkey;
-		private String identkey;
 
 		private Builder() {
 		}

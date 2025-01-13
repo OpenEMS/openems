@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
@@ -31,7 +32,6 @@ import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder.Select
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 /**
  * Static method collection for {@link AppDef AppDefs} for selecting different
@@ -214,8 +214,12 @@ public final class ComponentProps {
 					.setTranslatedDescription("communication.modbusId.description");
 			final var oldDefaultValue = def.getDefaultValue();
 			def.setDefaultValue((app, property, l, parameter) -> {
-				if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
+				// TODO should be configured in oem bundle
+				if (PropsUtil.isHome10Installed(app.getAppManagerUtil())) {
 					return new JsonPrimitive("modbus1");
+				}
+				if (PropsUtil.isHome20Or30Installed(app.getAppManagerUtil())) {
+					return new JsonPrimitive("modbus2");
 				}
 
 				return oldDefaultValue.get(app, property, l, parameter);

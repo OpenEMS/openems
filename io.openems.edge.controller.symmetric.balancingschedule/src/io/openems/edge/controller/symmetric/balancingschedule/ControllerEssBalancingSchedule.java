@@ -9,10 +9,9 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.controller.api.Controller;
 
-public interface ControllerEssBalancingSchedule extends Controller, OpenemsComponent, JsonApi {
+public interface ControllerEssBalancingSchedule extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		NO_ACTIVE_SETPOINT(Doc.of(Level.INFO) //

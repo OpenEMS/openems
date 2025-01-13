@@ -1,9 +1,12 @@
 package io.openems.edge.controller.api.backend;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,10 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collector;
 
 import org.slf4j.Logger;
@@ -33,6 +40,8 @@ import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 
@@ -58,6 +67,11 @@ public class SendChannelValuesWorker {
 			new ThreadFactoryBuilder().setNameFormat(ControllerApiBackendImpl.COMPONENT_NAME + ":SendWorker-%d")
 					.build(), //
 			new ThreadPoolExecutor.DiscardOldestPolicy());
+
+	private final ScheduledExecutorService aggregatedExecutor = Executors.newScheduledThreadPool(1,
+			new ThreadFactoryBuilder()
+					.setNameFormat(ControllerApiBackendImpl.COMPONENT_NAME + ":SendAggregatedWorker-%d").build());
+	private final int randomWaitSeconds = new Random().nextInt((int) (AGGREGATION_MINUTES * 60 * 0.9));
 
 	/**
 	 * If true: next 'send' sends all channel values.
@@ -95,6 +109,7 @@ public class SendChannelValuesWorker {
 	public void deactivate() {
 		// Shutdown executor
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.aggregatedExecutor, 5);
 	}
 
 	/**
@@ -102,18 +117,20 @@ public class SendChannelValuesWorker {
 	 * triggers asynchronous sending.
 	 */
 	public synchronized void collectData() {
-		var now = Instant.now(this.parent.componentManager.getClock());
+		final var now = ZonedDateTime.now(this.parent.componentManager.getClock());
 
 		// Update the values of all channels
 		final var enabledComponents = this.parent.componentManager.getEnabledComponents();
 		final var allValues = this.collectData(enabledComponents);
-		final var aggregatedValues = this.collectAggregatedData(enabledComponents);
+		final var aggregatedValues = this.collectAggregatedData(now, enabledComponents);
 
 		// Add to send Queue
-		this.executor.execute(new SendTask(this, now, allValues));
+		this.executor.execute(new SendTask(this, now.toInstant(), allValues));
 		if (aggregatedValues != null && !aggregatedValues.isEmpty()) {
 			aggregatedValues.rowMap().forEach((timestamp, data) -> {
-				this.executor.execute(new SendAggregatedDataTask(this, Instant.ofEpochMilli(timestamp), data));
+				this.aggregatedExecutor.schedule(
+						new SendAggregatedDataTask(this, Instant.ofEpochMilli(timestamp), data), this.randomWaitSeconds,
+						TimeUnit.SECONDS);
 			});
 		}
 	}
@@ -151,13 +168,12 @@ public class SendChannelValuesWorker {
 		}
 	}
 
-	private TreeBasedTable<Long, String, JsonElement> collectAggregatedData(List<OpenemsComponent> enabledComponents) {
-		final var now = LocalDateTime.now(this.parent.componentManager.getClock());
+	private TreeBasedTable<Long, String, JsonElement> collectAggregatedData(ZonedDateTime now,
+			List<OpenemsComponent> enabledComponents) {
 		final var endTime = now.truncatedTo(DurationUnit.ofMinutes(AGGREGATION_MINUTES));
 		final var startTime = endTime.minusMinutes(AGGREGATION_MINUTES);
 
-		final var timestamp = Instant.now().truncatedTo(DurationUnit.ofMinutes(AGGREGATION_MINUTES)) //
-				.minus(AGGREGATION_MINUTES, ChronoUnit.MINUTES);
+		final var timestamp = startTime.toInstant();
 		if (this.lastSendAggregatedDataTimestamp == null) {
 			this.lastSendAggregatedDataTimestamp = timestamp;
 			return null;
@@ -183,17 +199,24 @@ public class SendChannelValuesWorker {
 						// This is the highest timestamp before `startTime`. If existing it is used for
 						// the tailMap to make sure we get a Value even for Channels where the value has
 						// not changed within the last 5 minutes.
-						var channelStartTime = Optional.ofNullable(channel.getPastValues().floorKey(startTime))
-								.orElse(startTime);
+						var channelStartTime = Optional
+								.ofNullable(channel.getPastValues().floorKey(startTime.toLocalDateTime()))
+								.orElse(startTime.toLocalDateTime());
 
 						var value = channel.getPastValues() //
 								.tailMap(channelStartTime, true) //
 								.entrySet() //
 								.stream() //
-								.filter(e -> e.getKey().isBefore(endTime)) //
+								.filter(e -> e.getKey().isBefore(endTime.toLocalDateTime())) //
 								.filter(e -> e.getValue().isDefined()).map(e -> e.getValue().get()) //
 								.collect(aggregateCollector(channel.channelDoc().getUnit().isCumulated(), //
 										channel.getType()));
+
+						// TODO aggregation should be modifiable in Doc e. g. not every EnumDoc may want
+						// this behaviour
+						if (channel.channelDoc() instanceof EnumDoc) {
+							value = aggregateEnumChannel(channel, channelStartTime, endTime.toLocalDateTime());
+						}
 
 						if (!sendAllChannels && value.isJsonNull()) {
 							return;
@@ -205,6 +228,59 @@ public class SendChannelValuesWorker {
 					}
 				});
 		return table;
+	}
+
+	// TODO aggregation should be moved to doc
+	protected static JsonElement aggregateEnumChannel(//
+			Channel<?> channel, //
+			LocalDateTime channelStartTime, //
+			LocalDateTime endTime //
+	) {
+		final var doc = channel.channelDoc();
+		if (!(doc instanceof EnumDoc)) {
+			return JsonNull.INSTANCE;
+		}
+		final var numberOfValuesPerOption = channel.getPastValues() //
+				.tailMap(channelStartTime, true) //
+				.entrySet() //
+				.stream() //
+				.filter(e -> e.getKey().isBefore(endTime)) //
+				.filter(e -> e.getValue().isDefined()) //
+				.map(e -> (Integer) e.getValue().get()) //
+				.collect(groupingBy(Function.identity(), counting()));
+
+		final var values = numberOfValuesPerOption.entrySet().stream() //
+				.sorted((o1, o2) -> Long.compare(o2.getValue(), o1.getValue())) //
+				.toList();
+
+		final var maxValues = new ArrayList<Integer>();
+		var maxCount = -1L;
+		for (var entry : values) {
+			if (entry.getValue() < maxCount) {
+				break;
+			}
+			if (entry.getValue() == maxCount) {
+				maxValues.add(entry.getKey());
+				continue;
+			}
+			maxCount = entry.getValue();
+			maxValues.clear();
+			maxValues.add(entry.getKey());
+		}
+
+		// pick first value with most appearances
+		for (var entry : channel.getPastValues().descendingMap().entrySet()) {
+			for (var optionValue : maxValues) {
+				if (!entry.getValue().isDefined()) {
+					continue;
+				}
+				final var entryValue = entry.getValue().get();
+				if (((Integer) entryValue).intValue() == optionValue) {
+					return new JsonPrimitive(optionValue);
+				}
+			}
+		}
+		return JsonNull.INSTANCE;
 	}
 
 	protected static Collector<Object, ?, JsonElement> aggregateCollector(//

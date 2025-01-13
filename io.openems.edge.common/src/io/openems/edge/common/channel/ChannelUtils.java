@@ -2,11 +2,14 @@ package io.openems.edge.common.channel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.base.CaseFormat;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -108,5 +111,64 @@ public final class ChannelUtils {
 				return null;
 			}
 		}
+	}
+
+	/**
+	 * Set write value of a {@link EnumWriteChannel} if the read value is not equal.
+	 * 
+	 * <p>
+	 * Use this method if you do not want to write a Channel on every cycle, but
+	 * only if the Write-Values differs from the current Read-Value.
+	 * 
+	 * @param channel the {@link EnumWriteChannel}
+	 * @param value   value to be set
+	 * @throws OpenemsNamedException on error
+	 */
+	public static void setWriteValueIfNotRead(EnumWriteChannel channel, OptionsEnum value)
+			throws OpenemsNamedException {
+		if (Objects.equals(channel.value().get(), value.getValue())) {
+			return;
+		}
+		channel.setNextWriteValue(value);
+	}
+
+	/**
+	 * Set write value of a {@link IntegerWriteChannel} if the read value is not
+	 * equal.
+	 * 
+	 * <p>
+	 * Use this method if you do not want to write a Channel on every cycle, but
+	 * only if the Write-Values differs from the current Read-Value.
+	 * 
+	 * @param channel the {@link IntegerWriteChannel}
+	 * @param value   value to be set
+	 * @throws OpenemsNamedException on error
+	 */
+	public static void setWriteValueIfNotRead(IntegerWriteChannel channel, Integer value) throws OpenemsNamedException {
+		setWriteValueIfNotReadHelper(channel, value);
+	}
+
+	/**
+	 * Set write value of a {@link BooleanWriteChannel} if the read value is not
+	 * equal.
+	 * 
+	 * <p>
+	 * Use this method if you do not want to write a Channel on every cycle, but
+	 * only if the Write-Values differs from the current Read-Value.
+	 * 
+	 * @param channel the {@link BooleanWriteChannel}
+	 * @param value   value to be set
+	 * @throws OpenemsNamedException on error
+	 */
+	public static void setWriteValueIfNotRead(BooleanWriteChannel channel, Boolean value) throws OpenemsNamedException {
+		setWriteValueIfNotReadHelper(channel, value);
+	}
+
+	private static <T> void setWriteValueIfNotReadHelper(WriteChannel<T> channel, T value)
+			throws OpenemsNamedException {
+		if (Objects.equals(channel.value().get(), value)) {
+			return;
+		}
+		channel.setNextWriteValue(value);
 	}
 }

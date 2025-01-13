@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
+import { Component } from "@angular/core";
+import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
 
 @Component({
-    templateUrl: './modal.html'
+    templateUrl: "./modal.html",
+    standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -16,7 +17,7 @@ export class ModalComponent extends AbstractModal {
     public isAsymmetric: boolean = false;
 
     protected override getChannelAddresses() {
-        let channelAddresses: ChannelAddress[] = [];
+        const channelAddresses: ChannelAddress[] = [];
 
         // Get Chargers
         this.chargerComponents =
@@ -27,10 +28,10 @@ export class ModalComponent extends AbstractModal {
         this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
             .filter(component => component.isEnabled && this.config.isProducer(component))
             .forEach(component => {
-                channelAddresses.push(new ChannelAddress(component.id, 'ActivePower'));
-                channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL1'));
-                channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL2'));
-                channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL3'));
+                channelAddresses.push(new ChannelAddress(component.id, "ActivePower"));
+                channelAddresses.push(new ChannelAddress(component.id, "ActivePowerL1"));
+                channelAddresses.push(new ChannelAddress(component.id, "ActivePowerL2"));
+                channelAddresses.push(new ChannelAddress(component.id, "ActivePowerL3"));
                 this.productionMeters.push(component);
             });
 

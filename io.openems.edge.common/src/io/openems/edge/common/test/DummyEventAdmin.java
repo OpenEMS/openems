@@ -7,12 +7,10 @@ public class DummyEventAdmin implements EventAdmin {
 
 	@Override
 	public void postEvent(Event event) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void sendEvent(Event event) {
-		// TODO Auto-generated method stub
 	}
 
 }

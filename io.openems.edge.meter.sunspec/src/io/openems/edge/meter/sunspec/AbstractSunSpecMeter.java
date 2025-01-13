@@ -33,7 +33,7 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 
 	public AbstractSunSpecMeter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 	}
 

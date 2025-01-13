@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../../../shared/jsonrpc/base";
 
 /**
  * Represents a JSON-RPC Request for 'getNetworkConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

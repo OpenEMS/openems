@@ -12,11 +12,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean debugMode = false;
 		private String evcsId = "evcs0";
 		private boolean enabledCharging = true;
+		private boolean smartMode = false;
+		private String smartConfig = "";
 		private ChargeMode chargeMode = ChargeMode.FORCE_CHARGE;
 		private int forceChargeMinPower = 7560;
 		private int defaultChargeMinPower = 0;
 		private Priority priority = Priority.CAR;
 		private int energySessionLimit = 0;
+		private int excessChargeHystersis = 120;
+		private int excessChargePauseHysteresis = 30;
 
 		private Builder() {
 		}
@@ -33,6 +37,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setSmartMode(boolean smartMode) {
+			this.smartMode = smartMode;
+			return this;
+		}
+
+		public Builder setSmartConfig(String smartConfig) {
+			this.smartConfig = smartConfig;
 			return this;
 		}
 
@@ -68,6 +82,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEnergySessionLimit(int energySessionLimit) {
 			this.energySessionLimit = energySessionLimit;
+			return this;
+		}
+
+		public Builder setExcessChargeHystersis(int excessChargeHystersis) {
+			this.excessChargeHystersis = excessChargeHystersis;
+			return this;
+		}
+
+		public Builder setExcessChargePauseHysteresis(int excessChargePauseHysteresis) {
+			this.excessChargePauseHysteresis = excessChargePauseHysteresis;
 			return this;
 		}
 
@@ -108,6 +132,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public boolean smartMode() {
+		return this.builder.smartMode;
+	}
+
+	@Override
+	public String smartConfig() {
+		return this.builder.smartConfig;
+	}
+
+	@Override
 	public ChargeMode chargeMode() {
 		return this.builder.chargeMode;
 	}
@@ -135,6 +169,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean debugMode() {
 		return this.builder.debugMode;
+	}
+
+	@Override
+	public int excessChargeHystersis() {
+		return this.builder.excessChargeHystersis;
+	}
+
+	@Override
+	public int excessChargePauseHysteresis() {
+		return this.builder.excessChargePauseHysteresis;
 	}
 
 	@Override

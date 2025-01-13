@@ -1,7 +1,6 @@
 = Implementing a device
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :keywords: AsciiDoc
@@ -405,9 +404,9 @@ NOTE: Most Modbus function codes are available by their respective _FC*_ impleme
 - For more advanced channel-to-element mapping functionalities the internal *cm()* method can be used - e.g. to map one Modbus element to multiple Channels.
 +
 Using this principle a complete Modbus table consisting of multiple register blocks that need to be read or written with different Modbus function codes can be defined. For details have a look at the existing implementation classes inside the Modbus Bridge source code.
+====
 <17> The ElectricityMeter Nature requires us to provide a *MeterType* via a `MeterType getMeterType()` method. The MeterType is provided by the Config.
 <18> Finally it is always a good idea to define a *debugLog()* method. This method is called in each cycle by the *Controller.Debug.Log* and very helpful for continuous debugging.
-====
 
 === JUnit tests
 
@@ -508,7 +507,7 @@ Select the `io.openems.edge.meter.simulated` bundle in the left *Repositories* l
 
 Press btn:[Ctrl] + btn:[s] to save the `EdgeApp.bndrun` file.
 
-Click on btn:[Resolve] to update the list of bundles that are required to run OpenEMS Edge. After a few seconds the *Resolution Results* window should appear; acknowledge by pressing btn:[Finish].
+Click on btn:[Resolve] to update the list of bundles that are required to run OpenEMS Edge. After a few seconds the *Resolution Results* window should appear; acknowledge by pressing btn:[Update].
 
 .Eclipse IDE Resolve EdgeApp.bndrun
 image::eclipse-edgeapp-resolve.png[Eclipse IDE Resolve EdgeApp.bndrun]
@@ -570,7 +569,7 @@ If you experience any errors you can always run OpenEMS Edge using the btn:[Debu
 
 === Alternative Device Development Flow
 
-Instead of adding the device to the btn:[EdgeApp.bndrun] file (as described in xref:implement.adoc#_enable_the_component[Enable the Component]), the device can be loaded dynamically by using [Apache Felix File Install]. Copying the device's built jar file into a `load` folder, relative to the project's root directory. Apache Felix File Install watches this folder and handles the device automatically.
+Instead of adding the device to the btn:[EdgeApp.bndrun] file (as described in xref:#_enable_the_component[Enable the Component]), the device can be loaded dynamically by using [Apache Felix File Install]. Copying the device's built jar file into a `load` folder, relative to the project's root directory. Apache Felix File Install watches this folder and handles the device automatically.
 
 The folder is configurable by supplying the `felix.fileinstall.dir` option when starting the edge app. More configuration options can be found in the https://felix.apache.org/documentation/subprojects/apache-felix-file-install.html[Apache Felix File Install documentation].
 
@@ -579,3 +578,11 @@ This functionality can also be used in production environments albeit dynamic co
 
 [NOTE]
 Same applies to the OpenEMS Backend for dynamically loading devices.
+
+=== Check the Tests of Your Module
+
+Before continuing with the development and implementation, it's important to ensure that your module's tests are passing. This helps in maintaining the quality and functionality of the module. To check the tests of your module, execute the following Gradle command in the root directory of OpenEMS:
+
+----
+Run ./gradlew :io.openems.edge.io.shelly:test in the root Directory to check the tests of your module.
+----

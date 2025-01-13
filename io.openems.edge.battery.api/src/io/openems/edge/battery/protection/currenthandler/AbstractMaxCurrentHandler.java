@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.protection.BatteryProtection.ChannelId;
 import io.openems.edge.battery.protection.force.AbstractForceChargeDischarge;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -21,6 +22,7 @@ public abstract class AbstractMaxCurrentHandler {
 
 		protected PolyLine voltageToPercent = PolyLine.empty();
 		protected PolyLine temperatureToPercent = PolyLine.empty();
+		protected PolyLine socToPercent = PolyLine.empty();
 		protected Double maxIncreasePerSecond = null;
 
 		/**
@@ -61,6 +63,17 @@ public abstract class AbstractMaxCurrentHandler {
 		}
 
 		/**
+		 * Sets the SoC-To-Percent characteristics.
+		 *
+		 * @param socToPercent the {@link PolyLine}
+		 * @return a {@link Builder}
+		 */
+		public T setSocToPercent(PolyLine socToPercent) {
+			this.socToPercent = socToPercent;
+			return this.self();
+		}
+
+		/**
 		 * Sets the Max-Increase-Per-Second parameter in [A].
 		 *
 		 * @param maxIncreasePerSecond value in [A] per Second.
@@ -77,6 +90,7 @@ public abstract class AbstractMaxCurrentHandler {
 	protected final ClockProvider clockProvider;
 	protected final PolyLine voltageToPercent;
 	protected final PolyLine temperatureToPercent;
+	protected final PolyLine socToPercent;
 	protected final AbstractForceChargeDischarge forceChargeDischarge;
 
 	protected int bmsMaxEverCurrent;
@@ -87,12 +101,13 @@ public abstract class AbstractMaxCurrentHandler {
 	protected Double lastCurrentLimit = null;
 
 	protected AbstractMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverCurrent,
-			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond,
-			AbstractForceChargeDischarge forceChargeDischarge) {
+			PolyLine voltageToPercent, PolyLine temperatureToPercent, PolyLine socToPercent,
+			Double maxIncreasePerSecond, AbstractForceChargeDischarge forceChargeDischarge) {
 		this.clockProvider = clockProvider;
 		this.bmsMaxEverCurrent = initialBmsMaxEverCurrent;
 		this.voltageToPercent = voltageToPercent;
 		this.temperatureToPercent = temperatureToPercent;
+		this.socToPercent = socToPercent;
 		this.maxIncreasePerSecond = maxIncreasePerSecond;
 		this.forceChargeDischarge = forceChargeDischarge;
 	}
@@ -158,6 +173,18 @@ public abstract class AbstractMaxCurrentHandler {
 	protected abstract ChannelId getBpMaxTemperatureChannelId();
 
 	/**
+	 * Gets the ChannelId for Battery-Protection Limit by state of charge.
+	 *
+	 * <ul>
+	 * <li>{@link ChannelId#BP_CHARGE_MAX_SOC}
+	 * <li>{@link ChannelId#BP_DISCHARGE_MAX_SOC}
+	 * </ul>
+	 *
+	 * @return the {@link ChannelId}
+	 */
+	protected abstract ChannelId getBpMaxSocChannelId();
+
+	/**
 	 * Gets the ChannelId for Battery-Protection Limit by Force Charge/Discharge
 	 * Mode.
 	 *
@@ -194,6 +221,7 @@ public abstract class AbstractMaxCurrentHandler {
 	 * <li>Voltage-to-Percent characteristics for Max-Cell-Voltage
 	 * <li>Temperature-to-Percent characteristics for Min-Cell-Temperature
 	 * <li>Temperature-to-Percent characteristics for Max-Cell-Temperature
+	 * <li>SoC-to-Percent characteristics for SoC limitations
 	 * <li>Applied max increase limit (e.g. 0.5 A per second)
 	 * <li>Force Charge/Discharge mode (e.g. -1 A to enforce charge/discharge)
 	 * </ul>
@@ -207,6 +235,7 @@ public abstract class AbstractMaxCurrentHandler {
 		var maxCellVoltage = battery.getMaxCellVoltage().get();
 		var minCellTemperature = battery.getMinCellTemperature().get();
 		var maxCellTemperature = battery.getMaxCellTemperature().get();
+		var soc = battery.getSoc().get();
 		IntegerReadChannel bpBmsChannel = battery.channel(this.getBpBmsChannelId());
 		var bpBms = bpBmsChannel.value().get();
 
@@ -226,6 +255,8 @@ public abstract class AbstractMaxCurrentHandler {
 		// Calculate Ampere limit for Max-Cell-Temperature
 		final var maxCellTemperatureLimit = this
 				.percentToAmpere(this.temperatureToPercent.getValue(maxCellTemperature));
+		// Calculate Ampere limit for State of Charge
+		final var maxSocLimit = this.percentToAmpere(this.socToPercent.getValue(soc));
 		// Calculate Max Increase Ampere Limit
 		final var maxIncreaseAmpereLimit = this.getMaxIncreaseAmpereLimit();
 		// Calculate Force Current
@@ -234,6 +265,7 @@ public abstract class AbstractMaxCurrentHandler {
 		/*
 		 * Store limits in Channels. If value is 'null', store the bmsMaxEverCurrent
 		 */
+		battery.channel(BatteryProtection.ChannelId.BP_MAX_EVER_CURRENT).setNextValue(this.bmsMaxEverCurrent);
 		battery.channel(this.getBpMinVoltageChannelId())
 				.setNextValue(TypeUtils.orElse(minCellVoltageLimit, this.bmsMaxEverCurrent));
 		battery.channel(this.getBpMaxVoltageChannelId())
@@ -242,6 +274,8 @@ public abstract class AbstractMaxCurrentHandler {
 				.setNextValue(TypeUtils.orElse(minCellTemperatureLimit, this.bmsMaxEverCurrent));
 		battery.channel(this.getBpMaxTemperatureChannelId())
 				.setNextValue(TypeUtils.orElse(maxCellTemperatureLimit, this.bmsMaxEverCurrent));
+		battery.channel(this.getBpMaxSocChannelId())
+				.setNextValue(TypeUtils.orElse(maxSocLimit, this.bmsMaxEverCurrent));
 		battery.channel(this.getBpMaxIncreaseAmpereChannelId())
 				.setNextValue(TypeUtils.orElse(maxIncreaseAmpereLimit, this.bmsMaxEverCurrent));
 		battery.channel(this.getBpForceCurrentChannelId())
@@ -249,7 +283,7 @@ public abstract class AbstractMaxCurrentHandler {
 
 		// Get the minimum limit of all limits in Ampere
 		var limit = TypeUtils.min(TypeUtils.toDouble(bpBms), minCellVoltageLimit, maxCellVoltageLimit,
-				minCellTemperatureLimit, maxCellTemperatureLimit, maxIncreaseAmpereLimit, forceCurrent);
+				minCellTemperatureLimit, maxCellTemperatureLimit, maxSocLimit, maxIncreaseAmpereLimit, forceCurrent);
 
 		// Set '0' to block charge/discharge?
 		if (

@@ -1,15 +1,15 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
-import java.util.UUID;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
 
-import com.google.gson.JsonObject;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.jsonrpc.GetAppAssistant.Request;
+import io.openems.edge.core.appmanager.jsonrpc.GetAppAssistant.Response;
 
 /**
  * Gets the App-Assistant for a {@link OpenemsApp}.
@@ -36,63 +36,61 @@ import io.openems.edge.core.appmanager.OpenemsApp;
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     ... {@link AppAssistant#toJsonObject()}
+ *     ... {@link AppAssistant#serializer()}
  *   }
  * }
  * </pre>
  */
-public class GetAppAssistant {
+public class GetAppAssistant implements EndpointRequestType<Request, Response> {
 
-	public static final String METHOD = "getAppAssistant";
-
-	public static class Request extends JsonrpcRequest {
-
-		/**
-		 * Parses a generic {@link JsonrpcRequest} to a {@link GetAppAssistantRequest}.
-		 *
-		 * @param r the {@link JsonrpcRequest}
-		 * @return the {@link GetAppAssistantRequest}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
-			var p = r.getParams();
-			var appId = JsonUtils.getAsString(p, "appId");
-			return new Request(r, appId);
-		}
-
-		public final String appId;
-
-		public Request(JsonrpcRequest request, String appId) {
-			super(request, METHOD);
-			this.appId = appId;
-		}
-
-		public Request(String appId) {
-			super(METHOD);
-			this.appId = appId;
-		}
-
-		@Override
-		public JsonObject getParams() {
-			return JsonUtils.buildJsonObject() //
-					.addProperty("appId", this.appId) //
-					.build();
-		}
+	@Override
+	public String getMethod() {
+		return "getAppAssistant";
 	}
 
-	public static class Response extends JsonrpcResponseSuccess {
+	@Override
+	public JsonSerializer<Request> getRequestSerializer() {
+		return Request.serializer();
+	}
 
-		private final AppAssistant appAssistant;
+	@Override
+	public JsonSerializer<Response> getResponseSerializer() {
+		return Response.serializer();
+	}
 
-		public Response(UUID id, AppAssistant appAssistant) {
-			super(id);
-			this.appAssistant = appAssistant;
+	public record Request(//
+			String appId //
+	) {
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link GetAppAssistant.Request}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<GetAppAssistant.Request> serializer() {
+			return jsonObjectSerializer(GetAppAssistant.Request.class, //
+					json -> new GetAppAssistant.Request(//
+							json.getString("appId")),
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("appId", obj.appId()) //
+							.build());
 		}
 
-		@Override
-		public JsonObject getResult() {
-			return this.appAssistant.toJsonObject();
+	}
+
+	public record Response(//
+			AppAssistant appAssistant //
+	) {
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link GetAppAssistant.Response}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<GetAppAssistant.Response> serializer() {
+			return jsonSerializer(GetAppAssistant.Response.class, //
+					json -> new GetAppAssistant.Response(json.getAsObject(AppAssistant.serializer())), //
+					obj -> AppAssistant.serializer().serialize(obj.appAssistant()));
 		}
+
 	}
 
 }

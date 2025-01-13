@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Wraps a JSON-RPC Request to logout.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

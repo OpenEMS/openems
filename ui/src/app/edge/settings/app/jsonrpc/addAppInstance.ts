@@ -3,10 +3,10 @@ import { GetAppInstances } from "./getAppInstances";
 
 /**
  * Adds an OpenemsAppInstance.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,10 +19,10 @@ import { GetAppInstances } from "./getAppInstances";
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -45,7 +45,7 @@ export namespace AddAppInstance {
                 appId: string,
                 alias: string,
                 properties: {}
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -58,8 +58,8 @@ export namespace AddAppInstance {
             public override readonly result: {
                 instanceId: string,
                 instance: GetAppInstances.AppInstance,
-                warnings: String[]
-            }
+                warnings: string[]
+            },
         ) {
             super(id, result);
         }

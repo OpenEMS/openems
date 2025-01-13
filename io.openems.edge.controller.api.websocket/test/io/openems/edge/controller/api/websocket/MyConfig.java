@@ -9,6 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private int port;
 		private int apiTimeout;
+		private boolean debugMode;
 
 		private Builder() {
 		}
@@ -25,6 +26,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPort(int port) {
 			this.port = port;
+			return this;
+		}
+
+		public Builder setDebugMode(boolean debugMode) {
+			this.debugMode = debugMode;
 			return this;
 		}
 
@@ -58,4 +64,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int apiTimeout() {
 		return this.builder.apiTimeout;
 	}
+
+	@Override
+	public boolean debugMode() {
+		return this.builder.debugMode;
+	}
+
 }

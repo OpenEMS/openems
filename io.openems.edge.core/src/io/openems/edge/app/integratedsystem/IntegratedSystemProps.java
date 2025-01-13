@@ -5,16 +5,24 @@ import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import com.google.gson.JsonPrimitive;
 
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class IntegratedSystemProps {
 
@@ -34,14 +42,57 @@ public final class IntegratedSystemProps {
 	/**
 	 * Creates a {@link AppDef} for a feed in type.
 	 * 
+	 * @param exclude the {@link FeedInType FeedInTypes} to exclude
+	 * 
 	 * @return the created {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> feedInType() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> feedInType(FeedInType... exclude) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.feedInType.label") //
 				.setDefaultValue(FeedInType.DYNAMIC_LIMITATION) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(FeedInType.class), l);
+					field.setOptions(OptionsFactory.of(FeedInType.class, exclude), l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a NA-protection (ger. Netz- und Anlagenschutz).
+	 * 
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> naProtectionEnabled() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.naProtectionEnabled.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the max feed in power.
+	 * 
+	 * @param nameableToBeChecked  the {@link Nameable} to check if the field should
+	 *                             be shown. Used in combination with
+	 *                             {@link IntegratedSystemProps#feedInType()}. Can
+	 *                             be null.
+	 * @param additionalShowChecks additional checks if the field should be shown
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> maxFeedInPower(//
+			final Nameable nameableToBeChecked, //
+			final Function<BooleanExpression, BooleanExpression> additionalShowChecks //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.feedInLimit.label") //
+				.setDefaultValue(0) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(NUMBER) //
+							.onlyPositiveNumbers() //
+							.setMin(0);
+					if (nameableToBeChecked != null) {
+						final var exp = Exp.currentModelValue(nameableToBeChecked) //
+								.equal(Exp.staticValue(FeedInType.DYNAMIC_LIMITATION));
+						field.onlyShowIf(additionalShowChecks.apply(exp));
+					}
 				}));
 	}
 
@@ -57,17 +108,7 @@ public final class IntegratedSystemProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> maxFeedInPower(//
 			final Nameable nameableToBeChecked //
 	) {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.IntegratedSystem.feedInLimit.label") //
-				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(NUMBER) //
-							.setMin(0);
-					if (nameableToBeChecked != null) {
-						field.onlyShowIf(Exp.currentModelValue(nameableToBeChecked) //
-								.equal(Exp.staticValue(FeedInType.DYNAMIC_LIMITATION)));
-					}
-				}));
+		return maxFeedInPower(nameableToBeChecked, Function.identity());
 	}
 
 	/**
@@ -82,6 +123,83 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(getFeedInSettingsOptions());
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for feed in setting for the checkbox of a dcpv.
+	 * 
+	 * @param number the number which dc pv it is
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> hasDcPv(int number) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Home.hasDcPV" + number + ".label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the alias of a dcpv charger.
+	 * 
+	 * @param number  the number which dc pv it is
+	 * @param hasDcPv the property for the hasDcPv
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> dcPvAlias(int number, Nameable hasDcPv) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Home.dcPv" + number + ".alias.label") //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return new JsonPrimitive("DC-PV" + number);
+				}) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(hasDcPv).notNull());
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the type of the grid meter.
+	 * 
+	 * @param exclude Category to be excluded
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridMeterType(GoodWeGridMeterCategory... exclude) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.gridMeterType.label") //
+				.setDefaultValue(GoodWeGridMeterCategory.SMART_METER) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(GoodWeGridMeterCategory.class, exclude), l);
+				}));
+	}
+
+	private static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatio(//
+			final Nameable gridMeterType, //
+			final Consumer<InputBuilder> fieldSettings //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(gridMeterType)
+							.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					field.setInputType(NUMBER) //
+							.setMin(0) //
+							.onlyPositiveNumbers();
+
+					fieldSettings.accept(field);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the first value of the CT-Ratio.
+	 * 
+	 * @param gridMeterType the {@link Nameable} for the type of the grid meter
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioFirst(Nameable gridMeterType) {
+		return AppDef.copyOfGeneric(ctRatio(gridMeterType, field -> {
+			field.setMin(200) //
+					.setMax(5000);
+		}), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.ctRatioFirst.label") //
+				.setDefaultValue(200));
 	}
 
 	/**
@@ -194,11 +312,32 @@ public final class IntegratedSystemProps {
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.acMeterType.label") //
-				.setDefaultValue(false) //
 				.setDefaultValue(AcMeterType.SOCOMEC.name()) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(AcMeterType.values()), l) //
 							.onlyShowIf(Exp.currentModelValue(isAcMeterSelected).notNull());
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for selecting if the system has a ess limiter for
+	 * 14a.
+	 * 
+	 * @param <APP> the type of the app
+	 * @return the created {@link AppDef}
+	 */
+	public static final <APP extends OpenemsApp & AppManagerUtilSupplier> //
+	AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					final var hardwareType = app.getAppManagerUtil()
+							.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
+					if (!FeneconHomeComponents.isLimiter14aCompatible(hardwareType)) {
+						field.disabled(true);
+					}
 				}));
 	}
 

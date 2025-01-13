@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import io.openems.backend.common.metadata.Metadata.GenericSystemLog;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.EdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
@@ -108,6 +109,63 @@ public final class PgEdgeHandler {
 			pst.setString(4, diff.getAsHtml());
 			pst.execute();
 		}
+	}
+
+	/**
+	 * Inserts an {@link GenericSystemLog} for an Edge-ID.
+	 * 
+	 * @param odooId    the Odoo-ID
+	 * @param systemLog the {@link GenericSystemLog}
+	 * @throws OpenemsNamedException on error
+	 * @throws SQLException          on error
+	 */
+	public void insertGenericSystemLog(int odooId, GenericSystemLog systemLog)
+			throws SQLException, OpenemsNamedException {
+		try (var con = this.dataSource.getConnection(); //
+				var pst = con.prepareStatement(new StringBuilder() //
+						.append("INSERT INTO ").append(EdgeConfigUpdate.ODOO_TABLE) //
+						.append(" (create_date") //
+						.append(", ").append(EdgeConfigUpdate.DEVICE_ID.id()) //
+						.append(", ").append(EdgeConfigUpdate.TEASER.id()) //
+						.append(", ").append(EdgeConfigUpdate.DETAILS.id()) //
+						.append(") VALUES(?, ?, ?, ?)") //
+						.toString())) {
+			pst.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
+			pst.setInt(2, odooId);
+			pst.setString(3, systemLog.teaser());
+			pst.setString(4, createHtml(systemLog));
+			pst.execute();
+		}
+	}
+
+	private static String createHtml(GenericSystemLog systemLog) {
+		final var header = new StringBuilder();
+		final var content = new StringBuilder();
+
+		header.append("""
+				<table border="1" style="border-collapse: collapse"\
+				<thead>\
+					<tr>""");
+		content.append("<tr>");
+		for (var entry : systemLog.getValues().entrySet()) {
+			header.append("<th>%s</th>".formatted(entry.getKey()));
+			content.append("<td>%s</td>".formatted(entry.getValue()));
+		}
+		header.append("<th>Executed By</th>");
+		content.append("<td>%s: %s</td>".formatted(systemLog.user().getId(), systemLog.user().getName()));
+
+		header.append("""
+					</tr>
+				</thead>
+				<tbody>
+				""");
+		content.append("</tr>");
+
+		return new StringBuilder() //
+				.append(header) //
+				.append(content) //
+				.append("</tbody></table>") //
+				.toString();
 	}
 
 	/**

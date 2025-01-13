@@ -1,11 +1,9 @@
 package io.openems.edge.timeofusetariff.corrently;
 
+import static io.openems.edge.timeofusetariff.corrently.TimeOfUseTariffCorrentlyImpl.parsePrices;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.time.ZonedDateTime;
-import java.util.SortedMap;
 
 import org.junit.Test;
 
@@ -14,14 +12,12 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class TimeOfUseTariffCorrentlyImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
 		var corrently = new TimeOfUseTariffCorrentlyImpl();
 		new ComponentTest(corrently) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setZipcode("94469" /* Deggendorf, Germany */) //
 						.build()) //
 		;
@@ -33,7 +29,7 @@ public class TimeOfUseTariffCorrentlyImplTest {
 	@Test
 	public void nonEmptyStringTest() throws OpenemsNamedException {
 		// Parsing with custom data
-		SortedMap<ZonedDateTime, Float> prices = TimeOfUseTariffCorrentlyImpl.parsePrices("""
+		var prices = parsePrices("""
 								{
 				   "object":"list",
 				   "data":[
@@ -188,16 +184,15 @@ public class TimeOfUseTariffCorrentlyImplTest {
 		// To check if the Map is not empty
 		assertFalse(prices.isEmpty());
 
-		// To check if the a value input from the string is present in map.
-		assertTrue(prices.containsValue(120.14f));
-
+		// To check if a value is present in map.
+		assertEquals(158.95, prices.getFirst(), 0.001);
 	}
 
 	@Test
 	public void emptyStringTest() throws OpenemsNamedException {
 		try {
 			// Parsing with empty string
-			TimeOfUseTariffCorrentlyImpl.parsePrices("");
+			parsePrices("");
 		} catch (OpenemsNamedException e) {
 			// expected
 			return;

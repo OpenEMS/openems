@@ -1,26 +1,34 @@
+// @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
-import { DataService } from "../../shared/genericComponents/shared/dataservice";
-import { QueryHistoricTimeseriesEnergyRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
+import { RefresherCustomEvent } from "@ionic/angular";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
+import { Service } from "src/app/shared/service/service";
+import { Websocket } from "src/app/shared/service/websocket";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { DataService } from "../../shared/components/shared/dataservice";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
+import { ChannelAddress, Edge } from "../../shared/shared";
 
 @Injectable()
 export class HistoryDataService extends DataService {
 
+  public queryChannelsTimeout: ReturnType<typeof setTimeout> | null = null;
+  protected override timestamps: string[] = [];
+  private activeQueryData: string;
   private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
-  public queryChannelsTimeout: any | null = null;
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
-    @Inject(Service) protected service: Service
+    @Inject(Service) protected service: Service,
   ) {
     super();
   }
 
   public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
 
-    for (let channelAddress of channelAddresses) {
+    for (const channelAddress of channelAddresses) {
       this.channelAddresses[channelAddress.toString()] = channelAddress;
     }
 
@@ -30,24 +38,45 @@ export class HistoryDataService extends DataService {
         if (Object.entries(this.channelAddresses).length > 0) {
 
           this.service.historyPeriod.subscribe(date => {
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(date.from, date.to, Object.values(this.channelAddresses)))
+
+            const request = new QueryHistoricTimeseriesEnergyRequest(
+              DateUtils.maxDate(date.from, edge?.firstSetupProtocol),
+              date.to,
+              Object.values(this.channelAddresses),
+            );
+
+            this.activeQueryData = request.id;
+
+            edge.sendRequest(this.websocket, request)
               .then((response) => {
-                let allComponents = {};
-                let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-                for (let [key, value] of Object.entries(result.data)) {
-                  allComponents[key] = value;
+                if (this.activeQueryData === response.id) {
+                  const allComponents = {};
+                  const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+
+                  for (const [key, value] of Object.entries(result.data)) {
+                    allComponents[key] = value;
+                  }
+
+                  this.currentValue.next({ allComponents: allComponents });
+                  this.timestamps = response.result["timestamps"] ?? [];
                 }
-                this.currentValue.next({ allComponents: allComponents });
-              }).catch(err => console.warn(err))
+              })
+              .catch(err => console.warn(err))
               .finally(() => {
+                this.queryChannelsTimeout = null;
               });
           });
         }
-      }, 100);
+      }, ChartConstants.REQUEST_TIMEOUT);
     }
   }
 
   public override unsubscribeFromChannels(channels: ChannelAddress[]) {
     return;
+  }
+
+  public override refresh(ev: RefresherCustomEvent) {
+    this.getValues(Object.values(this.channelAddresses), this.edge, "");
+    ev.target.complete();
   }
 }

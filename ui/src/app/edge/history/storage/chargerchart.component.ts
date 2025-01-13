@@ -1,43 +1,46 @@
-import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+// @ts-strict-ignore
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
-    selector: 'storageChargerChart',
-    templateUrl: '../abstracthistorychart.html'
+    selector: "storageChargerChart",
+    templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
-    private moreThanOneProducer: boolean = null;
-
-    ngOnChanges() {
-        this.updateChart();
-    };
+    private moreThanOneProducer: boolean | null = null;
 
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("storage-charger-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.startSpinner();
-        this.service.setCurrentComponent('', this.route);
     }
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 21 * 9;
     }
 
     protected updateChart() {
@@ -46,20 +49,20 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            let result = response.result;
+            const result = response.result;
             // convert labels
-            let labels: Date[] = [];
-            for (let timestamp of result.timestamps) {
+            const labels: Date[] = [];
+            for (const timestamp of result.timestamps) {
                 labels.push(new Date(timestamp));
             }
             this.labels = labels;
 
             // convert datasets
-            let datasets = [];
+            const datasets = [];
 
             Object.keys(result.data).forEach((channel) => {
-                let address = ChannelAddress.fromString(channel);
-                let chargerData = result.data[channel].map(value => {
+                const address = ChannelAddress.fromString(channel);
+                const chargerData = result.data[channel].map(value => {
                     if (value == null) {
                         return null;
                     } else {
@@ -68,13 +71,13 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                 });
                 if (address.channelId == "ActualPower") {
                     datasets.push({
-                        label: this.translate.instant('General.chargePower'),
+                        label: this.translate.instant("General.CHARGE"),
                         data: chargerData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push({
-                        backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)'
+                        backgroundColor: "rgba(0,223,0,0.05)",
+                        borderColor: "rgba(0,223,0,1)",
                     });
                 }
             });
@@ -86,30 +89,22 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(async () => {
+            await this.setOptions(this.options);
         });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActualPower')
+            const result: ChannelAddress[] = [
+                new ChannelAddress(this.componentId, "ActualPower"),
             ];
             resolve(result);
         });
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 21 * 9;
-    }
 }

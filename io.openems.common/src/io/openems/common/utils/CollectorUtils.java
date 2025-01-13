@@ -40,7 +40,7 @@ public final class CollectorUtils {
 	 * {@link TreeBasedTable}.
 	 * 
 	 * @param <KEY>   the type of the first map key
-	 * @param <KEY2> the type of the second map key
+	 * @param <KEY2>  the type of the second map key
 	 * @param <VALUE> the type of the value
 	 * @return the {@link Collector}
 	 */

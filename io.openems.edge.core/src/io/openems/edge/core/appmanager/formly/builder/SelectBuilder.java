@@ -100,7 +100,9 @@ public final class SelectBuilder extends FormlyBuilder<SelectBuilder> {
 	}
 
 	public SelectBuilder setOptions(OptionsFactory factory, Language l) {
-		return this.setOptions(factory.options(l));
+		return this.setOptions(factory.options(l), //
+				t -> new JsonPrimitive(t.getKey()), //
+				t -> new JsonPrimitive(t.getValue()));
 	}
 
 	/**

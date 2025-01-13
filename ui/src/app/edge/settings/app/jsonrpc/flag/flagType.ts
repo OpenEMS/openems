@@ -1,5 +1,3 @@
-import { Flag } from "./flag";
-
-export interface FlagType<Type extends Flag> {
+export interface FlagType {
     name: string,
 }

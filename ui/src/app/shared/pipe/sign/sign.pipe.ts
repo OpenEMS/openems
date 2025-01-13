@@ -1,11 +1,13 @@
-import { Pipe, PipeTransform } from '@angular/core';
+// @ts-strict-ignore
+import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
-    name: 'sign'
+    name: "sign",
+    standalone: false,
 })
 export class SignPipe implements PipeTransform {
     transform(value, args: string[]): any {
-        let positive = value * -1;
+        const positive = value * -1;
         return positive;
     }
 }

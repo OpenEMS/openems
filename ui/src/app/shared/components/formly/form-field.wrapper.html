@@ -1,0 +1,17 @@
+<ion-item [lines]="to.itemLines" [disabled]="props.readonly">
+    <ion-label [position]="to.labelPosition" style="max-width:none">
+        <span>{{ to.label }}</span>
+        <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
+        <span *ngIf="to.description"><br /><small> {{ to.description }} </small></span>
+    </ion-label>
+    <ng-template #fieldComponent></ng-template>
+</ion-item>
+<ion-item lines="none" *ngIf="showError">
+    <ion-label>
+        <ion-text color="danger">
+            <p>
+                <formly-validation-message [field]="field"></formly-validation-message>
+            </p>
+        </ion-text>
+    </ion-label>
+</ion-item>

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
@@ -93,11 +94,15 @@ public class SubscribedEdgesChannelsWorker {
 					return;
 				}
 
+				JsonrpcNotification message;
 				try {
-					this.wsData.send(this.getCurrentDataNotification());
+					message = this.getCurrentDataNotification();
 				} catch (OpenemsNamedException e) {
 					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
+					return;
 				}
+
+				this.wsData.send(message);
 
 			}, 0, SubscribedEdgesChannelsWorker.UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
 		}

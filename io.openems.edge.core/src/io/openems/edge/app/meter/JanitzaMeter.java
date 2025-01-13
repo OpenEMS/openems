@@ -17,6 +17,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -42,9 +43,11 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
@@ -84,44 +87,40 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 		MODEL(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".productModel") //
 				.setDefaultValue(JanitzaModel.UMG_96_RME.getValue()) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(JanitzaModel.class), l) //
-							.isRequired(true);
+					field.setOptions(OptionsFactory.of(JanitzaModel.class), l);
 				}))), //
 		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}))), //
+				.setRequired(true))), //
 		INTEGRATION_TYPE(CommunicationProps.modbusType() //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				})), //
+				.setRequired(true)), //
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
+				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
 							.equal(Exp.staticValue(ModbusType.TCP))));
-					field.isRequired(true);
 				})), //
 		PORT(MeterProps.port() //
+				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
-		SELECTED_MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickSerialModbusId(),
-				def -> def.wrapField((app, property, l, parameter, field) -> {
+		SELECTED_MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickSerialModbusId(), def -> def //
+				.setRequired(true) //
+				.wrapField((app, property, l, parameter, field) -> {
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
 						field.readonly(true);
 					}
-					field.isRequired(true);
 					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE) //
 							.equal(Exp.staticValue(ModbusType.RTU)));
-				})).setAutoGenerateField(false)), //
+				})) //
+				.setAutoGenerateField(false)), //
 		MODBUS_UNIT_ID(MeterProps.modbusUnitId() //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}) //
-				.setDefaultValue(7) //
+				.setRequired(true) //
+				.setDefaultValue(6) //
 				.setAutoGenerateField(false)), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
 				SELECTED_MODBUS_ID, SELECTED_MODBUS_ID.def(), //
@@ -170,7 +169,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 			final var meterId = this.getId(t, p, Property.METER_ID, "meter1");
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var factorieId = this.getString(p, Property.MODEL);
+			final var factoryId = this.getString(p, Property.MODEL);
 			final var type = this.getEnum(p, MeterType.class, Property.TYPE);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var integrationType = this.getEnum(p, ModbusType.class, Property.INTEGRATION_TYPE);
@@ -184,7 +183,9 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 				final var port = this.getInt(p, Property.PORT);
 				final var tcpModbusId = this.getId(t, p, Property.MODBUS_ID);
 
-				components.add(new EdgeConfig.Component(tcpModbusId, "bridge", "Bridge.Modbus.Tcp", //
+				components.add(new EdgeConfig.Component(tcpModbusId,
+						TranslationUtil.translate(AbstractOpenemsApp.getTranslationBundle(l), "App.Meter.alias"),
+						"Bridge.Modbus.Tcp", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("ip", ip) //
 								.addProperty("port", port) //
@@ -194,20 +195,23 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 			}
 			};
 
-			components.add(new EdgeConfig.Component(meterId, alias, factorieId, //
+			components.add(new EdgeConfig.Component(meterId, alias, factoryId, //
 					JsonUtils.buildJsonObject() //
 							.addProperty("modbus.id", modbusId) //
 							.addProperty("modbusUnitId", modbusUnitId) //
 							.addProperty("type", type) //
 							.build()));
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

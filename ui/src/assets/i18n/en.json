@@ -11,8 +11,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "By activating the emergency power reserve, the value can be freely selected between 5% and 100%.",
-        "emergencyReserve": "Emergencyreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "By activating the emergency power reserve, the value can be freely selected between 5% and 100%.",
+        "EMERGENCY_RESERVE": "Emergencyreserve"
       },
       "Energymonitor": {
         "activePower": "Active power",
@@ -35,7 +35,9 @@
         "InfoStorageForCharge": "Negative values correspond to storage charging",
         "InfoStorageForDischarge": "Positive values correspond to storage discharge",
         "Channeltreshold": {
-          "output": "Output"
+          "TITLE": "Channel threshold controller",
+          "output": "Output",
+          "ACTIVE_TIME_OVER_PERIOD": "Time"
         },
         "Singlethreshold": {
           "above": "Above",
@@ -124,7 +126,8 @@
             "passedEndTime": "End time of limited charging exceeded",
             "storageAlreadyFull": "Storage already full"
           },
-          "storageCapacity": "Storagecapacity (only visible for admin)"
+          "storageCapacity": "Storagecapacity (only visible for admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximum grid feed-in through charging"
         },
         "CHP": {
           "highThreshold": "High Threshold",
@@ -198,7 +201,9 @@
             "name": "Force charging",
             "shortName": "Manually"
           },
-          "Uncontrollable": "This charging station can not be controlled."
+          "Uncontrollable": "This charging station can not be controlled.",
+          "HYSTERESIS": "Minimum switching time of the charging station active",
+          "HYSTERESIS_INFO": "For preventing charging interruptions due to frequent starting/pausing of the charing process, the charging mode currently selected will continue for the next few minutes."
         },
         "Heatingelement": {
           "activeForced": "Active (Minimum runtime)",
@@ -229,19 +234,34 @@
           "switchOnRecShort": "Recommendation",
           "undefined": "Undefined"
         },
-        "TimeOfUseTariff": {
-          "currentTariff": "Current price",
-          "delayedDischarge": "Delayed Discharge",
-          "STORAGE_DISCHARGE": "Storage Discharge",
-          "State": {
-            "notStarted": "Controller has not yet started",
-            "delayed": "Delayed",
-            "allowsDischarge": "Allows Discharge",
-            "standby": "Standby",
-            "CHARGING": "Charging"
+        "TIME_OF_USE_TARIFF": {
+          "CONTROL_MODE_DESCRIPTION": {
+            "CHARGE_CONSUMPTION": ""
           },
-          "CHARGED": "Charged",
-          "STORAGE_STATUS": "Storage status"
+          "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid",
+          "PRICE": "Current price",
+          "STATE": {
+            "DELAY_DISCHARGE": "Delayed discharge",
+            "BALANCING": "Self-Consumption optmization",
+            "CHARGE_GRID": "Charge from grid allowed"
+          },
+          "CHART_TITLE": "Planned Schedule",
+          "CHART_WARNING_NOTE": "The graphic shows the past three hours as well as the future planned operating mode for the period for which the dynamic grid purchase prices are available. Please note that the planned schedule is subject to continuous recalculation and may change throughout the day.",
+          "POWER_SOC_CHART_TITLE": "Forecasts (Only for Admins)"
+        },
+        "SYSTEM": {
+          "INDUSTRIAL": {
+            "NOTE": "Starts or stops the entire system, including battery inverter and batteries."
+          },
+          "OVERALL_SYSTEM": "Overall system"
+        },
+        "FIX_DIGITAL_OUTPUT": "Digital Outputcontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Planned Schedule (Only for Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Activate maintenance of the emergency power reserve from the grid",
+          "GRID_CHARGE_WARNING": "The storage system can actively recharge from the grid to maintain the set emergency power reserve in order to compensate for losses due to internal self-consumption in the event of a prolonged absence of generation. <br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: precondition for German \"Gesetz für den Ausbau erneuerbarer Energien (EEG)\" grant is, that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function, the battery is charged with energy from grid. This energy is, depending on the individual power-supply contract, probably made from fossil sources and/or nuclear power plants. Because of this we can not guarantee, that the battery is only charged with energy from renewable sources and/or pit gas."
         }
       },
       "RETROFITTING": {
@@ -255,7 +275,8 @@
         "REACHED_TARGET_SOC": "Ready for Capacity Extension",
         "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}} % state of charge for the planned expansion.",
         "SELECT_A_DATE": "Please select a date",
-        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
+        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature.",
+        "TARGET_TIME_SPECIFIED": "Capacity Extension will be performed on {{targetDate}} at {{targetTime}}"
       },
       "SYSTEMUPDATE": "System update"
     },
@@ -278,6 +299,7 @@
       "today": "Today",
       "week": "Week",
       "year": "Year",
+      "TOTAL": "Total",
       "yesterday": "Yesterday",
       "sun": "Sun",
       "mon": "Mon",
@@ -298,7 +320,12 @@
       "oct": "Oxt",
       "nov": "Nov",
       "dec": "Dec",
-      "activeDuration": "active duration"
+      "activeDuration": "Active duration",
+      "ACTIVE_DURATION_WITH_LEVEL": "Active duration level {{level}}",
+      "CURRENT_AND_VOLTAGE": "Current & Voltage",
+      "CURRENT": "Current",
+      "VOLTAGE": "Voltage",
+      "PHASE_ACCURATE": "Phasengenau"
     },
     "Config": {
       "Index": {
@@ -317,7 +344,8 @@
         "systemExecute": "Execute system command",
         "systemProfile": "System Profile",
         "alerting": "Alerting",
-        "networkConfiguration": "Network Configuration"
+        "networkConfiguration": "Network Configuration",
+        "SYSTEM": "System"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"
@@ -345,7 +373,8 @@
         "level": "Level",
         "message": "Message",
         "source": "Source",
-        "timestamp": "Timestamp"
+        "timestamp": "Timestamp",
+        "CONDENSED_OUTPUT": "Condensed Output"
       },
       "Controller": {
         "app": "App:",
@@ -356,22 +385,16 @@
         "newConnection": "New connection...",
         "newDevice": "New device..."
       },
-      "Alerting": {
-        "activate": "Activate",
-        "delay": "Delay",
-        "save": "Save",
-        "options": {},
-        "toast": {
-          "success": "Settings applied",
-          "error": "Error loading the settings"
-        },
-        "interval": {
-          "hour": "Hour",
-          "hours": "Hours",
-          "minute": "Minute",
-          "minutes": "Minutes",
-          "day": "Day",
-          "days": "Days"
+      "ALERTING": {
+        "OFFLINE": "Offline Notifications",
+        "FAULT": "Fault Notifications",
+        "WARNING": "Warning Notifications",
+        "DEACTIVATED": "Deactivated",
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "SUCCESS": "Settings applied",
+          "ERROR": "Error loading the settings"
         }
       },
       "App": {
@@ -379,13 +402,15 @@
         "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "The App Manager is currently in a first test version.",
         "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
+        "UNUSED_REGISTERED_KEY_AVAILABLE": "There's still an App available for installation! You can install it by clicking the 'redeem license key' button.",
         "installed": "Installed",
         "available": "Available",
         "incompatible": "Incompatible",
         "buyApp": "Buy licence key",
         "modifyApp": "Modify app",
         "createApp": "Install app",
-        "deleteApp": "Delete app",
+        "deleteApp": "Uninstall app",
+        "DELETE_CONFIRM": "uninstall",
         "updateApp": "Update app",
         "errorInstallable": "Installation errors",
         "errorCompatible": "Compatibility errors",
@@ -415,7 +440,9 @@
         "successUpdate": "Successfully updated App",
         "failUpdate": "Error updating App '{{error}}'",
         "successDelete": "Successfully deleted App",
-        "failDelete": "Error deleting App '{{error}}'"
+        "failDelete": "Error deleting App '{{error}}'",
+        "DELETE_CONFIRM_HEADLINE": "Are you sure you wish to uninstall the app?",
+        "DELETE_CONFIRM_DESCRIPTION": "Uninstalling the app will remove all of its components and delete all settings made by it."
       }
     },
     "Service": {
@@ -438,7 +465,10 @@
       "advancedMode": "Advanced Mode",
       "submit": "Submit"
     },
-    "title": "{{ edgeShortName }}"
+    "title": "{{ edgeShortName }}",
+    "FOOTER": {
+      "REFRESHED_LAST": "updated {{period}} ago"
+    }
   },
   "General": {
     "active": "Active",
@@ -451,8 +481,7 @@
     "capacity": "Capacity",
     "changeAccepted": "Change accepted",
     "changeFailed": "Change failed",
-    "chargeDischarge": "Charge/Discharge power",
-    "chargePower": "Charge power",
+    "chargeDischarge": "Charge/Discharge",
     "componentCount": "Number of components",
     "componentInactive": "Component is not active!",
     "connectionLost": "Connection lost. Trying to reconnect.",
@@ -464,8 +493,9 @@
     "digitalInputs": "Digital Inputs",
     "numberOfComponents": "Number of Components",
     "directConsumption": "Direct consumption",
-    "dischargePower": "Discharge power",
     "fault": "Fault",
+    "FAILED": "failed",
+    "WILL_BE_EXECUTED": "will be executed",
     "grid": "Grid",
     "gridBuy": "Buy from grid",
     "gridBuyAdvanced": "Buy",
@@ -503,8 +533,10 @@
     "soc": "State of charge",
     "state": "State",
     "storageSystem": "Storage System",
+    "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
+    "VISIBLE_FOR_ADMINS_ONLY": "Visible for Service & Administration only",
     "warning": "Warning",
     "Week": {
       "monday": "Monday",
@@ -542,7 +574,19 @@
     "yes": "Yes",
     "no": "No",
     "value": "value",
-    "SUM_STATE": "System state"
+    "SUM_STATE": "System state",
+    "SYSTEM": "system",
+    "RESTART": "Restart",
+    "TIME": {
+      "HOUR": "Hour",
+      "HOURS": "Hours",
+      "MINUTE": "Minute",
+      "MINUTES": "Minutes",
+      "DAY": "Day",
+      "DAYS": "Days"
+    },
+    "CHARGE": "Charge",
+    "DISCHARGE": "Discharge"
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -559,17 +603,29 @@
     "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
     "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
-    "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
+    "FIRST_SETUP_PROTOCOL": "Initial commissioning"
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Local access currently not possible",
+      "DESCRIPTION": "If the {{edgeShortName}} has been restarted, please wait a moment until the restart has been completed."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Online access to the energy storage system is currently not available.<br>The data is stored locally and will not be lost.",
+      "MORE_INFO": "More Info",
+      "EMS_OFFLINE": "{{edgeShortName}} is offline"
+    }
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
     "BACK": "Back",
-    "COMPLETE": "complete",
+    "COMPLETE": "To Online-Monitoring",
     "COMPLETION": {
       "DOWNLOAD_ERROR": "The Protocol could not be downloaded",
       "DOWNLOAD": "IBN-Protocol download",
       "SUB_TITLE": "You have successfully commisioned the {{ value }}.",
-      "TITLE": "Set-up complete"
+      "TITLE": "Set-up complete",
+      "NOTE": "Click here to go to the App Center to configure additional components and install apps."
     },
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "If this function is activated, the battery charge level cannot fall below the set value.",
@@ -611,7 +667,6 @@
       "SURPLUS_ENERGY_FEEDIN": "Surplus energy feed-in",
       "TITLE": "Configuration",
       "WAITING": "Configuration running...",
-      "WILL_BE_CONFIGURED": "Will be configured / checked",
       "POWER": "Power",
       "COMMUNICATION_WITH_METER": "Communication with the Meter",
       "WAGO_BRIDGE": "Wago Bridge",
@@ -624,7 +679,9 @@
         "WAGO_BRIDGE": "WAGO (Gray component)"
       },
       "COMMUNICATION_WITH_RELAY": "Communication with Relay",
-      "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration."
+      "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration.",
+      "START_FUNCTION_TEST": "Initiated function tests for the installed components",
+      "FINISH_FUNCTION_TEST": "Finished function tests for the installed components"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -650,12 +707,18 @@
       "PRODUCER": "Generator",
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
-      "VALUE_AC": "Value AC",
       "WARRANTY_TERMS": "Warranty terms",
-      "PEAK_SHAVING": "Peak shaving",
-      "APPS": "Apps",
-      "HECKERT": "Your chosen free app",
-      "ACCEPT": "acceptation"
+      "ACCEPT": "acceptation",
+      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}}",
+      "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} {{ symbol }}",
+      "ORIENTATION_WITH_LABEL_HOME_DC": "MPPT{{ mppt }} Orientation",
+      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Type of modules MPPT{{ mppt }}",
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }}",
+      "BOTH_SELECTED_LABEL": "Both pv-ports (\"PV{{ pv1 }}\" and \"PV{{ pv2 }}\") connected",
+      "DEVICE_CONNECTION_CHECKED": "The energy storage system is connected to the power grid",
+      "ENERGY_FLOW_METER": {
+        "LABEL": "Installed Grid-Meter"
+      }
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
@@ -689,7 +752,7 @@
       "CHOOSE": "Choose",
       "CONSTANT_VALUE": "Cos φ value",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
-      "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in (e.g. 70% limit)",
+      "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
       "EXTERNAL_CONTROLLER_CHECK": "The external control reciever was installed properly and completely according to the instructions.",
       "EXTERNAL_LIMITATION_ACTIVATED": "External control reciever activated?",
       "EXTERNAL_LIMITATION": "External controller (External limitation by the DSO)",
@@ -701,7 +764,9 @@
       "QU_ENABLED_CURVE": "Reactive power - Q(U) characteristics",
       "SHADE_MANAGEMENT_DEACTIVATED": "Shade management disabled?",
       "TITLE": "Feed-In management",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever"
+      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever",
+      "PLACE_HOLDER": "Select option",
+      "NO_LIMITATION": "No limitation"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",
@@ -719,10 +784,8 @@
       "TITLE_INSTALLER": "Contact data - Installer",
       "ZIP": "ZIP code"
     },
-    "PROTOCOL_PV_AND_ADDITIONAL_AC": {
-      "ADD": "Add generator",
+    "PROTOCOL_PV": {
       "ADDITIONAL_GENERATOR": "Additional AC-Generator",
-      "ALIAS_DESCRIPTION_ADDITIONAL_AC": "e.g. \"PV-Roof\"",
       "ALIAS_DESCRIPTION_PV": "will be displayed in the Online-Monitoring, e.g. \"PV-Roof\"",
       "ALIAS": "Description",
       "DIRECTIONS": {
@@ -735,36 +798,29 @@
         "SOUTH": "South",
         "WEST": "West"
       },
-      "INSTALLED_POWER": "Installed power[Wₚ]",
-      "MARKED_AS": " MPPT {{number}} (marked as \"PV{{ number}}\")",
-      "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
-      "METER_TYPE": "Type of the sensor",
-      "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
-      "MODBUS_KDK_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"e\", Communication Stopbit (StoP) \"1\"",
-      "MODBUS_WITH_LABEL": "Modbus {{ label }}{{ number }}",
-      "MODBUS": "Modbus",
+      "INSTALLED_POWER": "Installed power [Wₚ]",
+      "INSTALLED_POWER_PER_STRING": "Installed power per string [Wₚ]",
+      "MARKED_AS": " MPPT {{ mppt }} (marked as \"PV{{ pv }}\")",
+      "MARKED_AS_BOTH_STRINGS": " MPPT {{ mppt }} (marked as \"PV{{ pv1 }}\" & \"PV{{ pv2 }}\")",
       "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",
       "MODULE_TYPE_WITH_LABEL": "Type of modules {{ label }}{{ number }}",
       "MODULE_TYPE": "Type of modules",
       "NUMBER_OF_MODULES_WITH_LABEL": "Number of PV module {{ label }}{{ number }}",
-      "NUMBER_OF_MODULES": "Number of PV module",
+      "NUMBER_OF_MODULES": "Number of PV module per string",
+      "NUMBER_OF_MODULES_PER_STRING": "Number of PV module",
       "OPEN_MANUAL": "Open manual",
       "ORIENTATION_WITH_LABEL": "{{ label }}{{ number }} Orientation",
       "ORIENTATION": "Orientation",
-      "SAVE_TO_CONTINUE": "First save your entries to continue.",
-      "SAVE": "Save generator",
       "SHADE_MANAGEMENT_DEACTIVATE": "Deactivate Shade management",
       "SHADE_MANAGEMENT_DESCRIPTION": "The shade management has to be disabled, only if optimizers are installed.",
-      "TITLE_ADDITIONAL_AC": "AC-Generator",
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
-      "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Meter not created!",
-      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
+      "DUPLICATE": " MPPT {{ mppt }} double occupied (marked as \"PV{{ pv }}\")",
+      "BOTH_SELECTED_LABEL": "Are both ports (\"PV{{ pv1 }}\" & \"PV{{ pv2 }}\") connected?"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",
-      "BATTERY_TOWER": "Battery Tower {{ towerNumber }}",
+      "BATTERY_TOWER": "Battery Tower {{ number }}",
       "BESS_COMPONENTS": "BESS components",
       "BMS_BOX": "BMS Box & Base",
       "CONFIRM": "Confirm",
@@ -808,22 +864,7 @@
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
     "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
-      "BALANCING": "Self-Consumption optmization",
-      "PEAK_SHAVING_SYMMETRIC": "Peak shaving",
-      "PEAK_SHAVING_ASYMMETRIC": "Phase Accurate Peak shaving",
-      "FEATURE_DESCRIPTION": "The corresponding App must be available",
-      "HEADER": "Information on the use of the Storage system",
-      "PEAK_SHAVING_SYMMETRIC_HEADER": "Peak load shaving settings",
-      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Phases Accurate peak shaving settings"
-    },
-    "CONFIGURATION_PEAK_SHAVING": {
-      "DISCHARGE_ABOVE_VALUE": "Discharging above - Value [W]",
-      "CHARGE_BELOW_VALUE": "Charging below - Value [W]",
-      "DISCHARGE_ABOVE_DESCRIPTION": "If the grid power is above this value, the battery will be discharged.",
-      "CHARGE_BELOW_DESCRIPTION": "if the grid power is below this value, the battery is charged again.\nThis value must not exceed the \"Discharge over\" value.",
-      "DESCRIPTION": "Entered power values refer to individual phases. It is adjusted to the most heavily loaded phase.",
-      "DISCHARGE_ABOVE_LABEL": "Discharge above",
-      "CHARGE_BELOW_LABEL": "Charge below"
+      "BALANCING": "Self-Consumption optmization"
     },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
     "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
@@ -832,7 +873,27 @@
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Select the type of Communication"
-    }
+    },
+    "CONFIGURATION_ENERGY_FLOW_METER": {
+      "TITLE": "Selection of energy flow direction meter",
+      "METER": {
+        "WITH_CT": "Home 3-phase sensor with current transformer 120A (standard scope of delivery)",
+        "WITHOUT_CT": "Home 3-phase sensor without current transformer (optional)",
+        "LABEL": "Meter"
+      },
+      "CONVERTER_RATIO": "Converter ratio (200–5000A)"
+    },
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Pull this banner to refresh"
+  },
+  "LOADING_SCREEN": {
+    "LOADING": "Loading",
+    "SERVER_NOT_ACCESSIBLE": "Server not accessible",
+    "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "Online view of the storage system is currently not possible. The data is saved locally and will not be lost.",
+    "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Please try reloading the browser in 10 minutes.",
+    "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Access locally"
   },
   "Login": {
     "title": "Login",
@@ -891,7 +952,8 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "company": "Company",
-      "confirmEmail": "confirm E-Mail"
+      "confirmEmail": "confirm E-Mail",
+      "PRIVATE": "Private"
     },
     "button": "Create",
     "errors": {
@@ -900,7 +962,7 @@
       "emailNotEqual": "E-Mails are not equal"
     },
     "success": "Registration successful",
-    "createUser": "Create installer account"
+    "createUser": "Create account"
   },
   "Role": {
     "guest": "Guest",
@@ -915,11 +977,26 @@
       "NEW_VERSION_INSTALLING": "Install latest version",
       "NEW_VERSION": "Latest version:",
       "OFFLINE": "The {{ edgeShortName }} is offline.",
-      "RESTARTING": "The {{ edge }} is restarting...",
+      "EDGE_RESTARTING": "The {{ edge }} is restarting...",
       "UPDATE_NOT_POSSIBLE": "System cannot be updated!",
       "UPDATE_PROGRESS": "Update in progress.",
       "UPDATE_SEARCH": "Checking for updates...",
-      "UPDATE_TIME": "(This can take up to 10 minutes)"
+      "UPDATE_TIME": "(This can take up to 10 minutes)",
+      "EMS_RESTARTING": "Restart {{edgeShortName}}",
+      "RESTART_FAILED": "Restart of {{system}} failed.",
+      "RESTARTING": "Restarting {{system}}. (This can take up to {{minutes}} minutes)",
+      "RESTARTED": "{{system}} restarting successful.",
+      "RESTART_CONFIRMATION": "Would you like to restart {{system}}?",
+      "RESTART_WARNING": "Communication is interrupted while {{system}} is restarting. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
+      "CONFIRMATION_INFO": "Would you like to update your {{edgeShortName}}?",
+      "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
+      "UPDATE_EXECUTE": "Execute system update",
+      "SUB_HEADER": "Would you like to execute a system update?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "To the analysis",
+      "CURRENT_NUMBER_OF_MODULES": "Current",
+      "SIMULATION_NOT_STARTED": "Simulation not started"
     }
   },
   "CHANNELS": {
@@ -932,5 +1009,32 @@
     "SET_VALUE": "Set value",
     "MORE_CHANNELS": "Add More Channels",
     "CHANNEL": "Channel"
+  },
+  "MODBUS_TCP_API_READ_WRITE": {
+    "CURRENT_STATE": "Current state",
+    "CUMULATED_ACTIVE_TIME": "External commands considered",
+    "CUMULATED_INACTIVE_TIME": "No external commands present",
+    "NO_OVERRIDDEN_CHANNELS": "No channels have been overridden yet.",
+    "NOT_OVERRIDING": "No external commands present",
+    "OVERRIDING": "External command is being considered",
+    "LAST_COMMAND": "Last override",
+    "ACTIVE_POWER_LIMITATIONS": "Active power limitations",
+    "REGISTER": "Register",
+    "LIMITATION": "Limitation",
+    "ACTUAL_VALUE": "Actual value",
+    "INFO_TEXT": "Actual value may deviate from the specification. Negative values correspond to storage loading - positive storage discharging. A detailed explanation can be found in the instructions.",
+    "SET_ACTIVE_POWER_EQUALS": "Limitation charing/discharging power",
+    "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimum charging power",
+    "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum charging power",
+    "DOWNLOAD_PROTOCOL": "Download Protocol"
+  },
+  "GRID_STATES": {
+    "OFF_GRID": "Power outage",
+    "NO_EXTERNAL_LIMITATION": "No external limitation",
+    "RIPPLE_CONTROL_RECEIVER": "Ripple Control Receiver",
+    "RESTRICTION": "Restriction according to $14a EnWG"
+  },
+  "APP": {
+    "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "This function is temporarily not available in the app, please use the web app instead."
   }
 }

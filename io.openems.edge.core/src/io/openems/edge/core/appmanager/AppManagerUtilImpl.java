@@ -1,9 +1,12 @@
 package io.openems.edge.core.appmanager;
 
+import static java.util.Collections.emptyList;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,32 +30,48 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 
 	@Override
 	public List<OpenemsAppInstance> getInstantiatedApps() {
-		return this.getAppManagerImpl().getInstantiatedApps();
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.map(AppManagerImpl::getInstantiatedApps) //
+				.orElse(emptyList());
 	}
 
 	@Override
 	public Optional<OpenemsApp> findAppById(String id) {
-		return this.getAppManagerImpl().findAppById(id);
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.flatMap(t -> t.findAppById(id));
 	}
 
 	@Override
 	public Optional<OpenemsAppInstance> findInstanceById(UUID id) {
-		return this.getAppManagerImpl().findInstanceById(id);
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.flatMap(t -> t.findInstanceById(id));
+	}
+
+	@Override
+	public List<OpenemsAppInstance> getInstantiatedAppsByCategories(OpenemsAppCategory... categories) {
+		return this.getInstantiatedApps().stream() //
+				.filter(t -> {
+					final var app = this.findAppById(t.appId).orElse(null);
+
+					if (app == null) {
+						return false;
+					}
+
+					return Stream.of(app.getCategories()) //
+							.anyMatch(c1 -> Stream.of(categories) //
+									.anyMatch(c2 -> c1 == c2));
+				}).toList();
 	}
 
 	@Override
 	public AppConfiguration getAppConfiguration(ConfigurationTarget target, OpenemsApp app, String alias,
 			JsonObject properties, Language language) throws OpenemsNamedException {
+		final var copy = properties.deepCopy();
 		if (alias != null) {
-			properties.addProperty("ALIAS", alias);
+			copy.addProperty("ALIAS", alias);
 		}
-		try {
-			return app.getAppConfiguration(target, properties, language);
-		} finally {
-			if (alias != null) {
-				properties.remove("ALIAS");
-			}
-		}
+
+		return app.getAppConfiguration(target, copy, language);
 	}
 
 	@Override

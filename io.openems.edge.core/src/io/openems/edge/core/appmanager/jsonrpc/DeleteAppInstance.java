@@ -1,17 +1,20 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
+
 import java.util.List;
 import java.util.UUID;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.serialization.JsonElementPath;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance.Request;
+import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance.Response;
 
 /**
  * Updates an {@link OpenemsAppInstance}..
@@ -43,61 +46,63 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  * }
  * </pre>
  */
-public class DeleteAppInstance {
+public final class DeleteAppInstance implements EndpointRequestType<Request, Response> {
 
-	public static final String METHOD = "deleteAppInstance";
-
-	public static class Request extends JsonrpcRequest {
-
-		/**
-		 * Parses a generic {@link JsonrpcRequest} to a {@link DeleteAppInstance}.
-		 *
-		 * @param r the {@link JsonrpcRequest}
-		 * @return the {@link DeleteAppInstance}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
-			var p = r.getParams();
-			var instanceId = JsonUtils.getAsUUID(p, "instanceId");
-			return new Request(r, instanceId);
-		}
-
-		public final UUID instanceId;
-
-		private Request(JsonrpcRequest request, UUID instanceId) {
-			super(request, METHOD);
-			this.instanceId = instanceId;
-		}
-
-		public Request(UUID instanceId) {
-			super(METHOD);
-			this.instanceId = instanceId;
-		}
-
-		@Override
-		public JsonObject getParams() {
-			return JsonUtils.buildJsonObject() //
-					.addProperty("instanceId", this.instanceId.toString()) //
-					.build();
-		}
+	@Override
+	public String getMethod() {
+		return "deleteAppInstance";
 	}
 
-	public static class Response extends JsonrpcResponseSuccess {
+	@Override
+	public JsonSerializer<Request> getRequestSerializer() {
+		return Request.serializer();
+	}
 
-		private final JsonArray warnings;
+	@Override
+	public JsonSerializer<Response> getResponseSerializer() {
+		return Response.serializer();
+	}
 
-		public Response(UUID id, List<String> warnings) {
-			super(id);
-			this.warnings = warnings == null ? new JsonArray()
-					: warnings.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray());
+	public record Request(//
+			UUID instanceId //
+	) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link DeleteAppInstance.Request}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<DeleteAppInstance.Request> serializer() {
+			return jsonObjectSerializer(DeleteAppInstance.Request.class, //
+					json -> new DeleteAppInstance.Request(//
+							json.getStringPath("instanceId").getAsUuid()), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("instanceId", obj.instanceId().toString()) //
+							.build());
 		}
 
-		@Override
-		public JsonObject getResult() {
-			return JsonUtils.buildJsonObject() //
-					.add("warnings", this.warnings) //
-					.build();
+	}
+
+	public record Response(//
+			List<String> warnings //
+	) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link DeleteAppInstance.Response}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<DeleteAppInstance.Response> serializer() {
+			return jsonObjectSerializer(DeleteAppInstance.Response.class, //
+					json -> new DeleteAppInstance.Response(//
+							json.getList("warnings", JsonElementPath::getAsString)), //
+					obj -> JsonUtils.buildJsonObject() //
+							.add("warnings", obj.warnings().stream() //
+									.map(JsonPrimitive::new) //
+									.collect(toJsonArray())) //
+							.build());
 		}
+
 	}
 
 }

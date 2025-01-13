@@ -1,6 +1,5 @@
 package io.openems.edge.bridge.modbus.api;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.taskmanager.TasksManager;
 
@@ -21,9 +20,8 @@ public class ModbusProtocol {
 	 *
 	 * @param parent the {@link AbstractOpenemsModbusComponent} parent
 	 * @param tasks  the {@link Task}s
-	 * @throws OpenemsException on error
 	 */
-	public ModbusProtocol(AbstractOpenemsModbusComponent parent, Task... tasks) throws OpenemsException {
+	public ModbusProtocol(AbstractOpenemsModbusComponent parent, Task... tasks) {
 		this.parent = parent;
 		this.addTasks(tasks);
 	}
@@ -32,9 +30,8 @@ public class ModbusProtocol {
 	 * Adds Tasks to the Protocol.
 	 *
 	 * @param tasks the tasks
-	 * @throws OpenemsException on error
 	 */
-	public synchronized void addTasks(Task... tasks) throws OpenemsException {
+	public synchronized void addTasks(Task... tasks) {
 		for (Task task : tasks) {
 			this.addTask(task);
 		}
@@ -44,9 +41,8 @@ public class ModbusProtocol {
 	 * Adds a Task to the Protocol.
 	 *
 	 * @param task the task
-	 * @throws OpenemsException on plausibility error
 	 */
-	public synchronized void addTask(Task task) throws OpenemsException {
+	public synchronized void addTask(Task task) {
 		// add the the parent to the Task
 		task.setParent(this.parent);
 		// fill taskManager

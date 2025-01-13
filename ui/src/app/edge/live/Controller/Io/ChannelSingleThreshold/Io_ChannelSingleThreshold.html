@@ -1,5 +1,6 @@
 <oe-flat-widget *ngIf="isInitialized" button (click)="presentModal()" [title]="component.alias"
-  [icon]="{name: icon.name}">
+  [icon]="{name: icon.name, color: 'normal'}">
+
   <oe-flat-widget-line [name]="'General.state' | translate" [value]="state"></oe-flat-widget-line>
   <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"></oe-flat-widget-line>
 
@@ -8,7 +9,7 @@
       leftColumnWidth="20">
     </oe-flat-widget-line>
     <oe-flat-widget-line *ngIf="isOtherInputAddress" [name]="'General.currentValue' | translate"
-      [value]="dependendOnValue + ' ' + unitOfInputChannel">
+      [value]="dependendOnValue + ' ' + (unitOfInputChannel ?? '')">
     </oe-flat-widget-line>
 
     <ng-container *ngIf="outputChannelValue !== null">
