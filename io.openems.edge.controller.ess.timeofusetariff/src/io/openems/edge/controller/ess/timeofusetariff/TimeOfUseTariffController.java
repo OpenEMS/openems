@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -13,6 +14,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
 import io.openems.edge.energy.api.EnergySchedulable;
+
 
 
 public interface TimeOfUseTariffController extends Controller, EnergySchedulable, OpenemsComponent {
@@ -29,7 +31,11 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 				.unit(Unit.MONEY_PER_MEGAWATT_HOUR) //
 				.text("Price of the electricity for the current Hour")//
 				.persistencePriority(PersistencePriority.HIGH)), //
-
+		
+		UNABLE_TO_UPDATE_PRICES(Doc.of(Level.WARNING) //
+				.text("Unable to update prices from ENTSO-E API")
+				.persistencePriority(PersistencePriority.HIGH)),
+		
 		/**
 		 * Aggregated seconds when storage is being force charged from the grid.
 		 */
@@ -55,6 +61,7 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 			return this.doc;
 		}
 	}
+	
 
 	/**
 	 * Get the {@link EnergyScheduleHandlerV1}.
@@ -80,9 +87,14 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 	 * @param value the next value
 	 */
 	public default void _setQuarterlyPrices(Double value) {
+		if (value.isNaN()) {
+			this.channel(TimeOfUseTariffController.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(true);
+		} else {
+			this.channel(TimeOfUseTariffController.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(false);
+		}
 		this.getQuarterlyPricesChannel().setNextValue(value);
 	}
-
+	
 	/**
 	 * Gets the Channel for {@link ChannelId#STATE_MACHINE}.
 	 *
@@ -121,6 +133,7 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 		return ModbusSlaveNatureTable.of(TimeOfUseTariffController.class, accessMode, 100) //
 				.channel(0, ChannelId.QUARTERLY_PRICES, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.DELAYED_TIME, ModbusType.UINT32) //
+				.channel(4, ChannelId.UNABLE_TO_UPDATE_PRICES, ModbusType.UINT16) //
 				.build();
 	}
 }
