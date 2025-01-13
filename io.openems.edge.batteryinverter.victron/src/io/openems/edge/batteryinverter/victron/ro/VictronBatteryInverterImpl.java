@@ -72,7 +72,6 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
-	
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -105,22 +104,18 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile VictronEss ess;	
-	
+	private volatile VictronEss ess;
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private VictronBattery battery;	
-	
-	
+	private VictronBattery battery;
+
 	private Integer batteryInverterMaxChargePower;
 	private Integer batteryInverterMaxDischargePower;
 	private Integer batteryMaxChargePower;
 	private Integer batteryMaxDischargePower;
 	public Integer MaxChargePower;
 	public Integer MaxDischargePower;
-
-	
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -138,10 +133,10 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		this.config = config;
 		if (this.ess != null) {
 			this.ess.setBatteryInverter(this);
-			//return;
+			// return;
 		}
 		this._setMaxApparentPower(this.config.DeviceType().getApparentPowerLimit());
-		
+
 		this._setGridMode(GridMode.ON_GRID);
 
 	}
@@ -183,19 +178,18 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 		return true;
 	}
-	
+
 	/**
 	 * Gets BMS limits. Max charge current decreases according to SoC
 	 * 
 	 */
 	public boolean getBatteryLimits() {
-		
+
 		if (this.battery.getChargeMaxCurrent().get() != null && this.battery.getVoltage().get() != null) {
 			batteryMaxChargePower = this.battery.getChargeMaxCurrent().get() * this.battery.getVoltage().get();
 		} else {
 			return false;
 		}
-		
 
 		if (this.battery.getDischargeMaxCurrent().get() != null && this.battery.getVoltage().get() != null) {
 			batteryMaxDischargePower = this.battery.getDischargeMaxCurrent().get() * this.battery.getVoltage().get();
@@ -203,7 +197,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 			return false;
 		}
 		return true;
-	}	
+	}
 
 	/**
 	 * Gets BatteryInverter limits. Keep in mind that these may differ from battery
@@ -235,7 +229,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public synchronized void setBattery(VictronBattery battery) {
 		this.battery = battery;
-		
+
 	}
 
 	@Override
@@ -246,15 +240,9 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/*
-	 * public VictronBattery getBattery() {
-		if (this.battery == null) {
-			return null;
-		}
-		return this.battery;
-	}
-	*/
-
-
+	 * public VictronBattery getBattery() { if (this.battery == null) { return null;
+	 * } return this.battery; }
+	 */
 
 	/*
 	 * Method is only used for statemachine. Set-Points are controlled by ESS
@@ -277,11 +265,11 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		try {
 			this.stateMachine.run(context);
 			this.channel(VictronBatteryInverter.ChannelId.RUN_FAILED).setNextValue(false);
-			this.stateMachine.forceNextState(State.GO_RUNNING);			
+			this.stateMachine.forceNextState(State.GO_RUNNING);
 		} catch (OpenemsNamedException e) {
 			this.channel(VictronBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
-			this.stateMachine.forceNextState(State.ERROR);	
+			this.stateMachine.forceNextState(State.ERROR);
 		}
 
 		// Victron: Negative values for Discharge
@@ -290,29 +278,43 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		// if we are in symmetric mode we have to device the wanted power by 3
 		// In single phase
 		int powerPerPhase = 0;
-		if (Math.abs(setActivePower) > 10) {
-			powerPerPhase = Math.round(setActivePower / 3);
-		}
-		
+
+
+
 		if (this.config.readOnlyMode()) {
 			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
 			return;
-		}	
+		}
+
 
 		// Set Statemachine "RUN"
-		
+
 		if (this.ess != null) {
-			this.ess._setSymmetricEssActivePowerL1((short) (powerPerPhase * -1));
-			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
-			// channel for that
 
-			this.ess._setSymmetricEssActivePowerL2((short) (powerPerPhase * -1));
-			// this._setReactivePowerL2((short) (powerPerPhase * -1)); // dummy. We have no
-			// channel for that
+			if (this.ess.getPhase() == null) {
+				if (Math.abs(setActivePower) > 10) {
+					powerPerPhase = Math.round(setActivePower / 3);
+				}
+				
+				this.ess._setSymmetricEssActivePowerL1((short) (powerPerPhase * -1));
+				// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
+				// channel for that
 
-			this.ess._setSymmetricEssActivePowerL3((short) (powerPerPhase * -1));
-			// this._setReactivePowerL3((short) (powerPerPhase * -1)); // dummy. We have no
-			// channel for that
+				this.ess._setSymmetricEssActivePowerL2((short) (powerPerPhase * -1));
+				// this._setReactivePowerL2((short) (powerPerPhase * -1)); // dummy. We have no
+				// channel for that
+
+				this.ess._setSymmetricEssActivePowerL3((short) (powerPerPhase * -1));
+				// this._setReactivePowerL3((short) (powerPerPhase * -1)); // dummy. We have no
+				// channel for that
+			} else {
+				this.ess._setSymmetricEssActivePowerL1((short) (setActivePower * -1));
+				// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
+				// channel for that
+			}
+			
+			
+
 		} else {
 			this.logError(this.log, "Power is not applied. No ESS referenced. ");
 		}
@@ -416,11 +418,10 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return this.stateMachine.getCurrentState().asCamelCase() //
-				+ "\nLimits (Charge/Discharge: Battery/Inverter/Config: " 
-				+ batteryMaxChargePower + "/"+ batteryMaxDischargePower + " " 
-				+ batteryInverterMaxChargePower + "/" + batteryInverterMaxDischargePower + " "
-				+ this.config.maxChargePower() + "/" + this.config.maxChargePower()
-				;// + "|" + this.getGridModeChannel().value().asOptionString();
+				+ "\nLimits (Charge/Discharge: Battery/Inverter/Config: " + batteryMaxChargePower + "/"
+				+ batteryMaxDischargePower + " " + batteryInverterMaxChargePower + "/"
+				+ batteryInverterMaxDischargePower + " " + this.config.maxChargePower() + "/"
+				+ this.config.maxChargePower();// + "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	/**
@@ -487,7 +488,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol()  {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(800, Priority.HIGH, //
 						this.m(VictronBatteryInverter.ChannelId.SERIAL_NUMBER, new StringWordElement(800, 6)),
@@ -574,8 +575,6 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		// this.channel(Victron.ChannelId.SET_SOFT_START);
 		// setSoftStart.setNextWriteValue(switchOn ? true : false);
 	}
-
-
 
 	@Override
 	public Integer getMaxChargePower() {

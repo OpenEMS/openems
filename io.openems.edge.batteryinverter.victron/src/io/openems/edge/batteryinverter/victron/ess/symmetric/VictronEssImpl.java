@@ -106,7 +106,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	// private volatile VictronBattery battery;
 
 	private Config config;
-	private SinglePhase singlePhase = null;
+	public SinglePhase singlePhase = null;
 
 	private Integer MaxChargePower = null;
 	private Integer MaxDischargePower = null;
@@ -398,6 +398,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		return this.power;
 	}
 
+	
 	public void _setMyActivePower() {
 		// ToDo: make it work for single and 3 phase
 
@@ -451,7 +452,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 	}
 
-	@Override
+
 	public SinglePhase getPhase() {
 		return this.singlePhase;
 	}
