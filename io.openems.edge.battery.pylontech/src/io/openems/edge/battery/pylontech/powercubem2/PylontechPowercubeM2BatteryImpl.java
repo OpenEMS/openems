@@ -611,10 +611,6 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 									OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x001A), //
 									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_MODULE_VOLTAGE",
-									OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x001A), //
-									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_MODULE_VOLTAGE",
 									OpenemsType.INTEGER), 
 									new UnsignedWordElement(pileOffset + 0x001B), //

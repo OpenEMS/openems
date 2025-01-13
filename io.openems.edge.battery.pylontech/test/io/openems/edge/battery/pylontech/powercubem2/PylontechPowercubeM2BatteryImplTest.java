@@ -26,7 +26,10 @@ public class PylontechPowercubeM2BatteryImplTest {
 			PylontechPowercubeM2Battery.ChannelId.STATE_MACHINE.id());
 	private static final ChannelAddress STATUS_CHANNEL = new ChannelAddress(BATTERY_ID,
 			PylontechPowercubeM2Battery.ChannelId.BASIC_STATUS.id());
-
+	
+	private static final ChannelAddress N_PILES_CHANNEL = new ChannelAddress(BATTERY_ID,
+			PylontechPowercubeM2Battery.ChannelId.NUMBER_OF_PILES_IN_PARALLEL.id());
+	
 	@Test
 	public void wakeUpBattery() throws Exception {
 
@@ -90,6 +93,27 @@ public class PylontechPowercubeM2BatteryImplTest {
 						.build())
 				.next(new TestCase("Battery running").input(STATUS_CHANNEL, Status.CHARGE)
 						.input(STATE_MACHINE, StateMachine.State.RUNNING));
+	}
+	
+	@Test
+	public void nPilesTest() throws Exception { // Check that channels can be added dynamically
+		new ComponentTest(new PylontechPowercubeM2BatteryImpl())  //
+			.addReference("cm", new DummyConfigurationAdmin()) //
+			.addReference("componentManager", new DummyComponentManager()) //
+			.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+			.activate(MyConfig.create() //
+					.setId(BATTERY_ID) //
+					.setModbusId(MODBUS_ID) //
+					.setModbusUnitId(1) //
+					.setStartStop(StartStopConfig.AUTO) //
+					.build())
+			.next(new TestCase("Set n Piles")
+					.input(N_PILES_CHANNEL, 2)
+					.output(BATTERY_ID, "Pile1SystemErrorProtection", false)
+					.output(BATTERY_ID, "Pile2SystemErrorProtection", false)
+					.output(BATTERY_ID, "Pile1Current", null)
+					.output(BATTERY_ID, "Pile2Current", null));
+		
 	}
 
 }
