@@ -734,5 +734,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 
 	public Object getPhase();
 
+
+
 	
 }

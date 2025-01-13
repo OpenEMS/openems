@@ -33,7 +33,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -210,17 +209,13 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				+ "\n" + "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
+	// Asymmetric systems
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 
 		this.logDebug(this.log,
 				"Asymm. PowerWanted L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
-
-		if (this.config.phase() == Phase.ALL) {
-			this.logError(this.log, "ApplyPower single phase called. Wrong parameters ");
-			return;
-		}
 
 		if (this.batteryInverter == null) {
 			this.logDebug(this.log,
@@ -327,14 +322,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 	}
 
-	//
+	// applyPower method for symmetric systems. 1p or 3p
 	@Override
 	public void applyPower(int activePowerTarget, int reactivePower) throws OpenemsNamedException {
-
-		if (this.config.phase() != Phase.ALL) {
-			this.logError(this.log, "ApplyPower single phase called. Wrong parameters ");
-			return;
-		}
 
 		if (this.batteryInverter == null) {
 			this.logError(this.log, "ApplyPower->BatteryInverter not activated ");
@@ -388,13 +378,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			return;
 		}
 
-		this.batteryInverter.run(battery, activePowerTarget, reactivePower);
+		this.batteryInverter.run(battery, activePowerTarget, reactivePower); // Values are sent to ess in run()-method
 
 	}
 
 	@Override
 	public Power getPower() {
-
 		return this.power;
 	}
 
