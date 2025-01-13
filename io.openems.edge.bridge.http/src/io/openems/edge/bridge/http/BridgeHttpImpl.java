@@ -229,10 +229,10 @@ public class BridgeHttpImpl implements BridgeHttp {
 				final var item = this.cycleEndpoints.poll();
 				synchronized (item) {
 					if (item.isRunning()) {
-
-						if (!this.cycleEndpoints.offer(item.resetTo(1)))
-
-							continue;
+						if (!this.cycleEndpoints.offer(item.resetTo(1))) {
+							this.log.warn("Unable to re-add " + item + " to queue again.");
+						}
+						continue;
 					}
 
 					item.setRunning(true);
