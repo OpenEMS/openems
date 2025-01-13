@@ -1,9 +1,17 @@
 <ion-input *ngIf="props.type === 'number'; else noNumberInput" placeholder="{{props.placeholder}}"
     style="width:100%; float:right; text-align: right" [type]="props.type || 'text'" [formControl]="formControl"
-    [min]="props.min">
+    [min]="props.min" [label]="props.label">
 </ion-input>
 <ng-template #noNumberInput>
-    <ion-input placeholder="{{props.placeholder}}" style="width:100%; float:right; text-align: right"
-        [type]="props.type || 'text'" [formControl]="formControl">
+    <ion-input placeholder="{{props.placeholder}}" [type]="props.type || 'text'" [formControl]="formControl"
+        labelPlacement="start" style="text-align: right">
+        <div slot="label" style="text-align: left;">
+            <ion-label [position]="props.labelPosition">
+                <span>{{ props.label }}</span>
+                <span *ngIf="props.required && props.hideRequiredMarker !== true">*</span>
+                <span><br /><small> {{ props.description
+                        }}</small></span>
+            </ion-label>
+        </div>
     </ion-input>
 </ng-template>
