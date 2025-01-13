@@ -18,7 +18,7 @@ import { FieldType } from "@ngx-formly/core";
             @media (width <= 576px) {
                 text-align: right;
             }
-         
+
         }
 
         ion-label>span,
@@ -26,6 +26,6 @@ import { FieldType } from "@ngx-formly/core";
             white-space: initial;
         }
 }
-`]
+`],
 })
 export class InputTypeComponent extends FieldType { }

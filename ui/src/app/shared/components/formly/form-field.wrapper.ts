@@ -12,6 +12,6 @@ import { FieldWrapper } from "@ngx-formly/core";
             width: 100%;
         }
     }
-    `]
+    `],
 })
 export class FormlyWrapperFormFieldComponent extends FieldWrapper { }
