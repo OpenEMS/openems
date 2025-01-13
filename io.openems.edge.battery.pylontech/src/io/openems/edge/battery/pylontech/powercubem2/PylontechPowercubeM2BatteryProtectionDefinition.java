@@ -58,13 +58,11 @@ public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryP
 
 	@Override
 	public PolyLine getChargeSocToPercent() {
-		// TODO Auto-generated method stub
-		return null;
+		return PolyLine.empty();
 	}
 
 	@Override
 	public PolyLine getDischargeSocToPercent() {
-		// TODO Auto-generated method stub
-		return null;
+		return PolyLine.empty();
 	}
 }
