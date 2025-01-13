@@ -218,6 +218,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				"Asymm. PowerWanted L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
 
 		if (this.config.phase() == Phase.ALL) {
+			this.logError(this.log, "ApplyPower single phase called. Wrong parameters ");
 			return;
 		}
 
@@ -296,6 +297,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	public void applyPower(int activePowerTarget, int reactivePower) throws OpenemsNamedException {
 
 		if (this.config.phase() != Phase.ALL) {
+			this.logError(this.log, "ApplyPower single phase called. Wrong parameters ");
 			return;
 		}
 
@@ -325,6 +327,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		MaxChargePower = this.batteryInverter.getMaxChargePower();
 		MaxDischargePower = this.batteryInverter.getMaxDischargePower();
 
+		this.logDebug(this.log, "Max Charge/Discharge Power from Inverter: " + MaxChargePower + "/" + MaxDischargePower + "W");		
+		
 		if (MaxChargePower == null || MaxDischargePower == null) {
 			this.logError(this.log, "power Limits not set.");
 			return;
@@ -370,6 +374,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		if (acPowerL1 != null && acPowerL2 != null && acPowerL3 != null) {
 			int acPowerSum = acPowerL1 + acPowerL2 + acPowerL3;
 			this._setActivePower(acPowerSum);
+		} else {
+			this.logDebug(this.log, "Unable to calculate active power as at least one phase is NULL");
 		}
 
 		var acVoltageL1 = this.getVoltageL1().orElse(null);
