@@ -7,18 +7,26 @@ import { FieldType } from "@ngx-formly/core";
     standalone: false,
     styles: [`
     :host {
-        .label-text-wrapper {
-            max-width: fit-content;
-            width: 70%;
+        min-width: fit-content;
+
+        .label-text-wrapper{
+            .label-text{
+                overflow: visible;
+            }
         }
 
         .native-wrapper{
+            max-width: max-content !important;
             width: max-content;
+            min-width: 20%;
 
             @media (width <= 576px) {
                 text-align: right;
             }
+        }
 
+        ion-label{
+            text-align: left;
         }
 
         ion-label>span,
