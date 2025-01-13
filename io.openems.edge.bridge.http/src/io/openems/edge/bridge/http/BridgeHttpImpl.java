@@ -229,12 +229,10 @@ public class BridgeHttpImpl implements BridgeHttp {
 				final var item = this.cycleEndpoints.poll();
 				synchronized (item) {
 					if (item.isRunning()) {
-						this.log.info(
-								"Process for " + item.cycleEndpoint + " is still running. Task is not queued twice");
-						if (!this.cycleEndpoints.offer(item.resetTo(1))) {
-							this.log.info("Unable to re-add " + item + " to queue again.");
-						}
-						continue;
+
+						if (!this.cycleEndpoints.offer(item.resetTo(1)))
+
+							continue;
 					}
 
 					item.setRunning(true);
@@ -298,13 +296,18 @@ public class BridgeHttpImpl implements BridgeHttp {
 					nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().onSuccessRunDelay(result);
 				}
 
-				// TODO change in java 21 to switch case
-				if (nextDelay instanceof Delay.InfiniteDelay) {
+				switch (nextDelay) {
+				case Delay.InfiniteDelay infiniteDelay -> {
 					// do not queue again
 					return;
-				} else if (nextDelay instanceof Delay.DurationDelay durationDelay) {
+				}
+				case Delay.DurationDelay durationDelay -> {
 					final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
 					endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+				}
+				default -> {
+					this.log.warn("Unhandled Delay type: " + nextDelay.getClass().getName());
+				}
 				}
 
 			} catch (Exception e) {
@@ -334,5 +337,4 @@ public class BridgeHttpImpl implements BridgeHttp {
 				.map(CycleEndpointCountdown::getCycleEndpoint) //
 				.toList();
 	}
-
 }
