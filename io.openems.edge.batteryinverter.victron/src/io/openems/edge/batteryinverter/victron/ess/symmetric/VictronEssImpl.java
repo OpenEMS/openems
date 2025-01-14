@@ -273,10 +273,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		this._setAllowedChargePower(MaxChargePower * -1);
 		this._setAllowedDischargePower(MaxChargePower);
 
-		if (this.config.readOnlyMode()) {
-			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
-			return;
-		}
 
 		switch (config.phase()) {
 		case ALL:
@@ -290,7 +286,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			if (activePowerL1 > 0 && activePowerL1 > MaxDischargePower) {
 				activePowerL1 = MaxDischargePower;
 			}
-
+			activePowerL2 = 0;
+			activePowerL3 = 0;
 			this._setActivePowerL1((short) (activePowerL1 * -1));
 
 			break;
@@ -302,7 +299,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			if (activePowerL2 > 0 && activePowerL2 > MaxChargePower) {
 				activePowerL2 = MaxChargePower;
 			}
-
+			activePowerL1 = 0;
+			activePowerL3 = 0;
 			this._setActivePowerL2((short) (activePowerL2 * -1));
 
 			break;
@@ -314,11 +312,42 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			if (activePowerL3 > 0 && activePowerL3 > MaxChargePower) {
 				activePowerL3 = MaxChargePower;
 			}
-
+			activePowerL1 = 0;
+			activePowerL2 = 0;
 			this._setActivePowerL3((short) (activePowerL3 * -1));
 
 			break;
 		}
+		
+		this.batteryInverter.run(battery, activePowerL1 + activePowerL2 + activePowerL3, reactivePowerL1 + reactivePowerL2 + reactivePowerL3); // 
+		
+		if (this.config.readOnlyMode()) {
+			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
+			return;
+		}
+		this.logDebug(this.log,
+				"Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
+		
+		// Write values to ESS
+		if (this.getPhase() == null) { // no single Phase
+		
+			this._setSymmetricEssActivePowerL1((short) (activePowerL1 * -1));
+			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+
+			this._setSymmetricEssActivePowerL2((short) (activePowerL2 * -1));
+			// this._setReactivePowerL2((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+
+			this._setSymmetricEssActivePowerL3((short) (activePowerL3 * -1));
+			// this._setReactivePowerL3((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+		
+		} else { // On a single phase ESS, power is applied to L1
+			this._setSymmetricEssActivePowerL1((short) (activePowerL1 * -1));
+			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+		}		
 
 	}
 
@@ -377,8 +406,46 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			this.logDebug(this.log, "System is not ready. Values will not be applied");
 			return;
 		}
+		
+		// if we are in symmetric mode we have to device the wanted power by 3
+		// In single phase
+		int powerPerPhase = activePowerTarget;
 
-		this.batteryInverter.run(battery, activePowerTarget, reactivePower); // Values are sent to ess in run()-method
+		if (this.getPhase() == null) { // no single Phase
+			if (Math.abs(activePowerTarget) > 10) {
+				powerPerPhase = Math.round(activePowerTarget / 3);
+			}
+		}
+
+		this.batteryInverter.run(battery, activePowerTarget, reactivePower); // 
+		
+		if (this.config.readOnlyMode()) {
+			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
+			return;
+		}
+
+		// Write values to ESS
+		if (this.getPhase() == null) { // no single Phase
+		
+			this._setSymmetricEssActivePowerL1((short) (powerPerPhase * -1));
+			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+
+			this._setSymmetricEssActivePowerL2((short) (powerPerPhase * -1));
+			// this._setReactivePowerL2((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+
+			this._setSymmetricEssActivePowerL3((short) (powerPerPhase * -1));
+			// this._setReactivePowerL3((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+		
+		} else { // On a single phase ESS, power is applied to L1
+			this._setSymmetricEssActivePowerL1((short) (powerPerPhase * -1));
+			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
+			// channel for that
+		}
+
+		
 
 	}
 

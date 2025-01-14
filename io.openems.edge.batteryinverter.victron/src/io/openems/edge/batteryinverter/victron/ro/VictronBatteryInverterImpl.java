@@ -275,51 +275,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		// Victron: Negative values for Discharge
 		// OpenEMS: Negative values for Charge
 
-		// if we are in symmetric mode we have to device the wanted power by 3
-		// In single phase
-		int powerPerPhase = setActivePower;
 
-
-
-
-
-		if (this.ess.getPhase() == null) { // no single Phase
-			if (Math.abs(setActivePower) > 10) {
-				powerPerPhase = Math.round(setActivePower / 3);
-			}
-		}
-
-		if (this.config.readOnlyMode()) {
-			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
-			return;
-		}
-
-		// Set Statemachine "RUN"
-
-
-		if (this.ess != null) {
-			if (this.ess.getPhase() == null) { // no single Phase
-			
-				this.ess._setSymmetricEssActivePowerL1((short) (powerPerPhase * -1));
-				// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
-				// channel for that
-
-				this.ess._setSymmetricEssActivePowerL2((short) (powerPerPhase * -1));
-				// this._setReactivePowerL2((short) (powerPerPhase * -1)); // dummy. We have no
-				// channel for that
-
-				this.ess._setSymmetricEssActivePowerL3((short) (powerPerPhase * -1));
-				// this._setReactivePowerL3((short) (powerPerPhase * -1)); // dummy. We have no
-				// channel for that
-			
-			} else { // On a single phase ESS, power is applied to L1
-				this.ess._setSymmetricEssActivePowerL1((short) (powerPerPhase * -1));
-				// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
-				// channel for that
-			}
-		} else {
-			this.logError(this.log, "Power is not applied. No ESS referenced. ");
-		}
 
 	}
 
