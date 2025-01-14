@@ -208,6 +208,17 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 				+ "\n" + "|" + this.getGridModeChannel().value().asOptionString();
 	}
+	
+	
+	private int limitPhasePower(int phasePower, int maxCharge, int maxDischarge) {
+	    if (phasePower < 0 && Math.abs(phasePower) > maxCharge) {
+	        return -maxCharge;
+	    }
+	    if (phasePower > 0 && phasePower > maxDischarge) {
+	        return maxDischarge;
+	    }
+	    return phasePower;
+	}	
 
 	// Asymmetric systems
 	@Override
@@ -276,7 +287,35 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 		switch (config.phase()) {
 		case ALL:
-			this.singlePhase = null;
+			int MaxChargePowerSum = activePowerL1 + activePowerL2 + activePowerL3;
+			// Check if desired Power value is within limits
+
+			activePowerL1 = limitPhasePower(activePowerL1, MaxChargePower, MaxDischargePower);
+			activePowerL2 = limitPhasePower(activePowerL2, MaxChargePower, MaxDischargePower);
+			activePowerL3 = limitPhasePower(activePowerL3, MaxChargePower, MaxDischargePower);
+			
+			// limit phases according to scaling factor
+			if (MaxChargePowerSum < 0 && Math.abs(MaxChargePowerSum) > MaxChargePower) {
+
+				double scalingFactor = (double) MaxChargePower / Math.abs(MaxChargePowerSum);
+				activePowerL1 = (int) Math.round(activePowerL1 * scalingFactor);
+				activePowerL2 = (int) Math.round(activePowerL2 * scalingFactor);
+				activePowerL3 = (int) Math.round(activePowerL3 * scalingFactor);
+				this.logDebug(this.log,
+						"Asymmetric Ess. ALL PHASE LIMITATION. Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);			    
+			}
+			if (MaxChargePowerSum > 0 && MaxChargePowerSum > MaxDischargePower) {
+			    
+			    double scalingFactor = (double) MaxDischargePower / Math.abs(MaxChargePowerSum);
+			    activePowerL1 = (int) Math.round(activePowerL1 * scalingFactor);
+			    activePowerL2 = (int) Math.round(activePowerL2 * scalingFactor);
+			    activePowerL3 = (int) Math.round(activePowerL3 * scalingFactor);
+				this.logDebug(this.log,
+						"Asymmetric Ess. ALL PHASE LIMITATION. Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);						    
+			}			
+			
+
+			
 			break;
 		case L1:
 			// Check if desired Power value is within limits
@@ -327,7 +366,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		}
 		this.logDebug(this.log,
 				"Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
-		
+
+		// Victron: Negative values for Discharge
+		// OpenEMS: Negative values for Charge		
 		// Write values to ESS
 		if (this.getPhase() == null) { // no single Phase
 		
