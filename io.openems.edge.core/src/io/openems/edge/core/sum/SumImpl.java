@@ -45,6 +45,7 @@ import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = false)
@@ -64,6 +65,21 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Reference
 	private ComponentManager componentManager;
+
+	protected final CalculateEnergyFromPower calculateProductionToConsumptionEnergy = new CalculateEnergyFromPower(this,
+			Sum.ChannelId.PRODUCTION_TO_CONSUMPTION_ENERGY);
+	protected final CalculateEnergyFromPower calculateProductionToGridEnergy = new CalculateEnergyFromPower(this,
+			Sum.ChannelId.PRODUCTION_TO_GRID_ENERGY);
+	protected final CalculateEnergyFromPower calculateProductionToEssEnergy = new CalculateEnergyFromPower(this,
+			Sum.ChannelId.PRODUCTION_TO_ESS_ENERGY);
+	protected final CalculateEnergyFromPower calculateGridToConsumptionEnergy = new CalculateEnergyFromPower(this,
+			Sum.ChannelId.GRID_TO_CONSUMPTION_ENERGY);
+	protected final CalculateEnergyFromPower calculateEssToConsumptionEnergy = new CalculateEnergyFromPower(this,
+			Sum.ChannelId.ESS_TO_CONSUMPTION_ENERGY);
+	protected final CalculateEnergyFromPower calculateGridToEssEnergy = new CalculateEnergyFromPower(this,
+			Sum.ChannelId.GRID_TO_ESS_ENERGY);
+	protected final CalculateEnergyFromPower calculateEssToGridEnergy = new CalculateEnergyFromPower(this,
+			Sum.ChannelId.ESS_TO_GRID_ENERGY);
 
 	private final EnergyValuesHandler energyValuesHandler;
 	private final Set<String> ignoreStateComponents = new HashSet<>();
@@ -386,7 +402,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setProductionAcActivePowerL3(productionAcActivePowerL3Sum);
 		var productionDcActualPowerSum = productionDcActualPower.calculate();
 		this._setProductionDcActualPower(productionDcActualPowerSum);
-		this._setProductionActivePower(TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum));
+		var productionActivePower = TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum);
+		this._setProductionActivePower(productionActivePower);
 
 		var productionAcActiveEnergySum = productionAcActiveEnergy.calculate();
 		productionAcActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY,
@@ -423,6 +440,10 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.getEssDischargePowerChannel().setNextValue(essDischargePowerSum);
 
 		this.updateExtremeEverValues();
+
+		// Power & Energy distribution
+		PowerDistribution.of(gridActivePowerSum, productionActivePower, essActivePowerSum) //
+				.updateChannels(this);
 	}
 
 	/**
