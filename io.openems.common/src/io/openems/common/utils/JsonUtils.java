@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -1437,78 +1435,78 @@ public final class JsonUtils {
 		}
 
 		return switch (value) {
-			case null -> JsonNull.INSTANCE;
-			case Number n -> new JsonPrimitive(n);
-			case String s -> new JsonPrimitive(s);
-			case Boolean b -> new JsonPrimitive(b);
-			case Inet4Address inet -> new JsonPrimitive(inet.getHostAddress());
-			case JsonElement json -> json;
-			case boolean[] bool -> {
-				var js = new JsonArray();
-				for (boolean b : bool) {
-					js.add(new JsonPrimitive(b));
-				}
+		case null -> JsonNull.INSTANCE;
+		case Number n -> new JsonPrimitive(n);
+		case String s -> new JsonPrimitive(s);
+		case Boolean b -> new JsonPrimitive(b);
+		case Inet4Address inet -> new JsonPrimitive(inet.getHostAddress());
+		case JsonElement json -> json;
+		case boolean[] bool -> {
+			var js = new JsonArray();
+			for (boolean b : bool) {
+				js.add(new JsonPrimitive(b));
+			}
+			yield js;
+		}
+		case short[] shorts -> {
+			var js = new JsonArray();
+			for (short s : shorts) {
+				js.add(new JsonPrimitive(s));
+			}
+			yield js;
+		}
+		case int[] ints -> {
+			var js = new JsonArray();
+			for (int i : ints) {
+				js.add(new JsonPrimitive(i));
+			}
+			yield js;
+		}
+		case long[] longs -> {
+			var js = new JsonArray();
+			for (long l : longs) {
+				js.add(new JsonPrimitive(l));
+			}
+			yield js;
+		}
+		case float[] floats -> {
+			var js = new JsonArray();
+			for (float f : floats) {
+				js.add(new JsonPrimitive(f));
+			}
+			yield js;
+		}
+		case double[] doubles -> {
+			var js = new JsonArray();
+			for (double f : doubles) {
+				js.add(new JsonPrimitive(f));
+			}
+			yield js;
+		}
+		case String[] strings -> {
+			var js = new JsonArray();
+			if (strings.length == 1 && strings[0].isEmpty()) {
+				// special case: String-Array with one entry which is an empty String. Return an
+				// empty JsonArray.
 				yield js;
 			}
-			case short[] shorts -> {
-				var js = new JsonArray();
-				for (short s : shorts) {
-					js.add(new JsonPrimitive(s));
-				}
-				yield js;
+			for (String s : strings) {
+				js.add(new JsonPrimitive(s));
 			}
-			case int[] ints -> {
-				var js = new JsonArray();
-				for (int i : ints) {
-					js.add(new JsonPrimitive(i));
-				}
-				yield js;
+			yield js;
+		}
+		case Object[] objects -> {
+			var js = new JsonArray();
+			for (Object o : objects) {
+				js.add(JsonUtils.getAsJsonElement(o));
 			}
-			case long[] longs -> {
-				var js = new JsonArray();
-				for (long l : longs) {
-					js.add(new JsonPrimitive(l));
-				}
-				yield js;
-			}
-			case float[] floats -> {
-				var js = new JsonArray();
-				for (float f : floats) {
-					js.add(new JsonPrimitive(f));
-				}
-				yield js;
-			}
-			case double[] doubles -> {
-				var js = new JsonArray();
-				for (double f : doubles) {
-					js.add(new JsonPrimitive(f));
-				}
-				yield js;
-			}
-			case String[] strings -> {
-				var js = new JsonArray();
-				if (strings.length == 1 && strings[0].isEmpty()) {
-					// special case: String-Array with one entry which is an empty String. Return an
-					// empty JsonArray.
-					yield js;
-				}
-				for (String s : strings) {
-					js.add(new JsonPrimitive(s));
-				}
-				yield js;
-			}
-			case Object[] objects -> {
-				var js = new JsonArray();
-				for (Object o : objects) {
-					js.add(JsonUtils.getAsJsonElement(o));
-				}
-				yield js;
-			}
-			default -> {
-				JsonUtils.LOG.warn("Converter for [{}] of type [{}] to JSON is not implemented.", //
-						value, value.getClass().getSimpleName());
-				yield new JsonPrimitive(value.toString());
-			}
+			yield js;
+		}
+		default -> {
+			JsonUtils.LOG.warn("Converter for [{}] of type [{}] to JSON is not implemented.", //
+					value, value.getClass().getSimpleName());
+			yield new JsonPrimitive(value.toString());
+		}
 		};
 	}
 
@@ -1602,15 +1600,15 @@ public final class JsonUtils {
 		}
 
 		if (j.isJsonPrimitive()) {
-            return switch (type) {
-                case BOOLEAN -> (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
-                case DOUBLE -> (T) Double.valueOf(JsonUtils.getAsDouble(j));
-                case FLOAT -> (T) Float.valueOf(JsonUtils.getAsFloat(j));
-                case INTEGER -> (T) Integer.valueOf(JsonUtils.getAsInt(j));
-                case LONG -> (T) Long.valueOf(JsonUtils.getAsLong(j));
-                case SHORT -> (T) Short.valueOf(JsonUtils.getAsShort(j));
-                case STRING -> (T) JsonUtils.getAsString(j);
-            };
+			return switch (type) {
+			case BOOLEAN -> (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
+			case DOUBLE -> (T) Double.valueOf(JsonUtils.getAsDouble(j));
+			case FLOAT -> (T) Float.valueOf(JsonUtils.getAsFloat(j));
+			case INTEGER -> (T) Integer.valueOf(JsonUtils.getAsInt(j));
+			case LONG -> (T) Long.valueOf(JsonUtils.getAsLong(j));
+			case SHORT -> (T) Short.valueOf(JsonUtils.getAsShort(j));
+			case STRING -> (T) JsonUtils.getAsString(j);
+			};
 		}
 
 		if (j.isJsonObject() || j.isJsonArray()) {
