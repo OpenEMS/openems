@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.modbus.readwrite;
+package io.openems.edge.controller.api.modbus.readwrite.tcp;
 
 import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.CUMULATED_SECONDS;

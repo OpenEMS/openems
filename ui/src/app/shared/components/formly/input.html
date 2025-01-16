@@ -4,12 +4,13 @@
 </ion-input>
 <ng-template #noNumberInput>
     <ion-input placeholder="{{props.placeholder}}" [type]="props.type || 'text'" [formControl]="formControl"
-        style="text-align: right" labelPlacement="start" justify="space-between">
+        labelPlacement="start" style="text-align: right">
         <div style="text-align: left;">
-            <ion-label [position]="to.labelPosition">
-                <span>{{ to.label }}</span>
-                <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
-                <span *ngIf="to.description"><br /><small>{{ to.description }}</small></span>
+            <ion-label [position]="props.labelPosition">
+                <span>{{ props.label }}</span>
+                <span *ngIf="props.required && props.hideRequiredMarker !== true">*</span>
+                <span><br /><small> {{ props.description
+                        }}</small></span>
             </ion-label>
         </div>
     </ion-input>

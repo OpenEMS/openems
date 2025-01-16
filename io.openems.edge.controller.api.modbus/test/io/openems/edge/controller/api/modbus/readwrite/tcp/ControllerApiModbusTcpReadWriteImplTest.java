@@ -1,8 +1,8 @@
-package io.openems.edge.controller.api.modbus.readwrite;
+package io.openems.edge.controller.api.modbus.readwrite.tcp;
 
 import static io.openems.edge.controller.api.modbus.AbstractModbusTcpApi.DEFAULT_PORT;
-import static io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusTcpReadWriteImpl.getChannelNameCamel;
-import static io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusTcpReadWriteImpl.getChannelNameUpper;
+import static io.openems.edge.controller.api.modbus.readwrite.tcp.ControllerApiModbusTcpReadWriteImpl.getChannelNameCamel;
+import static io.openems.edge.controller.api.modbus.readwrite.tcp.ControllerApiModbusTcpReadWriteImpl.getChannelNameUpper;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,13 +53,17 @@ public class ControllerApiModbusTcpReadWriteImplTest {
 
 	@Test
 	public void testGetChannelNameUpper() {
-		assertEquals("ESS0_SET_ACTIVE_POWER_EQUALS", getChannelNameUpper("ess0", SET_ACTIVE_POWER_EQUALS));
-		assertEquals("ESS0_SET_ACTIVE_POWER_EQUALS", getChannelNameUpper("Ess0", SET_ACTIVE_POWER_EQUALS));
+		assertEquals("ESS0_SET_ACTIVE_POWER_EQUALS",
+				getChannelNameUpper("ess0", SET_ACTIVE_POWER_EQUALS));
+		assertEquals("ESS0_SET_ACTIVE_POWER_EQUALS",
+				getChannelNameUpper("Ess0", SET_ACTIVE_POWER_EQUALS));
 	}
 
 	@Test
 	public void testGetChannelNameCamel() {
-		assertEquals("Ess0SetActivePowerEquals", getChannelNameCamel("ess0", SET_ACTIVE_POWER_EQUALS));
-		assertEquals("Ess0SetActivePowerEquals", getChannelNameCamel("Ess0", SET_ACTIVE_POWER_EQUALS));
+		assertEquals("Ess0SetActivePowerEquals",
+				getChannelNameCamel("ess0", SET_ACTIVE_POWER_EQUALS));
+		assertEquals("Ess0SetActivePowerEquals",
+				getChannelNameCamel("Ess0", SET_ACTIVE_POWER_EQUALS));
 	}
 }

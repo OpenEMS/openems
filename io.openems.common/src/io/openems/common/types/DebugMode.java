@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo;
+package io.openems.common.types;
 
 public enum DebugMode {
 

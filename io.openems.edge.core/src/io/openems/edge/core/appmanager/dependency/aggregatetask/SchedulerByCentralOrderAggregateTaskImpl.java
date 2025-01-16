@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -20,9 +21,13 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -43,6 +48,37 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 		scope = ServiceScope.SINGLETON //
 )
 public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCentralOrderAggregateTask {
+
+	private record SchedulerByCentralOrderExecutionConfiguration(//
+			List<SchedulerComponent> insertOrder //
+	) implements AggregateTask.AggregateTaskExecutionConfiguration {
+
+		private SchedulerByCentralOrderExecutionConfiguration {
+			Objects.requireNonNull(insertOrder);
+		}
+
+		@Override
+		public String identifier() {
+			return "SchedulerByCentralOrder";
+		}
+
+		@Override
+		public JsonElement toJson() {
+			if (this.insertOrder.isEmpty()) {
+				return JsonNull.INSTANCE;
+			}
+			return JsonUtils.buildJsonObject() //
+					.add("insertOrder", this.insertOrder.stream() //
+							.map(t -> JsonUtils.buildJsonObject() //
+									.addProperty("id", t.id()) //
+									.addProperty("factoryId", t.factoryId()) //
+									.addPropertyIfNotNull("createdByAppId", t.createdByAppId()) //
+									.build())
+							.collect(JsonUtils.toJsonArray()))
+					.build();
+		}
+
+	}
 
 	private final ComponentManager componentManager;
 	private final ComponentUtil componentUtil;
@@ -68,6 +104,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 							.filterByFactoryId("Controller.Api.ModbusTcp.ReadWrite") //
 							.thenByCreatedAppId("App.Ess.GeneratingPlantController") //
 							.rest()) //
+					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") // 
 					.thenByFactoryId("Controller.Api.Rest.ReadWrite") //
 					.thenByFactoryId("Controller.Ess.GridOptimizedCharge") //
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
@@ -414,6 +451,11 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		}
 
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, this.getIdsToRemove(otherAppConfigurations));
+	}
+
+	@Override
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
+		return new SchedulerByCentralOrderExecutionConfiguration(this.schedulerComponents);
 	}
 
 	private List<String> getIdsToRemove(List<AppConfiguration> otherAppConfigurations) {
