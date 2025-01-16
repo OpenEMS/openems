@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.modbus.readonly;
+package io.openems.edge.controller.api.modbus.readonly.tcp;
 
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -16,9 +16,12 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.slave.ModbusSlave;
+import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
@@ -27,7 +30,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.Status;
 import io.openems.edge.controller.api.common.WriteObject;
 import io.openems.edge.controller.api.modbus.AbstractModbusTcpApi;
-import io.openems.edge.controller.api.modbus.ModbusTcpApi;
+import io.openems.edge.controller.api.modbus.ModbusApi;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,13 +39,15 @@ import io.openems.edge.controller.api.modbus.ModbusTcpApi;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
-		implements ControllerApiModbusTcpReadOnly, ModbusTcpApi, Controller, OpenemsComponent, ComponentJsonApi {
+		implements ControllerApiModbusTcpReadOnly, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi {
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference
 	private Meta metaComponent = null;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	private TcpConfig config;
 
 	@Override
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -58,16 +63,16 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 		super("Modbus/TCP-Api Read-Only", //
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				ModbusTcpApi.ChannelId.values(), //
+				ModbusApi.ChannelId.values(), //
 				ControllerApiModbusTcpReadOnly.ChannelId.values() //
 		);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
-		super.activate(context, this.cm,
-				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
-						config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections()));
+		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
+				config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections());
+		super.activate(context, this.cm, this.config);
 	}
 
 	@Override
@@ -83,8 +88,7 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 
 	@Override
 	protected Consumer<Entry<WriteChannel<?>, WriteObject>> handleWrites() {
-		return entry -> {
-		};
+		return FunctionUtils::doNothing;
 	}
 
 	@Override
@@ -93,7 +97,11 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 
 	@Override
 	protected Runnable handleTimeouts() {
-		return () -> {
-		};
+		return FunctionUtils::doNothing;
+	}
+
+	@Override
+	protected ModbusSlave createSlave() throws ModbusException {
+		return ModbusSlaveFactory.createTCPSlave(this.config.getPort(), this.config.maxConcurrentConnections());
 	}
 }

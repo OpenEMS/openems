@@ -197,6 +197,18 @@ export namespace DummyConfig {
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
+
+        export const MODBUS_RTU_READWRITE = {
+            id: "Controller.Api.ModbusRtu.ReadWrite",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.JsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.modbus.ModbusRtuApi",
+                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusRtuReadWrite",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
     }
 
     export namespace Component {

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.modbus.readwrite;
+package io.openems.edge.controller.api.modbus.readwrite.tcp;
 
 import static io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper;
 import static io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel;
@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
@@ -48,7 +49,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.Status;
 import io.openems.edge.controller.api.common.WriteObject;
 import io.openems.edge.controller.api.modbus.AbstractModbusTcpApi;
-import io.openems.edge.controller.api.modbus.ModbusTcpApi;
+import io.openems.edge.controller.api.modbus.ModbusApi;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -61,7 +62,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
-		implements ControllerApiModbusTcpReadWrite, ModbusTcpApi, Controller, OpenemsComponent, ComponentJsonApi,
+		implements ControllerApiModbusTcpReadWrite, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi,
 		TimedataProvider, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerApiModbusTcpReadWriteImpl.class);
@@ -76,12 +77,14 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 
 	private List<OpenemsComponent> components = new ArrayList<>();
 
+	private TcpConfig config;
+
 	private boolean isActive = false;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference
 	private Meta metaComponent = null;
 
 	@Reference
@@ -107,7 +110,7 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 		super("Modbus/TCP-Api Read-Write", //
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				ModbusTcpApi.ChannelId.values(), //
+				ModbusApi.ChannelId.values(), //
 				ControllerApiModbusTcpReadWrite.ChannelId.values() //
 		);
 		this.apiWorker.setLogChannel(this.getApiWorkerLogChannel());
@@ -115,17 +118,17 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
-		super.activate(context, this.cm,
-				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
-						config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections()));
+		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
+				config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections());
+		super.activate(context, this.cm, this.config);
 		this.applyConfig(config);
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.modified(context, this.cm,
-				new ConfigRecord(config.id(), config.alias(), config.enabled(), this.metaComponent,
-						config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections()));
+		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
+				config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections());
+		super.modified(context, this.cm, this.config);
 		this.applyConfig(config);
 	}
 
@@ -245,14 +248,18 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(AccessMode.READ_ONLY),
-				ModbusSlaveNatureTable.of(ControllerApiModbusTcpReadWriteImpl.class, AccessMode.READ_ONLY, 300)
-						.cycleValue(0, this.id() + "/  Ess0ActivePowerLimit", Unit.WATT, "", ModbusType.FLOAT32,
+				ModbusSlaveNatureTable.of(ControllerApiModbusTcpReadWrite.class, AccessMode.READ_ONLY, 300)
+						.cycleValue(0, this.id() + "/Ess0ActivePowerLimit", Unit.WATT, "", ModbusType.FLOAT32,
 								t -> this.getChannelValue("ess0",
 										ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS))
-						.cycleValue(2, this.id() + "/Ess0ReactivePowerLimit", Unit.WATT, "", ModbusType.FLOAT32,
-								t -> this.getChannelValue("ess0",
+						.cycleValue(2, this.id() + "/Ess0ReactivePowerLimit", Unit.VOLT_AMPERE_REACTIVE, "",
+								ModbusType.FLOAT32, t -> this.getChannelValue("ess0",
 										ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS))
 						.build());
 	}
 
+	@Override
+	protected com.ghgande.j2mod.modbus.slave.ModbusSlave createSlave() throws ModbusException {
+		return ModbusSlaveFactory.createTCPSlave(this.config.getPort(), this.config.maxConcurrentConnections());
+	}
 }

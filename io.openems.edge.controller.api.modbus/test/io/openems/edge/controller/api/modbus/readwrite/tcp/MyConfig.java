@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.modbus.readwrite;
+package io.openems.edge.controller.api.modbus.readwrite.tcp;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;

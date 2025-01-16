@@ -68,6 +68,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 							.filterByFactoryId("Controller.Api.ModbusTcp.ReadWrite") //
 							.thenByCreatedAppId("App.Ess.GeneratingPlantController") //
 							.rest()) //
+					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") // 
 					.thenByFactoryId("Controller.Api.Rest.ReadWrite") //
 					.thenByFactoryId("Controller.Ess.GridOptimizedCharge") //
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //

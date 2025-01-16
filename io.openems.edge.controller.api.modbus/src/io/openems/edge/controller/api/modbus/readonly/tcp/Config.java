@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.modbus.readonly;
+package io.openems.edge.controller.api.modbus.readonly.tcp;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -14,7 +14,7 @@ import io.openems.edge.controller.api.modbus.AbstractModbusTcpApi;
 	String id() default "ctrlApiModbusTcp0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
-	String alias() default "";
+	String alias() default "ModbusTcp Read-Only";
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
