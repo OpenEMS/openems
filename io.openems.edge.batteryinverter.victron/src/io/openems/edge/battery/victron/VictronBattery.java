@@ -341,6 +341,7 @@ public interface VictronBattery extends Battery, OpenemsComponent {
 				.channel(3, ChannelId.INTERNAL_FAILURE_ALARM, ModbusType.UINT16) //
 				.channel(4, ChannelId.ERROR, ModbusType.UINT16) //
 				.channel(5, ChannelId.BALANCING, ModbusType.UINT16) //
+				.channel(6, ChannelId.ALARM, ModbusType.UINT16) //
 				.build();
 	}
 

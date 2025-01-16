@@ -729,6 +729,22 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.channel(7, ChannelId.VE_BUS_ERROR, ModbusType.UINT16) //
 				.channel(8, ChannelId.USEABLE_CAPACITY, ModbusType.UINT16) //
 				.channel(9, ChannelId.USEABLE_SOC, ModbusType.UINT16) //
+				.channel(10, ChannelId.TEMPERATURE_ALARM, ModbusType.UINT16) //
+				.channel(11, ChannelId.TEMPERATURE_ALARM_L1, ModbusType.UINT16) //
+				.channel(12, ChannelId.TEMPERATURE_ALARM_L2, ModbusType.UINT16) //
+				.channel(13, ChannelId.TEMPERATURE_ALARM_L3, ModbusType.UINT16) //
+				.channel(14, ChannelId.LOW_BATTERY_ALARM, ModbusType.UINT16) //
+				.channel(15, ChannelId.LOW_BATTERY_ALARM_L1, ModbusType.UINT16) //
+				.channel(16, ChannelId.LOW_BATTERY_ALARM_L2, ModbusType.UINT16) //
+				.channel(17, ChannelId.LOW_BATTERY_ALARM_L3, ModbusType.UINT16) //
+				.channel(18, ChannelId.OVERLOAD_ALARM, ModbusType.UINT16) //
+				.channel(19, ChannelId.OVERLOAD_ALARM_L1, ModbusType.UINT16) //
+				.channel(20, ChannelId.OVERLOAD_ALARM_L2, ModbusType.UINT16) //
+				.channel(21, ChannelId.OVERLOAD_ALARM_L3, ModbusType.UINT16) //
+				.channel(22, ChannelId.RIPPLE_ALARM_L1, ModbusType.UINT16) //
+				.channel(23, ChannelId.RIPPLE_ALARM_L2, ModbusType.UINT16) //
+				.channel(24, ChannelId.RIPPLE_ALARM_L3, ModbusType.UINT16) //
+				
 				.build();
 	}
 
