@@ -22,7 +22,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -64,7 +63,6 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.UpdateValues;
-import io.openems.edge.core.appmanager.flag.Flag;
 import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
@@ -73,8 +71,8 @@ import io.openems.edge.core.appmanager.jsonrpc.GetAppAssistant;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppDescriptor;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances;
 import io.openems.edge.core.appmanager.jsonrpc.GetApps;
-import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig;
 import io.openems.edge.core.appmanager.jsonrpc.GetEstimatedConfiguration;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.core.appmanager.validator.Validator;
 
