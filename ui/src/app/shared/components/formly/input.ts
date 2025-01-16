@@ -1,10 +1,11 @@
-import { Component } from "@angular/core";
+import { Component, ViewEncapsulation } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-input-section",
     templateUrl: "./input.html",
     standalone: false,
+    encapsulation: ViewEncapsulation.None,
     styles: [`
     :host {
         min-width: fit-content;
