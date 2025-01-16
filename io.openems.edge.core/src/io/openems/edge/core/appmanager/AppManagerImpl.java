@@ -68,6 +68,7 @@ import io.openems.edge.core.appmanager.jsonrpc.GetAppAssistant;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppDescriptor;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances;
 import io.openems.edge.core.appmanager.jsonrpc.GetApps;
+import io.openems.edge.core.appmanager.jsonrpc.GetEstimatedConfiguration;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.core.appmanager.validator.Validator;
 
@@ -829,6 +830,34 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 						emptyList()));
 			});
 		}, call -> this.handleAddAppInstanceRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+
+		builder.handleRequest(new GetEstimatedConfiguration(), endpoint -> {
+
+			endpoint.applyRequestBuilder(request -> {
+				request.addExample("Home 30",
+						new GetEstimatedConfiguration.Request("App.FENECON.Home.30", "FENECON Home 30",
+								JsonUtils.buildJsonObject() //
+										.addProperty("SAFETY_COUNTRY", "GERMANY") //
+										.addProperty("FEED_IN_TYPE", "EXTERNAL_LIMITATION") //
+										.addProperty("FEED_IN_SETTING", "QU_ENABLE_CURVE") //
+										.addProperty("HAS_MPPT_1", "true") //
+										.addProperty("ALIAS_MPPT_1", "String A and String B") //
+										.build()));
+			});
+
+		}, call -> {
+			final var request = call.getRequest();
+			final var user = call.get(EdgeKeys.USER_KEY);
+
+			final var app = this.findAppByIdOrError(request.appId());
+
+			final var configs = this.useAppManagerAppHelper(t -> {
+				return t.getInstallConfiguration(user, new OpenemsAppInstance(request.appId(), request.alias(),
+						UUID.randomUUID(), request.properties(), null), app);
+			});
+
+			return new GetEstimatedConfiguration.Response(configs);
+		});
 	}
 
 	/**
