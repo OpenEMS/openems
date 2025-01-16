@@ -9,6 +9,7 @@ import { Role } from "src/app/shared/type/role";
 
 @Component({
   templateUrl: "./details.overview.html",
+  standalone: false,
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected navigationButtons: NavigationOption[] = [];

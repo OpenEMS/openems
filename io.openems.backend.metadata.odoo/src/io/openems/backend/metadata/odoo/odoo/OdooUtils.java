@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -101,7 +101,9 @@ public class OdooUtils {
 		HttpURLConnection connection = null;
 		try {
 			// Open connection to Odoo
-			connection = (HttpURLConnection) new URL(url).openConnection();
+			connection = (HttpURLConnection) URI.create(url) //
+					.toURL() //
+					.openConnection(); //
 			connection.setConnectTimeout(5000);// 5 secs
 			connection.setReadTimeout(timeout);// 5 secs
 			connection.setRequestProperty("Accept-Charset", "US-ASCII");
@@ -276,8 +278,9 @@ public class OdooUtils {
 	private static Object executeKw(Credentials creds, String model, String action, Object[] arg, Map<String, ?> kw)
 			throws MalformedURLException, XMLRPCException {
 		var params = new Object[] { creds.getDatabase(), creds.getUid(), creds.getPassword(), model, action, arg, kw };
-		var client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", creds.getUrl())),
-				XMLRPCClient.FLAGS_NIL);
+		var uri = URI.create(String.format("%s/xmlrpc/2/object", creds.getUrl()));
+		var client = new XMLRPCClient(uri.toURL(), XMLRPCClient.FLAGS_NIL);
+
 		client.setTimeout(60 /* seconds */);
 		return client.call("execute_kw", params);
 	}
@@ -557,9 +560,9 @@ public class OdooUtils {
 
 		HttpURLConnection connection = null;
 		try {
-			connection = (HttpURLConnection) new URL(
-					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
-					.openConnection();
+			connection = (HttpURLConnection) URI
+					.create(credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
+					.toURL().openConnection();
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			connection.setRequestMethod("GET");

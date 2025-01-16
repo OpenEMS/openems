@@ -1,6 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.energy.optimizer.EshCodec.schedulesToStringArray;
 import static io.openems.edge.energy.optimizer.InitialPopulation.variationsFromExistingSimulationResult;
 import static io.openems.edge.energy.optimizer.InitialPopulation.variationsOfAllStatesDefault;

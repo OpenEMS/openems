@@ -9,6 +9,7 @@ import { IonicModule, IonicRouteStrategy } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
+import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 import { CookieService } from "ngx-cookie-service";
 import { DeviceDetectorService } from "ngx-device-detector";
 import { AppRoutingModule } from "./app-routing.module";
@@ -56,7 +57,7 @@ import { UserModule } from "./user/user.module";
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     CookieService,
     { provide: ErrorHandler, useClass: MyErrorHandler },
-    { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
+    { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
     DeviceDetectorService,
@@ -64,6 +65,7 @@ import { UserModule } from "./user/user.module";
     CheckForUpdateService,
     AppService,
     AppStateTracker,
+    provideCharts(withDefaultRegisterables()),
   ],
   bootstrap: [AppComponent],
 })

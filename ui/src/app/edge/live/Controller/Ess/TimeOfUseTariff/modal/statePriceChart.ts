@@ -19,6 +19,7 @@ import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
 @Component({
     selector: "statePriceChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -113,15 +114,15 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     }
 
     private applyControllerSpecificOptions() {
-        const locale = this.service.translate.currentLang;
         const rightYaxisSoc: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT, displayGrid: true };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, "line", locale, this.datasets, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYaxisSoc, this.translate, "line", this.datasets, true);
 
         const rightYAxisPower: HistoryUtils.yAxes = { position: "right", unit: YAxisType.POWER, yAxisId: ChartAxis.RIGHT_2 };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, "line", locale, this.datasets, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxisPower, this.translate, "line", this.datasets, true);
 
         this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
+        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
         this.options.scales.x.ticks.maxTicksLimit = 30;
         this.options.scales.x["offset"] = false;
         this.options.scales.x.ticks.callback = function (value) {
@@ -172,14 +173,14 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
             return el;
         });
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit };
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit, scale: { dynamicScale: true } };
         [rightYaxisSoc, rightYAxisPower].forEach((element) => {
-            this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", locale, this.datasets, true);
+            this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, "line", this.datasets, true);
         });
 
         this.options.scales[ChartAxis.LEFT] = {
             ...this.options.scales[ChartAxis.LEFT],
-            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "line", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
+            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "bar", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
         };
         this.options.scales[ChartAxis.RIGHT].grid.display = false;
         this.options.scales[ChartAxis.RIGHT_2].suggestedMin = 0;

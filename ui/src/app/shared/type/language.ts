@@ -42,7 +42,7 @@ export class Language {
     public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA);
 
     public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR, Language.JA];
-    public static readonly DEFAULT = Language.DE;
+    public static readonly DEFAULT = Language.getByKey(environment.defaultLanguage) as Language;
 
     constructor(
         public readonly title: string,
@@ -119,7 +119,7 @@ export class Language {
      * @returns translations params
      */
     public static async setAdditionalTranslationFile(translationFile: any, translate: TranslateService): Promise<{ lang: string; translations: {}; shouldMerge?: boolean; }> {
-        const lang = (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise()).lang;
+        const lang = (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise())?.lang ?? Language.DEFAULT.key;
         let translationKey: string = lang;
         if (!(lang in translationFile)) {
 

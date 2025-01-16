@@ -16,6 +16,14 @@ This chapter explains how OpenEMS Backend can be deployed on a Debian Linux serv
 
 NOTE: It is recommended to run every service on a server with limited permissions. This example runs OpenEMS Backend with user "root" which is a bad idea for a production server!  
 
+==== Check JAVA version
+
+Ensure that a JRE version 21 or later is installed. We recommend using `temurin-21-jre`
+
+For detailed installation instructions, visit https://adoptium.net/de/installation/linux/[Adoptium Installation Guide].
+
+NOTE: If you are using an *ARM32* device, download https://openems.io/download/temurin-21-jre-armhf_21.0.6+2.deb[temurin-21-jre-armhf_21.0.6+2.deb] directly from OpenEMS.
+
 ==== Create an application directory
 
 Create the directory */opt/openems-backend*. This is going to be the place, where we put the JAR file.

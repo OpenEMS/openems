@@ -10,6 +10,7 @@ import { EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
     templateUrl: "./overview.html",
+    standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
     protected navigationButtons: NavigationOption[] = [];

@@ -183,6 +183,8 @@ export class EdgeConfig {
                         "Controller.Api.ModbusTcp",
                         "Controller.Api.ModbusTcp.ReadOnly",
                         "Controller.Api.ModbusTcp.ReadWrite",
+                        "Controller.Api.ModbusRtu.ReadOnly",
+                        "Controller.Api.ModbusRtu.ReadWrite",
                         "Controller.Api.MQTT",
                         "Controller.Api.Rest.ReadOnly",
                         "Controller.Api.Rest.ReadWrite",

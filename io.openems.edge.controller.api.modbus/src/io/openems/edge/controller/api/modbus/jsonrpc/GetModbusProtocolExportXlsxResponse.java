@@ -25,8 +25,6 @@ import io.openems.edge.common.modbusslave.ModbusType;
 /**
  * Represents a JSON-RPC Response for 'getModbusProtocolExportXlsx'.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

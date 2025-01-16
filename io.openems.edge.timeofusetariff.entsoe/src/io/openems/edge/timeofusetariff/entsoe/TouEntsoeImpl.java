@@ -122,6 +122,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		var toDate = fromDate.plusDays(1);
 		var unableToUpdatePrices = false;
+		var preferredResolution = this.config.resolution();
 
 		try {
 			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
@@ -130,7 +131,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			final double exchangeRate = getExchangeRateOrElse(entsoeCurrency, globalCurrency, 1.);
 
 			// Parse the response for the prices
-			this.prices.set(parsePrices(result, exchangeRate));
+			this.prices.set(parsePrices(result, exchangeRate, preferredResolution));
 
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			this.logWarn(this.log, "Unable to Update Entsoe Time-Of-Use Price: " + e.getMessage());

@@ -10,6 +10,7 @@ import { AbstractHistoryWidget } from "../abstracthistorywidget";
 @Component({
     selector: HeatpumpWidgetComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 

@@ -59,7 +59,7 @@ public class ReadWorkerTest {
 		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, this.now);
 		assertEquals(0, result);
 	}
-	
+
 	@Test
 	public void testEdgeCaseReportNearNow() {
 		LocalDateTime lastReport1 = this.now.minusSeconds(Report.REPORT1.getRequestSeconds() - 1);

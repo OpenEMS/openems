@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { AfterContentChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, effect } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
-import { ViewWillEnter } from "@ionic/angular";
+import { ModalController, PopoverController, ViewWillEnter } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
 
@@ -11,20 +11,26 @@ import { AppService } from "../app.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { States } from "../shared/ngrx-store/states";
 import { Edge, Service, Utils, Websocket } from "../shared/shared";
+import { UserComponent } from "../user/user.component";
 
 @Component({
   selector: "login",
   templateUrl: "./login.component.html",
+  standalone: false,
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
+
+  public currentThemeMode: string;
   public environment = environment;
   public form: FormGroup;
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
+  protected showPassword: boolean = false;
   protected readonly operatingSystem = AppService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
+
 
   constructor(
     public service: Service,
@@ -33,7 +39,15 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     private router: Router,
     private route: ActivatedRoute,
     private cdref: ChangeDetectorRef,
-  ) { }
+    protected popoverctrl: PopoverController,
+    protected modalctrl: ModalController,
+  ) {
+    effect(() => {
+      const user = this.service.currentUser();
+      this.currentThemeMode = UserComponent.getPreferedColorSchemeFromTheme(UserComponent.getCurrentTheme(user));
+      UserComponent.applyUserSettings(user);
+    });
+  }
 
   /**
    * Preprocesses the credentials
@@ -152,4 +166,5 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
       this.popoverActive = operatingSystem;
     }
   }
+
 }

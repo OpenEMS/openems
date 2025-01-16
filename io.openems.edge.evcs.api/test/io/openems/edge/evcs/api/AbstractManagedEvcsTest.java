@@ -62,8 +62,7 @@ public class AbstractManagedEvcsTest {
 		// validator checks the write value
 		// (.output(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT, 15000))
 		assertEquals("Check next value of setChargePowerLimit", 15000, //
-				(EVCS0.<IntegerReadChannel>channel(SET_CHARGE_POWER_LIMIT)).getNextValue()
-						.orElse(0).intValue());
+				(EVCS0.<IntegerReadChannel>channel(SET_CHARGE_POWER_LIMIT)).getNextValue().orElse(0).intValue());
 
 		test //
 				.next(new TestCase("Check ChargeState after 'getMinimumTimeTillCharingLimitTaken'") //
@@ -195,8 +194,7 @@ public class AbstractManagedEvcsTest {
 		// (.output(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT,
 		// initialResult))
 		assertEquals("Check next value of setChargePowerLimit", initialResult, //
-				(EVCS2.<IntegerReadChannel>channel(SET_CHARGE_POWER_LIMIT)).getNextValue()
-						.orElse(0).intValue());
+				(EVCS2.<IntegerReadChannel>channel(SET_CHARGE_POWER_LIMIT)).getNextValue().orElse(0).intValue());
 
 		int increasingValue = (int) (MAXIMUM * EVCS2.getEvcsPower().getIncreaseRate());
 		test //

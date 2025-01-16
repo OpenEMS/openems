@@ -150,7 +150,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
-		this.energyScheduleHandler.triggerReschedule();
+		this.energyScheduleHandler.triggerReschedule("TimeOfUseTariffControllerImpl::modified()");
 	}
 
 	private synchronized void applyConfig(Config config) {
@@ -270,17 +270,17 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	 */
 	public static EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> buildEnergyScheduleHandler(
 			Supplier<ManagedSymmetricEss> ess, Supplier<ControlMode> controlMode, IntSupplier maxChargePowerFromGrid) {
-		return EnergyScheduleHandler.of(//
-				StateMachine.BALANCING, //
-				() -> controlMode.get().states, //
-				simContext -> {
+		return EnergyScheduleHandler.WithDifferentStates.<StateMachine, EshContext>create() //
+				.setDefaultState(StateMachine.BALANCING) //
+				.setAvailableStates(() -> controlMode.get().states) //
+				.setContextFunction(simContext -> {
 					// Maximium-SoC in CHARGE_GRID is 90 %
 					var maxSocEnergyInChargeGrid = round(simContext.ess().totalEnergy() * (ESS_MAX_SOC / 100));
 					var essChargeInChargeGrid = calculateChargeEnergyInChargeGrid(simContext);
 					return new EshContext(ess.get(), controlMode.get(), maxChargePowerFromGrid.getAsInt(),
 							maxSocEnergyInChargeGrid, essChargeInChargeGrid);
-				}, //
-				(simContext, period, energyFlow, ctrlContext, state) -> {
+				}) //
+				.setSimulator((simContext, period, energyFlow, ctrlContext, state) -> {
 					switch (state) {
 					case BALANCING -> applyBalancing(energyFlow); // TODO Move to CtrlBalancing
 					case DELAY_DISCHARGE -> applyDelayDischarge(energyFlow);
@@ -290,8 +290,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 						applyChargeGrid(energyFlow, ctrlContext.essChargeInChargeGrid);
 					}
 					}
-				}, //
-				Utils::postprocessSimulatorState);
+					return 0.;
+				}) //
+				.setPostProcessor(Utils::postprocessSimulatorState) //
+				.build();
 	}
 
 	/**

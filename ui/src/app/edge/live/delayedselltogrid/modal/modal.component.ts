@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../shared/shared"
 @Component({
     selector: DelayedSellToGridModalComponent.SELECTOR,
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class DelayedSellToGridModalComponent implements OnInit {
 

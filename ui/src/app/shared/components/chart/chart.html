@@ -1,19 +1,19 @@
 <ng-container *ngIf="edge">
   <ion-header>
-    <ion-toolbar color="primary">
-      <ion-title>{{title}}</ion-title>
-      <ion-buttons slot="end">
+    <ion-toolbar style="--background: var(--ion-color-toolbar-primary);">
+      <ion-title style="color: var(--ion-title-color);">{{title}}</ion-title>
+      <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="end">
         <ion-button routerLink="/device/{{edge.id}}/history">
-          <ion-icon name="close-outline"></ion-icon>
+          <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-buttons slot="start" *ngIf="showPopover">
+      <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="start" *ngIf="showPopover">
         <ion-button (click)="presentPopover()">
-          <ion-icon name="options-outline"></ion-icon>
+          <ion-icon name="options-outline" style="color: var(--ion-title-color);"></ion-icon>
         </ion-button>
       </ion-buttons>
     </ion-toolbar>
-    <ion-toolbar color="primary">
+    <ion-toolbar color="secondary">
       <ion-buttons class="ion-justify-content-center">
         <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
         <pickdate *ngIf="!ref.children.length"></pickdate>

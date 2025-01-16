@@ -6,11 +6,13 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 
 @Component({
     selector: "scheduleChart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -86,7 +88,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 {
                     name: this.translate.instant("General.gridBuy"),
                     converter: () => data["GridBuy"],
-                    color: "rgb(0,0,0)",
+                    color: ChartConstants.Colors.BLUE_GREY,
                     yAxisId: ChartAxis.RIGHT_2,
                     custom: {
                         type: "line",
@@ -105,6 +107,9 @@ export class ChartComponent extends AbstractHistoryChart {
                 position: "left",
                 yAxisId: ChartAxis.LEFT,
                 customTitle: Currency.getChartCurrencyUnitLabel(currency),
+                scale: {
+                    dynamicScale: true,
+                },
             },
             {
                 unit: YAxisType.PERCENTAGE,
@@ -168,9 +173,17 @@ export class ChartComponent extends AbstractHistoryChart {
                     el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
                     return el;
                 });
+
+                const chartObject = this.chartObject;
                 this.options.scales[ChartAxis.LEFT].ticks = {
-                    ...this.options.scales[ChartAxis.LEFT].ticks,
-                    ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(this.chartObject.yAxes.find(el => el.unit === YAxisType.CURRENCY), this.translate, "line", this.datasets, true).ticks,
+                    callback: function (value, index, ticks) {
+                        if (index == (ticks.length - 1)) {
+                            const upperMostTick = chartObject.yAxes.find(el => el.unit === YAxisType.CURRENCY).customTitle;
+                            AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
+                            return upperMostTick;
+                        }
+                        return value;
+                    },
                 };
                 this.options.scales.x["offset"] = false;
                 this.options["animation"] = false;
@@ -236,6 +249,11 @@ export class ChartComponent extends AbstractHistoryChart {
             })
             .reduce((acc, curr) => acc.concat(curr), []);
 
-        return finalArray.length > 0 ? Math.floor(Math.min(...finalArray)) : 0;
+        if (finalArray.length === 0) {
+            return 0;
+        }
+
+        const min = Math.floor(Math.min(...finalArray));
+        return Math.floor(min - (min * 0.05));
     }
 }

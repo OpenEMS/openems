@@ -357,7 +357,6 @@ public final class UtilsV1 {
 	/**
 	 * Updates the active Schedule with a new Schedule.
 	 * 
-	 * <p>
 	 * <ul>
 	 * <li>Period of the currently active Quarter is never changed
 	 * <li>Old Periods are removed from the Schedule

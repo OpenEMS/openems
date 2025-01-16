@@ -14,6 +14,7 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
 @Component({
   selector: ProfileComponent.SELECTOR,
   templateUrl: "./profile.component.html",
+  standalone: false,
 })
 export class ProfileComponent implements OnInit {
 
@@ -45,11 +46,11 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  public getModbusProtocol(componentId: string) {
+  public getModbusProtocol(componentId: string, type: string) {
     this.service.getCurrentEdge().then(edge => {
       const request = new ComponentJsonApiRequest({ componentId: componentId, payload: new GetModbusProtocolExportXlsxRequest() });
       edge.sendRequest(this.service.websocket, request).then(response => {
-        Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-TCP-" + edge.id);
+        Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-" + type + "-" + edge.id);
       }).catch(reason => {
         this.service.toast(this.translate.instant("Edge.Config.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL") + ": " + (reason as JsonrpcResponseError).error.message, "danger");
       });

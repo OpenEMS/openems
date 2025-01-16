@@ -83,8 +83,9 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
  * </pre>
  */
 @Component(name = "App.Evcs.Alpitronic")
-public class AlpitronicEvcs extends
-		AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter> implements OpenemsApp, HostSupplier {
+public class AlpitronicEvcs
+		extends AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter>
+		implements OpenemsApp, HostSupplier {
 
 	public static interface ParentProperty extends Type<ParentProperty, AlpitronicEvcs, Parameter.BundleParameter> {
 

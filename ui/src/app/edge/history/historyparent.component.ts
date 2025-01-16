@@ -7,5 +7,6 @@ import { Component } from "@angular/core";
     <ion-router-outlet>
 </ion-router-outlet>
     `,
+    standalone: false,
 })
 export class HistoryParentComponent { }

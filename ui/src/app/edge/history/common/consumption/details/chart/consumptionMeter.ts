@@ -5,11 +5,12 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
 
 @Component({
   selector: "consumptionMeterChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ConsumptionMeterChartDetailsComponent extends AbstractHistoryChart {
 
@@ -31,7 +32,7 @@ export class ConsumptionMeterChartDetailsComponent extends AbstractHistoryChart 
           name: component.alias,
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data[component.id + "/ActiveProductionEnergy"],
           converter: () => data[component.id],
-          color: "rgb(0,152,204)",
+          color: ChartConstants.Colors.RED,
           hiddenOnInit: false,
           stack: 2,
         },

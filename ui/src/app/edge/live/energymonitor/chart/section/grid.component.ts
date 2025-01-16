@@ -37,6 +37,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
             transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
+    standalone: false,
 })
 export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -54,7 +55,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super("General.grid", "left", "#1d1d1d", translate, service, "Grid");
+        super("General.grid", "left", "var(--ion-color-dark)", translate, service, "Grid");
         this.unitpipe = unitpipe;
     }
 

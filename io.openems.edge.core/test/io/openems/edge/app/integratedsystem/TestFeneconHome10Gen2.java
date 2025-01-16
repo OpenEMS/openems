@@ -99,7 +99,8 @@ public class TestFeneconHome10Gen2 {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome10Gen2}.
+	 * Gets a {@link JsonObject} with the full settings for a
+	 * {@link FeneconHome10Gen2}.
 	 * 
 	 * @return the settings object
 	 */

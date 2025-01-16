@@ -8,7 +8,7 @@ import { IonicModule } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { FormlyIonicModule } from "@ngx-formly/ionic";
 import { TranslateModule } from "@ngx-translate/core";
-import { NgChartsModule } from "ng2-charts";
+import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from "../app-routing.module";
 import { ComponentsModule } from "./components/components.module";
@@ -20,6 +20,7 @@ import { FormlyWrapperFormFieldComponent } from "./components/formly/form-field.
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formlyfieldmodal";
 import { FormlyFieldRadioWithImageComponent } from "./components/formly/formly-field-radio-with-image/formly-field-radio-with-image";
+import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
@@ -79,6 +80,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "input", component: InputTypeComponent },
         { name: "repeat", component: RepeatTypeComponent },
         { name: "multi-step", component: FormlyFieldMultiStepComponent },
+        { name: "select", component: FormlySelectComponent },
       ],
       validators: [
         { name: "ip", validation: IpValidator },
@@ -93,7 +95,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorModule,
     IonicModule,
     MeterModule,
-    NgChartsModule,
+    BaseChartDirective,
     NgxSpinnerModule.forRoot({
       type: "ball-clip-rotate-multiple",
     }),
@@ -121,6 +123,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PanelWrapperComponent,
     PercentageBarComponent,
     RepeatTypeComponent,
+    FormlySelectComponent,
   ],
   exports: [
     AppHeaderComponent,
@@ -137,7 +140,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorModule,
     IonicModule,
     MeterModule,
-    NgChartsModule,
+    BaseChartDirective,
     NgxSpinnerModule,
     PercentageBarComponent,
     PipeModule,

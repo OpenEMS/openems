@@ -11,6 +11,7 @@ interface MyCategorizedComponents extends CategorizedComponents {
 @Component({
   selector: IndexComponent.SELECTOR,
   templateUrl: "./index.component.html",
+  standalone: false,
 })
 export class IndexComponent implements OnInit {
 

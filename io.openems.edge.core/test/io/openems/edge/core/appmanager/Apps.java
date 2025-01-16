@@ -12,6 +12,9 @@ import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
 import io.openems.edge.app.TestMultipleIds;
+import io.openems.edge.app.TestPermissions;
+import io.openems.edge.app.api.ModbusRtuApiReadOnly;
+import io.openems.edge.app.api.ModbusRtuApiReadWrite;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
@@ -29,6 +32,7 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
@@ -320,6 +324,16 @@ public final class Apps {
 		return app(t, TechbaseCm4sGen2::new, "App.OpenemsHardware.CM4S.Gen2");
 	}
 
+	/**
+	 * Test method for creating a {@link TestPermissions}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
+		return app(t, TestPermissions::new, "App.Test.TestPermissions");
+	}
+	
 	// Test
 
 	/**
@@ -385,6 +399,26 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link ModbusRtuApiReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ModbusRtuApiReadOnly modbusRtuApiReadOnly(AppManagerTestBundle t) {
+		return app(t, ModbusRtuApiReadOnly::new, "App.Api.ModbusRtu.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link ModbusRtuApiReadWrite}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ModbusRtuApiReadWrite modbusRtuApiReadWrite(AppManagerTestBundle t) {
+		return app(t, ModbusRtuApiReadWrite::new, "App.Api.ModbusRtu.ReadWrite");
+	}
+
+	/**
 	 * Test method for creating a {@link RestJsonApiReadOnly}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -424,6 +458,16 @@ public final class Apps {
 	 */
 	public static final KebaEvcs kebaEvcs(AppManagerTestBundle t) {
 		return app(t, KebaEvcs::new, "App.Evcs.Keba");
+	}
+
+	/**
+	 * Test method for creating a {@link MennekesEvcsReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final MennekesEvcsReadOnly mennekesEvcsReadOnlyEvcs(AppManagerTestBundle t) {
+		return app(t, MennekesEvcsReadOnly::new, "App.Evcs.Mennekes.ReadOnly");
 	}
 
 	/**
@@ -771,12 +815,11 @@ public final class Apps {
 				t.componentUtil, t.appManagerUtil);
 	}
 
-	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor,
-			String appId) {
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor, String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.host);
 	}
-	
+
 	private static interface DefaultAppConstructor<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
@@ -797,5 +840,5 @@ public final class Apps {
 				ComponentUtil componentUtil, Host host);
 
 	}
-	
+
 }

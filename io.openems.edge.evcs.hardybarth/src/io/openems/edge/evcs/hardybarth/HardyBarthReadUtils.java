@@ -26,8 +26,8 @@ import io.openems.edge.evcs.api.Status;
 public class HardyBarthReadUtils {
 	private final EvcsHardyBarthImpl parent;
 
-	private int chargingFinishedCounter = 0;
 	private int errorCounter = 0;
+	private int undefinedErrorCounter = 0;
 
 	public HardyBarthReadUtils(EvcsHardyBarthImpl parent) {
 		this.parent = parent;
@@ -59,9 +59,20 @@ public class HardyBarthReadUtils {
 				"secc", "port0", "metering", "energy", "active_import", "actual"));
 
 		// Current
-		final var currentL1 = getAsIntOrElse(json, 0, "secc", "port0", "metering", "current", "ac", "l1", "actual");
-		final var currentL2 = getAsIntOrElse(json, 0, "secc", "port0", "metering", "current", "ac", "l2", "actual");
-		final var currentL3 = getAsIntOrElse(json, 0, "secc", "port0", "metering", "current", "ac", "l3", "actual");
+		final var currentL1 = getAsInteger(json, 1, "secc", "port0", "metering", "current", "ac", "l1", "actual");
+		final var currentL2 = getAsInteger(json, 1, "secc", "port0", "metering", "current", "ac", "l2", "actual");
+		final var currentL3 = getAsInteger(json, 1, "secc", "port0", "metering", "current", "ac", "l3", "actual");
+
+		// Checks if value are null and if they are checks if its the third error or
+		// more
+		// and otherwise returns, so that no new values are written this cycle
+		// TODO: find a better long term solution
+		if (currentL1 == null || currentL2 == null || currentL3 == null) {
+			this.parent.logDebug("Invalid current values detected");
+			if (this.handleUndefinedError()) {
+				return;
+			}
+		}
 
 		// Power
 		final var activePowerL1 = getAsInteger(json, SCALE_FACTOR_MINUS_1, //
@@ -75,6 +86,20 @@ public class HardyBarthReadUtils {
 		final var voltageL1 = activePowerL1 == null ? null : round(activePowerL1 * 1_000_000F / currentL1);
 		final var voltageL2 = activePowerL2 == null ? null : round(activePowerL2 * 1_000_000F / currentL2);
 		final var voltageL3 = activePowerL3 == null ? null : round(activePowerL3 * 1_000_000F / currentL3);
+
+		if (activePowerL1 == null || activePowerL2 == null || activePowerL3 == null) {
+			this.parent.logDebug("Active power values are null");
+			if (this.handleUndefinedError()) {
+				return;
+			}
+		}
+
+		if (voltageL1 == null || voltageL2 == null || voltageL3 == null) {
+			this.parent.logDebug("Voltage values are null");
+			if (this.handleUndefinedError()) {
+				return;
+			}
+		}
 
 		var rp = RotatedPhases.from(phaseRotation, //
 				voltageL1, currentL1, activePowerL1, //
@@ -102,7 +127,16 @@ public class HardyBarthReadUtils {
 				"secc", "port0", "metering", "power", "active_total", "actual")) //
 				.map(p -> p < 100 ? 0 : p) // Ignore the consumption of the charger itself
 				.orElse(null);
+
+		if (activePower == null) {
+			this.parent.logDebug("Active Power invalid");
+			if (this.handleUndefinedError()) {
+				return;
+			}
+		}
+
 		this.parent._setActivePower(activePower);
+		this.undefinedErrorCounter = 0;
 
 		// STATUS
 		var status = getValueFromJson(STRING, json, value -> {
@@ -122,17 +156,8 @@ public class HardyBarthReadUtils {
 				var tmpStatus = Status.READY_FOR_CHARGING;
 
 				// Detect if the car is full
-				if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)
-						&& activePower <= 0) {
-
-					if (this.chargingFinishedCounter >= 90) {
-						tmpStatus = Status.CHARGING_FINISHED;
-					} else {
-						this.chargingFinishedCounter++;
-					}
-				} else {
-					this.chargingFinishedCounter = 0;
-
+				if (!(this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)
+						&& activePower <= 0)) {
 					// Charging rejected because we are forcing to pause charging
 					if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
 						tmpStatus = Status.CHARGING_REJECTED;
@@ -156,9 +181,6 @@ public class HardyBarthReadUtils {
 			}
 			};
 
-			if (!stringValue.equals("B")) {
-				this.chargingFinishedCounter = 0;
-			}
 			if (!stringValue.equals("E") || !stringValue.equals("F")) {
 				this.errorCounter = 0;
 			}
@@ -176,13 +198,9 @@ public class HardyBarthReadUtils {
 				jsonPaths);
 	}
 
-	private static int getAsIntOrElse(JsonElement json, int orElse, String... jsonPaths) {
-		var result = getValueFromJson(INTEGER, json, //
-				value -> TypeUtils.<Integer>getAsType(INTEGER, value), //
-				jsonPaths);
-		return result == null //
-				? orElse //
-				: result;
+	private boolean handleUndefinedError() {
+		this.undefinedErrorCounter++;
+		return this.undefinedErrorCounter <= 3;
 	}
 
 	/**

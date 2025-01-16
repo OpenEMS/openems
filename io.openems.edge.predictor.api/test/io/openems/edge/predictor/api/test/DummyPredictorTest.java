@@ -1,6 +1,6 @@
 package io.openems.edge.predictor.api.test;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.predictor.api.test.DummyPredictorManagerTest.SUM_PRODUCTION_ACTIVE_POWER;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.Assert.assertEquals;

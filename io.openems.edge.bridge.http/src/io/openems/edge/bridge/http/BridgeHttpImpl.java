@@ -20,6 +20,7 @@ import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.types.DebugMode;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpExecutor;
@@ -145,6 +146,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 
 	private final Set<TimeEndpointCountdown> timeEndpoints = ConcurrentHashMap.newKeySet();
 
+	private DebugMode debugMode = DebugMode.OFF;
+
 	@Activate
 	public BridgeHttpImpl(//
 			@Reference final CycleSubscriber cycleSubscriber, //
@@ -168,6 +171,11 @@ public class BridgeHttpImpl implements BridgeHttp {
 		this.cycleEndpoints.clear();
 		this.timeEndpoints.forEach(TimeEndpointCountdown::shutdown);
 		this.timeEndpoints.clear();
+	}
+
+	@Override
+	public void setDebugMode(DebugMode debugMode) {
+		this.debugMode = debugMode;
 	}
 
 	@Override
@@ -202,7 +210,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 		final var future = new CompletableFuture<HttpResponse<String>>();
 		this.pool.execute(() -> {
 			try {
-				final var result = this.urlFetcher.fetchEndpoint(endpoint);
+				final var result = this.urlFetcher.fetchEndpoint(endpoint, this.debugMode);
 				future.complete(result);
 			} catch (HttpError e) {
 				future.completeExceptionally(e);
@@ -252,7 +260,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 	private Runnable createTask(CycleEndpointCountdown endpointItem) {
 		return () -> {
 			try {
-				final var result = this.urlFetcher.fetchEndpoint(endpointItem.getCycleEndpoint().endpoint().get());
+				final var result = this.urlFetcher.fetchEndpoint(endpointItem.getCycleEndpoint().endpoint().get(),
+						this.debugMode);
 				endpointItem.getCycleEndpoint().onResult().accept(result);
 			} catch (HttpError e) {
 				endpointItem.getCycleEndpoint().onError().accept(e);
@@ -275,7 +284,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 			HttpResponse<String> result = null;
 			HttpError error = null;
 			try {
-				result = this.urlFetcher.fetchEndpoint(endpointCountdown.getTimeEndpoint().endpoint().get());
+				result = this.urlFetcher.fetchEndpoint(endpointCountdown.getTimeEndpoint().endpoint().get(),
+						this.debugMode);
 				endpointCountdown.getTimeEndpoint().onResult().accept(result);
 			} catch (HttpError e) {
 				endpointCountdown.getTimeEndpoint().onError().accept(e);

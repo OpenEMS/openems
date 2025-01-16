@@ -703,4 +703,13 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 				.channel(11, ChannelId.MINIMUM_POWER, ModbusType.UINT16) //
 				.build();
 	}
+
+	/**
+	 * Defines if the evcs is read only.
+	 * 
+	 * @return true if the evcs is read-only
+	 */
+	public default boolean isReadOnly() {
+		return false;
+	}
 }

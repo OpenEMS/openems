@@ -8,6 +8,7 @@ import { OverrideStatus } from "src/app/shared/type/general";
 
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -46,8 +47,8 @@ export class ModalComponent extends AbstractModal {
     });
   }
 
-  protected getModbusProtocol(componentId: string) {
-    return this.profile.getModbusProtocol(componentId);
+  protected getModbusProtocol(componentId: string, type: string) {
+    return this.profile.getModbusProtocol(componentId, type);
   }
 
   protected override onCurrentData(currentData: CurrentData) {
