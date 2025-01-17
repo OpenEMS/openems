@@ -43,7 +43,7 @@ import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-        name = "Predictor.WeatherForecastMode", //
+        name = "Predictor.PV.WeatherForecastModel", //
         immediate = true, //
         configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
