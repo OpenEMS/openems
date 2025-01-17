@@ -23,7 +23,8 @@
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" style="--background: var(--ion-color-toolbar-primary);">
             <ion-title class="ion-text-start ion-padding-left" style="color: var(--ion-title-color);"
-                translate>General.storageSystem</ion-title>
+                translate>General.storageSystem
+              </ion-title>
             <ion-buttons style="color: var(--ion-color-white);" slot="start">
                 <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
                     [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
@@ -93,8 +94,7 @@
                             </tr>
                         </table>
                         <storageESSChart [showPhases]="showPhases" [period]="service.historyPeriod.value"
-                            [componentId]="component.id">
-                        </storageESSChart>
+                            [componentId]="component.id"></storageESSChart>
                     </ion-card-content>
                 </ng-container>
                 <ng-container *ngTemplateOutlet="infoStorageText"></ng-container>
