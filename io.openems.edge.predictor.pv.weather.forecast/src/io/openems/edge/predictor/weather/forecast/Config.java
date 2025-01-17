@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 @ObjectClassDefinition(//
-		name = "Predictor Weather Forecast-Model from Openmeteo", //
+		name = "PV Predictor- Weather Forecast-Model from Openmeteo", //
 		description = "PV Production Power Prediction using Openmeteo weather forecast api")
 @interface Config {
 
