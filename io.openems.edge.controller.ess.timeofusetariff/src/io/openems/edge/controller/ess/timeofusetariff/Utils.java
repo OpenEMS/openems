@@ -234,13 +234,14 @@ public final class Utils {
 	 * @return the set-point
 	 */
 	public static int calculateDelayDischargePower(ManagedSymmetricEss ess) {
-		if (ess instanceof HybridEss e) {
+		return switch (ess) {
+		case HybridEss e ->
 			// Limit discharge to DC-PV power
-			return max(0, ess.getActivePower().orElse(0) - e.getDcDischargePower().orElse(0));
-		} else {
+			max(0, ess.getActivePower().orElse(0) - e.getDcDischargePower().orElse(0));
+		default ->
 			// Limit discharge to 0
-			return 0;
-		}
+			0;
+		};
 	}
 
 	/**

@@ -1,8 +1,8 @@
 package io.openems.edge.controller.api.modbus;
 
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -20,7 +20,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -38,10 +37,10 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
+import io.openems.edge.controller.api.common.ApiWorker.WriteHandler;
 import io.openems.edge.controller.api.common.Status;
 import io.openems.edge.controller.api.common.WriteObject;
 import io.openems.edge.controller.api.common.WritePojo;
-import io.openems.edge.controller.api.common.ApiWorker.WriteHandler;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxResponse;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolRequest;
@@ -237,13 +236,13 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	}
 
 	protected synchronized void addComponent(OpenemsComponent component) {
-		if (!(component instanceof ModbusSlave)) {
+		if (!(component instanceof ModbusSlave ms)) {
 			this.logError(this.log, "Component [" + component.id() + "] does not implement ModbusSlave");
 			this.invalidComponents.add(component);
 			this._setComponentNoModbusApiFault(true);
 			return;
 		}
-		this._components.add((ModbusSlave) component);
+		this._components.add(ms);
 		this.updateComponents();
 	}
 
@@ -266,10 +265,10 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	protected void updateCycleValues() {
 		this.records.values() //
 				.stream() //
-				.filter(r -> r instanceof ModbusRecordCycleValue) //
-				.map(r -> (ModbusRecordCycleValue<OpenemsComponent>) r) //
+				.filter(ModbusRecordCycleValue.class::isInstance) //
+				.map(ModbusRecordCycleValue.class::cast) //
 				.forEach(r -> {
-					OpenemsComponent component = this.getPossiblyDisabledComponent(r.getComponentId());
+					var component = this.getPossiblyDisabledComponent(r.getComponentId());
 					if (component != null && component.isEnabled()) {
 						r.updateValue(component);
 					} else {
@@ -332,16 +331,14 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		record.setComponentId(component.id());
 
 		// Handle writes to the Channel; limited to ModbusRecordChannels
-		if (record instanceof ModbusRecordChannel) {
-			var r = (ModbusRecordChannel) record;
+		if (record instanceof ModbusRecordChannel r) {
 			r.onWriteValue(value -> {
-				Channel<?> readChannel = component.channel(r.getChannelId());
-				if (!(readChannel instanceof WriteChannel)) {
+				var readChannel = component.channel(r.getChannelId());
+				if (!(readChannel instanceof WriteChannel wc)) {
 					this.logWarn(this.log, "Unable to write to Read-Only-Channel [" + readChannel.address() + "]");
 					return;
 				}
-				WriteChannel<?> channel = (WriteChannel<?>) readChannel;
-				this.apiWorker.addValue(channel, new WritePojo(value));
+				this.apiWorker.addValue(wc, new WritePojo(value));
 			});
 		}
 

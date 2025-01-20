@@ -1,6 +1,6 @@
-package io.openems.edge.controller.heating.room;
+package io.openems.edge.controller.io.heating.room;
 
-import static io.openems.edge.controller.heating.room.Utils.getNextHighPeriod;
+import static io.openems.edge.controller.io.heating.room.Utils.getNextHighPeriod;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZoneId;

@@ -1,5 +1,6 @@
 package io.openems.edge.common.test;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
@@ -30,7 +31,6 @@ import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
@@ -549,8 +549,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 					readWriteInfo = "ReadValue";
 				}
 				// Try to parse an Enum
-				if (channel.channelDoc() instanceof EnumDoc) {
-					var enumDoc = (EnumDoc) channel.channelDoc();
+				if (channel.channelDoc() instanceof EnumDoc enumDoc) {
 					var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
 					got = enumDoc.getOption(intGot);
 				}
@@ -576,25 +575,22 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		private Channel<?> getChannel(AbstractComponentTest<?, ?> act, ChannelValue cv)
 				throws IllegalArgumentException {
-			if (cv instanceof ChannelAddressValue cav) {
+			return switch (cv) {
+			case ChannelAddressValue cav -> {
 				var component = this.getComponent(act.components, cav.address.getComponentId());
-				return component.channel(cav.address.getChannelId());
+				yield component.channel(cav.address.getChannelId());
 			}
-
-			if (cv instanceof ChannelIdValue civ) {
-				return act.sut.channel(civ.channelId);
-			}
-
-			if (cv instanceof ChannelNameValue civ2) {
-				return act.sut.channel(civ2.channelName);
-			}
-
-			if (cv instanceof ComponentChannelIdValue cciv) {
+			case ChannelIdValue civ //
+				-> act.sut.channel(civ.channelId);
+			case ChannelNameValue civ2 //
+				-> act.sut.channel(civ2.channelName);
+			case ComponentChannelIdValue cciv -> {
 				var component = this.getComponent(act.components, cciv.componentId());
-				return component.channel(cciv.channelId());
+				yield component.channel(cciv.channelId());
 			}
-
-			throw new IllegalArgumentException("Unhandled subtype of ChannelValue");
+			default //
+				-> throw new IllegalArgumentException("Unhandled subtype of ChannelValue");
+			};
 		}
 	}
 
@@ -695,23 +691,25 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		// Store reference
 		this.references.add(object);
 
-		// If this is a DummyComponentManager -> fill it with existing Components
-		if (object instanceof DummyComponentManager) {
-			for (OpenemsComponent component : this.components.values()) {
-				((DummyComponentManager) object).addComponent(component);
-			}
+		switch (object) {
+		case DummyComponentManager dcm ->
+			// If this is a DummyComponentManager -> fill it with existing Components
+			this.components.values() //
+					.forEach(dcm::addComponent);
+
+		case OpenemsComponent oc ->
+			// If this is an OpenemsComponent -> store it for later
+			this.addComponent(oc);
+
+		case Collection<?> os -> //
+			os.stream() //
+					.filter(OpenemsComponent.class::isInstance) //
+					.map(OpenemsComponent.class::cast) //
+					.forEach(this::addComponent);
+
+		case null, default -> doNothing();
 		}
-		// If this is an OpenemsComponent -> store it for later
-		if (object instanceof OpenemsComponent) {
-			this.addComponent((OpenemsComponent) object);
-		}
-		if (object instanceof Collection<?>) {
-			for (Object o : (Collection<?>) object) {
-				if (o instanceof OpenemsComponent) {
-					this.addComponent((OpenemsComponent) o);
-				}
-			}
-		}
+
 		return this.self();
 	}
 
@@ -748,11 +746,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.components.put(component.id(), component);
 
 		// Is a DummyComponentManager present -> add this Component
-		for (Object object : this.references) {
-			if (object instanceof DummyComponentManager) {
-				((DummyComponentManager) object).addComponent(component);
-			}
-		}
+		this.references.stream() //
+				.filter(DummyComponentManager.class::isInstance) //
+				.map(DummyComponentManager.class::cast) //
+				.forEach(dcm -> dcm.addComponent(component));
+
 		return this.self();
 	}
 
@@ -770,8 +768,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	public SELF activate(AbstractComponentConfig config) throws Exception {
 		// Add the configuration to ConfigurationAdmin
 		for (Object object : this.references) {
-			if (object instanceof DummyConfigurationAdmin) {
-				var cm = (DummyConfigurationAdmin) object;
+			if (object instanceof DummyConfigurationAdmin cm) {
 				cm.addConfig(config);
 			}
 		}
@@ -802,11 +799,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	private int getConfigChangeCount() throws IOException, InvalidSyntaxException {
 		var result = 0;
-		for (Object object : this.references) {
-			if (object instanceof ConfigurationAdmin) {
-				var cm = (ConfigurationAdmin) object;
-				var configs = cm.listConfigurations(null);
-				for (Configuration config : configs) {
+		for (var object : this.references) {
+			if (object instanceof ConfigurationAdmin cm) {
+				for (var config : cm.listConfigurations(null)) {
 					result += config.getChangeCount();
 				}
 			}

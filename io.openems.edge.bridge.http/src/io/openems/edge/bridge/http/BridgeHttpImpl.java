@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.http;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -197,10 +199,13 @@ public class BridgeHttpImpl implements BridgeHttp {
 		this.timeEndpoints.add(endpointCountdown);
 		final var delay = endpoint.delayTimeProvider().onFirstRunDelay();
 
-		// TODO change in java 21 to switch case
-		if (delay instanceof Delay.DurationDelay durationDelay) {
+		switch (delay) {
+		case Delay.InfiniteDelay infiniteDelay //
+			-> doNothing();
+		case Delay.DurationDelay durationDelay -> {
 			final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
 			endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+		}
 		}
 		return endpoint;
 	}
@@ -308,13 +313,13 @@ public class BridgeHttpImpl implements BridgeHttp {
 					nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().onSuccessRunDelay(result);
 				}
 
-				// TODO change in java 21 to switch case
-				if (nextDelay instanceof Delay.InfiniteDelay) {
-					// do not queue again
-					return;
-				} else if (nextDelay instanceof Delay.DurationDelay durationDelay) {
+				switch (nextDelay) {
+				case Delay.InfiniteDelay infiniteDelay //
+					-> doNothing();
+				case Delay.DurationDelay durationDelay -> {
 					final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
 					endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+				}
 				}
 
 			} catch (Exception e) {

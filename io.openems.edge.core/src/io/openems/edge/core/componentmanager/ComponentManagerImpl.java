@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -555,7 +554,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		Dictionary<String, Object> properties = new Hashtable<>();
 		for (Property property : request.getProperties()) {
 			var value = JsonUtils.getAsBestType(property.getValue());
-			if (value instanceof Object[] && ((Object[]) value).length == 0) {
+			if (value instanceof Object[] os && os.length == 0) {
 				value = new String[0];
 			}
 			properties.put(property.getName(), value);
@@ -600,7 +599,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				} else {
 					// Add updated Property
 					var value = JsonUtils.getAsBestType(property.getValue());
-					if (value instanceof Object[] && ((Object[]) value).length == 0) {
+					if (value instanceof Object[] os && os.length == 0) {
 						value = new String[0];
 					}
 					properties.put(property.getName(), value);

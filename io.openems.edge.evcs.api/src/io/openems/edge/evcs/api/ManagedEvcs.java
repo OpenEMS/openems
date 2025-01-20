@@ -263,8 +263,8 @@ public interface ManagedEvcs extends Evcs {
 
 						evcs.setChargePowerLimit(filterOutput);
 
-						if (evcs instanceof ManagedEvcs) {
-							((ManagedEvcs) evcs).logDebug("Filter: " + value + " -> " + filterOutput);
+						if (evcs instanceof ManagedEvcs me) {
+							me.logDebug("Filter: " + value + " -> " + filterOutput);
 						}
 					}
 				})), //

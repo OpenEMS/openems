@@ -1,9 +1,9 @@
-package io.openems.edge.controller.heating.room;
+package io.openems.edge.controller.io.heating.room;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.controller.heating.room.Mode.AUTOMATIC;
-import static io.openems.edge.controller.heating.room.Mode.MANUAL_LOW;
-import static io.openems.edge.controller.heating.room.Mode.OFF;
+import static io.openems.edge.controller.io.heating.room.Mode.AUTOMATIC;
+import static io.openems.edge.controller.io.heating.room.Mode.MANUAL_LOW;
+import static io.openems.edge.controller.io.heating.room.Mode.OFF;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.Assert.assertEquals;
@@ -21,13 +21,13 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.thermometer.api.Thermometer;
 import io.openems.edge.thermometer.test.DummyThermometer;
 
-public class RoomHeatingControllerImplTest {
+public class ControllerIoRoomHeatingImplTest {
 
 	@Test
 	public void testLow() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new RoomHeatingControllerImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl(clock);
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
@@ -129,7 +129,7 @@ public class RoomHeatingControllerImplTest {
 	public void testAuto() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new RoomHeatingControllerImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl(clock);
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
@@ -183,7 +183,7 @@ public class RoomHeatingControllerImplTest {
 	public void testAutoWrong() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new RoomHeatingControllerImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl(clock);
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
@@ -208,7 +208,7 @@ public class RoomHeatingControllerImplTest {
 	public void testOff() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new RoomHeatingControllerImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl(clock);
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
@@ -228,7 +228,7 @@ public class RoomHeatingControllerImplTest {
 						.onAfterProcessImage(assertLog(sut, "Off")));
 	}
 
-	private static ThrowingRunnable<Exception> assertLog(RoomHeatingControllerImpl sut, String message) {
+	private static ThrowingRunnable<Exception> assertLog(ControllerIoRoomHeatingImpl sut, String message) {
 		return () -> assertEquals(message, sut.debugLog());
 	}
 }

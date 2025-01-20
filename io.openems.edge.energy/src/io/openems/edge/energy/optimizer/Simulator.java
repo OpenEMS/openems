@@ -25,6 +25,7 @@ import io.jenetics.Mutator;
 import io.jenetics.SinglePointCrossover;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -128,11 +129,11 @@ public class Simulator {
 		double cost = 0.;
 		var eshIndex = 0;
 		for (var esh : eshs) {
-			if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
-				// Simulate with state given by Genotype
-				cost += e.simulatePeriod(simulation, period, model, schedule[periodIndex][eshIndex++]);
-			} else if (esh instanceof EnergyScheduleHandler.WithOnlyOneState<?> e) {
-				e.simulatePeriod(simulation, period, model);
+			switch (esh) {
+			case EnergyScheduleHandler.WithDifferentStates<?, ?> e //
+				-> cost += e.simulatePeriod(simulation, period, model, schedule[periodIndex][eshIndex++]);
+			case EnergyScheduleHandler.WithOnlyOneState<?> e //
+				-> e.simulatePeriod(simulation, period, model);
 			}
 		}
 
@@ -167,9 +168,12 @@ public class Simulator {
 			bestScheduleCollector.allPeriods.accept(srp);
 			eshIndex = 0;
 			for (var esh : eshs) {
-				if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
-					bestScheduleCollector.eshStates.accept(new EshToState(e, srp, //
+				switch (esh) {
+				case EnergyScheduleHandler.WithDifferentStates<?, ?> e //
+					-> bestScheduleCollector.eshStates.accept(new EshToState(e, srp, //
 							e.postProcessPeriod(period, simulation, energyFlow, schedule[periodIndex][eshIndex++])));
+				case EnergyScheduleHandler.WithOnlyOneState<?> e //
+					-> FunctionUtils.doNothing();
 				}
 			}
 		}

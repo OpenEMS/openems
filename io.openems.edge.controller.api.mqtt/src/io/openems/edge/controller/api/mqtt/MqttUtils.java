@@ -115,22 +115,15 @@ public class MqttUtils {
 	 */
 	private static PrivateKey loadPrivateKey(String privateKey)
 			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-		try (PEMParser pemParser = new PEMParser(
-				new InputStreamReader(new ByteArrayInputStream(privateKey.getBytes())))) {
-			Object obj = pemParser.readObject();
-			if (obj instanceof PEMKeyPair) {
-				// Handle RSA private key
-				PEMKeyPair pemKeyPair = (PEMKeyPair) obj;
-				JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-				return converter.getPrivateKey(pemKeyPair.getPrivateKeyInfo());
-			} else if (obj instanceof PrivateKeyInfo) {
-				// Handle other private key formats
-				PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) obj;
-				JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-				return converter.getPrivateKey(privateKeyInfo);
-			} else {
-				throw new InvalidKeySpecException("Invalid private key format");
-			}
+		try (var pemParser = new PEMParser(new InputStreamReader(new ByteArrayInputStream(privateKey.getBytes())))) {
+			var converter = new JcaPEMKeyConverter().setProvider("BC");
+			return switch (pemParser.readObject()) {
+			case PEMKeyPair pemKeyPair // Handle RSA private key
+				-> converter.getPrivateKey(pemKeyPair.getPrivateKeyInfo());
+			case PrivateKeyInfo privateKeyInfo // Handle other private key formats
+				-> converter.getPrivateKey(privateKeyInfo);
+			default -> throw new InvalidKeySpecException("Invalid private key format");
+			};
 		}
 	}
 }

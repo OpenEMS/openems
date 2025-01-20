@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.types.DebugMode;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.dummy.DummyEndpointFetcher;
 import io.openems.edge.bridge.http.api.EndpointFetcher;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.dummy.DummyEndpointFetcher;
 
 @Component
 public class NetworkEndpointFetcher implements EndpointFetcher {
