@@ -117,8 +117,7 @@ export class PickDatePopoverComponent implements OnInit {
 
         this.locale = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).key;
         // Restrict user to pick date before ibn-date
-        this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 },
-            this.locale = this.translate.getBrowserLang();
+        this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 };
 
         // Filter out custom due to different on click event
         this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge, this.historyPeriods).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
