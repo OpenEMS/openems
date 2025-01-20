@@ -131,8 +131,8 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	public int getPowerPrecision() {
 		Integer result = null;
 		for (var ess : this.esss) {
-			if (ess instanceof ManagedSymmetricEss) {
-				result = TypeUtils.min(result, ((ManagedSymmetricEss) ess).getPowerPrecision());
+			if (ess instanceof ManagedSymmetricEss ase) {
+				result = TypeUtils.min(result, ase.getPowerPrecision());
 			}
 		}
 		return TypeUtils.orElse(result, 1);

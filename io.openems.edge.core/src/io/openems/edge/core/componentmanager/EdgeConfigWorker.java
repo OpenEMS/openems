@@ -1,5 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
+import static io.openems.common.utils.JsonUtils.getAsOptionalString;
+
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Dictionary;
@@ -261,22 +263,16 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					this.log.warn(config.getPid() + ": Properties is 'null'");
 					continue;
 				}
-				// Read Component-ID
-				String componentId = null;
-				var componentIdObj = properties.get("id");
-				if (componentIdObj instanceof String) {
-					// Read 'id' property
-					componentId = (String) componentIdObj;
 
-				} else {
-					// Singleton
-					for (OpenemsComponent component : this.parent.getAllComponents()) {
-						if (config.getPid().equals(component.serviceFactoryPid())) {
-							componentId = component.id();
-							break;
-						}
-					}
-				}
+				// Read Component-ID
+				var componentId = switch (properties.get("id")) {
+				case String s -> s; // Read 'id' property
+				case null, default -> //
+					this.parent.getAllComponents().stream() //
+							.filter(c -> config.getPid().equals(c.serviceFactoryPid())) //
+							.map(c -> c.id()) //
+							.findFirst().orElse(null);
+				};
 
 				if (componentId == null) {
 					// Use default value for 'id' property
@@ -286,7 +282,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					}
 					var factory = builder.getFactories().get(factoryPid);
 					if (factory != null) {
-						var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
+						var defaultValue = getAsOptionalString(factory.getPropertyDefaultValue("id"));
 						if (defaultValue.isPresent()) {
 							componentId = defaultValue.get();
 						}
@@ -304,19 +300,14 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				var componentAlias = componentId;
 				{
 					var componentAliasObj = properties.get("alias");
-					if (componentAliasObj instanceof String && !((String) componentAliasObj).trim().isEmpty()) {
-						componentAlias = (String) componentAliasObj;
+					if (componentAliasObj instanceof String s && !s.trim().isEmpty()) {
+						componentAlias = s;
 					}
 				}
 
-				String factoryPid;
-				if (config.getFactoryPid() != null) {
-					// Get Factory
-					factoryPid = config.getFactoryPid();
-				} else {
-					// Singleton Component
-					factoryPid = config.getPid();
-				}
+				var factoryPid = config.getFactoryPid() != null //
+						? config.getFactoryPid() // Get Factory
+						: config.getPid(); // Singleton Component
 
 				// Read Factory
 				var factory = builder.getFactories().get(factoryPid);

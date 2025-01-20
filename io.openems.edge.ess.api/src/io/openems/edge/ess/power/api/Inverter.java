@@ -17,45 +17,40 @@ public abstract class Inverter {
 		var essId = ess.id();
 		if (symmetricMode) {
 			// Symmetric Mode -> always return a symmetric ThreePhaseInverter
-			switch (essType) {
-			case SINGLE_PHASE:
-			case ASYMMETRIC:
-			case SYMMETRIC:
-				return new Inverter[] { new ThreePhaseInverter(essId) };
-
-			case META:
-				return new Inverter[0];
-			}
+			return switch (essType) {
+			case SINGLE_PHASE, ASYMMETRIC, SYMMETRIC //
+				-> new Inverter[] { new ThreePhaseInverter(essId) };
+			case META //
+				-> new Inverter[0];
+			};
 		} else {
 			// Asymmetric Mode
-			switch (essType) {
-			case SINGLE_PHASE:
+			return switch (essType) {
+			case SINGLE_PHASE -> {
 				var phase = ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase();
-				return new Inverter[] { //
-						phase == Phase.L1 ? new SinglePhaseInverter(essId, Phase.L1)
+				yield new Inverter[] { //
+						phase == Phase.L1 //
+								? new SinglePhaseInverter(essId, Phase.L1)
 								: new DummyInverter(essId, Phase.L1),
-						phase == Phase.L2 ? new SinglePhaseInverter(essId, Phase.L2)
+						phase == Phase.L2 //
+								? new SinglePhaseInverter(essId, Phase.L2)
 								: new DummyInverter(essId, Phase.L2),
-						phase == Phase.L3 ? new SinglePhaseInverter(essId, Phase.L3)
+						phase == Phase.L3 //
+								? new SinglePhaseInverter(essId, Phase.L3)
 								: new DummyInverter(essId, Phase.L3), //
 				};
-
-			case ASYMMETRIC:
-				return new Inverter[] { //
-						new SinglePhaseInverter(essId, Phase.L1), //
-						new SinglePhaseInverter(essId, Phase.L2), //
-						new SinglePhaseInverter(essId, Phase.L3) //
-				};
-
-			case META:
-				return new Inverter[0];
-
-			case SYMMETRIC:
-				return new Inverter[] { new ThreePhaseInverter(essId) };
 			}
+			case ASYMMETRIC -> new Inverter[] { //
+					new SinglePhaseInverter(essId, Phase.L1), //
+					new SinglePhaseInverter(essId, Phase.L2), //
+					new SinglePhaseInverter(essId, Phase.L3) //
+				};
+			case META //
+				-> new Inverter[0];
+			case SYMMETRIC //
+				-> new Inverter[] { new ThreePhaseInverter(essId) };
+			};
 		}
-		// should never come here
-		return new Inverter[0];
 	}
 
 	private final String essId;

@@ -33,10 +33,9 @@ public abstract class AbstractModbusTcpApi extends AbstractModbusApi
 			if (!super.equals(other)) {
 				return false;
 			}
-			if (!(other instanceof TcpConfig)) {
+			if (!(other instanceof TcpConfig config)) {
 				return false;
 			}
-			TcpConfig config = (TcpConfig) other;
 			return this.port == config.port;
 		}
 

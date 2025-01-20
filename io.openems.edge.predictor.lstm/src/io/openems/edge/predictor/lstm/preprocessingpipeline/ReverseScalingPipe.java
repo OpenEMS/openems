@@ -13,7 +13,7 @@ public class ReverseScalingPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object input) {
-		return (input instanceof double[] inputArray) //
+		return input instanceof double[] inputArray //
 				? scaleBack(inputArray, this.hype.getScalingMin(), this.hype.getScalingMax()) //
 				: new IllegalArgumentException("Input must be an instance of double[]");
 	}

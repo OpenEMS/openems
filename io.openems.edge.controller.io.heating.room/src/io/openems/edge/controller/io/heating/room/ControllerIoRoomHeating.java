@@ -1,4 +1,4 @@
-package io.openems.edge.controller.heating.room;
+package io.openems.edge.controller.io.heating.room;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -8,7 +8,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface RoomHeatingController extends Controller, ElectricityMeter, OpenemsComponent {
+public interface ControllerIoRoomHeating extends Controller, ElectricityMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		FLOOR_ACTUAL(Doc.of(OpenemsType.INTEGER)), //

@@ -821,11 +821,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof AppIdKey)) {
+			if (!(other instanceof AppIdKey aik)) {
 				return false;
 			}
 
-			return ((AppIdKey) other).compareTo(this) == 0;
+			return aik.compareTo(this) == 0;
 		}
 
 		@Override
