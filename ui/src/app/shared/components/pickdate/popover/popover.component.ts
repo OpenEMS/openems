@@ -57,7 +57,7 @@ export class PickDatePopoverComponent implements OnInit {
             .dp1 .myDpSelectedDay,
             .dp1 .myDpSelectedMonth,
             .dp1 .myDpSelectedYear {
-                background-color: #93c47d;
+                background-color: var(--ion-color-primary);
                 }
             .dp1 .myDpTableSingleDay:hover, 
             .dp1 .myDpTableSingleMonth:hover, 
@@ -69,10 +69,10 @@ export class PickDatePopoverComponent implements OnInit {
             .dp1 .myDpMarkCurrMonth, 
             .dp1 .myDpMarkCurrYear {
                 border-bottom: 2px solid #2d8fab;
-                color: #2d8fab;
+                color: var(--ion-color-text);
              }
             .dp1 .myDpRangeColor {
-            background-color: #dbeaff;
+            background-color: var(--ion-color-primary);
             }
 
             .ng-mydp * {
