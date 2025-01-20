@@ -12,7 +12,6 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -23,11 +22,9 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.JsonUtils.JsonArrayBuilder;
 import io.openems.edge.app.TestPermissions.Property;
 import io.openems.edge.app.TestPermissions.TestPermissionsParameter;
 import io.openems.edge.app.common.props.CommonProps;
-import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -38,14 +35,11 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
 import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder;
-import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder.SelectOption;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
 
 /**
@@ -125,7 +119,7 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 		return (t, p, l) -> {
 
 			final var components = new ArrayList<EdgeConfig.Component>();
-			final var updateArray = this.getJsonArray(p, Property.UPDATE_ARRAY);
+			// final var updateArray = this.getJsonArray(p, Property.UPDATE_ARRAY);
 			components.add(new EdgeConfig.Component(this.getId(t, p, Property.ADMIN_ONLY, "id0"), "alias", "factoryId", //
 					new JsonObject()));
 			components.add(
