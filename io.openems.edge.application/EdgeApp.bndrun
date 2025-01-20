@@ -203,7 +203,8 @@
 	bnd.identity;id='io.openems.edge.io.siemenslogo',\
 	bnd.identity;id='io.openems.edge.meter.emh',\
 	bnd.identity;id='io.openems.edge.controller.ess.chargedischargelimiter',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.thresholdpeakshaver'
+	bnd.identity;id='io.openems.edge.controller.symmetric.thresholdpeakshaver',\
+	bnd.identity;id='io.openems.edge.predictor.pv.weather.forecast'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	bcpkix;version='[1.79.0,1.79.1)',\
@@ -456,5 +457,6 @@
 	io.openems.edge.meter.emh;version=snapshot,\
 	io.openems.edge.controller.ess.chargedischargelimiter;version=snapshot,\
 	io.openems.edge.energy;version=snapshot,\
-	io.openems.edge.controller.symmetric.thresholdpeakshaver;version=snapshot
+	io.openems.edge.controller.symmetric.thresholdpeakshaver;version=snapshot,\
+	io.openems.edge.predictor.pv.weather.forecast;version=snapshot
 -resolve: auto
