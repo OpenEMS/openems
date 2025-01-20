@@ -707,7 +707,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 					.map(OpenemsComponent.class::cast) //
 					.forEach(this::addComponent);
 
-		default -> doNothing();
+		case null, default -> doNothing();
 		}
 
 		return this.self();
