@@ -264,14 +264,17 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					continue;
 				}
 
+				// Prepare the fallback for null OR non-String "id"
+				var fallbackId = this.parent.getAllComponents().stream()
+						.filter(c -> config.getPid().equals(c.serviceFactoryPid())).map(c -> c.id()).findFirst()
+						.orElse(null);
+
 				// Read Component-ID
-				var componentId = switch (properties.get("id")) {
-				case String s -> s; // Read 'id' property
-				case null, default -> //
-					this.parent.getAllComponents().stream() //
-							.filter(c -> config.getPid().equals(c.serviceFactoryPid())) //
-							.map(c -> c.id()) //
-							.findFirst().orElse(null);
+				var idObj = properties.get("id");
+				var componentId = switch (idObj) {
+				case String s -> s; // Use 'id' if it's a proper String
+				case null -> fallbackId; // No 'id' => try singleton fallback
+				default -> fallbackId; // 'id' is non-String => also use fallback
 				};
 
 				if (componentId == null) {
