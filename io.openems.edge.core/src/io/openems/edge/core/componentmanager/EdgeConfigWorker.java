@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
@@ -267,11 +268,15 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				// Read Component-ID
 				var componentId = switch (properties.get("id")) {
 				case String s -> s; // Read 'id' property
-				case null, default -> //
-					this.parent.getAllComponents().stream() //
-							.filter(c -> config.getPid().equals(c.serviceFactoryPid())) //
-							.map(c -> c.id()) //
+				case null, default -> {
+					// NOTE: for some reason JRE throws a "java.lang.VerifyError: Inconsistent
+					// stackmap frames at branch target 273" when yielding the value directly
+					var id = this.parent.getAllComponents().stream() //
+							.filter(c -> Objects.equals(config.getPid(), c.serviceFactoryPid())) //
+							.map(OpenemsComponent::id) //
 							.findFirst().orElse(null);
+					yield id;
+				}
 				};
 
 				if (componentId == null) {
