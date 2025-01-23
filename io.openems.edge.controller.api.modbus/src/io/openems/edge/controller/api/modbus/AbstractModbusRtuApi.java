@@ -84,10 +84,9 @@ public abstract class AbstractModbusRtuApi extends AbstractModbusApi
 			if (!super.equals(other)) {
 				return false;
 			}
-			if (!(other instanceof RtuConfig)) {
+			if (!(other instanceof RtuConfig config)) {
 				return false;
 			}
-			RtuConfig config = (RtuConfig) other;
 			return this.baudRate == config.baudRate //
 					&& this.databits == config.databits //
 					&& this.stopbits == config.stopbits //

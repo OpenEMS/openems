@@ -29,7 +29,6 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -204,9 +203,9 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 			var config = this.configurationAdmin.createFactoryConfiguration(request.getFactoryPid(), null);
 
 			// set properties
-			for (Property property : request.getProperties()) {
+			for (var property : request.getProperties()) {
 				var value = JsonUtils.getAsBestType(property.getValue());
-				if (value instanceof Object[] && ((Object[]) value).length == 0) {
+				if (value instanceof Object[] os && os.length == 0) {
 					value = new String[0];
 				}
 				config.getProperties().put(property.getName(), value);

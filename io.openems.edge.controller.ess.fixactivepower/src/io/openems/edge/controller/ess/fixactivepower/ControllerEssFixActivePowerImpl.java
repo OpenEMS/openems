@@ -133,20 +133,18 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	 * @return the AC power set-point
 	 */
 	protected static Integer getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
-		switch (hybridEssMode) {
-		case TARGET_AC:
-			return power;
+		return switch (hybridEssMode) {
+		case TARGET_AC -> power;
 
-		case TARGET_DC:
-			if (ess instanceof HybridEss) {
-				var pv = ess.getActivePower().orElse(0) - ((HybridEss) ess).getDcDischargePower().orElse(0);
-				return pv + power; // Charge or Discharge
-			} else {
-				return power;
+		case TARGET_DC -> //
+			switch (ess) {
+			case HybridEss he -> {
+				var pv = ess.getActivePower().orElse(0) - he.getDcDischargePower().orElse(0);
+				yield pv + power; // Charge or Discharge
 			}
-		}
-
-		return null; /* should never happen */
+			default -> power;
+			};
+		};
 	}
 
 	@Override

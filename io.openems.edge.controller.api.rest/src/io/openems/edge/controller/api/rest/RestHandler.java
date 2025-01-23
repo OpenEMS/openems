@@ -148,13 +148,12 @@ public class RestHandler extends AbstractHandler {
 		var thisTarget = targets.get(0);
 		var remainingTargets = targets.subList(1, targets.size());
 
-		switch (thisTarget) {
-		case "channel":
-			return this.handleChannel(user, remainingTargets, baseRequest, request, response);
-
-		default:
-			throw new OpenemsException("Unhandled REST target [" + thisTarget + "]");
-		}
+		return switch (thisTarget) {
+		case "channel"//
+			-> this.handleChannel(user, remainingTargets, baseRequest, request, response);
+		default //
+			-> throw new OpenemsException("Unhandled REST target [" + thisTarget + "]");
+		};
 	}
 
 	private boolean handleChannel(User user, List<String> targets, Request baseRequest, HttpServletRequest request,
@@ -167,23 +166,21 @@ public class RestHandler extends AbstractHandler {
 		var channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
 
 		// call handler methods
-		switch (request.getMethod()) {
-		case "GET":
-			return this.handleGet(user, channelAddress, baseRequest, request, response);
+		return switch (request.getMethod()) {
+		case "GET" //
+			-> this.handleGet(user, channelAddress, baseRequest, request, response);
 
-		case "POST":
-			// Validate API Access-Mode
-			switch (this.parent.getAccessMode()) {
-			case READ_ONLY:
-				throw new OpenemsException("REST-Api is in Read-Only mode");
-			case READ_WRITE:
-			case WRITE_ONLY:
-				return this.handlePost(user, channelAddress, baseRequest, request, response);
-			}
+		case "POST" //
+			-> switch (this.parent.getAccessMode()) {
+			case READ_ONLY //
+				-> throw new OpenemsException("REST-Api is in Read-Only mode");
+			case READ_WRITE, WRITE_ONLY //
+				-> this.handlePost(user, channelAddress, baseRequest, request, response);
+			};
 
-		default:
-			throw new OpenemsException("Unhandled REST Channel request method [" + request.getMethod() + "]");
-		}
+		default //
+			-> throw new OpenemsException("Unhandled REST Channel request method [" + request.getMethod() + "]");
+		};
 	}
 
 	/**
@@ -271,19 +268,20 @@ public class RestHandler extends AbstractHandler {
 			response.setContentType("application/json");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			baseRequest.setHandled(true);
-			JsonrpcResponseError message;
-			if (ex instanceof OpenemsNamedException) {
+			var message = switch (ex) {
+			case OpenemsNamedException one -> {
 				// Check for authentication error and set more specific response code
 				// accordingly
-				if (((OpenemsNamedException) ex).getError() == OpenemsError.COMMON_AUTHENTICATION_FAILED) {
+				if (one.getError() == OpenemsError.COMMON_AUTHENTICATION_FAILED) {
 					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				}
 				// Get Named Exception error response
-				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
-			} else {
-				// Get GENERIC error response
-				message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+				yield new JsonrpcResponseError(jsonrpcId, one);
 			}
+			default ->
+				// Get GENERIC error response
+				new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+			};
 			response.getWriter().write(message.toString());
 		} catch (IOException e) {
 			this.parent.logWarn(this.log, "Unable to send Error-Response: " + e.getMessage());
@@ -411,10 +409,9 @@ public class RestHandler extends AbstractHandler {
 
 			// parse JSON-RPC Request
 			var message = JsonrpcMessage.from(json);
-			if (!(message instanceof JsonrpcRequest)) {
+			if (!(message instanceof JsonrpcRequest request)) {
 				throw new OpenemsException("Only JSON-RPC Request is supported here.");
 			}
-			var request = (JsonrpcRequest) message;
 			requestId = request.getId();
 
 			// handle the request

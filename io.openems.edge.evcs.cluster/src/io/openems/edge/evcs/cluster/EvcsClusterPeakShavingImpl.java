@@ -193,9 +193,9 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void resetClusteredState(Evcs evcs) {
-		if (evcs instanceof ManagedEvcs) {
-			((ManagedEvcs) evcs)._setIsClustered(false);
-			((ManagedEvcs) evcs)._setSetChargePowerRequest(null);
+		if (evcs instanceof ManagedEvcs me) {
+			me._setIsClustered(false);
+			me._setSetChargePowerRequest(null);
 		}
 		evcs._setMaximumPower(null);
 	}
@@ -206,8 +206,8 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void setClusteredState(Evcs evcs) {
-		if (evcs instanceof ManagedEvcs) {
-			((ManagedEvcs) evcs)._setIsClustered(true);
+		if (evcs instanceof ManagedEvcs me) {
+			me._setIsClustered(true);
 		}
 	}
 
@@ -259,8 +259,8 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			minFixedHardwarePower.addValue(evcs.getFixedMinimumHardwarePowerChannel());
 			maxFixedHardwarePower.addValue(evcs.getFixedMaximumHardwarePowerChannel());
 			minPower.addValue(evcs.getMinimumPowerChannel());
-			if (evcs instanceof ManagedEvcs) {
-				evcsClusterStatus.addValue(((ManagedEvcs) evcs).getChargeState().asEnum());
+			if (evcs instanceof ManagedEvcs me) {
+				evcsClusterStatus.addValue(me.getChargeState().asEnum());
 			}
 		}
 
@@ -336,8 +336,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			 */
 			List<ManagedEvcs> activeEvcss = new ArrayList<>();
 			for (var evcs : this.getSortedEvcss()) {
-				if (evcs instanceof ManagedEvcs) {
-					var managedEvcs = (ManagedEvcs) evcs;
+				if (evcs instanceof ManagedEvcs managedEvcs) {
 					int requestedPower = managedEvcs.getSetChargePowerRequestChannel().getNextWriteValue().orElse(0);
 
 					// Ignore evcs with no request
@@ -572,11 +571,11 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		// Read maximum ESS Discharge power at the current position in the Cycle
-		if (this.ess instanceof ManagedSymmetricEss e) {
-			this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-
-		} else {
-			this.maxEssDischargePower = this.ess.getMaxApparentPower().orElse(0);
-		}
+		this.maxEssDischargePower = switch (this.ess) {
+		case ManagedSymmetricEss e //
+			-> e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+		case SymmetricEss e //
+			-> e.getMaxApparentPower().orElse(0);
+		};
 	}
 }

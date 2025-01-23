@@ -227,13 +227,13 @@ public class DataModification {
 	 * @param hyperParameters   instance of {@link HyperParameters}
 	 * @return The reverse standardized value in the original data's scale.
 	 */
-	public static double reverseStandrize(double zvalue, double mean, double standardDeviation,
+	public static double reverseStandardize(double zvalue, double mean, double standardDeviation,
 			HyperParameters hyperParameters) {
 		double reverseStand = 0;
 		double meanTarget = hyperParameters.getMean();
 		double standardDeviationTarget = hyperParameters.getStandardDeviation();
 
-		reverseStand = ((zvalue - meanTarget) * (standardDeviation / standardDeviationTarget) + mean);
+		reverseStand = (zvalue - meanTarget) * (standardDeviation / standardDeviationTarget) + mean;
 		return reverseStand;
 	}
 
@@ -252,11 +252,11 @@ public class DataModification {
 	 *                        and standard deviation.
 	 * @return A new list containing the reverse standardized values.
 	 */
-	public static double[] reverseStandrize(ArrayList<Double> data, ArrayList<Double> mean,
+	public static double[] reverseStandardize(ArrayList<Double> data, ArrayList<Double> mean,
 			ArrayList<Double> standDeviation, HyperParameters hyperParameters) {
 		var revNorm = new double[data.size()];
 		for (int i = 0; i < data.size(); i++) {
-			revNorm[i] = (reverseStandrize(data.get(i), mean.get(i), standDeviation.get(i), hyperParameters));
+			revNorm[i] = reverseStandardize(data.get(i), mean.get(i), standDeviation.get(i), hyperParameters);
 		}
 		return revNorm;
 	}
@@ -276,11 +276,11 @@ public class DataModification {
 	 *                        and standard deviation.
 	 * @return A new Array containing the reverse standardized values.
 	 */
-	public static double[] reverseStandrize(double[] data, double[] mean, double[] standDeviation,
+	public static double[] reverseStandardize(double[] data, double[] mean, double[] standDeviation,
 			HyperParameters hyperParameters) {
 		var revNorm = new double[data.length];
 		for (int i = 0; i < data.length; i++) {
-			revNorm[i] = (reverseStandrize(data[i], mean[i], standDeviation[i], hyperParameters));
+			revNorm[i] = reverseStandardize(data[i], mean[i], standDeviation[i], hyperParameters);
 		}
 		return revNorm;
 	}
@@ -300,11 +300,11 @@ public class DataModification {
 	 *                        and standard deviation.
 	 * @return A new Array containing the reverse standardized values.
 	 */
-	public static double[] reverseStandrize(ArrayList<Double> data, double mean, double standDeviation,
+	public static double[] reverseStandardize(ArrayList<Double> data, double mean, double standDeviation,
 			HyperParameters hyperParameters) {
 		var revNorm = new double[data.size()];
 		for (int i = 0; i < data.size(); i++) {
-			revNorm[i] = (reverseStandrize(data.get(i), mean, standDeviation, hyperParameters));
+			revNorm[i] = reverseStandardize(data.get(i), mean, standDeviation, hyperParameters);
 		}
 		return revNorm;
 	}
@@ -324,11 +324,11 @@ public class DataModification {
 	 *                        and standard deviation.
 	 * @return A new list containing the reverse standardized values.
 	 */
-	public static double[] reverseStandrize(double[] data, double mean, double standDeviation,
+	public static double[] reverseStandardize(double[] data, double mean, double standDeviation,
 			HyperParameters hyperParameters) {
 		var revNorm = new double[data.length];
 		for (int i = 0; i < data.length; i++) {
-			revNorm[i] = (reverseStandrize(data[i], mean, standDeviation, hyperParameters));
+			revNorm[i] = reverseStandardize(data[i], mean, standDeviation, hyperParameters);
 		}
 		return revNorm;
 	}
@@ -354,7 +354,7 @@ public class DataModification {
 		groupByHour.hour();
 
 		for (int i = 0; i < groupByHour.getGroupedDataByHour().size(); i++) {
-			GroupBy groupByMinute = new GroupBy(groupByHour.getGroupedDataByHour().get(i),
+			var groupByMinute = new GroupBy(groupByHour.getGroupedDataByHour().get(i),
 					groupByHour.getGroupedDateByHour().get(i));
 
 			groupByMinute.minute();

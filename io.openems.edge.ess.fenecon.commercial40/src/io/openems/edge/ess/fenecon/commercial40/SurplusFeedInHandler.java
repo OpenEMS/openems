@@ -58,13 +58,13 @@ public class SurplusFeedInHandler {
 		}
 
 		// State-Machine
-		switch (this.state) {
-		case UNDEFINED:
-		case DEACTIVATED:
+		return switch (this.state) {
+		case UNDEFINED, DEACTIVATED -> {
 			this.applyPvPowerLimit(chargers, config, false);
-			return null;
+			yield null;
+		}
 
-		case ACTIVATED: {
+		case ACTIVATED -> {
 			if (areSurplusConditionsMet) {
 				this.startedGoingDeactivated = null;
 			} else {
@@ -74,10 +74,10 @@ public class SurplusFeedInHandler {
 			var pvPower = this.getPvPower(chargers);
 			var power = pvPower + this.getIncreasePower(config, pvPower);
 			this.applyPvPowerLimit(chargers, config, true);
-			return power;
+			yield power;
 		}
 
-		case GOING_DEACTIVATED: {
+		case GOING_DEACTIVATED -> {
 			var goingDeactivatedSinceMinutes = Duration.between(this.startedGoingDeactivated, LocalDateTime.now())
 					.toMinutes();
 			// slowly reduce the surplus-feed-in-power from 100 to 0 %
@@ -89,19 +89,17 @@ public class SurplusFeedInHandler {
 				this.setState(SurplusFeedInStateMachine.PASSED_OFF_TIME);
 			}
 			this.applyPvPowerLimit(chargers, config, false);
-			return power;
+			yield power;
 		}
 
-		case PASSED_OFF_TIME:
+		case PASSED_OFF_TIME -> {
 			if (LocalTime.now().isBefore(offTime)) {
 				this.setState(SurplusFeedInStateMachine.DEACTIVATED);
 			}
 			this.applyPvPowerLimit(chargers, config, false);
-			return null;
+			yield null;
 		}
-
-		// should never come here
-		return null;
+		};
 	}
 
 	/**

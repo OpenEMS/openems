@@ -1,4 +1,4 @@
-package io.openems.edge.controller.heating.room;
+package io.openems.edge.controller.io.heating.room;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

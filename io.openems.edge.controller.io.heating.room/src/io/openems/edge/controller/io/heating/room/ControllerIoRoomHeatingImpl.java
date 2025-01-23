@@ -1,6 +1,6 @@
-package io.openems.edge.controller.heating.room;
+package io.openems.edge.controller.io.heating.room;
 
-import static io.openems.edge.controller.heating.room.Utils.getNextHighPeriod;
+import static io.openems.edge.controller.io.heating.room.Utils.getNextHighPeriod;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
 import java.time.Clock;
@@ -38,7 +38,7 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.heating.room.Utils.HighPeriod;
+import io.openems.edge.controller.io.heating.room.Utils.HighPeriod;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.thermometer.api.Thermometer;
@@ -52,12 +52,12 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class RoomHeatingControllerImpl extends AbstractOpenemsComponent
-		implements RoomHeatingController, Controller, ElectricityMeter, OpenemsComponent, TimedataProvider {
+public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
+		implements ControllerIoRoomHeating, Controller, ElectricityMeter, OpenemsComponent, TimedataProvider {
 
 	private static final int MINIMUM_SWITCHING_TIME = 180; // [s]
 
-	private final Logger log = LoggerFactory.getLogger(RoomHeatingControllerImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ControllerIoRoomHeatingImpl.class);
 	private final Clock clock;
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -89,12 +89,12 @@ public class RoomHeatingControllerImpl extends AbstractOpenemsComponent
 	private RelayState lastFloorRelayState = null;
 	private RelayState lastInfraredRelayState = null;
 
-	public RoomHeatingControllerImpl(Clock clock) {
+	public ControllerIoRoomHeatingImpl(Clock clock) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				RoomHeatingController.ChannelId.values() //
+				ControllerIoRoomHeating.ChannelId.values() //
 		);
 		this.clock = clock;
 
@@ -103,7 +103,7 @@ public class RoomHeatingControllerImpl extends AbstractOpenemsComponent
 		this._setReactivePower(0);
 	}
 
-	public RoomHeatingControllerImpl() {
+	public ControllerIoRoomHeatingImpl() {
 		this(Clock.systemDefaultZone());
 	}
 
