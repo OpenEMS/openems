@@ -121,7 +121,8 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 				return new HeatPumpParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false)), //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false),
+										RelayProps.gpioFilter()), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5, 6 }), //
 										PreferredRelay.of(4, new int[] { 2, 3 }), //
 										PreferredRelay.of(8, new int[] { 2, 3 }))) //

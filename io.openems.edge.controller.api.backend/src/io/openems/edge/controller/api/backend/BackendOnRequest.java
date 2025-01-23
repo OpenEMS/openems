@@ -66,7 +66,7 @@ public class BackendOnRequest implements OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> run(//
+	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(//
 			final WebSocket ws, //
 			final JsonrpcRequest request //
 	) throws OpenemsNamedException {

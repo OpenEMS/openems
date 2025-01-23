@@ -1,0 +1,5 @@
+= Time-Of-Use Tariff rabot.charge
+
+Retrieves the hourly prices from the rabot.charge API and converts them into quarterly prices.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.rabotcharge[Source Code icon:github[]]

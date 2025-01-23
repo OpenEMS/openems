@@ -1,12 +1,11 @@
-// @ts-strict-ignore
-import { Environment } from "src/environments";
+import { Environment , getWebsocketScheme } from "src/environments";
 import { theme } from "./theme";
 
 export const environment: Environment = {
     ...theme, ...{
 
-        backend: 'OpenEMS Edge',
-        url: "ws://" + location.hostname + ":8075",
+        backend: "OpenEMS Edge",
+        url: getWebsocketScheme() + location.hostname + ":8075",
 
         production: true,
         debugMode: false,

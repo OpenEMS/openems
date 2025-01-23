@@ -4,4 +4,4 @@
 export type App = {
     id: number,
     appId: string
-}
+};

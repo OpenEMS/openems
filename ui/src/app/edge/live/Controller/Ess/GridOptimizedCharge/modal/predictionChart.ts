@@ -1,31 +1,28 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import * as Chart from 'chart.js';
-import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from 'src/app/edge/history/shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
+import * as Chart from "chart.js";
+import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
+import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from "src/app/edge/history/shared";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 
 @Component({
-    selector: 'predictionChart',
-    templateUrl: '../../../../../history/abstracthistorychart.html',
+    selector: "predictionChart",
+    templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() protected refresh: boolean;
-    @Input() protected override edge: Edge;
-    @Input() public component: EdgeConfig.Component;
-    @Input() public targetEpochSeconds: number;
-    @Input() public chargeStartEpochSeconds: number;
-
     private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 
-    ngOnChanges() {
-        this.updateChart();
-    }
+    @Input({ required: true }) public component!: EdgeConfig.Component;
+    @Input({ required: true }) public targetEpochSeconds!: number;
+    @Input({ required: true }) public chargeStartEpochSeconds!: number;
+    @Input({ required: true }) protected refresh!: boolean;
+    @Input({ required: true }) protected override edge!: Edge;
 
     constructor(
         protected override service: Service,
@@ -35,13 +32,20 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         super("prediction-chart", service, translate);
     }
 
+    ngOnChanges() {
+        this.updateChart();
+    }
+
     ngOnInit() {
         this.service.startSpinner(this.spinnerId);
-        this.service.setCurrentComponent('', this.route);
     }
 
     ngOnDestroy() {
         this.unsubscribeChartRefresh();
+    }
+
+    public getChartHeight(): number {
+        return window.innerHeight / 4;
     }
 
     protected updateChart() {
@@ -65,9 +69,9 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             startIndex = startIndex < 0 ? 0 : startIndex;
 
             // Calculate soc and predicted soc data
-            if ('_sum/EssSoc' in result.data) {
+            if ("_sum/EssSoc" in result.data) {
 
-                const socData = result.data['_sum/EssSoc'].map(value => {
+                const socData = result.data["_sum/EssSoc"].map(value => {
                     if (value == null) {
                         return null;
                     } else if (value > 100 || value < 0) {
@@ -148,7 +152,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 const chartEndIndex = targetIndex + 12;
 
                 // Remove unimportant values that are after the end index
-                if (chartEndIndex < result.data['_sum/EssSoc'].length - 1) {
+                if (chartEndIndex < result.data["_sum/EssSoc"].length - 1) {
                     socData.splice(chartEndIndex + 1, socData.length);
                     predictedSocData.splice(chartEndIndex + 1, predictedSocData.length);
                     result.timestamps.splice(chartEndIndex + 1, result.timestamps.length);
@@ -171,12 +175,12 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
                 // Push the prepared data into the datasets
                 datasets.push({
-                    label: this.translate.instant('General.soc'),
+                    label: this.translate.instant("General.soc"),
                     data: socData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,
                 }, {
-                    label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
+                    label: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.expectedSoc"),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,
@@ -184,19 +188,19 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
                 // Push the depending colors
                 this.colors.push({
-                    backgroundColor: 'rgba(189, 195, 199,0.05)',
-                    borderColor: 'rgba(189, 195, 199,1)',
+                    backgroundColor: "rgba(189, 195, 199,0.05)",
+                    borderColor: "rgba(189, 195, 199,1)",
                 }, {
-                    backgroundColor: 'rgba(0,223,0,0)',
-                    borderColor: 'rgba(0,223,0,1)',
+                    backgroundColor: "rgba(0,223,0,0)",
+                    borderColor: "rgba(0,223,0,1)",
                 });
             }
 
             this.datasets = datasets;
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
-            this.unit = YAxisTitle.PERCENTAGE;
-            this.formatNumber = '1.0-0';
+            this.unit = YAxisType.PERCENTAGE;
+            this.formatNumber = "1.0-0";
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
 
@@ -207,36 +211,33 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         });
     }
 
-    private applyControllerSpecificOptions() {
-        this.options.scales[ChartAxis.LEFT]['position'] = 'right';
-        this.options.scales.x.ticks.callback = function (value, index, values) {
-            const date = new Date(value);
-
-            // Display the label only if the minutes are zero (full hour)
-            return date.getMinutes() === 0 ? date.getHours() + ':00' : '';
-        };
+    protected setLabel() {
+        this.options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
 
         return new Promise((resolve) => {
             const result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc'),
+                new ChannelAddress("_sum", "EssSoc"),
             ];
             if (this.component != null && this.component.id) {
-                result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
+                result.push(new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"));
             }
             resolve(result);
         });
     }
 
-    public getChartHeight(): number {
-        return window.innerHeight / 4;
+    private applyControllerSpecificOptions() {
+        this.options.scales[ChartAxis.LEFT]["position"] = "right";
+        this.options.scales.x.ticks.callback = function (value, index, values) {
+            const date = new Date(value);
+
+            // Display the label only if the minutes are zero (full hour)
+            return date.getMinutes() === 0 ? date.getHours() + ":00" : "";
+        };
     }
 
-    protected setLabel() {
-        this.options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    }
 }
 
 export type ChannelChartDescription = {
@@ -244,4 +245,4 @@ export type ChannelChartDescription = {
     channelName: string,
     datasets: number[],
     colorRgb: string,
-}
+};

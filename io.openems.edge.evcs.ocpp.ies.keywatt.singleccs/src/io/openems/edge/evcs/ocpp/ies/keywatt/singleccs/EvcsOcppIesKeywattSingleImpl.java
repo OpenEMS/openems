@@ -23,6 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import eu.chargetime.ocpp.model.Request;
 import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -36,6 +37,7 @@ import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -48,8 +50,8 @@ import io.openems.edge.timedata.api.Timedata;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class EvcsOcppIesKeywattSingleImpl extends AbstractManagedOcppEvcsComponent
-		implements EvcsOcppIesKeywattSingle, Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler, SocEvcs {
+public class EvcsOcppIesKeywattSingleImpl extends AbstractManagedOcppEvcsComponent implements EvcsOcppIesKeywattSingle,
+		Evcs, ManagedEvcs, MeasuringEvcs, ElectricityMeter, OpenemsComponent, EventHandler, SocEvcs {
 
 	// Profiles that a Ies KeyWatt is supporting
 	private static final OcppProfileType[] PROFILE_TYPES = { //
@@ -76,8 +78,8 @@ public class EvcsOcppIesKeywattSingleImpl extends AbstractManagedOcppEvcsCompone
 		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				AbstractManagedOcppEvcsComponent.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				MeasuringEvcs.ChannelId.values(), //
 				SocEvcs.ChannelId.values(), //
@@ -100,6 +102,11 @@ public class EvcsOcppIesKeywattSingleImpl extends AbstractManagedOcppEvcsCompone
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	private void setInitalSettings(Config config) {

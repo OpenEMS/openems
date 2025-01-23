@@ -1,7 +1,6 @@
 = Implementing a UI-Widget
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :keywords: AsciiDoc

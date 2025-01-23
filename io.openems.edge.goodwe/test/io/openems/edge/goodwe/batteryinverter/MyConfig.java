@@ -2,6 +2,7 @@ package io.openems.edge.goodwe.batteryinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
@@ -22,6 +23,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int feedPowerPara;
 		private FeedInPowerSettings feedInPowerSettings;
 		private EnableDisable rcrEnable = EnableDisable.DISABLE;
+		private StartStopConfig startStop;
+		private EnableDisable naProtectionEnable = EnableDisable.DISABLE;
 
 		private Builder() {
 		}
@@ -78,6 +81,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setRcrEnable(EnableDisable rcrEnable) {
 			this.rcrEnable = rcrEnable;
+			return this;
+		}
+
+		public Builder setNaProtectionEnable(EnableDisable naProtectionEnable) {
+			this.naProtectionEnable = naProtectionEnable;
+			return this;
+		}
+
+		public Builder setStartStop(StartStopConfig startStop) {
+			this.startStop = startStop;
 			return this;
 		}
 
@@ -155,5 +168,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public EnableDisable rcrEnable() {
 		return this.builder.rcrEnable;
+	}
+
+	@Override
+	public StartStopConfig startStop() {
+		return this.builder.startStop;
+	}
+
+	@Override
+	public EnableDisable naProtectionEnable() {
+		return this.builder.naProtectionEnable;
 	}
 }

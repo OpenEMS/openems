@@ -33,18 +33,42 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 	public static final int WATCHDOG_TRIGGER_SECONDS = 10;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		/*
+		 * Whenever one of these states would be Level.FAULT, the EssGeneric will stop
+		 * the battery and the inverter. If this is necessary, it must be specifically
+		 * mentioned and the state should have a proper description of the fault.
+		 */
+
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
-		MAX_START_TIMEOUT(Doc.of(Level.FAULT) //
+		MAX_START_TIMEOUT(Doc.of(Level.WARNING) //
 				.text("Max start time is exceeded")), //
-		MAX_STOP_TIMEOUT(Doc.of(Level.FAULT) //
+		MAX_STOP_TIMEOUT(Doc.of(Level.WARNING) //
 				.text("Max stop time is exceeded")), //
-		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.FAULT) //
+
+		/**
+		 * Internal StateMachine from KACO.
+		 */
+		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.WARNING) //
 				.text("The 'CurrentState' is invalid")), //
-		GRID_DISCONNECTION(Doc.of(Level.FAULT) //
+		GRID_DISCONNECTION(Doc.of(Level.WARNING) //
 				.text("External grid protection disconnection (17)")), //
+		GRID_FAILURE_LINE_TO_LINE(Doc.of(Level.WARNING) //
+				.text("Grid failure phase-to-phase voltage (47)")), //
+		LINE_FAILURE_UNDER_FREQ(Doc.of(Level.WARNING) //
+				.text("Line failure: Grid frequency is too low (48)")), //
+		LINE_FAILURE_OVER_FREQ(Doc.of(Level.WARNING) //
+				.text("Line failure: Grid frequency is too high (49)")), //
+		PROTECTION_SHUTDOWN_LINE_1(Doc.of(Level.WARNING) //
+				.text("Grid Failure: grid voltage L1 protection (81)")), //
+		PROTECTION_SHUTDOWN_LINE_2(Doc.of(Level.WARNING) //
+				.text("Grid Failure: grid voltage L2 protection (82)")), //
+		PROTECTION_SHUTDOWN_LINE_3(Doc.of(Level.WARNING) //
+				.text("Grid Failure: grid voltage L3 protection (83)")), //
+
 		;
 
 		private final Doc doc;
@@ -214,27 +238,111 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 	}
 
 	/**
-	 * Checks if the system is in a running state. This method retrieves the
-	 * system's global state and determines whether the system is in a running
-	 * state.
+	 * Gets the Channel for ChannelId.GRID_FAILURE_LINE_TO_LINE.
 	 *
-	 * @return true if the system is in a running state, false otherwise.
+	 * @return the Channel
 	 */
-	public boolean isRunning();
+	public default Channel<Boolean> getGridFailureLineToLineChannel() {
+		return this.channel(ChannelId.GRID_FAILURE_LINE_TO_LINE);
+	}
 
 	/**
-	 * Checks if the system is in a stop state. This method retrieves the system's
-	 * global state and determines whether the system is in a stop state.
+	 * Writes the value to the ChannelId.GRID_FAILURE_LINE_TO_LINE.
 	 *
-	 * @return true if the system is in a stop state, false otherwise.
+	 * @param value the next value
 	 */
-	public boolean isShutdown();
+	public default void _setGridFailureLineToLine(boolean value) {
+		this.getGridFailureLineToLineChannel().setNextValue(value);
+	}
 
 	/**
-	 * Checks if the system is in a fault state. This method retrieves the system's
-	 * global state and determines whether the system is in a fault state.
+	 * Gets the Channel for ChannelId.LINE_FAILURE_UNDER_FREQ.
 	 *
-	 * @return true if the system is in a fault state, false otherwise.
+	 * @return the Channel
 	 */
-	public boolean hasFailure();
+	public default Channel<Boolean> getLineFailureUnderFreqChannel() {
+		return this.channel(ChannelId.LINE_FAILURE_UNDER_FREQ);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.LINE_FAILURE_UNDER_FREQ.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLineFailureUnderFreq(boolean value) {
+		this.getLineFailureUnderFreqChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for ChannelId.LINE_FAILURE_OVER_FREQ.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getLineFailureOverFreqChannel() {
+		return this.channel(ChannelId.LINE_FAILURE_OVER_FREQ);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.LINE_FAILURE_OVER_FREQ.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setLineFailureOverFreq(boolean value) {
+		this.getLineFailureOverFreqChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for ChannelId.PROTECTION_SHUTDOWN_LINE_1.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getProtectionShutdownLine1Channel() {
+		return this.channel(ChannelId.PROTECTION_SHUTDOWN_LINE_1);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.PROTECTION_SHUTDOWN_LINE_1.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProtectionShutdownLine1(boolean value) {
+		this.getProtectionShutdownLine1Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for ChannelId.PROTECTION_SHUTDOWN_LINE_2.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getProtectionShutdownLine2Channel() {
+		return this.channel(ChannelId.PROTECTION_SHUTDOWN_LINE_2);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.PROTECTION_SHUTDOWN_LINE_2.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProtectionShutdownLine2(boolean value) {
+		this.getProtectionShutdownLine2Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for ChannelId.PROTECTION_SHUTDOWN_LINE_3.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getProtectionShutdownLine3Channel() {
+		return this.channel(ChannelId.PROTECTION_SHUTDOWN_LINE_3);
+	}
+
+	/**
+	 * Writes the value to the ChannelId.PROTECTION_SHUTDOWN_LINE_3.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setProtectionShutdownLine3(boolean value) {
+		this.getProtectionShutdownLine3Channel().setNextValue(value);
+	}
+
 }

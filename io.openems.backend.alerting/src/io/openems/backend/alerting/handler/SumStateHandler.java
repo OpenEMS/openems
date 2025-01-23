@@ -36,7 +36,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	private MessageScheduler<SumStateMessage> msgScheduler;
 
 	private TimedTask initMetadata;
-	private TimedExecutor timeService;
+	private final TimedExecutor timeService;
 
 	public SumStateHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
 			int initialDelay) {
@@ -62,19 +62,23 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 		// Ensure Edge is still in error state before sending mail.
 		pack.removeIf((msg) -> !this.isEdgeError(msg.getEdgeId()));
 
-		var params = JsonUtils.generateJsonArray(pack.stream().map(SumStateMessage::getParams).toList());
+		if (pack.isEmpty()) {
+			return;
+		}
+
+		final var params = JsonUtils.generateJsonArray(pack.stream().map(SumStateMessage::getParams).toList());
 		if (!params.isEmpty()) {
 			this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params);
 		}
 
-		var logStrBuilder = new StringBuilder(pack.size() * 64);
+		final var logStrBuilder = new StringBuilder(pack.size() * 64);
 		pack.forEach(msg -> {
 			logStrBuilder.append(msg).append(", ");
 			this.tryReschedule(msg);
 		});
-		var logStr = logStrBuilder.toString();
+		final var logStr = logStrBuilder.toString();
 		if (!logStr.isBlank()) {
-			this.log.info("Sent ErrorEdgeMsg: " + logStr);
+			this.log.info("Sent ErrorEdgeMsg: {}", logStr);
 		}
 	}
 
@@ -85,12 +89,8 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	}
 
 	private boolean isEdgeError(String edgeId) {
-		var sumState = this.metadata.getSumState(edgeId);
-		if (sumState.isPresent()) {
-			return this.isSevere(sumState.get());
-		} else {
-			return false;
-		}
+		final var sumState = this.metadata.getEdge(edgeId).map(Edge::getSumState);
+		return sumState.map(this::isSevere).orElse(false);
 	}
 
 	private boolean isSevere(Level level) {
@@ -107,8 +107,8 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	 */
 	protected SumStateMessage getEdgeMessage(Edge edge, Level sumState) throws OpenemsException {
 		if (edge == null || edge.getId() == null) {
-			this.log.warn("Called method SumStateHandler.getEdgeMessage with " //
-					+ (edge == null ? "Edge{null}" : "Edge{id=null}"));
+			this.log.warn("Called method SumStateHandler.getEdgeMessage with {}",
+					(edge == null ? "Edge{null}" : "Edge{id=null}"));
 			return null;
 		} else if (edge.isOffline()) {
 			this.log.warn("Called method SumStateHandler.getEdgeMessage with offline" //
@@ -116,9 +116,8 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 			return null;
 		}
 		try {
-			var sumStateSettings = this.metadata.getSumStateAlertingSettings(edge.getId());
-			var message = new SumStateMessage(edge.getId(), sumState, this.timeService.now(), sumStateSettings);
-			return message;
+			final var sumStateSettings = this.metadata.getSumStateAlertingSettings(edge.getId());
+			return new SumStateMessage(edge.getId(), sumState, this.timeService.now(), sumStateSettings);
 		} catch (OpenemsException e) {
 			throw new OpenemsException("Could not get alerting settings for " + edge.getId(), e);
 		}
@@ -129,14 +128,14 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	}
 
 	protected void addOrUpdate(Edge edge, Level sumState) {
-		var oldMsg = this.msgScheduler.remove(edge.getId());
+		final var oldMsg = this.msgScheduler.remove(edge.getId());
 		if (oldMsg == null) {
 			if (this.faultSince.containsKey(edge.getId())) {
 				return;
 			}
 
 			try {
-				var newMsg = this.getEdgeMessage(edge, sumState);
+				final var newMsg = this.getEdgeMessage(edge, sumState);
 				if (newMsg != null && !newMsg.isEmpty()) {
 					this.msgScheduler.schedule(newMsg);
 				}
@@ -168,12 +167,12 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 
 		if (this.isSevere(level)) {
 			final var edgeOpt = this.metadata.getEdge(edgeId);
-			if (edgeOpt.isEmpty()) {
-				this.log.warn("Edge with id '" + edgeId + "' was not found!");
+			if (edgeOpt.isPresent()) {
+				this.addOrUpdate(edgeOpt.get(), level);
+				this.faultSince.putIfAbsent(edgeId, this.timeService.now());
+			} else {
+				this.log.warn("Edge with id '{}' was not found!", edgeId);
 			}
-			this.addOrUpdate(edgeOpt.get(), level);
-
-			this.faultSince.putIfAbsent(edgeId, this.timeService.now());
 		} else {
 			this.tryRemoveEdge(edgeId);
 

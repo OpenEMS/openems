@@ -59,36 +59,22 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
-		switch (state) {
-		case UNDEFINED:
-			return new UndefinedHandler();
+		return switch (state) {
+		case UNDEFINED -> new UndefinedHandler();
 
-		case GO_READONLY_MODE:
-			return new GoReadonlyModeHandler();
-		case ACTIVATE_ECONOMIC_MODE_1:
-			return new ActivateEconomicMode1Handler();
-		case ACTIVATE_ECONOMIC_MODE_2:
-			return new ActivateEconomicMode2Handler();
-		case ACTIVATE_ECONOMIC_MODE_3:
-			return new ActivateEconomicMode3Handler();
-		case ACTIVATE_ECONOMIC_MODE_4:
-			return new ActivateEconomicMode4Handler();
-		case READONLY_MODE:
-			return new ReadonlyModeHandler();
+		case GO_READONLY_MODE -> new GoReadonlyModeHandler();
+		case ACTIVATE_ECONOMIC_MODE_1 -> new ActivateEconomicMode1Handler();
+		case ACTIVATE_ECONOMIC_MODE_2 -> new ActivateEconomicMode2Handler();
+		case ACTIVATE_ECONOMIC_MODE_3 -> new ActivateEconomicMode3Handler();
+		case ACTIVATE_ECONOMIC_MODE_4 -> new ActivateEconomicMode4Handler();
+		case READONLY_MODE -> new ReadonlyModeHandler();
 
-		case GO_WRITE_MODE:
-			return new GoWriteModeHandler();
-		case ACTIVATE_DEBUG_MODE_1:
-			return new ActivateDebugMode1Handler();
-		case ACTIVATE_DEBUG_MODE_2:
-			return new ActivateDebugMode2Handler();
-		case ACTIVATE_DEBUG_MODE_3:
-			return new ActivateDebugMode3Handler();
-		case ACTIVATE_DEBUG_MODE_4:
-			return new ActivateDebugMode4Handler();
-		case WRITE_MODE:
-			return new WriteModeHandler();
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		case GO_WRITE_MODE -> new GoWriteModeHandler();
+		case ACTIVATE_DEBUG_MODE_1 -> new ActivateDebugMode1Handler();
+		case ACTIVATE_DEBUG_MODE_2 -> new ActivateDebugMode2Handler();
+		case ACTIVATE_DEBUG_MODE_3 -> new ActivateDebugMode3Handler();
+		case ACTIVATE_DEBUG_MODE_4 -> new ActivateDebugMode4Handler();
+		case WRITE_MODE -> new WriteModeHandler();
+		};
 	}
 }

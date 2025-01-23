@@ -1,24 +1,25 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { DelayedSellToGridModalComponent } from './modal/modal.component';
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { Edge, EdgeConfig, Service, Websocket } from "../../../shared/shared";
+import { DelayedSellToGridModalComponent } from "./modal/modal.component";
 
 @Component({
     selector: DelayedSellToGridComponent.SELECTOR,
-    templateUrl: './delayedselltogrid.component.html',
+    templateUrl: "./delayedselltogrid.component.html",
+    standalone: false,
 })
 export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 
     private static readonly SELECTOR = "delayedselltogrid";
 
-    @Input() public componentId: string;
+    @Input({ required: true }) public componentId!: string;
 
-    public edge: Edge = null;
+    public edge: Edge | null = null;
 
-    public component: EdgeConfig.Component = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -29,7 +30,7 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);

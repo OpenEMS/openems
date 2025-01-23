@@ -1,5 +1,8 @@
 package io.openems.edge.core.host;
 
+import java.net.Inet4Address;
+import java.util.Collections;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,6 +51,15 @@ public class OperatingSystemWindows implements OperatingSystem {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteSystemRestartRequest(
 			ExecuteSystemRestartRequest request) throws NotImplementedException {
 		throw new NotImplementedException("ExecuteSystemRestartRequest is not implemented for Windows");
+	}
+
+	@Override
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		return Collections.emptyList();
+	}
+
+	public CompletableFuture<String> getOperatingSystemVersion() {
+		return CompletableFuture.completedFuture(System.getProperty("os.name"));
 	}
 
 }

@@ -32,7 +32,7 @@ import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
  * 
  * @param <APP>       the type of the app
  * @param <PROPERTY>  the type of the property
- * @param <PARAMETER> the type of the paramters
+ * @param <PARAMETER> the type of the parameters
  */
 public class AppDef<APP extends OpenemsApp, //
 		PROPERTY extends Nameable, //
@@ -168,6 +168,8 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Function to get the description of the field.
 	 */
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> description;
+
+	private String propertyName;
 
 	/**
 	 * Function to get the default value of the field (can be any JsonElement =>
@@ -360,6 +362,7 @@ public class AppDef<APP extends OpenemsApp, //
 		def.bidirectionalValue = otherDef.bidirectionalValue;
 		def.isAllowedToSee = otherDef.isAllowedToSee;
 		def.isAllowedToEdit = otherDef.isAllowedToEdit;
+		def.propertyName = otherDef.propertyName;
 		return def;
 	}
 
@@ -378,6 +381,10 @@ public class AppDef<APP extends OpenemsApp, //
 	) {
 		this.isAllowedToSave = isAllowedToSave;
 		return this;
+	}
+
+	public AppDef<APP, PROPERTY, PARAMETER> setMinRole(final Role role) {
+		return this.appendIsAllowedToEdit(ofLeastRole(role));
 	}
 
 	public final AppDef<APP, PROPERTY, PARAMETER> setTranslationBundleSupplier(//
@@ -999,11 +1006,92 @@ public class AppDef<APP extends OpenemsApp, //
 			final Function<? super APP, ComponentManager> componentManagerFunction, //
 			final Function<? super JsonElement, JsonElement> mapper //
 	) {
+		return this.bidirectional(t -> {
+			final var a = t.get(propOfComponentId.name());
+			return a == null ? null : a.getAsString();
+		}, property, componentManagerFunction, mapper);
+	}
+
+	/**
+	 * Binds a property bidirectional.
+	 * 
+	 * <p>
+	 * The property itself will not be stored in the app configuration only in the
+	 * component. If the user doesn't provide the value of a property and there is a
+	 * bidirectional binding for it it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration or
+	 * the component doesn't exist or the property of the value is null then null is
+	 * returned inside the bidirectional function.
+	 * 
+	 * @param componentId              the componentId
+	 * @param property                 the property
+	 * @param componentManagerFunction the componentmanagerFunction
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> bidirectional(//
+			final String componentId, //
+			final String property, //
+			final Function<? super APP, ComponentManager> componentManagerFunction //
+	) {
+		return this.bidirectional(componentId, property, componentManagerFunction, Function.identity());
+	}
+
+	/**
+	 * Binds a property bidirectional.
+	 * 
+	 * <p>
+	 * The property itself will not be stored in the app configuration only in the
+	 * component. If the user doesn't provide the value of a property and there is a
+	 * bidirectional binding for it it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration or
+	 * the component doesn't exist or the property of the value is null then null is
+	 * returned inside the bidirectional function.
+	 * 
+	 * @param componentId              the componentId
+	 * @param property                 the property
+	 * @param componentManagerFunction the componentmanagerFunction
+	 * @param mapper                   mapper
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> bidirectional(//
+			final String componentId, //
+			final String property, //
+			final Function<? super APP, ComponentManager> componentManagerFunction, //
+			final Function<? super JsonElement, JsonElement> mapper //
+	) {
+		return this.bidirectional(t -> componentId, property, componentManagerFunction, mapper);
+	}
+
+	/**
+	 * Binds a property bidirectional.
+	 * 
+	 * <p>
+	 * The property itself will not be stored in the app configuration only in the
+	 * component. If the user doesn't provide the value of a property and there is a
+	 * bidirectional binding for it it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration or
+	 * the component doesn't exist or the property of the value is null then null is
+	 * returned inside the bidirectional function.
+	 * 
+	 * @param componentIdSupplier      the componentId supplier
+	 * @param property                 the property
+	 * @param componentManagerFunction the componentmanagerFunction
+	 * @param mapper                   mapper
+	 * 
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> bidirectional(//
+			final Function<JsonObject, String> componentIdSupplier, //
+			final String property, //
+			final Function<? super APP, ComponentManager> componentManagerFunction, //
+			final Function<? super JsonElement, JsonElement> mapper //
+	) {
+		this.propertyName = property;
 		this.bidirectionalValue = (app, prop, l, param, properties) -> {
 			if (properties == null) {
 				return null;
 			}
-			final var componentId = properties.get(propOfComponentId.name());
+			final var componentId = componentIdSupplier.apply(properties);
 			if (componentId == null) {
 				return null;
 			}
@@ -1016,12 +1104,19 @@ public class AppDef<APP extends OpenemsApp, //
 				return JsonNull.INSTANCE;
 			});
 
+			final var p = componentManager.getComponentProperties(componentId);
 			try {
-				final var component = componentManager.getComponent(componentId.getAsString());
-				return Optional.ofNullable(component.getComponentContext().getProperties().get(property)) //
+				final var component = componentManager.getComponent(componentId);
+
+				return Optional.ofNullable(p.get(property)) //
 						.map(JsonUtils::getAsJsonElement) //
 						.map(mapper) //
-						.orElseGet(defaultValueSupplier);
+						.orElseGet(() -> {
+							return Optional.ofNullable(component.getComponentContext().getProperties().get(property)) //
+									.map(JsonUtils::getAsJsonElement) //
+									.map(mapper) //
+									.orElseGet(defaultValueSupplier);
+						});
 			} catch (OpenemsNamedException e) {
 				return defaultValueSupplier.get();
 			}
@@ -1029,6 +1124,10 @@ public class AppDef<APP extends OpenemsApp, //
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;
 		return this.self();
+	}
+
+	public String getBidirectionalPropertyName() {
+		return this.propertyName;
 	}
 
 	/**

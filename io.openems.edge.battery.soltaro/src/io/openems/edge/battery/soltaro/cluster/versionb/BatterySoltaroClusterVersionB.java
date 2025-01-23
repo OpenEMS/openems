@@ -52,80 +52,80 @@ public interface BatterySoltaroClusterVersionB
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// StateChannels
-		MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER(Doc.of(Level.FAULT) //
+		MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER(Doc.of(Level.WARNING) //
 				.text("Communication error with submaster")),
-		MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE(Doc.of(Level.FAULT) //
+		MASTER_ALARM_PCS_EMS_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
 				.text("PCS/EMS communication failure alarm")),
-		MASTER_ALARM_PCS_EMS_CONTROL_FAIL(Doc.of(Level.FAULT) //
+		MASTER_ALARM_PCS_EMS_CONTROL_FAIL(Doc.of(Level.WARNING) //
 				.text("PCS/EMS control fail alarm")),
 		MASTER_ALARM_LEVEL_1_INSULATION(Doc.of(Level.WARNING) //
 				.text("System insulation alarm level 1")),
-		MASTER_ALARM_LEVEL_2_INSULATION(Doc.of(Level.FAULT) //
+		MASTER_ALARM_LEVEL_2_INSULATION(Doc.of(Level.WARNING) //
 				.text("System insulation alarm level 2")),
 
-		RACK_1_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_1_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 1 Level 2 Alarm")),
-		RACK_1_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
+		RACK_1_PCS_CONTROL_FAULT(Doc.of(Level.WARNING) //
 				.text("Rack 1 PCS control fault")),
-		RACK_1_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
+		RACK_1_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 1 Communication with master error")),
-		RACK_1_DEVICE_ERROR(Doc.of(Level.FAULT) //
+		RACK_1_DEVICE_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 1 Device error")),
-		RACK_1_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_1_CYCLE_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 1 Cycle over current")),
-		RACK_1_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_1_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Voltage difference")),
 
-		RACK_2_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_2_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 2 Level 2 Alarm")),
-		RACK_2_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
+		RACK_2_PCS_CONTROL_FAULT(Doc.of(Level.WARNING) //
 				.text("Rack 2 PCS control fault")),
-		RACK_2_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
+		RACK_2_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 2 Communication with master error")),
-		RACK_2_DEVICE_ERROR(Doc.of(Level.FAULT) //
+		RACK_2_DEVICE_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 2 Device error")),
-		RACK_2_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_2_CYCLE_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 1 Cycle over current")),
-		RACK_2_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_2_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Voltage difference")),
 
-		RACK_3_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_3_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 3 Level 2 Alarm")),
-		RACK_3_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
+		RACK_3_PCS_CONTROL_FAULT(Doc.of(Level.WARNING) //
 				.text("Rack 3 PCS control fault")),
-		RACK_3_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
+		RACK_3_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 3 Communication with master error")),
-		RACK_3_DEVICE_ERROR(Doc.of(Level.FAULT) //
+		RACK_3_DEVICE_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 3 Device error")),
-		RACK_3_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_3_CYCLE_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 1 Cycle over current")),
-		RACK_3_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_3_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Voltage difference")),
 
-		RACK_4_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_4_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 4 Level 2 Alarm")),
-		RACK_4_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
+		RACK_4_PCS_CONTROL_FAULT(Doc.of(Level.WARNING) //
 				.text("Rack 4 PCS control fault")),
-		RACK_4_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
+		RACK_4_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 4 Communication with master error")),
-		RACK_4_DEVICE_ERROR(Doc.of(Level.FAULT) //
+		RACK_4_DEVICE_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 4 Device error")),
-		RACK_4_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_4_CYCLE_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 1 Cycle over current")),
-		RACK_4_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_4_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Voltage difference")),
 
-		RACK_5_LEVEL_2_ALARM(Doc.of(Level.FAULT) //
+		RACK_5_LEVEL_2_ALARM(Doc.of(Level.WARNING) //
 				.text("Rack 5 Level 2 Alarm")),
-		RACK_5_PCS_CONTROL_FAULT(Doc.of(Level.FAULT) //
+		RACK_5_PCS_CONTROL_FAULT(Doc.of(Level.WARNING) //
 				.text("Rack 5 PCS control fault")),
-		RACK_5_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.FAULT) //
+		RACK_5_COMMUNICATION_WITH_MASTER_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 5 Communication with master error")),
-		RACK_5_DEVICE_ERROR(Doc.of(Level.FAULT) //
+		RACK_5_DEVICE_ERROR(Doc.of(Level.WARNING) //
 				.text("Rack 5 Device error")),
-		RACK_5_CYCLE_OVER_CURRENT(Doc.of(Level.FAULT) //
+		RACK_5_CYCLE_OVER_CURRENT(Doc.of(Level.WARNING) //
 				.text("Rack 1 Cycle over current")),
-		RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_5_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.text("Rack 1 Voltage difference")),;
 
 		private final Doc doc;

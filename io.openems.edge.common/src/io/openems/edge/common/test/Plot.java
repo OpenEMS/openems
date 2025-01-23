@@ -1022,24 +1022,16 @@ public class Plot {
 	}
 
 	public static String formatDouble(double d, AxisFormat format) {
-		switch (format) {
-		case TIME_HM:
-			return String.format("%tR", new java.util.Date((long) d));
-		case TIME_HMS:
-			return String.format("%tT", new java.util.Date((long) d));
-		case DATE:
-			return String.format("%tF", new java.util.Date((long) d));
-		case DATETIME_HM:
-			return String.format("%tF %1$tR", new java.util.Date((long) d));
-		case DATETIME_HMS:
-			return String.format("%tF %1$tT", new java.util.Date((long) d));
-		case NUMBER_KGM:
-			return formatDoubleAsNumber(d, true);
-		case NUMBER_INT:
-			return Integer.toString((int) d);
-		default:
-			return formatDoubleAsNumber(d, false);
-		}
+		return switch (format) {
+		case TIME_HM -> String.format("%tR", new java.util.Date((long) d));
+		case TIME_HMS -> String.format("%tT", new java.util.Date((long) d));
+		case DATE -> String.format("%tF", new java.util.Date((long) d));
+		case DATETIME_HM -> String.format("%tF %1$tR", new java.util.Date((long) d));
+		case DATETIME_HMS -> String.format("%tF %1$tT", new java.util.Date((long) d));
+		case NUMBER_KGM -> formatDoubleAsNumber(d, true);
+		case NUMBER_INT -> Integer.toString((int) d);
+		default -> formatDoubleAsNumber(d, false);
+		};
 	}
 
 	private static String formatDoubleAsNumber(double d, boolean useKGM) {

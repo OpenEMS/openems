@@ -22,7 +22,6 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ThreadPoolUtils;
-import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -91,7 +90,7 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
 		});
 		this.onRequest.setDebug(config.debugMode());
-		this.startServer(config.port(), POOL_SIZE, DebugMode.OFF);
+		this.startServer(config.port(), POOL_SIZE);
 
 	}
 
@@ -107,12 +106,11 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 	/**
 	 * Create and start new server.
 	 *
-	 * @param port      the port
-	 * @param poolSize  number of threads dedicated to handle the tasks
-	 * @param debugMode activate a regular debug log about the state of the tasks
+	 * @param port     the port
+	 * @param poolSize number of threads dedicated to handle the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
-		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize, debugMode);
+	private synchronized void startServer(int port, int poolSize) {
+		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize);
 		this.server.start();
 	}
 

@@ -41,7 +41,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private MessageScheduler<OfflineEdgeMessage> msgScheduler;
 
 	private TimedTask initMetadata;
-	private TimedExecutor timeService;
+	private final TimedExecutor timeService;
 
 	public OfflineEdgeHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
 			int initialDelay) {
@@ -74,16 +74,16 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			return;
 		}
 
-		var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
+		final var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
 
 		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params);
 
-		var logStr = new StringBuilder(pack.size() * 64);
+		final var logStr = new StringBuilder(pack.size() * 64);
 		pack.forEach(msg -> {
 			logStr.append(msg).append(", ");
 			this.tryReschedule(msg);
 		});
-		this.log.info("Sent OfflineEdgeMsg: " + logStr.substring(0, logStr.length() - 2));
+		this.log.info("Sent OfflineEdgeMsg: {}", logStr.substring(0, logStr.length() - 2));
 	}
 
 	private void tryReschedule(OfflineEdgeMessage msg) {
@@ -93,38 +93,37 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	private boolean isEdgeOffline(String edgeId) {
-		var edge = this.metadata.getEdge(edgeId);
-		if (edge.isPresent()) {
-			return edge.get().isOffline();
-		}
-		return false;
+		final var edge = this.metadata.getEdge(edgeId);
+		return edge.map(Edge::isOffline).orElse(false);
 	}
 
 	private void checkMetadata() {
 		this.log.info("[OfflineEdgeHandler] check Metadata for Offline Edges");
 
-		var msgs = new LinkedList<OfflineEdgeMessage>();
-		var count = new AtomicInteger();
-		var validOfflineEges = this.metadata.getAllOfflineEdges().stream() //
+		final var msgs = new LinkedList<OfflineEdgeMessage>();
+		final var count = new AtomicInteger();
+		final var validOfflineEges = this.metadata.getAllOfflineEdges().stream() //
 				.filter(this::isValidEdge) //
 				.toList();
 
 		if (validOfflineEges.size() > OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES) {
-			this.log.error("[OfflineEdgeHandler] Canceled checkMetadata(); tried to schedule msgs for "
-					+ OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES + " Offline-Edges at once!!");
+			this.log.error(
+					"[OfflineEdgeHandler] Canceled checkMetadata(); tried to schedule msgs for {} Offline-Edges at once!!",
+					OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES);
 			return;
 		}
 
 		for (var edge : validOfflineEges) {
-			var msg = this.getEdgeMessage(edge);
+			final var msg = this.getEdgeMessage(edge);
 			if (msg == null) {
 				continue;
 			}
 
-			var completeCnt = count.addAndGet(msg.getMessageCount());
+			final var completeCnt = count.addAndGet(msg.getMessageCount());
 			if (completeCnt > OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS) {
-				this.log.error("[OfflineEdgeHandler] Canceled checkMetadata(); tried to schedule over "
-						+ OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS + " EdgeOffline Messages at once!!");
+				this.log.error(
+						"[OfflineEdgeHandler] Canceled checkMetadata(); tried to schedule over {} EdgeOffline Messages at once!!",
+						OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS);
 				return;
 			}
 
@@ -141,7 +140,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 * @return true if valid
 	 */
 	private boolean isValidEdge(Edge edge) {
-		var invalid = edge.getLastmessage() == null // was never online
+		final var invalid = edge.getLastmessage() == null // was never online
 				|| edge.getLastmessage() //
 						.isBefore(this.timeService.now().minusWeeks(1)); // already offline for a week
 		return !invalid;
@@ -155,16 +154,15 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 */
 	protected OfflineEdgeMessage getEdgeMessage(Edge edge) {
 		if (edge == null || edge.getId() == null) {
-			this.log.warn("Called method getEdgeMessage with " //
-					+ (edge == null ? "Edge{null}" : "Edge{id=null}"));
+			this.log.warn("Called method getEdgeMessage with {}", (edge == null ? "Edge{null}" : "Edge{id=null}"));
 			return null;
 		}
 		try {
-			var alertingSettings = this.metadata.getEdgeOfflineAlertingSettings(edge.getId());
+			final var alertingSettings = this.metadata.getEdgeOfflineAlertingSettings(edge.getId());
 			if (alertingSettings == null || alertingSettings.isEmpty()) {
 				return null;
 			}
-			var message = new OfflineEdgeMessage(edge.getId(), edge.getLastmessage());
+			final var message = new OfflineEdgeMessage(edge.getId(), edge.getLastmessage());
 			for (var setting : alertingSettings) {
 				if (setting.delay() > 0 && this.shouldReceiveMail(edge, setting)) {
 					message.addRecipient(setting);
@@ -174,7 +172,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 				return message;
 			}
 		} catch (OpenemsException e) {
-			this.log.warn("Could not get alerting settings for " + edge.getId(), e);
+			this.log.warn("Could not get alerting settings for {}", edge.getId(), e);
 		}
 		return null;
 	}
@@ -184,10 +182,10 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		final var edgeOfflineSince = edge.getLastmessage();
 
 		var hasNotRecievedMailYet = true;
-		var neverRecievedAnyMail = lastMailRecievedAt == null;
+		final var neverRecievedAnyMail = lastMailRecievedAt == null;
 
 		if (!neverRecievedAnyMail) {
-			var nextMailRecieveAt = edgeOfflineSince.plus(setting.delay(), ChronoUnit.MINUTES);
+			final var nextMailRecieveAt = edgeOfflineSince.plus(setting.delay(), ChronoUnit.MINUTES);
 			hasNotRecievedMailYet = nextMailRecieveAt.isAfter(lastMailRecievedAt);
 		}
 
@@ -199,12 +197,13 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	protected void tryAddEdge(Edge edge) {
-		if (this.isValidEdge(edge)) {
-			var msg = this.getEdgeMessage(edge);
-			var msgScheduler = this.msgScheduler;
-			if (msg != null && msgScheduler != null) {
-				this.msgScheduler.schedule(msg);
-			}
+		if (!this.isValidEdge(edge)) {
+			return;
+		}
+		final var msg = this.getEdgeMessage(edge);
+		final var msgScheduler = this.msgScheduler;
+		if (msg != null && msgScheduler != null) {
+			this.msgScheduler.schedule(msg);
 		}
 	}
 
@@ -218,7 +217,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		if (this.initialDelay <= 0) {
 			this.checkMetadata();
 		} else {
-			var executeAt = this.timeService.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
+			final var executeAt = this.timeService.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
 			this.initMetadata = this.timeService.schedule(executeAt, (now) -> {
 				this.checkMetadata();
 			});
@@ -226,12 +225,12 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	private void handleOnSetOnline(EventReader event) {
-		var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
-		var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
+		final var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
+		final var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
-		var edgeOpt = this.metadata.getEdge(edgeId);
+		final var edgeOpt = this.metadata.getEdge(edgeId);
 		if (edgeOpt.isPresent()) {
-			var edge = edgeOpt.get();
+			final var edge = edgeOpt.get();
 			/* Ensure that the online-state has not changed */
 			if (edge.isOnline() == isOnline) {
 				if (isOnline) {
@@ -245,7 +244,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 				}
 			}
 		} else {
-			this.log.warn("Edge with id: " + edgeId + " not found");
+			this.log.warn("Edge with id: {} not found", edgeId);
 		}
 	}
 

@@ -194,8 +194,8 @@ public interface Metadata {
 		var states = new HashMap<Level, HashMultimap<String, Channel>>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
 			var detail = entry.getValue().getDetail();
-			if (detail instanceof ChannelDetailState) {
-				var level = ((ChannelDetailState) detail).getLevel();
+			if (detail instanceof ChannelDetailState cds) {
+				var level = cds.getLevel();
 				var channelsByComponent = states.get(level);
 				if (channelsByComponent == null) {
 					channelsByComponent = HashMultimap.create();
@@ -375,6 +375,14 @@ public interface Metadata {
 	 * @return Serial number or empty {@link Optional}
 	 */
 	public Optional<String> getSerialNumberForEdge(Edge edge);
+
+	/**
+	 * Get ems type for the given {@link Edge}.
+	 *
+	 * @param edgeId id of the edge to search for ems type
+	 * @return ems type or empty {@link Optional}
+	 */
+	public Optional<String> getEmsTypeForEdge(String edgeId);
 
 	/**
 	 * Gets a map of Edge-IDs with the role of the given user.

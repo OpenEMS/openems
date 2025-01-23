@@ -1,29 +1,30 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service, Utils } from '../../../../../shared/shared';
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { animate, state, style, transition, trigger } from "@angular/animations";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { DefaultTypes } from "../../../../../shared/service/defaulttypes";
+import { Service, Utils } from "../../../../../shared/shared";
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
 @Component({
-    selector: '[consumptionsection]',
-    templateUrl: './consumption.component.html',
+    selector: "[consumptionsection]",
+    templateUrl: "./consumption.component.html",
     animations: [
-        trigger('Consumption', [
-            state('show', style({
+        trigger("Consumption", [
+            state("show", style({
                 opacity: 0.1,
-                transform: 'translateX(0%)',
+                transform: "translateX(0%)",
             })),
-            state('hide', style({
+            state("hide", style({
                 opacity: 0.6,
-                transform: 'translateX(17%)',
+                transform: "translateX(17%)",
             })),
-            transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in')),
+            transition("show => hide", animate("650ms ease-out")),
+            transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
+    standalone: false,
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -38,8 +39,12 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         translate: TranslateService,
         service: Service,
     ) {
-        super('General.consumption', "right", "#FDC507", translate, service, "Consumption");
+        super("General.consumption", "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
+    }
+
+    get stateName() {
+        return this.showAnimation ? "show" : "hide";
     }
 
     ngOnInit() {
@@ -53,8 +58,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         this.animationTrigger = true;
     }
 
-    get stateName() {
-        return this.showAnimation ? 'show' : 'hide';
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 
     protected getStartAngle(): number {
@@ -66,7 +71,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getRatioType(): Ratio {
-        return 'Only Positive [0,1]';
+        return "Only Positive [0,1]";
     }
 
     protected _updateCurrentData(sum: DefaultTypes.Summary): void {
@@ -99,7 +104,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-        return this.unitpipe.transform(value, 'kW');
+        return this.unitpipe.transform(value, "kW");
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
@@ -156,7 +161,4 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         return p;
     }
 
-    ngOnDestroy() {
-        clearInterval(this.startAnimation);
-    }
 }

@@ -1,11 +1,11 @@
 // @ts-strict-ignore
-import { TranslateService } from '@ngx-translate/core';
-import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from 'date-fns';
+import { TranslateService } from "@ngx-translate/core";
+import { differenceInDays, endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from "date-fns";
 
-import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, Service } from '../shared';
+import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress, Service } from "../shared";
 
-export module DefaultTypes {
+export namespace DefaultTypes {
 
   export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
 
@@ -13,7 +13,7 @@ export module DefaultTypes {
     [componentId: string]: string[];
   }
 
-  export type ManualOnOff = 'MANUAL_ON' | 'MANUAL_OFF';
+  export type ManualOnOff = "MANUAL_ON" | "MANUAL_OFF";
 
   /**
    * CurrentData Summary
@@ -74,7 +74,8 @@ export module DefaultTypes {
       sellActivePowerL2: number,
       sellActivePowerL3: number,
       maxSellActivePower: number,
-      gridMode: number
+      gridMode: number,
+      restrictionMode: number
     }, consumption: {
       powerRatio: number,
       activePower: number,
@@ -93,16 +94,16 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', TOTAL = 'total', CUSTOM = 'custom' }
+  export enum PeriodString { DAY = "day", WEEK = "week", MONTH = "month", YEAR = "year", TOTAL = "total", CUSTOM = "custom" }
 
   /** Values of {@link DefaultTypes.PeriodString} */
   export type PeriodStringValues = Exclude<`${DefaultTypes.PeriodString}`, "custom">;
 
   export namespace History {
 
-    export enum YAxisTitle {
+    export enum YAxisType {
       PERCENTAGE,
-      ENERGY
+      ENERGY,
     }
     export type InputChannel = {
 
@@ -113,7 +114,7 @@ export module DefaultTypes {
 
       /** Choose between predefined converters */
       converter?: (value: number) => number | null,
-    }
+    };
     export type DisplayValues = {
       name: string,
       /** suffix to the name */
@@ -128,11 +129,11 @@ export module DefaultTypes {
       color: string,
       /** the stack for barChart */
       stack?: number,
-    }
+    };
 
     export type ChannelData = {
       [name: string]: number[]
-    }
+    };
 
     export type ChartData = {
       /** Input Channels that need to be queried from the database */
@@ -145,8 +146,8 @@ export module DefaultTypes {
         afterTitle?: string
       },
       /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
-      unit: YAxisTitle,
-    }
+      unit: YAxisType,
+    };
   }
 
   export class HistoryPeriod {
@@ -156,25 +157,67 @@ export module DefaultTypes {
       public to: Date = new Date(),
     ) { }
 
+
+    /**
+ * Returns a translated weekday name.
+ *
+ * @param translate the TranslateService
+ * @param date the Date
+ */
+    private static getTranslatedDayString(translate: TranslateService, date: Date): string {
+      switch (getDay(date)) {
+        case 0: return translate.instant("General.Week.sunday");
+        case 1: return translate.instant("General.Week.monday");
+        case 2: return translate.instant("General.Week.tuesday");
+        case 3: return translate.instant("General.Week.wednesday");
+        case 4: return translate.instant("General.Week.thursday");
+        case 5: return translate.instant("General.Week.friday");
+        case 6: return translate.instant("General.Week.saturday");
+      }
+    }
+
+    /**
+     * Returns a translated month name.
+     *
+     * @param translate the TranslateService
+     * @param date the Date
+     */
+    private static getTranslatedMonthString(translate: TranslateService, date: Date): string {
+      switch (getMonth(date) + 1) {
+        case 1: return translate.instant("General.Month.january");
+        case 2: return translate.instant("General.Month.february");
+        case 3: return translate.instant("General.Month.march");
+        case 4: return translate.instant("General.Month.april");
+        case 5: return translate.instant("General.Month.may");
+        case 6: return translate.instant("General.Month.june");
+        case 7: return translate.instant("General.Month.july");
+        case 8: return translate.instant("General.Month.august");
+        case 9: return translate.instant("General.Month.september");
+        case 10: return translate.instant("General.Month.october");
+        case 11: return translate.instant("General.Month.november");
+        case 12: return translate.instant("General.Month.december");
+      }
+    }
+
     public getText(translate: TranslateService, service: Service): string {
 
       if (service.periodString === DefaultTypes.PeriodString.TOTAL) {
-        return translate.instant('Edge.History.TOTAL');
+        return translate.instant("Edge.History.TOTAL");
       }
 
       if (isSameDay(this.from, this.to)) {
         if (isSameDay(this.from, new Date())) {
           // Selected TODAY
-          return translate.instant('Edge.History.today') + ", " + format(new Date(), translate.instant('General.dateFormat'));
+          return translate.instant("Edge.History.today") + ", " + format(new Date(), translate.instant("General.dateFormat"));
 
         } else if (isSameDay(this.from, subDays(new Date(), 1))) {
           // Selected YESTERDAY
-          return translate.instant('Edge.History.yesterday') + ", " + format(this.from, translate.instant('General.dateFormat'));
+          return translate.instant("Edge.History.yesterday") + ", " + format(this.from, translate.instant("General.dateFormat"));
 
         } else {
           // Selected one single day
-          return HistoryPeriod.getTranslatedDayString(translate, this.from) + ", " + translate.instant('Edge.History.selectedDay', {
-            value: format(this.from, translate.instant('General.dateFormat')),
+          return HistoryPeriod.getTranslatedDayString(translate, this.from) + ", " + translate.instant("Edge.History.selectedDay", {
+            value: format(this.from, translate.instant("General.dateFormat")),
           });
         }
       } else if (isSameMonth(this.from, this.to) && isSameDay(this.from, startOfMonth(this.from)) && isSameDay(this.to, endOfMonth(this.to))) {
@@ -188,57 +231,66 @@ export module DefaultTypes {
 
       else {
         return translate.instant(
-          'General.periodFromTo', {
-          value1: format(this.from, translate.instant('General.dateFormat')),
-          value2: format(this.to, translate.instant('General.dateFormat')),
+          "General.periodFromTo", {
+          value1: format(this.from, translate.instant("General.dateFormat")),
+          value2: format(this.to, translate.instant("General.dateFormat")),
         });
       }
     }
 
     /**
-     * Returns a translated weekday name.
+     * Checks if current period is week or day
      *
-     * @param translate the TranslateService
-     * @param date the Date
+     * @returns true if period is week or day, false if not
      */
-    private static getTranslatedDayString(translate: TranslateService, date: Date): string {
-      switch (getDay(date)) {
-        case 0: return translate.instant('General.Week.sunday');
-        case 1: return translate.instant('General.Week.monday');
-        case 2: return translate.instant('General.Week.tuesday');
-        case 3: return translate.instant('General.Week.wednesday');
-        case 4: return translate.instant('General.Week.thursday');
-        case 5: return translate.instant('General.Week.friday');
-        case 6: return translate.instant('General.Week.saturday');
-      }
-    }
-
-    /**
-     * Returns a translated month name.
-     *
-     * @param translate the TranslateService
-     * @param date the Date
-     */
-    private static getTranslatedMonthString(translate: TranslateService, date: Date): string {
-      switch (getMonth(date) + 1) {
-        case 1: return translate.instant('General.Month.january');
-        case 2: return translate.instant('General.Month.february');
-        case 3: return translate.instant('General.Month.march');
-        case 4: return translate.instant('General.Month.april');
-        case 5: return translate.instant('General.Month.may');
-        case 6: return translate.instant('General.Month.june');
-        case 7: return translate.instant('General.Month.july');
-        case 8: return translate.instant('General.Month.august');
-        case 9: return translate.instant('General.Month.september');
-        case 10: return translate.instant('General.Month.october');
-        case 11: return translate.instant('General.Month.november');
-        case 12: return translate.instant('General.Month.december');
-      }
+    public isWeekOrDay(): boolean {
+      return Math.abs(differenceInDays(this.to, this.from)) <= 6;
     }
   }
 }
+
 /** Generic Type for a key-value pair */
 export type TKeyValue<T> = {
   key: string,
   value: T
+};
+/**  */
+export type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
+
+type Range<N extends number, Acc extends number[] = []> = Acc["length"] extends N
+  ? Acc[number]
+  : Range<N, [...Acc, Acc["length"]]>;
+
+export type RGBValue = Range<256>; // 0 to 255
+
+export class RGBColor<T extends RGBValue = RGBValue> {
+  private static INVALID_RGB_VALUES_ERROR = new Error("All values need to be valid");
+  private readonly red: T;
+  private readonly green: T;
+  private readonly blue: T;
+
+  constructor(red: T, green: T, blue: T) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+  }
+
+  public static fromString(rgbString: string) {
+    const rgb: string[] = rgbString.split(",").map(el => el.trim());
+    const red: RGBValue = parseInt(rgb[0]) as RGBValue;
+    const green: RGBValue = parseInt(rgb[1]) as RGBValue;
+    const blue: RGBValue = parseInt(rgb[2]) as RGBValue;
+
+    if (!red || !green || !blue) {
+      throw RGBColor.INVALID_RGB_VALUES_ERROR;
+    }
+    return new RGBColor(red, green, blue);
+  }
+
+  public toString(): string {
+    if (this.red == null || this.green == null || this.blue == null) {
+      throw RGBColor.INVALID_RGB_VALUES_ERROR;
+    }
+    return `rgb(${this.red},${this.green},${this.blue})`;
+  }
 }

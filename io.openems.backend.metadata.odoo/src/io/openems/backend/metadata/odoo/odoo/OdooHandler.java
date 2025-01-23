@@ -925,12 +925,39 @@ public class OdooHandler {
 					Field.EdgeDevice.STOCK_PRODUCTION_LOT_ID);
 
 			var serialNumber = serialNumberField.get(Field.EdgeDevice.STOCK_PRODUCTION_LOT_ID.id());
-			if (serialNumber instanceof Object[] && ((Object[]) serialNumber).length > 1) {
-				return getAsOptional(((Object[]) serialNumber)[1], String.class);
+			if (serialNumber instanceof Object[] sns && sns.length > 1) {
+				return getAsOptional(sns[1], String.class);
 			}
 			return Optional.empty();
 		} catch (OpenemsException ex) {
 			this.parent.logInfo(this.log, "Unable to find serial number for Edge [" + edge.getId() + "]");
+		}
+
+		return Optional.empty();
+	}
+
+	/**
+	 * Get ems type for the given {@link Edge}.
+	 *
+	 * @param edgeId the id of the edge for the ems type
+	 * @return ems type or empty {@link Optional}
+	 */
+	public Optional<String> getEmsTypeForEdge(String edgeId) {
+		try {
+			final var queryResult = OdooUtils.searchRead(this.credentials, Field.EdgeDevice.ODOO_MODEL,
+					new Field[] { Field.EdgeDevice.EMS_TYPE }, new Domain(Field.EdgeDevice.NAME, Operator.EQ, edgeId));
+
+			if (queryResult.length != 1) {
+				return Optional.empty();
+			}
+
+			final var emsTypeObj = queryResult[0].get(Field.EdgeDevice.EMS_TYPE.id());
+
+			if (emsTypeObj instanceof String emsTypeString) {
+				return Optional.of(emsTypeString);
+			}
+		} catch (OpenemsException ex) {
+			this.parent.logInfo(this.log, "Unable to find serial number for Edge [" + edgeId + "]");
 		}
 
 		return Optional.empty();

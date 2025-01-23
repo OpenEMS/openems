@@ -1,4 +1,4 @@
-import { JsonrpcRequest } from '../../../../shared/jsonrpc/base';
+import { JsonrpcRequest } from "../../../../shared/jsonrpc/base";
 
 /**
  * Exports Channels with current value and metadata to an Excel (xlsx) file.

@@ -20,23 +20,43 @@
         "createDefaultProgram": true
       },
       "plugins": [
-        "unused-imports"
+        "import",
+        "unused-imports",
+        "@stylistic",
+        "check-file"
       ],
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates"
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:import/recommended"
       ],
       "rules": {
-        "unused-imports/no-unused-imports": "error",
-        "semi": [
-          "error",
-          "always"
+        "check-file/filename-naming-convention": [
+          "off",
+          {
+            "**/*.{ts}": "KEBAB_CASE"
+          }
         ],
-        "quote-props": [
-          "warn",
-          "consistent"
+        "curly": "error",
+        "unused-imports/no-unused-imports": "error",
+        "import/order": [
+          "error",
+          {
+            "groups": [
+              "builtin",
+              "external",
+              "internal",
+              "parent",
+              "sibling",
+              "index"
+            ],
+            "alphabetize": {
+              "order": "asc",
+              "caseInsensitive": true
+            }
+          }
         ],
         "@typescript-eslint/explicit-member-accessibility": [
           "error",
@@ -51,6 +71,10 @@
             }
           }
         ],
+        "@angular-eslint/use-lifecycle-interface": [
+          "error"
+        ],
+        "@angular-eslint/prefer-standalone": "off",
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -63,16 +87,17 @@
             "style": "camelCase"
           }
         ],
-        "curly": "error",
-        "comma-dangle": [
+        "@stylistic/semi": "error",
+        "@stylistic/quote-props": [
+          "warn",
+          "consistent"
+        ],
+        "@stylistic/comma-dangle": [
           "error",
           "always-multiline"
         ],
-        "eol-last": [
-          "error",
-          "always"
-        ],
-        "no-trailing-spaces": "error",
+        "@stylistic/eol-last": "error",
+        "@stylistic/no-trailing-spaces": "error",
         "@typescript-eslint/no-unused-vars": [
           "error",
           {
@@ -81,17 +106,43 @@
         ],
         "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/no-namespace": 0,
-        "@typescript-eslint/ban-types": [
+        "@typescript-eslint/no-restricted-types": 0,
+        "@typescript-eslint/member-ordering": "error",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-empty-object-type": "off",
+        "@stylistic/no-multiple-empty-lines": "error",
+        "@stylistic/quotes": [
+          "error",
+          "double"
+        ],
+        "no-restricted-syntax": [
           "error",
           {
-            "extendDefaults": true,
-            "types": {
-              "{}": false,
-              "Object": false,
-              "Function": false
-            }
+            "selector": "CallExpression[callee.name='fdescribe']",
+            "message": "Using 'fdescribe' is not allowed."
+          },
+          {
+            "selector": "CallExpression[callee.name='xdescribe']",
+            "message": "Using 'xdescribe' is not allowed."
           }
         ]
+      },
+      "overrides": [
+        {
+          "files": [
+            "*.component.ts",
+            "*.service.ts",
+            "*.module.ts"
+          ],
+          "rules": {
+            "check-file/filename-naming-convention": "off"
+          }
+        }
+      ],
+      "settings": {
+        "import/resolver": {
+          "typescript": {}
+        }
       }
     },
     {

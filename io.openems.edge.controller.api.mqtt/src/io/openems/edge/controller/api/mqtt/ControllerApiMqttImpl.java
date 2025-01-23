@@ -1,6 +1,13 @@
 package io.openems.edge.controller.api.mqtt;
 
+import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
+
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.paho.mqttv5.client.IMqttClient;
 import org.eclipse.paho.mqttv5.common.MqttException;
@@ -46,20 +53,27 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 
 	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
 
+	private static final long INITIAL_RECONNECT_DELAY_SECONDS = 5;
+	private static final long MAX_RECONNECT_DELAY_SECONDS = 300; // 5 minutes maximum delay.
+	private static final double RECONNECT_DELAY_MULTIPLIER = 1.5;
+
 	private final Logger log = LoggerFactory.getLogger(ControllerApiMqttImpl.class);
+	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+	private final AtomicInteger reconnectionAttempt = new AtomicInteger(0);
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
+
+	protected Config config;
+
+	private volatile ScheduledFuture<?> reconnectFuture = null;
+	private String topicPrefix;
+	private IMqttClient mqttClient = null;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	protected Config config;
-
-	private String topicPrefix;
-	private IMqttClient mqttClient = null;
 
 	public ControllerApiMqttImpl() {
 		super(//
@@ -82,6 +96,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 					this.mqttClient = client;
 					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
 				});
+		this.scheduleReconnect();
 	}
 
 	/**
@@ -113,13 +128,13 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.mqttConnector.deactivate();
-		this.sendChannelValuesWorker.deactivate();
+		shutdownAndAwaitTermination(this.scheduledExecutorService, 0);
+
 		if (this.mqttClient != null) {
 			try {
 				this.mqttClient.close();
 			} catch (MqttException e) {
-				this.logWarn(this.log, "Unable to close connection to MQTT brokwer: " + e.getMessage());
+				this.logWarn(this.log, "Unable to close connection to MQTT broker: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -159,6 +174,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 			// Trigger sending of all channel values, because a Component might have
 			// disappeared
 			this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
+			break;
 		}
 	}
 
@@ -199,4 +215,53 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		var msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);
 		return this.publish(subTopic, msg);
 	}
+
+	private synchronized void scheduleReconnect() {
+		if (this.reconnectFuture != null && !this.reconnectFuture.isDone()) {
+			this.reconnectFuture.cancel(false);
+		}
+
+		this.attemptConnect();
+	}
+
+	private void attemptConnect() {
+		if (this.mqttClient != null && this.mqttClient.isConnected()) {
+			return; // Already connected
+		}
+		try {
+			this.mqttConnector
+					.connect(this.config.uri(), this.config.clientId(), this.config.username(), this.config.password(),
+							this.config.certPem(), this.config.privateKeyPem(), this.config.trustStorePem())
+					.thenAccept(client -> {
+						this.mqttClient = client;
+						this.logInfo(this.log, "Connected to MQTT Broker [" + this.config.uri() + "]");
+						this.reconnectionAttempt.set(0); // Reset on successful connection.
+					}) //
+					.exceptionally(ex -> {
+						this.log.error("Failed to connect to MQTT broker: " + ex.getMessage(), ex);
+						this.scheduleNextAttempt(); // Schedule the next attempt with an increased delay.
+						return null;
+					});
+		} catch (Exception e) {
+			this.log.error("Error attempting to connect to MQTT broker", e);
+			this.scheduleNextAttempt(); // Schedule the next attempt with an increased delay.
+		}
+	}
+
+	private void scheduleNextAttempt() {
+		long delay = this.calculateNextDelay();
+		// Ensure the executor service is not shut down
+		if (!this.scheduledExecutorService.isShutdown()) {
+			this.reconnectFuture = this.scheduledExecutorService.schedule(this::attemptConnect, delay,
+					TimeUnit.SECONDS);
+		}
+	}
+
+	private long calculateNextDelay() {
+		long delay = (long) (INITIAL_RECONNECT_DELAY_SECONDS
+				* Math.pow(RECONNECT_DELAY_MULTIPLIER, this.reconnectionAttempt.getAndIncrement()));
+		delay = Math.min(delay, MAX_RECONNECT_DELAY_SECONDS); // Ensure delay does not exceed maximum
+		return delay;
+	}
+
 }

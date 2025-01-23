@@ -2,6 +2,7 @@ package io.openems.edge.io.weidmueller;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ import io.openems.edge.bridge.modbus.api.ChannelMetaInfoBitReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
+import io.openems.edge.bridge.modbus.api.ModbusUtils.ReadElementsResult;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
@@ -150,6 +152,18 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 						tasks = myTasks.toArray(Task[]::new);
 						break;
 					}
+
+					case UR20_16DI_P: {
+						var element = new BitsWordElement(inputRegisterOffset, this);
+						for (var i = 0; i < 16; i++) {
+							var channelId = FieldbusChannelId.forDigitalInput(moduleCount, i + 1);
+							var channel = (BooleanReadChannel) this.addChannel(channelId);
+							this.modules.get(module).add(channel);
+							element.bit(i, channelId);
+						}
+						tasks = new Task[] { new FC3ReadRegistersTask(element.startAddress, Priority.HIGH, element) };
+						break;
+					}
 					}
 
 					if (tasks == null || tasks.length == 0) {
@@ -222,7 +236,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 	}
 
 	private CompletableFuture<Integer> readNumberOfEntriesInTheCurrentModuleList() {
-		return readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0x27FE));
+		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0x27FE));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -231,7 +245,8 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 				.map(index -> 0x2A00 + index * 2) //
 				.mapToObj(address -> new UnsignedDoublewordElement(address)) //
 				.toArray(ModbusRegisterElement[]::new);
-		return readElementsOnce(this.modbusProtocol, ModbusUtils::retryOnNull, elements);
+		return readElementsOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, elements) //
+				.thenApply(rsr -> ((ReadElementsResult<Long>) rsr).values());
 	}
 
 }

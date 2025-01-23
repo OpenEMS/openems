@@ -23,17 +23,16 @@ public interface UiWebsocket {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> send(UUID websocketId, JsonrpcRequest request)
-			throws OpenemsNamedException;
+	public CompletableFuture<JsonrpcResponseSuccess> send(UUID websocketId, JsonrpcRequest request);
 
 	/**
 	 * Send a JSON-RPC Notification to a UI session.
 	 *
 	 * @param websocketId  the id of the UI websocket connection
 	 * @param notification the JsonrpcNotification
-	 * @throws OpenemsNamedException on error
+	 * @return true if sending was successful; false otherwise
 	 */
-	public void send(UUID websocketId, JsonrpcNotification notification) throws OpenemsNamedException;
+	public boolean send(UUID websocketId, JsonrpcNotification notification);
 
 	/**
 	 * Send a JSON-RPC Notification broadcast to all UI sessions with a given
@@ -41,9 +40,8 @@ public interface UiWebsocket {
 	 *
 	 * @param edgeId       the Edge-ID
 	 * @param notification the JsonrpcNotification
-	 * @throws OpenemsNamedException on error
 	 */
-	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException;
+	public void sendBroadcast(String edgeId, JsonrpcNotification notification);
 
 	/**
 	 * Sends the subscribed Channels to the UI session.

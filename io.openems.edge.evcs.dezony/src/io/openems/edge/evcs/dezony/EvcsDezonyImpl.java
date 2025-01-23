@@ -1,5 +1,8 @@
 package io.openems.edge.evcs.dezony;
 
+import static io.openems.edge.evcs.api.ChargingType.AC;
+import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -15,14 +18,14 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
-import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Phases;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -35,7 +38,7 @@ import io.openems.edge.evcs.api.Phases;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class EvcsDezonyImpl extends AbstractManagedEvcsComponent
-		implements OpenemsComponent, EventHandler, EvcsDezony, Evcs, ManagedEvcs {
+		implements OpenemsComponent, EventHandler, EvcsDezony, Evcs, ManagedEvcs, ElectricityMeter {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsDezonyImpl.class);
 	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
@@ -48,7 +51,11 @@ public class EvcsDezonyImpl extends AbstractManagedEvcsComponent
 	protected boolean masterEvcs = true;
 
 	public EvcsDezonyImpl() {
-		super(OpenemsComponent.ChannelId.values(), Evcs.ChannelId.values(), ManagedEvcs.ChannelId.values(),
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				Evcs.ChannelId.values(), //
+				ManagedEvcs.ChannelId.values(), //
 				EvcsDezony.ChannelId.values());
 	}
 
@@ -57,11 +64,9 @@ public class EvcsDezonyImpl extends AbstractManagedEvcsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		this._setChargingType(ChargingType.AC);
-		this._setFixedMinimumHardwarePower(
-				config.minHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
-		this._setFixedMaximumHardwarePower(
-				config.maxHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
+		this._setChargingType(AC);
+		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * DEFAULT_VOLTAGE * THREE_PHASE.getValue());
+		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * DEFAULT_VOLTAGE * THREE_PHASE.getValue());
 		this._setPowerPrecision(230);
 
 		if (config.enabled()) {
@@ -95,6 +100,11 @@ public class EvcsDezonyImpl extends AbstractManagedEvcsComponent
 
 			break;
 		}
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	/**
@@ -158,12 +168,12 @@ public class EvcsDezonyImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public int getConfiguredMinimumHardwarePower() {
-		return Math.round(this.config.minHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+		return Math.round(this.config.minHwCurrent() / 1000f) * DEFAULT_VOLTAGE * THREE_PHASE.getValue();
 	}
 
 	@Override
 	public int getConfiguredMaximumHardwarePower() {
-		return Math.round(this.config.maxHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+		return Math.round(this.config.maxHwCurrent() / 1000f) * DEFAULT_VOLTAGE * THREE_PHASE.getValue();
 	}
 
 	@Override

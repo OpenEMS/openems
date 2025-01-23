@@ -1,16 +1,28 @@
 package io.openems.backend.metadata.odoo.postgres;
 
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +45,7 @@ public class PeriodicWriteWorker {
 	 */
 	private static final boolean DEBUG_MODE = true;
 
-	private static final int UPDATE_INTERVAL_IN_SECONDS = 120;
+	private static final int UPDATE_INTERVAL_IN_SECONDS = 30;
 
 	private final Logger log = LoggerFactory.getLogger(PeriodicWriteWorker.class);
 	private final PostgresHandler parent;
@@ -58,7 +70,7 @@ public class PeriodicWriteWorker {
 	 */
 	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
-				() -> this.task.accept(this.parent.edge), //
+				this::applyChanges, //
 				PeriodicWriteWorker.UPDATE_INTERVAL_IN_SECONDS, PeriodicWriteWorker.UPDATE_INTERVAL_IN_SECONDS,
 				TimeUnit.SECONDS);
 	}
@@ -76,14 +88,13 @@ public class PeriodicWriteWorker {
 	}
 
 	private final LinkedBlockingQueue<Integer> lastMessageOdooIds = new LinkedBlockingQueue<>();
-	private final LinkedBlockingQueue<Integer> isOnlineOdooIds = new LinkedBlockingQueue<>();
-	private final LinkedBlockingQueue<Integer> isOfflineOdooIds = new LinkedBlockingQueue<>();
-	private final LinkedBlockingQueue<Integer> sumStateOk = new LinkedBlockingQueue<>();
-	private final LinkedBlockingQueue<Integer> sumStateInfo = new LinkedBlockingQueue<>();
-	private final LinkedBlockingQueue<Integer> sumStateWarning = new LinkedBlockingQueue<>();
-	private final LinkedBlockingQueue<Integer> sumStateFault = new LinkedBlockingQueue<>();
+	private ExchangableObject<Map<Integer, Boolean>> connectionStatesToUpdate = new ExchangableObject<>(
+			new ConcurrentHashMap<>());
+	private ExchangableObject<Map<Integer, Level>> sumStatesToUpdate = new ExchangableObject<>(
+			new ConcurrentHashMap<>());
 
-	private final Consumer<PgEdgeHandler> task = edge -> {
+	private final void applyChanges() {
+		final var edge = this.parent.edge;
 		if (PeriodicWriteWorker.DEBUG_MODE) {
 			this.debugLog();
 		}
@@ -93,19 +104,37 @@ public class PeriodicWriteWorker {
 			edge.updateLastMessage(drainToSet(this.lastMessageOdooIds));
 
 			// Online/Offline
-			edge.updateOpenemsIsConnected(drainToSet(this.isOfflineOdooIds), false);
-			edge.updateOpenemsIsConnected(drainToSet(this.isOnlineOdooIds), true);
+			final var connectionToUpdate = this.connectionStatesToUpdate.exchange(new ConcurrentHashMap<>());
+			final var edgesByConnection = connectionToUpdate.entrySet().stream() //
+					.collect(groupingBy(Entry::getValue, mapping(Entry::getKey, toSet())));
+			edge.updateOpenemsIsConnected(edgesByConnection.getOrDefault(false, emptySet()), false);
+			edge.updateOpenemsIsConnected(edgesByConnection.getOrDefault(true, emptySet()), true);
+			if (PeriodicWriteWorker.DEBUG_MODE) {
+				this.parent.logInfo(this.log,
+						"Update Edge connection states online["
+								+ edgesByConnection.getOrDefault(true, emptySet()).size() + "] offline["
+								+ edgesByConnection.getOrDefault(false, emptySet()).size() + "]");
+			}
 
 			// Sum-State
-			edge.updateSumState(drainToSet(this.sumStateOk), Level.OK);
-			edge.updateSumState(drainToSet(this.sumStateInfo), Level.INFO);
-			edge.updateSumState(drainToSet(this.sumStateWarning), Level.WARNING);
-			edge.updateSumState(drainToSet(this.sumStateFault), Level.FAULT);
+			final var statesToUpdate = this.sumStatesToUpdate.exchange(new ConcurrentHashMap<>());
+			final var edgesByState = statesToUpdate.entrySet().stream()
+					.collect(groupingBy(Entry::getValue, mapping(Entry::getKey, toSet())));
+			for (var stateEntry : edgesByState.entrySet()) {
+				edge.updateSumState(stateEntry.getValue(), stateEntry.getKey());
+			}
+			if (PeriodicWriteWorker.DEBUG_MODE) {
+				this.parent.logInfo(this.log, "Update Edge sum states " + Stream.of(Level.values()) //
+						.map(level -> {
+							final var itemsToUpdate = edgesByState.getOrDefault(level, emptySet());
+							return level.getName() + "[" + itemsToUpdate.size() + "]";
+						}).collect(joining(" ")));
+			}
 
 		} catch (SQLException e) {
 			this.log.error("Unable to execute WriteWorker task: " + e.getMessage());
 		}
-	};
+	}
 
 	/**
 	 * Called on {@link Edge.Events#ON_SET_LAST_MESSAGE_TIMESTAMP} event.
@@ -123,12 +152,10 @@ public class PeriodicWriteWorker {
 	 * @param isOnline true if online, false if offline
 	 */
 	public void onSetOnline(MyEdge edge, boolean isOnline) {
-		var odooId = edge.getOdooId();
-		if (isOnline) {
-			this.isOnlineOdooIds.add(odooId);
-		} else {
-			this.isOfflineOdooIds.add(odooId);
-		}
+		final var odooId = edge.getOdooId();
+		this.connectionStatesToUpdate.lockReading(t -> {
+			t.put(odooId, isOnline);
+		});
 	}
 
 	/**
@@ -138,21 +165,10 @@ public class PeriodicWriteWorker {
 	 * @param sumState Sum-State {@link Level}
 	 */
 	public void onSetSumState(MyEdge edge, Level sumState) {
-		var odooId = edge.getOdooId();
-		switch (sumState) {
-		case OK:
-			this.sumStateOk.add(odooId);
-			break;
-		case INFO:
-			this.sumStateInfo.add(odooId);
-			break;
-		case WARNING:
-			this.sumStateWarning.add(odooId);
-			break;
-		case FAULT:
-			this.sumStateFault.add(odooId);
-			break;
-		}
+		final var odooId = edge.getOdooId();
+		this.sumStatesToUpdate.lockReading(t -> {
+			t.put(odooId, sumState);
+		});
 	}
 
 	/**
@@ -182,4 +198,36 @@ public class PeriodicWriteWorker {
 		}
 		this.lastExecute = now;
 	}
+
+	private static class ExchangableObject<T> {
+		private final ReadWriteLock lock = new ReentrantReadWriteLock();
+		private volatile T currentObject;
+
+		public ExchangableObject(T currentObject) {
+			super();
+			this.currentObject = currentObject;
+		}
+
+		public T exchange(T newObject) {
+			this.lock.writeLock().lock();
+			try {
+				final var prev = this.currentObject;
+				this.currentObject = newObject;
+				return prev;
+			} finally {
+				this.lock.writeLock().unlock();
+			}
+		}
+
+		public void lockReading(Consumer<T> block) {
+			this.lock.readLock().lock();
+			try {
+				block.accept(this.currentObject);
+			} finally {
+				this.lock.readLock().unlock();
+			}
+		}
+
+	}
+
 }

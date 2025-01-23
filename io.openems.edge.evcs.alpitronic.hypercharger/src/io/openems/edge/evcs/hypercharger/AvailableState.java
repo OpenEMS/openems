@@ -14,7 +14,7 @@ public enum AvailableState implements OptionsEnum {
 	SUSPENDED_EV(4, "Suspended electric vehicle"), //
 	SUSPENDED_EV_SE(5, "Suspended electric vehicle se"), //
 	FINISHING(6, "Finishing"), //
-	RESERVED(7, "Reseved"), //
+	RESERVED(7, "Reserved"), //
 	UNAVAILABLE(8, "Unavailable"), //
 	UNAVAILABLE_FW_UPDATE(9, "Unavailable firmware update"), //
 	FAULTED(10, "Faulted"), //

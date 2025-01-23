@@ -1,8 +1,7 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
-import { EdgeConfig, Service, Utils } from '../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
+import { EdgeConfig, Service, Utils } from "../../../../shared/shared";
 
 interface MyCategorizedComponents extends CategorizedComponents {
   isNatureClicked?: boolean,
@@ -11,25 +10,24 @@ interface MyCategorizedComponents extends CategorizedComponents {
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html',
+  templateUrl: "./index.component.html",
+  standalone: false,
 })
 export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
-  public config: EdgeConfig = null;
+  public config: EdgeConfig | null = null;
   public list: MyCategorizedComponents[];
 
   public showAllEntries = false;
 
   constructor(
-    private route: ActivatedRoute,
     private service: Service,
   ) {
   }
 
   public ngOnInit() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route);
     this.service.getConfig().then(config => {
       this.config = config;
       const categorizedComponentIds: string[] = [];
@@ -44,7 +42,7 @@ export class IndexComponent implements OnInit {
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    const filters = completeFilter.toLowerCase().split(' ');
+    const filters = completeFilter.toLowerCase().split(" ");
     let countFilteredEntries = 0;
     for (const entry of this.list) {
       entry.filteredComponents = entry.components.filter(entry =>

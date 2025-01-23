@@ -114,14 +114,22 @@ public interface Field {
 		NAME("name", true), //
 		COMMENT("comment", true), //
 		OPENEMS_VERSION("openems_version", true), //
-		PRODUCTTYPE("producttype", true), //
-		OPENEMS_CONFIG("openems_config", false), //
-		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
 		LASTMESSAGE("lastmessage", true), //
 		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false), //
-		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false),
-		FIRST_SETUP_PROTOCOL("first_setup_protocol_date", false);
+		FIRST_SETUP_PROTOCOL("first_setup_protocol_date", false), //
+
+		// Hardware
+		PRODUCTTYPE("producttype", true), //
+		EMS_TYPE("ems_type", false), //
+
+		// Configuration
+		OPENEMS_CONFIG("openems_config", false), //
+		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
+
+		// Product
+		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false), //
+		;
 
 		public static final String ODOO_MODEL = "openems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

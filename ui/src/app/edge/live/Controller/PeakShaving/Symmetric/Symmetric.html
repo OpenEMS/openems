@@ -1,5 +1,6 @@
 <oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias"
-    [icon]="{name: 'trending-down-outline'}">
+    [icon]="{name: 'trending-down-outline', color: 'normal'}">
+
     <oe-flat-widget-line [name]="'General.measuredValue' | translate" [converter]="CONVERT_WATT_TO_KILOWATT"
         [value]="activePower"></oe-flat-widget-line>
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakshavingPower'| translate"

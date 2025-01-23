@@ -421,7 +421,71 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 		if (measurement != null) {
 			return measurement;
 		}
-		this.log.warn("No measurement provided for zoneId " + zoneId);
+		// this.log.warn("No measurement provided for zoneId " + zoneId);
+
+		// TODO: add more zoneToMeasurement. Logs from 2024-07-21:
+		// - +00:00:02
+		// - +01:00
+		// - +02:00
+		// - -07:00
+		// - Africa/Cairo
+		// - Africa/Casablanca
+		// - Africa/Johannesburg
+		// - Africa/Nairobi
+		// - Africa/Windhoek
+		// - America/Chicago
+		// - America/Detroit
+		// - America/Edmonton
+		// - America/Los_Angeles
+		// - America/New_York
+		// - America/Sao_Paulo
+		// - America/Toronto
+		// - America/Vancouver
+		// - Asia/Calcutta
+		// - Asia/Colombo
+		// - Asia/Jerusalem
+		// - Asia/Makassar
+		// - Asia/Nicosia
+		// - Asia/Shanghai
+		// - Asia/Tbilisi
+		// - Atlantic/Canary
+		// - Atlantic/Reykjavik
+		// - Australia/Adelaide
+		// - Etc/GMT-2
+		// - Europe/Amsterdam
+		// - Europe/Athens
+		// - Europe/Bratislava
+		// - Europe/Brussels
+		// - Europe/Bucharest
+		// - Europe/Budapest
+		// - Europe/Copenhagen
+		// - Europe/Dublin
+		// - Europe/Helsinki
+		// - Europe/Istanbul
+		// - Europe/Lisbon
+		// - Europe/Ljubljana
+		// - Europe/London
+		// - Europe/Luxembourg
+		// - Europe/Madrid
+		// - Europe/Malta
+		// - Europe/Oslo
+		// - Europe/Paris
+		// - Europe/Podgorica
+		// - Europe/Prague
+		// - Europe/Riga
+		// - Europe/Rome
+		// - Europe/Sarajevo
+		// - Europe/Sofia
+		// - Europe/Stockholm
+		// - Europe/Tallinn
+		// - Europe/Tirane
+		// - Europe/Vaduz
+		// - Europe/Vienna
+		// - Europe/Vilnius
+		// - Europe/Warsaw
+		// - Europe/Zagreb
+		// - Europe/Zurich
+		// - Indian/Maldives
 		for (var entry : this.zoneToMeasurement.entrySet()) {
 			return entry.getValue();
 		}

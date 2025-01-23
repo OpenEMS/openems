@@ -1,8 +1,8 @@
 package io.openems.edge.meter.socomec.singlephase;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 @SuppressWarnings("all")

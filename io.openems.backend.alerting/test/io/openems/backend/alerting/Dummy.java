@@ -6,7 +6,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +103,6 @@ public class Dummy {
 		private Collection<Edge> edges;
 		private Map<String, List<OfflineEdgeAlertingSetting>> offlineSettings;
 		private Map<String, List<SumStateAlertingSetting>> sumStateSettings;
-		private Map<String, Level> sumStates = new HashMap<>(10);
 
 		/**
 		 * Initialize Metadata with test data for Offline-Alerting.
@@ -157,11 +155,11 @@ public class Dummy {
 
 		@Override
 		public Optional<Level> getSumState(String edgeId) {
-			return Optional.ofNullable(this.sumStates.get(edgeId));
+			return this.getEdge(edgeId).map(Edge::getSumState);
 		}
 
 		public void setSumState(String edgeId, Level sumState) {
-			this.sumStates.put(edgeId, sumState);
+			this.getEdge(edgeId).ifPresent(e -> e.setSumState(sumState));
 		}
 
 		public Collection<Edge> getEdges() {
@@ -226,14 +224,14 @@ public class Dummy {
 		 * Try to advance the Clock to a specific amount of minutes after
 		 * initialization. If the given point is ahead, the time will leap by the
 		 * missing amount. If the given point is behind, nothing will happen.
+		 * 
 		 * <p>
 		 * A return value >=0 means, the clock has advanced the given amount in minutes
 		 * with this call.
-		 * </p>
+		 * 
 		 * <p>
 		 * A return value <0 means, the clock has already advanced the given amount
 		 * above.
-		 * </p>
 		 *
 		 * @param point to advance to
 		 * @return difference
