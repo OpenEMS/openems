@@ -3,10 +3,12 @@ package io.openems.edge.modbus.thermometer;
 
 
 import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.PersistencePriority.LOW;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -29,17 +31,29 @@ public interface ModbusThermometer extends OpenemsComponent {
 		 * <li>Unit: degree celsius
 		 * </ul>
 		 */
-        TEMPERATURE_OWD1(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD2(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD3(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD4(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD5(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD6(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD7(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD8(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD9(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        TEMPERATURE_OWD10(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH));
+		OWD_READ_FAILED(Doc.of(OpenemsType.BOOLEAN).persistencePriority(HIGH)),		
+		
+        TEMPERATURE_OWD01(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD02(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD03(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD04(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD05(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD06(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD07(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD08(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD09(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
+        TEMPERATURE_OWD10(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
 
+        TEMPERATURE_OWD01_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD02_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD03_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD04_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD05_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD06_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD07_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD08_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD09_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW)),
+        TEMPERATURE_OWD10_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW));		
 
 		private final Doc doc;
 
@@ -53,13 +67,53 @@ public interface ModbusThermometer extends OpenemsComponent {
 		}
 	}
 
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#OWD_READ_FAILED}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanReadChannel getOwdReadFailedChannel() {
+		return this.channel(ChannelId.OWD_READ_FAILED);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#OWD_READ_FAILED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getOwdReadFailed() {
+		return this.getOwdReadFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#OWD_READ_FAILED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setOwdReadFailed(Boolean value) {
+		this.getOwdReadFailedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#OWD_READ_FAILED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setOwdReadFailed(boolean value) {
+		this.getOwdReadFailedChannel().setNextValue(value);
+	}	
+	
+	
 	/**
 	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD1}.
 	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd1Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD1);
+		return this.channel(ChannelId.TEMPERATURE_OWD01);
 	}
 
 	/**
@@ -98,7 +152,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd2Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD2);
+		return this.channel(ChannelId.TEMPERATURE_OWD02);
 	}
 
 	/**
@@ -137,7 +191,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd3Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD3);
+		return this.channel(ChannelId.TEMPERATURE_OWD03);
 	}
 
 	/**
@@ -176,7 +230,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd4Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD4);
+		return this.channel(ChannelId.TEMPERATURE_OWD04);
 	}
 
 	/**
@@ -215,7 +269,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd5Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD5);
+		return this.channel(ChannelId.TEMPERATURE_OWD05);
 	}
 
 	/**
@@ -254,7 +308,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd6Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD6);
+		return this.channel(ChannelId.TEMPERATURE_OWD06);
 	}
 
 	/**
@@ -293,7 +347,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd7Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD7);
+		return this.channel(ChannelId.TEMPERATURE_OWD07);
 	}
 
 	/**
@@ -332,7 +386,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd8Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD8);
+		return this.channel(ChannelId.TEMPERATURE_OWD08);
 	}
 
 	/**
@@ -371,7 +425,7 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTemperatureOwd9Channel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD9);
+		return this.channel(ChannelId.TEMPERATURE_OWD09);
 	}
 
 	/**
@@ -443,7 +497,192 @@ public interface ModbusThermometer extends OpenemsComponent {
 	}
 
 
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD1_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd1DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD01_DEBUG);
+	}
 
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD1_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd1Debug() {
+		return this.getTemperatureOwd1DebugChannel().value();
+	}
+
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD2_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd2DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD02_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD2_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd2Debug() {
+		return this.getTemperatureOwd2DebugChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD3_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd3DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD03_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD3_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd3Debug() {
+		return this.getTemperatureOwd3DebugChannel().value();
+	}
+
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD4_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd4DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD04_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD4_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd4Debug() {
+		return this.getTemperatureOwd4DebugChannel().value();
+	}
+
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD5_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd5DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD05_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD5_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd5Debug() {
+		return this.getTemperatureOwd5DebugChannel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD6_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd6DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD06_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD6_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd6Debug() {
+		return this.getTemperatureOwd6DebugChannel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD7_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd7DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD07_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD7_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd7Debug() {
+		return this.getTemperatureOwd7DebugChannel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD8_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd8DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD08_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD8_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd8Debug() {
+		return this.getTemperatureOwd8DebugChannel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD9_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd9DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD09_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD9_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd9Debug() {
+		return this.getTemperatureOwd9DebugChannel().value();
+	}
+	
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD10_DEBUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureOwd10DebugChannel() {
+		return this.channel(ChannelId.TEMPERATURE_OWD10_DEBUG);
+	}
+
+	/**
+	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD10_DEBUG}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureOwd10Debug() {
+		return this.getTemperatureOwd10DebugChannel().value();
+	}
+	
+
+	
 
 
 
@@ -456,15 +695,15 @@ public interface ModbusThermometer extends OpenemsComponent {
 	 */
 	public default ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ModbusThermometer.class, accessMode, 100) //
-				.channel(0, ChannelId.TEMPERATURE_OWD1, ModbusType.FLOAT32) //
-				.channel(2, ChannelId.TEMPERATURE_OWD2, ModbusType.FLOAT32) //
-				.channel(4, ChannelId.TEMPERATURE_OWD3, ModbusType.FLOAT32) //
-				.channel(6, ChannelId.TEMPERATURE_OWD4, ModbusType.FLOAT32) //
-				.channel(8, ChannelId.TEMPERATURE_OWD5, ModbusType.FLOAT32) //
-				.channel(10, ChannelId.TEMPERATURE_OWD6, ModbusType.FLOAT32) //
-				.channel(12, ChannelId.TEMPERATURE_OWD7, ModbusType.FLOAT32) //
-				.channel(14, ChannelId.TEMPERATURE_OWD8, ModbusType.FLOAT32) //
-				.channel(16, ChannelId.TEMPERATURE_OWD9, ModbusType.FLOAT32) //
+				.channel(0, ChannelId.TEMPERATURE_OWD01, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.TEMPERATURE_OWD02, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.TEMPERATURE_OWD03, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.TEMPERATURE_OWD04, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.TEMPERATURE_OWD05, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.TEMPERATURE_OWD06, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.TEMPERATURE_OWD07, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.TEMPERATURE_OWD08, ModbusType.FLOAT32) //
+				.channel(16, ChannelId.TEMPERATURE_OWD09, ModbusType.FLOAT32) //
 				.channel(18, ChannelId.TEMPERATURE_OWD10, ModbusType.FLOAT32) //
 				.build();
 	}

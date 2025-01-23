@@ -16,6 +16,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;	
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
@@ -24,31 +27,31 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int modbusUnitId() default 1;
 	
 	@AttributeDefinition(name = "Alias OWD1", description = "Alias name for onewire thermometer 1")
-	String aliasOwd1() default "owd1";
+	String aliasOwd1() default "owd01";
 
 	@AttributeDefinition(name = "Alias OWD2", description = "Alias name for onewire thermometer 2")
-	String aliasOwd2() default "owd2";
+	String aliasOwd2() default "owd02";
 
 	@AttributeDefinition(name = "Alias OWD3", description = "Alias name for onewire thermometer 3")
-	String aliasOwd3() default "owd3";
+	String aliasOwd3() default "owd03";
 
 	@AttributeDefinition(name = "Alias OWD4", description = "Alias name for onewire thermometer 4")
-	String aliasOwd4() default "owd4";
+	String aliasOwd4() default "owd04";
 
 	@AttributeDefinition(name = "Alias OWD5", description = "Alias name for onewire thermometer 5")
-	String aliasOwd5() default "owd5";
+	String aliasOwd5() default "owd05";
 
 	@AttributeDefinition(name = "Alias OWD6", description = "Alias name for onewire thermometer 6")
-	String aliasOwd6() default "owd6";
+	String aliasOwd6() default "owd06";
 
 	@AttributeDefinition(name = "Alias OWD7", description = "Alias name for onewire thermometer 7")
-	String aliasOwd7() default "owd7";
+	String aliasOwd7() default "owd07";
 
 	@AttributeDefinition(name = "Alias OWD8", description = "Alias name for onewire thermometer 8")
-	String aliasOwd8() default "owd8";
+	String aliasOwd8() default "owd08";
 
 	@AttributeDefinition(name = "Alias OWD9", description = "Alias name for onewire thermometer 9")
-	String aliasOwd9() default "owd9";
+	String aliasOwd9() default "owd09";
 
 	@AttributeDefinition(name = "Alias OWD10", description = "Alias name for onewire thermometer 10")
 	String aliasOwd10() default "owd10";

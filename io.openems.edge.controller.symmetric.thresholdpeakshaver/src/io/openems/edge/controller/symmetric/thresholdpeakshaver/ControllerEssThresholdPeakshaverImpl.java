@@ -41,7 +41,7 @@ import io.openems.edge.common.sum.GridMode;
 public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsComponent
 		implements ControllerEssThresholdPeakshaver, Controller, OpenemsComponent, TimedataProvider {
 
-	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
+	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2; // what´s the use? copied from peakshaving controller
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssThresholdPeakshaverImpl.class);
 
@@ -70,7 +70,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 	private Instant peakshavingStartTime = Instant.MIN;
 
 	private Integer maxEssPower = 0;
-	private AverageCalculator gridPowerAverageCalculator = new AverageCalculator(5);
+	private AverageCalculator gridPowerAverageCalculator = new AverageCalculator(3);
 
 	private final CalculateEnergyFromPower calculatePeakShavingEnergy = new CalculateEnergyFromPower(this,
 			ControllerEssThresholdPeakshaver.ChannelId.PEAK_SHAVING_ENERGY);
@@ -129,7 +129,7 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
 		/*
-		 * A 5 point average is used to start controller´s timer.
+		 * A 3 point average is used to start controller´s timer.
 		 */
 		gridPowerAverageCalculator.addValue(meter.getActivePower().getOrError());
 
