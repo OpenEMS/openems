@@ -40,8 +40,12 @@ import io.openems.edge.thermometer.api.Thermometer;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+})
 public class ModbusThermometerImpl extends AbstractOpenemsModbusComponent
-		implements Thermometer, ModbusThermometer, ModbusComponent, OpenemsComponent {
+		implements Thermometer, ModbusThermometer, ModbusComponent, EventHandler, OpenemsComponent {
 
 	// private final Logger log =
 	// LoggerFactory.getLogger(ModbusThermometerImpl.class);
@@ -51,7 +55,7 @@ public class ModbusThermometerImpl extends AbstractOpenemsModbusComponent
 	private Config config;
 	private final Logger log = LoggerFactory.getLogger(ModbusThermometerImpl.class);
 
-	// private Config config;
+	private Boolean initComplete = false;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -81,8 +85,6 @@ public class ModbusThermometerImpl extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-
-
 	/**
 	 * Uses Info Log for further debug features.
 	 */
@@ -90,8 +92,8 @@ public class ModbusThermometerImpl extends AbstractOpenemsModbusComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
-	}	
-	
+	}
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this,
@@ -131,7 +133,7 @@ public class ModbusThermometerImpl extends AbstractOpenemsModbusComponent
 	public void handleEvent(Event event) {
 		// super.handleEvent(event);
 
-		if (event.getTopic() == EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE) {
+		if (event.getTopic() == EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS) {
 			this.validateAndSetTemperatures();
 
 		}
@@ -139,11 +141,82 @@ public class ModbusThermometerImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void validateAndSetTemperatures() {
-		if (this.getTemperatureOwd1Debug().get() == null || Math.abs(this.getTemperatureOwd1Debug().get() - this.getTemperatureOwd1().get()) > 1000) {
+		if (this.getTemperatureOwd1Debug().get() == null) {
 			this._setOwdReadFailed(true);
-			this.logError(this.log, "Setting Temperature OWD 1 ");			
+			this.logError(this.log, "Error. Setting Temperature OWD 1 ");
 			return;
 		}
+
+		if (!this.initComplete || getTemperatureOwd1().get() == null) {
+			this._setTemperatureOwd1(getTemperatureOwd1Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd1Debug().get() - getTemperatureOwd1().get()) < 1000) {
+			this._setTemperatureOwd1(getTemperatureOwd1Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd2().get() == null) {
+			this._setTemperatureOwd2(getTemperatureOwd2Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd2Debug().get() - getTemperatureOwd2().get()) < 1000) {
+			this._setTemperatureOwd2(getTemperatureOwd2Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd3().get() == null) {
+			this._setTemperatureOwd3(getTemperatureOwd3Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd3Debug().get() - getTemperatureOwd3().get()) < 1000) {
+			this._setTemperatureOwd3(getTemperatureOwd2Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd4().get() == null) {
+			this._setTemperatureOwd4(getTemperatureOwd4Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd4Debug().get() - getTemperatureOwd4().get()) < 1000) {
+			this._setTemperatureOwd4(getTemperatureOwd4Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd5().get() == null) {
+			this._setTemperatureOwd5(getTemperatureOwd5Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd5Debug().get() - getTemperatureOwd5().get()) < 1000) {
+			this._setTemperatureOwd5(getTemperatureOwd5Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd6().get() == null) {
+			this._setTemperatureOwd6(getTemperatureOwd6Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd6Debug().get() - getTemperatureOwd6().get()) < 1000) {
+			this._setTemperatureOwd6(getTemperatureOwd6Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd7().get() == null) {
+			this._setTemperatureOwd7(getTemperatureOwd7Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd7Debug().get() - getTemperatureOwd7().get()) < 1000) {
+			this._setTemperatureOwd7(getTemperatureOwd7Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd8().get() == null) {
+			this._setTemperatureOwd8(getTemperatureOwd8Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd8Debug().get() - getTemperatureOwd8().get()) < 1000) {
+			this._setTemperatureOwd8(getTemperatureOwd8Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd9().get() == null) {
+			this._setTemperatureOwd9(getTemperatureOwd9Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd9Debug().get() - getTemperatureOwd9().get()) < 1000) {
+			this._setTemperatureOwd9(getTemperatureOwd9Debug().get());
+		}
+
+		if (!this.initComplete || getTemperatureOwd10().get() == null) {
+			this._setTemperatureOwd10(getTemperatureOwd10Debug().get());
+			this.initComplete = true;
+		} else if (Math.abs(getTemperatureOwd10Debug().get() - getTemperatureOwd10().get()) < 1000) {
+			this._setTemperatureOwd10(getTemperatureOwd10Debug().get());
+		}
+
 	}
 
 	@Override

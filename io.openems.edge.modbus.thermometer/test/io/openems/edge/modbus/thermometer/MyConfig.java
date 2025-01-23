@@ -125,4 +125,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return null;
 	}
 
+	@Override
+	public boolean debugMode() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
