@@ -1,11 +1,11 @@
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
+import { ChartAxis, HistoryUtils, YAxisType, DisplayValue } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
+import { Service } from "src/app/shared/service/service";
 
 @Component({
   selector: "energychart",
@@ -13,6 +13,17 @@ import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
   standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
+  public period1: string = 'day';
+  public period2: string = 'day';
+  public date1: string;
+  public date2: string;
+
+  constructor(
+    protected translate: TranslateService,
+    private service: Service
+  ) {
+    super();
+  }
 
   public static getChartData(config: EdgeConfig | null, chartType: "line" | "bar", translate: TranslateService): HistoryUtils.ChartData {
     const input: HistoryUtils.InputChannel[] =
@@ -45,20 +56,11 @@ export class ChartComponent extends AbstractHistoryChart {
             newObj.push({
               name: "EssSoc",
               powerChannel: new ChannelAddress("_sum", "EssSoc"),
-            }, {
-              name: "EssCharge",
-              powerChannel: new ChannelAddress("_sum", "EssActivePower"),
-              energyChannel: new ChannelAddress("_sum", "EssDcChargeEnergy"),
-            }, {
-              name: "EssDischarge",
-              powerChannel: new ChannelAddress("_sum", "EssActivePower"),
-              energyChannel: new ChannelAddress("_sum", "EssDcDischargeEnergy"),
             });
             break;
-          case "Common_Selfconsumption":
-          case "Common_Production":
+          case "Production":
             newObj.push({
-              name: "ProductionActivePower",
+              name: "Production",
               powerChannel: new ChannelAddress("_sum", "ProductionActivePower"),
               energyChannel: new ChannelAddress("_sum", "ProductionActiveEnergy"),
             }, {
@@ -206,12 +208,78 @@ export class ChartComponent extends AbstractHistoryChart {
     };
   }
 
+  public static getComparisonChartData(date1: string, date2: string, period1: string, period2: string, translate: TranslateService): HistoryUtils.ChartData {
+    const comparisonInput: HistoryUtils.InputChannel[] = [
+      {
+        name: `Période ${period1} ${date1}`,
+        powerChannel: new ChannelAddress("_sum", "ConsumptionActivePower"),
+        energyChannel: new ChannelAddress("_sum", "ConsumptionActiveEnergy"),
+      },
+      {
+        name: `Période ${period2} ${date2}`,
+        powerChannel: new ChannelAddress("_sum", "ConsumptionActivePower"),
+        energyChannel: new ChannelAddress("_sum", "ConsumptionActiveEnergy"),
+      }
+    ];
+
+    return {
+      input: comparisonInput,
+      output: (data: HistoryUtils.ChannelData) => {
+        const output: DisplayValue[] = [];
+        comparisonInput.forEach(channel => {
+          output.push({
+            label: channel.name,
+            data: data[channel.energyChannel.toString()],
+            backgroundColor: channel.name.includes(date1) ? "rgba(75, 192, 192, 0.2)" : "rgba(153, 102, 255, 0.2)",
+            borderColor: channel.name.includes(date1) ? "rgba(75, 192, 192, 1)" : "rgba(153, 102, 255, 1)",
+            borderWidth: 1,
+          });
+        });
+        return output;
+      },
+      tooltip: {
+        formatNumber: "1.0-2",
+      },
+      yAxes: [
+        {
+          unit: YAxisType.ENERGY,
+          position: "left",
+          yAxisId: ChartAxis.LEFT,
+        }
+      ],
+    };
+  }
+
   public override getChartData() {
     return ChartComponent.getChartData(this.config, this.chartType, this.translate);
   }
 
+  public getComparisonChartData(date1: string, date2: string, period1: string, period2: string) {
+    return ChartComponent.getComparisonChartData(date1, date2, period1, period2, this.translate);
+  }
+
   protected override getChartHeight(): number {
     return this.service.deviceHeight / 2;
+  }
+
+  public isInputValid(): boolean {
+    return !!this.date1 && !!this.date2 && !!this.period1 && !!this.period2;
+  }
+
+  public onComparePeriods() {
+    if (!this.isInputValid()) {
+      console.error("Dates or periods are not valid.");
+      return;
+    }
+
+    Promise.all([
+      this.service.getDataForDate(this.date1),
+      this.service.getDataForDate(this.date2),
+    ]).then(([data1, data2]) => {
+      const comparisonData = this.getComparisonChartData(this.date1, this.date2, this.period1, this.period2);
+      this.datasets = comparisonData.output;
+      this.labels = comparisonData.input.map(channel => channel.name);
+    });
   }
 
 }
