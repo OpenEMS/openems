@@ -7,7 +7,6 @@ import java.util.Optional;
 /**
  * Creates a constraint with following settings:.
  * 
- * <p>
  * <ul>
  * <li>Relationship (EQ, GEQ, LEQ) as given in constructor
  * <li>Value as given in constructor

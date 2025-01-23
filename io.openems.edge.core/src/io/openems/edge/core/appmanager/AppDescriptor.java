@@ -1,7 +1,9 @@
 package io.openems.edge.core.appmanager;
 
-import com.google.gson.JsonObject;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.StringUtils.definedOrElse;
 
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 
 public class AppDescriptor {
@@ -14,7 +16,7 @@ public class AppDescriptor {
 		}
 
 		public AppDescriptorBuilder setWebsiteUrl(String websiteUrl) {
-			this.websiteUrl = websiteUrl;
+			this.websiteUrl = definedOrElse(websiteUrl, null);
 			return this;
 		}
 
@@ -44,14 +46,20 @@ public class AppDescriptor {
 	}
 
 	/**
-	 * Builds a {@link JsonObject} out of this {@link AppDescriptor}.
-	 *
-	 * @return the {@link JsonObject}
+	 * Returns a {@link JsonSerializer} for a {@link AppDescriptor}.
+	 * 
+	 * @return the created {@link JsonSerializer}
 	 */
-	public JsonObject toJsonObject() {
-		return JsonUtils.buildJsonObject() //
-				.addPropertyIfNotNull("websiteUrl", this.websiteUrl) //
-				.build();
+	public static JsonSerializer<AppDescriptor> serializer() {
+		return jsonObjectSerializer(AppDescriptor.class, json -> {
+			return new AppDescriptor(//
+					json.getString("websiteUrl") //
+			);
+		}, obj -> {
+			return JsonUtils.buildJsonObject() //
+					.addPropertyIfNotNull("websiteUrl", obj.websiteUrl) //
+					.build();
+		});
 	}
 
 }

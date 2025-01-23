@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a QueryHistoricTimeseriesDataRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,11 +23,11 @@ import { JsonrpcResponseSuccess } from "../base";
 export class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             timestamps: string[],
             data: { [channelAddress: string]: any[] }
-        }
+        },
     ) {
         super(id, result);
     }

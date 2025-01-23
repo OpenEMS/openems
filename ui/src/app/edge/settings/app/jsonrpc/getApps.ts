@@ -3,7 +3,7 @@ import { Flag } from "./flag/flag";
 
 /**
  * Represents a JSON-RPC Request for 'getApps'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -12,7 +12,7 @@ import { Flag } from "./flag/flag";
  *   "params": {}
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
  * <pre>
@@ -55,10 +55,10 @@ export namespace GetApps {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 apps: App[]
-            }
+            },
         ) {
             super(id, result);
         }
@@ -66,17 +66,19 @@ export namespace GetApps {
 
     export interface App {
         categorys: Category[],
-        cardinality: 'SINGLE' | 'SINGLE_IN_CATEGORY' | 'MULTIPLE',
+        cardinality: "SINGLE" | "SINGLE_IN_CATEGORY" | "MULTIPLE",
         appId: string,
         name: string,
-        image: string,
+        shortName?: string,
+        image?: string,
+        imageUrl?: string,
         status: Status,
         instanceIds: string[],
         flags: Flag[]
     }
 
     export interface Status {
-        name: 'INCOMPATIBLE' | 'COMPATIBLE' | 'INSTALLABLE',
+        name: "INCOMPATIBLE" | "COMPATIBLE" | "INSTALLABLE",
         errorCompatibleMessages: string[],
         errorInstallableMessages: string[]
     }

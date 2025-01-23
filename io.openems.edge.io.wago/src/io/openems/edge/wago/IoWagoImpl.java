@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -45,9 +45,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
-import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -162,7 +160,8 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	private static Document downloadConfigXml(InetAddress ip, String filename, String username, String password)
 			throws ParserConfigurationException, SAXException, IOException {
-		var url = new URL(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
+		var uri = URI.create(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
+		var url = uri.toURL();
 		var authStr = String.format("%s:%s", username, password);
 		var bytesEncoded = Base64.getEncoder().encode(authStr.getBytes());
 		var authEncoded = new String(bytesEncoded);
@@ -239,23 +238,23 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsException on error
 	 */
 	protected void createProtocolFromModules(List<FieldbusModule> modules) throws OpenemsException {
-		List<ModbusCoilElement> readCoilElements0 = new ArrayList<>();
-		List<ModbusCoilElement> readCoilElements512 = new ArrayList<>();
+		List<CoilElement> readCoilElements0 = new ArrayList<>();
+		List<CoilElement> readCoilElements512 = new ArrayList<>();
 		for (FieldbusModule module : modules) {
 			Collections.addAll(readCoilElements0, module.getInputCoil0Elements());
 			Collections.addAll(readCoilElements512, module.getInputCoil512Elements());
-			for (ModbusCoilElement element : module.getOutputCoil512Elements()) {
-				var writeCoilTask = new FC5WriteCoilTask(element.getStartAddress(), element);
+			for (CoilElement element : module.getOutputCoil512Elements()) {
+				var writeCoilTask = new FC5WriteCoilTask(element.startAddress, element);
 				this.protocol.addTask(writeCoilTask);
 			}
 		}
 		if (!readCoilElements0.isEmpty()) {
-			this.protocol.addTask(new FC1ReadCoilsTask(0, Priority.LOW,
-					readCoilElements0.toArray(new AbstractModbusElement<?>[readCoilElements0.size()])));
+			this.protocol.addTask(
+					new FC1ReadCoilsTask(0, Priority.LOW, readCoilElements0.stream().toArray(CoilElement[]::new)));
 		}
 		if (!readCoilElements512.isEmpty()) {
-			this.protocol.addTask(new FC1ReadCoilsTask(512, Priority.LOW,
-					readCoilElements512.toArray(new AbstractModbusElement<?>[readCoilElements512.size()])));
+			this.protocol.addTask(
+					new FC1ReadCoilsTask(512, Priority.LOW, readCoilElements512.stream().toArray(CoilElement[]::new)));
 		}
 	}
 
@@ -272,7 +271,7 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		if (this.protocol == null) {
 			this.protocol = new ModbusProtocol(this);
 		}
@@ -305,8 +304,8 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public BooleanReadChannel[] digitalInputChannels() {
-		List<BooleanReadChannel> channels = new ArrayList<>();
-		for (FieldbusModule module : this.modules) {
+		var channels = new ArrayList<BooleanReadChannel>();
+		for (var module : this.modules) {
 			Collections.addAll(channels, module.getChannels());
 		}
 		var result = new BooleanReadChannel[channels.size()];
@@ -318,11 +317,11 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public BooleanWriteChannel[] digitalOutputChannels() {
-		List<BooleanWriteChannel> channels = new ArrayList<>();
-		for (FieldbusModule module : this.modules) {
-			for (BooleanReadChannel channel : module.getChannels()) {
-				if (channel instanceof BooleanWriteChannel) {
-					channels.add((BooleanWriteChannel) channel);
+		var channels = new ArrayList<BooleanWriteChannel>();
+		for (var module : this.modules) {
+			for (var channel : module.getChannels()) {
+				if (channel instanceof BooleanWriteChannel bwc) {
+					channels.add(bwc);
 				}
 			}
 		}

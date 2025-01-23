@@ -3,6 +3,7 @@ package io.openems.edge.batteryinverter.sinexcel;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -43,7 +44,7 @@ public interface BatteryInverterSinexcel extends OffGridBatteryInverter, Managed
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
 		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)//
@@ -93,8 +94,9 @@ public interface BatteryInverterSinexcel extends OffGridBatteryInverter, Managed
 		MANUFACTURER_AND_MODEL_NUMBER(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		FAULT_STATUS(Doc.of(Level.FAULT) //
+		FAULT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		ALERT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //

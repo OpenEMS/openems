@@ -78,7 +78,7 @@ EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -150,6 +150,7 @@ head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bnd
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.http.servlet-api',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
@@ -175,12 +176,14 @@ echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.n
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.http.servlet-api',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\\" >> "$bndrun.new" # required for timescaledb
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
@@ -193,3 +196,15 @@ head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) 
 rm "$bndrun.new"
 ./gradlew resolve.BackendApp
 
+# Build + test UI
+cd ui
+npm install
+node_modules/.bin/ng lint --fix
+node_modules/.bin/tsc
+node_modules/.bin/tsc-strict
+node_modules/.bin/ng build -c "openems,openems-backend-prod,prod"
+npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+cd ..
+
+echo
+echo "Finished"

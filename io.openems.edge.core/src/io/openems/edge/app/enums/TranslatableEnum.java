@@ -13,4 +13,15 @@ public interface TranslatableEnum extends Nameable {
 	 */
 	public String getTranslation(Language language);
 
+	/**
+	 * Gets the value which is being selected in the {@link OptionsFactory}. If you
+	 * choose to override this be careful when calling a method which gets the enum
+	 * value of a string name and not this value.
+	 * 
+	 * @return the value of this {@link TranslatableEnum}
+	 */
+	public default String getValue() {
+		return this.name();
+	}
+
 }

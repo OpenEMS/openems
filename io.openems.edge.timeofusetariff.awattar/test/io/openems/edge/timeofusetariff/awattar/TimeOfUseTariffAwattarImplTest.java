@@ -1,11 +1,9 @@
 package io.openems.edge.timeofusetariff.awattar;
 
+import static io.openems.edge.timeofusetariff.awattar.Zone.GERMANY;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.time.ZonedDateTime;
-import java.util.SortedMap;
 
 import org.junit.Test;
 
@@ -14,25 +12,21 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class TimeOfUseTariffAwattarImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
 		var awattar = new TimeOfUseTariffAwattarImpl();
 		new ComponentTest(awattar) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
+						.setZone(GERMANY) //
 						.build()) //
 		;
-
-		// Thread.sleep(5000);
-		// System.out.println(sut.getPrices());
 	}
 
 	@Test
 	public void nonEmptyStringTest() throws OpenemsNamedException {
 		// Parsing with custom data
-		SortedMap<ZonedDateTime, Float> prices = TimeOfUseTariffAwattarImpl.parsePrices("""
+		var prices = TimeOfUseTariffAwattarImpl.parsePrices("""
 								{
 				   "object":"list",
 				   "data":[
@@ -187,8 +181,8 @@ public class TimeOfUseTariffAwattarImplTest {
 		// To check if the Map is not empty
 		assertFalse(prices.isEmpty());
 
-		// To check if the a value input from the string is present in map.
-		assertTrue(prices.containsValue(120.14f));
+		// To check if a value is present in map.
+		assertEquals(158.95, prices.getFirst(), 0.001);
 
 	}
 

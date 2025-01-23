@@ -5,9 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.User;
-import io.openems.backend.uiwebsocket.jsonrpc.notification.LogMessageNotification;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.jsonrpc.notification.LogMessageNotification;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 
@@ -19,7 +19,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void accept(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
 		User user = null;
 		try {

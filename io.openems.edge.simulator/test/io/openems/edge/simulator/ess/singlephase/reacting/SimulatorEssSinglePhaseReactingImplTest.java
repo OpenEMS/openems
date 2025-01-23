@@ -9,7 +9,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
-import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDirectImpl;
+import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDirectImplTest;
 
 public class SimulatorEssSinglePhaseReactingImplTest {
 
@@ -20,7 +20,7 @@ public class SimulatorEssSinglePhaseReactingImplTest {
 	public void test() throws OpenemsException, Exception {
 		new ManagedSymmetricEssTest(new SimulatorEssSinglePhaseReactingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("datasource", new SimulatorDatasourceCsvDirectImpl()) //
+				.addReference("datasource", SimulatorDatasourceCsvDirectImplTest.create("datasource0", "123")) //
 				.addReference("power", new DummyPower()) //
 				.activate(MyConfig.create() //
 						.setId(ESS_ID) //

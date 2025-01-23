@@ -1,7 +1,8 @@
 package io.openems.backend.common.edgewebsocket;
 
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -10,7 +11,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.backend.common.metadata.User;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -28,32 +28,29 @@ public interface EdgeWebsocket {
 	 * @param user    the authenticated {@link User}
 	 * @param request the {@link JsonrpcRequest}
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request)
-			throws OpenemsNamedException;
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request);
 
 	/**
 	 * Send a JSON-RPC Notification to an Edge.
 	 *
 	 * @param edgeId       the Edge-ID
 	 * @param notification the JsonrpcNotification
-	 * @throws OpenemsNamedException on error
+	 * @return true if sending was successful; false otherwise
 	 */
-	public void send(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException;
+	public boolean send(String edgeId, JsonrpcNotification notification);
 
 	/**
 	 * Handles a {@link SubscribeSystemLogRequest}.
 	 *
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User}
-	 * @param token   the UI session token
-	 * @param request the {@link SubscribeSystemLogRequest}
+	 * @param edgeId      the Edge-ID
+	 * @param user        the {@link User}
+	 * @param websocketId the id of the UI websocket connection
+	 * @param request     the {@link SubscribeSystemLogRequest}
 	 * @return a reply
-	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException;
+			UUID websocketId, SubscribeSystemLogRequest request);
 
 	/**
 	 * Gets the latest values for the given ChannelAddresses.
@@ -62,6 +59,6 @@ public interface EdgeWebsocket {
 	 * @param channelAddresses The {@link ChannelAddress}es
 	 * @return the values; possibly {@link JsonNull}
 	 */
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses);
+	public SortedMap<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses);
 
 }

@@ -6,6 +6,7 @@ import static io.openems.common.channel.Unit.SECONDS;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Status;
@@ -14,7 +15,8 @@ public interface ControllerIoHeatingElement {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LEVEL(Doc.of(Level.values()) //
-				.text("Current Level")),
+				.text("Current Level") //
+				.persistencePriority(HIGH)),
 		AWAITING_HYSTERESIS(Doc.of(INTEGER)), //
 		PHASE1_TIME(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
@@ -48,8 +50,10 @@ public interface ControllerIoHeatingElement {
 		TOTAL_PHASE_TIME(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
 		FORCE_START_AT_SECONDS_OF_DAY(Doc.of(INTEGER)//
-				.unit(SECONDS)),
-		STATUS(Doc.of(Status.values())); //
+				.unit(SECONDS) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		STATUS(Doc.of(Status.values()) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

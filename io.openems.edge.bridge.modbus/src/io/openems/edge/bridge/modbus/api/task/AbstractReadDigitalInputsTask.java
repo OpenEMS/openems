@@ -1,52 +1,63 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
-public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boolean> {
+public abstract class AbstractReadDigitalInputsTask<//
+		REQUEST extends ModbusRequest, //
+		RESPONSE extends ModbusResponse> //
+		extends AbstractReadTask<REQUEST, RESPONSE, CoilElement, Boolean> {
 
-	public AbstractReadDigitalInputsTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
-		super(startAddress, priority, elements);
+	public AbstractReadDigitalInputsTask(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz,
+			int startAddress, Priority priority, CoilElement... elements) {
+		super(name, onExecute, responseClazz, CoilElement.class, startAddress, priority, elements);
 	}
 
 	@Override
-	protected boolean isCorrectElementInstance(ModbusElement<?> modbusElement) {
-		return modbusElement instanceof ModbusCoilElement;
+	protected void handleResponse(CoilElement element, int position, Boolean[] response) throws OpenemsException {
+		element.setInputValue(response[position]);
 	}
 
 	@Override
-	protected String getRequiredElementName() {
-		return "ModbusCoilElement";
-	}
-
-	@Override
-	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, Boolean[] response)
-			throws OpenemsException {
-		((ModbusCoilElement) modbusElement).setInputCoil(response[position]);
-	}
-
-	@Override
-	protected int increasePosition(int position, ModbusElement<?> modbusElement) {
+	protected int calculateNextPosition(ModbusElement modbusElement, int position) {
 		return position + 1;
 	}
 
 	@Override
-	protected Boolean[] handleResponse(ModbusResponse response) throws OpenemsException {
-		try {
-			return Utils.toBooleanArray(this.getBitVector(response));
-		} catch (ClassCastException e) {
-			throw new OpenemsException("Unexpected Modbus response. Expected [" + this.getExpectedInputClassname()
-					+ "], got [" + response.getClass().getSimpleName() + "]");
-		}
+	protected final Boolean[] parseResponse(RESPONSE response) {
+		return toBooleanArray(this.parseBitResponse(response));
 	}
 
-	protected abstract String getExpectedInputClassname();
+	protected abstract BitVector parseBitResponse(RESPONSE response);
 
-	protected abstract BitVector getBitVector(ModbusResponse response) throws OpenemsException;
+	/**
+	 * Convert a {@link BitVector} to a {@link Boolean} array.
+	 * 
+	 * @param v the {@link BitVector}
+	 * @return the {@link Boolean} array
+	 */
+	protected static Boolean[] toBooleanArray(BitVector v) {
+		var bools = new Boolean[v.size()];
+		for (var i = 0; i < v.size(); i++) {
+			bools[i] = v.getBit(i);
+		}
+		return bools;
+	}
+
+	@Override
+	protected final String payloadToString(RESPONSE response) {
+		return Stream.of(this.parseResponse(response)) //
+				.map(b -> b == null ? "-" : (b ? "1" : "0")) //
+				.collect(Collectors.joining());
+	}
 }

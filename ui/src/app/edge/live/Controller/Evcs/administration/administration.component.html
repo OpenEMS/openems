@@ -1,0 +1,35 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title translate>
+            Edge.Index.Widgets.EVCS.Administration.carAdministration
+        </ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <ion-card-content>
+        <ion-item lines="none">
+            <ion-label translate>
+                Edge.Index.Widgets.EVCS.Administration.renaultZoe
+            </ion-label>
+            <ion-toggle [checked]="isCheckedZoe" (ionChange)="updateZoeMode($event)">
+            </ion-toggle>
+        </ion-item>
+    </ion-card-content>
+    <ion-grid class="ion-padding-top">
+        <ion-row class="ion-justify-content-center ion-align-items-center">
+            <ion-col size="2" class="ion-text-center">
+                <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
+            </ion-col>
+            <ion-col size="10">
+                <ion-note class="ion-text-wrap"><small
+                        translate>Edge.Index.Widgets.EVCS.Administration.customCarInfo</small>
+                </ion-note>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

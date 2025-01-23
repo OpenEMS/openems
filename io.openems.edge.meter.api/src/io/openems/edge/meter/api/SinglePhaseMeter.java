@@ -1,5 +1,9 @@
 package io.openems.edge.meter.api;
 
+import static io.openems.edge.meter.api.SinglePhase.L1;
+import static io.openems.edge.meter.api.SinglePhase.L2;
+import static io.openems.edge.meter.api.SinglePhase.L3;
+
 import java.util.function.Function;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -45,7 +49,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	 * @param meter the {@link SinglePhaseMeter}
 	 */
 	public static void calculateSinglePhaseFromActivePower(SinglePhaseMeter meter) {
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(meter, SinglePhaseMeter::getPhase);
+		calculateSinglePhaseFromActivePower(meter, SinglePhaseMeter::getPhase);
 	}
 
 	/**
@@ -70,9 +74,136 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 			Function<METER, SinglePhase> phaseProvider) {
 		meter.getActivePowerChannel().onSetNextValue(value -> {
 			var phase = phaseProvider.apply(meter);
-			meter.getActivePowerL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
-			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
-			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+			meter.getActivePowerL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getActivePowerL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getActivePowerL3Channel().setNextValue(phase == L3 ? value : null);
+		});
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#REACTIVE_POWER_L1},
+	 * {@link ChannelId#REACTIVE_POWER_L2} or {@link ChannelId#REACTIVE_POWER_L3}
+	 * from {@link ChannelId#REACTIVE_POWER} by evaluating the configured
+	 * {@link SinglePhase} via {@link SinglePhaseMeter#getPhase()}.
+	 *
+	 * @param meter the {@link SinglePhaseMeter}
+	 */
+	public static void calculateSinglePhaseFromReactivePower(SinglePhaseMeter meter) {
+		calculateSinglePhaseFromReactivePower(meter, SinglePhaseMeter::getPhase);
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Use this method if it is not known at compile time, that the
+	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
+	 * implementing {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#REACTIVE_POWER_L1},
+	 * {@link ChannelId#REACTIVE_POWER_L2} or {@link ChannelId#REACTIVE_POWER_L3}
+	 * from {@link ChannelId#REACTIVE_POWER} by evaluating the provided
+	 * {@link SinglePhase}.
+	 *
+	 * @param <METER>       type that extends {@link ElectricityMeter}
+	 * @param meter         a {@link ElectricityMeter}
+	 * @param phaseProvider a provider for {@link SinglePhase}
+	 */
+	public static <METER extends ElectricityMeter> void calculateSinglePhaseFromReactivePower(METER meter,
+			Function<METER, SinglePhase> phaseProvider) {
+		meter.getReactivePowerChannel().onSetNextValue(value -> {
+			var phase = phaseProvider.apply(meter);
+			meter.getReactivePowerL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getReactivePowerL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getReactivePowerL3Channel().setNextValue(phase == L3 ? value : null);
+		});
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#CURRENT_L1},
+	 * {@link ChannelId#CURRENT_L2} or {@link ChannelId#CURRENT_L3} from
+	 * {@link ChannelId#CURRENT} by evaluating the configured {@link SinglePhase}
+	 * via {@link SinglePhaseMeter#getPhase()}.
+	 *
+	 * @param meter the {@link SinglePhaseMeter}
+	 */
+	public static void calculateSinglePhaseFromCurrent(SinglePhaseMeter meter) {
+		calculateSinglePhaseFromCurrent(meter, SinglePhaseMeter::getPhase);
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Use this method if it is not known at compile time, that the
+	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
+	 * implementing {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#CURRENT_L1},
+	 * {@link ChannelId#CURRENT_L2} or {@link ChannelId#CURRENT_L3} from
+	 * {@link ChannelId#CURRENT} by evaluating the provided {@link SinglePhase}.
+	 *
+	 * @param <METER>       type that extends {@link ElectricityMeter}
+	 * @param meter         a {@link ElectricityMeter}
+	 * @param phaseProvider a provider for {@link SinglePhase}
+	 */
+	public static <METER extends ElectricityMeter> void calculateSinglePhaseFromCurrent(METER meter,
+			Function<METER, SinglePhase> phaseProvider) {
+		meter.getCurrentChannel().onSetNextValue(value -> {
+			var phase = phaseProvider.apply(meter);
+			meter.getCurrentL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getCurrentL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getCurrentL3Channel().setNextValue(phase == L3 ? value : null);
+		});
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#VOLTAGE_L1},
+	 * {@link ChannelId#VOLTAGE_L2} or {@link ChannelId#VOLTAGE_L3} from
+	 * {@link ChannelId#VOLTAGE} by evaluating the configured {@link SinglePhase}
+	 * via {@link SinglePhaseMeter#getPhase()}.
+	 *
+	 * @param meter the {@link SinglePhaseMeter}
+	 */
+	public static void calculateSinglePhaseFromVoltage(SinglePhaseMeter meter) {
+		calculateSinglePhaseFromVoltage(meter, SinglePhaseMeter::getPhase);
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Use this method if it is not known at compile time, that the
+	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
+	 * implementing {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#VOLTAGE_L1},
+	 * {@link ChannelId#VOLTAGE_L2} or {@link ChannelId#VOLTAGE_L3} from
+	 * {@link ChannelId#VOLTAGE} by evaluating the provided {@link SinglePhase}.
+	 *
+	 * @param <METER>       type that extends {@link ElectricityMeter}
+	 * @param meter         a {@link ElectricityMeter}
+	 * @param phaseProvider a provider for {@link SinglePhase}
+	 */
+	public static <METER extends ElectricityMeter> void calculateSinglePhaseFromVoltage(METER meter,
+			Function<METER, SinglePhase> phaseProvider) {
+		meter.getVoltageChannel().onSetNextValue(value -> {
+			var phase = phaseProvider.apply(meter);
+			meter.getVoltageL1Channel().setNextValue(phase == L1 ? value : null);
+			meter.getVoltageL2Channel().setNextValue(phase == L2 ? value : null);
+			meter.getVoltageL3Channel().setNextValue(phase == L3 ? value : null);
 		});
 	}
 

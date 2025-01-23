@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.EnumUtils;
 import io.openems.edge.app.TestBDependencyToC.Property;
@@ -53,7 +54,7 @@ public class TestBDependencyToC extends AbstractEnumOpenemsApp<Property> impleme
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
 				.build();
 	}
@@ -87,7 +88,9 @@ public class TestBDependencyToC extends AbstractEnumOpenemsApp<Property> impleme
 							.build()) //
 			);
 
-			return new AppConfiguration(null, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

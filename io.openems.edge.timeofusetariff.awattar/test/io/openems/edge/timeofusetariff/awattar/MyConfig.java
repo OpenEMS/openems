@@ -7,13 +7,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		private int zipcode;
+		private Zone zone;
 
 		private Builder() {
 		}
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setZone(Zone zone) {
+			this.zone = zone;
 			return this;
 		}
 
@@ -36,6 +41,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public Zone zone() {
+		return this.builder.zone;
 	}
 
 }

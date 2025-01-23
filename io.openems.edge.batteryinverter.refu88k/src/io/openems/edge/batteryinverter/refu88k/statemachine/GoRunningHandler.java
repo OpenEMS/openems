@@ -22,31 +22,22 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		switch (inverter.getOperatingState()) {
-
-		case STARTING:
-			return State.GO_RUNNING;
-		case MPPT:
-		case STARTED:
-		case THROTTLED:
+		return switch (inverter.getOperatingState()) {
+		case STARTING //
+			-> State.GO_RUNNING;
+		case MPPT, STARTED, THROTTLED -> //
 			// if inverter is throttled, full power is not available, but the device
 			// is still working
-			return State.RUNNING;
-		case STANDBY:
+			State.RUNNING;
+		case STANDBY -> {
 			inverter.exitStandbyMode();
-			return State.GO_RUNNING;
-		// if inverter is throttled, full power is not available, but the device
-		// is still working
-		case FAULT:
-			return State.ERROR;
-		case OFF:
-		case SLEEPING:
-		case SHUTTING_DOWN:
-
-		case UNDEFINED:
-			return State.UNDEFINED;
+			yield State.GO_RUNNING;
 		}
-		return State.UNDEFINED;
+		case FAULT //
+			-> State.ERROR;
+		case OFF, SLEEPING, SHUTTING_DOWN, UNDEFINED //
+			-> State.UNDEFINED;
+		};
 	}
 
 }

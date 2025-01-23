@@ -2,7 +2,6 @@ package io.openems.edge.core.appmanager.validator;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -65,12 +64,11 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 			this.errorType = ErrorType.OTHER;
 			return false;
 		}
-		if (!(this.appManager instanceof AppManagerImpl)) {
+		if (!(this.appManager instanceof AppManagerImpl appManagerImpl)) {
 			this.errorMessage = "Wrong AppManager active!";
 			this.errorType = ErrorType.OTHER;
 			return false;
 		}
-		var appManagerImpl = (AppManagerImpl) this.appManager;
 		var instantiatedApps = appManagerImpl.getInstantiatedApps();
 
 		switch (this.openemsApp.getCardinality()) {
@@ -99,21 +97,19 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 	private OpenemsAppCategory getMatchingCategorie(AppManagerUtil appManagerUtil,
 			List<OpenemsAppInstance> instantiatedApps) {
 		for (var openemsAppInstance : instantiatedApps) {
-			try {
-				var app = appManagerUtil.getAppById(openemsAppInstance.appId);
-				if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
-					continue;
-				}
-				for (var cat : app.getCategories()) {
-					for (var catOther : this.openemsApp.getCategories()) {
-						if (cat == catOther) {
-							return cat;
-						}
+			var app = appManagerUtil.findAppById(openemsAppInstance.appId).orElse(null);
+			if (app == null) {
+				continue;
+			}
+			if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
+				continue;
+			}
+			for (var cat : app.getCategories()) {
+				for (var catOther : this.openemsApp.getCategories()) {
+					if (cat == catOther) {
+						return cat;
 					}
 				}
-			} catch (NoSuchElementException e) {
-				// if app instance is reworked there may be no app for the instance
-				continue;
 			}
 		}
 		return null;
@@ -121,20 +117,20 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		switch (this.errorType) {
-		case SAME_APP:
-			return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCardinality.Message.Single",
-					this.openemsApp.getAppId());
-		case SAME_CATEGORIE:
-			return AbstractCheckable.getTranslation(language,
-					"Validator.Checkable.CheckCardinality.Message.SingleInCategorie",
-					this.matchingCategory.getReadableName(language));
-		case OTHER:
-			return this.errorMessage;
-		case NONE:
-			return null;
-		}
-		return null;
+		return switch (this.errorType) {
+		case SAME_APP -> getTranslation(language, //
+				"Validator.Checkable.CheckCardinality.Message.Single", this.openemsApp.getAppId());
+		case SAME_CATEGORIE -> getTranslation(language, //
+				"Validator.Checkable.CheckCardinality.Message.SingleInCategorie",
+				this.matchingCategory.getReadableName(language));
+		case OTHER -> this.errorMessage;
+		case NONE -> null;
+		};
+	}
+
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		throw new UnsupportedOperationException();
 	}
 
 }

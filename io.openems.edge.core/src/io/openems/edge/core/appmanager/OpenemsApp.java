@@ -1,22 +1,47 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.stream.Stream;
+
 import org.osgi.service.component.ComponentConstants;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public interface OpenemsApp {
 
 	/**
+	 * Tests if a user is allowed to edit a property.
+	 * 
+	 * @param prop The property to be tested
+	 * @param user The user permissions are to be tested for
+	 * @return true if user is allowed to edit, false otherwise
+	 */
+	public boolean assertCanEdit(String prop, User user);
+
+	/**
+	 * Maps the property name of a component to the coressponding app Property.
+	 * 
+	 * @param prop        The property to be mapped
+	 * @param componentId the componentId
+	 * @param instance    instance of the app
+	 * @return the mapped property name
+	 */
+	public String mapPropName(String prop, String componentId, OpenemsAppInstance instance);
+
+	/**
 	 * Gets the {@link AppAssistant} for this {@link OpenemsApp}.
 	 *
-	 * @param language the language of the {@link AppAssistant}
+	 * @param user the {@link User}
 	 * @return the AppAssistant
 	 */
-	public AppAssistant getAppAssistant(Language language);
+	public AppAssistant getAppAssistant(User user);
 
 	/**
 	 * Gets the {@link AppConfiguration} needed for the {@link OpenemsApp}.
@@ -40,9 +65,10 @@ public interface OpenemsApp {
 	/**
 	 * Gets the {@link AppDescriptor} of the {@link OpenemsApp}.
 	 *
+	 * @param oem the {@link OpenemsEdgeOem}
 	 * @return the {@link AppDescriptor}
 	 */
-	public AppDescriptor getAppDescriptor();
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem);
 
 	/**
 	 * Gets the {@link OpenemsAppCategory} of the {@link OpenemsApp}.
@@ -65,6 +91,14 @@ public interface OpenemsApp {
 	 * @return a human readable name
 	 */
 	public String getName(Language language);
+
+	/**
+	 * Gets the short name of the {@link OpenemsApp}.
+	 * 
+	 * @param language the language of the name
+	 * @return a human readable short name; can be null
+	 */
+	public String getShortName(Language language);
 
 	/**
 	 * Gets the {@link OpenemsAppCardinality} of the {@link OpenemsApp}.
@@ -97,11 +131,27 @@ public interface OpenemsApp {
 	public OpenemsAppPermissions getAppPermissions();
 
 	/**
-	 * Validate the {@link OpenemsApp}.
-	 *
-	 * @param instance the app instance
+	 * Gets {@link Flag Flags} for this {@link OpenemsApp}. A Flag could be anything
+	 * that would describe the app more.
+	 * 
+	 * <p>
+	 * Flags may be specific for Monitoring e. g. only show the app after a key was
+	 * entered ({@link Flags#SHOW_AFTER_KEY_REDEEM}).
+	 * 
+	 * @return an array of {@link Flag Flags}
 	 */
-	public void validate(OpenemsAppInstance instance) throws OpenemsNamedException;
+	public default Flag[] flags() {
+		return new Flag[] {};
+	}
+
+	/** Checks whether the app has a passed flag set.
+	 * 
+	 * @param flag the flag to be checked
+	 * @return is the flag set
+	 */
+	public default boolean hasFlag(Flag flag) {
+		return Stream.of(this.flags()).anyMatch(f -> f.equals(flag));
+	}
 
 	public static final String FALLBACK_IMAGE = """
 			data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY5\

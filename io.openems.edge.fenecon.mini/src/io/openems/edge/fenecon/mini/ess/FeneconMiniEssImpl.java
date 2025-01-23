@@ -170,7 +170,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(100, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
@@ -510,11 +510,11 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 			return "SoC:" + this.getSoc().asString() //
 					+ "|L:" + this.getActivePower().asString(); //
 		}
-		return "SoC:" + this.getSoc().asString() //
+		return this.stateMachine.debugLog() //
+				+ "|SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
-				+ this.getAllowedDischargePower().asString() //
-				+ "|" + this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).value().asEnum().asCamelCase();
+				+ this.getAllowedDischargePower().asString(); //
 	}
 
 	@Override

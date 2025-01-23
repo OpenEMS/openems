@@ -2,7 +2,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Represents a JSON-RPC Response for {@link GetUserInformationRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -30,8 +30,8 @@ import { JsonrpcResponseSuccess } from "../base";
 export class GetUserInformationResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             user: {
                 firstname: string,
                 lastname: string,
@@ -47,7 +47,7 @@ export class GetUserInformationResponse extends JsonrpcResponseSuccess {
                     name: string
                 }
             }
-        }
+        },
     ) {
         super(id, result);
     }

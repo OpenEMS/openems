@@ -7,9 +7,9 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An UnsignedWordElement represents an Integer value in an
- * {@link AbstractWordElement}.
+ * {@link AbstractSingleWordElement}.
  */
-public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement, Integer> {
+public class UnsignedWordElement extends AbstractSingleWordElement<UnsignedWordElement, Integer> {
 
 	public UnsignedWordElement(int address) {
 		super(OpenemsType.INTEGER, address);
@@ -21,14 +21,14 @@ public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement
 	}
 
 	@Override
-	protected Integer fromByteBuffer(ByteBuffer buff) {
+	protected Integer byteBufferToValue(ByteBuffer buff) {
 		return Short.toUnsignedInt(buff.getShort(0));
 	}
 
 	@Override
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
-		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, object);
-		return buff.putShort(value.shortValue());
+	protected void valueToByteBuffer(ByteBuffer buff, Integer value) {
+		Integer i = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+		buff.putShort(i.shortValue());
 	}
 
 }

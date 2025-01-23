@@ -1,5 +1,7 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import java.util.EnumMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -12,6 +14,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
@@ -25,14 +28,15 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for ReadWrite Rest JSON Api.
@@ -85,9 +89,9 @@ public class RestJsonApiReadWrite extends AbstractEnumOpenemsApp<Property> imple
 								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
-								.setInputType(Type.NUMBER) //
+								.setInputType(NUMBER) //
 								.setDefaultValue(60) //
-								.setMin(30) //
+								.setMin(0) //
 								.isRequired(true) //
 								.build())
 						.build())
@@ -95,8 +99,9 @@ public class RestJsonApiReadWrite extends AbstractEnumOpenemsApp<Property> imple
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -124,14 +129,6 @@ public class RestJsonApiReadWrite extends AbstractEnumOpenemsApp<Property> imple
 									.build()) //
 			);
 
-			final var schedulerIds = Lists.newArrayList(//
-					"ctrlEmergencyCapacityReserve0", //
-					controllerId, //
-					"ctrlGridOptimizedCharge0", //
-					"ctrlEssSurplusFeedToGrid0", //
-					"ctrlBalancing0" //
-			);
-
 			var dependencies = Lists.newArrayList(//
 					new DependencyDeclaration("READ_ONLY", //
 							DependencyDeclaration.CreatePolicy.NEVER, //
@@ -148,7 +145,12 @@ public class RestJsonApiReadWrite extends AbstractEnumOpenemsApp<Property> imple
 									.build()) //
 			);
 
-			return new AppConfiguration(components, schedulerIds, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerComponent(controllerId, "Controller.Api.Rest.ReadWrite", this.getAppId()))) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

@@ -9,9 +9,9 @@ public enum CpldWarningCode implements OptionsEnum {
 	BATTERY_OVER_CURRENT_HW(3, "Battery over current hw"), //
 	BUS_OVER_VOLTAGE_HW(4, "Bus over voltage hw"), //
 	R_INV_OVER_CURRENT_HW(5, "R inverter over current hw"), //
-	S_INV_OVER_CURRENT_HW(5, "S inverter over current hw"), //
-	T_INV_OVER_CURRENT_HW(5, "T inverter over current hw"), //
-	BAT_RELAY_FAIL(5, "Battery relay fail");
+	S_INV_OVER_CURRENT_HW(6, "S inverter over current hw"), //
+	T_INV_OVER_CURRENT_HW(7, "T inverter over current hw"), //
+	BAT_RELAY_FAIL(8, "Battery relay fail");
 
 	private final int value;
 	private final String option;

@@ -20,7 +20,7 @@ public interface AppCenterBackendUtil {
 	 * @param appId the id of the {@link OpenemsApp}
 	 * @return true if the key can be applied
 	 */
-	public boolean isKeyApplicable(User user, String key, String appId);
+	public boolean isKeyApplicable(User user, String key, String appId) throws OpenemsNamedException;
 
 	/**
 	 * Adds a install app history entry to the given key.

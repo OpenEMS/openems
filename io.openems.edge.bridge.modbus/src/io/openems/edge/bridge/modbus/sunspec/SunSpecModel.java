@@ -27,14 +27,14 @@ public interface SunSpecModel {
 
 	/**
 	 * The Label.
-	 * 
+	 *
 	 * @return the Label
 	 */
 	public String label();
 
 	/**
 	 * The Points.
-	 * 
+	 *
 	 * @return an array of {@link SunSpecPoint}s
 	 */
 	public SunSpecPoint[] points();

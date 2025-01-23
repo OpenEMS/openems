@@ -5,8 +5,6 @@ import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
-
 public class OnClose implements io.openems.common.websocket.OnClose {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
@@ -17,7 +15,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 	}
 
 	@Override
-	public void run(WebSocket ws, int code, String reason, boolean remote) throws OpenemsException {
+	public void accept(WebSocket ws, int code, String reason, boolean remote) {
 		// get edgeId from websocket
 		WsData wsData = ws.getAttachment();
 		var edgeIdOpt = wsData.getEdgeId();
@@ -30,7 +28,6 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 			if (edgeOpt.isPresent()) {
 				var isOnline = this.parent.isOnline(edgeId);
 				edgeOpt.get().setOnline(isOnline);
-
 			}
 
 		} else {
@@ -47,7 +44,9 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 			// pong in time. For more information check:
 			// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection"
 		} else {
-			this.parent.logInfo(this.log, edgeId, "Disconnected. Code [" + code + "] Reason [" + reason + "]");
+			this.parent.logInfo(this.log, edgeId, new StringBuilder() //
+					.append("Disconnected. Code [").append(code).append("] Reason [").append(reason).append("]")
+					.toString());
 		}
 	}
 

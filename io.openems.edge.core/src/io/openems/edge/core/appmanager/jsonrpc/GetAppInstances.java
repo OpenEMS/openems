@@ -1,17 +1,17 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
-import java.util.UUID;
-import java.util.stream.Stream;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.List;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances.Request;
+import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances.Response;
 
 /**
  * Gets the active instances of an {@link OpenemsApp}.
@@ -43,61 +43,59 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  * }
  * </pre>
  */
-public class GetAppInstances {
+public class GetAppInstances implements EndpointRequestType<Request, Response> {
 
-	public static final String METHOD = "getAppInstances";
-
-	public static class Request extends JsonrpcRequest {
-
-		/**
-		 * Parses a generic {@link JsonrpcRequest} to a {@link GetAppInstances}.
-		 *
-		 * @param r the {@link JsonrpcRequest}
-		 * @return the {@link GetAppInstances}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
-			var p = r.getParams();
-			var appId = JsonUtils.getAsString(p, "appId");
-			return new Request(r, appId);
-		}
-
-		public final String appId;
-
-		private Request(JsonrpcRequest request, String appId) {
-			super(request, METHOD);
-			this.appId = appId;
-		}
-
-		public Request(String appId) {
-			super(METHOD);
-			this.appId = appId;
-		}
-
-		@Override
-		public JsonObject getParams() {
-			return JsonUtils.buildJsonObject() //
-					.addProperty("appId", this.appId) //
-					.build();
-		}
+	@Override
+	public String getMethod() {
+		return "getAppInstances";
 	}
 
-	public static class Response extends JsonrpcResponseSuccess {
+	@Override
+	public JsonSerializer<Request> getRequestSerializer() {
+		return Request.serializer();
+	}
 
-		private final JsonArray instances;
+	@Override
+	public JsonSerializer<Response> getResponseSerializer() {
+		return Response.serializer();
+	}
 
-		public Response(UUID id, Stream<OpenemsAppInstance> instances) {
-			super(id);
-
-			this.instances = instances.map(OpenemsAppInstance::toJsonObject) //
-					.collect(JsonUtils.toJsonArray());
+	public record Request(//
+			String appId //
+	) {
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link GetAppInstances.Request}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<GetAppInstances.Request> serializer() {
+			return jsonObjectSerializer(GetAppInstances.Request.class, //
+					json -> new GetAppInstances.Request(//
+							json.getString("appId")), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("appId", obj.appId()) //
+							.build());
 		}
 
-		@Override
-		public JsonObject getResult() {
-			return JsonUtils.buildJsonObject() //
-					.add("instances", this.instances) //
-					.build(); //
+	}
+
+	public record Response(//
+			List<OpenemsAppInstance> instances //
+	) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link GetAppInstances.Response}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<GetAppInstances.Response> serializer() {
+			return jsonObjectSerializer(GetAppInstances.Response.class, //
+					json -> new GetAppInstances.Response(json.getList("instances", OpenemsAppInstance.serializer())), //
+					obj -> JsonUtils.buildJsonObject() //
+							.add("instances", obj.instances().stream() //
+									.map(OpenemsAppInstance.serializer()::serialize) //
+									.collect(toJsonArray())) //
+							.build());
 		}
 
 	}

@@ -6,9 +6,10 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
+		private String id;
 		private String evcsId;
 		private int power;
+		private int updateFrequency;
 
 		private Builder() {
 		}
@@ -25,6 +26,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPower(int power) {
 			this.power = power;
+			return this;
+		}
+
+		public Builder setUpdateFrequency(int updateFrequency) {
+			this.updateFrequency = updateFrequency;
 			return this;
 		}
 
@@ -57,5 +63,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int power() {
 		return this.builder.power;
+	}
+
+	@Override
+	public int updateFrequency() {
+		return this.builder.updateFrequency;
 	}
 }

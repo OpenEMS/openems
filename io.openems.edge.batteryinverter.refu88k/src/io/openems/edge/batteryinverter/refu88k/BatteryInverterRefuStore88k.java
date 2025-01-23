@@ -20,6 +20,7 @@ import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -42,16 +43,22 @@ public interface BatteryInverterRefuStore88k
 	 */
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
+	/*
+	 * Whenever one of these states would be Level.FAULT, the EssGeneric will stop
+	 * the battery and the inverter. If this is necessary, it must be specifically
+	 * mentioned and the state should have a proper description of the fault.
+	 */
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_START_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of stop attempts failed")), //
-		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.FAULT) //
+		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.WARNING) //
 				.text("The 'CurrentState' is invalid")), //
 
 		/*
@@ -105,41 +112,41 @@ public interface BatteryInverterRefuStore88k
 		ST(Doc.of(OperatingState.values())), //
 		ST_VND(Doc.of(VendorOperatingState.values())), //
 		// Evt1 Alarms and Warnings
-		GROUND_FAULT(Doc.of(Level.FAULT) //
+		GROUND_FAULT(Doc.of(Level.WARNING) //
 				.text("Ground fault")), //
-		DC_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+		DC_OVER_VOLTAGE(Doc.of(Level.WARNING) //
 				.text("Dc over voltage")), //
-		AC_DISCONNECT(Doc.of(Level.FAULT) //
+		AC_DISCONNECT(Doc.of(Level.WARNING) //
 				.text("AC disconnect open")), //
-		DC_DISCONNECT(Doc.of(Level.FAULT) //
+		DC_DISCONNECT(Doc.of(Level.WARNING) //
 				.text("DC disconnect open")), //
-		GRID_DISCONNECT(Doc.of(Level.FAULT) //
+		GRID_DISCONNECT(Doc.of(Level.WARNING) //
 				.text("Grid shutdown")), //
-		CABINET_OPEN(Doc.of(Level.FAULT) //
+		CABINET_OPEN(Doc.of(Level.WARNING) //
 				.text("Cabinet open")), //
-		MANUAL_SHUTDOWN(Doc.of(Level.FAULT) //
+		MANUAL_SHUTDOWN(Doc.of(Level.WARNING) //
 				.text("Manual shutdown")), //
-		OVER_TEMP(Doc.of(Level.FAULT) //
+		OVER_TEMP(Doc.of(Level.WARNING) //
 				.text("Over temperature")), //
-		OVER_FREQUENCY(Doc.of(Level.FAULT) //
+		OVER_FREQUENCY(Doc.of(Level.WARNING) //
 				.text("Frequency above limit")), //
-		UNDER_FREQUENCY(Doc.of(Level.FAULT) //
+		UNDER_FREQUENCY(Doc.of(Level.WARNING) //
 				.text("Frequency under limit")), //
-		AC_OVER_VOLT(Doc.of(Level.FAULT) //
+		AC_OVER_VOLT(Doc.of(Level.WARNING) //
 				.text("AC Voltage above limit")), //
-		AC_UNDER_VOLT(Doc.of(Level.FAULT) //
+		AC_UNDER_VOLT(Doc.of(Level.WARNING) //
 				.text("AC Voltage under limit")), //
-		BLOWN_STRING_FUSE(Doc.of(Level.FAULT) //
+		BLOWN_STRING_FUSE(Doc.of(Level.WARNING) //
 				.text("Blown String fuse on input")), //
-		UNDER_TEMP(Doc.of(Level.FAULT) //
+		UNDER_TEMP(Doc.of(Level.WARNING) //
 				.text("Under temperature")), //
-		MEMORY_LOSS(Doc.of(Level.FAULT) //
+		MEMORY_LOSS(Doc.of(Level.WARNING) //
 				.text("Generic Memory or Communication error (internal)")), //
-		HW_TEST_FAILURE(Doc.of(Level.FAULT) //
+		HW_TEST_FAILURE(Doc.of(Level.WARNING) //
 				.text("Hardware test failure")), //
-		OTHER_ALARM(Doc.of(Level.FAULT) //
+		OTHER_ALARM(Doc.of(Level.WARNING) //
 				.text("Other alarm")), //
-		OTHER_WARNING(Doc.of(Level.FAULT) //
+		OTHER_WARNING(Doc.of(Level.WARNING) //
 				.text("Other warning")), //
 		EVT_2(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		EVT_VND_1(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
@@ -379,4 +386,21 @@ public interface BatteryInverterRefuStore88k
 		return this.channel(BatteryInverterRefuStore88k.ChannelId.ST).value().asEnum();
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#TMP_CAB}.
+	 *
+	 * @return the {@link Channel}
+	 */
+	public default IntegerReadChannel getInverterTemperatureChannel() {
+		return this.channel(ChannelId.TMP_CAB);
+	}
+
+	/**
+	 * Gets the Inverter Cabin temperature. See {@link ChannelId#TMP_CAB}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getInverterTemperature() {
+		return this.getInverterTemperatureChannel().value();
+	}
 }

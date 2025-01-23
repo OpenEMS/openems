@@ -2,10 +2,10 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
 
 /**
  * Represents a JSON-RPC Request for 'getAppInstances'.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -16,10 +16,10 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -38,9 +38,9 @@ export namespace GetAppInstances {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId: string
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -49,10 +49,10 @@ export namespace GetAppInstances {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 instances: AppInstance[]
-            }
+            },
         ) {
             super(id, result);
         }

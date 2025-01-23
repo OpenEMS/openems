@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Represents a JSON-RPC Request to delete the configuration of an OpenEMS Edge Component.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,9 +19,9 @@ export class DeleteComponentConfigRequest extends JsonrpcRequest {
     private static METHOD: string = "deleteComponentConfig";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             componentId: string
-        }
+        },
     ) {
         super(DeleteComponentConfigRequest.METHOD, params);
     }

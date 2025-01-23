@@ -68,7 +68,7 @@ public class AppInstallWorker extends AbstractWorker {
 	}
 
 	private void installApp(String appId) throws OpenemsNamedException {
-		var app = this.parent.findAppById(appId);
+		final var app = this.parent.findAppByIdOrError(appId);
 
 		JsonObject requestProperties;
 		try {

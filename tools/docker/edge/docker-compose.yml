@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  openems-edge:
+    image: openems/edge:latest
+    container_name: openems_edge
+    hostname: openems_edge
+    restart: unless-stopped
+    volumes:
+      - openems-edge-conf:/var/opt/openems/config:rw
+      - openems-edge-data:/var/opt/openems/data:rw
+    ports:
+      - 8080:8080 # Apache-Felix
+      - 8085:8085 # UI-Websocket
+
+  openems-ui:
+    image: openems/ui-edge:latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - UI_WEBSOCKET=ws://localhost:8085
+    ports:
+      - 80:80
+      - 443:443
+
+volumes:
+  openems-edge-conf:
+  openems-edge-data:
+  openems-ui-conf:
+  openems-ui-log:

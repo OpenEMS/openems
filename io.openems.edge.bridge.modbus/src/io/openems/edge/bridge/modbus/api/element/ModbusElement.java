@@ -1,73 +1,33 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 
 /**
- * A ModbusElement represents one or more registers or coils in an
- * {@link AbstractTask}.
+ * This abstract class serves as an Interface-like abstraction to avoid Java
+ * Generics for external access.
  */
-public interface ModbusElement<T> {
+public abstract sealed class ModbusElement permits AbstractModbusElement {
+
+	/** The start address of this Modbus element. */
+	public final int startAddress;
+	/** Number of Registers or Coils. */
+	public final int length;
+
+	/** The Task - set via {@link #setModbusTask(Task)}. */
+	private Task task = null;
+
+	public ModbusElement(int startAddress, int length) {
+		this.startAddress = startAddress;
+		this.length = length;
+	}
 
 	/**
-	 * Gets the start address of this Modbus element.
-	 *
-	 * @return the start address
+	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
+	 * any references like listeners.
 	 */
-	public int getStartAddress();
-
-	/**
-	 * Number of Registers or Coils.
-	 *
-	 * @return the number of Registers or Coils
-	 */
-	public abstract int getLength();
-
-	/**
-	 * Set the {@link AbstractTask}, where this Element belongs to.
-	 *
-	 * <p>
-	 * This is called by the {@link AbstractTask} constructor.
-	 *
-	 * @param abstractTask the AbstractTask
-	 */
-	public void setModbusTask(AbstractTask abstractTask);
-
-	/**
-	 * Whether this Element should be ignored (= DummyElement).
-	 *
-	 * @return true for ignored elements
-	 */
-	public boolean isIgnored();
-
-	/**
-	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
-	 *
-	 * @return the OpenemsType
-	 */
-	public OpenemsType getType();
-
-	/**
-	 * Sets a value that should be written to the Modbus device.
-	 *
-	 * @param valueOpt the Optional value
-	 * @throws OpenemsException         on error
-	 * @throws IllegalArgumentException on error
-	 */
-	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException, IllegalArgumentException;
-
-	/**
-	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
-	 * set.
-	 *
-	 * @param callback the callback
-	 */
-	public void onSetNextWrite(Consumer<Optional<T>> callback);
+	public abstract void deactivate();
 
 	/**
 	 * Invalidates the Channel in case it could not be read from the Modbus device,
@@ -75,13 +35,23 @@ public interface ModbusElement<T> {
 	 * 'invalidateElementsAfterReadErrors' config setting of the bridge.
 	 *
 	 * @param bridge the {@link AbstractModbusBridge}
-	 * @return true if Channel was invalidated
 	 */
-	public boolean invalidate(AbstractModbusBridge bridge);
+	public abstract void invalidate(AbstractModbusBridge bridge);
 
 	/**
-	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
-	 * any references like listeners.
+	 * Set the {@link Task}, where this Element belongs to.
+	 *
+	 * <p>
+	 * This is called by the {@link AbstractTask} constructor.
+	 *
+	 * @param task the {@link Task}
 	 */
-	public void deactivate();
+	public final void setModbusTask(Task task) {
+		this.task = task;
+	}
+
+	public final Task getModbusTask() {
+		return this.task;
+	}
+
 }

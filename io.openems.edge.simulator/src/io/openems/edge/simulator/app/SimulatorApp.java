@@ -5,12 +5,10 @@ import org.osgi.service.event.EventHandler;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
 
-public interface SimulatorApp
-		extends SimulatorDatasource, ClockProvider, OpenemsComponent, JsonApi, EventHandler, Timedata {
+public interface SimulatorApp extends SimulatorDatasource, ClockProvider, OpenemsComponent, EventHandler, Timedata {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

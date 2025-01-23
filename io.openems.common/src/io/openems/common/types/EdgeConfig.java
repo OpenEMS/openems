@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
@@ -27,11 +28,11 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.EdgeConfig.ActualEdgeConfig.Builder;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
 import io.openems.common.utils.JsonUtils;
 
@@ -40,7 +41,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class EdgeConfig {
 
-	private static Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfig.class);
 
 	/**
 	 * Represents an instance of an OpenEMS Component.
@@ -63,6 +64,13 @@ public class EdgeConfig {
 				public ChannelCategory getCategory();
 
 				/**
+				 * Gets the {@link PersistencePriority} of the Channel.
+				 *
+				 * @return the {@link PersistencePriority}
+				 */
+				public PersistencePriority getPersistencePriority();
+
+				/**
 				 * Gets the {@link ChannelDetail} as {@link JsonObject}.
 				 *
 				 * @return the {@link JsonObject}
@@ -75,7 +83,10 @@ public class EdgeConfig {
 			 */
 			public static class ChannelDetailOpenemsType implements ChannelDetail {
 
-				public ChannelDetailOpenemsType() {
+				private final PersistencePriority persistencePriority;
+
+				public ChannelDetailOpenemsType(PersistencePriority persistencePriority) {
+					this.persistencePriority = persistencePriority;
 				}
 
 				@Override
@@ -87,6 +98,11 @@ public class EdgeConfig {
 				public JsonObject toJson() {
 					return new JsonObject();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -95,9 +111,11 @@ public class EdgeConfig {
 			public static class ChannelDetailEnum implements ChannelDetail {
 
 				private final Map<String, JsonElement> options;
+				private final PersistencePriority persistencePriority;
 
-				public ChannelDetailEnum(Map<String, JsonElement> options) {
+				public ChannelDetailEnum(Map<String, JsonElement> options, PersistencePriority persistencePriority) {
 					this.options = options;
+					this.persistencePriority = persistencePriority;
 				}
 
 				@Override
@@ -124,6 +142,11 @@ public class EdgeConfig {
 							.add("options", options) //
 							.build();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -132,9 +155,11 @@ public class EdgeConfig {
 			public static class ChannelDetailState implements ChannelDetail {
 
 				private final Level level;
+				private final PersistencePriority persistencePriority;
 
-				public ChannelDetailState(Level level) {
+				public ChannelDetailState(Level level, PersistencePriority persistencePriority) {
 					this.level = level;
+					this.persistencePriority = persistencePriority;
 				}
 
 				/**
@@ -157,6 +182,11 @@ public class EdgeConfig {
 							.addProperty("level", this.level.name()) //
 							.build();
 				}
+
+				@Override
+				public PersistencePriority getPersistencePriority() {
+					return this.persistencePriority;
+				}
 			}
 
 			/**
@@ -170,6 +200,9 @@ public class EdgeConfig {
 			public static Channel fromJson(String channelId, JsonElement json) throws OpenemsNamedException {
 				final var type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
 				var accessModeAbbrOpt = JsonUtils.getAsOptionalString(json, "accessMode");
+				var persistencePriority = JsonUtils
+						.getAsOptionalEnum(PersistencePriority.class, json, "persistencePriority")
+						.orElse(PersistencePriority.DEFAULT_PERSISTENCE_PRIORITY);
 				var accessMode = AccessMode.READ_ONLY;
 				if (accessModeAbbrOpt.isPresent()) {
 					var accessModeAbbr = accessModeAbbrOpt.get();
@@ -193,7 +226,7 @@ public class EdgeConfig {
 				ChannelDetail detail = null;
 				switch (category) {
 				case OPENEMS_TYPE: {
-					detail = new ChannelDetailOpenemsType();
+					detail = new ChannelDetailOpenemsType(persistencePriority);
 					break;
 				}
 
@@ -205,13 +238,13 @@ public class EdgeConfig {
 							values.put(entry.getKey(), entry.getValue());
 						}
 					}
-					detail = new ChannelDetailEnum(values);
+					detail = new ChannelDetailEnum(values, persistencePriority);
 					break;
 				}
 
 				case STATE: {
 					var level = JsonUtils.getAsEnum(Level.class, json, "level");
-					detail = new ChannelDetailState(level);
+					detail = new ChannelDetailState(level, persistencePriority);
 					break;
 				}
 
@@ -304,6 +337,7 @@ public class EdgeConfig {
 						.addProperty("text", this.text) //
 						.addProperty("unit", this.unit.symbol) //
 						.addProperty("category", this.detail.getCategory().name()) //
+						.addProperty("persistencePriority", this.detail.getPersistencePriority()) //
 						.build();
 			}
 		}
@@ -554,7 +588,9 @@ public class EdgeConfig {
 			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
-					properties.put(entry.getKey(), entry.getValue());
+					if (!ignorePropertyKey(entry.getKey())) {
+						properties.put(entry.getKey(), entry.getValue());
+					}
 				}
 			}
 			var channels = new TreeMap<String, Channel>();
@@ -660,37 +696,20 @@ public class EdgeConfig {
 					description = "";
 				}
 
-				final OpenemsType type;
-				switch (ad.getType()) {
-				case AttributeDefinition.LONG:
-					type = OpenemsType.LONG;
-					break;
-				case AttributeDefinition.INTEGER:
-					type = OpenemsType.INTEGER;
-					break;
-				case AttributeDefinition.SHORT:
-				case AttributeDefinition.BYTE:
-					type = OpenemsType.SHORT;
-					break;
-				case AttributeDefinition.DOUBLE:
-					type = OpenemsType.DOUBLE;
-					break;
-				case AttributeDefinition.FLOAT:
-					type = OpenemsType.FLOAT;
-					break;
-				case AttributeDefinition.BOOLEAN:
-					type = OpenemsType.BOOLEAN;
-					break;
-				case AttributeDefinition.STRING:
-				case AttributeDefinition.CHARACTER:
-				case AttributeDefinition.PASSWORD:
-					type = OpenemsType.STRING;
-					break;
-				default:
+				final OpenemsType type = switch (ad.getType()) {
+				case AttributeDefinition.LONG -> OpenemsType.LONG;
+				case AttributeDefinition.INTEGER -> OpenemsType.INTEGER;
+				case AttributeDefinition.SHORT, AttributeDefinition.BYTE -> OpenemsType.SHORT;
+				case AttributeDefinition.DOUBLE -> OpenemsType.DOUBLE;
+				case AttributeDefinition.FLOAT -> OpenemsType.FLOAT;
+				case AttributeDefinition.BOOLEAN -> OpenemsType.BOOLEAN;
+				case AttributeDefinition.STRING, AttributeDefinition.CHARACTER, AttributeDefinition.PASSWORD ->
+					OpenemsType.STRING;
+				default -> {
 					EdgeConfig.LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
-					type = OpenemsType.STRING;
+					yield OpenemsType.STRING;
 				}
-
+				};
 				var defaultValues = ad.getDefaultValue();
 				JsonElement defaultValue;
 				if (defaultValues == null) {
@@ -733,15 +752,13 @@ public class EdgeConfig {
 
 				var id = ad.getID();
 				var name = ad.getName();
-				final boolean isRequired;
-				switch (id) {
-				case "alias":
-					// Set alias as not-required. If no alias is given it falls back to id.
-					isRequired = false;
-					break;
-				default:
-					isRequired = ad.getCardinality() == 0;
-				}
+				var isRequired = switch (id) {
+				case "alias" -> //
+					// Set alias as not-required. If no alias is given it falls back to id
+					false;
+				default //
+					-> ad.getCardinality() == 0;
+				};
 				return new Property(id, name, description, type, isRequired, isPassword, defaultValue, schema);
 			}
 
@@ -1024,19 +1041,12 @@ public class EdgeConfig {
 		 * @return configuration as a JSON Object
 		 */
 		public JsonObject toJson() {
-			var natureIds = new JsonArray();
-			for (String naturId : this.getNatureIds()) {
-				natureIds.add(naturId);
-			}
-			var properties = new JsonArray();
-			for (Property property : this.getProperties()) {
-				properties.add(property.toJson());
-			}
 			return JsonUtils.buildJsonObject() //
 					.addProperty("name", this.name) //
 					.addProperty("description", this.description) //
-					.add("natureIds", natureIds) //
-					.add("properties", properties) //
+					.add("natureIds", Stream.of(this.getNatureIds()) //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray())) //
 					.build();
 		}
 
@@ -1141,9 +1151,9 @@ public class EdgeConfig {
 			}
 
 			/**
-			 * Builds the {@link ActualEdgeConfig}.
+			 * Builds the ActualEdgeConfig.
 			 * 
-			 * @return {@link ActualEdgeConfig}
+			 * @return ActualEdgeConfig
 			 */
 			public ActualEdgeConfig build() {
 				return new ActualEdgeConfig(ImmutableSortedMap.copyOf(this.getComponents()),
@@ -1161,16 +1171,16 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Creates an empty {@link ActualEdgeConfig}.
+		 * Creates an empty ActualEdgeConfig.
 		 * 
-		 * @return {@link ActualEdgeConfig}
+		 * @return ActualEdgeConfig
 		 */
 		public static ActualEdgeConfig empty() {
 			return ActualEdgeConfig.create().build();
 		}
 
 		/**
-		 * Create a {@link ActualEdgeConfig.Builder} builder.
+		 * Create a ActualEdgeConfig builder.
 		 * 
 		 * @return a {@link Builder}
 		 */
@@ -1218,9 +1228,9 @@ public class EdgeConfig {
 	private volatile JsonObject _json = null;
 
 	/**
-	 * Build from {@link ActualEdgeConfig} using a {@link Builder}.
+	 * Build from ActualEdgeConfig.
 	 * 
-	 * @param actual the {@link ActualEdgeConfig}
+	 * @param actual the ActualEdgeConfig
 	 */
 	private EdgeConfig(ActualEdgeConfig actual) {
 		this._actual = actual;
@@ -1231,10 +1241,10 @@ public class EdgeConfig {
 	}
 
 	/**
-	 * Gets the {@link ActualEdgeConfig}. Either by parsing it from {@link #json} or
-	 * by returning from cache.
+	 * Gets the ActualEdgeConfig. Either by parsing it from {@link #json} or by
+	 * returning from cache.
 	 * 
-	 * @return {@link ActualEdgeConfig}; empty on JSON parse error
+	 * @return ActualEdgeConfig; empty on JSON parse error
 	 */
 	private synchronized ActualEdgeConfig getActual() {
 		if (this._actual != null) {
@@ -1352,7 +1362,7 @@ public class EdgeConfig {
 	public synchronized JsonObject toJson() {
 		if (this._json == null) {
 			this._json = JsonUtils.buildJsonObject() //
-					.add("components", this.componentsToJson(JsonFormat.COMPLETE)) //
+					.add("components", this.componentsToJson(JsonFormat.WITHOUT_CHANNELS)) //
 					.add("factories", this.factoriesToJson()) //
 					.build();
 		}
@@ -1395,6 +1405,10 @@ public class EdgeConfig {
 	public JsonObject factoriesToJson() {
 		var b = JsonUtils.buildJsonObject();
 		for (Entry<String, Factory> entry : this.getFactories().entrySet()) {
+			if (!this.getComponents().values().stream() //
+					.anyMatch(c -> c.factoryId.equals(entry.getKey()))) {
+				continue;
+			}
 			b.add(entry.getKey(), entry.getValue().toJson());
 		}
 		return b.build();
@@ -1422,17 +1436,13 @@ public class EdgeConfig {
 	 * @return true if it should get ignored
 	 */
 	public static boolean ignorePropertyKey(String key) {
-		switch (key) {
-		case OpenemsConstants.PROPERTY_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID:
-		case OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME:
-		case OpenemsConstants.PROPERTY_FACTORY_PID:
-		case OpenemsConstants.PROPERTY_PID:
-		case "webconsole.configurationFactory.nameHint":
-		case "event.topics":
-			return true;
-		default:
-			return false;
-		}
+		return switch (key) {
+		case OpenemsConstants.PROPERTY_COMPONENT_ID, OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID,
+				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
+				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
+			true;
+
+		default -> false;
+		};
 	}
 }

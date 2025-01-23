@@ -7,16 +7,15 @@ import java.time.ZoneOffset;
 import org.junit.Test;
 
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.oem.DummyOpenemsEdgeOem;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.websocket.DummyWebsocketServer;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyCycle;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class ControllerApiBackendImplTest {
-
-	private static final String CTRL_ID = "ctrl0";
 
 	@Test
 	public void test() throws Exception {
@@ -38,14 +37,19 @@ public class ControllerApiBackendImplTest {
 			new ComponentTest(sut) //
 					.addReference("componentManager", new DummyComponentManager(clock)) //
 					.addReference("cycle", new DummyCycle(1000)) //
+					.addReference("resendHistoricDataWorkerFactory", new DummyResendHistoricDataWorkerFactory()) //
+					.addReference("requestHandlerFactory", new DummyBackendOnRequestFactory()) //
+					.addReference("oem", new DummyOpenemsEdgeOem()) //
 					.addComponent(new DummySum()) //
 					.activate(MyConfig.create() //
-							.setId(CTRL_ID) //
+							.setId("ctrl0") //
 							.setUri("ws://localhost:" + port) //
 							.setApikey("12345") //
 							.setProxyType(Type.DIRECT) //
 							.setProxyAddress("") //
-							.setPersistencePriority(PersistencePriority.VERY_LOW) //
+							.setPersistencePriority(PersistencePriority.HIGH) //
+							.setAggregationPriority(PersistencePriority.VERY_LOW) //
+							.setResendPriority(PersistencePriority.MEDIUM) //
 							.build());
 
 			// Stop connection

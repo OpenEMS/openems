@@ -4,6 +4,7 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
@@ -41,6 +42,7 @@ public interface IoShellyPlug
 		 */
 		RELAY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
 		 * Slave Communication Failed Fault.

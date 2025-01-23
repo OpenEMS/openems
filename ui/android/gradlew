@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( readlink -f $( dirname -- "${BASH_SOURCE[0]}" ))"
+ROOT="${SCRIPT_DIR%/*/*}"
+
+$ROOT/gradlew $@

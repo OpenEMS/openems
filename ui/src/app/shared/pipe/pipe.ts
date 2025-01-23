@@ -1,26 +1,19 @@
-import { DecimalPipe } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { ClassnamePipe } from './classname/classname.pipe';
-import { IsclassPipe } from './isclass/isclass.pipe';
-import { KeysPipe } from './keys/keys.pipe';
-import { FormatSecondsToDurationPipe } from './formatSecondsToDuration/formatSecondsToDuration.pipe';
-import { SignPipe } from './sign/sign.pipe';
-import { TypeofPipe } from './typeof/typeof.pipe';
-import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
+import { DecimalPipe } from "@angular/common";
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { ClassnamePipe } from "./classname/classname.pipe";
+import { ConverterPipe } from "./converter/converter";
+import { FormatSecondsToDurationPipe } from "./formatSecondsToDuration/formatSecondsToDuration.pipe";
+import { IsclassPipe } from "./isclass/isclass.pipe";
+import { KeysPipe } from "./keys/keys.pipe";
+import { SignPipe } from "./sign/sign.pipe";
+import { TypeofPipe } from "./typeof/typeof.pipe";
+import { UnitvaluePipe } from "./unitvalue/unitvalue.pipe";
+import { VersionPipe } from "./version/version.pipe";
 
 @NgModule({
     imports: [
-        BrowserModule
-    ],
-    entryComponents: [
-        UnitvaluePipe,
-        SignPipe,
-        FormatSecondsToDurationPipe,
-        KeysPipe,
-        IsclassPipe,
-        ClassnamePipe,
-        TypeofPipe
+        BrowserModule,
     ],
     declarations: [
         UnitvaluePipe,
@@ -29,7 +22,9 @@ import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
         KeysPipe,
         IsclassPipe,
         ClassnamePipe,
-        TypeofPipe
+        VersionPipe,
+        TypeofPipe,
+        ConverterPipe,
     ],
     exports: [
         UnitvaluePipe,
@@ -38,13 +33,15 @@ import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
         KeysPipe,
         IsclassPipe,
         ClassnamePipe,
-        TypeofPipe
+        VersionPipe,
+        TypeofPipe,
+        ConverterPipe,
     ],
     providers: [
         DecimalPipe,
         FormatSecondsToDurationPipe,
         UnitvaluePipe,
-        TypeofPipe
-    ]
+        TypeofPipe,
+    ],
 })
 export class PipeModule { }

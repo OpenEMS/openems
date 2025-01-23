@@ -1,29 +1,33 @@
 = Cycle Controller
 
-Developed in order to provide cycle, capacity test scenarios.
+This controller was developed to support battery cycling or battery capacity test scenarios.
 
 == Configuration
 
 Parameters which should be taken care of:
 
+`mode`::
+Select MANUAL_ON to activate the logic
 `ess_id`::
 Id of the device. ex, ess0
 `cycleOrder`::
-Initial step decide whether to start with charge or discharge in type of 'CycleOrder'. ex, CycleOrder.START_WITH_DISCHARGE
+Initial step decide whether to start with charge or discharge in type of 'CycleOrder'. ex, START_WITH_DISCHARGE
 `standbyTime`::
-The time is to wait between charge and discharge, asked to be given in minute. ex, standby=5, means wait 5 minute before to switch from charge to discharge.
+The time to wait between charge and discharge in minutes. ex, standbyTime=5, means wait 5 minute before switching from charge to discharge
 `startTime`::
-Start Time in Hour should be configured like [YYYY-MM-DD HH:MM]. Also provide an opportunity to activate the controller for required date and time.
+Start time in format [YYYY-MM-DD HH:MM], activates the controller logic at required date and time
 `maxSoc`::
-The maximum Soc value that will be reached for charging when the controller is activated. If its set to 100, limit condition will be considered for allowed charge power. For value 100, when allowed charge power is 0, charge will be stopped.
+The maximum state-of-charge value that will be reached for charging when the controller is activated. For maxSoc=100 charging will be stopped only when 'AllowedChargePower' is 0; otherwise charging stops at maxSoc
 `minSoc`::
-The minimum Soc value that will be reached for charging when the controller is activated. If its set to 0, limit condition will be considered for allowed discharge power. For value 0, when allowed discharge power is 0, charge will be stopped.
+The minimum state-of-charge value that will be reached for discharging when the controller is activated. For minSoc=0 discharging will be stopped only when 'AllowedDischargePower' is 0; otherwise discharging stops at minSoc
 `power`::
-The power in Watt to charge or discharge.
+The power in Watt to charge or discharge
+`hybridEssMode`::
+Whether to apply the power on AC or DC side of a hybrid ESS
 `totalCycleNumber`::
-Decides for how many times cycles to apply.
+Number of charge/discharge cycles
 `finalSoc`::
-The Soc value which will be kept in the battery after cycle test completed.
+After the last cycle, the battery will be charged/discharge to this state-of-charge
 
 == Monitoring
 

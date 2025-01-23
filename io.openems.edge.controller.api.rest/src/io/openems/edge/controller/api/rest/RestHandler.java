@@ -1,20 +1,18 @@
 package io.openems.edge.controller.api.rest;
 
-import java.io.BufferedReader;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -24,36 +22,23 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
-import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
-import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
-import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.UuidUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -163,13 +148,12 @@ public class RestHandler extends AbstractHandler {
 		var thisTarget = targets.get(0);
 		var remainingTargets = targets.subList(1, targets.size());
 
-		switch (thisTarget) {
-		case "channel":
-			return this.handleChannel(user, remainingTargets, baseRequest, request, response);
-
-		default:
-			throw new OpenemsException("Unhandled REST target [" + thisTarget + "]");
-		}
+		return switch (thisTarget) {
+		case "channel"//
+			-> this.handleChannel(user, remainingTargets, baseRequest, request, response);
+		default //
+			-> throw new OpenemsException("Unhandled REST target [" + thisTarget + "]");
+		};
 	}
 
 	private boolean handleChannel(User user, List<String> targets, Request baseRequest, HttpServletRequest request,
@@ -182,23 +166,21 @@ public class RestHandler extends AbstractHandler {
 		var channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
 
 		// call handler methods
-		switch (request.getMethod()) {
-		case "GET":
-			return this.handleGet(user, channelAddress, baseRequest, request, response);
+		return switch (request.getMethod()) {
+		case "GET" //
+			-> this.handleGet(user, channelAddress, baseRequest, request, response);
 
-		case "POST":
-			// Validate API Access-Mode
-			switch (this.parent.getAccessMode()) {
-			case READ_ONLY:
-				throw new OpenemsException("REST-Api is in Read-Only mode");
-			case READ_WRITE:
-			case WRITE_ONLY:
-				return this.handlePost(user, channelAddress, baseRequest, request, response);
-			}
+		case "POST" //
+			-> switch (this.parent.getAccessMode()) {
+			case READ_ONLY //
+				-> throw new OpenemsException("REST-Api is in Read-Only mode");
+			case READ_WRITE, WRITE_ONLY //
+				-> this.handlePost(user, channelAddress, baseRequest, request, response);
+			};
 
-		default:
-			throw new OpenemsException("Unhandled REST Channel request method [" + request.getMethod() + "]");
-		}
+		default //
+			-> throw new OpenemsException("Unhandled REST Channel request method [" + request.getMethod() + "]");
+		};
 	}
 
 	/**
@@ -286,19 +268,20 @@ public class RestHandler extends AbstractHandler {
 			response.setContentType("application/json");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			baseRequest.setHandled(true);
-			JsonrpcResponseError message;
-			if (ex instanceof OpenemsNamedException) {
+			var message = switch (ex) {
+			case OpenemsNamedException one -> {
 				// Check for authentication error and set more specific response code
 				// accordingly
-				if (((OpenemsNamedException) ex).getError() == OpenemsError.COMMON_AUTHENTICATION_FAILED) {
+				if (one.getError() == OpenemsError.COMMON_AUTHENTICATION_FAILED) {
 					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				}
 				// Get Named Exception error response
-				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
-			} else {
-				// Get GENERIC error response
-				message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+				yield new JsonrpcResponseError(jsonrpcId, one);
 			}
+			default ->
+				// Get GENERIC error response
+				new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+			};
 			response.getWriter().write(message.toString());
 		} catch (IOException e) {
 			this.parent.logWarn(this.log, "Unable to send Error-Response: " + e.getMessage());
@@ -364,11 +347,12 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private static JsonObject parseJson(Request baseRequest) throws OpenemsException {
 		try {
-			return JsonParser.parseString(//
-					new BufferedReader(new InputStreamReader(baseRequest.getInputStream())) //
-							.lines() //
-							.collect(Collectors.joining("\n"))) //
-					.getAsJsonObject();
+			try (var br = baseRequest.getReader()) {
+				return parseToJsonObject(br //
+						.lines() //
+						.collect(joining("\n")));
+			}
+
 		} catch (Exception e) {
 			throw new OpenemsException("Unable to parse: " + e.getMessage());
 		}
@@ -425,14 +409,13 @@ public class RestHandler extends AbstractHandler {
 
 			// parse JSON-RPC Request
 			var message = JsonrpcMessage.from(json);
-			if (!(message instanceof JsonrpcRequest)) {
+			if (!(message instanceof JsonrpcRequest request)) {
 				throw new OpenemsException("Only JSON-RPC Request is supported here.");
 			}
-			var request = (JsonrpcRequest) message;
 			requestId = request.getId();
 
 			// handle the request
-			var responseFuture = this.handleJsonRpcRequest(user, request);
+			var responseFuture = this.parent.getRpcRestHandler().handleRequest(user, request);
 
 			// wait for response
 			JsonrpcResponseSuccess response;
@@ -451,196 +434,6 @@ public class RestHandler extends AbstractHandler {
 			this.sendErrorResponse(baseRequest, httpResponse, requestId,
 					new OpenemsException("Unable to get Response: " + e.getMessage()));
 		}
-	}
-
-	/**
-	 * Handles an JSON-RPC Request.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link JsonrpcRequest}
-	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleJsonRpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsException, OpenemsNamedException {
-		switch (request.getMethod()) {
-
-		case QueryHistoricTimeseriesDataRequest.METHOD:
-			return this.handleQueryHistoricDataRequest(user, QueryHistoricTimeseriesDataRequest.from(request));
-
-		case QueryHistoricTimeseriesEnergyRequest.METHOD:
-			return this.handleQueryHistoricEnergyRequest(user, QueryHistoricTimeseriesEnergyRequest.from(request));
-
-		case GetEdgeConfigRequest.METHOD:
-			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
-
-		case CreateComponentConfigRequest.METHOD:
-			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
-
-		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
-
-		case DeleteComponentConfigRequest.METHOD:
-			return this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
-
-		case ComponentJsonApiRequest.METHOD:
-			return this.handleComponentJsonApiRequest(user, ComponentJsonApiRequest.from(request));
-
-		default:
-			this.parent.logWarn(this.log, "Unhandled Request: " + request);
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
-	}
-
-	/**
-	 * Handles a QueryHistoricDataRequest.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(User user,
-			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		var data = this.parent.getTimedata().queryHistoricData(//
-				null, /* ignore Edge-ID */
-				request);
-
-		// JSON-RPC response
-		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
-	}
-
-	/**
-	 * Handles a QueryHistoricEnergyRequest.
-	 *
-	 * @param user    the {@link User}
-	 * @param request the {@link QueryHistoricTimeseriesEnergyRequest}
-	 * @return the Future JSPN-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(User user,
-			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-		Map<ChannelAddress, JsonElement> data = this.parent.getTimedata().queryHistoricEnergy(//
-				null, /* ignore Edge-ID */
-				request.getFromDate(), request.getToDate(), request.getChannels());
-
-		// JSON-RPC response
-		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
-	}
-
-	/**
-	 * Handles a GetEdgeConfigRequest.
-	 *
-	 * @param user                 the {@link User}
-	 * @param getEdgeConfigRequest the {@link GetEdgeConfigRequest}
-	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
-			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
-		// wrap original request inside ComponentJsonApiRequest
-		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID, getEdgeConfigRequest);
-
-		return this.handleComponentJsonApiRequest(user, request);
-	}
-
-	/**
-	 * Handles a CreateComponentConfigRequest.
-	 *
-	 * @param user                         the {@link User}
-	 * @param createComponentConfigRequest the {@link CreateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
-			CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
-		// wrap original request inside ComponentJsonApiRequest
-		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
-				createComponentConfigRequest);
-
-		return this.handleComponentJsonApiRequest(user, request);
-	}
-
-	/**
-	 * Handles a UpdateComponentConfigRequest.
-	 *
-	 * @param user                         the {@link User}
-	 * @param updateComponentConfigRequest the {@link UpdateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
-			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
-		// wrap original request inside ComponentJsonApiRequest
-		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
-				updateComponentConfigRequest);
-
-		return this.handleComponentJsonApiRequest(user, request);
-	}
-
-	/**
-	 * Handles a DeleteComponentConfigRequest.
-	 *
-	 * @param user                         the User
-	 * @param deleteComponentConfigRequest the DeleteComponentConfigRequest
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
-			DeleteComponentConfigRequest deleteComponentConfigRequest) throws OpenemsNamedException {
-		// wrap original request inside ComponentJsonApiRequest
-		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
-				deleteComponentConfigRequest);
-
-		return this.handleComponentJsonApiRequest(user, request);
-	}
-
-	/**
-	 * Handles a ComponentJsonApiRequest.
-	 *
-	 * @param user    the User
-	 * @param request the ComponentJsonApiRequest
-	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(User user,
-			ComponentJsonApiRequest request) throws OpenemsNamedException {
-		// get Component
-		var componentId = request.getComponentId();
-		var component = this.parent.getComponentManager().getComponent(componentId);
-
-		if (component == null) {
-			throw new OpenemsException("Unable to find Component [" + componentId + "]");
-		}
-
-		if (!(component instanceof JsonApi)) {
-			throw new OpenemsException("Component [" + componentId + "] is no JsonApi");
-		}
-
-		// call JsonApi
-		var jsonApi = (JsonApi) component;
-		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
-				request.getPayload());
-
-		// handle null response
-		if (responseFuture == null) {
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
-		}
-
-		// Wrap reply in EdgeRpcResponse
-		var edgeRpcResponse = new CompletableFuture<JsonrpcResponseSuccess>();
-		responseFuture.whenComplete((r, ex) -> {
-			if (ex != null) {
-				edgeRpcResponse.completeExceptionally(ex);
-			} else if (r != null) {
-				edgeRpcResponse.complete(new GenericJsonrpcResponseSuccess(request.getId(), r.getResult()));
-			} else {
-				edgeRpcResponse.completeExceptionally(new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD,
-						request.getPayload().getMethod()));
-			}
-		});
-
-		return edgeRpcResponse;
 	}
 
 }

@@ -10,11 +10,11 @@
 </ion-header>
 
 <ion-segment [(ngModel)]="activeSegment" (ionChange)="updateRegistrationForm($event)">
-    <ion-segment-button value="owner">
-        <ion-label translate>Register.segment.user</ion-label>
-    </ion-segment-button>
     <ion-segment-button value="installer">
         <ion-label translate>Register.segment.installer</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="owner">
+        <ion-label translate>Register.segment.user</ion-label>
     </ion-segment-button>
 </ion-segment>
 

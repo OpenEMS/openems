@@ -54,10 +54,12 @@ public abstract class AbstractChannelListenerManager {
 			Channel<?> channel = listener.component.channel(listener.channelId);
 			channel.removeOnSetNextValueCallback(listener.callback);
 		}
+		this.onSetNextValueListeners.clear();
 		for (OnChangeListener<?> listener : this.onChangeListeners) {
 			Channel<?> channel = listener.component.channel(listener.channelId);
 			channel.removeOnChangeCallback(listener.callback);
 		}
+		this.onChangeListeners.clear();
 	}
 
 	/**

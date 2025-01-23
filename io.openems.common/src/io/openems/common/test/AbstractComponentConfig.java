@@ -1,5 +1,7 @@
 package io.openems.common.test;
 
+import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -110,7 +112,7 @@ public class AbstractComponentConfig {
 			}
 
 			var key = method.getName().replace("_", ".");
-			var value = method.invoke(this);
+			var value = invokeMethodViaReflection(this, method);
 			if (value == null) {
 				throw new IllegalArgumentException("Configuration for [" + key + "] is null");
 			}

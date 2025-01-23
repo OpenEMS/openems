@@ -1,6 +1,5 @@
 package io.openems.common.timedata;
 
-import java.io.IOException;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -10,41 +9,10 @@ import java.util.SortedMap;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
-import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
-import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesExportXlsxResponse;
-import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
 
 public interface CommonTimedataService {
-
-	/**
-	 * Handles a {@link QueryHistoricTimeseriesExportXlxsRequest}. Exports historic
-	 * data to an Excel file.
-	 *
-	 * @param edgeId   the Edge-ID
-	 * @param request  the {@link QueryHistoricTimeseriesExportXlxsRequest} request
-	 * @param language the {@link Language}
-	 * @return the {@link QueryHistoricTimeseriesExportXlsxResponse}
-	 * @throws OpenemsNamedException on error
-	 */
-	public default QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(
-			String edgeId, QueryHistoricTimeseriesExportXlxsRequest request, Language language)
-			throws OpenemsNamedException {
-		var powerData = this.queryHistoricData(edgeId, request.getFromDate(), request.getToDate(),
-				QueryHistoricTimeseriesExportXlsxResponse.POWER_CHANNELS, new Resolution(15, ChronoUnit.MINUTES));
-
-		var energyData = this.queryHistoricEnergy(edgeId, request.getFromDate(), request.getToDate(),
-				QueryHistoricTimeseriesExportXlsxResponse.ENERGY_CHANNELS);
-
-		try {
-			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), edgeId, request.getFromDate(),
-					request.getToDate(), powerData, energyData, language);
-		} catch (IOException e) {
-			throw new OpenemsException("QueryHistoricTimeseriesExportXlxsRequest failed: " + e.getMessage());
-		}
-	}
 
 	/**
 	 * Calculates the time {@link Resolution} for the period.
@@ -86,7 +54,7 @@ public interface CommonTimedataService {
 	 *
 	 * @param edgeId  the Edge-ID
 	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public default SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
@@ -106,7 +74,7 @@ public interface CommonTimedataService {
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the {@link Resolution}
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
@@ -119,7 +87,7 @@ public interface CommonTimedataService {
 	 * @param fromDate the From-Date
 	 * @param toDate   the To-Date
 	 * @param channels the Channels
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
@@ -138,7 +106,7 @@ public interface CommonTimedataService {
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the {@link Resolution}
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)

@@ -6,7 +6,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -52,7 +51,7 @@ public abstract class AbstractEssFeneconCommercial40Pv extends AbstractOpenemsMo
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
 				new FC16WriteRegistersTask(0x0503, //
 						m(EssFeneconCommercial40Pv.ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),

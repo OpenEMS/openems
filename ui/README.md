@@ -4,7 +4,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
 ## Theme OpenEMS
 
-- OpenEMS Edge - expects a Edge *Controller.Api.Websocket* on default port `8075`
+- OpenEMS Edge - expects a Edge *Controller.Api.Websocket* on default port `8085`
 
    - Serve to port `4200`
    
@@ -36,9 +36,15 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
       `ng build -c "openems,openems-backend-prod,prod"`
 
+## Testing
+- Testing
+   `ng test`
+- Testing with Karma UI
+   `ng test -c "local"`
+
 ## Further help
 
-#### Creating a Theme
+## Creating a Theme
 
 - Create new folder under `/src/themes`
    - Files in `root` will be copied to `/` of the OpenEMS UI
@@ -48,7 +54,34 @@ This project was generated with [angular-cli](https://github.com/angular/angular
    Place them in `root` subdirectory
 - Add entries in `angular.json` according to the original openems-configurations
 
-#### i18n - internationalization
+### Create Android & iOS App
+
+* Add Configuration to [capacitor](capacitor.config.ts)
+* Build app:
+`NODE_ENV=$theme ionic cap build android -c "$theme,$theme-backend-deploy-app"`
+* Extend [build.gradle](android/app/build.gradle)
+* Extend [capacitor](capacitor.config.ts) 
+* Build your assets: `npx @capacitor/assets generate --logoSplashScale 0.3 --pwaManifestPath src/manifest.webmanifest`
+> [!IMPORTANT]  
+> Crucial information necessary for users to succeed. Only provide /resources/logo-dark.png and logo.png
+* Move the files from res(except values and xml) to ```/android/app/src/$theme/``` (```/main``` acts as default)
+* Build apps (execute in order):
+   - `NODE_ENV="{$theme}" ./node_modules/.bin/ionic cap build android -c "$theme,$theme-backend-deploy-app" --no-open;`
+   - `THEME="{$theme}" gradlew bundleThemeRelease`
+
+Important (if not generated, can be copied and adjusted from existing theme):
+- `ui\android\app\src\{$theme}\res\xml\file_paths.xml`
+- `ui\android\app\src\{$theme}\res\values`
+
+### Debugging
+
+Use `gradlew install{$theme}Release to install it on any device`
+
+- Available Tasks: `gradlew tasks`
+- list available devices + emulators: `$npx native-run android --list --json`
+- use Android Studio for Debugging: `$ionic cap open android`
+
+## i18n - internationalization
 
 Translation is based on [ngx-translate](https://github.com/ngx-translate). The language can be changed at runtime in the "About UI" dialog.
 

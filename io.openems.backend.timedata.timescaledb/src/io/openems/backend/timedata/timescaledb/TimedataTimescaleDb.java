@@ -17,7 +17,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
@@ -26,7 +25,9 @@ import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.timescaledb.internal.read.TimescaledbReadHandler;
 import io.openems.backend.timedata.timescaledb.internal.write.TimescaledbWriteHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.ResendDataNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -83,8 +84,19 @@ public class TimedataTimescaleDb extends AbstractOpenemsBackendComponent impleme
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
-		this.timescaledbWriteHandler.write(edgeId, data);
+	public void write(String edgeId, TimestampedDataNotification data) {
+		this.timescaledbWriteHandler.write(edgeId, data.getData());
+	}
+
+	@Override
+	public void write(String edgeId, AggregatedDataNotification data) {
+		// TODO
+		this.logWarn(this.log, "Timedata.TimescaleDB do not support write of AggregatedDataNotification");
+	}
+
+	@Override
+	public void write(String edgeId, ResendDataNotification data) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

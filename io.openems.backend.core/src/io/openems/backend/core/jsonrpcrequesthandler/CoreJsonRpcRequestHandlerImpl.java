@@ -2,7 +2,6 @@ package io.openems.backend.core.jsonrpcrequesthandler;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -13,6 +12,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,7 @@ import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.backend.common.jsonrpc.response.GetEdgesChannelsValuesResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
+import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -53,6 +54,9 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+	protected volatile AppCenterMetadata.UiData appCenterMetadata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile TimedataManager timedataManager;
@@ -94,26 +98,21 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleRequest(String context, User user,
 			JsonrpcRequest request) throws OpenemsNamedException {
-		switch (request.getMethod()) {
-
-		case EdgeRpcRequest.METHOD:
-			return this.edgeRpcRequestHandler.handleRequest(user, request.getId(), EdgeRpcRequest.from(request));
-
-		case GetEdgesStatusRequest.METHOD:
-			return this.handleGetEdgesStatusRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
-
-		case GetEdgesChannelsValuesRequest.METHOD:
-			return this.handleGetChannelsValuesRequest(user, request.getId(),
+		return switch (request.getMethod()) {
+		case EdgeRpcRequest.METHOD //
+			-> this.edgeRpcRequestHandler.handleRequest(user, request.getId(), EdgeRpcRequest.from(request));
+		case GetEdgesStatusRequest.METHOD //
+			-> this.handleGetEdgesStatusRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
+		case GetEdgesChannelsValuesRequest.METHOD //
+			-> this.handleGetEdgesChannelsValuesRequest(user, request.getId(),
 					GetEdgesChannelsValuesRequest.from(request));
-
-		case SetGridConnScheduleRequest.METHOD:
-			return this.handleSetGridConnScheduleRequest(user, request.getId(),
-					SetGridConnScheduleRequest.from(request));
-
-		default:
+		case SetGridConnScheduleRequest.METHOD //
+			-> this.handleSetGridConnScheduleRequest(user, request.getId(), SetGridConnScheduleRequest.from(request));
+		default -> {
 			this.logWarn(context, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
+		};
 	}
 
 	/**
@@ -128,8 +127,10 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	private CompletableFuture<GetEdgesStatusResponse> handleGetEdgesStatusRequest(User user, UUID messageId,
 			GetEdgesStatusRequest request) throws OpenemsNamedException {
 		Map<String, EdgeInfo> result = new HashMap<>();
-		for (Entry<String, Role> entry : user.getEdgeRoles().entrySet()) {
-			var edgeId = entry.getKey();
+		for (var edgeId : request.edgeIds) {
+			if (user.getRole(edgeId).isEmpty()) {
+				this.metadata.getEdgeMetadataForUser(user, edgeId);
+			}
 
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(GetEdgesStatusRequest.METHOD, edgeId, Role.GUEST);
@@ -149,16 +150,20 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	 *
 	 * @param user      the {@link User}
 	 * @param messageId the JSON-RPC Message-ID
-	 * @param request   the GetChannelsValuesRequest
+	 * @param request   the {@link GetEdgesChannelsValuesRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GetEdgesChannelsValuesResponse> handleGetChannelsValuesRequest(User user, UUID messageId,
-			GetEdgesChannelsValuesRequest request) throws OpenemsNamedException {
+	private CompletableFuture<GetEdgesChannelsValuesResponse> handleGetEdgesChannelsValuesRequest(User user,
+			UUID messageId, GetEdgesChannelsValuesRequest request) throws OpenemsNamedException {
 		var response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
+			if (user.getRole(edgeId).isEmpty()) {
+				this.metadata.getEdgeMetadataForUser(user, edgeId);
+			}
+
 			// assure read permissions of this User for this Edge.
-			user.assertEdgeRoleIsAtLeast(GetEdgesStatusRequest.METHOD, edgeId, Role.GUEST);
+			user.assertEdgeRoleIsAtLeast(GetEdgesChannelsValuesRequest.METHOD, edgeId, Role.GUEST);
 
 			var data = this.edgeWebsocket.getChannelValues(edgeId, request.getChannels());
 			for (var entry : data.entrySet()) {
@@ -180,6 +185,10 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSetGridConnScheduleRequest(User user, UUID messageId,
 			SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {
 		var edgeId = setGridConnScheduleRequest.getEdgeId();
+		if (user.getRole(edgeId).isEmpty()) {
+			this.metadata.getEdgeMetadataForUser(user, edgeId);
+		}
+
 		user.assertEdgeRoleIsAtLeast(SetGridConnScheduleRequest.METHOD, edgeId, Role.ADMIN);
 
 		// wrap original request inside ComponentJsonApiRequest

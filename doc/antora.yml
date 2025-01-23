@@ -3,4 +3,4 @@ title: Open Energy Management System
 version: latest
 start_page: ROOT:introduction.adoc
 nav:
-- modules/ROOT/nav.adoc
+  - modules/ROOT/nav.adoc

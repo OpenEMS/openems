@@ -2,6 +2,7 @@ package io.openems.edge.battery.fenecon.commercial;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -136,11 +137,13 @@ public interface BatteryFeneconCommercial extends Battery, StartStoppable, Opene
 				.text("The maximum number of stop attempts failed")), //
 		NUMBER_OF_TOWERS(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of modules per tower") //
 				.<BatteryFeneconCommercialImpl>onChannelChange(
 						BatteryFeneconCommercialImpl::updateNumberOfTowersAndModulesAndCells)),
 		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of modules per tower") //
 				.<BatteryFeneconCommercialImpl>onChannelChange(
 						BatteryFeneconCommercialImpl::updateNumberOfTowersAndModulesAndCells)),
@@ -245,92 +248,56 @@ public interface BatteryFeneconCommercial extends Battery, StartStoppable, Opene
 				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// 1.2 SysProtectMessage
-		SYSTEM_FAULT_COUNTERS(Doc.of(OpenemsType.INTEGER) //
-				.text("Fault counters")), //
-		FAULT_STATUS(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Fault Status")), //
-		POWER_ON(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Power On")), //
-		LOW_SELF_CONSUMPTION_STATUS(Doc.of(Level.WARNING) //
-				.text("Low self consumption status")), //
-		FAULT(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Fault")), //
-		RUNNING(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Running")), //
-		EXTERNAL_COMMUNICATION_ONLY_UNDER_STANDBY(Doc.of(Level.WARNING) //
-				.text("External communication only under standby")), //
-		MAIN_SWITCH_STATUS(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Main switch status")), //
-		BATTERY_ONLINE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Battery online")), //
-		PCS_ONLINE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Pcs online")), //
-		UPS_ONLINE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Ups online")), //
-		STS_ONLINE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Sts online")), //
-		BATTERY_18650_LOW(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Battery 18650 Low")), //
-		MASTER_CPU_INITIALIZE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Master cpu initilalize")), //
-		SLAVE_CPU_INITIALIZE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Slave cpu initilalize")), //
-		BATTERY_SYSTEM_INITIALIZE_ACTIVE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Battery system initilalize active")), //
-		PCS_INITIALIZE_ACTIVE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Pcs initilalize active")), //
-		UPS_INITIALIZE_ACTIVE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Ups initilalize active")), //
-		MASTER_CPU_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Master cpu initilalize finish")), //
-		SLAVE_CPU_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Slave cpu initilalize finish")), //
-		BATTERY_SYSTEM_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Battetry system initilalize finish")), //
-		PCS_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Pcs initilalize finish")), //
-		UPS_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Ups initilalize finish")), //
-		MASTER_CPU_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Master cpu initilalize fail")), //
-		SLAVE_CPU_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Slave cpu initilalize fail")), //
-		BATTERY_SYSTEM_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Battery system initilalize fail")), //
-		PCS_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Pcs initilalize fail")), //
-		UPS_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Ups initilalize fail")), //
-		DRY_CONTACT_FAIL(Doc.of(Level.WARNING) //
-				.text("Dry contact fail")), //
+		SYSTEM_FAULT_COUNTERS(Doc.of(OpenemsType.INTEGER)), //
+		FAULT_STATUS(Doc.of(OpenemsType.BOOLEAN)), //
+		POWER_ON(Doc.of(OpenemsType.BOOLEAN)), //
+		LOW_SELF_CONSUMPTION_STATUS(Doc.of(OpenemsType.BOOLEAN)), //
+		FAULT(Doc.of(OpenemsType.BOOLEAN)), //
+		RUNNING(Doc.of(OpenemsType.BOOLEAN)), //
+		EXTERNAL_COMMUNICATION_ONLY_UNDER_STANDBY(Doc.of(OpenemsType.BOOLEAN)), //
+		MAIN_SWITCH_STATUS(Doc.of(OpenemsType.BOOLEAN)), //
+		BATTERY_ONLINE(Doc.of(OpenemsType.BOOLEAN)), //
+		PCS_ONLINE(Doc.of(OpenemsType.BOOLEAN)), //
+		UPS_ONLINE(Doc.of(OpenemsType.BOOLEAN)), //
+		STS_ONLINE(Doc.of(OpenemsType.BOOLEAN)), //
+		BATTERY_18650_LOW(Doc.of(OpenemsType.BOOLEAN)), //
+		MASTER_CPU_INITIALIZE(Doc.of(OpenemsType.BOOLEAN)), //
+		SLAVE_CPU_INITIALIZE(Doc.of(OpenemsType.BOOLEAN)), //
+		BATTERY_SYSTEM_INITIALIZE_ACTIVE(Doc.of(OpenemsType.BOOLEAN)), //
+		PCS_INITIALIZE_ACTIVE(Doc.of(OpenemsType.BOOLEAN)), //
+		UPS_INITIALIZE_ACTIVE(Doc.of(OpenemsType.BOOLEAN)), //
+		MASTER_CPU_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN)), //
+		SLAVE_CPU_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN)), //
+		BATTERY_SYSTEM_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN)), //
+		PCS_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN)), //
+		UPS_INITIALIZE_FINISH(Doc.of(OpenemsType.BOOLEAN)), //
+		MASTER_CPU_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN)), //
+		SLAVE_CPU_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN)), //
+		BATTERY_SYSTEM_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN)), //
+		PCS_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN)), //
+		UPS_INITIALIZE_FAIL(Doc.of(OpenemsType.BOOLEAN)), //
+		DRY_CONTACT_FAIL(Doc.of(OpenemsType.BOOLEAN)), //
 		POWER_SUPPLY_24V_FAIL(Doc.of(Level.WARNING) //
 				.text("Power supply 24V fail")), //
 		EEPROM2_FAULT(Doc.of(Level.WARNING) //
 				.text("Eeprom 2 fault")), //
-		BATTERY_18650_FAULT(Doc.of(Level.WARNING) //
-				.text("Battery 18650 fault")), //
+		BATTERY_18650_FAULT(Doc.of(OpenemsType.BOOLEAN)), //
 		BATTERY_SYSTEM_FAULT(Doc.of(Level.WARNING) //
 				.text("Batery System fault")), //
 		NO_BATTERY(Doc.of(Level.WARNING) //
 				.text("No battery")), //
-		PCS_FAULT(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Pcs fault")), //
-		NO_PCS(Doc.of(OpenemsType.BOOLEAN) //
-				.text("No pcs")), //
-		UPS_FAULT(Doc.of(Level.WARNING) //
-				.text("Ups fault")), //
-		NO_UPS(Doc.of(Level.WARNING) //
-				.text("No ups")), //
+		PCS_FAULT(Doc.of(OpenemsType.BOOLEAN)), //
+		NO_PCS(Doc.of(OpenemsType.BOOLEAN)), //
+		UPS_FAULT(Doc.of(OpenemsType.BOOLEAN)), //
+		NO_UPS(Doc.of(OpenemsType.BOOLEAN)), //
 		INSULATION_RESISTANCE_DETECTION_FAULT(Doc.of(Level.WARNING) //
 				.text("Insulation resistance detection fault")), //
 		SLAVE_MCU_FAULT(Doc.of(Level.WARNING) //
 				.text("Slave mcu fault")), //
 		SYSTEM_TEMPERATURE_FAULT(Doc.of(Level.WARNING) //
 				.text("System temperature fault")), //
-		PCS_STOP(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Pcs stop")), //
-		METER_FAULT(Doc.of(Level.WARNING) //
-				.text("Meter fault")), //
+		PCS_STOP(Doc.of(OpenemsType.BOOLEAN)), //
+		METER_FAULT(Doc.of(OpenemsType.BOOLEAN)), //
 		BATTERY_TOWERS_TEMPERATURE_SENSORS_FAULT(Doc.of(Level.WARNING) //
 				.text("Battery towers temperature sensor fault")), //
 		SYSTEM_TEMPERATURE_SENSORS_FAULT(Doc.of(Level.WARNING) //
@@ -347,26 +314,20 @@ public interface BatteryFeneconCommercial extends Battery, StartStoppable, Opene
 				.text("Eeprom fault")), //
 		FLASH_FAULT(Doc.of(Level.WARNING) //
 				.text("Flash fault")), //
-		EMS_FAULT(Doc.of(Level.WARNING) //
-				.text("Ems fault")), //
+		EMS_FAULT(Doc.of(OpenemsType.BOOLEAN)), //
 		SD_FAULT(Doc.of(Level.WARNING) //
 				.text("Sd fault")), //
-		BATTERY_18650_WARNING(Doc.of(Level.WARNING) //
-				.text("Battery 18650 warning")), //
+		BATTERY_18650_WARNING(Doc.of(OpenemsType.BOOLEAN)), //
 		MASTER_BATTERY_WARNING(Doc.of(Level.WARNING) //
 				.text("Master battery warning")), //
-		PCS_WARNING(Doc.of(Level.WARNING) //
-				.text("Pcs warning")), //
-		UPS_WARNING(Doc.of(Level.WARNING) //
-				.text("Ups warning")), //
+		PCS_WARNING(Doc.of(OpenemsType.BOOLEAN)), //
+		UPS_WARNING(Doc.of(OpenemsType.BOOLEAN)), //
 		SLAVE_MCU_WARNING(Doc.of(Level.WARNING) //
 				.text("Slave mcu warning")), //
-		SYSTEM_TOO_MUCH_OVER_TEMPERATURE_WARNING(Doc.of(Level.WARNING) //
-				.text("System too much over temperature warning")), //
+		SYSTEM_TOO_MUCH_OVER_TEMPERATURE_WARNING(Doc.of(OpenemsType.BOOLEAN)), //
 		SYSTEM_OVER_TEMPERATURE_WARNING(Doc.of(Level.WARNING) //
 				.text("System over tmeperature warning")), //
-		SYSTEM_TOO_MUCH_LOW_TEMPERATURE_WARNING(Doc.of(Level.WARNING) //
-				.text("Syste, too much low temperature warning")), //
+		SYSTEM_TOO_MUCH_LOW_TEMPERATURE_WARNING(Doc.of(OpenemsType.BOOLEAN)), //
 		SYSTEM_LOW_TEMPERATURE_WARNING(Doc.of(Level.WARNING) //
 				.text("System low temperature warning")), //
 		FAN_FAULT(Doc.of(Level.WARNING) //
@@ -378,22 +339,16 @@ public interface BatteryFeneconCommercial extends Battery, StartStoppable, Opene
 				.text("System temperature sensors warning")), //
 		STS_WARNING(Doc.of(Level.WARNING) //
 				.text("Sts warning")), //
-		PCS_TEMPERATURE_WARNING(Doc.of(Level.WARNING) //
-				.text("Pcb temperature warning")), //
-		PCS_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
-				.text("Pcs over Temperature")), //
-		OVER_TEMPERATURE_STOP_PCS(Doc.of(Level.WARNING) //
-				.text("Over temperature stop PCS")), //
-		LOW_TEMPERATURE_STOP_PCS(Doc.of(Level.WARNING) //
-				.text("Low temperature stop PCS")), //
-		OVER_CURRENT_STOP_CHARGING(Doc.of(Level.WARNING) //
-				.text("Over current stop charging")), //
-		OVER_CURRENT_STOP_DISCHARGING(Doc.of(Level.WARNING) //
-				.text("Over current stop discharging")), //
-		OVER_TEMPERATURE_STOP_CHARGING(Doc.of(Level.WARNING) //
-				.text("Over temperature stop charging")), //
-		LOW_TEMPERATURE_STOP_DISCHARGING(Doc.of(Level.WARNING) //
-				.text("Low temperature stop discharging")), //
+		PCS_TEMPERATURE_WARNING(Doc.of(OpenemsType.BOOLEAN)), //
+		PCS_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN)), //
+		COMMUNICATION_STOP_CHARGING(Doc.of(OpenemsType.BOOLEAN)), //
+		COMMUNICATION_STOP_DISCHARGING(Doc.of(OpenemsType.BOOLEAN)), //
+		OVER_TEMPERATURE_STOP_PCS(Doc.of(OpenemsType.BOOLEAN)), //
+		LOW_TEMPERATURE_STOP_PCS(Doc.of(OpenemsType.BOOLEAN)), //
+		OVER_CURRENT_STOP_CHARGING(Doc.of(OpenemsType.BOOLEAN)), //
+		OVER_CURRENT_STOP_DISCHARGING(Doc.of(OpenemsType.BOOLEAN)), //
+		OVER_TEMPERATURE_STOP_CHARGING(Doc.of(OpenemsType.BOOLEAN)), //
+		LOW_TEMPERATURE_STOP_DISCHARGING(Doc.of(OpenemsType.BOOLEAN)), //
 		VOLTAGE_DIFFERENCE_HIGH_STOP_PCS(Doc.of(Level.WARNING) //
 				.text("Voltage difference high stop PCS")), //
 		POWER_HIGH_STOP_PCS(Doc.of(Level.WARNING) //
@@ -420,6 +375,9 @@ public interface BatteryFeneconCommercial extends Battery, StartStoppable, Opene
 		BATTERY_MIN_CELL_VOLT(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.MILLIVOLT)), //
+		MASTER_SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.accessMode(AccessMode.READ_ONLY)), //
 		BATTERY_NOMINAL_POWER(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.WATT)), //

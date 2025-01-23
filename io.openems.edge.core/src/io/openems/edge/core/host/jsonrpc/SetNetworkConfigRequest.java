@@ -26,6 +26,7 @@ import io.openems.edge.core.host.NetworkInterface;
  *       "dhcp"?: boolean,
  *       "linkLocalAddressing"?: boolean,
  *       "gateway"?: string,
+ *       "metric"?:integer,
  *       "dns"?: string,
  *       "addresses"?: [{
  *         "label": string,

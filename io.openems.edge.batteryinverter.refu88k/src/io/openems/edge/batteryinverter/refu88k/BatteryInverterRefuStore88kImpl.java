@@ -220,7 +220,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 	private static final int SUNSPEC_64800 = 40225; // MESA-PCS Extensions
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // Register
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(SUNSPEC_1, Priority.LOW, //
 						m(BatteryInverterRefuStore88k.ChannelId.ID_1, new UnsignedWordElement(SUNSPEC_1)), // 40002
@@ -470,7 +470,8 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActivePower().asString() //
+		return this.stateMachine.debugLog() //
+				+ "|P:" + this.getActivePower().asString() //
 				+ "|Q:" + this.getReactivePower().asString() //
 				+ "|DC:" + this.channel(BatteryInverterRefuStore88k.ChannelId.DCV).value().asString() //
 				+ "|" + this.channel(BatteryInverterRefuStore88k.ChannelId.ST).value().asOptionString() //
@@ -489,22 +490,11 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get(); // read StartStop-Channel
+		case START -> StartStop.START; // force START
+		case STOP -> StartStop.STOP; // force STOP
+		};
 	}
 
 	/**

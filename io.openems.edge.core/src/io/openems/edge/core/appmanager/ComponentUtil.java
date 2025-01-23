@@ -1,17 +1,99 @@
 package io.openems.edge.core.appmanager;
 
+import static java.util.Collections.emptyList;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.user.User;
-import io.openems.edge.core.appmanager.ComponentUtilImpl.Relay;
 import io.openems.edge.core.host.NetworkInterface;
+import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 
 public interface ComponentUtil {
+
+	public static final List<String> CORE_COMPONENT_IDS = List.of(//
+			AppManager.SINGLETON_COMPONENT_ID, //
+			ComponentManager.SINGLETON_COMPONENT_ID, //
+			Cycle.SINGLETON_COMPONENT_ID, //
+			Host.SINGLETON_COMPONENT_ID, //
+			Meta.SINGLETON_COMPONENT_ID, //
+			PredictorManager.SINGLETON_COMPONENT_ID, //
+			Sum.SINGLETON_COMPONENT_ID //
+	);
+
+	public record RelayInfo(//
+			String id, //
+			String alias, //
+			int numberOfChannels, //
+			List<RelayContactInfo> channels //
+	) {
+
+		/**
+		 * Returns the alias if not blank otherwise return the id.
+		 * 
+		 * @return the string to display
+		 */
+		public String getDisplayName() {
+			return this.alias().isBlank() ? this.id() : this.alias();
+		}
+
+	}
+
+	public record RelayContactInfo(//
+			String channel, //
+			String alias, //
+			int position, //
+			List<OpenemsComponent> usingComponents, //
+			List<String> disabledReasons //
+	) {
+
+		/**
+		 * Returns the alias if not blank otherwise return the id.
+		 * 
+		 * @return the string to display
+		 */
+		public String getDisplayName() {
+			return this.alias().isBlank() ? this.channel() : this.alias();
+		}
+
+	}
+
+	public record PreferredRelay(//
+			Predicate<RelayInfo> matchesRelay, //
+			/**
+			 * Indices of the relay contacts.
+			 */
+			int[] preferredRelays //
+	) {
+
+		/**
+		 * Creates a {@link PreferredRelay} for a relay with the given amount of relay
+		 * contacts.
+		 * 
+		 * @param numberOfRelays  the number of relay contacts
+		 * @param preferredRelays the preferred relays
+		 * @return the {@link PreferredRelay}
+		 */
+		public static PreferredRelay of(int numberOfRelays, int[] preferredRelays) {
+			return new PreferredRelay(t -> t.numberOfChannels() == numberOfRelays, preferredRelays);
+		}
+
+	}
 
 	/**
 	 * Gets the interfaces of the currently active network settings.
@@ -31,52 +113,79 @@ public interface ComponentUtil {
 	public boolean anyComponentUses(String value, List<String> ignoreIds);
 
 	/**
-	 * Gets a list of current Relays. e. g. 'io0/Relay1'
-	 *
-	 * @return a list of Relays
-	 * @throws OpenemsNamedException on error
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
+	 * 
+	 * @param ignoreIds the Component-IDs that should be ignored to check if they
+	 *                  use any relay
+	 * @return a list of {@link RelayInfo RelayInfos}
 	 */
-	public List<Relay> getAllRelays();
+	public default List<RelayInfo> getAllRelayInfos(List<String> ignoreIds) {
+		return this.getAllRelayInfos(ignoreIds, //
+				t -> true, //
+				c -> c.id(), //
+				(t, u) -> true, //
+				(t, u) -> u.address().toString(), //
+				(t, u) -> emptyList() //
+		);
+	}
 
 	/**
-	 * Gets a list of currently available Relays of IOs which are not used by any
-	 * component. e. g. 'io0/Relay1'
-	 *
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException on error
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
+	 * 
+	 * @param ignoreIds            the Component-IDs that should be ignored to check
+	 *                             if they use any relay
+	 * @param componentFilter      a {@link DigitalOutput} component filter
+	 * @param componentAliasMapper a {@link DigitalOutput} component alias mapper
+	 * @param channelFilter        a {@link DigitalOutput} channel filter
+	 * @param channelAliasMapper   a {@link DigitalOutput} channel alias mapper
+	 * @param disabledReasons      a {@link DigitalOutput} channel disabled function
+	 * @return a list of {@link RelayInfo RelayInfos}
 	 */
-	public List<Relay> getAvailableRelays();
+	public List<RelayInfo> getAllRelayInfos(//
+			List<String> ignoreIds, //
+			Predicate<DigitalOutput> componentFilter, //
+			Function<DigitalOutput, String> componentAliasMapper, //
+			BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, String> channelAliasMapper, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons //
+	);
 
 	/**
-	 * Gets a list of currently available Relays of IOs which are not used by any
-	 * component. like 'io0/Relay1'
-	 *
-	 * @param ignoreIds the Component-IDs that should be ignored
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException on error
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
+	 * 
+	 * @return a list of {@link RelayInfo RelayInfos}
+	 * @implNote calls {@link ComponentUtil#getAllRelayInfos(List)} with
+	 *           {@link ComponentUtil#CORE_COMPONENT_IDS} to ignore.
 	 */
-	public List<Relay> getAvailableRelays(List<String> ignoreIds);
+	public default List<RelayInfo> getAllRelayInfos() {
+		return this.getAllRelayInfos(CORE_COMPONENT_IDS);
+	}
 
 	/**
-	 * Gets a list of currently available Relays of given IO which are not used by
-	 * any component. like 'io0/Relay1'
-	 *
-	 * @param ioId the Component-ID of the DigitalOutput
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException if the io was not found
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
+	 * 
+	 * @param componentFilter a {@link DigitalOutput} component filter
+	 * @param channelFilter   a {@link DigitalOutput} channel filter
+	 * @param disabledReasons additional reasons why a channel is disabled
+	 * @return a list of {@link RelayInfo RelayInfos}
 	 */
-	public List<String> getAvailableRelays(String ioId) throws OpenemsNamedException;
-
-	/**
-	 * Gets a list of currently available Relays of given IO which are not used by
-	 * any component. e. g. 'io0/Relay1'
-	 *
-	 * @param ioId      the Component-ID of the DigitalOutput
-	 * @param ignoreIds the Component-IDs that should be ignored
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException if the io was not found
-	 */
-	public List<String> getAvailableRelays(String ioId, List<String> ignoreIds) throws OpenemsNamedException;
+	public default List<RelayInfo> getAllRelayInfos(//
+			Predicate<DigitalOutput> componentFilter, //
+			BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons //
+	) {
+		return this.getAllRelayInfos(CORE_COMPONENT_IDS, //
+				componentFilter, //
+				c -> c.id(), //
+				channelFilter, //
+				(t, u) -> u.address().toString(), //
+				disabledReasons //
+		);
+	}
 
 	/**
 	 * Searches a component with the given component configuration.
@@ -138,16 +247,21 @@ public interface ComponentUtil {
 	public String getNextAvailableId(String baseName, int startingNumber, List<String> componentIds);
 
 	/**
-	 * Gets the preferred relays. If the default ports are are already taken the
-	 * next available in a row are taken. If not enough in a row are available the
-	 * first available relays of any relayboard are returned.
-	 *
-	 * @param ignoreIds      the ids of the components that should be ignored
-	 * @param relays4Channel the default ports on a 4-Channel Relay
-	 * @param relays8Channel the default ports on a 8-Channel Relay
-	 * @return the relays
+	 * Gets the preferred relays. If the default ports are already taken the next
+	 * available in a row are taken. If not enough in a row are available the first
+	 * available relays of any relay are returned.
+	 * 
+	 * @param relayInfos      the {@link RelayInfo RelayInfos} to search in for the
+	 *                        preferred relays
+	 * @param numberOfRelays  the number of the result number of relays
+	 * @param preferredRelays the {@link PreferredRelay} options
+	 * @return the first found preferred relays
 	 */
-	public String[] getPreferredRelays(List<String> ignoreIds, int[] relays4Channel, int[] relays8Channel);
+	public String[] getPreferredRelays(//
+			List<RelayInfo> relayInfos, //
+			int numberOfRelays, //
+			List<PreferredRelay> preferredRelays //
+	);
 
 	/**
 	 * updates the interfaces in the Host configuration.
@@ -178,6 +292,15 @@ public interface ComponentUtil {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void removeIdsInSchedulerIfExisting(User user, List<String> removedIds) throws OpenemsNamedException;
+
+	/**
+	 * Directly 1-to-1 sets the given ids as the scheduler ids.
+	 * 
+	 * @param user         the executing user
+	 * @param componentIds the scheduler ids
+	 * @throws OpenemsNamedException when the scheduler can not be updated
+	 */
+	public void setSchedulerComponentIds(User user, List<String> componentIds) throws OpenemsNamedException;
 
 	/**
 	 * Gets the current id's in the scheduler.
@@ -235,4 +358,14 @@ public interface ComponentUtil {
 	 * @return the optional component
 	 */
 	public Optional<EdgeConfig.Component> getComponent(String id, String factoryId);
+
+	/**
+	 * Gets an array of modbus unit ids which are already used by other components.
+	 * The result of this method may not contain all modbus unit ids.
+	 * 
+	 * @param modbusComponent the id of the modbus component
+	 * @return an array of used modbus unit ids
+	 */
+	public int[] getUsedModbusUnitIds(String modbusComponent);
+
 }

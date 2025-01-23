@@ -2,7 +2,7 @@ import { JsonrpcNotification } from "../base";
 
 /**
  * Wraps a JSON-RPC Notification for a specific Edge-ID.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,10 +19,10 @@ export class EdgeRpcNotification extends JsonrpcNotification {
     public static readonly METHOD: string = "edgeRpc";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             edgeId: string,
             payload: JsonrpcNotification
-        }
+        },
     ) {
         super(EdgeRpcNotification.METHOD, params);
     }

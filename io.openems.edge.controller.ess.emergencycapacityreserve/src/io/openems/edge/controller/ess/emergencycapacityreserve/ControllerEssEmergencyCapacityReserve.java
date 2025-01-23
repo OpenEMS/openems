@@ -1,8 +1,12 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.PERCENT;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.FLOAT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+
 import io.openems.common.channel.Level;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.FloatReadChannel;
@@ -22,27 +26,32 @@ public interface ControllerEssEmergencyCapacityReserve extends Controller, Opene
 		 * Current state of the StateMachine.
 		 */
 		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
+				.text("Current State of State-Machine") //
+				.persistencePriority(HIGH)), //
 
 		/**
 		 * Holds {@link ManagedSymmetricEss.ChannelId#SET_ACTIVE_POWER_LESS_OR_EQUALS}
 		 * for debug purpose.
 		 */
-		DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS(Doc.of(INTEGER) //
+				.unit(WATT) //
 				.text("The debug SetActivePowerLessOrEquals")), //
 
 		/**
 		 * Holds target power to reach.
 		 */
-		DEBUG_TARGET_POWER(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT).text("The debug target power to reach")), //
+		DEBUG_TARGET_POWER(Doc.of(FLOAT) //
+				.unit(WATT) //
+				.text("The debug target power to reach") //
+				.persistencePriority(HIGH) //
+		), //
 
 		/**
 		 * Holds power to increase/decrease ramp for every cycle.
 		 */
-		DEBUG_RAMP_POWER(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT).text("The debug ramp power to decrease power")), //
+		DEBUG_RAMP_POWER(Doc.of(FLOAT) //
+				.unit(WATT) //
+				.text("The debug ramp power to decrease power")), //
 
 		/**
 		 * Configured reserve SoC is out of range [5,100].
@@ -53,9 +62,10 @@ public interface ControllerEssEmergencyCapacityReserve extends Controller, Opene
 		/**
 		 * Holds the actual reserve soc value. Holds null if reserve soc is disabled.
 		 */
-		ACTUAL_RESERVE_SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.text("The reserve soc value")); //
+		ACTUAL_RESERVE_SOC(Doc.of(INTEGER) //
+				.unit(PERCENT) //
+				.text("The reserve soc value") //
+				.persistencePriority(HIGH)); //
 
 		private final Doc doc;
 

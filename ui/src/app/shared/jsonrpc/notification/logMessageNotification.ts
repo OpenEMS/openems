@@ -19,10 +19,10 @@ export class LogMessageNotification extends JsonrpcNotification {
     public static METHOD: string = "logMessage";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             level: Level,
             msg: string
-        }
+        },
     ) {
         super(LogMessageNotification.METHOD, params);
     }

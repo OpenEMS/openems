@@ -77,7 +77,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	/** Holds the minimum time the phases should be switch on in [Ws]. */
 	private long minimumTotalPhaseTime;
 	/** Current Level. */
-	private Level currentLevel = Level.UNDEFINED;
+	private Level currentLevel = Level.LEVEL_0;
 	/** Last Level change time, used for the hysteresis. */
 	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
 	private Config config;
@@ -118,24 +118,19 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		Status runState = Status.UNDEFINED;
-
 		// Handle Mode AUTOMATIC, MANUAL_OFF or MANUAL_ON
-		switch (this.config.mode()) {
-		case AUTOMATIC:
-			runState = this.modeAutomatic();
-			break;
-
-		case MANUAL_OFF:
+		var runState = switch (this.config.mode()) {
+		case AUTOMATIC //
+			-> this.modeAutomatic();
+		case MANUAL_OFF -> {
 			this.modeManualOff();
-			runState = Status.INACTIVE;
-			break;
-
-		case MANUAL_ON:
-			this.modeManualOn();
-			runState = Status.ACTIVE;
-			break;
+			yield Status.INACTIVE;
 		}
+		case MANUAL_ON -> {
+			this.modeManualOn();
+			yield Status.ACTIVE;
+		}
+		};
 
 		// Calculate Phase Time
 		var phase1Time = (int) this.phase1.getTotalDuration().getSeconds();
@@ -219,8 +214,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		targetLevel = this.applyHysteresis(targetLevel);
 
 		Status runState;
-		runState = targetLevel.equals(Level.LEVEL_0) || targetLevel.equals(Level.UNDEFINED) ? Status.INACTIVE
-				: Status.ACTIVE;
+		runState = targetLevel.equals(Level.LEVEL_0) ? Status.INACTIVE : Status.ACTIVE;
 
 		var now = LocalTime.now(this.componentManager.getClock());
 		var configuredEndTime = DateUtils.parseLocalTimeOrError(this.config.endTime());
@@ -270,25 +264,16 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @return the minimum total phase time [s]
 	 */
 	private static long calculateMinimumTotalPhaseTime(Config config) {
-		switch (config.workMode()) {
-		case TIME:
-			switch (config.defaultLevel()) {
-			case LEVEL_0:
-				return 0;
-			case LEVEL_1:
-				return config.minTime() * 3600;
-			case LEVEL_2:
-				return config.minTime() * 3600 * 2;
-			case LEVEL_3:
-				return config.minTime() * 3600 * 3;
-			case UNDEFINED:
-				return 0;
-			}
-		case NONE:
-			return 0;
-		}
-		assert true;
-		return 0;
+		return switch (config.workMode()) {
+		case TIME //
+			-> switch (config.defaultLevel()) {
+			case LEVEL_0 -> 0;
+			case LEVEL_1 -> config.minTime() * 3600;
+			case LEVEL_2 -> config.minTime() * 3600 * 2;
+			case LEVEL_3 -> config.minTime() * 3600 * 3;
+			};
+		case NONE -> 0;
+		};
 	}
 
 	/**
@@ -309,7 +294,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		var endTime = DateUtils.parseLocalTimeOrError(this.config.endTime());
 		switch (this.config.defaultLevel()) {
 		case LEVEL_0:
-		case UNDEFINED:
 		case LEVEL_1:
 			// keep value
 			break;
@@ -337,27 +321,26 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 		// Set phases accordingly
 		switch (level) {
-		case UNDEFINED:
-		case LEVEL_0:
+		case LEVEL_0 -> {
 			this.phase1.switchOff();
 			this.phase2.switchOff();
 			this.phase3.switchOff();
-			break;
-		case LEVEL_1:
+		}
+		case LEVEL_1 -> {
 			this.phase1.switchOn();
 			this.phase2.switchOff();
 			this.phase3.switchOff();
-			break;
-		case LEVEL_2:
+		}
+		case LEVEL_2 -> {
 			this.phase1.switchOn();
 			this.phase2.switchOn();
 			this.phase3.switchOff();
-			break;
-		case LEVEL_3:
+		}
+		case LEVEL_3 -> {
 			this.phase1.switchOn();
 			this.phase2.switchOn();
 			this.phase3.switchOn();
-			break;
+		}
 		}
 	}
 
@@ -423,16 +406,12 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	private ChannelAddress getChannelAddressForPhase(Phase phase) throws OpenemsNamedException {
-		switch (phase) {
-		case L1:
-			return ChannelAddress.fromString(this.config.outputChannelPhaseL1());
-		case L2:
-			return ChannelAddress.fromString(this.config.outputChannelPhaseL2());
-		case L3:
-			return ChannelAddress.fromString(this.config.outputChannelPhaseL3());
-		}
-		assert true; // can never happen
-		return null;
+		return ChannelAddress.fromString(//
+				switch (phase) {
+				case L1 -> this.config.outputChannelPhaseL1();
+				case L2 -> this.config.outputChannelPhaseL2();
+				case L3 -> this.config.outputChannelPhaseL3();
+				});
 	}
 
 	/**
@@ -445,7 +424,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 		switch (this.currentLevel) {
 		case LEVEL_0:
-		case UNDEFINED:
 			break;
 		case LEVEL_1:
 			level1Active = true;

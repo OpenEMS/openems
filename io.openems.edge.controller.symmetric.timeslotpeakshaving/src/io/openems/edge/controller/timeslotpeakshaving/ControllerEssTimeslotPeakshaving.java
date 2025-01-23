@@ -1,5 +1,6 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -10,7 +11,8 @@ public interface ControllerEssTimeslotPeakshaving extends Controller, OpenemsCom
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(ChargeState.values()) //
-				.text("Current State of State-Machine")),
+				.text("Current State of State-Machine") //
+				.persistencePriority(PersistencePriority.HIGH)),
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
 		PEAK_SHAVED_POWER(Doc.of(OpenemsType.INTEGER)//

@@ -7,7 +7,9 @@ import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
+import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketImpl;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -56,14 +58,21 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		if (ws.getReadyState() != ReadyState.NOT_YET_CONNECTED) {
 			// Copy of WebSocketClient#reconnectBlocking.
 			// Do not 'reset' if WebSocket has never been connected before.
-			resetWebSocketClient(ws);
+			this.parent.logInfo(this.log, "# Reset WebSocket Client...");
+			resetWebSocketClient(ws, this.parent::createWsData);
+			this.parent.logInfo(this.log, "# Reset WebSocket Client... done");
 		}
 		try {
+			this.parent.logInfo(this.log, "# Connect Blocking [" + CONNECT_TIMEOUT_SECONDS + "]...");
 			ws.connectBlocking(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+			this.parent.logInfo(this.log, "# Connect Blocking [" + CONNECT_TIMEOUT_SECONDS + "]... done");
+
 		} catch (IllegalStateException e) {
 			// Catch "WebSocketClient objects are not reuseable" thrown by
 			// WebSocketClient#connect(). Set WebSocketClient#connectReadThread to `null`.
-			resetWebSocketClient(ws);
+			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... " + e.getMessage());
+			resetWebSocketClient(ws, this.parent::createWsData);
+			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... done");
 		}
 
 		var end = Instant.now();
@@ -75,16 +84,20 @@ public class ClientReconnectorWorker extends AbstractWorker {
 
 	/**
 	 * This method is a copy of {@link WebSocketClient} reset()-method, because the
-	 * original one may block at the call of 'closeBlocking()' method.
+	 * original one may block at the call of 'closeBlocking()' method. It also sets
+	 * the new attachment from the attachment supplier.
 	 * 
 	 * <p>
 	 * Waiting for https://github.com/TooTallNate/Java-WebSocket/pull/1251 to be
 	 * merged.
 	 * 
-	 * @param ws the {@link WebSocketClient}
+	 * @param <T>    the type of the attachment
+	 * @param ws     the {@link WebSocketClient}
+	 * @param wsData {@link Function} to provide a the new attachment
 	 * @throws Exception on error
 	 */
-	protected static void resetWebSocketClient(WebSocketClient ws) throws Exception {
+	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Function<WebSocket, T> wsData)
+			throws Exception {
 		/*
 		 * Get methods and fields via Reflection
 		 */
@@ -155,7 +168,10 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		// closeLatch = new CountDownLatch(1); -> to reflection
 		closeLatchField.set(ws, new CountDownLatch(1));
 		// this.engine = new WebSocketImpl(this, this.draft); -> to reflection
-		engineField.set(ws, new WebSocketImpl(ws, draft));
+		final var newEngine = new WebSocketImpl(ws, draft);
+		final var newAttachment = wsData.apply(ws);
+		newEngine.setAttachment(newAttachment);
+		engineField.set(ws, newEngine);
 	}
 
 	@Override
