@@ -14,7 +14,7 @@
     "@angular/service-worker": "19.0.5",
     "@awesome-cordova-plugins/core": "^6.14.0",
     "@awesome-cordova-plugins/file-opener": "^6.14.0",
-    "@capacitor-community/file-opener": "^6.0.1",
+    "@capacitor-community/file-opener": "^7.0.0",
     "@capacitor/android": "^6.2.0",
     "@capacitor/app": "^6.0.2",
     "@capacitor/core": "^6.2.0",
