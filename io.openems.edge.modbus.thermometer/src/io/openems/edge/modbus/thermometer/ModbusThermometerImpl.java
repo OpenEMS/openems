@@ -217,6 +217,8 @@ public class ModbusThermometerImpl extends AbstractOpenemsModbusComponent
 			this._setTemperatureOwd10(getTemperatureOwd10Debug().get());
 		}
 
+		this._setOwdReadFailed(false);		
+		
 	}
 
 	@Override

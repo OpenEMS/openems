@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
-
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -44,6 +44,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
+import io.openems.edge.pvinverter.sunspec.Phase;
 import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 import io.openems.edge.timedata.api.Timedata;
@@ -176,11 +177,62 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			try {
 
 				this.pvDataHandler();
+
 			} catch (OpenemsNamedException e) {
 				log.warn("Cannot write S160 data yet");
 			}
 
+			this.checkActivePowerChannel();
 			break;
+
+		}
+
+	}
+
+	// Active Power channel is not available (yet)
+	// STP10 does not send valid modbus data if pv production is 0
+	private void checkActivePowerChannel() {
+		if (config.phase() == Phase.ALL) {
+			try {
+				if (this.getActivePower().getOrError() == null) {
+					this.log.error("ActivePower channel is null. Inverter in standby? Set value = 0 ");
+					this._setActivePower(0);
+				}
+			} catch (InvalidValueException  e) {
+				this.log.error("ActivePower channel not (yet) available. Inverter in standby? Set value = 0 ");
+				this._setActivePower(0);
+			}
+		} else {
+			// L1
+			try {
+				if (this.getActivePowerL1().getOrError() == null) {
+					this.log.error("ActivePower L1 channel is null. Inverter in standby? Set value = 0 ");
+					this._setActivePowerL1(0);
+				}
+			} catch (OpenemsException e) {
+				this.log.error("ActivePower L1 channel not (yet) available. Inverter in standby? Set value = 0 ");
+				this._setActivePowerL1(0);
+			}	
+			// L2
+			try {
+				if (this.getActivePowerL2().getOrError() == null) {
+					this.log.error("ActivePower L2 channel is null. Inverter in standby? Set value = 0 ");
+					this._setActivePowerL2(0);
+				}
+			} catch (OpenemsException e) {
+				this.log.error("ActivePower L2 channel not (yet) available. Inverter in standby? Set value = 0 ");
+				this._setActivePowerL2(0);
+			}		
+			// L3
+			try {
+				if (this.getActivePowerL3().getOrError() == null) {
+					this.log.error("ActivePower L3 channel is null. Inverter in standby? Set value = 0 ");
+					this._setActivePowerL3(0);
+				}
+			} catch (OpenemsException e) {
+				this.log.error("ActivePower L3 channel not (yet) available. Inverter in standby? Set value = 0 ");
+				this._setActivePowerL3(0);
+			}				
 		}
 
 	}

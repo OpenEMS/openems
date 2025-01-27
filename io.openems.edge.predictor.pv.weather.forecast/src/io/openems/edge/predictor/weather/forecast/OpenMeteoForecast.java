@@ -32,7 +32,7 @@ public class OpenMeteoForecast {
     public void fetchData(String latitude, String longitude) throws Exception {
         this.apiUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude
                 + "&longitude=" + longitude
-                + "&minutely_15=shortwave_radiation&forecast_days=3";
+                + "&minutely_15=shortwave_radiation&forecast_days=3&models=best_match";
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new URL(apiUrl).openStream()))) {
             HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();

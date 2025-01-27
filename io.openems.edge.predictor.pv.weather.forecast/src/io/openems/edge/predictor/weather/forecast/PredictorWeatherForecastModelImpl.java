@@ -115,6 +115,10 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 				values[i] = dataIndex < shortwaveRadiation.size()
 						? (int) Math.round(shortwaveRadiation.get(dataIndex) * this.factor)
 						: 0; // Forecast PV production based on radiation data
+
+				// Log the data
+				logDebug(this.log, "Index: " + i + " DataIndex: "+ dataIndex + " Radiation: " +  shortwaveRadiation.get(dataIndex)  +  " * factor " + this.factor + " Value: " +  values[i] + "\n" );
+
 			}
 
 			// Return the prediction starting from the calculated time
@@ -123,6 +127,16 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 		} catch (Exception e) {
 			log.error("Error creating prediction: ", e);
 			return Prediction.EMPTY_PREDICTION;
+		}
+	}
+
+	/**
+	 * Uses Info Log for further debug features.
+	 */
+	@Override
+	protected void logDebug(Logger log, String message) {
+		if (this.config.debugMode()) {
+			this.logInfo(this.log, message);
 		}
 	}
 }
