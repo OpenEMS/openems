@@ -59,7 +59,13 @@ import io.openems.edge.timedata.api.TimedataProvider;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+	EdgeEventConstants.TOPIC_BASE,
+	EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS,
+	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, //
+	EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,	
+	EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE,
+	EdgeEventConstants.TOPIC_CYCLE
 })
 public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		implements PvInverterSmaSunnyTripower, SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter,
@@ -167,25 +173,22 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		super.deactivate();
 	}
 
-	@Override
+
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
-		switch (event.getTopic()) {
+		this.log.debug("Event -> " + event.toString());		
+		this.checkActivePowerChannel();
+		try {
 
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-
-			try {
-
-				this.pvDataHandler();
-
-			} catch (OpenemsNamedException e) {
-				log.warn("Cannot write S160 data yet");
-			}
-
+			this.pvDataHandler();
 			this.checkActivePowerChannel();
-			break;
 
+		} catch (OpenemsNamedException e) {
+			log.warn("Cannot write S160 data yet");
 		}
+
+		
+		
 
 	}
 
@@ -198,7 +201,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 					this.log.error("ActivePower channel is null. Inverter in standby? Set value = 0 ");
 					this._setActivePower(0);
 				}
-			} catch (InvalidValueException  e) {
+			} catch (InvalidValueException e) {
 				this.log.error("ActivePower channel not (yet) available. Inverter in standby? Set value = 0 ");
 				this._setActivePower(0);
 			}
@@ -212,7 +215,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			} catch (OpenemsException e) {
 				this.log.error("ActivePower L1 channel not (yet) available. Inverter in standby? Set value = 0 ");
 				this._setActivePowerL1(0);
-			}	
+			}
 			// L2
 			try {
 				if (this.getActivePowerL2().getOrError() == null) {
@@ -222,7 +225,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			} catch (OpenemsException e) {
 				this.log.error("ActivePower L2 channel not (yet) available. Inverter in standby? Set value = 0 ");
 				this._setActivePowerL2(0);
-			}		
+			}
 			// L3
 			try {
 				if (this.getActivePowerL3().getOrError() == null) {
@@ -232,7 +235,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			} catch (OpenemsException e) {
 				this.log.error("ActivePower L3 channel not (yet) available. Inverter in standby? Set value = 0 ");
 				this._setActivePowerL3(0);
-			}				
+			}
 		}
 
 	}

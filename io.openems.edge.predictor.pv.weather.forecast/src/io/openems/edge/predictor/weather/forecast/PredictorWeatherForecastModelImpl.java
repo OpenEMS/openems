@@ -2,7 +2,7 @@ package io.openems.edge.predictor.weather.forecast;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +38,13 @@ import io.openems.edge.predictor.api.prediction.Predictor;
 public class PredictorWeatherForecastModelImpl extends AbstractPredictor implements Predictor, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(PredictorWeatherForecastModelImpl.class);
-	private double factor; // Factor to multiply with short wave solar radiation to forecast PV production
+	private double factorPv1; // Factor to multiply with short wave solar radiation to forecast PV production
+	private double factorPv2;
+	private double factorPv3;
+	
+	private int arraySize = 192; // 48hours
+	
+	private String forecastModel ="global_tilted_irradiance";
 
 	@Reference
 	private ComponentManager componentManager;
@@ -70,65 +76,122 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 	}
 
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
-		try {
-			// Fetch latest weather forecast data every 15 minutes
-			this.openMeteoForecast = new OpenMeteoForecast(); // initialize here
-			this.openMeteoForecast.fetchData(this.config.latitude(), this.config.longitude()); // Fetch the weather
-																								// forecast data from
-																								// API
-			this.factor = config.factor(); // Factor for calculating PV production
+	    try {
+	        // Initialize OpenMeteoForecast
+	        this.openMeteoForecast = new OpenMeteoForecast(config.debugMode());
+	        int targetArraySize = this.config.debugMode() ? arraySize * 2 : arraySize;
 
-			Optional<List<Double>> shortWaveRadiationOpt = openMeteoForecast.getShortWaveRadiation();
+	        // Factors and configurations
+	        this.factorPv1 = config.factorPv1();
+	        this.factorPv2 = config.factorPv2();
+	        this.factorPv3 = config.factorPv3();
 
-			// If we don't have data, return empty prediction
-			if (shortWaveRadiationOpt.isEmpty()) {
-				return Prediction.EMPTY_PREDICTION;
-			}
+	        List<Double> pv1Radiation = new ArrayList<>();
+	        List<Double> pv2Radiation = new ArrayList<>();
+	        List<Double> pv3Radiation = new ArrayList<>();
 
-			List<Double> shortwaveRadiation = shortWaveRadiationOpt.get();
+	        // Fetch data for PV1 if factor > 0
+	        if (factorPv1 > 0) {
+	            this.openMeteoForecast.fetchDataWithTiltAndAzimuth(
+	                this.config.latitude(), 
+	                this.config.longitude(), 
+	                this.config.azimuthPv1(), 
+	                this.config.tiltPv1(),
+	                this.forecastModel
+	            );
+	            Optional<List<Double>> pv1Data = openMeteoForecast.getRadiation(this.forecastModel);
+	            pv1Data.ifPresent(pv1Radiation::addAll);
+	        }
 
-			// If the data size is less than 192, return empty prediction
-			if (shortwaveRadiation.size() < 192) {
-				return Prediction.EMPTY_PREDICTION;
-			}
+	        // Fetch data for PV2 if factor > 0
+	        if (factorPv2 > 0) {
+	            this.openMeteoForecast.fetchDataWithTiltAndAzimuth(
+	                this.config.latitude(), 
+	                this.config.longitude(), 
+	                this.config.azimuthPv2(), 
+	                this.config.tiltPv2(),
+	                this.forecastModel
+	            );
+	            Optional<List<Double>> pv2Data = openMeteoForecast.getRadiation(this.forecastModel);
+	            pv2Data.ifPresent(pv2Radiation::addAll);
+	        }
 
-			// Get the current time
-			ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock());
-			ZonedDateTime startOfDay = now.truncatedTo(ChronoUnit.DAYS); // Start of the current day
+	        // Fetch data for PV3 if factor > 0
+	        if (factorPv3 > 0) {
+	            this.openMeteoForecast.fetchDataWithTiltAndAzimuth(
+	                this.config.latitude(), 
+	                this.config.longitude(), 
+	                this.config.azimuthPv3(), 
+	                this.config.tiltPv3(),
+	                this.forecastModel
+	            );
+	            Optional<List<Double>> pv3Data = openMeteoForecast.getRadiation(this.forecastModel);
+	            pv3Data.ifPresent(pv3Radiation::addAll);
+	        }
+	        
+	        // Get the current time
+	        ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock());
+	        if (this.config.debugMode()) {
+	            now = now.minusDays(1); // Shift one day back for debugging
 
-			// Calculate the index corresponding to the current 15-minute interval
-			int currentIntervalIndex = (int) ChronoUnit.MINUTES.between(startOfDay, now) / 15; // Index of current
-																								// 15-minute interval
+	        }		        
 
-			// Ensure the currentIntervalIndex is within bounds
-			if (currentIntervalIndex >= shortwaveRadiation.size()) {
-				return Prediction.EMPTY_PREDICTION;
-			}
+	        // Calculate the combined radiation data
+	        List<Double> combinedRadiation = new ArrayList<>();
+	        for (int i = 0; i < targetArraySize; i++) {
+	            double pv1Value = i < pv1Radiation.size() ? pv1Radiation.get(i) * factorPv1 : 0;
+	            double pv2Value = i < pv2Radiation.size() ? pv2Radiation.get(i) * factorPv2 : 0;
+	            double pv3Value = i < pv3Radiation.size() ? pv3Radiation.get(i) * factorPv3 : 0;
+	            combinedRadiation.add(pv1Value + pv2Value + pv3Value);
+	        }
 
-			// Create an array to store the forecast values for the next 192 intervals (48
-			// hours in 15-minute steps)
-			var values = new Integer[192];
+	        // If no data was fetched, return empty prediction
+	        if (combinedRadiation.isEmpty()) {
+	            return Prediction.EMPTY_PREDICTION;
+	        }
 
-			// Extract data starting from the calculated currentIntervalIndex
-			for (int i = 0; i < 192; i++) {
-				int dataIndex = currentIntervalIndex + i; // Get the data index for each 15-minute interval
-				values[i] = dataIndex < shortwaveRadiation.size()
-						? (int) Math.round(shortwaveRadiation.get(dataIndex) * this.factor)
-						: 0; // Forecast PV production based on radiation data
+        
+	        
+	        ZonedDateTime startOfDay = now.truncatedTo(ChronoUnit.DAYS);
 
-				// Log the data
-				logDebug(this.log, "Index: " + i + " DataIndex: "+ dataIndex + " Radiation: " +  shortwaveRadiation.get(dataIndex)  +  " * factor " + this.factor + " Value: " +  values[i] + "\n" );
+	        // Calculate the index corresponding to the current 15-minute interval
+	        int currentIntervalIndex = (int) ChronoUnit.MINUTES.between(startOfDay, now) / 15;
 
-			}
+	        // Ensure the currentIntervalIndex is within bounds
+	        if (currentIntervalIndex >= combinedRadiation.size()) {
+	            return Prediction.EMPTY_PREDICTION;
+	        }
 
-			// Return the prediction starting from the calculated time
-			return Prediction.from(startOfDay.plusMinutes(currentIntervalIndex * 15), values);
+	        // Create an array to store the forecast values for the next 192 intervals (48 hours in 15-minute steps)
+	        var values = new Integer[targetArraySize];
 
-		} catch (Exception e) {
-			log.error("Error creating prediction: ", e);
-			return Prediction.EMPTY_PREDICTION;
-		}
+	        // Extract and calculate data starting from the calculated currentIntervalIndex
+	        for (int i = 0; i < targetArraySize; i++) {
+	            int dataIndex = currentIntervalIndex + i;
+	            double pv1Value = dataIndex < pv1Radiation.size() ? pv1Radiation.get(dataIndex) * factorPv1 : 0;
+	            double pv2Value = dataIndex < pv2Radiation.size() ? pv2Radiation.get(dataIndex) * factorPv2 : 0;
+	            double pv3Value = dataIndex < pv3Radiation.size() ? pv3Radiation.get(dataIndex) * factorPv3 : 0;
+	            double sumValue = pv1Value + pv2Value + pv3Value;
+
+	            values[i] = (int) Math.round(sumValue);
+
+	            // Debug output for each step
+	            if (this.config.debugMode()) {
+	                ZonedDateTime timestamp = startOfDay.plusMinutes((currentIntervalIndex + i) * 15);
+	                logDebug(this.log, "Index: " + i + " Time: " + timestamp.toString() + " PV1: " + pv1Value +
+	                        " PV2: " + pv2Value + " PV3: " + pv3Value + " Sum: " + sumValue);
+	            }	            
+	        }
+
+	        // Return the prediction starting from the calculated time
+	        return Prediction.from(startOfDay.plusMinutes(currentIntervalIndex * 15), values);
+
+	    } catch (Exception e) {
+	        log.error("Error creating prediction: ", e);
+	        return Prediction.EMPTY_PREDICTION;
+	    }
 	}
+
 
 	/**
 	 * Uses Info Log for further debug features.
