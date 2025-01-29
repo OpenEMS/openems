@@ -355,7 +355,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				//
 				this._setBalancingRemainingSeconds(this.balancingRemainingTime);
 
-				if (currentSoc < this.forceChargeSoc) {
+				if (currentSoc < (this.forceChargeSoc -1)) {
 					// SOC dropped below forceChargeSoc: reset balancing
 					this.logDebug(this.log, "SOC dropped below " + this.forceChargeSoc + "%. Restarting balancing.");
 					this.changeState(State.BALANCING_WANTED);
@@ -392,11 +392,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	}
 
 	private void resetBalancingTimers(boolean fullReset) {
-		this.logDebug(this.log, "\nBalancing finished. Going back to normal operation. Resetting counters ");
+		this.logDebug(this.log, "\nBalancing finished or aborted. Resetting timers ");
 		this.balancingStartTime = Instant.MIN; // Reset balancing start time
 		this.balancingRemainingTime = this.balancingHysteresisTime; // Reset remaining balancing time
 
 		if (fullReset) {
+			this.logDebug(this.log, "\nBalancing finished. Going back to normal operation. Energy counters ");			
 			this.resetChargedEnergy = true; // Flag to reset charged energy
 			this.cumulatedchargedEnergy = 0; // Optional: reset cumulative charge energy here
 		}

@@ -176,12 +176,12 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
-		this.log.error("Event -> " + event.toString());		
+		//this.log.error("Event -> " + event.toString());		
 		this.checkActivePowerChannel();
 		try {
 
 			this.pvDataHandler();
-			this.checkActivePowerChannel();
+			
 
 		} catch (OpenemsNamedException e) {
 			log.warn("Cannot write S160 data yet");
