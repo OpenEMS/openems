@@ -42,7 +42,7 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 	private double factorPv2;
 	private double factorPv3;
 	
-	private int arraySize = 192; // 48hours
+	private int targetArraySize = 192; // 48hours
 	
 	private String forecastModel ="global_tilted_irradiance";
 
@@ -79,7 +79,7 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 	    try {
 	        // Initialize OpenMeteoForecast
 	        this.openMeteoForecast = new OpenMeteoForecast(config.debugMode());
-	        int targetArraySize = this.config.debugMode() ? arraySize * 2 : arraySize;
+	        
 
 	        // Factors and configurations
 	        this.factorPv1 = config.factorPv1();

@@ -26,7 +26,7 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
-	@AttributeDefinition(name = "Debug Mode", description = "Verbose output from 1 day in the past to 3 days in the future. Generate extensive logs!")
+	@AttributeDefinition(name = "Debug Mode", description = "Verbose output while listing prediction tables. Generate extensive logs!")
 	boolean debugMode() default false;	
 	
 	@AttributeDefinition(name = "latitude", description = "Geographic latitude coordinate. Ex. 52.52")

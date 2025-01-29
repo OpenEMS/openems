@@ -59,13 +59,13 @@ import io.openems.edge.timedata.api.TimedataProvider;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_BASE,
-	EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS,
-	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, //
-	EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,	
-	EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE,
-	EdgeEventConstants.TOPIC_CYCLE
+	//EdgeEventConstants.TOPIC_BASE,
+	//EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS,
+	//EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+	//EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,	
+	//EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE,
+	//EdgeEventConstants.TOPIC_CYCLE
 })
 public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		implements PvInverterSmaSunnyTripower, SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter,
@@ -176,7 +176,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
-		this.log.debug("Event -> " + event.toString());		
+		this.log.error("Event -> " + event.toString());		
 		this.checkActivePowerChannel();
 		try {
 

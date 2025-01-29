@@ -46,10 +46,7 @@ public class OpenMeteoForecast {
 	public void fetchData(String latitude, String longitude) throws Exception {
 		this.apiUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude + "&longitude=" + longitude
 				+ "&minutely_15=shortwave_radiation&forecast_days=3&models=best_match";
-		// Look 3 days to the past if debugMode is enabled
-		if (this.debugMode) {
-			this.apiUrl += "&past_days=1";
-		}
+
 		HttpURLConnection conn = null;
 
 		try {
