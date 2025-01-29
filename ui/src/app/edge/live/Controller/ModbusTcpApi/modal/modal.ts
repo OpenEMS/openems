@@ -47,8 +47,8 @@ export class ModalComponent extends AbstractModal {
     });
   }
 
-  protected getModbusProtocol(componentId: string) {
-    return this.profile.getModbusProtocol(componentId);
+  protected getModbusProtocol(componentId: string, type: string) {
+    return this.profile.getModbusProtocol(componentId, type);
   }
 
   protected override onCurrentData(currentData: CurrentData) {
@@ -91,13 +91,14 @@ export class ModalComponent extends AbstractModal {
   private getFormatChannelNames(): void {
     this.formattedWriteChannels = [];
     this.writeChannels.forEach(channel => {
+      let formattedString = `(${channel.channelId})`;
       for (const registerName in ChannelRegister) {
-        if (channel.channelId.includes(registerName)) {
-          // If channelId is included in ChannelRegister, get key/value e.g. SetActivePowerEquals/706
-          const formattedString = `(${registerName}/${ChannelRegister[registerName]})`;
-          this.formattedWriteChannels.push(formattedString);
+        if (channel.channelId.includes(registerName) && channel.channelId.startsWith("Ess0")) {
+          formattedString = `(${registerName}/${ChannelRegister[registerName]})`;
+          break;
         }
       }
+      this.formattedWriteChannels.push(formattedString);
     });
   }
 }

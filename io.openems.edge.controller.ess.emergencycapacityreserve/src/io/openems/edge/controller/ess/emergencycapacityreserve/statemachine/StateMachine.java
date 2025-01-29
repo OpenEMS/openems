@@ -82,6 +82,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 			this.lastActiveState = this.getPreviousState();
 		}
 		context.setLastActiveState(this.lastActiveState);
+		context.setPreviousState(this.getPreviousState());
 		super.run(context);
 	}
 

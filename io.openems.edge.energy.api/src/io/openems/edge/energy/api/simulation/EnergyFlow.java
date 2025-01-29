@@ -196,15 +196,14 @@ public class EnergyFlow {
 		 * @return a new {@link EnergyFlow.Model}
 		 */
 		public static EnergyFlow.Model from(OneSimulationContext osc, Period period) {
-			final int factor; // TODO replace with switch in Java 21
-			if (period instanceof GlobalSimulationsContext.Period.Hour) {
-				factor = 4;
-			} else {
-				factor = 1;
-			}
+			final var factor = switch (period) {
+			case GlobalSimulationsContext.Period.Hour p -> 4;
+			case GlobalSimulationsContext.Period.Quarter p -> 1;
+			};
 			final var essGlobal = osc.global.ess();
 			final var essOne = osc.ess;
 			final var grid = osc.global.grid();
+
 			return new EnergyFlow.Model(//
 					/* production */ period.production(), //
 					/* consumption */ period.consumption(), //

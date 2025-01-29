@@ -1,5 +1,7 @@
 package io.openems.backend.edgewebsocket;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -118,13 +120,16 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		var edgeId = wsData.assertEdgeId(message);
 
 		try {
-			// TODO java 21 switch case with type
-			if (message instanceof TimestampedDataNotification timestampNotification) {
+			switch (message) {
+			case TimestampedDataNotification timestampNotification -> {
 				wsData.edgeCache.updateCurrentData(timestampNotification);
 				this.parent.timedataManager.write(edgeId, timestampNotification);
-			} else if (message instanceof AggregatedDataNotification aggregatedNotification) {
+			}
+			case AggregatedDataNotification aggregatedNotification -> {
 				wsData.edgeCache.updateAggregatedData(aggregatedNotification);
 				this.parent.timedataManager.write(edgeId, aggregatedNotification);
+			}
+			case ResendDataNotification resendNotification -> doNothing(); // handled in handleResendDataNotification()
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();

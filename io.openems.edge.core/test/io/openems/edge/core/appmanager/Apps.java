@@ -12,6 +12,9 @@ import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
 import io.openems.edge.app.TestMultipleIds;
+import io.openems.edge.app.TestPermissions;
+import io.openems.edge.app.api.ModbusRtuApiReadOnly;
+import io.openems.edge.app.api.ModbusRtuApiReadWrite;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
@@ -321,6 +324,16 @@ public final class Apps {
 		return app(t, TechbaseCm4sGen2::new, "App.OpenemsHardware.CM4S.Gen2");
 	}
 
+	/**
+	 * Test method for creating a {@link TestPermissions}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
+		return app(t, TestPermissions::new, "App.Test.TestPermissions");
+	}
+	
 	// Test
 
 	/**
@@ -383,6 +396,26 @@ public final class Apps {
 	 */
 	public static final ModbusTcpApiReadWrite modbusTcpApiReadWrite(AppManagerTestBundle t) {
 		return app(t, ModbusTcpApiReadWrite::new, "App.Api.ModbusTcp.ReadWrite");
+	}
+
+	/**
+	 * Test method for creating a {@link ModbusRtuApiReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ModbusRtuApiReadOnly modbusRtuApiReadOnly(AppManagerTestBundle t) {
+		return app(t, ModbusRtuApiReadOnly::new, "App.Api.ModbusRtu.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link ModbusRtuApiReadWrite}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ModbusRtuApiReadWrite modbusRtuApiReadWrite(AppManagerTestBundle t) {
+		return app(t, ModbusRtuApiReadWrite::new, "App.Api.ModbusRtu.ReadWrite");
 	}
 
 	/**

@@ -197,11 +197,9 @@ public class RestHandler extends AbstractHandler {
 			}
 			// parse JSON-RPC Request
 			var message = JsonrpcMessage.from(json);
-			if (!(message instanceof JsonrpcRequest)) {
+			if (!(message instanceof JsonrpcRequest request)) {
 				throw new OpenemsException("Only JSON-RPC Request is supported here.");
 			}
-			var request = (JsonrpcRequest) message;
-
 			// handle the request
 			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.parent.jsonRpcRequestHandler
 					.handleRequest(this.parent.getName(), user, request);

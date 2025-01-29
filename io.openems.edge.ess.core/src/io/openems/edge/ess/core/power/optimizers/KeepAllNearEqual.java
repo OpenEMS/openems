@@ -167,7 +167,7 @@ public class KeepAllNearEqual {
 			TargetDirection direction, Pwr pwr) {
 
 		var clusterEssId = esss.stream()//
-				.filter(ess -> ess instanceof MetaEss)//
+				.filter(MetaEss.class::isInstance)//
 				.findFirst().get().id();
 
 		var noPowerSetPoint = Double.NaN;

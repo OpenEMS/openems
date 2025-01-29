@@ -55,24 +55,15 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
-		switch (state) {
-		case UNDEFINED:
-			return new UndefinedHandler();
-		case START_BATTERY:
-			return new StartBatteryHandler();
-		case START_BATTERY_INVERTER:
-			return new StartBatteryInverterHandler();
-		case STARTED:
-			return new StartedHandler();
-		case STOP_BATTERY_INVERTER:
-			return new StopBatteryInverterHandler();
-		case STOP_BATTERY:
-			return new StopBatteryHandler();
-		case STOPPED:
-			return new StoppedHandler();
-		case ERROR:
-			return new ErrorHandler();
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		return switch (state) {
+		case UNDEFINED -> new UndefinedHandler();
+		case START_BATTERY -> new StartBatteryHandler();
+		case START_BATTERY_INVERTER -> new StartBatteryInverterHandler();
+		case STARTED -> new StartedHandler();
+		case STOP_BATTERY_INVERTER -> new StopBatteryInverterHandler();
+		case STOP_BATTERY -> new StopBatteryHandler();
+		case STOPPED -> new StoppedHandler();
+		case ERROR -> new ErrorHandler();
+		};
 	}
 }

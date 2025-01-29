@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -309,8 +311,8 @@ public abstract non-sealed class AbstractTask<//
 				.append(";ref=").append(startAddress).append("/0x").append(Integer.toHexString(startAddress)) //
 				.append(";length=").append(length); //
 		switch (logVerbosity) {
-		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_DURATION_TRACE_EVENTS -> {
-		}
+		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_DURATION_TRACE_EVENTS //
+			-> doNothing();
 		case READS_AND_WRITES_VERBOSE -> {
 			if (request != null) {
 				var hexString = this.payloadToString(request);

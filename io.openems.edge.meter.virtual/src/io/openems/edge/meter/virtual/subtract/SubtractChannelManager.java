@@ -1,5 +1,7 @@
 package io.openems.edge.meter.virtual.subtract;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -60,28 +62,30 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 			// Subtrahends
 			Integer subtrahendsSum = null;
 			for (OpenemsComponent subtrahend : subtrahends) {
-				if (subtrahend instanceof ElectricityMeter meter) {
+				switch (subtrahend) {
+				case ElectricityMeter meter -> {
 					IntegerReadChannel channel = meter.channel(meterChannelId);
 					subtrahendsSum = TypeUtils.sum(subtrahendsSum, channel.getNextValue().get());
-				} else if (subtrahend instanceof SymmetricEss) {
-					IntegerReadChannel channel = ((SymmetricEss) subtrahend).channel(essChannelId);
+				}
+				case SymmetricEss ess -> {
+					IntegerReadChannel channel = ess.channel(essChannelId);
 					subtrahendsSum = TypeUtils.sum(subtrahendsSum, channel.getNextValue().get());
+				}
+				default -> doNothing();
 				}
 			}
 
-			final Integer minuendValue;
-			if (minuend == null) {
-				minuendValue = 0;
-			} else if (minuend instanceof ElectricityMeter meter) {
+			final Integer minuendValue = switch (minuend) {
+			case ElectricityMeter meter -> {
 				IntegerReadChannel channel = meter.channel(meterChannelId);
-				minuendValue = channel.getNextValue().get();
-			} else if (minuend instanceof SymmetricEss) {
-				IntegerReadChannel channel = ((SymmetricEss) minuend).channel(essChannelId);
-				minuendValue = channel.getNextValue().get();
-			} else {
-				// should not happen
-				minuendValue = null;
+				yield channel.getNextValue().get();
 			}
+			case SymmetricEss ess -> {
+				IntegerReadChannel channel = ess.channel(essChannelId);
+				yield channel.getNextValue().get();
+			}
+			case null, default -> 0;
+			};
 
 			final Integer result;
 			// Minuend
@@ -96,20 +100,22 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 		};
 
 		// Minuend
-		if (minuend == null) {
-			// no listener for minuend
-		} else if (minuend instanceof ElectricityMeter) {
-			this.addOnSetNextValueListener(minuend, meterChannelId, callback);
-		} else if (minuend instanceof SymmetricEss) {
-			this.addOnSetNextValueListener(minuend, essChannelId, callback);
+		switch (minuend) {
+		case ElectricityMeter meter //
+			-> this.addOnSetNextValueListener(minuend, meterChannelId, callback);
+		case SymmetricEss ess //
+			-> this.addOnSetNextValueListener(minuend, essChannelId, callback);
+		case null, default -> doNothing();
 		}
 
 		// Subtrahends
 		for (OpenemsComponent subtrahend : subtrahends) {
-			if (subtrahend instanceof ElectricityMeter) {
-				this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
-			} else if (subtrahend instanceof SymmetricEss) {
-				this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
+			switch (subtrahend) {
+			case ElectricityMeter meter //
+				-> this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
+			case SymmetricEss ess //
+				-> this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
+			default -> doNothing();
 			}
 		}
 	}
@@ -117,27 +123,31 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 	private void activateSubtractLong(OpenemsComponent minuend /* nullable */, List<OpenemsComponent> subtrahends,
 			ElectricityMeter.ChannelId meterChannelId, SymmetricEss.ChannelId essChannelId) {
 		final Consumer<Value<Integer>> callback = (ignore) -> {
-			Long result = null;
-
 			// Minuend
-			if (minuend == null) {
-				result = 0L;
-			} else if (minuend instanceof ElectricityMeter meter) {
+			Long result = switch (minuend) {
+			case ElectricityMeter meter -> {
 				LongReadChannel channel = meter.channel(meterChannelId);
-				result = channel.getNextValue().get();
-			} else if (minuend instanceof SymmetricEss) {
-				LongReadChannel channel = ((SymmetricEss) minuend).channel(essChannelId);
-				result = channel.getNextValue().get();
+				yield channel.getNextValue().get();
 			}
+			case SymmetricEss ess -> {
+				LongReadChannel channel = ess.channel(essChannelId);
+				yield channel.getNextValue().get();
+			}
+			case null, default -> 0L;
+			};
 
 			// Subtrahends
 			for (OpenemsComponent subtrahend : subtrahends) {
-				if (subtrahend instanceof ElectricityMeter meter) {
+				switch (subtrahend) {
+				case ElectricityMeter meter -> {
 					LongReadChannel channel = meter.channel(meterChannelId);
 					result = TypeUtils.subtract(result, channel.getNextValue().get());
-				} else if (subtrahend instanceof SymmetricEss) {
-					LongReadChannel channel = ((SymmetricEss) subtrahend).channel(essChannelId);
+				}
+				case SymmetricEss ess -> {
+					LongReadChannel channel = ess.channel(essChannelId);
 					result = TypeUtils.subtract(result, channel.getNextValue().get());
+				}
+				default -> doNothing();
 				}
 			}
 
@@ -146,20 +156,22 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 		};
 
 		// Minuend
-		if (minuend == null) {
-			// no listener for minuend
-		} else if (minuend instanceof ElectricityMeter) {
-			this.addOnSetNextValueListener(minuend, meterChannelId, callback);
-		} else if (minuend instanceof SymmetricEss) {
-			this.addOnSetNextValueListener(minuend, essChannelId, callback);
+		switch (minuend) {
+		case ElectricityMeter meter //
+			-> this.addOnSetNextValueListener(minuend, meterChannelId, callback);
+		case SymmetricEss ess //
+			-> this.addOnSetNextValueListener(minuend, essChannelId, callback);
+		case null, default -> doNothing();
 		}
 
 		// Subtrahends
 		for (OpenemsComponent subtrahend : subtrahends) {
-			if (subtrahend instanceof ElectricityMeter) {
-				this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
-			} else if (subtrahend instanceof SymmetricEss) {
-				this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
+			switch (subtrahend) {
+			case ElectricityMeter meter //
+				-> this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
+			case SymmetricEss ess //
+				-> this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
+			default -> doNothing();
 			}
 		}
 	}

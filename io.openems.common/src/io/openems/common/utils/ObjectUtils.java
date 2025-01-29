@@ -12,11 +12,10 @@ public class ObjectUtils {
 	 * @return a {@link String} or null
 	 */
 	public static String getAsString(Object object) {
-		if (object instanceof String) {
-			return (String) object;
-		}
-
-		return null;
+		return switch (object) {
+		case String s -> s;
+		case null, default -> null;
+		};
 	}
 
 	/**
@@ -37,11 +36,10 @@ public class ObjectUtils {
 	 * @return a {@link Integer} or null
 	 */
 	public static Integer getAsInteger(Object object) {
-		if (object instanceof Integer) {
-			return (Integer) object;
-		}
-
-		return null;
+		return switch (object) {
+		case Integer i -> i;
+		case null, default -> null;
+		};
 	}
 
 	/**
@@ -52,11 +50,9 @@ public class ObjectUtils {
 	 * @return a {@link Object} array or empty array
 	 */
 	public static Object[] getAsObjectArrray(Object object) {
-		if (object instanceof Object[]) {
-			return (Object[]) object;
-		}
-
-		return new Object[] {};
+		return switch (object) {
+		case Object[] os -> os;
+		case null, default -> null;
+		};
 	}
-
 }

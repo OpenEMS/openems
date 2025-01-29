@@ -4,6 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.backend.metadata.odoo.odoo.Protocol;
+import io.openems.common.types.DebugMode;
 
 @ObjectClassDefinition(//
 		name = "Metadata.Odoo", //

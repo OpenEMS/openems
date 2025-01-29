@@ -36,10 +36,10 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 				return null;
 			}
 			// If the battery is not started and the value is not zero -> return the value,
-			if (value instanceof Integer && (Integer) value != 0) {
+			if (value instanceof Integer i && i != 0) {
 				return value;
 			}
-			if (value instanceof Long && (Long) value != 0L) {
+			if (value instanceof Long l && l != 0L) {
 				return value;
 			}
 			// Is battery status not available or battery not started?

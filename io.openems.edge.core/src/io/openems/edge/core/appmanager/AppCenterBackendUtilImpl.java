@@ -143,8 +143,8 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 	}
 
 	private static final OpenemsNamedException getOpenemsException(Throwable e, boolean isRootException) {
-		if (e instanceof OpenemsNamedException) {
-			return (OpenemsNamedException) e;
+		if (e instanceof OpenemsNamedException one) {
+			return one;
 		}
 
 		if (e.getCause() != null) {

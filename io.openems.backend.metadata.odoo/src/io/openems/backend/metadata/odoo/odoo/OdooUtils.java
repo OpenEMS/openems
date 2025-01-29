@@ -536,10 +536,10 @@ public class OdooUtils {
 	 * @return the odoo reference id or empty {@link Optional}
 	 */
 	protected static Optional<Integer> getOdooReferenceId(Object object) {
-		if (object instanceof Object[] odooReference) {
-			if (odooReference.length > 0 && odooReference[0] instanceof Integer) {
-				return Optional.of((Integer) odooReference[0]);
-			}
+		if (object instanceof Object[] odooReference //
+				&& odooReference.length > 0 //
+				&& odooReference[0] instanceof Integer i) {
+			return Optional.of(i);
 		}
 
 		return Optional.empty();

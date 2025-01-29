@@ -56,16 +56,13 @@ public final class OnMessageHandler implements Runnable {
 	@Override
 	public final void run() {
 		try {
-			var message = JsonrpcMessage.from(this.message);
-
-			if (message instanceof JsonrpcRequest request) {
-				this.handleJsonrpcRequest(this.ws, request);
-
-			} else if (message instanceof JsonrpcResponse response) {
-				this.handleJsonrpcResponse(this.ws, response);
-
-			} else if (message instanceof JsonrpcNotification notification) {
-				this.handleJsonrpcNotification(this.ws, notification);
+			switch (JsonrpcMessage.from(this.message)) {
+			case JsonrpcRequest request //
+				-> this.handleJsonrpcRequest(this.ws, request);
+			case JsonrpcResponse response //
+				-> this.handleJsonrpcResponse(this.ws, response);
+			case JsonrpcNotification notification //
+				-> this.handleJsonrpcNotification(this.ws, notification);
 			}
 
 		} catch (OpenemsNamedException e) {
@@ -142,11 +139,12 @@ public final class OnMessageHandler implements Runnable {
 		this.logWarn.accept(this.log, log.toString());
 
 		// Get JSON-RPC Response Error
-		if (t instanceof OpenemsNamedException one) {
-			this.sendMessage.test(ws, new JsonrpcResponseError(request.getId(), one));
-		} else {
-			this.sendMessage.test(ws, new JsonrpcResponseError(request.getId(), t.getMessage()));
-		}
+		this.sendMessage.test(ws, switch (t) {
+		case OpenemsNamedException one //
+			-> new JsonrpcResponseError(request.getId(), one);
+		default //
+			-> new JsonrpcResponseError(request.getId(), t.getMessage());
+		});
 	}
 
 	/**

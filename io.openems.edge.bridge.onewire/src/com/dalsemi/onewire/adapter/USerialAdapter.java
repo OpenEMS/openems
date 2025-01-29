@@ -2154,24 +2154,13 @@ public class USerialAdapter extends DSPortAdapter {
 		}
 
 		// convert this baud to 'u' baud
-		char ubaud;
-
-		switch (baud) {
-
-		case 115200:
-			ubaud = UAdapterState.BAUD_115200;
-			break;
-		case 57600:
-			ubaud = UAdapterState.BAUD_57600;
-			break;
-		case 19200:
-			ubaud = UAdapterState.BAUD_19200;
-			break;
-		case 9600:
-		default:
-			ubaud = UAdapterState.BAUD_9600;
-			break;
-		}
+		var ubaud = switch (baud) {
+		case 115200 -> UAdapterState.BAUD_115200;
+		case 57600 -> UAdapterState.BAUD_57600;
+		case 19200 -> UAdapterState.BAUD_19200;
+		case 9600 -> UAdapterState.BAUD_9600;
+		default -> UAdapterState.BAUD_9600;
+		};
 
 		// see if this is a new baud
 		if (ubaud == this.uState.ubaud) {

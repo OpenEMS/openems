@@ -19,15 +19,18 @@ import { UserComponent } from "../user/user.component";
   standalone: false,
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
+
   public currentThemeMode: string;
   public environment = environment;
   public form: FormGroup;
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
+  protected showPassword: boolean = false;
   protected readonly operatingSystem = AppService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
+
 
   constructor(
     public service: Service,
@@ -163,4 +166,5 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
       this.popoverActive = operatingSystem;
     }
   }
+
 }

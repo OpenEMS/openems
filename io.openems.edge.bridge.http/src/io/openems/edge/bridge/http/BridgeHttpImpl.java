@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.http;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -20,6 +22,7 @@ import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.types.DebugMode;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpExecutor;
@@ -145,6 +148,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 
 	private final Set<TimeEndpointCountdown> timeEndpoints = ConcurrentHashMap.newKeySet();
 
+	private DebugMode debugMode = DebugMode.OFF;
+
 	@Activate
 	public BridgeHttpImpl(//
 			@Reference final CycleSubscriber cycleSubscriber, //
@@ -171,6 +176,11 @@ public class BridgeHttpImpl implements BridgeHttp {
 	}
 
 	@Override
+	public void setDebugMode(DebugMode debugMode) {
+		this.debugMode = debugMode;
+	}
+
+	@Override
 	public CycleEndpoint subscribeCycle(CycleEndpoint endpoint) {
 		Objects.requireNonNull(endpoint, "CycleEndpoint is not allowed to be null!");
 
@@ -189,10 +199,13 @@ public class BridgeHttpImpl implements BridgeHttp {
 		this.timeEndpoints.add(endpointCountdown);
 		final var delay = endpoint.delayTimeProvider().onFirstRunDelay();
 
-		// TODO change in java 21 to switch case
-		if (delay instanceof Delay.DurationDelay durationDelay) {
+		switch (delay) {
+		case Delay.InfiniteDelay infiniteDelay //
+			-> doNothing();
+		case Delay.DurationDelay durationDelay -> {
 			final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
 			endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+		}
 		}
 		return endpoint;
 	}
@@ -202,7 +215,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 		final var future = new CompletableFuture<HttpResponse<String>>();
 		this.pool.execute(() -> {
 			try {
-				final var result = this.urlFetcher.fetchEndpoint(endpoint);
+				final var result = this.urlFetcher.fetchEndpoint(endpoint, this.debugMode);
 				future.complete(result);
 			} catch (HttpError e) {
 				future.completeExceptionally(e);
@@ -252,7 +265,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 	private Runnable createTask(CycleEndpointCountdown endpointItem) {
 		return () -> {
 			try {
-				final var result = this.urlFetcher.fetchEndpoint(endpointItem.getCycleEndpoint().endpoint().get());
+				final var result = this.urlFetcher.fetchEndpoint(endpointItem.getCycleEndpoint().endpoint().get(),
+						this.debugMode);
 				endpointItem.getCycleEndpoint().onResult().accept(result);
 			} catch (HttpError e) {
 				endpointItem.getCycleEndpoint().onError().accept(e);
@@ -275,7 +289,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 			HttpResponse<String> result = null;
 			HttpError error = null;
 			try {
-				result = this.urlFetcher.fetchEndpoint(endpointCountdown.getTimeEndpoint().endpoint().get());
+				result = this.urlFetcher.fetchEndpoint(endpointCountdown.getTimeEndpoint().endpoint().get(),
+						this.debugMode);
 				endpointCountdown.getTimeEndpoint().onResult().accept(result);
 			} catch (HttpError e) {
 				endpointCountdown.getTimeEndpoint().onError().accept(e);
@@ -298,13 +313,13 @@ public class BridgeHttpImpl implements BridgeHttp {
 					nextDelay = endpointCountdown.getTimeEndpoint().delayTimeProvider().onSuccessRunDelay(result);
 				}
 
-				// TODO change in java 21 to switch case
-				if (nextDelay instanceof Delay.InfiniteDelay) {
-					// do not queue again
-					return;
-				} else if (nextDelay instanceof Delay.DurationDelay durationDelay) {
+				switch (nextDelay) {
+				case Delay.InfiniteDelay infiniteDelay //
+					-> doNothing();
+				case Delay.DurationDelay durationDelay -> {
 					final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
 					endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
+				}
 				}
 
 			} catch (Exception e) {

@@ -12,8 +12,8 @@ Export-Package: \
 	com.dalsemi.onewire.application.tag,\
 	com.dalsemi.onewire.container,\
 	com.dalsemi.onewire.debug,\
-	io.openems.edge.bridge.onewire,\
 	com.dalsemi.onewire.utils,\
+	io.openems.edge.bridge.onewire,\
 	gnu.io
 
 Include-Resource: \

@@ -531,11 +531,12 @@ public class JsonApiBuilder {
 		}
 
 		// Get JSON-RPC Response Error
-		if (t instanceof OpenemsNamedException ex) {
-			return new JsonrpcResponseError(call.getRequest().getId(), ex);
-		} else {
-			return new JsonrpcResponseError(call.getRequest().getId(), t.getMessage());
-		}
+		return switch (t) {
+		case OpenemsNamedException ex //
+			-> new JsonrpcResponseError(call.getRequest().getId(), ex);
+		default //
+			-> new JsonrpcResponseError(call.getRequest().getId(), t.getMessage());
+		};
 	}
 
 	private static final Key<Integer> DEPTH = new Key<Integer>("depth", Integer.class);

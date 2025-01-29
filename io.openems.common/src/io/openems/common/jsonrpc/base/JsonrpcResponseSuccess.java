@@ -32,11 +32,10 @@ public abstract class JsonrpcResponseSuccess extends JsonrpcResponse {
 	 * @throws OpenemsNamedException if it was not a Success Response
 	 */
 	public static JsonrpcResponseSuccess from(JsonObject j) throws OpenemsNamedException {
-		var response = JsonrpcResponse.from(j);
-		if (!(response instanceof JsonrpcResponseSuccess)) {
-			throw OpenemsError.GENERIC.exception("Expected a JSON-RPC Success Response");
-		}
-		return (JsonrpcResponseSuccess) response;
+		return switch (JsonrpcResponse.from(j)) {
+		case JsonrpcResponseSuccess r -> r;
+		default -> throw OpenemsError.GENERIC.exception("Expected a JSON-RPC Success Response");
+		};
 	}
 
 	public JsonrpcResponseSuccess(UUID id) {

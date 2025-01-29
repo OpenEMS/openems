@@ -15,7 +15,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Status;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public interface EvcsKebaKeContact
@@ -46,13 +45,12 @@ public interface EvcsKebaKeContact
 		/*
 		 * Report 2
 		 */
-		STATUS_KEBA(Doc.of(Status.values()) //
-				.text("Current state of the charging station")),
+		R2_STATE(Doc.of(R2State.values())), //
 		ERROR_1(Doc.of(OpenemsType.INTEGER) //
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 		ERROR_2(Doc.of(OpenemsType.INTEGER) //
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-		PLUG(Doc.of(Plug.values())), //
+		R2_PLUG(Doc.of(R2Plug.values())), //
 		ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 		ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //
@@ -145,10 +143,10 @@ public interface EvcsKebaKeContact
 				.channel(16, EvcsKebaKeContact.ChannelId.SERIAL, ModbusType.STRING16)
 				.channel(32, EvcsKebaKeContact.ChannelId.FIRMWARE, ModbusType.STRING16)
 				.channel(48, EvcsKebaKeContact.ChannelId.COM_MODULE, ModbusType.STRING16)
-				.channel(64, EvcsKebaKeContact.ChannelId.STATUS_KEBA, ModbusType.UINT16)
+				.channel(64, EvcsKebaKeContact.ChannelId.R2_STATE, ModbusType.UINT16)
 				.channel(65, EvcsKebaKeContact.ChannelId.ERROR_1, ModbusType.UINT16)
 				.channel(66, EvcsKebaKeContact.ChannelId.ERROR_2, ModbusType.UINT16)
-				.channel(67, EvcsKebaKeContact.ChannelId.PLUG, ModbusType.UINT16)
+				.channel(67, EvcsKebaKeContact.ChannelId.R2_PLUG, ModbusType.UINT16)
 				.channel(68, EvcsKebaKeContact.ChannelId.ENABLE_SYS, ModbusType.UINT16)
 				.channel(69, EvcsKebaKeContact.ChannelId.ENABLE_USER, ModbusType.UINT16)
 				.channel(70, EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)

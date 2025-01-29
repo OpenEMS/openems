@@ -14,7 +14,7 @@ package io.openems.common.jsonrpc.base;
  * @see <a href="https://www.jsonrpc.org/specification#notification">JSON-RPC
  *      specification</a>
  */
-public abstract class JsonrpcNotification extends AbstractJsonrpcRequest {
+public abstract non-sealed class JsonrpcNotification extends AbstractJsonrpcRequest {
 
 	public JsonrpcNotification(String method) {
 		super(method);

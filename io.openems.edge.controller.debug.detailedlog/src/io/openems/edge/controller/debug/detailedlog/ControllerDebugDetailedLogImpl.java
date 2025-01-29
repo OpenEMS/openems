@@ -109,10 +109,8 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 						/*
 						 * create descriptive text
 						 */
-						var channelText = "";
-						switch (channel.channelDoc().getAccessMode()) {
-						case READ_ONLY:
-						case READ_WRITE:
+						var channelText = switch (channel.channelDoc().getAccessMode()) {
+						case READ_ONLY, READ_WRITE -> {
 							var description = "";
 							if (channel instanceof EnumReadChannel) {
 								try {
@@ -122,29 +120,26 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 									description += "ERROR: " + e.getMessage();
 								}
 							}
-							if (channel instanceof StateChannel
-									&& ((StateChannel) channel).value().orElse(false) == true) {
+							if (channel instanceof StateChannel sc && sc.value().orElse(false) == true) {
 								if (!description.isEmpty()) {
 									description += "; ";
 								}
-								description += ((StateChannel) channel).channelDoc().getText();
+								description += sc.channelDoc().getText();
 							}
-							if (channel instanceof StateCollectorChannel
-									&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
+							if (channel instanceof StateCollectorChannel scc && scc.value().orElse(0) != 0) {
 								if (!description.isEmpty()) {
 									description += "; ";
 								}
-								description += ((StateCollectorChannel) channel).listStates();
+								description += scc.listStates();
 							}
-							channelText = String.format("%15s %-3s %s", //
+							yield String.format("%15s %-3s %s", //
 									channel.value().asStringWithoutUnit(), //
 									unit, //
 									description.isEmpty() ? "" : "(" + description + ")");
-							break;
-
-						case WRITE_ONLY:
-							channelText += "WRITE_ONLY";
 						}
+						case WRITE_ONLY //
+							-> "WRITE_ONLY";
+						};
 						// Build complete line
 						var line = String.format("%-" + WIDTH_FIRST + "s : %s", channel.channelId().id(), channelText);
 						// Print the line only if is not equal to the last printed line

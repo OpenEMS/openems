@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
+import io.openems.common.types.DebugMode;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.HttpResponse;
 
@@ -53,6 +54,11 @@ public class DummyBridgeHttp implements BridgeHttp {
 	@Override
 	public Collection<TimeEndpoint> removeTimeEndpointIf(Predicate<TimeEndpoint> condition) {
 		return emptyList();
+	}
+
+	@Override
+	public void setDebugMode(DebugMode debugMode) {
+		// do nothing
 	}
 
 }

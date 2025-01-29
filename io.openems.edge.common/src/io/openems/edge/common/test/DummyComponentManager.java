@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -25,10 +29,10 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -199,9 +203,9 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 			var config = this.configurationAdmin.createFactoryConfiguration(request.getFactoryPid(), null);
 
 			// set properties
-			for (Property property : request.getProperties()) {
+			for (var property : request.getProperties()) {
 				var value = JsonUtils.getAsBestType(property.getValue());
-				if (value instanceof Object[] && ((Object[]) value).length == 0) {
+				if (value instanceof Object[] os && os.length == 0) {
 					value = new String[0];
 				}
 				config.getProperties().put(property.getName(), value);
@@ -269,6 +273,17 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 
 	public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
 		this.configurationAdmin = configurationAdmin;
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		try {
+			var component = this.getComponent(componentId);
+			return StreamUtils.dictionaryToStream(component.getComponentContext().getProperties())//
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		} catch (OpenemsNamedException e) {
+			return Collections.emptyMap();
+		}
 	}
 
 }

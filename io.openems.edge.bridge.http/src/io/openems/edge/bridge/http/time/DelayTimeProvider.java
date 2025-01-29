@@ -62,10 +62,12 @@ public interface DelayTimeProvider {
 
 			@Override
 			public Delay plus(Delay delay) {
-				if (delay instanceof DurationDelay durationDelay) {
-					return new DurationDelay(this.duration.plus(durationDelay.getDuration()));
-				}
-				return delay.plus(this);
+				return switch (delay) {
+				case DurationDelay durationDelay //
+					-> new DurationDelay(this.duration.plus(durationDelay.getDuration()));
+				case InfiniteDelay infiniteDelay //
+					-> delay.plus(this);
+				};
 			}
 
 			@Override

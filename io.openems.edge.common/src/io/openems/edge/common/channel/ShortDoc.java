@@ -18,14 +18,11 @@ public class ShortDoc extends OpenemsTypeDoc<Short> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ShortReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
-		switch (this.getAccessMode()) {
-		case READ_ONLY:
-			return new ShortReadChannel(component, channelId, this);
-		case READ_WRITE:
-		case WRITE_ONLY:
-			return new ShortWriteChannel(component, channelId, this);
-		}
-		throw new IllegalArgumentException(
-				"AccessMode [" + this.getAccessMode() + "] is unhandled. This should never happen.");
+		return switch (this.getAccessMode()) {
+		case READ_ONLY //
+			-> new ShortReadChannel(component, channelId, this);
+		case READ_WRITE, WRITE_ONLY //
+			-> new ShortWriteChannel(component, channelId, this);
+		};
 	}
 }

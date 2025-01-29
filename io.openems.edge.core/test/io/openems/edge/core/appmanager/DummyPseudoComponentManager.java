@@ -36,6 +36,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.ActualEdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -387,6 +388,17 @@ public class DummyPseudoComponentManager implements ComponentManager {
 			return null;
 		}
 
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		try {
+			var dic = this.getComponent(componentId).getComponentContext().getProperties();
+			return StreamUtils.dictionaryToStream(dic) //
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		} catch (OpenemsNamedException e) {
+			return Collections.emptyMap();
+		}
 	}
 
 }

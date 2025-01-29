@@ -11,11 +11,13 @@ import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -127,6 +129,60 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 			throw new OpenemsException(this.getAppId() + ": " + errors.stream().collect(Collectors.joining("|")));
 		}
 		return configuration;
+	}
+
+	@Override
+	public String mapPropName(String prop, String componentId, OpenemsAppInstance instance) {
+		var enumMap = this.convertToMap(new ArrayList<>(), instance.properties);
+		var mappedPropName = this.mapPropNameWithMap(enumMap, prop, componentId);
+		return this.getPropertyByName(mappedPropName) == null ? null : mappedPropName;
+	}
+
+	/**
+	 * Convert JsonObject with Properties to Map.
+	 *
+	 * @param componentId id of the component
+	 * @param prop        the propertyname
+	 * @param map         map of the instance
+	 * @return a typed {@link Map} of Properties
+	 */
+	private String mapPropNameWithMap(Map<PROPERTY, JsonElement> map, String prop, String componentId) {
+		return this.transformCase(prop);
+	}
+
+	private String transformCase(String prop) {
+		var parsedPropName = prop;
+		if (prop.contains(".")) {
+			parsedPropName = pointedCaseToUpperUnderscore(prop);
+		} else {
+			parsedPropName = lowerCamelToUpperUnderscore(prop);
+		}
+		return parsedPropName;
+	}
+
+	private static String pointedCaseToUpperUnderscore(String str) {
+		return str.replace('.', '_').toUpperCase();
+	}
+
+	private static boolean isLowerCamelCase(String str) {
+		if (str == null || str.length() == 0) {
+			return false;
+		}
+		boolean isFirstCharUpperCaseLetter = Character.isUpperCase(str.charAt(0)) || !Character.isLetter(str.charAt(0));
+		if (!isFirstCharUpperCaseLetter && str.length() > 1) {
+			return IntStream.range(1, str.length() - 1)
+					.noneMatch(i -> !Character.isLetter(str.charAt(i))
+							|| Character.isUpperCase(str.charAt(i)) && Character.isUpperCase(str.charAt(i + 1)))
+					&& Character.isLetter(str.charAt(str.length() - 1));
+		}
+		return !isFirstCharUpperCaseLetter;
+	}
+
+	private static String lowerCamelToUpperUnderscore(String str) {
+		if (isLowerCamelCase(str)) {
+			return CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, str);
+		}
+		return str;
 	}
 
 	@Override
@@ -369,6 +425,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 
 	protected static final Component getComponentWithFactoryId(List<Component> components, String factoryId) {
 		return components.stream().filter(t -> t.getFactoryId().equals(factoryId)).findFirst().orElse(null);
+	}
+
+	@Override
+	public boolean assertCanEdit(String prop, User user) {
+		return true;
 	}
 
 	@Override

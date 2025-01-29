@@ -10,18 +10,24 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.EndpointFetcher;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.dummy.DummyEndpointFetcher;
 
 @Component
 public class NetworkEndpointFetcher implements EndpointFetcher {
 
+	private final Logger log = LoggerFactory.getLogger(DummyEndpointFetcher.class);
+
 	@Override
-	public HttpResponse<String> fetchEndpoint(final Endpoint endpoint) throws HttpError {
+	public HttpResponse<String> fetchEndpoint(final Endpoint endpoint, DebugMode mode) throws HttpError {
 		try {
 			var url = URI.create(endpoint.url()).toURL();
 			var con = (HttpURLConnection) url.openConnection();
@@ -52,6 +58,12 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 
 			if (status.isError()) {
 				throw new HttpError.ResponseError(status, body);
+			}
+			if (mode.equals(DebugMode.DETAILED)) {
+				this.log.debug("Fetched Endpoint for request: " + endpoint.url() + "\n" //
+						+ "method: " + endpoint.method().name() + "\n" //
+						+ "result: " + body //
+				);
 			}
 			return new HttpResponse<>(status, body);
 		} catch (IOException e) {

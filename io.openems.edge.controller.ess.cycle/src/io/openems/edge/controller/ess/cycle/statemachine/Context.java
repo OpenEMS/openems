@@ -55,11 +55,13 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 		return switch (this.config.hybridEssMode()) {
 		case TARGET_AC -> this.config.power();
 		case TARGET_DC -> {
-			if (ess instanceof HybridEss) {
-				var pv = ess.getActivePower().orElse(0) - ((HybridEss) ess).getDcDischargePower().orElse(0);
+			yield switch (ess) {
+			case HybridEss he -> {
+				var pv = ess.getActivePower().orElse(0) - he.getDcDischargePower().orElse(0);
 				yield pv + this.config.power();
 			}
-			yield this.config.power();
+			default -> this.config.power();
+			};
 		}
 		};
 	}

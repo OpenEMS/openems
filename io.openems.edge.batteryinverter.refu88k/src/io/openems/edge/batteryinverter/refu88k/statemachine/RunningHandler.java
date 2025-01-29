@@ -26,28 +26,19 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		switch (inverter.getOperatingState()) {
-
-		case STARTED:
-		case THROTTLED:
-		case MPPT:
+		return switch (inverter.getOperatingState()) {
+		case STARTED, THROTTLED, MPPT -> {
 			// Mark as started
 			inverter._setStartStop(StartStop.START);
 			// Apply Active and Reactive Power Set-Points
 			this.applyPower(context);
-			return State.RUNNING;
-		case FAULT:
-			return State.ERROR;
-		case OFF:
-		case SLEEPING:
-		case STARTING:
-		case SHUTTING_DOWN:
-		case STANDBY:
-		case UNDEFINED:
-			return State.UNDEFINED;
+			yield State.RUNNING;
 		}
-
-		return State.UNDEFINED;
+		case FAULT //
+			-> State.ERROR;
+		case OFF, SLEEPING, STARTING, SHUTTING_DOWN, STANDBY, UNDEFINED //
+			-> State.UNDEFINED;
+		};
 	}
 
 	/**

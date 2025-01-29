@@ -150,6 +150,47 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		return this.usingTemporaryApps(user, () -> this.deleteAppInternal(user, instance));
 	}
 
+	@Override
+	public List<AggregateTask.AggregateTaskExecutionConfiguration> getInstallConfiguration(//
+			User user, //
+			OpenemsAppInstance instance, //
+			OpenemsApp app //
+	) throws OpenemsNamedException {
+		return this.getConfigurations(user, () -> this.updateAppInternal(user, null, instance, app));
+	}
+
+	private List<AggregateTask.AggregateTaskExecutionConfiguration> getConfigurations(//
+			User user, //
+			ThrowingSupplier<UpdateValues, OpenemsNamedException> supplier //
+	) throws OpenemsNamedException {
+		Objects.requireNonNull(supplier);
+		// to make sure the temporaryApps get set to null
+		this.resetTasks();
+		this.temporaryApps = new TemporaryApps();
+		OpenemsNamedException exception = null;
+		RuntimeException runtimeException = null;
+		try {
+			supplier.get();
+		} catch (OpenemsNamedException e) {
+			exception = e;
+		} catch (RuntimeException e) {
+			runtimeException = e;
+		}
+		this.temporaryApps = null;
+		if (exception != null) {
+			this.log.error("An Exception occurred during handling the supplier.", exception);
+			throw exception;
+		}
+		if (runtimeException != null) {
+			this.log.error("An RuntimeException occurred during handling the supplier.", runtimeException);
+			throw runtimeException;
+		}
+
+		return this.tasks.stream() //
+				.map(AggregateTask::getExecutionConfiguration) //
+				.toList();
+	}
+
 	private UpdateValues usingTemporaryApps(User user, ThrowingSupplier<UpdateValues, OpenemsNamedException> supplier)
 			throws OpenemsNamedException {
 		Objects.requireNonNull(supplier);
@@ -780,11 +821,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof AppIdKey)) {
+			if (!(other instanceof AppIdKey aik)) {
 				return false;
 			}
 
-			return ((AppIdKey) other).compareTo(this) == 0;
+			return aik.compareTo(this) == 0;
 		}
 
 		@Override

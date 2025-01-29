@@ -616,21 +616,16 @@ public class InfluxQlProxy extends QueryProxy {
 	}
 
 	private static JsonElement convertToJsonElement(Object valueObj) {
-		if (valueObj == null) {
-			return JsonNull.INSTANCE;
-		}
-		if (valueObj instanceof Number) {
-			return new JsonPrimitive((Number) valueObj);
-		}
-
-		final String str;
-		if (valueObj instanceof String) {
-			str = (String) valueObj;
-		} else {
-			str = valueObj.toString();
-		}
-
-		return parseToJsonElement(str);
+		return switch (valueObj) {
+		case null //
+			-> JsonNull.INSTANCE;
+		case Number n //
+			-> new JsonPrimitive(n);
+		case String s //
+			-> parseToJsonElement(s);
+		default //
+			-> parseToJsonElement(valueObj.toString());
+		};
 	}
 
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResultSingleValueInDay(//
@@ -677,20 +672,17 @@ public class InfluxQlProxy extends QueryProxy {
 								continue;
 							}
 							var valueObj = record.getValueByKey(column);
-							final JsonElement value;
-							if (valueObj == null) {
-								value = JsonNull.INSTANCE;
-							} else if (valueObj instanceof Number n) {
-								value = new JsonPrimitive(n);
-							} else {
-								final String str;
-								if (valueObj instanceof String) {
-									str = (String) valueObj;
-								} else {
-									str = valueObj.toString();
-								}
-								value = parseToJsonElement(str);
-							}
+							var value = switch (valueObj) {
+							case null //
+								-> JsonNull.INSTANCE;
+							case Number n //
+								-> new JsonPrimitive(n);
+							case String str //
+								-> parseToJsonElement(str);
+							default //
+								-> parseToJsonElement(valueObj.toString());
+							};
+
 							try {
 								m.accept(new Pair<>(ChannelAddress.fromString(column), value));
 							} catch (OpenemsNamedException e) {
@@ -730,20 +722,17 @@ public class InfluxQlProxy extends QueryProxy {
 								continue;
 							}
 							var valueObj = record.getValueByKey(column);
-							JsonElement value;
-							if (valueObj == null) {
-								value = JsonNull.INSTANCE;
-							} else if (valueObj instanceof Number) {
-								value = assertPositive((Number) valueObj, influxEdgeId, channels);
-							} else {
-								final String str;
-								if (valueObj instanceof String) {
-									str = (String) valueObj;
-								} else {
-									str = valueObj.toString();
-								}
-								value = parseToJsonElement(str);
-							}
+							var value = switch (valueObj) {
+							case null //
+								-> JsonNull.INSTANCE;
+							case Number n //
+								-> assertPositive(n, influxEdgeId, channels);
+							case String s //
+								-> parseToJsonElement(s);
+							default //
+								-> parseToJsonElement(valueObj.toString());
+							};
+
 							map.put(ChannelAddress.fromString(column), value);
 						}
 					}

@@ -1,5 +1,6 @@
 package io.openems.edge.core.host;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.lang.Runtime.getRuntime;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -467,7 +468,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		// holds the latest found address
 		final var tmpAddress = new AtomicReference<Inet4AddressWithSubnetmask>();
 
-		for (String line : lines) {
+		for (var line : lines) {
 			line = line.trim();
 			if (line.isBlank()) {
 				continue;
@@ -477,27 +478,22 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			 * Find current configuration block
 			 */
 			if (line.startsWith("[")) {
-				switch (line) {
-				case MATCH_SECTION:
-					currentBlock = Block.MATCH;
-					break;
-				case NETWORK_SECTION:
-					currentBlock = Block.NETWORK;
-					break;
-				case ADDRESS_SECTION:
+				currentBlock = switch (line) {
+				case MATCH_SECTION //
+					-> Block.MATCH;
+				case NETWORK_SECTION //
+					-> Block.NETWORK;
+				case ADDRESS_SECTION -> {
 					tmpAddress.set(null);
-					currentBlock = Block.ADDRESS;
-					break;
-				case ROUTE_SECTION:
-					currentBlock = Block.ROUTE;
-					break;
-				case DHCP_SECTION:
-					currentBlock = Block.DHCP;
-					break;
-				default:
-					currentBlock = Block.UNDEFINED;
-					break;
+					yield Block.ADDRESS;
 				}
+				case ROUTE_SECTION //
+					-> Block.ROUTE;
+				case DHCP_SECTION //
+					-> Block.DHCP;
+				default //
+					-> Block.UNDEFINED;
+				};
 				continue;
 			}
 
@@ -505,12 +501,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			 * Parse Block
 			 */
 			switch (currentBlock) {
-			case MATCH:
+			case MATCH -> {
 				onMatchString(MATCH_NAME, line, property -> {
 					name.set(property);
 				});
-				break;
-			case NETWORK:
+			}
+			case NETWORK -> {
 				onMatchString(NETWORK_DHCP, line, property -> {
 					dhcp.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
 				});
@@ -531,8 +527,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					addressDetails.add(Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property));
 					addresses.set(ConfigurationProperty.of(addressDetails));
 				});
-				break;
-			case ADDRESS:
+			}
+			case ADDRESS -> {
 				onMatchString(NETWORK_ADDRESS, line, property -> {
 					// Storing here temporarily so that we can use it if when we find label.
 					var address = Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property);
@@ -561,24 +557,21 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 							address.getSubnetmaskAsCidr());
 					addressDetails.add(address);
 				});
-				break;
-			case ROUTE:
+			}
+			case ROUTE -> {
 				onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
 					gateway.set(ConfigurationProperty.of(property));
 				});
 				onMatchString(GATEWAY_METRIC, line, property -> {
 					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
 				});
-				break;
-			case DHCP:
+			}
+			case DHCP -> {
 				onMatchString(ROUTE_METRIC, line, property -> {
 					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
 				});
-				break;
-			case UNDEFINED:
-				break;
-			default:
-				break;
+			}
+			case UNDEFINED -> doNothing();
 			}
 		}
 		return new NetworkInterface<>(name.get(), //

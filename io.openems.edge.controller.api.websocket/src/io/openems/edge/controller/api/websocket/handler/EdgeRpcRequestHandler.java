@@ -45,14 +45,18 @@ public class EdgeRpcRequestHandler implements JsonApi {
 
 		}, call -> {
 			return EdgeRpcRequest.from(call.getRequest()).getPayload();
+
 		}, b -> {
 			return this.binder.getJsonApiBuilder();
+
 		}, response -> {
 			// wrap response in a EdgeRpcResponse if successful
-			if (response instanceof JsonrpcResponseSuccess success) {
-				return new EdgeRpcResponse(response.getId(), success);
-			}
-			return response;
+			return switch (response) {
+			case JsonrpcResponseSuccess success //
+				-> new EdgeRpcResponse(response.getId(), success);
+			default -> response;
+			};
+
 		}, () -> {
 			final var subrequest = new Subrequest(JsonUtils.buildJsonObject() //
 					.addProperty("edgeId", ControllerApiWebsocket.EDGE_ID) //

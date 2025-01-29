@@ -18,14 +18,11 @@ public class LongDoc extends OpenemsTypeDoc<Long> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public LongReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
-		switch (this.getAccessMode()) {
-		case READ_ONLY:
-			return new LongReadChannel(component, channelId, this);
-		case READ_WRITE:
-		case WRITE_ONLY:
-			return new LongWriteChannel(component, channelId, this);
-		}
-		throw new IllegalArgumentException(
-				"AccessMode [" + this.getAccessMode() + "] is unhandled. This should never happen.");
+		return switch (this.getAccessMode()) {
+		case READ_ONLY //
+			-> new LongReadChannel(component, channelId, this);
+		case READ_WRITE, WRITE_ONLY //
+			-> new LongWriteChannel(component, channelId, this);
+		};
 	}
 }

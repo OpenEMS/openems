@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.worker;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -74,20 +76,18 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		// execute the task
 		var result = this.execute.apply(task);
 
-		// NOTE: with Java 21 LTS this can be refactored to a pattern matching switch
-		// statement
-		if (result instanceof ExecuteState.Ok) {
+		switch (result) {
+		case ExecuteState.Ok es ->
 			// no exception & at least one sub-task executed
 			this.markComponentAsDefective(task.getParent(), false);
-
-		} else if (result instanceof ExecuteState.NoOp) {
+		case ExecuteState.NoOp es ->
 			// did not execute anything
-
-		} else if (result instanceof ExecuteState.Error) {
+			doNothing();
+		case ExecuteState.Error es -> {
 			this.markComponentAsDefective(task.getParent(), true);
-
 			// invalidate elements of this task
 			this.invalidate.accept(task.getElements());
+		}
 		}
 	}
 

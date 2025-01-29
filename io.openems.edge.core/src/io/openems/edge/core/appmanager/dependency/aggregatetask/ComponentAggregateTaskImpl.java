@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -20,12 +25,14 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
+import io.openems.edge.core.appmanager.jsonrpc.GetEstimatedConfiguration;
 
 @Component(//
 		service = { //
@@ -36,6 +43,36 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 		scope = ServiceScope.SINGLETON //
 )
 public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
+
+	private record ComponentAggregatedExecutionConfiguration(//
+			List<EdgeConfig.Component> components //
+	) implements AggregateTask.AggregateTaskExecutionConfiguration {
+
+		private ComponentAggregatedExecutionConfiguration {
+			Objects.requireNonNull(components);
+		}
+
+		@Override
+		public String identifier() {
+			return "Component";
+		}
+
+		@Override
+		public JsonElement toJson() {
+			if (this.components.isEmpty()) {
+				return JsonNull.INSTANCE;
+			}
+			return JsonUtils.buildJsonObject() //
+					.add("components", this.components.stream() //
+							.map(t -> new GetEstimatedConfiguration.Component(t.getFactoryId(), t.getId(), t.getAlias(),
+									t.getProperties().entrySet().stream() //
+											.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue)))) //
+							.map(GetEstimatedConfiguration.Component.serializer()::serialize) //
+							.collect(JsonUtils.toJsonArray())) //
+					.build();
+		}
+
+	}
 
 	private final ComponentManager componentManager;
 
@@ -208,6 +245,11 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
+	}
+
+	@Override
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
+		return new ComponentAggregatedExecutionConfiguration(this.components);
 	}
 
 	@Override

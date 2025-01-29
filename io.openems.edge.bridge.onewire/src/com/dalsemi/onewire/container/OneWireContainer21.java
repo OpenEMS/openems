@@ -2026,27 +2026,16 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 
 		state[0x0a] = (byte) day;
 
-		var number_0_msb = 0; // how many of the MS, MM, MH, MD bytes have
-
+		// how many of the MS, MM, MH, MD bytes have
 		// 0 as their ms bit???
-		switch (alarmFrequency) {
-		case ONCE_PER_SECOND:
-			number_0_msb = 0;
-			break;
-		case ONCE_PER_MINUTE:
-			number_0_msb = 1;
-			break;
-		case ONCE_PER_HOUR:
-			number_0_msb = 2;
-			break;
-		case ONCE_PER_DAY:
-			number_0_msb = 3;
-			break;
-		default:
-		case ONCE_PER_WEEK:
-			number_0_msb = 4;
-			break;
-		}
+		var number_0_msb = switch (alarmFrequency) {
+		case ONCE_PER_SECOND -> 0;
+		case ONCE_PER_MINUTE -> 1;
+		case ONCE_PER_HOUR -> 2;
+		case ONCE_PER_DAY -> 3;
+		case ONCE_PER_WEEK -> 4;
+		default -> 4;
+		};
 
 		for (var i = 0x07; i < 0x0b; i++) {
 			if (number_0_msb > 0) {

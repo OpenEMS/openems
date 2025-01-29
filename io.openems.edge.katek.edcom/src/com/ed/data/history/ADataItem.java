@@ -181,8 +181,8 @@ public abstract class ADataItem {
 	@Override
 	public boolean equals(Object o) {
 		boolean b = false;
-		if (o instanceof ADataItem) {
-			b = Arrays.equals(((ADataItem) o).bytes, this.bytes);
+		if (o instanceof ADataItem adi) {
+			b = Arrays.equals(adi.bytes, this.bytes);
 		}
 		return b;
 	}

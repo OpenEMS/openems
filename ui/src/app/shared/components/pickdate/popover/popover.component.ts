@@ -57,7 +57,7 @@ export class PickDatePopoverComponent implements OnInit {
             .dp1 .myDpSelectedDay,
             .dp1 .myDpSelectedMonth,
             .dp1 .myDpSelectedYear {
-                background-color: #93c47d;
+                background-color: var(--ion-color-primary);
                 }
             .dp1 .myDpTableSingleDay:hover, 
             .dp1 .myDpTableSingleMonth:hover, 
@@ -69,10 +69,10 @@ export class PickDatePopoverComponent implements OnInit {
             .dp1 .myDpMarkCurrMonth, 
             .dp1 .myDpMarkCurrYear {
                 border-bottom: 2px solid #2d8fab;
-                color: #2d8fab;
+                color: var(--ion-color-text);
              }
             .dp1 .myDpRangeColor {
-            background-color: #dbeaff;
+            background-color: var(--ion-color-primary);
             }
 
             .ng-mydp * {
@@ -117,8 +117,7 @@ export class PickDatePopoverComponent implements OnInit {
 
         this.locale = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).key;
         // Restrict user to pick date before ibn-date
-        this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 },
-            this.locale = this.translate.getBrowserLang();
+        this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 };
 
         // Filter out custom due to different on click event
         this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge, this.historyPeriods).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);

@@ -50,10 +50,9 @@ public class GetDeviceResponse extends JsonrpcResponseSuccess {
 		public static Device from(OneWireContainer owc) {
 			final var details = new JsonObject();
 
-			if (owc instanceof TemperatureContainer) {
+			if (owc instanceof TemperatureContainer tc) {
 				details.addProperty("type", "TemperatureContainer");
 				try {
-					var tc = (TemperatureContainer) owc;
 					var state = tc.readDevice();
 					tc.doTemperatureConvert(state);
 					state = tc.readDevice();

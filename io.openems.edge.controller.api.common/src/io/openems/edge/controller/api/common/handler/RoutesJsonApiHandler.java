@@ -86,11 +86,10 @@ public class RoutesJsonApiHandler implements JsonApi {
 							.map(Tag.serializer()::serialize) //
 							.collect(toJsonArray()))
 					.add("guards", def.getGuards().stream() //
-							.map(t -> {
-								if (t instanceof JsonrpcRoleEndpointGuard a) {
-									return JsonrpcRoleEndpointGuard.serializer().serialize(a);
-								}
-								return null;
+							.map(t -> switch (t) {
+							case JsonrpcRoleEndpointGuard a //
+								-> JsonrpcRoleEndpointGuard.serializer().serialize(a);
+							default -> null;
 							}) //
 							.filter(Objects::nonNull) //
 							.collect(toJsonArray()))

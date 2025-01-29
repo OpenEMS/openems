@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.function.ThrowingFunction;
+import io.openems.common.types.DebugMode;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.EndpointFetcher;
@@ -29,7 +30,8 @@ public class DummyEndpointFetcher implements EndpointFetcher {
 
 	@Override
 	public HttpResponse<String> fetchEndpoint(//
-			final Endpoint endpoint //
+			final Endpoint endpoint, //
+			DebugMode mode //
 	) throws HttpError {
 		try {
 			for (final var iterator = this.urlHandler.iterator(); iterator.hasNext();) {
@@ -89,5 +91,4 @@ public class DummyEndpointFetcher implements EndpointFetcher {
 	public void setOnTaskFinished(Runnable onTaskFinished) {
 		this.onTaskFinished = onTaskFinished == null ? FunctionUtils::doNothing : onTaskFinished;
 	}
-
 }

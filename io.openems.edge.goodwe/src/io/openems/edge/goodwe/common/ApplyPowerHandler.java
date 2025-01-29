@@ -55,32 +55,21 @@ public class ApplyPowerHandler {
 		emsPowerModeChannel.setNextWriteValue(apply.emsPowerMode);
 	}
 
-	private static class Result {
-
-		protected EmsPowerMode emsPowerMode;
-		protected int emsPowerSet;
-
-		public Result(EmsPowerMode emsPowerMode, int emsPowerSet) {
-			this.emsPowerMode = emsPowerMode;
-			this.emsPowerSet = emsPowerSet;
-		}
-
+	private static record Result(EmsPowerMode emsPowerMode, int emsPowerSet) {
 	}
 
 	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
 			ControlMode controlMode, int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport)
 			throws OpenemsNamedException {
-		switch (controlMode) {
-		case INTERNAL:
-			return handleInternalMode();
-		case SMART:
-			return handleSmartMode(goodWe, activePowerSetPoint, pvProduction, gridActivePower, essActivePower,
-					maxAcImport, maxAcExport);
-		case REMOTE:
-			return handleRemoteMode(activePowerSetPoint, pvProduction);
-		default:
-			return handleInternalMode();
-		}
+		return switch (controlMode) {
+		case INTERNAL //
+			-> handleInternalMode();
+		case SMART //
+			-> handleSmartMode(goodWe, activePowerSetPoint, pvProduction, gridActivePower, essActivePower, maxAcImport,
+					maxAcExport);
+		case REMOTE //
+			-> handleRemoteMode(activePowerSetPoint, pvProduction);
+		};
 	}
 
 	private static Result handleInternalMode() {
@@ -158,35 +147,26 @@ public class ApplyPowerHandler {
 		EnumReadChannel meterCommunicateStatusChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
 
-		var enableWarning = false;
-		switch (meterCommunicateStatus) {
-		case UNDEFINED:
+		var enableWarning = switch (meterCommunicateStatus) {
+		case UNDEFINED -> //
 			// We don't know if GoodWe Smart Meter is connected. Either not read yet (on
 			// startup) or DSP version too low.
-			enableWarning = false;
-			break;
+			false;
 
-		case OK:
+		case OK ->
 			// GoodWe Smart Meter is connected.
-			enableWarning = false;
-			break;
+			false;
 
-		case NG:
-			// GoodWe Smart Meter is NOT connected.
-			switch (controlMode) {
-			case REMOTE:
+		case NG //
+			-> switch (controlMode) {
+			case REMOTE ->
 				// REMOTE mode is ok without GoodWe Smart Meter
-				enableWarning = false;
-				break;
-
-			case INTERNAL:
-			case SMART:
+				false;
+			case INTERNAL, SMART ->
 				// INTERNAL and SMART mode require a GoodWe Smart Meter
-				enableWarning = true;
-				break;
-			}
-			break;
-		}
+				true;
+			};
+		};
 
 		goodWe.channel(GoodWe.ChannelId.NO_SMART_METER_DETECTED).setNextValue(enableWarning);
 	}

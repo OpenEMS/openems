@@ -103,18 +103,23 @@ public record SimulationResult(//
 
 		// Convert to Quarters
 		final var quarterPeriods = gsc.periods().stream() //
-				.flatMap(period -> period instanceof GlobalSimulationsContext.Period.Hour ph //
-						? ph.quarterPeriods().stream()
-						: Stream.of(period)) //
+				.flatMap(period -> switch (period) {
+				case GlobalSimulationsContext.Period.Hour ph //
+					-> ph.quarterPeriods().stream();
+				case GlobalSimulationsContext.Period.Quarter pq //
+					-> Stream.of(period);
+				}) //
 				.collect(ImmutableList.<GlobalSimulationsContext.Period>toImmutableList());
 		final GlobalSimulationsContext quarterGsc = new GlobalSimulationsContext(gsc.clock(), gsc.riskLevel(),
 				gsc.startTime(), gsc.eshs(), gsc.eshsWithDifferentStates(), gsc.grid(), gsc.ess(), gsc.evcss(),
 				quarterPeriods);
 		final var quarterSchedule = IntStream.range(0, gsc.periods().size()) //
-				.flatMap(periodIndex //
-				-> gsc.periods().get(periodIndex) instanceof GlobalSimulationsContext.Period.Hour ph //
-						? ph.quarterPeriods().stream().mapToInt(ignore -> periodIndex) // repeat
-						: IntStream.of(periodIndex)) //
+				.flatMap(periodIndex -> switch (gsc.periods().get(periodIndex)) {
+				case GlobalSimulationsContext.Period.Hour ph //
+					-> ph.quarterPeriods().stream().mapToInt(ignore -> periodIndex); // repeat
+				case GlobalSimulationsContext.Period.Quarter pq //
+					-> IntStream.of(periodIndex);
+				}) //
 				.mapToObj(periodIndex //
 				-> IntStream.range(0, gsc.eshsWithDifferentStates().size()) //
 						.map(eshIndex -> {

@@ -135,6 +135,20 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		DC_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.HIGH) //
+		), //
+
+		/**
+		 * Inverter Cabinet Temperature.
+		 * 
+		 * <ul>
+		 * <li>Interface: SymmetricBatteryInverter
+		 * <li>Type: Integer
+		 * <li>Unit: C
+		 * </ul>
+		 */
+		TEMPERATURE_CABINET(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS) //
+				.persistencePriority(PersistencePriority.HIGH) //
 		);
 
 		private final Doc doc;
@@ -462,5 +476,24 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	 */
 	public default void _setDcMaxVoltage(int value) {
 		this.getDcMaxVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TEMPERATURE_CABINET}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTemperatureCabinetChannel() {
+		return this.channel(ChannelId.TEMPERATURE_CABINET);
+	}
+
+	/**
+	 * Gets the Inverters Cabinet temperature in [C]. See
+	 * {@link ChannelId#TEMPERATURE_CABINET}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getTemperatureCabinet() {
+		return this.getTemperatureCabinetChannel().value();
 	}
 }

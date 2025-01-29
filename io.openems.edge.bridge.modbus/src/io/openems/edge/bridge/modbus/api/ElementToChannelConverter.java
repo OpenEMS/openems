@@ -441,47 +441,41 @@ public class ElementToChannelConverter {
 			Function<Float, Double> floatFactor, //
 			Function<Double, Double> doubleFactor //
 	) {
-		if (value == null) {
-			return null;
-		}
-		if (value instanceof Boolean) {
-			return (boolean) value;
-		}
-		if (value instanceof Short s) {
+		return switch (value) {
+		case null -> null;
+		case Boolean b -> b;
+		case Short s -> {
 			long result = shortFactor.apply(s);
 			if (result >= Short.MIN_VALUE && result <= Short.MAX_VALUE) {
-				return Short.valueOf((short) result);
+				yield Short.valueOf((short) result);
+			} else if (result > Integer.MIN_VALUE && result < Integer.MAX_VALUE) {
+				yield Integer.valueOf((int) result);
 			}
-			if (result > Integer.MIN_VALUE && result < Integer.MAX_VALUE) {
-				return Integer.valueOf((int) result);
-			} else {
-				return Long.valueOf(result);
-			}
+			yield Long.valueOf(result);
 		}
-		if (value instanceof Integer i) {
+		case Integer i -> {
 			long result = integerFactor.apply(i);
 			if (result >= Integer.MIN_VALUE && result <= Integer.MAX_VALUE) {
-				return Integer.valueOf((int) result);
+				yield Integer.valueOf((int) result);
 			}
-			return Long.valueOf(result);
+			yield Long.valueOf(result);
 		}
-		if (value instanceof Long l) {
-			return longFactor.apply(l);
-		}
-		if (value instanceof Float f) {
+		case Long l //
+			-> longFactor.apply(l);
+		case Float f -> {
 			double result = floatFactor.apply(f);
 			if (result >= Float.MIN_VALUE && result <= Float.MAX_VALUE) {
-				return Float.valueOf((float) result);
+				yield Float.valueOf((float) result);
 			}
-			return Double.valueOf(result);
+			yield Double.valueOf(result);
 		}
-		if (value instanceof Double d) {
-			return doubleFactor.apply(d);
-		}
-		if (value instanceof String) {
-			return value;
-		}
-		throw new IllegalArgumentException(
-				"Type [" + value.getClass().getName() + "] not supported by OFFSET converter");
+		case Double d //
+			-> doubleFactor.apply(d);
+		case String s //
+			-> s;
+		default //
+			-> throw new IllegalArgumentException(
+					"Type [" + value.getClass().getName() + "] not supported by OFFSET converter");
+		};
 	}
 }

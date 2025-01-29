@@ -10,6 +10,11 @@ import io.openems.common.utils.JsonUtils;
 public enum OpenemsAppCategory {
 
 	/**
+	 * Core.
+	 */
+	CORE("core"),
+
+	/**
 	 * Integrated Systems.
 	 */
 	INTEGRATED_SYSTEM("integratedSystems"),

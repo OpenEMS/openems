@@ -422,19 +422,16 @@ public abstract class AbstractMaxCurrentHandler {
 		}
 
 		// Evaluate force charge/discharge current from current state
-		switch (state) {
-		case UNDEFINED:
-		case WAIT_FOR_FORCE_MODE:
-			return null;
-		case FORCE_MODE:
+		return switch (state) {
+		case UNDEFINED, WAIT_FOR_FORCE_MODE //
+			-> null;
+		case FORCE_MODE ->
 			// TODO Plan is making the value adaptive, i.e. start with 1 A; if voltage still
 			// decreases, then slowly increase force charge current.
-			return -2.;
-		case BLOCK_MODE:
-			return 0.;
-		}
-		// will never happen
-		return null;
+			-2.;
+		case BLOCK_MODE //
+			-> 0.;
+		};
 	}
 
 	/**

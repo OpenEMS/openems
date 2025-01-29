@@ -346,25 +346,26 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 */
 	protected List<ModbusElement> addModbusElementAndChannels(int startAddress, SunSpecModel model, SunSpecPoint ssp) {
 		final var p = ssp.get();
-		// TODO migrate to Java 21 Switch Pattern Matching
-		if (p instanceof BitFieldPoint bfp) {
+		return switch (p) {
+		case BitFieldPoint bfp -> {
 			// Channels are added and mapped internally
 			var alternativeBitPoints = this.getBitPoints(bfp);
-			return bfp.generateModbusElements(this, channelId -> this.addChannel(channelId), startAddress,
+			yield bfp.generateModbusElements(this, channelId -> this.addChannel(channelId), startAddress,
 					alternativeBitPoints);
 		}
 
-		if (p instanceof ModbusElementPoint mep) {
+		case ModbusElementPoint mep -> {
 			final var element = mep.generateModbusElement(startAddress);
 			if (p instanceof ChannelIdPoint cp) {
 				var channelId = cp.channelId;
 				this.addChannel(channelId);
 				this.m(channelId, element, this.generateElementToChannelConverter(model, p));
 			}
-			return List.of(element);
+			yield List.of(element);
 		}
 
-		return List.of();
+		case ChannelIdPoint cip -> List.of();
+		};
 	}
 
 	/**
@@ -429,11 +430,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				/* Channel -> Element */ value -> value);
 
 		// Generate Scale-Factor converter (possibly null)
-		ElementToChannelConverter scaleFactorConverter = null;
-
-		if (point instanceof ScaledValuePoint svp) {
+		var scaleFactorConverter = switch (point) {
+		case ScaledValuePoint svp -> {
 			final var scaleFactorName = toUpperUnderscore(svp.scaleFactor);
-			scaleFactorConverter = Stream.of(model.points()) //
+			yield Stream.of(model.points()) //
 					.filter(p -> p.name().equals(scaleFactorName)) //
 					.map(SunSpecPoint::get) //
 					.filter(ScaleFactorPoint.class::isInstance) //
@@ -454,6 +454,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						}
 					}); //
 		}
+		default -> null;
+		};
 
 		if (scaleFactorConverter != null) {
 			return ElementToChannelConverter.chain(valueIsDefinedConverter, scaleFactorConverter);
@@ -470,17 +472,16 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @return the optional {@link Channel}
 	 */
 	protected <T extends Channel<?>> Optional<T> getSunSpecChannel(SunSpecPoint ssp) {
-		var point = ssp.get();
-		if (point instanceof ChannelIdPoint cp) {
+		return switch (ssp.get()) {
+		case ChannelIdPoint cp -> {
 			try {
-				return Optional.ofNullable(this.channel(cp.channelId));
+				yield Optional.ofNullable(this.channel(cp.channelId));
 			} catch (IllegalArgumentException e) {
-				// Ignore
+				yield Optional.empty();
 			}
-		} else {
-			// Ignore
 		}
-		return Optional.empty();
+		default -> Optional.empty();
+		};
 	}
 
 	/**

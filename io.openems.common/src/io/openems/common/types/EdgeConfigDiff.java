@@ -1,5 +1,7 @@
 package io.openems.common.types;
 
+import static io.openems.common.utils.StringUtils.toShortString;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,7 +20,6 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.Change;
 import io.openems.common.types.EdgeConfigDiff.ComponentDiff.OldNewProperty;
-import io.openems.common.utils.StringUtils;
 
 public class EdgeConfigDiff {
 
@@ -325,30 +326,27 @@ public class EdgeConfigDiff {
 			final var component = componentEntry.getValue();
 			var change = component.properties.entrySet().stream() //
 					.filter(e -> {
-						switch (e.getKey()) {
-						case "_lastChangeAt":
-						case "_lastChangeBy":
-						case "org.ops4j.pax.logging.appender.name":
-							// ignore
-							return false;
-						default:
-							return true;
-						}
+						return switch (e.getKey()) {
+						case //
+								"_lastChangeAt", //
+								"_lastChangeBy", //
+								"org.ops4j.pax.logging.appender.name" //
+							-> false; // ignore
+						default //
+							-> true;
+						};
 					}) //
 					.map(e -> {
-						String oldValue = StringUtils.toShortString(e.getValue().getOld(), 20);
-						String newValue = StringUtils.toShortString(e.getValue().getNew(), 20);
-
-						switch (component.change) {
-						case CREATED:
-							return e.getKey() + "=" + newValue;
-						case UPDATED:
-							return e.getKey() + "=" + newValue + " [was:" + oldValue + "]";
-						case DELETED:
-							return e.getKey() + " [was:" + oldValue + "]";
-						}
-						assert true;
-						return ""; // can never happen
+						var oldValue = toShortString(e.getValue().getOld(), 20);
+						var newValue = toShortString(e.getValue().getNew(), 20);
+						return switch (component.change) {
+						case CREATED //
+							-> e.getKey() + "=" + newValue;
+						case UPDATED //
+							-> e.getKey() + "=" + newValue + " [was:" + oldValue + "]";
+						case DELETED //
+							-> e.getKey() + " [was:" + oldValue + "]";
+						};
 					}) //
 					.collect(Collectors.joining(", "));
 			if (change.isEmpty()) {

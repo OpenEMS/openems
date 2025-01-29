@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.keba.kecontact;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
@@ -31,6 +32,7 @@ public class ReadHandler implements Consumer<String> {
 
 	private final Logger log = LoggerFactory.getLogger(ReadHandler.class);
 	private final EvcsKebaKeContactImpl parent;
+	private final EnergySessionHandler energySessionHandler = new EnergySessionHandler();
 
 	private boolean receiveReport1 = false;
 	private boolean receiveReport2 = false;
@@ -98,45 +100,45 @@ public class ReadHandler implements Consumer<String> {
 		 */
 		case "2" -> {
 			this.receiveReport2 = true;
-			this.setInt(EvcsKebaKeContact.ChannelId.STATUS_KEBA, j, "State");
+
+			// Parse Status and Plug immediately
+			this.setInt(EvcsKebaKeContact.ChannelId.R2_STATE, j, "State");
+			final R2State r2State = keba.channel(EvcsKebaKeContact.ChannelId.R2_STATE).getNextValue().asEnum();
+			final R2Plug r2Plug = this.setPlug(j);
 
 			// Value "setenergy" not used, because it is reset by the currtime 0 1 command
 
 			// Set Evcs status
-			Channel<Status> stateChannel = keba.channel(EvcsKebaKeContact.ChannelId.STATUS_KEBA);
-			Channel<Plug> plugChannel = keba.channel(EvcsKebaKeContact.ChannelId.PLUG);
+			var status = switch (r2Plug) {
+			case PLUGGED_ON_EVCS, PLUGGED_ON_EVCS_AND_LOCKED, PLUGGED_ON_EVCS_AND_ON_EV, UNDEFINED, UNPLUGGED //
+				-> Status.NOT_READY_FOR_CHARGING;
 
-			Plug plug = plugChannel.value().asEnum();
-			Status status = stateChannel.value().asEnum();
-			if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
-
-				// Charging is rejected (by the Software) if the plug is connected but the EVCS
-				// still not ready for charging.
-				if (status.equals(Status.NOT_READY_FOR_CHARGING)) {
-					status = Status.CHARGING_REJECTED;
-				}
-
+			case PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED -> {
 				/*
 				 * Check if the maximum energy limit is reached, informs the user and sets the
 				 * status
 				 */
-				int limit = keba.getSetEnergyLimit().orElse(0);
-				int energy = keba.getEnergySession().orElse(0);
-				if (energy >= limit && limit != 0) {
-					status = Status.ENERGY_LIMIT_REACHED;
+				var limit = keba.getSetEnergyLimit().get();
+				var energy = keba.getEnergySession().get();
+				if (limit != null && energy != null && energy >= limit) {
+					yield Status.ENERGY_LIMIT_REACHED;
 				}
-			} else {
-				// Plug not fully connected
-				status = Status.NOT_READY_FOR_CHARGING;
+				yield switch (r2State) {
+				case UNDEFINED -> Status.UNDEFINED;
+				case STARTUP -> Status.STARTING;
+				case NOT_READY -> Status.NOT_READY_FOR_CHARGING;
+				case INTERRUPTED, READY -> Status.READY_FOR_CHARGING;
+				case CHARGING -> Status.CHARGING;
+				case ERROR -> Status.ERROR;
+				};
 			}
+			};
 
 			keba._setStatus(status);
-			var errorState = status == Status.ERROR == true;
-			keba.channel(EvcsKebaKeContact.ChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(errorState);
+			keba.channel(EvcsKebaKeContact.ChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(status == Status.ERROR);
 
 			this.setInt(EvcsKebaKeContact.ChannelId.ERROR_1, j, "Error1");
 			this.setInt(EvcsKebaKeContact.ChannelId.ERROR_2, j, "Error2");
-			this.setInt(EvcsKebaKeContact.ChannelId.PLUG, j, "Plug");
 			this.setBoolean(EvcsKebaKeContact.ChannelId.ENABLE_SYS, j, "Enable sys");
 			this.setBoolean(EvcsKebaKeContact.ChannelId.ENABLE_USER, j, "Enable user");
 			this.setInt(EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, j, "Max curr %");
@@ -198,9 +200,10 @@ public class ReadHandler implements Consumer<String> {
 							.map(e -> round(e * 0.1F)) //
 							.orElse(null));
 			keba._setEnergySession(//
-					getAsOptionalInt(j, "E pres") //
-							.map(e -> round(e * 0.1F)) //
-							.orElse(null));
+					this.energySessionHandler.updateFromReport3(//
+							getAsOptionalInt(j, "E pres") //
+									.map(e -> round(e * 0.1F)) //
+									.orElse(null)));
 
 			// TODO use COS_PHI to calculate ReactivePower
 			this.setInt(EvcsKebaKeContact.ChannelId.COS_PHI, j, "PF");
@@ -240,10 +243,10 @@ public class ReadHandler implements Consumer<String> {
 		 */
 		default -> {
 			if (j.has("State")) {
-				this.setInt(EvcsKebaKeContact.ChannelId.STATUS_KEBA, j, "State");
+				this.setInt(EvcsKebaKeContact.ChannelId.R2_STATE, j, "State");
 			}
 			if (j.has("Plug")) {
-				this.setInt(EvcsKebaKeContact.ChannelId.PLUG, j, "Plug");
+				this.setPlug(j);
 			}
 			if (j.has("Input")) {
 				this.setBoolean(EvcsKebaKeContact.ChannelId.INPUT, j, "Input");
@@ -384,6 +387,14 @@ public class ReadHandler implements Consumer<String> {
 		this.set(channelId, getAsOptionalString(jMessage, name).orElse(null));
 	}
 
+	private R2Plug setPlug(JsonObject jMessage) {
+		final var channelId = EvcsKebaKeContact.ChannelId.R2_PLUG;
+		this.setInt(channelId, jMessage, "Plug");
+		final R2Plug r2Plug = this.parent.channel(channelId).getNextValue().asEnum();
+		this.energySessionHandler.updatePlug(r2Plug);
+		return r2Plug;
+	}
+
 	private void setInt(ChannelId channelId, JsonObject jMessage, String name) {
 		this.set(channelId, getAsOptionalInt(jMessage, name).orElse(null));
 	}
@@ -422,5 +433,37 @@ public class ReadHandler implements Consumer<String> {
 			break;
 		}
 		return result;
+	}
+
+	protected static class EnergySessionHandler {
+		private R2Plug r2Plug = R2Plug.UNDEFINED;
+		private Integer ePresOnUnplugged = null;
+
+		protected synchronized void updatePlug(R2Plug r2Plug) {
+			this.r2Plug = r2Plug;
+		}
+
+		public synchronized Integer updateFromReport3(Integer ePres) {
+			switch (this.r2Plug) {
+			case UNPLUGGED, // no cable
+					PLUGGED_ON_EVCS, PLUGGED_ON_EVCS_AND_LOCKED // not plugged on EV
+				-> this.ePresOnUnplugged = ePres > 0 ? ePres : null;
+			case UNDEFINED, // unsure
+					PLUGGED_ON_EVCS_AND_ON_EV, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED // plugged on EV
+				-> doNothing();
+			}
+			if (this.ePresOnUnplugged == null) {
+				return ePres;
+			}
+			if (ePres == null) {
+				return null;
+			}
+			if (this.ePresOnUnplugged <= ePres) {
+				return null;
+			}
+			// reset
+			this.ePresOnUnplugged = null;
+			return ePres;
+		}
 	}
 }

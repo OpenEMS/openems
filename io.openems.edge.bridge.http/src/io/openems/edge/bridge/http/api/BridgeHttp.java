@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingFunction;
+import io.openems.common.types.DebugMode;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -72,6 +73,8 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 		}
 
 	}
+
+	public void setDebugMode(DebugMode debugMode);
 
 	/**
 	 * Fetches the url once with {@link HttpMethod#GET}.

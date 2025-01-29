@@ -17,15 +17,14 @@ public class ScalingPipe implements Stage<Object, Object> {
 
 	@Override
 	public Object execute(Object value) {
-		if (value instanceof double[][] v) {
-			return this.scaleSecondCase(v);
-
-		} else if (value instanceof double[] v) {
-			return (this.scaleFirstCase(v));
-
-		} else {
-			throw new IllegalArgumentException("Input must be an instance of double[]");
-		}
+		return switch (value) {
+		case double[][] v //
+			-> this.scaleSecondCase(v);
+		case double[] v //
+			-> this.scaleFirstCase(v);
+		default //
+			-> throw new IllegalArgumentException("Input must be an instance of double[]");
+		};
 	}
 
 	/**

@@ -193,8 +193,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
 			T result = null;
 			for (SymmetricEss ess : esss) {
-				if (ess instanceof ManagedSymmetricEss) {
-					Channel<T> channel = ((ManagedSymmetricEss) ess).channel(channelId);
+				if (ess instanceof ManagedSymmetricEss mse) {
+					Channel<T> channel = mse.channel(channelId);
 					result = aggregator.apply(result, channel.getNextValue().get());
 				}
 			}
@@ -202,8 +202,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			channel.setNextValue(result);
 		};
 		for (SymmetricEss ess : esss) {
-			if (ess instanceof ManagedSymmetricEss) {
-				this.addOnChangeListener((ManagedSymmetricEss) ess, channelId, callback);
+			if (ess instanceof ManagedSymmetricEss mse) {
+				this.addOnChangeListener(mse, channelId, callback);
 			}
 		}
 	}
@@ -225,8 +225,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
 			T result = null;
 			for (SymmetricEss ess : esss) {
-				if (ess instanceof AsymmetricEss) {
-					Channel<T> channel = ((AsymmetricEss) ess).channel(asymmetricChannelId);
+				if (ess instanceof AsymmetricEss ae) {
+					Channel<T> channel = ae.channel(asymmetricChannelId);
 					result = aggregator.apply(result, channel.getNextValue().get());
 				} else {
 					// SymmetricEss
@@ -238,8 +238,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			channel.setNextValue(result);
 		};
 		for (SymmetricEss ess : esss) {
-			if (ess instanceof AsymmetricEss) {
-				this.addOnChangeListener((AsymmetricEss) ess, asymmetricChannelId, callback);
+			if (ess instanceof AsymmetricEss ae) {
+				this.addOnChangeListener(ae, asymmetricChannelId, callback);
 			} else {
 				this.addOnChangeListener(ess, symmetricChannelId, callback);
 			}

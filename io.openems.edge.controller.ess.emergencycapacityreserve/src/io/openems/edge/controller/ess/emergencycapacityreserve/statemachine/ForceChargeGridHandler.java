@@ -29,7 +29,8 @@ public class ForceChargeGridHandler extends StateHandler<State, Context> {
 
 		// calculate target and ramp power
 		context.setTargetPower(targetPower);
-		context.setRampPower(context.maxApparentPower * 0.01);
+		context.setRampPower(context.maxApparentPower //
+				* (context.getPreviousState() != State.FORCE_CHARGE_GRID ? 2 : 0.01));
 
 		// SoC is greater or equals then configured reserveSoC or 100
 		if (soc >= reserveSoc + 1 || soc == 100) {

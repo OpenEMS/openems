@@ -64,12 +64,11 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 			this.errorType = ErrorType.OTHER;
 			return false;
 		}
-		if (!(this.appManager instanceof AppManagerImpl)) {
+		if (!(this.appManager instanceof AppManagerImpl appManagerImpl)) {
 			this.errorMessage = "Wrong AppManager active!";
 			this.errorType = ErrorType.OTHER;
 			return false;
 		}
-		var appManagerImpl = (AppManagerImpl) this.appManager;
 		var instantiatedApps = appManagerImpl.getInstantiatedApps();
 
 		switch (this.openemsApp.getCardinality()) {
@@ -118,20 +117,15 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		switch (this.errorType) {
-		case SAME_APP:
-			return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCardinality.Message.Single",
-					this.openemsApp.getAppId());
-		case SAME_CATEGORIE:
-			return AbstractCheckable.getTranslation(language,
-					"Validator.Checkable.CheckCardinality.Message.SingleInCategorie",
-					this.matchingCategory.getReadableName(language));
-		case OTHER:
-			return this.errorMessage;
-		case NONE:
-			return null;
-		}
-		return null;
+		return switch (this.errorType) {
+		case SAME_APP -> getTranslation(language, //
+				"Validator.Checkable.CheckCardinality.Message.Single", this.openemsApp.getAppId());
+		case SAME_CATEGORIE -> getTranslation(language, //
+				"Validator.Checkable.CheckCardinality.Message.SingleInCategorie",
+				this.matchingCategory.getReadableName(language));
+		case OTHER -> this.errorMessage;
+		case NONE -> null;
+		};
 	}
 
 	@Override

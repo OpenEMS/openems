@@ -11,7 +11,7 @@ import io.openems.common.utils.JsonUtils;
  * @see <a href="https://www.jsonrpc.org/specification">JSON-RPC
  *      specification</a>
  */
-public abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
+public abstract sealed class AbstractJsonrpcRequest extends JsonrpcMessage permits JsonrpcRequest, JsonrpcNotification {
 
 	private final String method;
 

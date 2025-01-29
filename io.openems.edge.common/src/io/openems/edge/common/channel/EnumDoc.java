@@ -60,15 +60,12 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	@Override
 	public EnumReadChannel createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId) {
-		switch (this.getAccessMode()) {
-		case READ_ONLY:
-			return new EnumReadChannel(component, channelId, this, this.getUndefinedOption(), this.getDebounce());
-		case READ_WRITE:
-		case WRITE_ONLY:
-			return new EnumWriteChannel(component, channelId, this, this.getUndefinedOption());
-		}
-		throw new IllegalArgumentException(
-				"Unable to initialize Channel-ID [" + channelId.id() + "] from OptionsEnumDoc!");
+		return switch (this.getAccessMode()) {
+		case READ_ONLY //
+			-> new EnumReadChannel(component, channelId, this, this.getUndefinedOption(), this.getDebounce());
+		case READ_WRITE, WRITE_ONLY //
+			-> new EnumWriteChannel(component, channelId, this, this.getUndefinedOption());
+		};
 	}
 
 	/**

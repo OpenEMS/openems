@@ -119,21 +119,18 @@ public class WsData {
 			throw OpenemsError.JSONRPC_RESPONSE_WITHOUT_REQUEST.exception(response.toJsonObject());
 		}
 		// this was a response on a request
-		if (response instanceof JsonrpcResponseSuccess) {
+		switch (response) {
+		case JsonrpcResponseSuccess success ->
 			// Success Response -> complete future
-			future.complete((JsonrpcResponseSuccess) response);
-
-		} else if (response instanceof JsonrpcResponseError) {
+			future.complete(success);
+		case JsonrpcResponseError error ->
 			// Named OpenEMS-Error Response -> cancel future
-			var error = (JsonrpcResponseError) response;
-			var exception = new OpenemsNamedException(error.getOpenemsError(), error.getParamsAsObjectArray());
-			future.completeExceptionally(exception);
-
-		} else {
+			future.completeExceptionally(
+					new OpenemsNamedException(error.getOpenemsError(), error.getParamsAsObjectArray()));
+		default ->
 			// Undefined Error Response -> cancel future
-			var exception = new OpenemsNamedException(OpenemsError.GENERIC,
-					"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString());
-			future.completeExceptionally(exception);
+			future.completeExceptionally(new OpenemsNamedException(OpenemsError.GENERIC,
+					"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString()));
 		}
 	}
 

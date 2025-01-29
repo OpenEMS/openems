@@ -16,15 +16,11 @@ public enum EssType {
 	 * @return the {@link EssType}
 	 */
 	public static EssType getEssType(ManagedSymmetricEss ess) {
-		if (ess instanceof MetaEss) {
-			return META;
-		}
-		if (ess instanceof ManagedSinglePhaseEss) {
-			return EssType.SINGLE_PHASE;
-		} else if (ess instanceof ManagedAsymmetricEss) {
-			return EssType.ASYMMETRIC;
-		} else {
-			return EssType.SYMMETRIC;
-		}
+		return switch (ess) {
+		case MetaEss me -> META;
+		case ManagedSinglePhaseEss mspe -> SINGLE_PHASE;
+		case ManagedAsymmetricEss mae -> ASYMMETRIC;
+		default -> SYMMETRIC;
+		};
 	}
 }

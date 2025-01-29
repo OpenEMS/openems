@@ -1,10 +1,12 @@
 package io.openems.edge.timeofusetariff.rabotcharge;
 
+import static io.openems.common.types.HttpStatus.UNAUTHORIZED;
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -150,8 +152,11 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 					tokenFuture.complete(token);
 				}, error -> {
 					this.log.error("Unable to get token", error);
-					this._setHttpStatusCode(
-							error instanceof HttpError.ResponseError r ? r.status.code() : INTERNAL_ERROR);
+					this._setHttpStatusCode(//
+							switch (error) {
+							case HttpError.ResponseError re -> re.status.code();
+							default -> INTERNAL_ERROR;
+							});
 					this._setStatusAuthenticationFailed(true);
 				});
 
@@ -176,8 +181,11 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 					}).whenComplete((priceComponent, error) -> {
 						if (priceComponent == null) {
 							this.log.error("Unable to get price components", error);
-							this._setHttpStatusCode(
-									error instanceof HttpError.ResponseError r ? r.status.code() : INTERNAL_ERROR);
+							this._setHttpStatusCode(//
+									switch (error) {
+									case HttpError.ResponseError re -> re.status.code();
+									default -> INTERNAL_ERROR;
+									});
 							return;
 						}
 						this._setHttpStatusCode(HttpStatus.OK.code());
@@ -210,23 +218,24 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 		@Override
 		public Delay onSuccessRunDelay(HttpResponse<String> result) {
 			return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofDays(1)) //
-					.plusRandomDelay(60, ChronoUnit.SECONDS) //
+					.plusRandomDelay(60, SECONDS) //
 					.getDelay();
 		}
 
 		@Override
 		public Delay onErrorRunDelay(HttpError error) {
-			if (error instanceof HttpError.ResponseError r && r.status.equals(HttpStatus.UNAUTHORIZED)) {
+			return switch (error) {
+			case HttpError.ResponseError r when r.status.equals(UNAUTHORIZED) -> {
 				// reschedule after authenticated
 				TimeOfUseTariffRabotChargeImpl.this.scheduleRequest();
-				return Delay.infinite();
+				yield Delay.infinite();
 			}
-
-			return DelayTimeProviderChain.fixedDelay(Duration.ofHours(1))//
-					.plusRandomDelay(60, ChronoUnit.SECONDS) //
-					.getDelay();
+			default //
+				-> DelayTimeProviderChain.fixedDelay(Duration.ofHours(1))//
+						.plusRandomDelay(60, SECONDS) //
+						.getDelay();
+			};
 		}
-
 	}
 
 	private Endpoint createRabotChargeEndpoint(String accessToken) {
@@ -257,15 +266,14 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = INTERNAL_ERROR;
-		if (error instanceof HttpError.ResponseError re) {
-			httpStatusCode = re.status.code();
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
 
-			this._setStatusAuthenticationFailed(httpStatusCode == HttpStatus.UNAUTHORIZED.code());
-			this._setStatusBadRequest(httpStatusCode == HttpStatus.BAD_REQUEST.code());
-		}
-
-		this.channel(TimeOfUseTariffRabotCharge.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
+		this._setHttpStatusCode(httpStatusCode);
+		this._setStatusAuthenticationFailed(httpStatusCode == UNAUTHORIZED.code());
+		this._setStatusBadRequest(httpStatusCode == HttpStatus.BAD_REQUEST.code());
 		this.log.error(error.getMessage(), error);
 	}
 

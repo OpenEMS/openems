@@ -44,8 +44,8 @@ public class TestModbusTcpApiReadWrite {
 		var readOnlyApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
 
 		if (readOnlyApp.properties.has("ACTIVE")) {
-			var isActiv = readOnlyApp.properties.get("ACTIVE").getAsBoolean();
-			assertTrue(isActiv);
+			var isActive = readOnlyApp.properties.get("ACTIVE").getAsBoolean();
+			assertTrue(isActive);
 		}
 
 		// create ReadWrite app
@@ -66,8 +66,8 @@ public class TestModbusTcpApiReadWrite {
 		readOnlyApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
 
 		assertTrue(readOnlyApp.properties.has("ACTIVE"));
-		var isActiv = readOnlyApp.properties.get("ACTIVE").getAsBoolean();
-		assertFalse(isActiv);
+		var isActive = readOnlyApp.properties.get("ACTIVE").getAsBoolean();
+		assertFalse(isActive);
 
 		// remove ReadWrite to see if the ReadOnly gets activated
 		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
@@ -77,8 +77,8 @@ public class TestModbusTcpApiReadWrite {
 		readOnlyApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
 
 		if (readOnlyApp.properties.has("ACTIVE")) {
-			isActiv = readOnlyApp.properties.get("ACTIVE").getAsBoolean();
-			assertTrue(isActiv);
+			isActive = readOnlyApp.properties.get("ACTIVE").getAsBoolean();
+			assertTrue(isActive);
 		}
 	}
 

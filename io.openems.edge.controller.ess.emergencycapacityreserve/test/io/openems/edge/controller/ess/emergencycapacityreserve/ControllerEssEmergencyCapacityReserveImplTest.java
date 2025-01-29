@@ -606,20 +606,20 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				)//
 				.next(new TestCase()//
 						.input("ess0", SOC, 18).output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
-						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9100)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9100) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000) //
 				)//
 				.next(new TestCase()//
 						.input("ess0", SOC, 18)//
 						.output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
-						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9000)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9000) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000) //
 				)
 				// From Below
 				.next(new TestCase()//
 						.input("ess0", SOC, 15).output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
-						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 8900)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 8900) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -1100)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -1100) //
 				)
 				// let ramp run its course
 				.next(new TestCase()//

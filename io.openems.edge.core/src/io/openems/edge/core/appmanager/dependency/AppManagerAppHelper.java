@@ -1,9 +1,13 @@
 package io.openems.edge.core.appmanager.dependency;
 
+import java.util.List;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask.AggregateTaskExecutionConfiguration;
 
 public interface AppManagerAppHelper {
 
@@ -41,6 +45,21 @@ public interface AppManagerAppHelper {
 	 * @throws OpenemsNamedException on error
 	 */
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException;
+
+	/**
+	 * Gets a list of {@link AggregateTaskExecutionConfiguration} which are the
+	 * expected steps that are executed when installing a app with the provided
+	 * properties.
+	 * 
+	 * @param user     the executing user
+	 * @param instance the settings of the new {@link OpenemsAppInstance}
+	 * @param app      the {@link OpenemsApp}
+	 * @return a list of the configurations
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<AggregateTask.AggregateTaskExecutionConfiguration> getInstallConfiguration(//
+			User user, OpenemsAppInstance instance, OpenemsApp app //
+	) throws OpenemsNamedException;
 
 	/**
 	 * Only available during a call of one of the other methods.

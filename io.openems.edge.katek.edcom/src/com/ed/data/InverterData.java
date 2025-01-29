@@ -103,21 +103,12 @@ public final class InverterData implements DataSet {
 	 * @return AC RMS Voltage [V] (~ 20ms, grid synchronized measurement)
 	 */
 	public float getAcVoltage(int phaseIx) throws RuntimeException {
-		float f;
-		switch (phaseIx) {
-		default:
-			throw new RuntimeException("bad index");
-		case 0:
-			f = uL1.getFloat(0);
-			break;
-		case 1:
-			f = uL2.getFloat(0);
-			break;
-		case 2:
-			f = uL3.getFloat(0);
-			break;
-		}
-		return f;
+		return switch (phaseIx) {
+		default -> throw new RuntimeException("bad index");
+		case 0 -> uL1.getFloat(0);
+		case 1 -> uL2.getFloat(0);
+		case 2 -> uL3.getFloat(0);
+		};
 	}
 
 	/**
@@ -128,21 +119,12 @@ public final class InverterData implements DataSet {
 	 *         consumption
 	 */
 	public float getAcPower(int phaseIx) throws RuntimeException {
-		float f;
-		switch (phaseIx) {
-		default:
-			throw new RuntimeException("bad index");
-		case 0:
-			f = pL1.getFloat(0);
-			break;
-		case 1:
-			f = pL2.getFloat(0);
-			break;
-		case 2:
-			f = pL3.getFloat(0);
-			break;
-		}
-		return f;
+		return switch (phaseIx) {
+		default -> throw new RuntimeException("bad index");
+		case 0 -> pL1.getFloat(0);
+		case 1 -> pL2.getFloat(0);
+		case 2 -> pL3.getFloat(0);
+		};
 	}
 
 	/**
@@ -164,18 +146,11 @@ public final class InverterData implements DataSet {
 	 * @return PV Voltage [V]
 	 */
 	public float getPvVoltage(int pvIx) throws RuntimeException {
-		float f;
-		switch (pvIx) {
-		default:
-			throw new RuntimeException("wrong index");
-		case 0:
-			f = uSg1.getFloat(0);
-			break;
-		case 1:
-			f = uSg2.getFloat(0);
-			break;
-		}
-		return f;
+		return switch (pvIx) {
+		default -> throw new RuntimeException("wrong index");
+		case 0 -> uSg1.getFloat(0);
+		case 1 -> uSg2.getFloat(0);
+		};
 	}
 
 	/**

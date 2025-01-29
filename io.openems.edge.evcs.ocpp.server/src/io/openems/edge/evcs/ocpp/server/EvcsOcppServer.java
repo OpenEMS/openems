@@ -76,10 +76,9 @@ public class EvcsOcppServer extends AbstractOpenemsComponent implements OpenemsC
 	 */
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
-		if (!(evcs instanceof AbstractManagedOcppEvcsComponent) || evcs == null) {
+		if (!(evcs instanceof AbstractManagedOcppEvcsComponent ocppEvcs) || evcs == null) {
 			return;
 		}
-		var ocppEvcs = (AbstractManagedOcppEvcsComponent) evcs;
 		var presentEvcss = this.ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
 
 		if (presentEvcss == null) {
@@ -106,10 +105,9 @@ public class EvcsOcppServer extends AbstractOpenemsComponent implements OpenemsC
 	 * @param evcs Evcs that should be removed
 	 */
 	protected void removeEvcs(Evcs evcs) {
-		if (!(evcs instanceof AbstractManagedOcppEvcsComponent) || evcs == null) {
+		if (!(evcs instanceof AbstractManagedOcppEvcsComponent ocppEvcs) || evcs == null) {
 			return;
 		}
-		var ocppEvcs = (AbstractManagedOcppEvcsComponent) evcs;
 		var evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
 		if (evcss != null) {
 			if (evcss.size() < 2) {

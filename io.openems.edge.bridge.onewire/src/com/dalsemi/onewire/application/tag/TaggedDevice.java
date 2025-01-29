@@ -266,8 +266,7 @@ public class TaggedDevice {
 			return true;
 		}
 
-		if (o instanceof TaggedDevice) {
-			var td = (TaggedDevice) o;
+		if (o instanceof TaggedDevice td) {
 			return td.DeviceContainer.equals(this.DeviceContainer) && td.DeviceType.equals(this.DeviceType)
 					&& td.min.equals(this.min) && td.max.equals(this.max) && td.init.equals(this.init)
 					&& td.clusterName.equals(this.clusterName) && td.label.equals(this.label);

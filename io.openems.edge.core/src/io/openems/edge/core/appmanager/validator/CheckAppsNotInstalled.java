@@ -57,10 +57,10 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 	}
 
 	private AppManagerImpl getAppManagerImpl() {
-		if (this.appManager == null || !(this.appManager instanceof AppManagerImpl)) {
+		if (this.appManager == null || !(this.appManager instanceof AppManagerImpl ami)) {
 			return null;
 		}
-		return (AppManagerImpl) this.appManager;
+		return ami;
 	}
 
 	@Override
