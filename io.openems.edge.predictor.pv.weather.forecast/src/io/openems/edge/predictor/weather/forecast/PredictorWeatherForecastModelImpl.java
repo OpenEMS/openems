@@ -35,7 +35,7 @@ import io.openems.edge.predictor.api.prediction.Predictor;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class PredictorWeatherForecastModelImpl extends AbstractPredictor implements Predictor, OpenemsComponent {
+public class PredictorWeatherForecastModelImpl extends AbstractPredictor implements Predictor, OpenemsComponent, PredictorWeatherForecastModel {
 
 	private final Logger log = LoggerFactory.getLogger(PredictorWeatherForecastModelImpl.class);
 	private double factorPv1; // Factor to multiply with short wave solar radiation to forecast PV production
@@ -161,7 +161,8 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 							+ pv2Value + " PV3: " + pv3Value + " Sum: " + sumValue);
 				}
 			}
-
+			this._setProductionActivePower(values[0]);
+			
 			// Return the prediction starting from the calculated time
 			return Prediction.from(startOfDay.plusMinutes(currentIntervalIndex * 15), values);
 
