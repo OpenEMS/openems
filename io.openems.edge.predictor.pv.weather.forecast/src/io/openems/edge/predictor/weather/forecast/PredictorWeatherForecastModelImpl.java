@@ -152,7 +152,17 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 				double pv3Value = dataIndex < pv3Radiation.size() ? pv3Radiation.get(dataIndex) * factorPv3 : 0;
 				double sumValue = pv1Value + pv2Value + pv3Value;
 
+
+				
 				values[i] = (int) Math.round(sumValue);
+				
+				if (i == 0) { // Save nearest prediction in channels
+					this._setProductionActivePower(values[0]);
+					this._setProductionActivePowerPv1((int) Math.round(pv1Value));
+					this._setProductionActivePowerPv2((int) Math.round(pv2Value));
+					this._setProductionActivePowerPv3((int) Math.round(pv3Value));
+					
+				}				
 
 				// Debug output for each step
 				if (this.config.debugMode()) {
@@ -161,7 +171,7 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 							+ pv2Value + " PV3: " + pv3Value + " Sum: " + sumValue);
 				}
 			}
-			this._setProductionActivePower(values[0]);
+			
 			
 			// Return the prediction starting from the calculated time
 			return Prediction.from(startOfDay.plusMinutes(currentIntervalIndex * 15), values);
