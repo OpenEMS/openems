@@ -16,25 +16,26 @@ public class NormalizePipe implements Stage<Object, Object> {
 	@Override
 	public Object execute(Object input) {
 		try {
-			if (input instanceof double[][][] inputArray) {
-
+			return switch (input) {
+			case double[][][] inputArray -> {
 				double[][] trainData = inputArray[0];
 				double[] targetData = inputArray[1][0];
 
 				double[][] normalizedTrainData = normalizeData(trainData, this.hyperParameters);
 				double[] normalizedTargetData = normalizeData(trainData, targetData, this.hyperParameters);
 
-				return new double[][][] { normalizedTrainData, { normalizedTargetData } };
-
-			} else if (input instanceof double[][] inputArray) {
-				return normalizeData(inputArray, this.hyperParameters);
-
-			} else if (input instanceof double[] inputArray) {
-				return standardize(inputArray, this.hyperParameters);
-
-			} else {
-				throw new IllegalArgumentException("Illegal Argument encountered during normalization");
+				yield new double[][][] { normalizedTrainData, { normalizedTargetData } };
 			}
+
+			case double[][] inputArray //
+				-> normalizeData(inputArray, this.hyperParameters);
+
+			case double[] inputArray //
+				-> standardize(inputArray, this.hyperParameters);
+
+			default //
+				-> throw new IllegalArgumentException("Illegal Argument encountered during normalization");
+			};
 		} catch (Exception e) {
 			throw new RuntimeException("Illegal Argument encountered during normalization");
 		}

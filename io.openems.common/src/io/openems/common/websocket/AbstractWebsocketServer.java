@@ -162,10 +162,11 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	@Override
 	protected OnInternalError getOnInternalError() {
 		return (t, wsDataString) -> {
-			if (t instanceof BindException) {
-				this.logError(this.log, "Unable to Bind to port [" + this.port + "]");
-			} else {
-				this.logError(this.log, new StringBuilder() //
+			switch (t) {
+			case BindException be //
+				-> this.logError(this.log, "Unable to Bind to port [" + this.port + "]");
+			default //
+				-> this.logError(this.log, new StringBuilder() //
 						.append("OnInternalError for ").append(wsDataString).append(". ") //
 						.append(t.getClass()).append(": ") //
 						.append(t.getMessage()).toString());
