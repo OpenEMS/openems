@@ -16,8 +16,8 @@ public final class DictionaryUtils {
 	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
-	 * @return the value as {@link String}
 	 * @param <T> the key type
+	 * @return the value as {@link String}
 	 */
 	public static <T> String getAsString(Dictionary<T, Object> dict, T key) {
 		final var raw = dict.get(key);
@@ -36,8 +36,8 @@ public final class DictionaryUtils {
 	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
-	 * @return the value as {@link Optional} {@link String}
 	 * @param <T> the key type
+	 * @return the value as {@link Optional} {@link String}
 	 */
 	public static <T> Optional<String> getAsOptionalString(Dictionary<T, Object> dict, T key) {
 		return Optional.ofNullable(getAsString(dict, key));
@@ -48,8 +48,8 @@ public final class DictionaryUtils {
 	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
-	 * @return the value as {@link Integer}
 	 * @param <T> the key type
+	 * @return the value as {@link Integer}
 	 */
 	public static <T> Integer getAsInteger(Dictionary<T, Object> dict, T key) {
 		final var raw = dict.get(key);
@@ -77,8 +77,8 @@ public final class DictionaryUtils {
 	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
-	 * @return the value as {@link Optional} {@link Integer}
 	 * @param <T> the key type
+	 * @return the value as {@link Optional} {@link Integer}
 	 */
 	public static <T> Optional<Integer> getAsOptionalInteger(Dictionary<T, Object> dict, T key) {
 		return Optional.ofNullable(getAsInteger(dict, key));
@@ -89,8 +89,8 @@ public final class DictionaryUtils {
 	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
-	 * @return the value as {@link Integer}
 	 * @param <T> the key type
+	 * @return the value as {@link Integer}
 	 */
 	public static <T> Boolean getAsBoolean(Dictionary<T, Object> dict, T key) {
 		final var raw = dict.get(key);
@@ -114,8 +114,8 @@ public final class DictionaryUtils {
 	 *
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
+     * @param <T> the key type
 	 * @return the value as {@link Optional} {@link Integer}
-	 * @param <T> the key type
 	 */
 	public static <T> Optional<Boolean> getAsOptionalBoolean(Dictionary<T, Object> dict, T key) {
 		return Optional.ofNullable(getAsBoolean(dict, key));
@@ -126,8 +126,8 @@ public final class DictionaryUtils {
 	 *
 	 * @param dict the {@link Dictionary}
 	 * @param keys the keys to check
-	 * @return {@code true} if any of the keys is contained in the Dictionary
 	 * @param <T> the key type
+	 * @return {@code true} if any of the keys is contained in the Dictionary
 	 */
 	@SafeVarargs
 	public static <T> boolean containsAnyKey(Dictionary<T, ?> dict, T... keys) {
