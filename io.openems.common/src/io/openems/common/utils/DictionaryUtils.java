@@ -17,6 +17,7 @@ public final class DictionaryUtils {
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link String}
+	 * @param <T> the key type
 	 */
 	public static <T> String getAsString(Dictionary<T, Object> dict, T key) {
 		final var raw = dict.get(key);
@@ -36,6 +37,7 @@ public final class DictionaryUtils {
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Optional} {@link String}
+	 * @param <T> the key type
 	 */
 	public static <T> Optional<String> getAsOptionalString(Dictionary<T, Object> dict, T key) {
 		return Optional.ofNullable(getAsString(dict, key));
@@ -47,6 +49,7 @@ public final class DictionaryUtils {
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Integer}
+	 * @param <T> the key type
 	 */
 	public static <T> Integer getAsInteger(Dictionary<T, Object> dict, T key) {
 		final var raw = dict.get(key);
@@ -75,6 +78,7 @@ public final class DictionaryUtils {
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Optional} {@link Integer}
+	 * @param <T> the key type
 	 */
 	public static <T> Optional<Integer> getAsOptionalInteger(Dictionary<T, Object> dict, T key) {
 		return Optional.ofNullable(getAsInteger(dict, key));
@@ -86,8 +90,9 @@ public final class DictionaryUtils {
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Integer}
+	 * @param <T> the key type
 	 */
-	public static Boolean getAsBoolean(Dictionary<String, Object> dict, String key) {
+	public static <T> Boolean getAsBoolean(Dictionary<T, Object> dict, T key) {
 		final var raw = dict.get(key);
 		if (raw == null) {
 			return null;
@@ -110,8 +115,9 @@ public final class DictionaryUtils {
 	 * @param dict the {@link Dictionary}
 	 * @param key  the identifier key
 	 * @return the value as {@link Optional} {@link Integer}
+	 * @param <T> the key type
 	 */
-	public static Optional<Boolean> getAsOptionalBoolean(Dictionary<String, Object> dict, String key) {
+	public static <T> Optional<Boolean> getAsOptionalBoolean(Dictionary<T, Object> dict, T key) {
 		return Optional.ofNullable(getAsBoolean(dict, key));
 	}
 
