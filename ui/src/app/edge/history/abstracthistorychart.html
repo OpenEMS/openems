@@ -1,8 +1,37 @@
-<oe-history-data-error [response]="errorResponse"></oe-history-data-error>
+<oe-history-data-error *ngIf="errorResponse" [response]="errorResponse"></oe-history-data-error>
 
-<div [style.height.px]="getChartHeight()">
-    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+<div [style.height.px]="getChartHeight()" class="chart-container">
+    <ngx-spinner [name]="spinnerId" *ngIf="loading"></ngx-spinner>
+
     <ng-container *ngIf="!loading">
-        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" type="line"></canvas>
+        <!-- Form to select periods -->
+        <form (ngSubmit)="onComparePeriods()">
+            <div class="form-group">
+                <label for="period1">Période 1:</label>
+                <select id="period1" [(ngModel)]="period1" name="period1" required>
+                    <option value="day">Jour</option>
+                    <option value="week">Semaine</option>
+                    <option value="month">Mois</option>
+                    <option value="year">Année</option>
+                </select>
+                <input type="date" [(ngModel)]="date1" name="date1" required>
+            </div>
+            <div class="form-group">
+                <label for="period2">Période 2:</label>
+                <select id="period2" [(ngModel)]="period2" name="period2" required>
+                    <option value="day">Jour</option>
+                    <option value="week">Semaine</option>
+                    <option value="month">Mois</option>
+                    <option value="year">Année</option>
+                </select>
+                <input type="date" [(ngModel)]="date2" name="date2" required>
+            </div>
+            <button type="submit" [disabled]="!date1 || !date2">Compare</button>
+        </form>
+
+        <!-- Graphic-->
+        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [legend]="true"
+            [chartType]="'bar'">
+        </canvas>
     </ng-container>
 </div>
