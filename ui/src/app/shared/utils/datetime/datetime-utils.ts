@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 
 // cf. https://github.com/import-js/eslint-plugin-import/issues/1479
-import { differenceInMilliseconds, format, startOfMonth, startOfYear } from "date-fns";
+import { differenceInMilliseconds, format, isSameYear, startOfMonth, startOfYear } from "date-fns";
 import { de } from "date-fns/locale";
 
 import { ChronoUnit } from "src/app/edge/history/shared";
@@ -14,6 +14,8 @@ export class DateTimeUtils {
 
   /**
    * Normalizes timestamps depending on chosen period
+   *
+   * e.g fills up dataset with 11 months with 1 month to show full 12 months
    *
    * @param unit the Chronounit
    * @param energyPerPeriodResponse the timeseries data
@@ -31,8 +33,9 @@ export class DateTimeUtils {
         // show 12 stacks, even if no data and timestamps
         const newTimestamps: string[] = [];
         const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]);
+        const lastTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[energyPerPeriodResponse.result.timestamps.length - 1]);
 
-        if (firstTimestamp.getMonth() !== 0) {
+        if (firstTimestamp.getMonth() !== 0 && isSameYear(lastTimestamp, firstTimestamp)) {
           for (let i = 0; i <= (firstTimestamp.getMonth() - 1); i++) {
             newTimestamps.push(new Date(firstTimestamp.getFullYear(), i).toString());
 

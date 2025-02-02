@@ -1,5 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
+import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 import static org.junit.Assert.assertEquals;
@@ -11,9 +13,9 @@ public class EshCodecTest {
 
 	@Test
 	public void test() {
-		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
+		final var simulator = DUMMY_SIMULATOR;
 		final var gsc = simulator.gsc;
-		final var codec = EshCodec.of(gsc, SimulationResult.EMPTY, false);
+		final var codec = EshCodec.of(gsc, EMPTY_SIMULATION_RESULT, false);
 
 		var gt = codec.encoding().newInstance();
 
@@ -41,7 +43,7 @@ public class EshCodecTest {
 
 	@Test
 	public void testNulls() {
-		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
+		final var simulator = DUMMY_SIMULATOR;
 		final var gsc = simulator.gsc;
 		final var codec = EshCodec.of(gsc, InitialPopulationTest.PREVIOUS_RESULT, true);
 		assertNull(codec.encode(new int[0][0]));
@@ -56,7 +58,7 @@ public class EshCodecTest {
 
 	@Test
 	public void testPreviousResult() {
-		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
+		final var simulator = DUMMY_SIMULATOR;
 		final var gsc = simulator.gsc;
 		final var codec = EshCodec.of(gsc, InitialPopulationTest.PREVIOUS_RESULT, true);
 

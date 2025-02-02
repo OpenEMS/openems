@@ -24,6 +24,7 @@ import { Controller_Io_ChannelSingleThresholdModalComponent } from "./Controller
 import { Controller_Io_FixDigitalOutputComponent } from "./Controller/Io/FixDigitalOutput/Io_FixDigitalOutput";
 import { Controller_Io_FixDigitalOutputModalComponent } from "./Controller/Io/FixDigitalOutput/modal/modal.component";
 import { Controller_Io_HeatingElement } from "./Controller/Io/HeatingElement/Io_HeatingElement";
+import { Controller_Io_HeatingRoom } from "./Controller/Io/HeatingRoom/Io_HeatingRoom";
 import { Controller_Io_HeatpumpComponent } from "./Controller/Io/Heatpump/Io_Heatpump";
 import { Controller_Io_HeatpumpModalComponent } from "./Controller/Io/Heatpump/modal/modal.component";
 import { Controller_Api_ModbusTcp } from "./Controller/ModbusTcpApi/modbusTcpApi.module";
@@ -59,6 +60,7 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Controller_Ess_TimeOfUseTariff,
     Controller_Evcs,
     Controller_Io_HeatingElement,
+    Controller_Io_HeatingRoom,
     EdgeOfflineModule,
     EnergymonitorModule,
     SharedModule,
@@ -69,7 +71,6 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Controller_Asymmetric_PeakShavingComponent,
     Controller_Asymmetric_PeakShavingModalComponent,
     Controller_ChannelthresholdComponent,
-    Controller_ChpSocComponent,
     Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
     Controller_Io_ChannelSingleThresholdComponent,

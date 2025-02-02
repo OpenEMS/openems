@@ -7,7 +7,6 @@ import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first, take } from "rxjs/operators";
-import { ChosenFilter } from "src/app/index/filter/filter.component";
 import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
 import { Edge } from "../components/edge/edge";
@@ -314,20 +313,13 @@ export class Service extends AbstractService {
   /**
    * Gets the page for the given number.
    *
-   * @param page the page number
-   * @param query the query to restrict the edgeId
-   * @param limit the number of edges to be retrieved
-   * @returns a Promise
+   * @param req the get edges request
+   * @returns a promise with the resulting edges
    */
-  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter["value"] }): Promise<Edge[]> {
+  public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
-      this.websocket.sendSafeRequest(
-        new GetEdgesRequest({
-          page: page,
-          ...(query && query != "" && { query: query }),
-          ...(limit && { limit: limit }),
-          ...(searchParamsObj && { searchParams: searchParamsObj }),
-        })).then((response) => {
+      this.websocket.sendSafeRequest(req)
+        .then((response) => {
 
           const result = (response as GetEdgesResponse).result;
 
