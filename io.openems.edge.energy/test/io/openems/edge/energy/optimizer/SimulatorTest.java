@@ -2,6 +2,7 @@ package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.Limits.byFixedGeneration;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
@@ -71,7 +72,7 @@ public class SimulatorTest {
 	public static SimulationResult generateDummySimulationResult() {
 		final var simulator = DUMMY_SIMULATOR;
 
-		return simulator.getBestSchedule(SimulationResult.EMPTY, true /* isCurrentPeriodFixed */, //
+		return simulator.getBestSchedule(EMPTY_SIMULATION_RESULT, true /* isCurrentPeriodFixed */, //
 				engine -> engine //
 						.populationSize(1), //
 				stream -> stream //

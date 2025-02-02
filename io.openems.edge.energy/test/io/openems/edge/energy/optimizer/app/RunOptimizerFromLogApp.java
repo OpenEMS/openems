@@ -2,7 +2,7 @@ package io.openems.edge.energy.optimizer.app;
 
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
-import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.app.AppUtils.parseGlobalSimulationsContextFromLogString;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
@@ -101,7 +101,8 @@ public class RunOptimizerFromLogApp {
 	public static void main(String[] args) throws Exception {
 		var simulator = new Simulator(parseGlobalSimulationsContextFromLogString(LOG, ESHS));
 
-		var simulationResult = simulator.getBestSchedule(EMPTY, false /* isCurrentPeriodFixed */, null, //
+		var simulationResult = simulator.getBestSchedule(EMPTY_SIMULATION_RESULT, //
+				false /* isCurrentPeriodFixed */, null, //
 				stream -> stream //
 						.limit(byExecutionTime(ofSeconds(EXECUTION_LIMIT_SECONDS))));
 
