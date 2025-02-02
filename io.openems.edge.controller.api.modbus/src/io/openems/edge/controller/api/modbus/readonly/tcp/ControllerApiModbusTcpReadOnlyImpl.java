@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -20,6 +21,7 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlave;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.WriteChannel;
@@ -73,6 +75,13 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections());
 		super.activate(context, this.cm, this.config);
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
+				config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections());
+		super.modified(context, this.cm, this.config);
 	}
 
 	@Override
