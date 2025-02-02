@@ -167,11 +167,4 @@ public class MennekesEvcsReadOnly extends
 		return Property.values();
 	}
 
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanDelete(Role.ADMIN)//
-				.setCanSee(Role.ADMIN)//
-				.build();
-	}
 }
