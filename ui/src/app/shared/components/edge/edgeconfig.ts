@@ -165,6 +165,7 @@ export class EdgeConfig {
                         "Controller.IO.ChannelSingleThreshold",
                         "Controller.Io.FixDigitalOutput",
                         "Controller.IO.HeatingElement",
+                        "Controller.IO.Heating.Room",
                         "Controller.Io.HeatPump.SgReady",
                     ]),
                 ].flat(2),

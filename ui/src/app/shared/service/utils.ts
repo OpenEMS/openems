@@ -325,6 +325,17 @@ export class Utils {
   };
 
   /**
+   * Converts a value in DEZIDEGREE_CELSIUS [dC] to DEGREE_CELSIUS [°C]
+   *
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS = (value: number): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    return formatNumber(Utils.divideSafely(value, 10), locale, "1.0-1") + " °C";
+  };
+
+  /**
    * Converts states 'MANUAL_ON' and 'MANUAL_OFF' to translated strings.
    *
    * @param value the value from passed value in html
