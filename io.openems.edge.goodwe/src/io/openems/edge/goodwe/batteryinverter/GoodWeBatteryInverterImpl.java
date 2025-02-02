@@ -576,7 +576,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.applyConfigIfNotSet(this.config, false);
 
 		// Calculate ActivePower, Energy and Max-AC-Power.
-		this.updatePowerAndEnergyChannels();
+		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
 		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
 
 		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
