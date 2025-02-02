@@ -7,9 +7,6 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.jsonapi.EndpointRequestType;
