@@ -134,7 +134,7 @@ export class Service extends AbstractService {
   }
 
   // https://v16.angular.io/api/core/ErrorHandler#errorhandler
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   public override handleError(error: any) {
     console.error(error);
     // TODO: show notification

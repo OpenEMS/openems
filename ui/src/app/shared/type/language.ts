@@ -51,7 +51,7 @@ export class Language {
         public readonly json: any,
         // Angular is not providing common type for locale.
         // https://github.com/angular/angular/issues/30506
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         public readonly locale: any,
     ) {
     }

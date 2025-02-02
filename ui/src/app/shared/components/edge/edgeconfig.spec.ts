@@ -386,7 +386,7 @@ export namespace DummyConfig {
  * Factories.
  */
 // identifier `Factory` is also used in namespace
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 type Factory = {
     id: string,
     natureIds: string[],
