@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 /* eslint-disable import/no-duplicates */
 // cf. https://github.com/import-js/eslint-plugin-import/issues/1479
-import { differenceInMilliseconds, format, startOfMonth, startOfYear } from "date-fns";
+import { differenceInMilliseconds, format, isSameYear, startOfMonth, startOfYear } from "date-fns";
 import { de } from "date-fns/locale";
 /* eslint-enable import/no-duplicates */
 import { ChronoUnit } from "src/app/edge/history/shared";
@@ -31,8 +31,9 @@ export class DateTimeUtils {
         // show 12 stacks, even if no data and timestamps
         const newTimestamps: string[] = [];
         const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]);
+        const lastTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[energyPerPeriodResponse.result.timestamps.length - 1]);
 
-        if (firstTimestamp.getMonth() !== 0) {
+        if (firstTimestamp.getMonth() !== 0 && isSameYear(lastTimestamp, firstTimestamp)) {
           for (let i = 0; i <= (firstTimestamp.getMonth() - 1); i++) {
             newTimestamps.push(new Date(firstTimestamp.getFullYear(), i).toString());
 
