@@ -166,7 +166,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		try {
 			config = this.getExistingConfigForId(componentId);
 		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
 			return emptyMap();
 		}
 
