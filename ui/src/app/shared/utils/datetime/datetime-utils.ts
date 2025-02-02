@@ -15,6 +15,8 @@ export class DateTimeUtils {
   /**
    * Normalizes timestamps depending on chosen period
    *
+   * e.g fills up dataset with 11 months with 1 month to show full 12 months
+   *
    * @param unit the Chronounit
    * @param energyPerPeriodResponse the timeseries data
    * @returns the adjusted timestamps

@@ -156,9 +156,8 @@ export class ChartComponent extends AbstractHistoryChart {
       stack: 1,
     };
   }
+
   protected override getChartData(): HistoryUtils.ChartData {
     return ChartComponent.getChartData(this.config, this.chartType, this.route, this.translate);
   }
-
-
 }

@@ -63,7 +63,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             yAxes: [{
                 unit: chartType === "line"
-                    ? YAxisType.LEVEL
+                    ? YAxisType.HEATING_ELEMENT
                     : YAxisType.TIME,
                 position: "left",
                 yAxisId: ChartAxis.LEFT,

@@ -127,7 +127,7 @@ export class ChartComponent extends AbstractHistoryChart {
         };
     }
 
-    protected override loadChart(): void {
+    protected override async loadChart() {
         this.labels = [];
         this.errorResponse = null;
 
