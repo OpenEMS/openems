@@ -585,17 +585,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
-      case YAxisType.LEVEL:
+      case YAxisType.LEVEL: {
+
+        const { callback, ...ticks } = baseConfig.ticks;
         options.scales[element.yAxisId] = {
           ...baseConfig,
           min: 0,
           max: 3,
           beginAtZero: true,
           ticks: {
+            ...ticks,
             stepSize: 1,
           },
         };
         break;
+      }
       case YAxisType.VOLTAGE:
       case YAxisType.CURRENT:
         options.scales[element.yAxisId] = {
@@ -709,6 +713,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     return formatNumber(value, locale, format) + " " + tooltipsLabel;
   }
 
+  /**
+   * Gets the default x axis chart options
+   *
+   * @param xAxisType the x axis type
+   * @param service the service
+   * @param labels the x axis ticks labels
+   * @returns chartoptions
+   */
   public static getDefaultOptions(xAxisType: XAxisType, service: Service, labels: (Date | string)[]): Chart.ChartOptions {
 
     let options: Chart.ChartOptions;
@@ -754,6 +766,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Removes the external plugin features
+   *
+   * @param options the chart options
+   * @returns the chart options
+   */
   protected static removeExternalPluginFeatures(options: Chart.ChartOptions): Chart.ChartOptions {
     options.plugins["annotation"] = {};
     options.plugins["datalabels"] = {

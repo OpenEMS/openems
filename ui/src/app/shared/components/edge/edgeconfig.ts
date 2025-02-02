@@ -689,7 +689,7 @@ export class EdgeConfig {
     }
 
     /**
-     * Safely gets a property from a component if it exists, else returns null.
+     * Safely gets a property from a component, if it exists, else returns null.
      *
      * @param component The component from which to retrieve the property.
      * @param property The property name to retrieve.
