@@ -98,20 +98,26 @@
                       <!-- Additional information for specific Factory-IDs -->
                       <ng-container *ngFor="let factoryId of [item.factoryId]" [ngSwitch]="factoryId">
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'">
-                          <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                          <ion-button (click)="getModbusProtocol(item.id,'tcp')">Download Protocol</ion-button>
                           <oe-help-button key="CONTROLLER_API_MODBUSTCP_READ">
                             <span translate>
                               General.manual
                             </span>
                           </oe-help-button>
                         </ion-text>
+                        <ion-text *ngSwitchCase="'Controller.Api.ModbusRtu.ReadOnly'">
+                          <ion-button (click)="getModbusProtocol(item.id,'rtu')">Download Protocol</ion-button>
+                        </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
-                          <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
+                          <ion-button (click)="getModbusProtocol(item.id,'tcp')">Download Protocol</ion-button>
                           <oe-help-button key="CONTROLLER_API_MODBUSTCP_READWRITE">
                             <span translate>
                               General.manual
                             </span>
                           </oe-help-button>
+                        </ion-text>
+                        <ion-text *ngSwitchCase="'Controller.Api.ModbusRtu.ReadWrite'">
+                          <ion-button (click)="getModbusProtocol(item.id,'rtu')">Download Protocol</ion-button>
                         </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
                           <oe-help-button key="CONTROLLER_API_REST_READ">

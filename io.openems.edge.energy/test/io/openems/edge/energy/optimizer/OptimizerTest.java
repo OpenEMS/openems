@@ -1,8 +1,8 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.Limits.byFixedGeneration;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.energy.EnergySchedulerImplTest.getOptimizer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

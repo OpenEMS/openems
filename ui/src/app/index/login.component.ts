@@ -9,6 +9,7 @@ import { environment } from "src/environments";
 
 import { AppService } from "../app.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
+import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { States } from "../shared/ngrx-store/states";
 import { Edge, Service, Utils, Websocket } from "../shared/shared";
 import { UserComponent } from "../user/user.component";
@@ -19,15 +20,18 @@ import { UserComponent } from "../user/user.component";
   standalone: false,
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
+
   public currentThemeMode: string;
   public environment = environment;
   public form: FormGroup;
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
+  protected showPassword: boolean = false;
   protected readonly operatingSystem = AppService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
+
 
   constructor(
     public service: Service,
@@ -135,7 +139,9 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
 
     return new Promise<Edge[]>((resolve, reject) => {
 
-      this.service.getEdges(this.page)
+      const req = new GetEdgesRequest({ page: this.page });
+
+      this.service.getEdges(req)
         .then((edges) => {
           setTimeout(() => {
             this.router.navigate(["/device", edges[0].id]);
@@ -163,4 +169,5 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
       this.popoverActive = operatingSystem;
     }
   }
+
 }

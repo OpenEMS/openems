@@ -1,5 +1,6 @@
 package io.openems.edge.common.type;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -10,8 +11,6 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableSortedMap;
-
-import io.openems.edge.common.test.TestUtils;
 
 public class QuarterlyValuesTest {
 
@@ -32,14 +31,14 @@ public class QuarterlyValuesTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testExpectError() {
-		var time = ZonedDateTime.now(TestUtils.createDummyClock());
+		var time = ZonedDateTime.now(createDummyClock());
 		new MyQuarterlyValues(ImmutableSortedMap.of(//
 				time.plusMinutes(1), 0.1));
 	}
 
 	@Test
 	public void testEmpty() {
-		var time = ZonedDateTime.now(TestUtils.createDummyClock());
+		var time = ZonedDateTime.now(createDummyClock());
 		var sut = new MyQuarterlyValues(time);
 		assertTrue(sut.isEmpty());
 		assertNull(sut.getFirst());
@@ -53,7 +52,7 @@ public class QuarterlyValuesTest {
 
 	@Test
 	public void test() {
-		var time = ZonedDateTime.now(TestUtils.createDummyClock());
+		var time = ZonedDateTime.now(createDummyClock());
 		var sut = new MyQuarterlyValues(ImmutableSortedMap.of(//
 				time, 0.1, //
 				time.plusMinutes(15), 0.2, //
@@ -71,7 +70,7 @@ public class QuarterlyValuesTest {
 
 	@Test
 	public void test2() {
-		var time = ZonedDateTime.now(TestUtils.createDummyClock());
+		var time = ZonedDateTime.now(createDummyClock());
 		var sut = new MyQuarterlyValues(time, 0.1, 0.2, null, 0.3);
 		assertEquals(3, sut.asArray().length);
 		assertEquals(4, sut.toMapWithAllQuarters().size());

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { Directive, Input, OnDestroy, OnInit, Inject } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";

@@ -14,6 +14,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Response;
 
 /**
  * OperatingSystem implementation for Windows.
@@ -57,7 +58,12 @@ public class OperatingSystemWindows implements OperatingSystem {
 	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
 		return Collections.emptyList();
 	}
-	
+
+	@Override
+	public Response getNetworkInfo() throws OpenemsNamedException {
+		throw new NotImplementedException("This request is not implemented for Windows");
+	}
+
 	public CompletableFuture<String> getOperatingSystemVersion() {
 		return CompletableFuture.completedFuture(System.getProperty("os.name"));
 	}

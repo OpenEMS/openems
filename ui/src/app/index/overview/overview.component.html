@@ -42,7 +42,7 @@
                                 <ion-col>
                                     <ion-searchbar
                                         style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
-                                        [(ngModel)]="query" (ionChange)="searchOnChange()">
+                                        [(ngModel)]="query" (ionInput)="searchOnChange()" [debounce]="1000">
                                     </ion-searchbar>
                                 </ion-col>
                             </ion-row>

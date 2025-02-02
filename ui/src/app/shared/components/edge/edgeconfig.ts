@@ -165,6 +165,7 @@ export class EdgeConfig {
                         "Controller.IO.ChannelSingleThreshold",
                         "Controller.Io.FixDigitalOutput",
                         "Controller.IO.HeatingElement",
+                        "Controller.IO.Heating.Room",
                         "Controller.Io.HeatPump.SgReady",
                     ]),
                 ].flat(2),
@@ -183,6 +184,8 @@ export class EdgeConfig {
                         "Controller.Api.ModbusTcp",
                         "Controller.Api.ModbusTcp.ReadOnly",
                         "Controller.Api.ModbusTcp.ReadWrite",
+                        "Controller.Api.ModbusRtu.ReadOnly",
+                        "Controller.Api.ModbusRtu.ReadWrite",
                         "Controller.Api.MQTT",
                         "Controller.Api.Rest.ReadOnly",
                         "Controller.Api.Rest.ReadWrite",
@@ -544,6 +547,7 @@ export class EdgeConfig {
         }
         switch (component.factoryId) {
             case "GoodWe.EmergencyPowerMeter":
+            case "Controller.IO.Heating.Room":
                 return true;
         }
         const natures = this.getNatureIdsByFactoryId(component.factoryId);
@@ -686,7 +690,7 @@ export class EdgeConfig {
     }
 
     /**
-     * Safely gets a property from a component if it exists, else returns null.
+     * Safely gets a property from a component, if it exists, else returns null.
      *
      * @param component The component from which to retrieve the property.
      * @param property The property name to retrieve.

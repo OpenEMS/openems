@@ -14,6 +14,7 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.appmanager.dependency.TemporaryApps;
 import io.openems.edge.core.appmanager.dependency.UpdateValues;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask.AggregateTaskExecutionConfiguration;
 
 public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 
@@ -61,6 +62,12 @@ public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 	@Override
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException {
 		return this.impl.deleteApp(user, instance);
+	}
+
+	@Override
+	public List<AggregateTaskExecutionConfiguration> getInstallConfiguration(User user, OpenemsAppInstance instance,
+			OpenemsApp app) throws OpenemsNamedException {
+		return this.impl.getInstallConfiguration(user, instance, app);
 	}
 
 	@Override

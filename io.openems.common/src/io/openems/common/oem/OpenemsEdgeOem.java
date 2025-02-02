@@ -141,7 +141,7 @@ public interface OpenemsEdgeOem {
 	public default OAuthClientRegistration getRabotChargeCredentials() {
 		return null;
 	}
-	
+
 	/**
 	 * Gets the OEM authorization for Battery.BMW.
 	 * 

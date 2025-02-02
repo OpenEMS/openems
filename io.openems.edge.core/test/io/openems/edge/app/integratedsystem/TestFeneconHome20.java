@@ -57,26 +57,14 @@ public class TestFeneconHome20 {
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home.20":
-				expectedDependencies = 4;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			case "App.Meter.Socomec":
-				expectedDependencies = 0;
-				break;
-			case "App.Ess.PrepareBatteryExtension":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
+			var expectedDependencies = switch (instance.appId) {
+			case "App.FENECON.Home.20" -> 4;
+			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
+			case "App.Meter.Socomec" -> 0;
+			case "App.Ess.PrepareBatteryExtension" -> 0;
+			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
 				continue;
 			}
@@ -157,26 +145,14 @@ public class TestFeneconHome20 {
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home.20":
-				expectedDependencies = 4;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			case "App.Meter.Socomec":
-				expectedDependencies = 0;
-				break;
-			case "App.Ess.PrepareBatteryExtension":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
+			var expectedDependencies = switch (instance.appId) {
+			case "App.FENECON.Home.20" -> 4;
+			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
+			case "App.Meter.Socomec" -> 0;
+			case "App.Ess.PrepareBatteryExtension" -> 0;
+			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
 				continue;
 			}

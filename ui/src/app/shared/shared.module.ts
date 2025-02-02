@@ -20,6 +20,7 @@ import { FormlyWrapperFormFieldComponent } from "./components/formly/form-field.
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formlyfieldmodal";
 import { FormlyFieldRadioWithImageComponent } from "./components/formly/formly-field-radio-with-image/formly-field-radio-with-image";
+import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
@@ -59,6 +60,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 
 @NgModule({
   imports: [
+    BaseChartDirective,
     BrowserAnimationsModule,
     CommonModule,
     ComponentsModule,
@@ -79,6 +81,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "input", component: InputTypeComponent },
         { name: "repeat", component: RepeatTypeComponent },
         { name: "multi-step", component: FormlyFieldMultiStepComponent },
+        { name: "select", component: FormlySelectComponent },
       ],
       validators: [
         { name: "ip", validation: IpValidator },
@@ -121,6 +124,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PanelWrapperComponent,
     PercentageBarComponent,
     RepeatTypeComponent,
+    FormlySelectComponent,
   ],
   exports: [
     AppHeaderComponent,

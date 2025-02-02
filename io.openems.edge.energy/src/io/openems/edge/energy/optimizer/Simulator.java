@@ -3,7 +3,7 @@ package io.openems.edge.energy.optimizer;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.jenetics.engine.EvolutionResult.toBestResult;
 import static io.openems.edge.energy.optimizer.InitialPopulation.generateInitialPopulation;
-import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static java.lang.Thread.currentThread;
 
 import java.util.concurrent.Executor;
@@ -25,6 +25,7 @@ import io.jenetics.Mutator;
 import io.jenetics.SinglePointCrossover;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -128,11 +129,11 @@ public class Simulator {
 		double cost = 0.;
 		var eshIndex = 0;
 		for (var esh : eshs) {
-			if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
-				// Simulate with state given by Genotype
-				cost += e.simulatePeriod(simulation, period, model, schedule[periodIndex][eshIndex++]);
-			} else if (esh instanceof EnergyScheduleHandler.WithOnlyOneState<?> e) {
-				e.simulatePeriod(simulation, period, model);
+			switch (esh) {
+			case EnergyScheduleHandler.WithDifferentStates<?, ?> e //
+				-> cost += e.simulatePeriod(simulation, period, model, schedule[periodIndex][eshIndex++]);
+			case EnergyScheduleHandler.WithOnlyOneState<?> e //
+				-> e.simulatePeriod(simulation, period, model);
 			}
 		}
 
@@ -167,9 +168,12 @@ public class Simulator {
 			bestScheduleCollector.allPeriods.accept(srp);
 			eshIndex = 0;
 			for (var esh : eshs) {
-				if (esh instanceof EnergyScheduleHandler.WithDifferentStates<?, ?> e) {
-					bestScheduleCollector.eshStates.accept(new EshToState(e, srp, //
+				switch (esh) {
+				case EnergyScheduleHandler.WithDifferentStates<?, ?> e //
+					-> bestScheduleCollector.eshStates.accept(new EshToState(e, srp, //
 							e.postProcessPeriod(period, simulation, energyFlow, schedule[periodIndex][eshIndex++])));
+				case EnergyScheduleHandler.WithOnlyOneState<?> e //
+					-> FunctionUtils.doNothing();
 				}
 			}
 		}
@@ -198,7 +202,7 @@ public class Simulator {
 			Function<EvolutionStream<IntegerGene, Double>, EvolutionStream<IntegerGene, Double>> evolutionStreamInterceptor) {
 		final var codec = EshCodec.of(this.gsc, previousResult, isCurrentPeriodFixed);
 		if (codec == null) {
-			return EMPTY;
+			return EMPTY_SIMULATION_RESULT;
 		}
 
 		// Decide for single- or multi-threading
@@ -238,7 +242,9 @@ public class Simulator {
 		// Start the evaluation
 		var bestGt = stream //
 				.collect(toBestResult(codec));
-
+		if (bestGt == null) {
+			return EMPTY_SIMULATION_RESULT;
+		}
 		return SimulationResult.fromQuarters(this.gsc, bestGt);
 	}
 

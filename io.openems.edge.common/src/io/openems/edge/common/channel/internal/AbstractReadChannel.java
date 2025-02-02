@@ -270,32 +270,20 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * @return true if validation ok
 	 */
 	private boolean validateType(OpenemsType expected, OpenemsType actual) {
-		switch (expected) {
-		case BOOLEAN:
-		case FLOAT:
-		case SHORT:
-		case STRING:
-			return actual == expected;
-		case DOUBLE:
-			switch (actual) {
-			case DOUBLE:
-			case FLOAT:
-				return true;
-			default:
-				return false;
-			}
-		case INTEGER:
-		case LONG:
-			switch (actual) {
-			case SHORT:
-			case INTEGER:
-			case LONG:
-				return true;
-			default:
-				return false;
-			}
-		}
-		return false;
+		return switch (expected) {
+		case BOOLEAN, FLOAT, SHORT, STRING //
+			-> actual == expected;
+		case DOUBLE //
+			-> switch (actual) {
+			case DOUBLE, FLOAT -> true;
+			default -> false;
+			};
+		case INTEGER, LONG //
+			-> switch (actual) {
+			case SHORT, INTEGER, LONG -> true;
+			default -> false;
+			};
+		};
 	}
 
 	/**

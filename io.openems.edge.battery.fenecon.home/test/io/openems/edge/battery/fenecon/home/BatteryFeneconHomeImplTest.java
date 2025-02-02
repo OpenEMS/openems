@@ -1,5 +1,6 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
 import static io.openems.edge.battery.api.Battery.ChannelId.CURRENT;
 import static io.openems.edge.battery.api.Battery.ChannelId.MAX_CELL_VOLTAGE;
@@ -22,7 +23,6 @@ import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl.TIMEOU
 import static io.openems.edge.battery.protection.BatteryProtection.ChannelId.BP_CHARGE_BMS;
 import static io.openems.edge.battery.protection.BatteryProtection.ChannelId.BP_CHARGE_MAX_SOC;
 import static io.openems.edge.bridge.modbus.api.ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT4;
 import static java.lang.Math.round;
 import static java.time.temporal.ChronoUnit.SECONDS;

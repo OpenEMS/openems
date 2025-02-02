@@ -54,10 +54,12 @@ import static io.openems.common.utils.JsonUtils.getAsOptionalInet4Address;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalLocalDateTime;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalShort;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static io.openems.common.utils.JsonUtils.getAsOptionalUUID;
+import static io.openems.common.utils.JsonUtils.getAsOptionalZonedDateTime;
 import static io.openems.common.utils.JsonUtils.getAsPrimitive;
 import static io.openems.common.utils.JsonUtils.getAsShort;
 import static io.openems.common.utils.JsonUtils.getAsString;
@@ -688,11 +690,17 @@ public class JsonUtilsTest {
 		);
 
 		assertEquals("1900-01-01T00:00Z", getAsZonedDateTime(JSON_OBJECT, "ZonedDateTime").toString());
+
+		assertTrue(getAsOptionalZonedDateTime(JSON_OBJECT, "foo").isEmpty());
 	}
 
 	@Test
 	public void testGetAsLocalDateTime() throws OpenemsNamedException {
 		assertEquals("1900-01-01T00:00", getAsLocalDateTime(JSON_OBJECT, "LocalDateTime").toString());
+
+		assertEquals("1900-01-01T00:00", getAsOptionalLocalDateTime(JSON_OBJECT, "LocalDateTime").get().toString());
+
+		assertTrue(getAsOptionalLocalDateTime(JSON_OBJECT, "foo").isEmpty());
 	}
 
 	@Test

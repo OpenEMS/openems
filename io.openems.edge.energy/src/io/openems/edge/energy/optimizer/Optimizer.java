@@ -3,7 +3,7 @@ package io.openems.edge.energy.optimizer;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.jenetics.engine.Limits.byFixedGeneration;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
-import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.calculateSleepMillis;
 import static io.openems.edge.energy.optimizer.Utils.createSimulator;
@@ -50,7 +50,7 @@ public class Optimizer implements Runnable {
 	private final AtomicBoolean rescheduleCurrentPeriod = new AtomicBoolean(false);
 
 	private Simulator simulator = null;
-	private SimulationResult simulationResult = EMPTY;
+	private SimulationResult simulationResult = EMPTY_SIMULATION_RESULT;
 	private ScheduledFuture<?> future;
 
 	public Optimizer(Supplier<LogVerbosity> logVerbosity,
@@ -94,13 +94,20 @@ public class Optimizer implements Runnable {
 	 */
 	public void triggerReschedule(String reason) {
 		// NOTE: This is what happens here:
-		// [_cycle  ] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Trigger Reschedule. Reason: ControllerEvcsImpl::onEvcsStatusChange from 6:The charging limit reached to 1:Not ready for Charging
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Optimizer::run() InterruptedException: null
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Simulation gave no result!
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER Run Quick Optimization...
-		// [thread-1] INFO  [dge.energy.optimizer.Optimizer] OPTIMIZER updateSimulator()...
-		
-		// TODO On interrupt: keep best "regularOptimization" up till now as input for next InitialPopulation
+		// [_cycle ] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Trigger Reschedule.
+		// Reason: ControllerEvcsImpl::onEvcsStatusChange from 6:The charging limit
+		// reached to 1:Not ready for Charging
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Optimizer::run()
+		// InterruptedException: null
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Simulation gave no
+		// result!
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Run Quick
+		// Optimization...
+		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER
+		// updateSimulator()...
+
+		// TODO On interrupt: keep best "regularOptimization" up till now as input for
+		// next InitialPopulation
 		this.traceLog(() -> "Trigger Reschedule. Reason: " + reason);
 		this.rescheduleCurrentPeriod.set(true);
 		this.activate(); // interrupt + reschedule
@@ -108,9 +115,9 @@ public class Optimizer implements Runnable {
 
 	@Override
 	public void run() {
-		var simulationResult = SimulationResult.EMPTY;
+		var simulationResult = EMPTY_SIMULATION_RESULT;
 		try {
-			if (this.rescheduleCurrentPeriod.getAndSet(false) || this.simulationResult == EMPTY) {
+			if (this.rescheduleCurrentPeriod.getAndSet(false) || this.simulationResult == EMPTY_SIMULATION_RESULT) {
 				this.traceLog(() -> "Run Quick Optimization...");
 				simulationResult = this.runQuickOptimization();
 			} else {
@@ -140,7 +147,7 @@ public class Optimizer implements Runnable {
 					simulator -> this.simulator = simulator, //
 					error -> {
 						this.traceLog(error);
-						this.applySimulationResult(EMPTY);
+						this.applySimulationResult(EMPTY_SIMULATION_RESULT);
 					});
 			final var simulator = this.simulator;
 			if (simulator == null) {
@@ -165,10 +172,10 @@ public class Optimizer implements Runnable {
 	protected SimulationResult runQuickOptimization() throws InterruptedException, ExecutionException {
 		var simulator = this.updateSimulator();
 		if (simulator == null) {
-			return SimulationResult.EMPTY;
+			return EMPTY_SIMULATION_RESULT;
 		}
 
-		if (this.simulationResult == EMPTY) {
+		if (this.simulationResult == EMPTY_SIMULATION_RESULT) {
 			this.traceLog(() -> "reschedule because previous simulationresult is EMPTY");
 		} else {
 			this.traceLog(() -> "triggerReschedule() had been called -> reschedule");
@@ -195,7 +202,7 @@ public class Optimizer implements Runnable {
 		}
 		var simulator = this.updateSimulator();
 		if (simulator == null) {
-			return SimulationResult.EMPTY;
+			return EMPTY_SIMULATION_RESULT;
 		}
 
 		this.traceLog(() -> "Run Simulation");
@@ -227,7 +234,7 @@ public class Optimizer implements Runnable {
 	 * @param simulationResult the {@link SimulationResult}
 	 */
 	protected void applySimulationResult(SimulationResult simulationResult) {
-		if (simulationResult == EMPTY /* no result */) {
+		if (simulationResult == EMPTY_SIMULATION_RESULT /* no result */) {
 			this.traceLog(() -> "Simulation gave no result!");
 		}
 

@@ -1,5 +1,6 @@
 package io.openems.edge.core.componentmanager;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -12,7 +13,9 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -54,6 +57,7 @@ import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
@@ -154,6 +158,19 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		for (ComponentManagerWorker worker : this.workers) {
 			worker.deactivate();
 		}
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		Configuration config;
+		try {
+			config = this.getExistingConfigForId(componentId);
+		} catch (OpenemsNamedException e) {
+			return emptyMap();
+		}
+
+		return StreamUtils.dictionaryToStream(config.getProperties())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	@Override
@@ -536,7 +553,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		Dictionary<String, Object> properties = new Hashtable<>();
 		for (Property property : request.getProperties()) {
 			var value = JsonUtils.getAsBestType(property.getValue());
-			if (value instanceof Object[] && ((Object[]) value).length == 0) {
+			if (value instanceof Object[] os && os.length == 0) {
 				value = new String[0];
 			}
 			properties.put(property.getName(), value);
@@ -581,7 +598,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				} else {
 					// Add updated Property
 					var value = JsonUtils.getAsBestType(property.getValue());
-					if (value instanceof Object[] && ((Object[]) value).length == 0) {
+					if (value instanceof Object[] os && os.length == 0) {
 						value = new String[0];
 					}
 					properties.put(property.getName(), value);
