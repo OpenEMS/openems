@@ -143,9 +143,7 @@ public class SimulatorV1 {
 			Integer limit) {
 		// Return pure BALANCING Schedule if no predictions are available
 		if (!paramsAreValid(p)) {
-			return p.optimizePeriods().stream() //
-					.map(op -> StateMachine.BALANCING) //
-					.toArray(StateMachine[]::new);
+			return createFallbackSchedule(p);
 		}
 
 		var gtf = Genotype.of(IntegerChromosome.of(IntegerGene.of(0, p.states().length)), p.optimizePeriods().size()); //
@@ -171,8 +169,23 @@ public class SimulatorV1 {
 		}
 		var bestGt = stream //
 				.collect(toBestGenotype());
+		if (bestGt == null) {
+			return createFallbackSchedule(p);
+		}
 		return IntStream.range(0, p.optimizePeriods().size()) //
 				.mapToObj(period -> p.states()[bestGt.get(period).get(0).intValue()]) //
+				.toArray(StateMachine[]::new);
+	}
+
+	/**
+	 * Creates a pure BALANCING schedule.
+	 * 
+	 * @param p the {@link ParamsV1}
+	 * @return the schedule
+	 */
+	private static StateMachine[] createFallbackSchedule(ParamsV1 p) {
+		return p.optimizePeriods().stream() //
+				.map(op -> StateMachine.BALANCING) //
 				.toArray(StateMachine[]::new);
 	}
 }

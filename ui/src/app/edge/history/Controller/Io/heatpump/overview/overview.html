@@ -1,0 +1,8 @@
+<oe-chart *ngIf="isInitialized" [title]="component.alias">
+    <controller-io-heatpump-chart (setChartConfig)="setChartConfig($event)" [isOnlyChart]="true"
+        [component]="component">
+    </controller-io-heatpump-chart>
+    @if (chartType === "line") {
+    <oe-chart-legend [description]="STATES" [header]="'LEGEND_DESCRIPTION' | translate"></oe-chart-legend>
+    }
+</oe-chart>

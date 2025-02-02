@@ -1009,15 +1009,19 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			}
 			final var notAllowedProperties = props.keySet().stream()//
 					.filter(key -> {
-						if (restOfProps.has(key)) {
-
-							return (!props.get(key).getAsString().equals(restOfProps.get(key).getAsString()));
-						}
-						return false;
-					}).filter(key -> {
 						final var canEdit = app.assertCanEdit(key, user);
 						return !canEdit;
-					}).collect(Collectors.joining(", "));
+					}) //
+					.filter(key -> {
+						final var element = restOfProps.get(key);
+						if (element == null) {
+							return false;
+						}
+
+						// TODO special handling for arrays
+						return (!props.get(key).getAsString().equals(restOfProps.get(key).getAsString()));
+					}) //
+					.collect(Collectors.joining(", "));
 			if (notAllowedProperties.length() > 0) {
 				throw new OpenemsException("User is not allowed to edit " + notAllowedProperties + "!");
 			}

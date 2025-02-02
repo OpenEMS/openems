@@ -60,6 +60,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 
 @NgModule({
   imports: [
+    BaseChartDirective,
     BrowserAnimationsModule,
     CommonModule,
     ComponentsModule,
