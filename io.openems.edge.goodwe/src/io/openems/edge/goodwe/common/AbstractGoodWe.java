@@ -650,10 +650,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.GRID_PROTECT, new UnsignedWordElement(45431))), //
 
-				// Cos Phi Curve
 				new FC3ReadRegistersTask(45432, Priority.LOW, //
-						m(GoodWe.ChannelId.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432)), //
-						m(GoodWe.ChannelId.ENABLE_CURVE_PU, new UnsignedWordElement(45433)), //
+						// Cos Phi Curve
+						m(GoodWe.ChannelId.ENABLE_POWER_SLOPE_COS_PHI_P, new UnsignedWordElement(45432)), //
+						m(GoodWe.ChannelId.ENABLE_CURVE_COS_PHI_P, new UnsignedWordElement(45433)), //
 						m(GoodWe.ChannelId.A_POINT_POWER, new SignedWordElement(45434)), //
 						m(GoodWe.ChannelId.A_POINT_COS_PHI, new SignedWordElement(45435), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.B_POINT_POWER, new SignedWordElement(45436)), //
@@ -663,12 +663,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.LOCK_IN_VOLTAGE, new UnsignedWordElement(45440), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.LOCK_OUT_VOLTAGE, new UnsignedWordElement(45441), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.LOCK_OUT_POWER, new SignedWordElement(45442)), //
+						// Power and frequency curve (PF)
+						m(GoodWe.ChannelId.ENABLE_PF_CURVE, new UnsignedWordElement(45443))), //
 
-						// Power and frequency curve
-						m(new BitsWordElement(45443, this)//
-								.bit(0, GoodWe.ChannelId.POWER_FREQUENCY_ENABLED)//
-								.bit(1, GoodWe.ChannelId.POWER_FREQUENCY_RESPONSE_MODE)//
-						), //
+				new FC3ReadRegistersTask(45444, Priority.LOW, //
 						m(GoodWe.ChannelId.FFROZEN_DCH, new UnsignedWordElement(45444), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.FFROZEN_CH, new UnsignedWordElement(45445), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.FSTOP_DCH, new UnsignedWordElement(45446), SCALE_FACTOR_MINUS_2), //
@@ -687,7 +685,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				// QU Curve
 				new FC3ReadRegistersTask(45456, Priority.LOW, //
-						m(GoodWe.ChannelId.QU_CURVE, new UnsignedWordElement(45456)), //
+						m(GoodWe.ChannelId.ENABLE_QU_CURVE, new UnsignedWordElement(45456)), //
 						m(GoodWe.ChannelId.LOCK_IN_POWER_QU, new SignedWordElement(45457)), //
 						m(GoodWe.ChannelId.LOCK_OUT_POWER_QU, new SignedWordElement(45458)), //
 						m(GoodWe.ChannelId.V1_VOLTAGE, new UnsignedWordElement(45459), SCALE_FACTOR_MINUS_1), // ), //
@@ -704,7 +702,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				// PU Curve
 				new FC3ReadRegistersTask(45472, Priority.LOW, //
-						m(GoodWe.ChannelId.PU_CURVE, new UnsignedWordElement(45472)), //
+						m(GoodWe.ChannelId.ENABLE_PU_CURVE, new UnsignedWordElement(45472)), //
 						m(GoodWe.ChannelId.POWER_CHANGE_RATE, new UnsignedWordElement(45473)), //
 						m(GoodWe.ChannelId.V1_VOLTAGE_PU, new UnsignedWordElement(45474), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.V1_VALUE_PU, new SignedWordElement(45475), SCALE_FACTOR_MINUS_1), //
@@ -714,8 +712,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.V3_VALUE_PU, new SignedWordElement(45479), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.V4_VOLTAGE_PU, new UnsignedWordElement(45480), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.V4_VALUE_PU, new SignedWordElement(45481), SCALE_FACTOR_MINUS_1), //
-						// 80=Pf 0.8, 20= -0.8Pf
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR, new UnsignedWordElement(45482), SCALE_FACTOR_MINUS_2), //
+						// Fix Pf (80=Pf 0.8, 20= -0.8Pf)
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR, new UnsignedWordElement(45482)), //
 						// Set the percentage of rated power of the inverter
 						m(GoodWe.ChannelId.FIXED_REACTIVE_POWER, new SignedWordElement(45483), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.FIXED_ACTIVE_POWER, new UnsignedWordElement(45484), SCALE_FACTOR_MINUS_1)), //
@@ -964,28 +962,31 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.POWER_RATE_LIMIT_REDUCTION, new UnsignedWordElement(45430),
 								SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.GRID_PROTECT, new UnsignedWordElement(45431)), //
-						m(GoodWe.ChannelId.POWER_SLOPE_ENABLE, new UnsignedWordElement(45432))), //
+						m(GoodWe.ChannelId.ENABLE_POWER_SLOPE_COS_PHI_P, new UnsignedWordElement(45432))), //
 
-				// Cos Phi Curve
 				new FC16WriteRegistersTask(45433, //
-						m(GoodWe.ChannelId.ENABLE_CURVE_PU, new UnsignedWordElement(45433)), //
+						// Cos Phi Curve
+						m(GoodWe.ChannelId.ENABLE_CURVE_COS_PHI_P, new UnsignedWordElement(45433)), //
 						m(GoodWe.ChannelId.A_POINT_POWER, new SignedWordElement(45434)), //
-						m(GoodWe.ChannelId.A_POINT_COS_PHI, new SignedWordElement(45435), SCALE_FACTOR_MINUS_2), //
+						m(GoodWe.ChannelId.A_POINT_COS_PHI, new SignedWordElement(45435)), //
 						m(GoodWe.ChannelId.B_POINT_POWER, new SignedWordElement(45436)), //
-						m(GoodWe.ChannelId.B_POINT_COS_PHI, new SignedWordElement(45437), SCALE_FACTOR_MINUS_2), //
+						m(GoodWe.ChannelId.B_POINT_COS_PHI, new SignedWordElement(45437)), //
 						m(GoodWe.ChannelId.C_POINT_POWER, new SignedWordElement(45438)), //
-						m(GoodWe.ChannelId.C_POINT_COS_PHI, new SignedWordElement(45439), SCALE_FACTOR_MINUS_2), //
+						m(GoodWe.ChannelId.C_POINT_COS_PHI, new SignedWordElement(45439)) //
+				),
+
+				new FC16WriteRegistersTask(45440, //
+						// [600, 3000]
 						m(GoodWe.ChannelId.LOCK_IN_VOLTAGE, new UnsignedWordElement(45440), SCALE_FACTOR_MINUS_1), //
+						// [600, 3000]
 						m(GoodWe.ChannelId.LOCK_OUT_VOLTAGE, new UnsignedWordElement(45441), SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.LOCK_OUT_POWER, new SignedWordElement(45442))), //
+						m(GoodWe.ChannelId.LOCK_OUT_POWER, new SignedWordElement(45442)), //
 
-				// Power and frequency curve
-				// m(new BitsWordElement(45443, this)//
-				// .bit(0, GoodWe.ChannelId.STATE_70)//
-				// .bit(1, GoodWe.ChannelId.STATE_71)), //
+						// Power and frequency curve (PF)
+						m(GoodWe.ChannelId.ENABLE_PF_CURVE, new UnsignedWordElement(45443)), //
+						// GW is not supporting Coils (POWER_FREQUENCY_RESPONSE_MODE will be set by
+						// default to slope (bit1: response mode, 1: fstop, 0: slope))
 
-				// Power and frequency curve
-				new FC16WriteRegistersTask(45444, //
 						m(GoodWe.ChannelId.FFROZEN_DCH, new UnsignedWordElement(45444), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.FFROZEN_CH, new UnsignedWordElement(45445), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.FSTOP_DCH, new UnsignedWordElement(45446), SCALE_FACTOR_MINUS_2), //
@@ -1002,7 +1003,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.CFP_OF_RECOVER_POWER_PERCENT, new UnsignedWordElement(45455)), //
 
 						// QU Curve
-						m(GoodWe.ChannelId.QU_CURVE, new UnsignedWordElement(45456)), //
+						m(GoodWe.ChannelId.ENABLE_QU_CURVE, new UnsignedWordElement(45456)), //
 						m(GoodWe.ChannelId.LOCK_IN_POWER_QU, new SignedWordElement(45457)), //
 						m(GoodWe.ChannelId.LOCK_OUT_POWER_QU, new SignedWordElement(45458)), //
 						m(GoodWe.ChannelId.V1_VOLTAGE, new UnsignedWordElement(45459), SCALE_FACTOR_MINUS_1), // ), //
@@ -1019,7 +1020,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				// PU Curve
 				new FC16WriteRegistersTask(45472, //
-						m(GoodWe.ChannelId.PU_CURVE, new UnsignedWordElement(45472)), //
+						m(GoodWe.ChannelId.ENABLE_PU_CURVE, new UnsignedWordElement(45472)), //
 						m(GoodWe.ChannelId.POWER_CHANGE_RATE, new UnsignedWordElement(45473), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.V1_VOLTAGE_PU, new UnsignedWordElement(45474), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.V1_VALUE_PU, new SignedWordElement(45475)), //
