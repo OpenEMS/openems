@@ -29,6 +29,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Force-Charge SoC [%]", description = "Charging is forced while State of Charge is below Force-Charge-SoC.")
 	int forceChargeSoc() default 95;
 
+	@AttributeDefinition(name = "Auto Discharge", description = "Discharges battery with 5% of max discharge power if SoC is beyond maximum. Especially after balancing process. Hint: Set to false if ESS is working in a cluster")
+	boolean autoDischarge() default false;	
+	
 	@AttributeDefinition(name = "Charge energy between balancing [kWh]", description = "Charged energy to the next balancing cycle. Set to 0 if balancing is not desired")
 	int energyBetweenBalancingCycles() default 100;
 

@@ -72,9 +72,11 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int balancingHysteresisTime = 0;
 	private State state = State.UNDEFINED;
 
+	
 	private boolean debugMode = false;
 	private Integer slowChargePower = null;
 	private Integer slowDisChargePower = null;
+	private boolean autoDischarge = false;
 
 	private int taperStartSoc = 0;
 	private int taperPercent = 3; // decrease charge power during the last X percent before hitting the max. Soc
@@ -114,6 +116,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		// this.ess = this.componentManager.getComponent(config.ess_id());
 		this.minSoc = this.config.minSoc(); // min SoC
 		this.maxSoc = this.config.maxSoc();
+		this.autoDischarge = this.config.autoDischarge();
 		this.forceChargeSoc = this.config.forceChargeSoc(); // if battery need balancing we charge to this value
 		this.forceChargePower = this.config.forceChargePower(); // if battery need balancing we charge to this value
 		this.energyBetweenBalancingCycles = this.config.energyBetweenBalancingCycles() * 1000; // convert kWh to Wh
@@ -287,8 +290,11 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			}
 			break;
 		case ABOVE_MAX_SOC:
-			calculatedPower = this.slowDisChargePower != null ? this.slowDisChargePower : calculatedPower;
-
+			
+			if (this.slowDisChargePower != null && this.autoDischarge) {
+				calculatedPower = this.slowDisChargePower; // discharge slowly if autoDischarge is configured
+			}
+			
 			if (currentSoc == this.maxSoc) {
 				this.changeState(State.MAX_SOC_REACHED);
 			} else if (currentSoc < this.maxSoc) {
