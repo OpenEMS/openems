@@ -1,0 +1,47 @@
+@use "variables";
+
+.ion-font-size-medium {
+    font-size: medium !important;
+}
+
+.ion-font-size-smaller {
+    font-size: small !important;
+}
+
+.ion-font-weight-bolder {
+    font-weight: bolder;
+}
+
+.ion-link {
+    color: var(--ion-color-primary);
+}
+
+.ion-full-width {
+    width: 100%;
+}
+
+.ion-text-align-center {
+    text-align: center;
+}
+
+.ion-col-with-icon {
+    display: flex;
+    justify-content: center;
+}
+
+.ion-item-min-content-height {
+    height: min-content;
+}
+
+.ion-toolbar-button::part(native) {
+    --background: var(--ion-item-background) !important;
+}
+
+/* Functions */
+@function tint($color, $percentage) {
+    @return mix(white, $color, $percentage);
+}
+
+@function shade($color, $percentage) {
+    @return mix(black, $color, $percentage);
+}

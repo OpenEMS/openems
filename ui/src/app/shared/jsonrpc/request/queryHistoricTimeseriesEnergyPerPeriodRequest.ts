@@ -1,9 +1,9 @@
 // @ts-strict-ignore
+import { format } from "date-fns";
+import { Resolution } from "src/app/edge/history/shared";
 import { ChannelAddress } from "../../type/channeladdress";
-import { format } from 'date-fns';
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
-import { Resolution } from "src/app/edge/history/shared";
 
 /**
  * Represents a JSON-RPC Request to query Timeseries Energy data.
@@ -36,8 +36,8 @@ export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
     ) {
         super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            fromDate: format(fromDate, 'yyyy-MM-dd'),
-            toDate: format(toDate, 'yyyy-MM-dd'),
+            fromDate: format(fromDate, "yyyy-MM-dd"),
+            toDate: format(toDate, "yyyy-MM-dd"),
             channels: JsonRpcUtils.channelsToStringArray(channels),
             resolution: resolution,
         });

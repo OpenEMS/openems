@@ -23,6 +23,7 @@ import io.openems.edge.common.type.TypeUtils;
  * <li>Voltage-to-Percent characteristics based on Min- and Max-Cell-Voltage
  * <li>Temperature-to-Percent characteristics based on Min- and
  * Max-Cell-Temperature
+ * <li>SoC-to-Percent characteristics
  * <li>Linear max increase limit (e.g. 0.5 A per second)
  * <li>Force Charge/Discharge mode (e.g. -1 A to enforce charge/discharge)
  * </ul>
@@ -150,6 +151,33 @@ public class BatteryProtection {
 		BP_DISCHARGE_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
+
+		/**
+		 * Charge Maximum Current limited by the state of charge.
+		 *
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_CHARGE_MAX_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+
+		/**
+		 * Discharge Maximum Current limited by the state of charge.
+		 *
+		 * <ul>
+		 * <li>Interface: BatteryProtection
+		 * <li>Type: Integer
+		 * <li>Unit: Ampere
+		 * </ul>
+		 */
+		BP_DISCHARGE_MAX_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+
 		/**
 		 * Charge Max-Increase Current limit.
 		 *
@@ -242,6 +270,7 @@ public class BatteryProtection {
 							ChargeMaxCurrentHandler.create(clockProvider, def.getInitialBmsMaxEverChargeCurrent()) //
 									.setVoltageToPercent(def.getChargeVoltageToPercent()) //
 									.setTemperatureToPercent(def.getChargeTemperatureToPercent()) //
+									.setSocToPercent(def.getChargeSocToPercent()) //
 									.setMaxIncreasePerSecond(def.getMaxIncreaseAmperePerSecond()) //
 									.setForceDischarge(def.getForceDischargeParams()) //
 									.build()) //
@@ -249,6 +278,7 @@ public class BatteryProtection {
 							DischargeMaxCurrentHandler.create(clockProvider, def.getInitialBmsMaxEverDischargeCurrent()) //
 									.setVoltageToPercent(def.getDischargeVoltageToPercent())
 									.setTemperatureToPercent(def.getDischargeTemperatureToPercent()) //
+									.setSocToPercent(def.getDischargeSocToPercent()) //
 									.setMaxIncreasePerSecond(def.getMaxIncreaseAmperePerSecond()) //
 									.setForceCharge(def.getForceChargeParams()) //
 									.build()) //

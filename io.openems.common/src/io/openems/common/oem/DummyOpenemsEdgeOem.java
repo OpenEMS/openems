@@ -60,6 +60,11 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Home", "https://fenecon.de/fenecon-home-10/") //
 			.put("App.FENECON.Home.20", "https://fenecon.de/fenecon-home-20-30/") //
 			.put("App.FENECON.Home.30", "https://fenecon.de/fenecon-home-20-30/") //
+			.put("App.FENECON.Home6", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Home10.Gen2", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
+			.put("App.FENECON.Industrial.L.ILK710", "https://fenecon.de/fenecon-industrial-l/") //
 			.put("App.FENECON.Industrial.S.ISK010", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
@@ -69,19 +74,23 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.TimeOfUseTariff.Hassfurt", "") //
 			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.TimeOfUseTariff.Stromdao", "") //
+			.put("App.TimeOfUseTariff.Swisspower", "") //
 			.put("App.TimeOfUseTariff.Tibber", "") //
 			.put("App.Api.ModbusTcp.ReadOnly", "") //
 			.put("App.Api.ModbusTcp.ReadWrite", "") //
+			.put("App.Api.ModbusRtu.ReadOnly", "") //
+			.put("App.Api.ModbusRtu.ReadWrite", "") //
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
 			.put("App.Timedata.InfluxDb", "")//
-			.put("App.Evcs.HardyBarth", "") //
-			.put("App.Evcs.Keba", "") //
-			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Alpitronic", "") //
+			.put("App.Evcs.Cluster", "") //
+			.put("App.Evcs.HardyBarth", "") //
+			.put("App.Evcs.IesKeywatt", "") //
+			.put("App.Evcs.Keba", "") //
+			.put("App.Evcs.Mennekes.ReadOnly", "") //
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //
-			.put("App.Evcs.Cluster", "") //
 			.put("App.Hardware.KMtronic8Channel", "") //
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //
@@ -92,8 +101,17 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.LoadControl.ThresholdControl", "") //
 			.put("App.Meter.Socomec", "") //
 			.put("App.Meter.CarloGavazzi", "") //
+			.put("App.Meter.PqPlus", "") //
 			.put("App.Meter.Janitza", "") //
 			.put("App.Meter.Discovergy", "")//
+			.put("App.Meter.PhoenixContact", "")//
+			.put("App.OpenemsHardware.BeagleBoneBlack", "") //
+			.put("App.OpenemsHardware.Compulab", "") //
+			.put("App.OpenemsHardware.CM3", "") //
+			.put("App.OpenemsHardware.CM4", "") //
+			.put("App.OpenemsHardware.CM4Max", "") //
+			.put("App.OpenemsHardware.CM4S", "") //
+			.put("App.OpenemsHardware.CM4S.Gen2", "") //
 			.put("App.PvInverter.Fronius", "") //
 			.put("App.PvInverter.Kaco", "") //
 			.put("App.PvInverter.Kostal", "") //
@@ -105,6 +123,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Ess.FixStateOfCharge", "") //
 			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
+			.put("App.Ess.Limiter14a", "") //
 			.build();
 
 	// NOTE: this will certainly get refactored in future, but it's a good start to

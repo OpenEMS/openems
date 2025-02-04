@@ -6,7 +6,7 @@
     vertical-align: middle;
   }
 </style>
-<header></header>
+
 <ion-content>
   <!-- Loading Spinner -->
   <ngx-spinner [name]="spinnerId"></ngx-spinner>
@@ -20,7 +20,7 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="settings-outline" color="primary"></ion-icon>
             <ion-label>
-              <span>{{user.name}}</span>
+              <span>{{user.userLogin}}</span>
             </ion-label>
             <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
           </ion-item>
@@ -57,7 +57,7 @@
                     </ion-col>
                     <ion-col size="6">
                       <ion-select *ngIf="cuser.isOfflineActive" class="custom-options" interface="popover"
-                        formControlName="offlineEdgeDelay">
+                        formControlName="offlineEdgeDelay" [label]="'Edge.Config.ALERTING.OFFLINE' | translate">
                         <ion-select-option *ngFor="let option of defaultValues[AlertingType.offline]"
                           [value]="option.value">
                           {{option.label}}

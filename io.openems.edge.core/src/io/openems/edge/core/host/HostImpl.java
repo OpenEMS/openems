@@ -1,8 +1,10 @@
 package io.openems.edge.core.host;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,6 +18,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -27,12 +30,14 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
 import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdateRequest;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigResponse;
 import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateRequest;
@@ -49,6 +54,8 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 				"enabled=true" //
 		})
 public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsComponent, ComponentJsonApi {
+
+	private final Logger log = LoggerFactory.getLogger(HostImpl.class);
 
 	protected final OperatingSystem operatingSystem;
 
@@ -74,6 +81,8 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		// Initialize correct Operating System handler
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			this.operatingSystem = new OperatingSystemWindows();
+		} else if (System.getProperty("os.name").startsWith("Mac")) {
+			this.operatingSystem = new OperatingSystemMac();
 		} else {
 			this.operatingSystem = new OperatingSystemDebianSystemd(this);
 		}
@@ -93,6 +102,13 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 				e1.printStackTrace();
 			}
 		}
+
+		this.operatingSystem.getOperatingSystemVersion().whenComplete((name, error) -> {
+			this._setOsVersion(name);
+			if (error != null) {
+				this.log.info("Error while trying to get operating system version", error);
+			}
+		});
 	}
 
 	@Activate
@@ -170,6 +186,20 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 			return this.handleExecuteSystemRestartRequest(call.get(EdgeKeys.USER_KEY),
 					ExecuteSystemRestartRequest.from(call.getRequest())).get();
 		});
+
+		builder.handleRequest(new GetNetworkInfo(), endpoint -> {
+			endpoint.setDescription("""
+					Gets the networkinfo.
+					""".stripIndent());
+
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+		}, call -> this.operatingSystem.getNetworkInfo());
+
+	}
+
+	@Override
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		return this.operatingSystem.getSystemIPs();
 	}
 
 	/**
@@ -288,8 +318,13 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 * @throws IOException on error
 	 */
 	private static String execReadToString(String execCommand) throws IOException {
-		try (var s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
+		ProcessBuilder processBuilder = new ProcessBuilder(execCommand.split(" "));
+		processBuilder.redirectErrorStream(true);
+		Process process = processBuilder.start();
+
+		try (var s = new Scanner(process.getInputStream()).useDelimiter("\\A")) {
 			return s.hasNext() ? s.next().trim() : "";
 		}
 	}
+
 }

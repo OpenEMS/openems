@@ -11,17 +11,33 @@ public class SimulatorDatasourceCsvDirectImplTest {
 
 	private static final String COMPONENT_ID = "datasource0";
 
-	@Test
-	public void test() throws Exception {
-		new ComponentTest(new SimulatorDatasourceCsvDirectImpl()) //
+	private static ComponentTest createTest(String componentId, String source) throws Exception {
+		return new ComponentTest(new SimulatorDatasourceCsvDirectImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId(componentId) //
 						.setFactor(1) //
 						.setFormat(CsvFormat.ENGLISH) //
-						.setSource("") //
+						.setSource(source) //
 						.setTimeDelta(0) //
-						.build()) //
+						.build()); //
+	}
+
+	/**
+	 * Creates and activates a {@link SimulatorDatasourceCsvDirectImpl}.
+	 * 
+	 * @param componentId the Component-ID
+	 * @param source      the data
+	 * @return a {@link SimulatorDatasourceCsvDirectImpl} object
+	 * @throws Exception on error
+	 */
+	public static SimulatorDatasourceCsvDirectImpl create(String componentId, String source) throws Exception {
+		return (SimulatorDatasourceCsvDirectImpl) createTest(componentId, source).getSut();
+	}
+
+	@Test
+	public void test() throws Exception {
+		createTest(COMPONENT_ID, "") //
 				.next(new TestCase()) //
 		;
 	}

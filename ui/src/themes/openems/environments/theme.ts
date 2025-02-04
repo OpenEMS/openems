@@ -1,4 +1,4 @@
-import { Theme } from 'src/environments';
+import { Theme } from "src/environments";
 
 export const theme = {
     theme: "OpenEMS" as Theme,
@@ -6,6 +6,7 @@ export const theme = {
     uiTitle: "OpenEMS UI",
     edgeShortName: "OpenEMS",
     edgeLongName: "Open Energy Management System",
+    defaultLanguage: "de",
 
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     links: {
@@ -68,6 +69,10 @@ export const theme = {
             APP_IMAGE: (language: string, appId: string): string | null => {
                 return null;
             },
+        },
+        APP: {
+            ANDROID: null,
+            IOS: null,
         },
     },
     PRODUCT_TYPES: () => null,

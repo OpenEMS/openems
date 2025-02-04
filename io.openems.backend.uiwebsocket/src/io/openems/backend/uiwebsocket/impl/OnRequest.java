@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
+import io.openems.backend.common.jsonrpc.request.GetEmsTypeRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolDataRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserAlertingConfigsRequest;
@@ -22,6 +23,7 @@ import io.openems.backend.common.jsonrpc.request.SimulationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
+import io.openems.backend.common.jsonrpc.response.GetEmsTypeResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
 import io.openems.backend.common.metadata.User;
@@ -60,7 +62,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
 
@@ -87,6 +89,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
 		case AddEdgeToUserRequest.METHOD -> //
 			this.handleAddEdgeToUserRequest(user, AddEdgeToUserRequest.from(request));
+		case GetEmsTypeRequest.METHOD -> //
+			this.handleGetEmsTypeRequest(user, GetEmsTypeRequest.from(request));
 		case GetUserInformationRequest.METHOD -> //
 			this.handleGetUserInformationRequest(user, GetUserInformationRequest.from(request));
 		case SetUserInformationRequest.METHOD -> //
@@ -345,6 +349,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		return CompletableFuture
 				.completedFuture(new AddEdgeToUserResponse(request.getId(), edge, serialNumber.orElse(null)));
+	}
+
+	/**
+	 * Handles an {@link GetEmsTypeRequest}.
+	 *
+	 * @param user    the {@link User}
+	 * @param request the {@link GetEmsTypeRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<GetEmsTypeResponse> handleGetEmsTypeRequest(User user, GetEmsTypeRequest request)
+			throws OpenemsNamedException {
+		if (user.getRole(request.getEdgeId()).isEmpty()) {
+			this.parent.metadata.getEdgeMetadataForUser(user, request.getEdgeId());
+		}
+		user.assertEdgeRoleIsAtLeast(GetEmsTypeRequest.METHOD, request.getEdgeId(), Role.GUEST);
+		final var emsType = this.parent.metadata.getEmsTypeForEdge(request.getEdgeId());
+
+		return CompletableFuture.completedFuture(new GetEmsTypeResponse(request.getId(), emsType.orElse(null)));
 	}
 
 	/**

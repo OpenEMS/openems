@@ -13,7 +13,7 @@
                 "{{item.key}}":
                 <template [ngTemplateOutlet]="type"
                     [ngTemplateOutletContext]="{value: item.value, indentation: indentation + 4}"></template>,
-                    <br>
+                <br>
             </a>
             <a *ngFor="let i of [].constructor(indentation - 4)">
                 &nbsp;
@@ -25,13 +25,12 @@
         </a>
         <a *ngSwitchCase="'array'">
             <template *ngIf="value.elementType" [ngTemplateOutlet]="type"
-            [ngTemplateOutletContext]="{value: value.elementType, indentation: indentation + 4}"></template>
+                [ngTemplateOutletContext]="{value: value.elementType, indentation: indentation + 4}"></template>
             []
         </a>
     </a>
 </ng-template>
 
-<header></header>
 <ion-content>
     <ion-grid>
         <ion-row class="ion-justify-content-center">

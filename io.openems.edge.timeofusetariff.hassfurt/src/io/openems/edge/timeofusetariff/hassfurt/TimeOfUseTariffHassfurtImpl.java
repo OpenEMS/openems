@@ -14,7 +14,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.component.ComponentContext;
@@ -26,6 +25,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
@@ -183,10 +184,10 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = INTERNAL_ERROR;
-		if (error instanceof HttpError.ResponseError re) {
-			httpStatusCode = re.status.code();
-		}
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
 
 		this.channel(TimeOfUseTariffHassfurt.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 		this.log.error(error.getMessage(), error);
@@ -211,7 +212,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 	 *                               JSON data.
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData, TariffType tariffType) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
 		final var data = getAsJsonArray(parseToJsonObject(jsonData), "data");
 
 		final var priceString = switch (tariffType) {
@@ -237,7 +238,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 			result.put(startTimeStamp.plusMinutes(30), marketPrice);
 			result.put(startTimeStamp.plusMinutes(45), marketPrice);
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	@Override

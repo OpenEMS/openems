@@ -1,6 +1,9 @@
 // @ts-strict-ignore
-import { format, startOfMonth, startOfYear } from "date-fns";
+
+// cf. https://github.com/import-js/eslint-plugin-import/issues/1479
+import { differenceInMilliseconds, format, isSameYear, startOfMonth, startOfYear } from "date-fns";
 import { de } from "date-fns/locale";
+
 import { ChronoUnit } from "src/app/edge/history/shared";
 
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -11,6 +14,8 @@ export class DateTimeUtils {
 
   /**
    * Normalizes timestamps depending on chosen period
+   *
+   * e.g fills up dataset with 11 months with 1 month to show full 12 months
    *
    * @param unit the Chronounit
    * @param energyPerPeriodResponse the timeseries data
@@ -23,13 +28,14 @@ export class DateTimeUtils {
 
         // Change first timestamp to start of month
         const formattedDate = startOfMonth(DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]));
-        energyPerPeriodResponse.result.timestamps[0] = format(formattedDate, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString() ?? energyPerPeriodResponse.result.timestamps[0];
+        energyPerPeriodResponse.result.timestamps[0] = format(formattedDate, "yyyy-MM-dd HH:mm:ss", { locale: de })?.toString() ?? energyPerPeriodResponse.result.timestamps[0];
 
         // show 12 stacks, even if no data and timestamps
         const newTimestamps: string[] = [];
         const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]);
+        const lastTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[energyPerPeriodResponse.result.timestamps.length - 1]);
 
-        if (firstTimestamp.getMonth() !== 0) {
+        if (firstTimestamp.getMonth() !== 0 && isSameYear(lastTimestamp, firstTimestamp)) {
           for (let i = 0; i <= (firstTimestamp.getMonth() - 1); i++) {
             newTimestamps.push(new Date(firstTimestamp.getFullYear(), i).toString());
 
@@ -40,7 +46,7 @@ export class DateTimeUtils {
         }
 
         energyPerPeriodResponse.result.timestamps = newTimestamps.concat(energyPerPeriodResponse.result.timestamps);
-        break;
+        return energyPerPeriodResponse;
       }
 
       case ChronoUnit.Type.YEARS: {
@@ -48,11 +54,19 @@ export class DateTimeUtils {
         // Change dates to be first day of year
         const formattedDates = energyPerPeriodResponse.result.timestamps.map((timestamp) =>
           startOfYear(DateUtils.stringToDate(timestamp)));
-        energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, 'yyyy-MM-dd HH:mm:ss', { locale: de })?.toString());
-        break;
+        energyPerPeriodResponse.result.timestamps = formattedDates.map(date => format(date, "yyyy-MM-dd HH:mm:ss", { locale: de })?.toString());
+        return energyPerPeriodResponse;
       }
+      default:
+        return energyPerPeriodResponse;
     }
+  }
 
-    return energyPerPeriodResponse;
+  public static isDifferenceInSecondsGreaterThan(seconds: number, currentDate: Date, dateToCompare: Date | null) {
+    if (dateToCompare == null) {
+      return false;
+    }
+    const milliSeconds = seconds * 1000;
+    return differenceInMilliseconds(currentDate, dateToCompare) > milliSeconds;
   }
 }

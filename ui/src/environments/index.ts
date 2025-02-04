@@ -1,9 +1,9 @@
-import { TranslateService } from '@ngx-translate/core';
-import { Filter } from 'src/app/index/filter/filter.component';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-export { environment } from './dummy';
+import { TranslateService } from "@ngx-translate/core";
+import { Filter } from "src/app/index/filter/filter.component";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+export { environment } from "./dummy";
 
-export type Theme = 'OpenEMS';
+export type Theme = "OpenEMS";
 
 export interface Environment {
     readonly theme: Theme;
@@ -11,6 +11,7 @@ export interface Environment {
     readonly uiTitle: string;
     readonly edgeShortName: string;
     readonly edgeLongName: string;
+    readonly defaultLanguage: string;
 
     readonly url: string;
     readonly backend: DefaultTypes.Backend;
@@ -89,6 +90,17 @@ export interface Environment {
              */
             APP_IMAGE: (language: string, appId: string) => string | null;
         },
+        APP: {
+            ANDROID: string | null,
+            IOS: string | null,
+        }
     },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null
+}
+
+/*
+ * Return the proper websocket scheme (WS or WSS) depending on whether the page is accessed via HTTP or HTTPS.
+ */
+export function getWebsocketScheme(): string {
+    return window.location.protocol === "https:" ? "wss://" : "ws://";
 }

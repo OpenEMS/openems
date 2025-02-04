@@ -5,16 +5,6 @@
     "i18n-ally.localesPaths": "src/assets/i18n",
     "i18n-ally.dirStructure": "file",
     "i18n-ally.keystyle": "nested",
-    "formatFiles.excludedFolders": [
-        "node_modules",
-        ".vscode",
-        ".git",
-        "dist",
-        ".chrome",
-        ".angular",
-        "target"
-    ],
-    "formatFiles.excludePattern": "**/{*.svg,*.png,*.ico,package-lock.json}",
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/node_modules/**": true
@@ -24,12 +14,38 @@
     "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "eslint.format.enable": true,
     "[typescript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.removeUnusedImports": "explicit"
+        },
+        "typescript.preferences.quoteStyle": "double"
     },
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
-    }
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[scss]": {
+        "editor.defaultFormatter": "vscode.css-language-features"
+    },
+    "Workspace_Formatter.excludePattern": [
+        "**/build",
+        "**/.*",
+        "**/.vscode",
+        "**/target",
+        "*.js",
+        "*.xml",
+        "*.js.map",
+        "**/node_modules",
+        "*.svg",
+        "*.scss"
+    ],
 }

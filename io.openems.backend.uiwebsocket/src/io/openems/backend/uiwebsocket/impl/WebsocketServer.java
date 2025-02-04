@@ -2,42 +2,34 @@ package io.openems.backend.uiwebsocket.impl;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.websocket.AbstractWebsocketServer;
+import io.openems.common.websocket.OnClose;
+import io.openems.common.websocket.OnOpen;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
-	private final Logger log = LoggerFactory.getLogger(WebsocketServer.class);
-
 	protected final UiWebsocketImpl parent;
-	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
-	private final OnClose onClose;
 
-	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, DebugMode debugMode) {
-		super(name, port, poolSize, debugMode);
+	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize) {
+		super(name, port, poolSize);
 		this.parent = parent;
-		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
-		this.onClose = new OnClose(parent);
 	}
 
 	@Override
-	protected WsData createWsData() {
-		return new WsData(this);
+	protected WsData createWsData(WebSocket ws) {
+		return new WsData(ws);
 	}
 
 	@Override
 	protected OnOpen getOnOpen() {
-		return this.onOpen;
+		return OnOpen.NO_OP;
 	}
 
 	@Override
@@ -57,14 +49,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected OnClose getOnClose() {
-		return this.onClose;
-	}
-
-	@Override
-	protected JsonrpcMessage handleNonJsonrpcMessage(WebSocket ws, String stringMessage,
-			OpenemsNamedException lastException) throws OpenemsNamedException {
-		this.log.info("UiWs. handleNonJsonrpcMessage: " + stringMessage);
-		throw new OpenemsException("UiWs. handleNonJsonrpcMessage", lastException);
+		return OnClose.NO_OP;
 	}
 
 	@Override

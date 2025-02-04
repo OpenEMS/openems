@@ -3,10 +3,10 @@ package io.openems.edge.battery.fenecon.home;
 import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -59,6 +59,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -117,17 +118,12 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				BatteryProtection.ChannelId.values(), //
 				BatteryFeneconHome.ChannelId.values() //
 		);
-		this.updateHardwareType(BatteryFeneconHomeHardwareType.DEFAULT);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-
-		// Predefine BatteryProtection. Later adapted to the hardware type.
-		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new FeneconHomeBatteryProtection52(), this.componentManager) //
-				.build();
+		this.updateHardwareType(BatteryFeneconHomeHardwareType.DEFAULT); // initialize to default
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -194,7 +190,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(500, Priority.LOW, //
+				new FC3ReadRegistersTask(500, Priority.HIGH, //
 						m(new BitsWordElement(500, this) //
 								.bit(0, BatteryFeneconHome.ChannelId.RACK_PRE_ALARM_CELL_OVER_VOLTAGE) //
 								.bit(1, BatteryFeneconHome.ChannelId.RACK_PRE_ALARM_CELL_UNDER_VOLTAGE) //
@@ -271,10 +267,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.bit(6, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_7) //
 								.bit(7, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_8) //
 								.bit(8, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_9) //
-								.bit(9, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_10))//
-				), //
-
-				new FC3ReadRegistersTask(506, Priority.LOW, //
+								.bit(9, BatteryFeneconHome.ChannelId.FAULT_POSITION_BCU_10)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(506), SCALE_FACTOR_MINUS_1), // [V]
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(507), SCALE_FACTOR_MINUS_1), // [A]
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(508), SCALE_FACTOR_MINUS_1), // [%]
@@ -351,7 +344,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private void detectHardwareType() throws OpenemsException {
 		// Set Battery-Protection
-		readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(10019))
+		readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(10019))
 				.thenAccept(value -> {
 					if (value == null) {
 						return;
@@ -369,7 +362,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Get GoodWe hardware version from register value.
 	 * 
-	 * @param value Register value not formated with SCALE_FACTOR_MINUS_1
+	 * @param value Register value not formatted with SCALE_FACTOR_MINUS_1
 	 * @return type as {@link GoodweHardwareType} or null
 	 */
 	public static BatteryFeneconHomeHardwareType parseHardwareTypeFromRegisterValue(int value) {
@@ -494,13 +487,22 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, //
 				BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, //
 				BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION//
-		);
+		) //
+				.stream() //
+				.map(c -> {
+					IntegerReadChannel channel = this.channel(c);
+					return channel.value().get();
+				}) //
+				.toList();
 
-		final var numberOfTowers = this.calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
+		final var numberOfTowers = calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
 
 		// Write 'TOWER_NUMBER' Debug Channel
 		Channel<?> numberOfTowersChannel = this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS);
 		numberOfTowersChannel.setNextValue(numberOfTowers);
+		if (numberOfTowers == null) {
+			return;
+		}
 
 		final var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
 		final var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
@@ -521,20 +523,19 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		}
 	}
 
-	private int calculateTowerNumberFromSoftwareVersion(List<BatteryFeneconHome.ChannelId> channelIdList) {
-		var numberOftowers = 1;
-		for (var channelId : channelIdList) {
-			if (channelId == null) {
-				return numberOftowers;
+	protected static Integer calculateTowerNumberFromSoftwareVersion(List<Integer> versionList) {
+		var numberOfTowers = 0;
+		for (var version : versionList) {
+			if (version == null) {
+				return null;
 			}
-			Channel<Integer> channel = this.channel(channelId);
-			var softwareVersion = channel.value();
-			if (softwareVersion.isDefined() && !Objects.equals(softwareVersion.get(), 0)
-					&& !Objects.equals(softwareVersion.get(), 256)) {
-				numberOftowers++;
+			if (version == 0 || version == 256) {
+				// Ensure number of towers is never '0' if registers are not null.
+				return Math.max(1, numberOfTowers);
 			}
+			numberOfTowers++;
 		}
-		return numberOftowers;
+		return numberOfTowers;
 	}
 
 	private int lastNumberOfTowers = 0;
@@ -638,7 +639,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 												OpenemsType.BOOLEAN))),
 								m(new BitsWordElement(towerOffset + 5, this)
 										.bit(0, this.generateTowerChannel(tower, "LEVEL_2_CELL_OVER_VOLTAGE",
-												Level.WARNING)) //
+												Level.INFO)) //
 										.bit(1, this.generateTowerChannel(tower, "LEVEL_2_CELL_UNDER_VOLTAGE",
 												Level.WARNING)) //
 										.bit(2, this.generateTowerChannel(tower, "LEVEL_2_OVER_CHARGING_CURRENT",
@@ -811,7 +812,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 						// Create Voltage Channel
 						var channelId = new ChannelIdImpl(//
 								generateSingleCellPrefix(tower, module, cell) + "_VOLTAGE",
-								Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT));
+								Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
 						this.addChannel(channelId);
 
 						// Create Modbus-Mapping for Voltages
@@ -1058,7 +1059,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	@Override
-	public ModbusProtocol getDefinedModbusProtocol() throws OpenemsException {
+	public ModbusProtocol getDefinedModbusProtocol() {
 		return this.getModbusProtocol();
 	}
 

@@ -20,7 +20,7 @@
     "module": "es2020",
     "noImplicitOverride": true,
     "lib": [
-      "es2018",
+      "es2022",
       "dom"
     ],
     "resolveJsonModule": true,
@@ -31,6 +31,6 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": false,
     "strictInputAccessModifiers": true,
-    "strictTemplates": false
+    "strictTemplates": false,
   }
 }

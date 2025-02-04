@@ -39,6 +39,11 @@ public enum Unit {
 	THOUSANDTH("‰"),
 
 	/**
+	 * Ten Thousandth [‰], 0-10000.
+	 */
+	TENTHOUSANDTH("0.1‰"),
+
+	/**
 	 * On or Off.
 	 */
 	ON_OFF("On/Off"), // Symbol is ignored in #format()
@@ -92,6 +97,11 @@ public enum Unit {
 	VOLT("V"),
 
 	/**
+	 * Unit of Voltage [dV].
+	 */
+	DEZIVOLT("dV", VOLT, -1),
+
+	/**
 	 * Unit of Voltage [mV].
 	 */
 	MILLIVOLT("mV", VOLT, -3),
@@ -109,6 +119,11 @@ public enum Unit {
 	 * Unit of Current [A].
 	 */
 	AMPERE("A"),
+
+	/**
+	 * Unit of Current [dA].
+	 */
+	DEZIAMPERE("dA", AMPERE, -1),
 
 	/**
 	 * Unit of Current [mA].
@@ -284,7 +299,12 @@ public enum Unit {
 	/**
 	 * Unit of Pressure [bar].
 	 */
-	BAR("bar");
+	BAR("bar"),
+
+	/**
+	 * Unit of Pressure [mbar].
+	 */
+	MILLIBAR("mbar", BAR, -3);
 
 	public final String symbol;
 	public final Unit baseUnit;
@@ -363,7 +383,8 @@ public enum Unit {
 				MILLIWATT, WATT_HOURS, OHM, KILOOHM, SECONDS, AMPERE_HOURS, HOUR, CUMULATED_SECONDS, KILOAMPERE_HOURS,
 				KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOVOLT_AMPERE_REACTIVE_HOURS, KILOWATT_HOURS, MICROOHM,
 				MILLIAMPERE_HOURS, MILLIOHM, MILLISECONDS, MINUTE, THOUSANDTH, VOLT_AMPERE_HOURS,
-				VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS, BAR -> //
+				VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS, BAR, MILLIBAR, TENTHOUSANDTH,
+				DEZIAMPERE, DEZIVOLT -> //
 			value + " " + this.symbol;
 
 		case ON_OFF -> //

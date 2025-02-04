@@ -36,3 +36,10 @@
     ```
 
     *for UI Image see [ui/README.md](../ui/README.md)*
+
+# Common Problems and Solutions
+```
+ERROR: failed to solve: error from sender: context canceled
+```
+When building the Docker image this error may occur because another program is accessing the project files. Try closing these programs (e.g. Eclipse IDE) and run the build command again.
+

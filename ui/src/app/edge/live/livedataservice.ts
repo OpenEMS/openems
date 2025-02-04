@@ -1,11 +1,11 @@
 // @ts-strict-ignore
 import { Directive, Inject, OnDestroy } from "@angular/core";
-import { takeUntil } from "rxjs/operators";
-import { v4 as uuidv4 } from 'uuid';
-
-import { DataService } from "../../shared/genericComponents/shared/dataservice";
-import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
 import { RefresherCustomEvent } from "@ionic/angular";
+import { takeUntil } from "rxjs/operators";
+import { v4 as uuidv4 } from "uuid";
+import { AppService } from "src/app/app.service";
+import { DataService } from "../../shared/components/shared/dataservice";
+import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
 
 @Directive()
 export class LiveDataService extends DataService implements OnDestroy {
@@ -18,6 +18,11 @@ export class LiveDataService extends DataService implements OnDestroy {
         @Inject(Service) protected service: Service,
     ) {
         super();
+
+        this.service.getCurrentEdge().then((edge) => {
+            edge.currentData.pipe(takeUntil(this.stopOnDestroy))
+                .subscribe(() => this.lastUpdated.set(new Date()));
+        });
     }
 
     public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
@@ -41,6 +46,7 @@ export class LiveDataService extends DataService implements OnDestroy {
             }
 
             this.currentValue.next({ allComponents: allComponents });
+            this.lastUpdated.set(new Date());
         });
     }
 
@@ -51,15 +57,11 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     public unsubscribeFromChannels(channels: ChannelAddress[]) {
+        this.lastUpdated.set(null);
         this.edge.unsubscribeFromChannels(this.websocket, channels);
     }
 
     public override refresh(ev: RefresherCustomEvent) {
-        this.currentValue.next({ allComponents: {} });
-        this.edge.unsubscribeFromChannels(this.websocket, this.subscribedChannelAddresses);
-        setTimeout(() => {
-            this.edge.subscribeChannels(this.websocket, "", this.subscribedChannelAddresses);
-            ev.target.complete();
-        }, 1000);
+        AppService.handleRefresh();
     }
 }

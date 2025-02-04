@@ -7,7 +7,6 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.OpenemsType;
@@ -86,9 +85,7 @@ public interface ControllerApiBackend extends Controller, OpenemsComponent, Even
 	 * @param user    the user
 	 * @param request the request to send
 	 * @return the result future
-	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> sendRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException;
+	public CompletableFuture<? extends JsonrpcResponseSuccess> sendRequest(User user, JsonrpcRequest request);
 
 }

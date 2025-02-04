@@ -14,7 +14,7 @@ public class OnInternalErrorHandler implements Runnable {
 
 	@Override
 	public final void run() {
-		this.onInternalError.run(this.t, this.wsDataString);
+		this.onInternalError.accept(this.t, this.wsDataString);
 	}
 
 }

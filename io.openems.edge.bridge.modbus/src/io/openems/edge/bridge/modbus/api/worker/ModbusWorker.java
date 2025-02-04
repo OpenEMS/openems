@@ -1,12 +1,14 @@
 package io.openems.edge.bridge.modbus.api.worker;
 
-import java.util.concurrent.atomic.AtomicReference;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
@@ -52,18 +54,19 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param cycleDelayChannel          sets the
 	 *                                   {@link BridgeModbus.ChannelId#CYCLE_DELAY}
 	 *                                   channel
-	 * @param logVerbosity               the configured {@link LogVerbosity}
+	 * @param logHandler                 a {@link Supplier} for the
+	 *                                   {@link LogHandler}
 	 */
 	public ModbusWorker(Function<Task, ExecuteState> execute, Consumer<ModbusElement[]> invalidate,
 			Consumer<Boolean> cycleTimeIsTooShortChannel, Consumer<Long> cycleDelayChannel,
-			AtomicReference<LogVerbosity> logVerbosity) {
+			Supplier<LogHandler> logHandler) {
 		this.execute = execute;
 		this.invalidate = invalidate;
 
-		this.defectiveComponents = new DefectiveComponents(logVerbosity);
-		this.tasksSupplier = new TasksSupplierImpl();
+		this.defectiveComponents = new DefectiveComponents(logHandler);
+		this.tasksSupplier = new TasksSupplierImpl(logHandler);
 		this.cycleTasksManager = new CycleTasksManager(this.tasksSupplier, this.defectiveComponents,
-				cycleTimeIsTooShortChannel, cycleDelayChannel, logVerbosity);
+				cycleTimeIsTooShortChannel, cycleDelayChannel, logHandler);
 	}
 
 	@Override
@@ -73,20 +76,18 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		// execute the task
 		var result = this.execute.apply(task);
 
-		// NOTE: with Java 21 LTS this can be refactored to a pattern matching switch
-		// statement
-		if (result instanceof ExecuteState.Ok) {
+		switch (result) {
+		case ExecuteState.Ok es ->
 			// no exception & at least one sub-task executed
 			this.markComponentAsDefective(task.getParent(), false);
-
-		} else if (result instanceof ExecuteState.NoOp) {
+		case ExecuteState.NoOp es ->
 			// did not execute anything
-
-		} else if (result instanceof ExecuteState.Error) {
+			doNothing();
+		case ExecuteState.Error es -> {
 			this.markComponentAsDefective(task.getParent(), true);
-
 			// invalidate elements of this task
 			this.invalidate.accept(task.getElements());
+		}
 		}
 	}
 
@@ -123,7 +124,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param protocol the ModbusProtocol
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.tasksSupplier.addProtocol(sourceId, protocol);
+		this.tasksSupplier.addProtocol(sourceId, protocol, this.invalidate);
 		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 
@@ -133,7 +134,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
-		this.tasksSupplier.removeProtocol(sourceId);
+		this.tasksSupplier.removeProtocol(sourceId, this.invalidate);
 		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 

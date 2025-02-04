@@ -203,6 +203,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	 */
 	private void applyTargetPower(Float targetPower, float rampPower, int maxApparentPower)
 			throws OpenemsNamedException {
+		final var ess = this.getEss();
 		var activePower = this.rampFilter.getFilteredValueAsInteger(targetPower, rampPower);
 
 		this._setDebugSetActivePowerRaw(activePower);
@@ -221,21 +222,16 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		activePower = this.calculateAcLimit(activePower);
 
 		// Fit into min/max "EssPower"
-		if (this.getEss() instanceof ManagedSymmetricEss) {
-			var e = (ManagedSymmetricEss) this.getEss();
-			var maxCharge = e.getPower().getMinPower(e, Phase.ALL, Pwr.ACTIVE);
-			var maxDischarge = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-			activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
-		} else {
-			activePower = TypeUtils.fitWithin(maxApparentPower * -1, maxApparentPower, activePower);
-		}
+		var maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+		var maxDischarge = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+		activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
 
 		if (activePower > 0) {
-			this.getEss().setActivePowerEquals(activePower);
+			ess.setActivePowerEquals(activePower);
 		} else if (activePower < 0) {
-			this.getEss().setActivePowerEquals(activePower);
+			ess.setActivePowerEquals(activePower);
 		} else {
-			this.getEss().setActivePowerEquals(activePower);
+			ess.setActivePowerEquals(activePower);
 		}
 
 		// Set debug channels

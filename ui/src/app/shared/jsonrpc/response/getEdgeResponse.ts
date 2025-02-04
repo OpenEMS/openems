@@ -1,4 +1,4 @@
-import { Edge } from "../../edge/edge";
+import { Edge } from "../../components/edge/edge";
 import { JsonrpcResponseSuccess } from "../base";
 
 

@@ -14,10 +14,6 @@ public class StoppedHandler extends StateHandler<State, Context> {
 			return State.ERROR;
 		}
 
-		if (inverter.getStartStopTarget() == StartStop.START) {
-			return State.GO_RUNNING;
-		}
-
 		inverter._setStartStop(StartStop.STOP);
 		return State.STOPPED;
 	}

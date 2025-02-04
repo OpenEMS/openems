@@ -1,5 +1,6 @@
 package io.openems.edge.core.componentmanager;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -12,7 +13,9 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -49,10 +52,12 @@ import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
@@ -153,6 +158,19 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		for (ComponentManagerWorker worker : this.workers) {
 			worker.deactivate();
 		}
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		Configuration config;
+		try {
+			config = this.getExistingConfigForId(componentId);
+		} catch (OpenemsNamedException e) {
+			return emptyMap();
+		}
+
+		return StreamUtils.dictionaryToStream(config.getProperties())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	@Override
@@ -368,12 +386,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					Handles a GetStateChannelsOfComponent.
 					""");
 		}, call -> {
-			// TODO could be used for translating channel texts
-			// final var user = call.get(EdgeKeys.USER_KEY);
+			final var user = call.get(EdgeKeys.USER_KEY);
+			final var lang = user.getLanguage();
 
 			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
 					.filter(t -> t.channelDoc().getChannelCategory() == ChannelCategory.STATE) //
-					.map(ComponentManagerImpl::toChannelRecord) //
+					.map(channel -> ComponentManagerImpl.toChannelRecord(channel, lang)) //
 					.toList();
 
 			return new GetStateChannelsOfComponent.Response(channels);
@@ -384,10 +402,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					Handles a GetStateChannelsOfComponent.
 					""");
 		}, call -> {
-			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
-					.map(ComponentManagerImpl::toChannelRecord) //
-					.toList();
 
+			final var user = call.get(EdgeKeys.USER_KEY);
+			final var lang = user.getLanguage();
+			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
+					.map(channel -> ComponentManagerImpl.toChannelRecord(channel, lang)) //
+					.toList();
 			return new GetChannelsOfComponent.Response(channels);
 		});
 
@@ -399,7 +419,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			final var request = call.getRequest();
 			final var channel = this.getChannel(new ChannelAddress(request.componentId(), request.channelId()));
 
-			return new GetChannel.Response(toChannelRecord(channel));
+			final var user = call.get(EdgeKeys.USER_KEY);
+			final var lang = user.getLanguage();
+			return new GetChannel.Response(toChannelRecord(channel, lang));
 		});
 
 		builder.handleRequest(new GetDigitalInputChannelsOfComponents(), endpoint -> {
@@ -408,10 +430,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					""");
 		}, call -> {
 
+			final var user = call.get(EdgeKeys.USER_KEY);
+			final var lang = user.getLanguage();
 			final var result = this.getEnabledComponentsOfType(DigitalInput.class).stream() //
 					.filter(t -> call.getRequest().componentIds().contains(t.id())) //
 					.collect(toMap(OpenemsComponent::id, t -> Arrays.stream(t.digitalInputChannels()) //
-							.map(ComponentManagerImpl::toChannelRecord) //
+							.map(channel -> ComponentManagerImpl.toChannelRecord(channel, lang)) //
 							.toList()));
 
 			return new GetDigitalInputChannelsOfComponents.Response(result);
@@ -450,12 +474,12 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		});
 	}
 
-	private static ChannelRecord toChannelRecord(Channel<?> channel) {
+	private static ChannelRecord toChannelRecord(Channel<?> channel, Language language) {
 		return new GetChannelsOfComponent.ChannelRecord(//
 				channel.channelId().id(), //
 				channel.channelDoc().getAccessMode(), //
 				channel.channelDoc().getPersistencePriority(), //
-				channel.channelDoc().getText(), //
+				channel.channelDoc().getText(language), //
 				channel.channelDoc().getType(), //
 				channel.channelDoc().getUnit(), //
 				channel.channelDoc().getChannelCategory(), //
@@ -529,7 +553,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		Dictionary<String, Object> properties = new Hashtable<>();
 		for (Property property : request.getProperties()) {
 			var value = JsonUtils.getAsBestType(property.getValue());
-			if (value instanceof Object[] && ((Object[]) value).length == 0) {
+			if (value instanceof Object[] os && os.length == 0) {
 				value = new String[0];
 			}
 			properties.put(property.getName(), value);
@@ -574,7 +598,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				} else {
 					// Add updated Property
 					var value = JsonUtils.getAsBestType(property.getValue());
-					if (value instanceof Object[] && ((Object[]) value).length == 0) {
+					if (value instanceof Object[] os && os.length == 0) {
 						value = new String[0];
 					}
 					properties.put(property.getName(), value);

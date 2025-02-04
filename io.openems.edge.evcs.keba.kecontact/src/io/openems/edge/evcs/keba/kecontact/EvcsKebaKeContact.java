@@ -15,9 +15,10 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Status;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
+public interface EvcsKebaKeContact
+		extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int UDP_PORT = 7090;
 
@@ -44,13 +45,12 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 		/*
 		 * Report 2
 		 */
-		STATUS_KEBA(Doc.of(Status.values()) //
-				.text("Current state of the charging station")),
+		R2_STATE(Doc.of(R2State.values())), //
 		ERROR_1(Doc.of(OpenemsType.INTEGER) //
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 		ERROR_2(Doc.of(OpenemsType.INTEGER) //
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-		PLUG(Doc.of(Plug.values())), //
+		R2_PLUG(Doc.of(R2Plug.values())), //
 		ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 		ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //
@@ -85,42 +85,16 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 		/*
 		 * Report 3
 		 */
-		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.text("Voltage on L1")), //
-		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.text("Voltage on L2")), //
-		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.text("Voltage on L3")), //
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L1")), //
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L2")), //
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L3")), //
-		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIWATT) //
-				.text("Total real power")), //
 		COS_PHI(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
 				.text("Power factor")), //
-		ENERGY_TOTAL(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.text("Total power consumption (persistent) without current loading session. "
-						+ "Is summed up after each completed charging session")), //
 		DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 				.text("Dip-Switch 1.3. for communication must be on")), //
 		DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP(Doc.of(Level.FAULT) //
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 				.text("A static ip is configured. The Dip-Switch 2.6. must be on")), //
-		DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP(Doc.of(Level.FAULT) //
-				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+		DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP(Doc.of(OpenemsType.BOOLEAN) //
 				.text("A dynamic ip is configured. Either the Dip-Switch 2.6. must be off or a static ip has to be configured")), //
 		DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM(Doc.of(Level.INFO) //
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
@@ -169,10 +143,10 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 				.channel(16, EvcsKebaKeContact.ChannelId.SERIAL, ModbusType.STRING16)
 				.channel(32, EvcsKebaKeContact.ChannelId.FIRMWARE, ModbusType.STRING16)
 				.channel(48, EvcsKebaKeContact.ChannelId.COM_MODULE, ModbusType.STRING16)
-				.channel(64, EvcsKebaKeContact.ChannelId.STATUS_KEBA, ModbusType.UINT16)
+				.channel(64, EvcsKebaKeContact.ChannelId.R2_STATE, ModbusType.UINT16)
 				.channel(65, EvcsKebaKeContact.ChannelId.ERROR_1, ModbusType.UINT16)
 				.channel(66, EvcsKebaKeContact.ChannelId.ERROR_2, ModbusType.UINT16)
-				.channel(67, EvcsKebaKeContact.ChannelId.PLUG, ModbusType.UINT16)
+				.channel(67, EvcsKebaKeContact.ChannelId.R2_PLUG, ModbusType.UINT16)
 				.channel(68, EvcsKebaKeContact.ChannelId.ENABLE_SYS, ModbusType.UINT16)
 				.channel(69, EvcsKebaKeContact.ChannelId.ENABLE_USER, ModbusType.UINT16)
 				.channel(70, EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
@@ -180,19 +154,10 @@ public interface EvcsKebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, 
 				.channel(72, EvcsKebaKeContact.ChannelId.CURR_FAILSAFE, ModbusType.UINT16)
 				.channel(73, EvcsKebaKeContact.ChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
 				.channel(74, EvcsKebaKeContact.ChannelId.CURR_TIMER, ModbusType.UINT16)
-				.channel(75, EvcsKebaKeContact.ChannelId.TIMEOUT_CT, ModbusType.UINT16).uint16Reserved(76)
+				.channel(75, EvcsKebaKeContact.ChannelId.TIMEOUT_CT, ModbusType.UINT16) //
+				.uint16Reserved(76) //
 				.channel(77, EvcsKebaKeContact.ChannelId.OUTPUT, ModbusType.UINT16)
-				.channel(78, EvcsKebaKeContact.ChannelId.INPUT, ModbusType.UINT16)
-
-				// Report 3
-				.channel(79, EvcsKebaKeContact.ChannelId.VOLTAGE_L1, ModbusType.UINT16)
-				.channel(80, EvcsKebaKeContact.ChannelId.VOLTAGE_L2, ModbusType.UINT16)
-				.channel(81, EvcsKebaKeContact.ChannelId.VOLTAGE_L3, ModbusType.UINT16)
-				.channel(82, EvcsKebaKeContact.ChannelId.CURRENT_L1, ModbusType.UINT16)
-				.channel(83, EvcsKebaKeContact.ChannelId.CURRENT_L2, ModbusType.UINT16)
-				.channel(84, EvcsKebaKeContact.ChannelId.CURRENT_L3, ModbusType.UINT16)
-				.channel(85, EvcsKebaKeContact.ChannelId.ACTUAL_POWER, ModbusType.UINT16)
-				.channel(86, EvcsKebaKeContact.ChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
-				.channel(88, EvcsKebaKeContact.ChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
+				.channel(78, EvcsKebaKeContact.ChannelId.INPUT, ModbusType.UINT16) //
+				.build();
 	}
 }

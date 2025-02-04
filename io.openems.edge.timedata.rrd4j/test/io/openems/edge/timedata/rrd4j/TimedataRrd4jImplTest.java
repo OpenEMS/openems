@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.rrd4j;
 
+import static io.openems.common.channel.PersistencePriority.MEDIUM;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -15,14 +16,11 @@ import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.RrdMemoryBackendFactory;
 
-import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 
 public class TimedataRrd4jImplTest {
-
-	private static final String COMPONENT_ID = "rrd4j0";
 
 	@Test
 	public void test() throws Exception {
@@ -31,8 +29,8 @@ public class TimedataRrd4jImplTest {
 				.addReference("workerFactory", new DummyRecordWorkerFactory(componentManager)) //
 				.addReference("readHandler", new Rrd4jReadHandler()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setPersistencePriority(PersistencePriority.MEDIUM) //
+						.setId("rrd4j0") //
+						.setPersistencePriority(MEDIUM) //
 						.build()) //
 				.next(new TestCase()) //
 		;

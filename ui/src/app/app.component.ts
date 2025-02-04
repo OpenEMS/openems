@@ -1,34 +1,36 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
-import { NavigationEnd, Router } from '@angular/router';
-import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { Subject, Subscription } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
-
-import { environment } from '../environments';
-import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
-import { Service, UserPermission, Websocket } from './shared/shared';
-import { Language } from './shared/type/language';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { AppService } from './app.service';
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Meta, Title } from "@angular/platform-browser";
+import { NavigationEnd, Router } from "@angular/router";
+import { SplashScreen } from "@capacitor/splash-screen";
+import { MenuController, ModalController, Platform, ToastController } from "@ionic/angular";
+import { Subject, Subscription } from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
+import { environment } from "../environments";
+import { AppService } from "./app.service";
+import { AppStateTracker } from "./shared/ngrx-store/states";
+import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
+import { Service, UserPermission, Websocket } from "./shared/shared";
+import { Language } from "./shared/type/language";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: 'app.component.html',
+  selector: "app-root",
+  templateUrl: "app.component.html",
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
 
   public environment = environment;
-  public backUrl: string | boolean = '/';
+  public backUrl: string | boolean = "/";
   public enableSideMenu: boolean;
   public isSystemLogEnabled: boolean = false;
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
-  private subscription: Subscription = new Subscription();
 
   protected isUserAllowedToSeeOverview: boolean = false;
   protected isUserAllowedToSeeFooter: boolean = false;
   protected isHistoryDetailView: boolean = false;
+
+  private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private subscription: Subscription = new Subscription();
 
   constructor(
     private platform: Platform,
@@ -42,9 +44,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private meta: Meta,
     private appService: AppService,
     private title: Title,
+    private stateService: AppStateTracker,
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
-
 
     this.subscription.add(
       this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
@@ -55,12 +57,18 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
         // Hide footer for history detail views
-        const segments = e.url.split('/');
-        this.isHistoryDetailView = segments.slice(0, -1).includes('history');
+        const segments = e.url.split("/");
+        this.isHistoryDetailView = segments.slice(0, -1).includes("history");
       }));
 
     this.appService.listen();
     SplashScreen.hide();
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+    this.subscription.unsubscribe();
   }
 
   ngOnInit() {
@@ -73,12 +81,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
-        position: 'top',
+        position: "top",
         duration: 2000,
         buttons: [
           {
-            text: 'Ok',
-            role: 'cancel',
+            text: "Ok",
+            role: "cancel",
           },
         ],
       });
@@ -86,11 +94,10 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.platform.ready().then(() => {
-
       // OEM colors exist only after ionic is initialized, so the notch color has to be set here
-      const notchColor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-background');
+      const notchColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-background");
       this.meta.updateTag(
-        { name: 'theme-color', content: notchColor },
+        { name: "theme-color", content: notchColor },
       );
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();
@@ -123,11 +130,5 @@ export class AppComponent implements OnInit, OnDestroy {
         this.service.isSmartphoneResolutionSubject.next(false);
       }
     }
-  }
-
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.subscription.unsubscribe();
   }
 }

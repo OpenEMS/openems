@@ -121,8 +121,8 @@ public class ControllerHighLoadTimeslotImpl extends AbstractOpenemsComponent
 		/*
 		 * We are in a Charge period
 		 */
-		switch (this.chargeState) {
-		case NORMAL:
+		return switch (this.chargeState) {
+		case NORMAL -> {
 			/*
 			 * charge with configured charge-power
 			 */
@@ -133,9 +133,9 @@ public class ControllerHighLoadTimeslotImpl extends AbstractOpenemsComponent
 				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
 				this.chargeState = ChargeState.HYSTERESIS;
 			}
-			return this.chargePower;
-
-		case HYSTERESIS:
+			yield this.chargePower;
+		}
+		case HYSTERESIS -> {
 			/*
 			 * block charging till configured hysteresisSoc
 			 */
@@ -145,17 +145,16 @@ public class ControllerHighLoadTimeslotImpl extends AbstractOpenemsComponent
 						+ "]. Switch to Charge-Normal state.");
 				this.chargeState = ChargeState.NORMAL;
 			}
-			return 0;
-
-		case FORCE_CHARGE:
+			yield 0;
+		}
+		case FORCE_CHARGE -> {
 			/*
 			 * force full charging just before the high-load timeslot starts
 			 */
 			this.logInfo(this.log, "Just before High-Load timeslot. Charge with [" + this.chargePower + "]");
-			return this.chargePower;
+			yield this.chargePower;
 		}
-		// we should never come here...
-		return 0;
+		};
 	}
 
 	/**
@@ -186,16 +185,11 @@ public class ControllerHighLoadTimeslotImpl extends AbstractOpenemsComponent
 	 * @return true on yes
 	 */
 	protected static boolean isActiveWeekday(WeekdayFilter activeDayFilter, LocalDateTime dateTime) {
-		switch (activeDayFilter) {
-		case EVERDAY:
-			return true;
-		case ONLY_WEEKDAYS:
-			return !isWeekend(dateTime);
-		case ONLY_WEEKEND:
-			return isWeekend(dateTime);
-		}
-		// should never happen
-		return false;
+		return switch (activeDayFilter) {
+		case EVERDAY -> true;
+		case ONLY_WEEKDAYS -> !isWeekend(dateTime);
+		case ONLY_WEEKEND -> isWeekend(dateTime);
+		};
 	}
 
 	protected static boolean isActiveDate(LocalDate startDate, LocalDate endDate, LocalDateTime dateTime) {

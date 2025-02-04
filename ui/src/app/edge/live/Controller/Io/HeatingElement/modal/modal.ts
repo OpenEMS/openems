@@ -1,18 +1,19 @@
 // @ts-strict-ignore
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
-import { Mode, WorkMode } from 'src/app/shared/type/general';
+import { Component, OnInit } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
+import { BehaviorSubject } from "rxjs";
+import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { ChannelAddress, CurrentData } from "src/app/shared/shared";
+import { Mode, WorkMode } from "src/app/shared/type/general";
 
 @Component({
-    selector: 'heatingelement-modal',
-    templateUrl: './modal.html',
+    selector: "heatingelement-modal",
+    templateUrl: "./modal.html",
+    standalone: false,
 })
 export class ModalComponent extends AbstractModal implements OnInit {
 
-    private static PROPERTY_MODE: string = '_PropertyMode';
+    private static PROPERTY_MODE: string = "_PropertyMode";
     protected activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
     protected mode: string;
     protected state: string;
@@ -21,22 +22,34 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected readonly Mode = Mode;
     protected readonly WorkMode = WorkMode;
 
+    // allowMinimumHeating == workMode: none
+    // TODO remove when outputting of event is errorless possible
+    switchAllowMinimumHeating(event: CustomEvent) {
+        if (event.detail.checked == true) {
+            this.formGroup.controls["workMode"].setValue("TIME");
+            this.formGroup.controls["workMode"].markAsDirty();
+        } else if (event.detail.checked == false) {
+            this.formGroup.controls["workMode"].setValue("NONE");
+            this.formGroup.controls["workMode"].markAsDirty();
+        }
+    }
+
     protected override getChannelAddresses(): ChannelAddress[] {
         const outputChannelPhaseOne = ChannelAddress.fromString(
-            this.component.properties['outputChannelPhaseL1']);
+            this.component.properties["outputChannelPhaseL1"]);
         const outputChannelPhaseTwo = ChannelAddress.fromString(
-            this.component.properties['outputChannelPhaseL2']);
+            this.component.properties["outputChannelPhaseL2"]);
         const outputChannelPhaseThree = ChannelAddress.fromString(
-            this.component.properties['outputChannelPhaseL3']);
+            this.component.properties["outputChannelPhaseL3"]);
         this.outputChannelArray = [outputChannelPhaseOne, outputChannelPhaseTwo, outputChannelPhaseThree];
 
         const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
+            new ChannelAddress(this.component.id, "ForceStartAtSecondsOfDay"),
             outputChannelPhaseOne,
             outputChannelPhaseTwo,
             outputChannelPhaseThree,
             new ChannelAddress(this.component.id, ModalComponent.PROPERTY_MODE),
-            new ChannelAddress(this.component.id, '_PropertyWorkMode'),
+            new ChannelAddress(this.component.id, "_PropertyWorkMode"),
         ];
         return channelAddresses;
     }
@@ -44,7 +57,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected override onCurrentData(currentData: CurrentData) {
 
         // get current mode
-        this.mode = currentData.allComponents[this.component.id + '/' + ModalComponent.PROPERTY_MODE];
+        this.mode = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_MODE];
 
         let value = 0;
         this.outputChannelArray.forEach(element => {
@@ -56,9 +69,9 @@ export class ModalComponent extends AbstractModal implements OnInit {
         // Get current state
         this.activePhases.next(value);
         if (this.activePhases.value > 0) {
-            this.state = this.translate.instant('General.active');
+            this.state = this.translate.instant("General.active");
         } else if (this.activePhases.value == 0) {
-            this.state = this.translate.instant('General.inactive');
+            this.state = this.translate.instant("General.inactive");
         }
     }
 
@@ -73,15 +86,4 @@ export class ModalComponent extends AbstractModal implements OnInit {
         });
     }
 
-    // allowMinimumHeating == workMode: none
-    // TODO remove when outputting of event is errorless possible
-    switchAllowMinimumHeating(event: CustomEvent) {
-        if (event.detail.checked == true) {
-            this.formGroup.controls['workMode'].setValue('TIME');
-            this.formGroup.controls['workMode'].markAsDirty();
-        } else if (event.detail.checked == false) {
-            this.formGroup.controls['workMode'].setValue('NONE');
-            this.formGroup.controls['workMode'].markAsDirty();
-        }
-    }
 }

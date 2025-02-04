@@ -1,5 +1,6 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
 import static io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State.UNDEFINED;
 
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -105,23 +105,20 @@ public class EssGenericManagedSymmetricImpl
 	@Override
 	protected void handleStateMachine() {
 		// Store the current State
-		this.channel(EssGenericManagedSymmetric.ChannelId.STATE_MACHINE)
-				.setNextValue(this.stateMachine.getCurrentState());
+		this._setStateMachine(this.stateMachine.getCurrentState());
 
 		// Initialize 'Start-Stop' Channel
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		var context = new Context(this, this.getBattery(), this.getBatteryInverter());
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.componentManager.getClock());
 
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
-
-			this.channel(EssGenericManagedSymmetric.ChannelId.RUN_FAILED).setNextValue(false);
-
+			this._setRunFailed(false);
 		} catch (OpenemsNamedException e) {
-			this.channel(EssGenericManagedSymmetric.ChannelId.RUN_FAILED).setNextValue(true);
+			this._setRunFailed(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 	}
@@ -159,14 +156,6 @@ public class EssGenericManagedSymmetricImpl
 	}
 
 	@Override
-	public Integer getSurplusPower() {
-		if (this.batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			return ((HybridManagedSymmetricBatteryInverter) this.batteryInverter).getSurplusPower();
-		}
-		return null;
-	}
-
-	@Override
 	protected ComponentManager getComponentManager() {
 		return this.componentManager;
 	}
@@ -179,7 +168,6 @@ public class EssGenericManagedSymmetricImpl
 	@Override
 	public void setStartStop(StartStop value) {
 		if (this.startStopTarget.getAndSet(value) != value) {
-			// Set only if value changed
 			this.stateMachine.forceNextState(UNDEFINED);
 		}
 	}
@@ -187,5 +175,12 @@ public class EssGenericManagedSymmetricImpl
 	@Override
 	public int getCycleTime() {
 		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
+	}
+
+	@Override
+	public String toString() {
+		return toStringHelper(this) //
+				.addValue(this.id()) //
+				.toString();
 	}
 }

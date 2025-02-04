@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { NavigationOption } from 'src/app/shared/genericComponents/footer-navigation/footerNavigation';
-import { AbstractHistoryChartOverview } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverview';
-import { ChannelAddress, EdgeConfig, Service } from '../../../../../shared/shared';
+import { Component } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
+import { NavigationOption } from "src/app/shared/components/footer/subnavigation/footerNavigation";
+import { AbstractHistoryChartOverview } from "../../../../../shared/components/chart/abstractHistoryChartOverview";
+import { ChannelAddress, EdgeConfig, Service } from "../../../../../shared/shared";
 
 @Component({
-  templateUrl: './overview.html',
+  templateUrl: "./overview.html",
+  standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
   protected chargerComponents: EdgeConfig.Component[] = [];
@@ -18,6 +20,7 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
     protected override route: ActivatedRoute,
     public override modalCtrl: ModalController,
     private router: Router,
+    private translate: TranslateService,
   ) {
     super(service, route, modalCtrl);
   }
@@ -33,8 +36,9 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
       this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
         .filter(component => component.isEnabled && this.config.isProducer(component));
 
-    this.navigationButtons = [...this.chargerComponents, ...this.productionMeterComponents].map(el => (
-      { id: el.id, alias: el.alias, callback: () => { this.router.navigate(['./' + el.id], { relativeTo: this.route }); } }
+
+    this.navigationButtons = [...this.productionMeterComponents, ...this.chargerComponents].map(el => (
+      { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
     ));
     return [];
   }

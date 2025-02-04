@@ -52,6 +52,7 @@ OpenEMS is generally used in combination with external hardware and software com
 
 * Open up a [Live-Demo on Gitpod](https://gitpod.io/#https://github.com/OpenEMS/openems)
 * Follow the [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html) guide to setup OpenEMS on your own computer
+* Please checkout our [contribution guidelines](CONTRIBUTING.md) before submitting code
 
 ## Documentation
 
@@ -79,14 +80,14 @@ If you use OpenEMS in your scientific research, please use our Zenodo Digital Ob
 * OpenEMS Edge 
 * OpenEMS Backend
 
-Copyright (C) 2016-2022 OpenEMS Association e.V.
+Copyright (C) 2016-2025 OpenEMS Association e.V.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [Eclipse Public License version 2.0](LICENSE-EPL-2.0). 
 
  * OpenEMS UI
 
-Copyright (C) 2016-2022 OpenEMS Association e.V.
+Copyright (C) 2016-2025 OpenEMS Association e.V.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [GNU Affero General Public License version 3](LICENSE-AGPL-3.0).

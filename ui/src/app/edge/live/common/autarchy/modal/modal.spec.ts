@@ -1,6 +1,6 @@
-import { LINE_INFO } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
-import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
+import { LINE_INFO } from "src/app/shared/components/edge/edgeconfig.spec";
+import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 
 import { ModalComponent } from "./modal";
 
@@ -12,11 +12,11 @@ export function expectView(testContext: TestContext, viewContext: OeFormlyViewTe
   expect(generatedView).toEqual(view);
 }
 
-describe('Autarchy - Modal', () => {
+describe("Autarchy - Modal", () => {
   let TEST_CONTEXT: TestContext;
-  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
 
-  it('generateView()', () => {
+  it("generateView()", () => {
     {
       expectView(TEST_CONTEXT, VIEW_CONTEXT, {
         title: "Autarkie",

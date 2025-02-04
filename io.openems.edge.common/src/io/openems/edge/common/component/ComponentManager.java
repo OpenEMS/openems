@@ -2,6 +2,7 @@ package io.openems.edge.common.component;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 
@@ -172,6 +173,20 @@ public interface ComponentManager extends OpenemsComponent, ClockProvider {
 	 */
 	@Override
 	public Clock getClock();
+
+	/**
+	 * Gets the component properties by its component id.
+	 * 
+	 * @param componentId the id of the component
+	 * @return the properties or a empty map if none found
+	 * @implNote this method is preferred to use when only the properties of an
+	 *           component are of interest. Because of OSGi delivering the component
+	 *           updates asynchronously and if a component update happens the config
+	 *           update may not reflect immediately to the config of the
+	 *           implementation of that component but this method uses the direct
+	 *           configuration in the service registration.
+	 */
+	public Map<String, Object> getComponentProperties(String componentId);
 
 	/**
 	 * Gets all enabled OpenEMS-Components.

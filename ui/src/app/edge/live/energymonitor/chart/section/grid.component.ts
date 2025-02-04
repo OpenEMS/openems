@@ -1,63 +1,106 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
-import { Service, Utils } from '../../../../../shared/shared';
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
+import { animate, state, style, transition, trigger } from "@angular/animations";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { Icon } from "src/app/shared/type/widget";
+import { CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
 @Component({
-    selector: '[gridsection]',
-    templateUrl: './grid.component.html',
+    selector: "[gridsection]",
+    templateUrl: "./grid.component.html",
     animations: [
-        trigger('GridBuy', [
-            state('show', style({
+        trigger("GridBuy", [
+            state("show", style({
                 opacity: 0.4,
-                transform: 'translateX(0%)',
+                transform: "translateX(0%)",
             })),
-            state('hide', style({
+            state("hide", style({
                 opacity: 0.1,
-                transform: 'translateX(17%)',
+                transform: "translateX(17%)",
             })),
-            transition('show => hide', animate('650ms')),
-            transition('hide => show', animate('0ms')),
+            transition("show => hide", animate("650ms")),
+            transition("hide => show", animate("0ms")),
         ]),
-        trigger('GridSell', [
-            state('show', style({
+        trigger("GridSell", [
+            state("show", style({
                 opacity: 0.1,
-                transform: 'translateX(0%)',
+                transform: "translateX(0%)",
             })),
-            state('hide', style({
+            state("hide", style({
                 opacity: 0.4,
-                transform: 'translateX(-17%)',
+                transform: "translateX(-17%)",
             })),
-            transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in')),
+            transition("show => hide", animate("650ms ease-out")),
+            transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
+    standalone: false,
 })
 export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
+
+    public buyAnimationTrigger: boolean = false;
+    public sellAnimationTrigger: boolean = false;
 
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
     private startAnimation = null;
     private showBuyAnimation = false;
     private showSellAnimation = false;
-    public buyAnimationTrigger: boolean = false;
-    public sellAnimationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super('General.grid', "left", "#1d1d1d", translate, service, "Grid");
+        super("General.grid", "left", "var(--ion-color-dark)", translate, service, "Grid");
         this.unitpipe = unitpipe;
+    }
+
+    get stateNameBuy() {
+        return this.showBuyAnimation ? "show" : "hide";
+    }
+
+    get stateNameSell() {
+        return this.showSellAnimation ? "show" : "hide";
+    }
+
+    public static getCurrentGridIcon(currentData: CurrentData): Icon {
+        const gridMode = currentData.allComponents["_sum/GridMode"];
+        const restrictionMode = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"];
+        if (gridMode === GridMode.OFF_GRID) {
+            return {
+                color: "dark",
+                name: "oe-offgrid",
+                size: "",
+            };
+        }
+        if (restrictionMode === 1) {
+            return {
+                color: "dark",
+                name: "oe-grid-restriction",
+                size: "",
+            };
+        }
+        return {
+            color: "dark",
+            name: "oe-grid",
+            size: "",
+        };
+    }
+
+    public static isControllerEnabled(config: EdgeConfig, factoryId: string): boolean {
+        return config.getComponentsByFactory(factoryId).filter(component => component.isEnabled).length > 0;
     }
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.startAnimation);
     }
 
     toggleBuyAnimation() {
@@ -76,26 +119,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         this.sellAnimationTrigger = true;
     }
 
-    get stateNameBuy() {
-        return this.showBuyAnimation ? 'show' : 'hide';
-    }
-
-    get stateNameSell() {
-        return this.showSellAnimation ? 'show' : 'hide';
-    }
-
-    protected getStartAngle(): number {
-        return 226;
-    }
-
-    protected getEndAngle(): number {
-        return 314;
-    }
-
-    protected getRatioType(): Ratio {
-        return 'Negative and Positive [-1,1]';
-    }
-
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
         // only reacts to kW values (50 W => 0.1 kW rounded)
         if (sum.grid.buyActivePower && sum.grid.buyActivePower > 49) {
@@ -109,7 +132,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.gridBuy');
+            this.name = this.translate.instant("General.gridBuy");
             super.updateSectionData(
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
@@ -125,13 +148,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant('General.gridSell');
+            this.name = this.translate.instant("General.gridSell");
             super.updateSectionData(
                 sum.grid.sellActivePower,
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('General.grid');
+            this.name = this.translate.instant("General.grid");
             super.updateSectionData(0, null, null);
         }
 
@@ -142,6 +165,18 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         }
     }
 
+    protected getStartAngle(): number {
+        return 226;
+    }
+
+    protected getEndAngle(): number {
+        return 314;
+    }
+
+    protected getRatioType(): Ratio {
+        return "Negative and Positive [-1,1]";
+    }
+
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         const x = (innerRadius - 5) * (-1);
         const y = (square.length / 2) * (-1);
@@ -149,18 +184,19 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected getImagePath(): string {
-        if (this.gridMode == 2) {
+        if (this.gridMode === GridMode.OFF_GRID) {
             return "icon/offgrid.svg";
-        } else {
-            return "icon/grid.svg";
+        } else if (this.restrictionMode === 1) {
+            return "icon/gridRestriction.svg";
         }
+        return "icon/grid.svg";
     }
 
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-        return this.unitpipe.transform(value, 'kW');
+        return this.unitpipe.transform(value, "kW");
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
@@ -221,9 +257,5 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             p = null;
         }
         return p;
-    }
-
-    ngOnDestroy() {
-        clearInterval(this.startAnimation);
     }
 }

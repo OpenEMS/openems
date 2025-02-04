@@ -1,17 +1,25 @@
-import { EdgeConfig, Utils } from 'src/app/shared/shared';
-import { Component } from '@angular/core';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { ModalComponent } from '../modal/modal';
+import { Component } from "@angular/core";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { EdgeConfig, Utils } from "src/app/shared/shared";
+import { ModalComponent } from "../modal/modal";
 
 @Component({
-    selector: 'Common_Production',
-    templateUrl: './flat.html',
+    selector: "Common_Production",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
     public productionMeterComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: ModalComponent,
+        });
+        return await modal.present();
+    }
 
     protected override getChannelAddresses() {
         // Get Chargers
@@ -27,10 +35,4 @@ export class FlatComponent extends AbstractFlatWidget {
         return [];
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-        });
-        return await modal.present();
-    }
 }

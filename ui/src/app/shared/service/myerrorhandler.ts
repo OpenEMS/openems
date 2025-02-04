@@ -8,6 +8,8 @@ export class MyErrorHandler implements ErrorHandler {
         private injector: Injector,
     ) { }
 
+    // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+
     handleError(error: any) {
         const logger = this.injector.get(Logger);
         console.error(error);

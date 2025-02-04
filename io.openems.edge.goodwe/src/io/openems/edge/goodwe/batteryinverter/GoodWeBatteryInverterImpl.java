@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 
 import java.util.Objects;
@@ -59,6 +60,7 @@ import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
+import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -115,7 +117,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	protected static record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
 	}
 
-	private Config config;
+	private Config config = null;
 
 	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
 		super(//
@@ -167,7 +169,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
+		if (this.config == null || !this.isEnabled()) {
 			return;
 		}
 		super.handleEvent(event);
@@ -253,93 +255,73 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Feed-in limitation
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), config.feedPowerPara());
 
-		// Set to feed in power settings to default
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.QU_CURVE), EnableCurve.DISABLE);
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_CURVE_PU), EnableCurve.DISABLE);
+		// Set feed in power settings
+		var setFeedInPowerSettings = config.setfeedInPowerSettings();
+		var quEnableDisable = EnableCurve.DISABLE;
+		var puEnableDisable = EnableCurve.DISABLE;
+		var cosPhiPEnableDisable = EnableCurve.DISABLE;
+		var pfEnableDisable = EnableCurve.DISABLE;
+		var fixedPowerFactor = FixedPowerFactor.LEADING_1_OR_NONE;
 
-		if (onConfigUpdate) {
+		switch (setFeedInPowerSettings) {
+
+		case UNDEFINED -> doNothing();
+		case QU_ENABLE_CURVE -> {
+			quEnableDisable = EnableCurve.ENABLE;
+			// values according to vde-ar-n-4105
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_IN_POWER_QU), 200);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_OUT_POWER_QU), 50);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VOLTAGE), 214); // ratio U/Un: 0.93
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VALUE), 1000); // (var % rated VA)
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VOLTAGE), 223); // ratio U/Un: 0.97
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VALUE), 0); // (var % rated VA)
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VOLTAGE), 237);// ratio U/Un: 1,03
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VALUE), 0); // (var % rated VA)
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VOLTAGE), 247); // ratio U/Un: 1,07
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -1000);
+		}
+		case PU_ENABLE_CURVE -> {
+			// Not part of the 4105 for GERMANY
+			puEnableDisable = EnableCurve.ENABLE;
+		}
+		case LAGGING_0_80, LAGGING_0_81, LAGGING_0_82, LAGGING_0_83, LAGGING_0_84, LAGGING_0_85, LAGGING_0_86,
+				LAGGING_0_87, LAGGING_0_88, LAGGING_0_89, LAGGING_0_90, LAGGING_0_91, LAGGING_0_92, LAGGING_0_93,
+				LAGGING_0_94, LAGGING_0_95, LAGGING_0_96, LAGGING_0_97, LAGGING_0_98, LAGGING_0_99, LEADING_0_80,
+				LEADING_0_81, LEADING_0_82, LEADING_0_83, LEADING_0_84, LEADING_0_85, LEADING_0_86, LEADING_0_87,
+				LEADING_0_88, LEADING_0_89, LEADING_0_90, LEADING_0_91, LEADING_0_92, LEADING_0_93, LEADING_0_94,
+				LEADING_0_95, LEADING_0_96, LEADING_0_97, LEADING_0_98, LEADING_0_99, LEADING_1 -> {
+
+			fixedPowerFactor = setFeedInPowerSettings.fixedPowerFactor;
+		}
+		case PF_ENABLE_CURVE -> {
+			pfEnableDisable = EnableCurve.ENABLE;
+			// TODO: Details settings
+		}
+		case COS_PHI_P_CURVE -> {
+			cosPhiPEnableDisable = EnableCurve.ENABLE;
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_POWER), 100); // range -1000,1000: 10%
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_COS_PHI), 100); // -100,100: factor 1
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_POWER), 500); // -1000,1000: 50%
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_COS_PHI), 100); // -100,100: factor 1
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_POWER), 1000); // -1000,1000: 100%
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_COS_PHI), 90); // -100,100: factor 0,9
+		}
+		}
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_QU_CURVE), quEnableDisable);
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_CURVE_COS_PHI_P), cosPhiPEnableDisable);
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_PU_CURVE), puEnableDisable);
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_PF_CURVE), pfEnableDisable);
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR), fixedPowerFactor);
+
+		// Multi-functional Block for Ripple Control Receiver and NA protection on / off
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE),
+				config.rcrEnable().booleanValue || config.naProtectionEnable().booleanValue);
+
+		// Try only once
+		if (onConfigUpdate) { //
 			// Mppt Shadow enable / disable
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE), false);
-
-			// Feed-in settings
-			var setFeedInPowerSettings = config.setfeedInPowerSettings();
-			switch (setFeedInPowerSettings) {
-			case UNDEFINED:
-				break;
-			case QU_ENABLE_CURVE:
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_IN_POWER_QU), 200);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_OUT_POWER_QU), 50);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VOLTAGE), 214);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VALUE), 436);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VOLTAGE), 223);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VALUE), 0);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VOLTAGE), 237);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VALUE), 0);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VOLTAGE), 247);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -526);
-				break;
-			case PU_ENABLE_CURVE:
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_POWER), 2000);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_COS_PHI), 0);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_POWER), 2000);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_COS_PHI), 0);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_POWER), 2000);
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_COS_PHI), 0);
-				break;
-			case LAGGING_0_80:
-			case LAGGING_0_81:
-			case LAGGING_0_82:
-			case LAGGING_0_83:
-			case LAGGING_0_84:
-			case LAGGING_0_85:
-			case LAGGING_0_86:
-			case LAGGING_0_87:
-			case LAGGING_0_88:
-			case LAGGING_0_89:
-			case LAGGING_0_90:
-			case LAGGING_0_91:
-			case LAGGING_0_92:
-			case LAGGING_0_93:
-			case LAGGING_0_94:
-			case LAGGING_0_95:
-			case LAGGING_0_96:
-			case LAGGING_0_97:
-			case LAGGING_0_98:
-			case LAGGING_0_99:
-			case LEADING_0_80:
-			case LEADING_0_81:
-			case LEADING_0_82:
-			case LEADING_0_83:
-			case LEADING_0_84:
-			case LEADING_0_85:
-			case LEADING_0_86:
-			case LEADING_0_87:
-			case LEADING_0_88:
-			case LEADING_0_89:
-			case LEADING_0_90:
-			case LEADING_0_91:
-			case LEADING_0_92:
-			case LEADING_0_93:
-			case LEADING_0_94:
-			case LEADING_0_95:
-			case LEADING_0_96:
-			case LEADING_0_97:
-			case LEADING_0_98:
-			case LEADING_0_99:
-			case LEADING_1:
-				if (setFeedInPowerSettings.fixedPowerFactor == null) {
-					throw new IllegalArgumentException(
-							"Feed-In-Power-Setting [" + setFeedInPowerSettings + "] has no fixed power factor");
-				}
-				setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR),
-						config.setfeedInPowerSettings().fixedPowerFactor);
-				break;
-			}
 		}
-
-		// Ripple Control Receiver on / off
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.RIPPLE_CONTROL_RECEIVER_ENABLE),
-				config.rcrEnable().booleanValue);
 	}
 
 	/**
@@ -365,8 +347,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
 
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
-		var setChargeMaxCurrent = this.getGoodweType().maxDcCurrent;
-		var setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent;
+		final int setChargeMaxCurrent;
+		final int setDischargeMaxCurrent;
 		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(210);
 		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(210);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
@@ -376,19 +358,26 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 			setBatteryStrings = homeBattery.getNumberOfModulesPerTower().orElse(setBatteryStrings);
 
+			final var batteryType = homeBattery.getBatteryHardwareType();
+
 			/*
 			 * Check combination of GoodWe inverter and FENECON Home battery to avoid
 			 * invalid combinations for FENECON Home Systems
 			 */
-			if (this.getGoodweType().isInvalidBattery.test(homeBattery.getBatteryHardwareType())) {
+			if (this.getGoodweType().isInvalidBattery.test(batteryType)) {
 				this._setImpossibleFeneconHomeCombination(true);
 
 				// Set zero limits to avoid charging and discharging
 				setChargeMaxCurrent = 0;
 				setDischargeMaxCurrent = 0;
 			} else {
+				setChargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(batteryType);
+				setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(batteryType);
 				this._setImpossibleFeneconHomeCombination(false);
 			}
+		} else {
+			setChargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(null);
+			setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(null);
 		}
 
 		/*
@@ -551,7 +540,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Override
 	public Integer getSurplusPower() {
 		var productionPower = this.calculatePvProduction();
-		return calculateSurplusPower(this.latestBatteryData, productionPower, this.getGoodweType().maxDcCurrent);
+		return calculateSurplusPower(this.latestBatteryData, productionPower,
+				this.getGoodweType().maxDcCurrent.apply(null));
 
 	}
 
@@ -586,7 +576,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.applyConfigIfNotSet(this.config, false);
 
 		// Calculate ActivePower, Energy and Max-AC-Power.
-		this.updatePowerAndEnergyChannels();
+		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
 		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
 
 		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());

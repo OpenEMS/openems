@@ -23,7 +23,7 @@ import io.openems.common.utils.StringUtils;
  * @see <a href="https://www.jsonrpc.org/specification#response_object">JSON-RPC
  *      specification</a>
  */
-public abstract class JsonrpcResponse extends JsonrpcMessage {
+public abstract non-sealed class JsonrpcResponse extends JsonrpcMessage {
 
 	/**
 	 * Parses a JSON String to a {@link JsonrpcResponse}.

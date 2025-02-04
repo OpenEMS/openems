@@ -5,12 +5,36 @@ import static java.util.Collections.emptySet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gson.JsonElement;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 
 public interface AggregateTask<T> {
+
+	/**
+	 * Class representing the configuration of an already aggregated
+	 * {@link AggregateTask}.
+	 */
+	public interface AggregateTaskExecutionConfiguration {
+
+		/**
+		 * The identifier of the configuration.
+		 * 
+		 * @return a string which identifies this type of configuration
+		 */
+		public String identifier();
+
+		/**
+		 * Creates a {@link JsonElement} of this configuration.
+		 * 
+		 * @return the created {@link JsonElement}
+		 */
+		public JsonElement toJson();
+
+	}
 
 	public static record AggregateTaskExecuteConstraints(//
 			/**
@@ -47,6 +71,14 @@ public interface AggregateTask<T> {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException;
+
+	/**
+	 * Gets the {@link AggregateTaskExecutionConfiguration} which can be used for
+	 * debugging.
+	 * 
+	 * @return the AggregateTaskExecutionConfiguration
+	 */
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration();
 
 	/**
 	 * Validates the expected configuration.

@@ -1,47 +1,39 @@
 package io.openems.edge.controller.symmetric.selltogridlimit;
 
+import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS;
+
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class ControllerEssSellToGridLimitImplTest {
-
-	private static final String CTRL_ID = "ctrl0";
-
-	private static final String ESS_ID = "ess0";
-
-	private static final ChannelAddress ESS_ACTIVE_POWER = new ChannelAddress(ESS_ID, "ActivePower");
-	private static final ChannelAddress ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS = new ChannelAddress(ESS_ID,
-			"SetActivePowerLessOrEquals");
-
-	private static final String METER_ID = "meter00";
-
-	private static final ChannelAddress METER_ACTIVE_POWER = new ChannelAddress(METER_ID, "ActivePower");
 
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssSellToGridLimitImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
-				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
+				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
+				.addReference("meter", new DummyElectricityMeter("meter0")) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setEssId(ESS_ID) //
-						.setMeterId(METER_ID) //
+						.setId("ctrl0") //
+						.setEssId("ess0") //
+						.setMeterId("meter0") //
 						.setMaximumSellToGridPower(5000) //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -5000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
+						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, -5000) //
+						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 3000) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
 				.next(new TestCase() //
-						.input(METER_ACTIVE_POWER, -6000) //
-						.input(ESS_ACTIVE_POWER, 3000) //
-						.output(ESS_SET_ACTIVE_POWER_LESS_OR_EQUALS, 2000));
+						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, -6000) //
+						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 3000) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 2000)) //
+				.deactivate();
 	}
 }

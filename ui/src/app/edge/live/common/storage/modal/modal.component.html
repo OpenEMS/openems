@@ -1,11 +1,11 @@
 <ion-header>
-    <ion-toolbar color="primary">
+    <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
         <ion-title translate>General.storageSystem</ion-title>
         <ion-buttons slot="end">
             <oe-help-button key="COMMON_STORAGE"></oe-help-button>
 
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline"></ion-icon>
+                <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -30,12 +30,12 @@
                         </tr>
                         <!-- Charge/Discharge -->
                         <tr>
-                            <td style="width:65%" translate>General.chargePower</td>
+                            <td style="width:65%" translate>General.CHARGE</td>
                             <td style="width:35%" class="align_right">{{ (sum.effectivePower <= 0 ? (sum.effectivePower
                                     * -1) : null) | unitvalue:'W' }}</td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.dischargePower</td>
+                            <td style="width:65%" translate>General.DISCHARGE</td>
                             <td style="width:35%" class="align_right">
                                 {{ (sum.effectivePower > 0 ? sum.effectivePower : null) | unitvalue:'W' }}
                             </td>
@@ -52,7 +52,7 @@
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.dischargePower</span>
+                                                    translate>General.DISCHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -61,7 +61,7 @@
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.chargePower</span>
+                                                    translate>General.CHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -76,7 +76,7 @@
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.dischargePower</span>
+                                                    translate>General.DISCHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -85,7 +85,7 @@
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
                                             <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.chargePower</span>
+                                                    translate>General.CHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -132,7 +132,7 @@
                                         <td style="width: 90%">
                                             <ion-note class="ion-text-wrap ion-align-items-center">
                                                 <ion-text>
-                                                    <small translate>
+                                                    <small style="color: var(--ion-text-color);" translate>
                                                         Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                     </small>
                                                 </ion-text>
@@ -153,6 +153,22 @@
                                             {{ 100 | unitvalue:'%' }}
                                         </ion-label>
                                     </ion-range>
+
+                                    <ng-container *ngIf="this.formGroup.controls['_meta'] && hasRequiredEdgeVersion">
+                                        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+                                        <oe-modal-line [name]="'Edge.Index.Widgets.STORAGE.GRID_CHARGE' | translate"
+                                            [formGroup]="this.formGroup.controls['_meta']"
+                                            controlName="isEssChargeFromGridAllowed" [control]="{ type: 'TOGGLE' }"
+                                            leftColumnWidth="100">
+                                        </oe-modal-line>
+
+                                        <oe-modal-line *ngIf="hasRequiredEdgeVersion"
+                                            [innerHtml]="'Edge.Index.Widgets.STORAGE.GRID_CHARGE_WARNING' | translate">
+                                        </oe-modal-line>
+
+                                        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+                                    </ng-container>
                                 </ng-container>
                             </ng-container>
                         </ng-container>
@@ -316,13 +332,13 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.chargePower</td>
+                            <td style="width:65%" translate>General.CHARGE</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.effectiveChargePower | unitvalue:'W' }}
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.dischargePower</td>
+                            <td style="width:65%" translate>General.DISCHARGE</td>
                             <td style="width:35%" class="align_right">
                                 {{ sum.effectiveDischargePower | unitvalue:'W' }}
                             </td>
@@ -340,7 +356,7 @@
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                    <span translate>General.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -349,7 +365,7 @@
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                    <span translate>General.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -364,7 +380,7 @@
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                    <span translate>General.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -373,7 +389,7 @@
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                    <span translate>General.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -437,12 +453,12 @@
                                     *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.SymmetricEss') && value !== null && value !== undefined"
                                     class="full_width">
                                     <tr>
-                                        <td style="width:65%" translate>General.chargePower</td>
+                                        <td style="width:65%" translate>General.CHARGE</td>
                                         <td style="width:35%" class="align_right">{{ (value <= 0 ? (value * -1) : null)
                                                 | unitvalue:'W' }}<td>
                                     </tr>
                                     <tr>
-                                        <td style="width:65%" translate>General.dischargePower</td>
+                                        <td style="width:65%" translate>General.DISCHARGE</td>
                                         <td style="width:35%" class="align_right">{{ (value > 0 ? value : null) |
                                             unitvalue:'W' }}
                                         <td>
@@ -458,7 +474,7 @@
                                             <ng-container *ngIf="value > 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.dischargePower</span>
+                                                    <span translate>General.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -467,7 +483,7 @@
                                             <ng-container *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
                                                 <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.chargePower</span>
+                                                    <span translate>General.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -514,7 +530,7 @@
                                                 <td style="width: 90%">
                                                     <ion-note class="ion-text-wrap ion-align-items-center">
                                                         <ion-text>
-                                                            <small translate>
+                                                            <small style="color: var(--ion-text-color);" translate>
                                                                 Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                             </small>
                                                         </ion-text>
@@ -696,14 +712,14 @@
                                     <td style="width: 100%">{{ component.alias }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.chargePower</td>
+                                    <td style="width:20%" translate>General.CHARGE</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value > 0 ? value : null) | unitvalue:'W' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.dischargePower</td>
+                                    <td style="width:20%" translate>General.DISCHARGE</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value <= 0 ? (value * -1) : null | unitvalue:'W') }}</td>
@@ -746,7 +762,7 @@
                                         <td style="width: 90%">
                                             <ion-note class="ion-text-wrap ion-align-items-center">
                                                 <ion-text>
-                                                    <small translate>
+                                                    <small style="color: var(--ion-text-color);" translate>
                                                         Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                     </small>
                                                 </ion-text>

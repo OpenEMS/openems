@@ -1,4 +1,4 @@
-import { EdgeConfig } from "../../edge/edgeconfig";
+import { EdgeConfig } from "../../components/edge/edgeconfig";
 import { JsonrpcResponseSuccess } from "../base";
 
 export type Channel = { id: string } & EdgeConfig.ComponentChannel;
