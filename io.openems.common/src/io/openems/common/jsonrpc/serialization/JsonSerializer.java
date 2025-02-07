@@ -3,7 +3,11 @@ package io.openems.common.jsonrpc.serialization;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.function.IntFunction;
 
 import com.google.gson.JsonElement;
 
@@ -40,7 +44,7 @@ public interface JsonSerializer<T> {
 	 * @return the deserialized object from the {@link JsonElement}
 	 */
 	public default T deserialize(JsonElement json) {
-		return this.deserializePath(new JsonElementPathActual(json));
+		return this.deserializePath(new JsonElementPathActual.JsonElementPathActualNonNull(json));
 	}
 
 	/**
@@ -53,6 +57,36 @@ public interface JsonSerializer<T> {
 		return jsonSerializer(//
 				json -> json.getAsJsonArrayPath().getAsList(this), //
 				obj -> obj.stream() //
+						.map(this::serialize) //
+						.collect(toJsonArray()));
+	}
+
+	/**
+	 * Creates a new {@link JsonSerializer} which is able to serialize {@link Set
+	 * Sets} with their generic type of the current {@link JsonSerializer}.
+	 * 
+	 * @return the new {@link JsonSerializer} of a {@link Set}
+	 */
+	public default JsonSerializer<Set<T>> toSetSerializer() {
+		return jsonSerializer(//
+				json -> json.getAsJsonArrayPath().getAsSet(this), //
+				obj -> obj.stream() //
+						.map(this::serialize) //
+						.collect(toJsonArray()));
+	}
+
+	/**
+	 * Creates a new {@link JsonSerializer} which is able to serialize {@link Array
+	 * Arrays} with their type of the current {@link JsonSerializer}.
+	 * 
+	 * @param generator a function which produces a new array of the desired type
+	 *                  and the provided length
+	 * @return the new {@link JsonSerializer} of a {@link Array}
+	 */
+	public default JsonSerializer<T[]> toArraySerializer(IntFunction<T[]> generator) {
+		return jsonSerializer(//
+				json -> json.getAsJsonArrayPath().getAsList(this).toArray(generator), //
+				obj -> Arrays.stream(obj) //
 						.map(this::serialize) //
 						.collect(toJsonArray()));
 	}

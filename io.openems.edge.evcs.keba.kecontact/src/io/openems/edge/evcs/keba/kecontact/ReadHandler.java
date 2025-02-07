@@ -5,6 +5,9 @@ import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Status.CHARGING;
 import static java.lang.Math.round;
@@ -22,7 +25,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.PhaseRotation.RotatedPhases;
 import io.openems.edge.evcs.api.Status;
 
 /**
@@ -176,23 +178,13 @@ public class ReadHandler implements Consumer<String> {
 					.map(p -> p / 1000) // convert [mW] to [W]
 					.orElse(null);
 			keba._setActivePower(activePower);
-
-			// Round power per phase and apply rotated phases
 			var appp = ActivePowerPerPhase.from(activePower, //
 					voltageL1, currentL1, voltageL2, currentL2, voltageL3, currentL3);
-			var rp = RotatedPhases.from(keba.config.phaseRotation(), //
-					voltageL1, currentL1, appp.activePowerL1, //
-					voltageL2, currentL2, appp.activePowerL2, //
-					voltageL3, currentL3, appp.activePowerL3);
-			keba._setVoltageL1(rp.voltageL1());
-			keba._setVoltageL2(rp.voltageL2());
-			keba._setVoltageL3(rp.voltageL3());
-			keba._setCurrentL1(rp.currentL1());
-			keba._setCurrentL2(rp.currentL2());
-			keba._setCurrentL3(rp.currentL3());
-			keba._setActivePowerL1(rp.activePowerL1());
-			keba._setActivePowerL2(rp.activePowerL2());
-			keba._setActivePowerL3(rp.activePowerL3());
+
+			// Round power per phase and apply rotated phases
+			setPhaseRotatedVoltageChannels(keba, voltageL1, voltageL2, voltageL3);
+			setPhaseRotatedCurrentChannels(keba, currentL1, currentL2, currentL3);
+			setPhaseRotatedActivePowerChannels(keba, appp.activePowerL1, appp.activePowerL2, appp.activePowerL3);
 
 			// Energy
 			keba._setActiveProductionEnergy(//

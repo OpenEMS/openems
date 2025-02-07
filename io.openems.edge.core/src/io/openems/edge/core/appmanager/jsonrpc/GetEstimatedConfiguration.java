@@ -9,9 +9,9 @@ import java.util.Objects;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 import io.openems.edge.core.appmanager.jsonrpc.GetEstimatedConfiguration.Request;
 import io.openems.edge.core.appmanager.jsonrpc.GetEstimatedConfiguration.Response;
