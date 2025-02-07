@@ -522,12 +522,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 			if (fallBackInARowRelays == null) {
 				count = 0;
-				var startIndex = 1;
+				var startIndex = 0;
 				for (var channelInfo : relayInfo.channels()) {
+					count++;
 					if (!channelInfo.usingComponents().isEmpty() //
 							|| !channelInfo.disabledReasons().isEmpty()) {
 						startIndex += count;
-						count = 1;
+						count = 0;
 					}
 					if (count >= numberOfRelays) {
 						break;
