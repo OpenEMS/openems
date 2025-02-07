@@ -6,6 +6,7 @@ import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.CHARGE_STATE;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT_WITH_FILTER;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_ENERGY_LIMIT;
+import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
 import static org.junit.Assert.assertEquals;
 
@@ -36,7 +37,8 @@ public class AbstractManagedEvcsTest {
 
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyEvcsPower EVCS_POWER_WITH_FILTER = new DummyEvcsPower(new RampFilter());
-	private static final DummyManagedEvcs EVCS0 = new DummyManagedEvcs("evcs0", EVCS_POWER);
+	private static final DummyManagedEvcs EVCS0 = new DummyManagedEvcs("evcs0", EVCS_POWER) //
+			.withPhaseRotation(L2_L3_L1);
 	private static final DummyManagedEvcs EVCS1 = new DummyManagedEvcs("evcs1", EVCS_POWER);
 	private static final DummyManagedEvcs EVCS2 = new DummyManagedEvcs("evcs2", EVCS_POWER_WITH_FILTER);
 	private static final int MINIMUM = Evcs.DEFAULT_MINIMUM_HARDWARE_POWER;
@@ -48,6 +50,8 @@ public class AbstractManagedEvcsTest {
 	 */
 	@Test
 	public void abstractManagedEvcsTest() throws Exception {
+		assertEquals(L2_L3_L1, EVCS0.getPhaseRotation());
+
 		var test = new ComponentTest(EVCS0) //
 				.addComponent(EVCS0) //
 
