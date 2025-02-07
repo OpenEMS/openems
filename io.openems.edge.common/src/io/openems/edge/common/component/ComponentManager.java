@@ -11,6 +11,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
@@ -299,7 +302,7 @@ public interface ComponentManager extends OpenemsComponent, ClockProvider {
 	 * @param request the {@link CreateComponentConfigRequest}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void handleCreateComponentConfigRequest(User user, CreateComponentConfigRequest request)
+	public void handleCreateComponentConfigRequest(User user, CreateComponentConfig.Request request)
 			throws OpenemsNamedException;
 
 	/**
@@ -309,7 +312,7 @@ public interface ComponentManager extends OpenemsComponent, ClockProvider {
 	 * @param request the {@link UpdateComponentConfigRequest}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfigRequest request)
+	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfig.Request request)
 			throws OpenemsNamedException;
 
 	/**
@@ -319,7 +322,7 @@ public interface ComponentManager extends OpenemsComponent, ClockProvider {
 	 * @param request the {@link DeleteComponentConfigRequest}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfigRequest request)
+	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfig.Request request)
 			throws OpenemsNamedException;
 
 }

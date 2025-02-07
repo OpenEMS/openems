@@ -8,10 +8,10 @@ import java.util.UUID;
 
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonElementPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance.Response;
@@ -75,7 +75,7 @@ public final class DeleteAppInstance implements EndpointRequestType<Request, Res
 		public static JsonSerializer<DeleteAppInstance.Request> serializer() {
 			return jsonObjectSerializer(DeleteAppInstance.Request.class, //
 					json -> new DeleteAppInstance.Request(//
-							json.getStringPath("instanceId").getAsUuid()), //
+							json.getUuid("instanceId")), //
 					obj -> JsonUtils.buildJsonObject() //
 							.addProperty("instanceId", obj.instanceId().toString()) //
 							.build());
