@@ -1,36 +1,23 @@
 package io.openems.edge.core.host.jsonrpc;
 
-import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.emptyObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
-import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Request;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Response;
 
-public class GetNetworkInfo implements EndpointRequestType<Request, Response> {
+public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response> {
 
 	@Override
 	public String getMethod() {
 		return "getNetworkInfo";
-	}
-
-	public record Request() {
-
-		/**
-		 * Returns a {@link JsonSerializer} for a {@link GetNetworkInfo.Request}.
-		 * 
-		 * @return the created {@link JsonSerializer}
-		 */
-		public static JsonSerializer<Request> serializer() {
-			return emptyObjectSerializer(Request::new);
-		}
 	}
 
 	public record NetworkInfoWrapper(String hardwareInterface, List<Inet4AddressWithSubnetmask> ips) {
@@ -142,8 +129,8 @@ public class GetNetworkInfo implements EndpointRequestType<Request, Response> {
 	}
 
 	@Override
-	public JsonSerializer<Request> getRequestSerializer() {
-		return Request.serializer();
+	public JsonSerializer<EmptyObject> getRequestSerializer() {
+		return EmptyObject.serializer();
 	}
 
 	@Override

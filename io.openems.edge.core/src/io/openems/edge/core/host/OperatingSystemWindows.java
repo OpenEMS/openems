@@ -13,8 +13,8 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
-import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Response;
 
 /**
  * OperatingSystem implementation for Windows.
@@ -60,7 +60,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 	}
 
 	@Override
-	public Response getNetworkInfo() throws OpenemsNamedException {
+	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
 		throw new NotImplementedException("This request is not implemented for Windows");
 	}
 

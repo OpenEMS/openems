@@ -1,6 +1,4 @@
-package io.openems.edge.common.jsonapi;
-
-import io.openems.common.jsonrpc.serialization.JsonSerializer;
+package io.openems.common.jsonrpc.serialization;
 
 public interface EndpointRequestType<REQUEST, RESPONSE> {
 

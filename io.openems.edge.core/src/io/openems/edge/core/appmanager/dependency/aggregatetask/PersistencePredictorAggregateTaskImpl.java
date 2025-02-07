@@ -23,6 +23,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
@@ -189,7 +190,7 @@ public class PersistencePredictorAggregateTaskImpl implements PersistencePredict
 		existingChannels.removeAll(channelsToRemove);
 
 		componentManager.handleUpdateComponentConfigRequest(user,
-				new UpdateComponentConfigRequest(predictor.id(), List.of(//
+				new UpdateComponentConfig.Request(predictor.id(), List.of(//
 						new UpdateComponentConfigRequest.Property("channelAddresses", existingChannels.stream() //
 								.map(JsonPrimitive::new) //
 								.collect(toJsonArray())) //
