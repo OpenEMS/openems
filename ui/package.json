@@ -28,7 +28,7 @@
     "@ngx-translate/core": "^16.0.4",
     "@nodro7/angular-mydatepicker": "^0.14.0",
     "capacitor-blob-writer": "^1.1.19",
-    "capacitor-ios-autofill-save-password": "^4.0.0",
+    "capacitor-ios-autofill-save-password": "^5.0.0",
     "capacitor-secure-storage-plugin": "^0.10.0",
     "chart.js": "^4.4.7",
     "chartjs-adapter-date-fns": "^3.0.0",
