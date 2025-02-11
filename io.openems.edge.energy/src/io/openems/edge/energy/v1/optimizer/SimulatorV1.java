@@ -171,6 +171,10 @@ public class SimulatorV1 {
 		}
 		var bestGt = stream //
 				.collect(toBestGenotype());
+		if (bestGt == null) {
+		    throw new IllegalStateException("No valid Genotype found during evolution.");
+		}		
+		
 		return IntStream.range(0, p.optimizePeriods().size()) //
 				.mapToObj(period -> p.states()[bestGt.get(period).get(0).intValue()]) //
 				.toArray(StateMachine[]::new);
