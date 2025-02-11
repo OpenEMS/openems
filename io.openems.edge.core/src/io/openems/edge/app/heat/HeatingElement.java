@@ -250,7 +250,8 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(3, CheckRelayCountFilters.feneconHome(true)));
+				.setInstallableCheckableConfigs(checkRelayCount(3, CheckRelayCountFilters.feneconHome(true),
+						CheckRelayCountFilters.deviceHardware()));
 	}
 
 	@Override

@@ -436,7 +436,6 @@ function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: Histor
     options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
     options.scales[axis.yAxisId]["title"] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId]["title"] as Chart.RadialTickOptions, ["color"]);
   });
-  console.log("options", options);
   return options;
 }
 

@@ -4,7 +4,7 @@ import static io.openems.common.channel.AccessMode.READ_ONLY;
 import static io.openems.common.channel.ChannelCategory.OPENEMS_TYPE;
 import static io.openems.common.channel.PersistencePriority.VERY_LOW;
 import static io.openems.common.channel.Unit.AMPERE;
-import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.FLOAT;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class PointTest {
 		assertEquals(OPENEMS_TYPE, doc.getChannelCategory());
 		assertEquals(VERY_LOW, doc.getPersistencePriority());
 		assertEquals("Amps. AC Current", doc.getText());
-		assertEquals(INTEGER, doc.getType());
+		assertEquals(FLOAT, doc.getType());
 		assertEquals(AMPERE, doc.getUnit());
 	}
 

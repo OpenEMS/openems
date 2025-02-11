@@ -119,7 +119,8 @@ public class EvcsHardyBarthImplTest {
 						.setIp("192.168.8.101") //
 						.setMaxHwCurrent(32_000) //
 						.setMinHwCurrent(6_000) //
-						.setPhaseRotation(phaseRotation).build())
+						.setPhaseRotation(phaseRotation) //
+						.build())
 
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> ru

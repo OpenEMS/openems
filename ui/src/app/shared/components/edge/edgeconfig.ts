@@ -165,6 +165,7 @@ export class EdgeConfig {
                         "Controller.IO.ChannelSingleThreshold",
                         "Controller.Io.FixDigitalOutput",
                         "Controller.IO.HeatingElement",
+                        "Controller.IO.Heating.Room",
                         "Controller.Io.HeatPump.SgReady",
                     ]),
                 ].flat(2),
@@ -689,7 +690,7 @@ export class EdgeConfig {
     }
 
     /**
-     * Safely gets a property from a component if it exists, else returns null.
+     * Safely gets a property from a component, if it exists, else returns null.
      *
      * @param component The component from which to retrieve the property.
      * @param property The property name to retrieve.

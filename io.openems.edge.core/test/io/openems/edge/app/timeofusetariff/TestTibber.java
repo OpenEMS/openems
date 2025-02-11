@@ -21,8 +21,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -123,7 +124,7 @@ public class TestTibber {
 		assertEquals("xxx", value.getAsString());
 
 		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequest(DUMMY_ADMIN,
-				new UpdateComponentConfigRequest(response.instance().properties
+				new UpdateComponentConfig.Request(response.instance().properties
 						.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name()).getAsString(),
 						List.of(new UpdateComponentConfigRequest.Property("accessToken", ""))));
 
@@ -150,7 +151,7 @@ public class TestTibber {
 		assertEquals("randomInitialFilter", value.getAsString());
 
 		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequest(DUMMY_ADMIN,
-				new UpdateComponentConfigRequest(
+				new UpdateComponentConfig.Request(
 						response.instance().properties.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name())
 								.getAsString(),
 						List.of(new UpdateComponentConfigRequest.Property(Tibber.Property.ACCESS_TOKEN.name(),
@@ -165,7 +166,7 @@ public class TestTibber {
 
 	private void createPredictor() throws Exception {
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Predictor.PersistenceModel", List.of(//
+				new CreateComponentConfig.Request("Predictor.PersistenceModel", List.of(//
 						new UpdateComponentConfigRequest.Property("id", "predictor0"), //
 						new UpdateComponentConfigRequest.Property("channelAddresses", JsonUtils.buildJsonArray()//
 								.build()) //

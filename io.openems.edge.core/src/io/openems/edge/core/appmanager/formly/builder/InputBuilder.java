@@ -9,7 +9,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.formly.enums.Validation;
 import io.openems.edge.core.appmanager.formly.enums.Wrappers;
@@ -48,7 +47,6 @@ import io.openems.edge.core.appmanager.formly.enums.Wrappers;
  */
 public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 
-	private JsonObject validation = null;
 	private InputType type = InputType.TEXT;
 
 	public InputBuilder(Nameable property) {
@@ -236,14 +234,7 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		if (this.type != InputType.TEXT) {
 			this.templateOptions.addProperty("type", this.type.getFormlyTypeName());
 		}
-		if (this.validation != null && this.validation.size() > 0) {
-			this.jsonObject.add("validation", this.validation);
-		}
 		return super.build();
-	}
-
-	protected final JsonObject getValidation() {
-		return this.validation = JsonFormlyUtil.single(this.validation);
 	}
 
 }

@@ -40,8 +40,8 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.session.Role;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.timedata.Resolution;
@@ -184,11 +184,12 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 
 		// Create Components
 		Set<String> simulatorComponentIds = new HashSet<>();
-		for (CreateComponentConfigRequest createRequest : request.components) {
+		for (var createRequest : request.components) {
 			this.logInfo(this.log, "Create Component [" + createRequest.getComponentId() + "] from ["
 					+ createRequest.getFactoryPid() + "]");
 			simulatorComponentIds.add(createRequest.getComponentId());
-			this.componentManager.handleCreateComponentConfigRequest(user, createRequest);
+			this.componentManager.handleCreateComponentConfigRequest(user,
+					new CreateComponentConfig.Request(createRequest.getFactoryPid(), createRequest.getProperties()));
 		}
 		this.waitForComponentsToActivate(simulatorComponentIds);
 
@@ -382,7 +383,7 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 	 */
 	private void deleteComponent(User user, String componentId) throws OpenemsNamedException {
 		this.logInfo(this.log, "Delete Component [" + componentId + "]");
-		var deleteComponentConfigRequest = new DeleteComponentConfigRequest(componentId);
+		var deleteComponentConfigRequest = new DeleteComponentConfig.Request(componentId);
 		this.componentManager.handleDeleteComponentConfigRequest(user, deleteComponentConfigRequest);
 	}
 

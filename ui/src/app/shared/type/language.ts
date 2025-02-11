@@ -6,8 +6,7 @@ import localFR from "@angular/common/locales/fr";
 import localJA from "@angular/common/locales/ja";
 import localNL from "@angular/common/locales/nl";
 import { TranslateLoader, TranslateService } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
-import { filter, take } from "rxjs/operators";
+import { filter, Observable, of, take } from "rxjs";
 import cz from "src/assets/i18n/cz.json";
 import de from "src/assets/i18n/de.json";
 import en from "src/assets/i18n/en.json";
@@ -52,7 +51,7 @@ export class Language {
         public readonly json: any,
         // Angular is not providing common type for locale.
         // https://github.com/angular/angular/issues/30506
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         public readonly locale: any,
     ) {
     }
@@ -120,12 +119,17 @@ export class Language {
      * @returns translations params
      */
     public static async setAdditionalTranslationFile(translationFile: any, translate: TranslateService): Promise<{ lang: string; translations: {}; shouldMerge?: boolean; }> {
-        const lang = (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise())?.lang ?? Language.DEFAULT.key;
+        const lang = translate.currentLang ?? (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise())?.lang ?? Language.DEFAULT.key;
         let translationKey: string = lang;
+
+        if (!(Language.DEFAULT.key in translationFile)) {
+            throw new Error(`Translation for fallback ${Language.DEFAULT.key} is missing`);
+        }
+
         if (!(lang in translationFile)) {
 
             if (environment.debugMode) {
-                console.warn(`[Advert] No translation available for Language ${lang}. Implemented languages are: ${Object.keys(translationFile)}`);
+                console.warn(`No translation available for Language ${lang}. Implemented languages are: ${Object.keys(translationFile)}`);
             }
             translationKey = Language.EN.key;
         }

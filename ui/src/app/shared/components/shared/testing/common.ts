@@ -102,7 +102,7 @@ export namespace OeTester {
             "beginAtZero": true,
             ...options["left"]?.scale,
             ...(chartType === "line" ? { stacked: false } : {}),
-            "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } },
+            "title": { "text": title ?? "kWh", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "left",
             "grid": { "display": true },
             "ticks": {

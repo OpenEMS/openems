@@ -3,7 +3,7 @@ package io.openems.edge.energy.optimizer;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.jenetics.engine.EvolutionResult.toBestResult;
 import static io.openems.edge.energy.optimizer.InitialPopulation.generateInitialPopulation;
-import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static java.lang.Thread.currentThread;
 
 import java.util.concurrent.Executor;
@@ -202,7 +202,7 @@ public class Simulator {
 			Function<EvolutionStream<IntegerGene, Double>, EvolutionStream<IntegerGene, Double>> evolutionStreamInterceptor) {
 		final var codec = EshCodec.of(this.gsc, previousResult, isCurrentPeriodFixed);
 		if (codec == null) {
-			return EMPTY;
+			return EMPTY_SIMULATION_RESULT;
 		}
 
 		// Decide for single- or multi-threading
@@ -242,7 +242,9 @@ public class Simulator {
 		// Start the evaluation
 		var bestGt = stream //
 				.collect(toBestResult(codec));
-
+		if (bestGt == null) {
+			return EMPTY_SIMULATION_RESULT;
+		}
 		return SimulationResult.fromQuarters(this.gsc, bestGt);
 	}
 

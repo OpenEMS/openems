@@ -423,6 +423,9 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	protected static ElementToChannelConverter createAdjustCurrentSign(
 			Supplier<Value<Integer>> getActivePowerNextValue) {
 		return new ElementToChannelConverter(value -> {
+			if (value == null) {
+				return value;
+			}
 			var activePower = getActivePowerNextValue.get().orElse(0);
 			Integer intValue = TypeUtils.getAsType(INTEGER, value);
 			return Math.abs(intValue) * Integer.signum(activePower);

@@ -66,7 +66,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * This value is derived from the charging station or calculated during the
 		 * charging. When this value is set, the minimum and maximum limits are set at
 		 * the same time if the EVCS is a {@link ManagedEvcs}.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -79,7 +79,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 
 		/**
 		 * Fixed minimum power allowed by the hardware in W.
-		 * 
+		 *
 		 * <p>
 		 * Maximum of the configured minimum hardware limit and the read or given
 		 * minimum hardware limit - e.g. KEBA minimum requirement is 6A = 4140W and the
@@ -89,7 +89,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * because it is easier to store it in an Integer Channel. When this value is
 		 * set, the minimum and maximum limits are set at the same time if the EVCS is a
 		 * {@link ManagedEvcs}.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -103,7 +103,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 
 		/**
 		 * Fixed maximum power allowed by the hardware in W.
-		 * 
+		 *
 		 * <p>
 		 * Minimum of the configured maximum hardware limit and the read maximum
 		 * hardware limit - e.g. KEBA Dip-Switch Settings set to 32A = 22080W and
@@ -112,7 +112,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * it in an Integer Channel. When this value is set, the minimum and maximum
 		 * limits are a Integer Channel. When this value is set, the minimum and maximum
 		 * limits are set at the same time if the EVCS is a {@link ManagedEvcs}.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -127,7 +127,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		/**
 		 * Minimum hardware power in W calculated with the current used Phases, used for
 		 * the boundaries of the monitoring.
-		 * 
+		 *
 		 * <p>
 		 * This minimum limit is dynamically set depending on the current used
 		 * {@link #PHASES} and the {@link #FIXED_MINIMUM_HARDWARE_POWER}, to be able to
@@ -135,7 +135,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * minimum and maximum of a charger is 6 and 32 Ampere. Because the default unit
 		 * of all OpenEMS calculations is power, the real minimum for charging on one
 		 * Phase is not 4140 Watt but 1380 Watt (Or in current 6A|0A|0A).
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -150,7 +150,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		/**
 		 * Maximum hardware power in W calculated with the current used Phases, used for
 		 * the boundaries of the monitoring.
-		 * 
+		 *
 		 * <p>
 		 * This maximum limit is dynamically set depending on the current used
 		 * {@link #PHASES} and the {@link #FIXED_MINIMUM_HARDWARE_POWER}, to be able to
@@ -158,7 +158,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * minimum and maximum of a charger is 6 and 32 Ampere. Because the default unit
 		 * of all OpenEMS calculations is power, the real maximum for charging on one
 		 * Phase is not 22080 Watt but 7360 Watt (Or in current 32A|0A|0A).
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -619,12 +619,20 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	}
 
 	/**
+	 * Is this Evcs installed according to standard or rotated wiring?. See
+	 * {@link PhaseRotation} for details.
+	 *
+	 * @return the {@link PhaseRotation}.
+	 */
+	public PhaseRotation getPhaseRotation();
+
+	/**
 	 * Adds onSetNextValue listeners for minimum and maximum hardware power.
-	 * 
+	 *
 	 * <p>
 	 * Since the minimum and maximum power strongly depends on the connected
 	 * vehicle, this automatically adjusts it to the currently used phases.
-	 * 
+	 *
 	 * @param evcs evcs
 	 */
 	public static void addCalculatePowerLimitListeners(Evcs evcs) {
@@ -651,20 +659,20 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 
 	/**
 	 * Evaluates the number of Phases from the individual powers per phase.
-	 * 
+	 *
 	 * <p>
 	 * The EVCS will pull power from the grid for its own consumption and report
 	 * that on one of the phases. This value is different from EVCS to EVCS but can
 	 * be high. Because of this, this will only register a phase starting with 100W
 	 * because then we definitively know that this load is caused by a car.
-	 * 
+	 *
 	 * @param activePowerL1 active power on L1
 	 * @param activePowerL2 active power on L2
 	 * @param activePowerL3 active power on L3
 	 * @return integer value indicating the number of phases; null if undefined
 	 */
 	public static Integer evaluatePhaseCount(Integer activePowerL1, Integer activePowerL2, Integer activePowerL3) {
-		int phases = 0;
+		var phases = 0;
 		if (activePowerL1 != null && activePowerL1 > 100) {
 			phases++;
 		}
@@ -706,7 +714,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 
 	/**
 	 * Defines if the evcs is read only.
-	 * 
+	 *
 	 * @return true if the evcs is read-only
 	 */
 	public default boolean isReadOnly() {

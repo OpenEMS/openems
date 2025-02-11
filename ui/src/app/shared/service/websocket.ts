@@ -1,7 +1,9 @@
 // @ts-strict-ignore
 import { Injectable, signal, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
+import { Capacitor } from "@capacitor/core";
 import { TranslateService } from "@ngx-translate/core";
+import { SavePassword } from "capacitor-ios-autofill-save-password";
 import { CookieService } from "ngx-cookie-service";
 import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
@@ -74,6 +76,15 @@ export class Websocket implements WebsocketInterface {
       this.sendRequest(request).then(r => {
         this.state.set(States.AUTHENTICATED);
         const authenticateResponse = (r as AuthenticateResponse).result;
+
+        if (request instanceof AuthenticateWithPasswordRequest) {
+          if (Capacitor.getPlatform() === "ios") {
+            SavePassword.promptDialog({
+              username: request.params.username,
+              password: request.params.password,
+            });
+          }
+        }
 
         const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
         localStorage.LANGUAGE = language.key;

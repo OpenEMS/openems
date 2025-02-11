@@ -209,6 +209,16 @@ export namespace DummyConfig {
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
+
+        export const HEAT_PUMP_SG_READY = {
+            id: "Controller.Io.HeatPump.SgReady",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.io.heatpump.sgready.ControllerIoHeatPumpSgReady",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
     }
 
     export namespace Component {
@@ -358,6 +368,17 @@ export namespace DummyConfig {
             },
             channels: {},
         });
+
+        export const HEAT_PUMP_SG_READY = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.HEAT_PUMP_SG_READY,
+            properties: {
+                enabled: true,
+                mode: "AUTOMATIC",
+            },
+            channels: {},
+        });
     }
 }
 
@@ -365,7 +386,7 @@ export namespace DummyConfig {
  * Factories.
  */
 // identifier `Factory` is also used in namespace
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 type Factory = {
     id: string,
     natureIds: string[],
