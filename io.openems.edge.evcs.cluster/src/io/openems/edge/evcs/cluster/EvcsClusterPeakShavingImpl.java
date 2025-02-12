@@ -46,6 +46,12 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.Cluster.PeakShaving", //
@@ -56,7 +62,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 })
 public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
-		implements MetaEvcs, OpenemsComponent, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving,
+		implements MetaEvcs, OpenemsComponent, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving, ModbusSlave,
 		/*
 		 * Cluster is not a Controller, but we need to be placed at the correct position
 		 * in the Cycle by the Scheduler to be able to read the actually available ESS
@@ -578,4 +584,14 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			-> e.getMaxApparentPower().orElse(0);
 		};
 	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(EvcsClusterPeakShaving.class, accessMode, 100) //
+						.channel(0, EvcsClusterPeakShaving.ChannelId.EVCS_BLOCKED_CHARGE_POWER, ModbusType.FLOAT32)
+						.build());
+
+	}
+
 }
