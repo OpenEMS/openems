@@ -5,8 +5,8 @@ import io.openems.common.types.OptionsEnum;
 public enum EnableCurve implements OptionsEnum {
 
 	UNDEFINED(-1, "Undefined"), //
-	DISABLE(0, "Feed Power Disable"), //
-	ENABLE(1, "Feed Power Enable");//
+	DISABLE(0, "Disable Curve"), //
+	ENABLE(1, "Enable Curve"); //
 
 	private final int value;
 	private final String option;

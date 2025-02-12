@@ -172,12 +172,14 @@ public abstract sealed class Point {
 			this(name, label, description, type, mandatory, accessMode, unit, //
 					Doc.of(//
 							switch (type) {
-							case UINT16, ACC16, INT16, COUNT, INT32, PAD, // ignore
-									EUI48, FLOAT32 // avoid floating point numbers; FLOAT32 might not fit in INTEGER
+							case UINT16, ACC16, INT16, COUNT, INT32, PAD, EUI48 //
 								-> OpenemsType.INTEGER;
-							case ACC32, IPADDR, UINT32, UINT64, ACC64, INT64, IPV6ADDR, //
-									FLOAT64 // avoid floating point numbers
+							case ACC32, IPADDR, UINT32, UINT64, ACC64, INT64, IPV6ADDR //
 								-> OpenemsType.LONG;
+							case FLOAT32 //
+								-> OpenemsType.FLOAT;
+							case FLOAT64 //
+								-> OpenemsType.DOUBLE;
 							case STRING2, STRING4, STRING5, STRING6, STRING7, STRING8, STRING12, STRING16, STRING20,
 									STRING25, STRING32 //
 								-> OpenemsType.STRING;

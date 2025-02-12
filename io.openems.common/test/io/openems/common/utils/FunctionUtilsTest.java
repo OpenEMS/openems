@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -70,6 +71,17 @@ public class FunctionUtilsTest {
 			return "success";
 		});
 		assertEquals("success", supplier.get());
+	}
+
+	@Test
+	public void testLazySingleton() throws Exception {
+		final var count = new AtomicInteger(0);
+		final var singleton = FunctionUtils.lazySingleton(count::incrementAndGet);
+
+		assertEquals(1, singleton.get().intValue());
+		assertEquals(1, singleton.get().intValue());
+		assertEquals(2, count.incrementAndGet());
+		assertEquals(1, singleton.get().intValue());
 	}
 
 }

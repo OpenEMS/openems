@@ -6,6 +6,8 @@ public enum FeedInPowerSettings {
 	UNDEFINED(null), //
 	QU_ENABLE_CURVE(null), //
 	PU_ENABLE_CURVE(null), //
+	PF_ENABLE_CURVE(null), //
+	COS_PHI_P_CURVE(null), //
 
 	LAGGING_0_99(FixedPowerFactor.LAGGING_0_99), //
 	LAGGING_0_98(FixedPowerFactor.LAGGING_0_98), //
@@ -48,10 +50,9 @@ public enum FeedInPowerSettings {
 	LEADING_0_97(FixedPowerFactor.LEADING_0_97), //
 	LEADING_0_98(FixedPowerFactor.LEADING_0_98), //
 	LEADING_0_99(FixedPowerFactor.LEADING_0_99), //
-	LEADING_1(FixedPowerFactor.LEADING_1);
+	LEADING_1(FixedPowerFactor.LEADING_1_OR_NONE);
 
 	public static enum FixedPowerFactor implements OptionsEnum {
-		UNDEFINED(-1, "Undefined"), //
 		LAGGING_0_99(1, "0.99 lagging"), //
 		LAGGING_0_98(2, "0.98 lagging"), //
 		LAGGING_0_97(3, "0.97 lagging"), //
@@ -92,7 +93,7 @@ public enum FeedInPowerSettings {
 		LEADING_0_97(97, "0.97 leading"), //
 		LEADING_0_98(98, "0.98 leading"), //
 		LEADING_0_99(99, "0.99 leading"), //
-		LEADING_1(100, "1 leading");
+		LEADING_1_OR_NONE(100, "1 leading or none");// 100 also corresponds to "no" fixed power factor
 
 		private final int value;
 		private final String option;
@@ -114,7 +115,7 @@ public enum FeedInPowerSettings {
 
 		@Override
 		public OptionsEnum getUndefined() {
-			return UNDEFINED;
+			return LEADING_1_OR_NONE;
 		}
 	}
 

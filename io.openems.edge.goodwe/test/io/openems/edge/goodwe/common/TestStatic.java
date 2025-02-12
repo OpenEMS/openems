@@ -5,6 +5,7 @@ import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareTyp
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
+import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 
 public class TestStatic {
@@ -218,5 +220,41 @@ public class TestStatic {
 		assertEquals(-5750, (int) AbstractGoodWe.postprocessPBattery1(pBattery, dcVoltage, dcMaxCurrent,
 				state -> stateResult.set(state), prevPBattery)); //
 		assertTrue(stateResult.get());
+	}
+
+	@Test
+	public void testignoreImpossibleMinimumPower() {
+
+		var dcPower = 200_000; // W
+		var powerMode = EmsPowerMode.AUTO;
+		var powerSet = 0;
+
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 50 /* SoC */,
+				25 /* batteryCurrent */, powerMode, powerSet));
+
+		dcPower = 10;
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 50, 25, powerMode, powerSet));
+
+		dcPower = 10;
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, 2, powerMode, powerSet));
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 2, 0, powerMode, powerSet));
+		assertEquals(dcPower,
+				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.CHARGE_BAT, 1000));
+
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, null, 0, powerMode, powerSet));
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, null, powerMode, powerSet));
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, 0, null, powerSet));
+		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, 0, powerMode, null));
+		assertNull(AbstractGoodWe.ignoreImpossibleMinPower(null, null, null, null, null));
+
+		/*
+		 * Ignore impossible value
+		 */
+		assertEquals(0, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, 0, powerMode, powerSet));
+		assertEquals(0, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 100, 0, powerMode, powerSet));
+		assertEquals(0,
+				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.CHARGE_BAT, powerSet));
+		assertEquals(0,
+				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.DISCHARGE_BAT, powerSet));
 	}
 }

@@ -1,5 +1,6 @@
 package io.openems.edge.core.host;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsInet4Address;
@@ -18,6 +19,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.JsonUtils;
 
@@ -36,6 +38,52 @@ public class NetworkInterface<A> {
 		} catch (OpenemsException e) {
 			throw new RuntimeException("Failed to create DEFAULT_ETH0_ADDRESS instance in static block.", e);
 		}
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for a {@link NetworkInterface}.
+	 * 
+	 * @param name the name of the interface
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<NetworkInterface<?>> serializer(String name) {
+		return jsonObjectSerializer(json -> {
+			return new NetworkInterface<Void>(//
+					name, //
+					json.getOptionalBoolean("dhcp").map(ConfigurationProperty::of)
+							.orElseGet(ConfigurationProperty::asNotSet), //
+					json.getOptionalBoolean("linkLocalAddressing").map(ConfigurationProperty::of)
+							.orElseGet(ConfigurationProperty::asNotSet), //
+					ConfigurationProperty.of(json.getStringParsedOrNull("gateway",
+							new Inet4AddressWithSubnetmask.StringParserInet4Address())), //
+					ConfigurationProperty.of(json.getStringParsedOrNull("dns",
+							new Inet4AddressWithSubnetmask.StringParserInet4Address())), //
+					ConfigurationProperty.of(json.getSet("addresses", Inet4AddressWithSubnetmask.serializer())), //
+					json.getOptionalInt("metric").map(ConfigurationProperty::of) //
+							.orElseGet(ConfigurationProperty::asNotSet), //
+					null);
+		}, obj -> {
+			return JsonUtils.buildJsonObject() //
+					.onlyIf(obj.getDhcp().isSetAndNotNull(), t -> {
+						t.addProperty("dhcp", obj.getDhcp().getValue());
+					}) //
+					.onlyIf(obj.getLinkLocalAddressing().isSetAndNotNull(), t -> {
+						t.addProperty("dhcp", obj.getLinkLocalAddressing().getValue());
+					}) //
+					.onlyIf(obj.getGateway().isSetAndNotNull(), t -> {
+						t.addProperty("dhcp", obj.getGateway().getValue().getHostAddress());
+					}) //
+					.onlyIf(!obj.getMetric().isNull(), t -> {
+						t.addProperty("metric", obj.getMetric().getValue());
+					}) //
+					.onlyIf(!obj.getDns().isNull(), t -> {
+						t.addProperty("dns", obj.getDns().getValue().getHostAddress());
+					}) //
+					.onlyIf(obj.getAddresses().isSet(), t -> {
+						t.add("addresses", Inet4AddressWithSubnetmask.serializer().toSetSerializer()
+								.serialize(obj.getAddresses().getValue()));
+					}).build();
+		});
 	}
 
 	/**
@@ -134,7 +182,8 @@ public class NetworkInterface<A> {
 			ConfigurationProperty<Inet4Address> dns, //
 			ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses, //
 			ConfigurationProperty<Integer> metric, //
-			A attachment) throws OpenemsException {
+			A attachment //
+	) {
 		this.name = name;
 		this.dhcp = dhcp;
 		this.linkLocalAddressing = linkLocalAddressing;

@@ -1,7 +1,15 @@
 package io.openems.common.jsonrpc.serialization;
 
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toUnmodifiableList;
+
+import java.lang.reflect.Array;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.stream.Collector;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -10,23 +18,91 @@ import com.google.gson.JsonObject;
 public interface JsonArrayPath extends JsonPath {
 
 	/**
-	 * Gets the elements as a list parsed to the object.
+	 * Collects the values of the current {@link JsonArray} with the provided
+	 * {@link Collector}.
 	 * 
-	 * @param <T>    the type of the objects
-	 * @param mapper the {@link JsonElement} to object mapper
-	 * @return the list with the parsed values
+	 * @param <A>       the mutable accumulation type of the reduction operation
+	 *                  (often hidden as an implementation detail)
+	 * @param <R>       the result type of the reduction operation
+	 * @param collector the {@link Collector} describing the reduction
+	 * @return the result of the reduction
 	 */
-	public <T> List<T> getAsList(Function<JsonElementPath, T> mapper);
+	public <A, R> R collect(Collector<JsonElementPath, A, R> collector);
 
 	/**
-	 * Gets the elements as a list parsed to the object.
+	 * Collects all elements into a immutable {@link List}.
 	 * 
-	 * @param <T>        the type of the objects
-	 * @param serializer the {@link JsonSerializer} to deserialize the elements
-	 * @return the list with the parsed values
+	 * @param <T>    the type of the elements
+	 * @param mapper the mapper to convert the elements
+	 * @return the result {@link List} containing all {@link JsonElement
+	 *         JsonElements} converted by the provided mapper
+	 */
+	public default <T> List<T> getAsList(Function<JsonElementPath, T> mapper) {
+		return this.collect(mapping(mapper, toUnmodifiableList()));
+	}
+
+	/**
+	 * Collects all elements into a immutable {@link List}.
+	 * 
+	 * @param <T>        the type of the elements
+	 * @param serializer the {@link JsonSerializer} to convert the elements
+	 * @return the result {@link List} containing all {@link JsonElement
+	 *         JsonElements} converted by the provided {@link JsonSerializer}
 	 */
 	public default <T> List<T> getAsList(JsonSerializer<T> serializer) {
 		return this.getAsList(serializer::deserializePath);
+	}
+
+	/**
+	 * Collects all elements into a {@link Set}.
+	 * 
+	 * @param <T>    the type of the elements
+	 * @param mapper the mapper to convert the elements
+	 * @return the result {@link Set} containing all {@link JsonElement
+	 *         JsonElements} converted by the provided mapper
+	 */
+	public default <T> Set<T> getAsSet(Function<JsonElementPath, T> mapper) {
+		return this.collect(mapping(mapper, toSet()));
+	}
+
+	/**
+	 * Collects all elements into a {@link Set}.
+	 * 
+	 * @param <T>        the type of the elements
+	 * @param serializer the {@link JsonSerializer} to convert the elements
+	 * @return the result {@link Set} containing all {@link JsonElement
+	 *         JsonElements} converted by the provided {@link JsonSerializer}
+	 */
+	public default <T> Set<T> getAsSet(JsonSerializer<T> serializer) {
+		return this.getAsSet(serializer::deserializePath);
+	}
+
+	/**
+	 * Collects all elements into a {@link Array}.
+	 * 
+	 * @param <T>       the type of the elements
+	 * @param generator a function which produces a new array of the desired type
+	 *                  and the provided length
+	 * @param mapper    the mapper to convert the elements
+	 * @return the result {@link Array} containing all {@link JsonElement
+	 *         JsonElements} converted by the provided mapper
+	 */
+	public default <T> T[] getAsArray(IntFunction<T[]> generator, Function<JsonElementPath, T> mapper) {
+		return this.getAsList(mapper).toArray(generator);
+	}
+
+	/**
+	 * Collects all elements into a {@link Array}.
+	 * 
+	 * @param <T>        the type of the elements
+	 * @param generator  a function which produces a new array of the desired type
+	 *                   and the provided length
+	 * @param serializer the {@link JsonSerializer} to convert the elements
+	 * @return the result {@link Array} containing all {@link JsonElement
+	 *         JsonElements} converted by the provided {@link JsonSerializer}
+	 */
+	public default <T> T[] getAsArray(IntFunction<T[]> generator, JsonSerializer<T> serializer) {
+		return this.getAsList(serializer).toArray(generator);
 	}
 
 	/**

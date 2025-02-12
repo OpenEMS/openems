@@ -18,8 +18,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
@@ -116,22 +116,22 @@ public class TestEvcsCluster {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Evcs.Keba.KeContact", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs0"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.1") //
 				)));
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Controller.Evcs", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs0"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs0") //
 				)));
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Evcs.Keba.KeContact", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs1"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.2") //
 				)));
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Controller.Evcs", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs1"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs1") //
 				)));
@@ -168,7 +168,7 @@ public class TestEvcsCluster {
 
 		final var clusterId = "evcsCluster0";
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Evcs.Cluster.PeakShaving", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Evcs.Cluster.PeakShaving", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", clusterId), //
 						new UpdateComponentConfigRequest.Property("enabled", false), //
 						new UpdateComponentConfigRequest.Property("evcs.ids", JsonUtils.buildJsonArray() //

@@ -1,5 +1,7 @@
 package io.openems.common.jsonrpc.request;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -104,6 +107,23 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 				properties.add(new Property(name, value));
 			}
 			return properties;
+		}
+
+		/**
+		 * Returns a {@link JsonSerializer} for a
+		 * {@link UpdateComponentConfigRequest.Property}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<UpdateComponentConfigRequest.Property> serializer() {
+			return jsonObjectSerializer(UpdateComponentConfigRequest.Property.class, //
+					json -> new UpdateComponentConfigRequest.Property(//
+							json.getString("name"), //
+							json.getJsonElement("value")), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("name", obj.name) //
+							.add("value", obj.value) //
+							.build());
 		}
 
 		private final String name;

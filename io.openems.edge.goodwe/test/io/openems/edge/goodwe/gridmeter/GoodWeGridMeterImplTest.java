@@ -148,6 +148,11 @@ public class GoodWeGridMeterImplTest {
 			// negative to positive
 			assertEquals(16, e2cConverter.elementToChannel(-16));
 		}
+		{
+			var e2cConverter = GoodWeGridMeterImpl.createAdjustCurrentSign(() -> new Value<Integer>(null, 5000));
+			// null stays null
+			assertEquals(null, e2cConverter.elementToChannel(null));
+		}
 	}
 
 	@Test

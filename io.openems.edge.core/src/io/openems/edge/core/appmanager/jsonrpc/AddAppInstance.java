@@ -8,10 +8,10 @@ import java.util.List;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonElementPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Response;
@@ -107,7 +107,7 @@ public class AddAppInstance implements EndpointRequestType<Request, Response> {
 		public static JsonSerializer<Response> serializer() {
 			return jsonObjectSerializer(Response.class, //
 					json -> new Response(//
-							json.getElement("instance", OpenemsAppInstance.serializer()), //
+							json.getObject("instance", OpenemsAppInstance.serializer()), //
 							json.getList("warnings", JsonElementPath::getAsString)), //
 					obj -> JsonUtils.buildJsonObject() //
 							.add("instance", obj.instance.toJsonObject()) //

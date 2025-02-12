@@ -34,6 +34,7 @@ import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -145,6 +146,11 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		return this.config.phaseRotation();
 	}
 
 	/**

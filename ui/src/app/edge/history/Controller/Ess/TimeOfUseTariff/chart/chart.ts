@@ -127,7 +127,7 @@ export class ChartComponent extends AbstractHistoryChart {
         };
     }
 
-    protected override loadChart(): void {
+    protected override async loadChart() {
         this.labels = [];
         this.errorResponse = null;
 
@@ -175,16 +175,15 @@ export class ChartComponent extends AbstractHistoryChart {
                 });
 
                 const chartObject = this.chartObject;
-                this.options.scales[ChartAxis.LEFT].ticks = {
-                    callback: function (value, index, ticks) {
+                this.options.scales[ChartAxis.LEFT].ticks.callback =
+                    function (value, index, ticks) {
                         if (index == (ticks.length - 1)) {
                             const upperMostTick = chartObject.yAxes.find(el => el.unit === YAxisType.CURRENCY).customTitle;
                             AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
                             return upperMostTick;
                         }
                         return value;
-                    },
-                };
+                    };
                 this.options.scales.x["offset"] = false;
                 this.options["animation"] = false;
             });

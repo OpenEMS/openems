@@ -7,16 +7,16 @@ import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 
-import { PipeModule } from "../../pipe/pipe";
+import { PipeComponentsModule, PipeModule } from "../../pipe/pipe";
 import { HistoryDataErrorModule } from "../history-data-error/history-data-error.module";
-import { PickdateModule } from "../pickdate/pickdate.module";
+import { PickdateComponentModule, PickdateModule } from "../pickdate/pickdate.module";
 import { ChartComponent } from "./chart";
+import { ChartLegendComponent } from "./legend/legend";
 
 @NgModule({
   imports: [
-    BrowserModule,
     IonicModule,
-    PipeModule,
+    PipeComponentsModule,
     TranslateModule,
     BaseChartDirective,
     CommonModule,
@@ -25,13 +25,34 @@ import { ChartComponent } from "./chart";
     }),
     HistoryDataErrorModule,
     RouterModule,
-    PickdateModule,
+    PickdateComponentModule,
   ],
   declarations: [
     ChartComponent,
+    ChartLegendComponent,
   ],
   exports: [
     ChartComponent,
+    ChartLegendComponent,
+  ],
+})
+export class ChartComponentsModule { }
+
+/**
+* @deprecated should avoid creating modules with browsermodule imported
+*/
+@NgModule({
+  imports: [
+    BrowserModule,
+    ChartComponentsModule,
+    PipeModule,
+    PickdateModule,
+  ],
+  exports: [
+    ChartComponentsModule,
+    PickdateModule,
+    PipeModule,
   ],
 })
 export class ChartModule { }
+

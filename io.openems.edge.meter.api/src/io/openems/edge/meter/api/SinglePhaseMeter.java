@@ -39,7 +39,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
 	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
@@ -54,12 +54,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
 	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
@@ -82,7 +82,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#REACTIVE_POWER_L1},
 	 * {@link ChannelId#REACTIVE_POWER_L2} or {@link ChannelId#REACTIVE_POWER_L3}
@@ -97,12 +97,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#REACTIVE_POWER_L1},
 	 * {@link ChannelId#REACTIVE_POWER_L2} or {@link ChannelId#REACTIVE_POWER_L3}
@@ -125,7 +125,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#CURRENT_L1},
 	 * {@link ChannelId#CURRENT_L2} or {@link ChannelId#CURRENT_L3} from
@@ -140,12 +140,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#CURRENT_L1},
 	 * {@link ChannelId#CURRENT_L2} or {@link ChannelId#CURRENT_L3} from
@@ -167,7 +167,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#VOLTAGE_L1},
 	 * {@link ChannelId#VOLTAGE_L2} or {@link ChannelId#VOLTAGE_L3} from
@@ -182,12 +182,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#VOLTAGE_L1},
 	 * {@link ChannelId#VOLTAGE_L2} or {@link ChannelId#VOLTAGE_L3} from

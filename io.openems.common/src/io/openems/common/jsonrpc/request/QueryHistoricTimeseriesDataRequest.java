@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
@@ -96,7 +97,7 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
-	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
+	private final Set<ChannelAddress> channels;
 
 	/**
 	 * Resolution of the data or empty for automatic.
@@ -104,21 +105,23 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 	private final Optional<Resolution> resolution;
 
 	private QueryHistoricTimeseriesDataRequest(JsonrpcRequest request, ZonedDateTime fromDate, ZonedDateTime toDate,
-			Optional<Resolution> resolution) throws OpenemsNamedException {
+			Optional<Resolution> resolution) {
 		super(request, QueryHistoricTimeseriesDataRequest.METHOD);
 
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.resolution = resolution;
+		this.channels = new TreeSet<>();
 	}
 
 	public QueryHistoricTimeseriesDataRequest(ZonedDateTime fromDate, ZonedDateTime toDate,
-			Optional<Resolution> resolution) throws OpenemsNamedException {
+			Optional<Resolution> resolution, Set<ChannelAddress> channels) {
 		super(QueryHistoricTimeseriesDataRequest.METHOD);
 
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.resolution = resolution;
+		this.channels = channels;
 	}
 
 	private void addChannel(ChannelAddress address) {
@@ -170,7 +173,7 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 	 *
 	 * @return Set of {@link ChannelAddress}
 	 */
-	public TreeSet<ChannelAddress> getChannels() {
+	public Set<ChannelAddress> getChannels() {
 		return this.channels;
 	}
 

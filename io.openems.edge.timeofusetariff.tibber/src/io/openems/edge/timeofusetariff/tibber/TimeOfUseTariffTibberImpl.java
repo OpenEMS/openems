@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -27,6 +28,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import okhttp3.MediaType;
@@ -41,11 +44,12 @@ import okhttp3.RequestBody;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
-		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffTibber {
+		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffTibber, ModbusSlave {
 
 	private static final String TIBBER_API_URL = "https://api.tibber.com/v1-beta/gql";
 	protected static final int CLIENT_ERROR_CODE = 400;
 	protected static final int TOO_MANY_REQUESTS_CODE = 429;
+
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffTibberImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -140,7 +144,8 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 		var authenticationFailed = false;
 		var serverError = false;
 		var timeout = false;
-
+		var unableToUpdatePrices = true;
+		
 		switch (httpStatusCode) {
 		case CLIENT_ERROR_CODE:
 			authenticationFailed = true;
@@ -149,11 +154,13 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 
 		case TOO_MANY_REQUESTS_CODE:
 			timeout = true;
+			this.logWarn(this.log, "Too many requests, please try again later");
 			break;
 
 		default:
 			if (httpStatusCode >= 200 && httpStatusCode < 300) {
 				// No error
+				unableToUpdatePrices = false;
 			} else {
 				serverError = true;
 				this.logWarn(this.log, "An unexpected error occurred on the server. Please try again later");
@@ -166,6 +173,7 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 		this.channel(TimeOfUseTariffTibber.ChannelId.STATUS_TIMEOUT).setNextValue(timeout);
 		this.channel(TimeOfUseTariffTibber.ChannelId.STATUS_AUTHENTICATION_FAILED).setNextValue(authenticationFailed);
 		this.channel(TimeOfUseTariffTibber.ChannelId.STATUS_SERVER_ERROR).setNextValue(serverError);
+		this.channel(TimeOfUseTariffTibber.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(unableToUpdatePrices);
 	}
 
 	@Override
@@ -177,4 +185,12 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 	public String debugLog() {
 		return generateDebugLog(this, this.meta.getCurrency());
 	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				this.getModbusSlaveNatureTable(accessMode)
+		);
+	}
+
 }

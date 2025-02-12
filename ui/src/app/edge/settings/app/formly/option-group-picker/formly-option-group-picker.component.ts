@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from "@ngx-formly/core";
+import { FormlyFieldProps } from "@ngx-formly/ionic/form-field";
 import { Option, OptionGroup, OptionGroupConfig, getTitleFromOptionConfig } from "./optionGroupPickerConfiguration";
 
 @Component({
@@ -8,7 +9,10 @@ import { Option, OptionGroup, OptionGroupConfig, getTitleFromOptionConfig } from
     templateUrl: "./formly-option-group-picker.component.html",
     standalone: false,
 })
-export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig> implements OnInit {
+export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig<FormlyFieldProps & {
+    isMulti?: boolean,
+    missingOptionsText?: string,
+}>> implements OnInit {
 
     protected multi: boolean = false;
     protected selectedGroup: OptionGroup | null = null;

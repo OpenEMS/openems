@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
@@ -9,11 +10,10 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
 
 @NgModule({
   imports: [
-    BrowserModule,
-    IonicModule,
-    ReactiveFormsModule,
-    TranslateModule,
     AngularMyDatePickerModule,
+    CommonModule,
+    IonicModule,
+    TranslateModule,
   ],
   declarations: [
     PickDateComponent,
@@ -21,6 +21,19 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
   ],
   exports: [
     PickDateComponent,
+  ],
+})
+export class PickdateComponentModule { }
+@NgModule({
+  imports: [
+    BrowserModule,
+    IonicModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    PickdateComponentModule,
+  ],
+  exports: [
+    PickdateComponentModule,
   ],
 })
 export class PickdateModule { }

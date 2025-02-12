@@ -56,7 +56,8 @@ public record SimulationResult(//
 	/**
 	 * An empty {@link SimulationResult}.
 	 */
-	public static final SimulationResult EMPTY = new SimulationResult(0., ImmutableSortedMap.of(), ImmutableMap.of());
+	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(0., //
+			ImmutableSortedMap.of(), ImmutableMap.of());
 
 	/**
 	 * Re-Simulate a {@link Genotype} to create a {@link SimulationResult}.
@@ -98,7 +99,7 @@ public record SimulationResult(//
 	 */
 	public static SimulationResult fromQuarters(GlobalSimulationsContext gsc, int[][] schedule) {
 		if (gsc == null || schedule.length == 0) {
-			return SimulationResult.EMPTY;
+			return EMPTY_SIMULATION_RESULT;
 		}
 
 		// Convert to Quarters

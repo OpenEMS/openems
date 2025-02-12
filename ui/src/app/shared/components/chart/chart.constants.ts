@@ -18,6 +18,25 @@ export namespace ChartConstants {
 
   export class Plugins {
 
+    public static ToolTips = class {
+      public static HEAT_PUMP_SUFFIX = (translate: TranslateService, value: number | null): string => {
+        switch (value) {
+          case -1:
+            return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+          case 0:
+            return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+          case 1:
+            return translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
+          case 2:
+            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+          case 3:
+            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom");
+          default:
+            return "";
+        }
+      };
+    };
+
     public static readonly DEFAULT_EMPTY_SCREEN: (text: string) => ChartComponentLike = (text) => ({
       id: "empty_chart",
       beforeDraw: (chart, args, options) => {
@@ -64,6 +83,7 @@ export namespace ChartConstants {
     export const PURPLE: string = new RGBColor(91, 92, 214).toString();
     export const YELLOW: string = new RGBColor(255, 206, 0).toString();
     export const BLUE_GREY: string = new RGBColor(77, 106, 130).toString();
+    export const DARK_GREY: string = new RGBColor(169, 169, 169).toString();
     export const GREY: string = new RGBColor(189, 189, 189).toString();
 
     export const SHADES_OF_RED: string[] = [RED, "rgb(204,78,50)", "rgb(153,59,38)", "rgb(102,39,25)", "rgb(51,20,13)"];

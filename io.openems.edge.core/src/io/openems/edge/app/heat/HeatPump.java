@@ -206,7 +206,8 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(2, CheckRelayCountFilters.feneconHome(false)));
+				.setInstallableCheckableConfigs(checkRelayCount(2, CheckRelayCountFilters.feneconHome(false),
+						CheckRelayCountFilters.deviceHardware()));
 	}
 
 	@Override

@@ -5,9 +5,9 @@ import java.util.function.Function;
 import io.openems.common.types.OptionsEnum;
 
 public enum Phases implements OptionsEnum {
-	ONE_PHASE(1, "One Phase", (max) -> Math.round(max / 3F)), //
-	TWO_PHASE(2, "Two Phase", (max) -> Math.round((max / 3F) * 2)), //
-	THREE_PHASE(3, "Three Phase", (max) -> max);
+	ONE_PHASE(1, "One Phase", max -> Math.round(max / 3F)), //
+	TWO_PHASE(2, "Two Phase", max -> Math.round(max / 3F * 2)), //
+	THREE_PHASE(3, "Three Phase", max -> max);
 
 	private final int value;
 	private final String name;
@@ -35,11 +35,11 @@ public enum Phases implements OptionsEnum {
 
 	/**
 	 * Get value converted from a three phase value.
-	 * 
+	 *
 	 * <p>
 	 * As the values e.g. hardware limit are most likely given for three phase
 	 * charging, this is used to convert the value, depending on the current phases
-	 * 
+	 *
 	 * @param threePhaseValue value using all three phases as power
 	 * @return converted value
 	 */

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+
 public class EndpointResponseDefinitionBuilderTest {
 
 	@Test
@@ -19,7 +21,7 @@ public class EndpointResponseDefinitionBuilderTest {
 		final var defBuilder = new EndpointResponseDefinitionBuilder<EmptyObject>();
 
 		final var exampleKey = "exampleKey";
-		final var exampleObject = new EmptyObject();
+		final var exampleObject = EmptyObject.INSTANCE;
 		defBuilder.addExample(exampleKey, exampleObject);
 		assertEquals(1, defBuilder.getExamples().size());
 		assertEquals(exampleKey, defBuilder.getExamples().get(0).identifier());
@@ -30,7 +32,7 @@ public class EndpointResponseDefinitionBuilderTest {
 	public void testAddExampleResponse() {
 		final var defBuilder = new EndpointResponseDefinitionBuilder<EmptyObject>();
 
-		final var exampleObject = new EmptyObject();
+		final var exampleObject = EmptyObject.INSTANCE;
 		defBuilder.addExample(exampleObject);
 		assertEquals(1, defBuilder.getExamples().size());
 		assertEquals(exampleObject, defBuilder.getExamples().get(0).exampleObject());
@@ -39,10 +41,10 @@ public class EndpointResponseDefinitionBuilderTest {
 	@Test
 	public void testCreateExampleArray() {
 		final var defBuilder = new EndpointResponseDefinitionBuilder<EmptyObject>();
-		defBuilder.addExample(new EmptyObject());
+		defBuilder.addExample(EmptyObject.INSTANCE);
 		defBuilder.setSerializer(EmptyObject.serializer());
 
-		assertEquals(1, defBuilder.createExampleArray().size());
+		assertEquals(2, defBuilder.createExampleArray().size());
 	}
 
 }
