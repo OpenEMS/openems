@@ -10,7 +10,9 @@ import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
 import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
+import { SchedulePowerAndSocChartReducedComponent } from "./modal/powerSocChartReduced";
 import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
+import { ScheduleStateAndPriceChartReducedComponent } from "./modal/statePriceChartReduced";
 
 @NgModule({
     imports: [
@@ -21,7 +23,9 @@ import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
         FlatComponent,
         ModalComponent,
         ScheduleStateAndPriceChartComponent,
+        ScheduleStateAndPriceChartReducedComponent,
         SchedulePowerAndSocChartComponent,
+        SchedulePowerAndSocChartReducedComponent,
     ],
     exports: [
         FlatComponent,
@@ -32,6 +36,12 @@ export class Controller_Ess_TimeOfUseTariff { }
 export namespace Controller_Ess_TimeOfUseTariff {
 
     export type ScheduleChartData = {
+        datasets: ChartDataset[],
+        colors: any[],
+        labels: Date[]
+    };
+
+    export type ScheduleChartDataReduced = {
         datasets: ChartDataset[],
         colors: any[],
         labels: Date[]
@@ -164,5 +174,55 @@ export namespace Controller_Ess_TimeOfUseTariff {
         };
 
         return scheduleChartData;
+    }
+
+
+
+    /**
+     * Gets the schedule chart data containing datasets, colors and labels.
+     *
+     * @param size The length of the dataset
+     * @param prices The Time-of-Use-Tariff quarterly price array
+     * @param timestamps The Time-of-Use-Tariff timestamps array
+     * @param translate The Translate service
+     * @returns The ScheduleChartData.
+     */
+    export function getScheduleChartDataReduced(size: number, prices: number[], timestamps: string[],
+        translate: TranslateService): Controller_Ess_TimeOfUseTariff.ScheduleChartDataReduced {
+
+        const datasets: ChartDataset[] = [];
+        const colors: any[] = [];
+        const labels: Date[] = [];
+
+        // Initializing States.
+        const barPrices = Array(size).fill(null);
+
+
+        for (let index = 0; index < size; index++) {
+            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(prices[index]);
+            labels.push(new Date(timestamps[index]));
+            barPrices[index] = quarterlyPrice;
+        }
+
+        datasets.push({
+            type: "bar",
+            label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.PRICE"),
+            data: barPrices,
+            order: 1,
+        });
+
+        colors.push({
+            backgroundColor: "rgba(255,165,0,0.8)", // 
+            borderColor: "rgba(255,140,0,1)", // 
+        });
+
+        const scheduleChartDataReduced: Controller_Ess_TimeOfUseTariff.ScheduleChartDataReduced = {
+            colors: colors,
+            datasets: datasets,
+            labels: labels,
+        };
+
+        return scheduleChartDataReduced;
+
     }
 }
