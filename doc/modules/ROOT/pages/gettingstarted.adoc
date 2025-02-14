@@ -8,7 +8,20 @@
 :source-highlighter: highlight.js
 :icons: font
 
-This quick 'Getting Started' guide should help you setup a complete development environment. Once finished you will have a working instance of OpenEMS Edge, with simulated energy storage and photovoltaic system, as well as an OpenEMS UI for monitoring the simulator inside your web browser. Finally OpenEMS Backend is added to simulate a cloud backend that connects UI and Edge.
+There are three ways to get started with OpenEMS. You can either setup your develpement environment and compile OpenEMS Edge from source, or you can use the pre-build packages, or you can use the docker images at https://github.com/OpenEMS/openems/tree/main/tools/docker/[OpenEMS' GitHub].
+How to use the docker images is described in the README at the above link. For the other two ways, keep reeding.
+Either way, once finished you will have a working instance of OpenEMS Edge, with simulated energy storage and photovoltaic system, as well as an OpenEMS UI for monitoring the simulator inside your web browser. Finally OpenEMS Backend is added to simulate a cloud backend that connects UI and Edge.
+If you chose to setup the development environment, skip the first section and go to <<Download-the-source-code>>.
+
+== Running the pre-build OpenEMS Edge
+. Go to the https://github.com/OpenEMS/openems/releases/[OpenEMS' release Page] on GitHub and download the latest `openems-edge.jar`.
+. Open up your Terminal and go to the directory you downloaded the packages to.
+. Start the OpenEMS Edge with the following command `java -jar openems-edge.jar`
+
+NOTE: Make sure you have the right java Version (21.0) is installed and active on your system . On most systems `java -version` in your CLI will show the active version. On how to change the active version, refer to your system documentation. For example: on archlinux the `archlinux-java status` command will list all installed versions, that can be set via `archlinux-java set VERSION`.
+
+. If you see the following warning in your terminal: *There are no schedulers configured!* OpenEMS Edge runs perfectly.
+. Now you can continue with <<Starting-a-simulation>>
 
 == Download the source code
 
@@ -74,7 +87,7 @@ Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd W
 
 // TODO add Setup of Checkstyle
 
-== Run OpenEMS Edge and start Simulator
+== Run OpenEMS Edge from Eclipse
 
 . Run OpenEMS Edge
 .. In Eclipse IDE open the project btn:[io.openems.edge.application] and double click on btn:[EdgeApp.bndrun].
@@ -94,6 +107,8 @@ The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For n
 +
 .OpenEMS Edge initial log output
 image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
+
+== Starting a simulation
 
 . Configure and start the Simulator
 .. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]]
