@@ -111,10 +111,10 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 			
 			
 			// Factors and configurations
-			this.factorPv1 = config.factorPv1();
-			this.factorPv2 = config.factorPv2();
-			this.factorPv3 = config.factorPv3();
-
+	        this.factorPv1 = Optional.ofNullable(config.factorPv1()).orElse(0.0);
+	        this.factorPv2 = Optional.ofNullable(config.factorPv2()).orElse(0.0);
+	        this.factorPv3 = Optional.ofNullable(config.factorPv3()).orElse(0.0);
+	        
 			List<Double> pv1Radiation = new ArrayList<>();
 			List<Double> pv2Radiation = new ArrayList<>();
 			List<Double> pv3Radiation = new ArrayList<>();
@@ -192,15 +192,14 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 				}				
 
 				// Debug output for each step
-				if (this.config.debugMode()) {
-					ZonedDateTime timestamp = startOfDay.plusMinutes((currentIntervalIndex + i) * 15);
-					logDebug(this.log, "Index: " + i + " Time: " + timestamp.toString() 
-					+ " PV1 radiation: " + pv1Radiation.get(dataIndex) + "W/m² / factor: " +  factorPv1 + " Result " + pv1Value + "W"
-					+ " PV2 radiation: " + pv2Radiation.get(dataIndex) + "W/m² / factor: " +  factorPv2 + " Result " + pv2Value + "W" 
-					+ " PV3 radiation: " + pv3Radiation.get(dataIndex) + "W/m² / factor: " +  factorPv3 + " Result " + pv3Value + "W"
-					+ " Sum: " + sumValue + "W");
-					
-				}
+	            if (this.config.debugMode()) {
+	                ZonedDateTime timestamp = startOfDay.plusMinutes((currentIntervalIndex + i) * 15);
+	                logDebug(this.log, "Index: " + i + " Time: " + timestamp.toString() 
+	                        + " PV1 radiation: " + (dataIndex < pv1Radiation.size() ? pv1Radiation.get(dataIndex) : 0) + "W/m² / factor: " + factorPv1 + " Result " + pv1Value + "W"
+	                        + " PV2 radiation: " + (dataIndex < pv2Radiation.size() ? pv2Radiation.get(dataIndex) : 0) + "W/m² / factor: " + factorPv2 + " Result " + pv2Value + "W"
+	                        + " PV3 radiation: " + (dataIndex < pv3Radiation.size() ? pv3Radiation.get(dataIndex) : 0) + "W/m² / factor: " + factorPv3 + " Result " + pv3Value + "W"
+	                        + " Sum: " + sumValue + "W");
+	            }
 			}
 			
 			

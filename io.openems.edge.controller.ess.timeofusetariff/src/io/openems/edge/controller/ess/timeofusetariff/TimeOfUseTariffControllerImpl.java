@@ -190,7 +190,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, this.sum, this.ess,
 						this.ctrlLimiter14as, this.config.maxChargePowerFromGrid());
 			case OFF //
-				-> new ApplyState(StateMachine.BALANCING, null);
+				-> new ApplyState(StateMachine.OFF, null);
 			};
 
 		case V2_ENERGY_SCHEDULABLE //
@@ -290,6 +290,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				}) //
 				.setSimulator((simContext, period, energyFlow, ctrlContext, state) -> {
 					switch (state) {
+					case OFF -> applyBalancing(energyFlow); // TODO Move to CtrlBalancing
 					case BALANCING -> applyBalancing(energyFlow); // TODO Move to CtrlBalancing
 					case DELAY_DISCHARGE -> applyDelayDischarge(energyFlow);
 					case CHARGE_GRID -> {
