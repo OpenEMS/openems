@@ -35,6 +35,9 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 	@AttributeDefinition(name = "latitude", description = "Geographic longitude coordinate. Ex. 13.41")
 	String longitude() default "15.455001";
 	
+    @AttributeDefinition(name = "Weather model", description = "Weather model used for i.e. cloud coverage")
+    WeatherModels WeatherModels() default WeatherModels.UNDEFINED;
+	
 	@AttributeDefinition(name = "PV1 Multiplication Factor", description = "multiplication factor to estimate the PV production power from short wave solar radiation, "
 			+ "m² is the size of each PV_Panel * number of PV-Panels * Efficiency Factor (can be estimated from historical values , KW)")
 	double factorPv1() default 1.00 * 10.0 * 0.20;

@@ -48,7 +48,8 @@ import io.openems.edge.predictor.api.prediction.Predictor;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class PredictorWeatherForecastModelImpl extends AbstractPredictor implements Predictor, OpenemsComponent, PredictorWeatherForecastModel {
+public class PredictorWeatherForecastModelImpl extends AbstractPredictor
+		implements Predictor, OpenemsComponent, PredictorWeatherForecastModel {
 
 	private final Logger log = LoggerFactory.getLogger(PredictorWeatherForecastModelImpl.class);
 	private double factorPv1; // Factor to multiply with short wave solar radiation to forecast PV production
@@ -59,17 +60,17 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 	private int targetArraySize = 192; // 48hours
 
 	private String forecastModel = "global_tilted_irradiance";
-	
-    private ZoneId timezone;
-    private String encodedTimeZone;
-	
+	private String weatherModel;
+
+	private ZoneId timezone;
+	private String encodedTimeZone;
 
 	@Reference
 	private ComponentManager componentManager;
 
 	private Config config;
-	//private OpenMeteoForecast openMeteoForecast; // Service to fetch weather data
-	
+	// private OpenMeteoForecast openMeteoForecast; // Service to fetch weather data
+
 	public PredictorWeatherForecastModelImpl() throws OpenemsNamedException {
 		super(OpenemsComponent.ChannelId.values(), Controller.ChannelId.values(),
 				PredictorWeatherForecastModel.ChannelId.values());
@@ -78,14 +79,13 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 	@Activate
 	private void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
-		
+
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(),
 				this.config.channelAddresses(), this.config.logVerbosity());
-		
 
-        this.timezone = this.componentManager.getClock().getZone();
-        this.encodedTimeZone = URLEncoder.encode(this.timezone.toString(), StandardCharsets.UTF_8);
-		
+		this.timezone = this.componentManager.getClock().getZone();
+		this.encodedTimeZone = URLEncoder.encode(this.timezone.toString(), StandardCharsets.UTF_8);
+
 	}
 
 	@Override
@@ -102,19 +102,17 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
 		try {
 			// Initialize OpenMeteoForecast
-			//this.openMeteoForecast = new OpenMeteoForecast(config.debugMode());
+			// this.openMeteoForecast = new OpenMeteoForecast(config.debugMode());
 			// Get the current time
 			ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock());
-			
-			
+
 			ZonedDateTime startOfDay = now.truncatedTo(ChronoUnit.DAYS);
-			
-			
+
 			// Factors and configurations
-	        this.factorPv1 = Optional.ofNullable(config.factorPv1()).orElse(0.0);
-	        this.factorPv2 = Optional.ofNullable(config.factorPv2()).orElse(0.0);
-	        this.factorPv3 = Optional.ofNullable(config.factorPv3()).orElse(0.0);
-	        
+			this.factorPv1 = Optional.ofNullable(config.factorPv1()).orElse(0.0);
+			this.factorPv2 = Optional.ofNullable(config.factorPv2()).orElse(0.0);
+			this.factorPv3 = Optional.ofNullable(config.factorPv3()).orElse(0.0);
+
 			List<Double> pv1Radiation = new ArrayList<>();
 			List<Double> pv2Radiation = new ArrayList<>();
 			List<Double> pv3Radiation = new ArrayList<>();
@@ -157,8 +155,6 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 				return Prediction.EMPTY_PREDICTION;
 			}
 
-
-
 			// Calculate the index corresponding to the current 15-minute interval
 			int currentIntervalIndex = (int) ChronoUnit.MINUTES.between(startOfDay, now) / 15;
 
@@ -179,30 +175,29 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 				double pv3Value = dataIndex < pv3Radiation.size() ? pv3Radiation.get(dataIndex) * factorPv3 : 0;
 				double sumValue = pv1Value + pv2Value + pv3Value;
 
-
-				
 				values[i] = (int) Math.round(sumValue);
-				
+
 				if (i == 0) { // Save nearest prediction in channels
 					this._setProductionActivePower(values[0]);
 					this._setProductionActivePowerPv1((int) Math.round(pv1Value));
 					this._setProductionActivePowerPv2((int) Math.round(pv2Value));
 					this._setProductionActivePowerPv3((int) Math.round(pv3Value));
-					
-				}				
+
+				}
 
 				// Debug output for each step
-	            if (this.config.debugMode()) {
-	                ZonedDateTime timestamp = startOfDay.plusMinutes((currentIntervalIndex + i) * 15);
-	                logDebug(this.log, "Index: " + i + " Time: " + timestamp.toString() 
-	                        + " PV1 radiation: " + (dataIndex < pv1Radiation.size() ? pv1Radiation.get(dataIndex) : 0) + "W/m² / factor: " + factorPv1 + " Result " + pv1Value + "W"
-	                        + " PV2 radiation: " + (dataIndex < pv2Radiation.size() ? pv2Radiation.get(dataIndex) : 0) + "W/m² / factor: " + factorPv2 + " Result " + pv2Value + "W"
-	                        + " PV3 radiation: " + (dataIndex < pv3Radiation.size() ? pv3Radiation.get(dataIndex) : 0) + "W/m² / factor: " + factorPv3 + " Result " + pv3Value + "W"
-	                        + " Sum: " + sumValue + "W");
-	            }
+				if (this.config.debugMode()) {
+					ZonedDateTime timestamp = startOfDay.plusMinutes((currentIntervalIndex + i) * 15);
+					logDebug(this.log, "Index: " + i + " Time: " + timestamp.toString() + " PV1 radiation: "
+							+ (dataIndex < pv1Radiation.size() ? pv1Radiation.get(dataIndex) : 0) + "W/m² / factor: "
+							+ factorPv1 + " Result " + pv1Value + "W" + " PV2 radiation: "
+							+ (dataIndex < pv2Radiation.size() ? pv2Radiation.get(dataIndex) : 0) + "W/m² / factor: "
+							+ factorPv2 + " Result " + pv2Value + "W" + " PV3 radiation: "
+							+ (dataIndex < pv3Radiation.size() ? pv3Radiation.get(dataIndex) : 0) + "W/m² / factor: "
+							+ factorPv3 + " Result " + pv3Value + "W" + " Sum: " + sumValue + "W");
+				}
 			}
-			
-			
+
 			// Return the prediction starting from the calculated time
 			return Prediction.from(startOfDay.plusMinutes(currentIntervalIndex * 15), values);
 
@@ -212,7 +207,6 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 		}
 	}
 
-	
 	/**
 	 * Fetch weather forecast data for the given coordinates.
 	 *
@@ -224,12 +218,15 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 	 */
 	public void fetchDataWithTiltAndAzimuth(String latitude, String longitude, int azimuth, int tilt,
 			String forecastModel) throws Exception {
+
+		this.weatherModel = this.config.WeatherModels().getWeatherModel();
+
 		this.apiUrl = String
 				.format("https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&minutely_15=" + forecastModel
 				// +
 				// "&hourly=shortwave_radiation,global_tilted_irradiance,shortwave_radiation_instant"
-						+ "&forecast_days=3&models=best_match&tilt=%s&azimuth=%s", latitude, longitude, tilt, azimuth
-						+ "&timezone=" + this.encodedTimeZone);
+						+ "&forecast_days=3" + this.weatherModel + "&tilt=%s&azimuth=%s", latitude, longitude, tilt,
+						azimuth + "&timezone=" + this.encodedTimeZone);
 
 		HttpURLConnection conn = null;
 		try {
@@ -275,8 +272,8 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor impleme
 				// .map(m -> m.getAsJsonArray("shortwave_radiation"))
 				.map(m -> m.getAsJsonArray(forecastModel)).map(arr -> IntStream.range(0, arr.size()).mapToObj(arr::get)
 						.map(element -> element.getAsDouble()).collect(Collectors.toList()));
-	}	
-	
+	}
+
 	/**
 	 * Uses Info Log for further debug features.
 	 */

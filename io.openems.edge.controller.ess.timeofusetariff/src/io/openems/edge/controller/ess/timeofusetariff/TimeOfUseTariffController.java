@@ -31,7 +31,7 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 				.persistencePriority(PersistencePriority.HIGH)), //
 		
 		UNABLE_TO_UPDATE_PRICES(Doc.of(Level.WARNING) //
-				.text("Unable to update prices from ENTSO-E API")
+				.text("Unable to update prices from API")
 				.persistencePriority(PersistencePriority.HIGH)),		
 
 		/**
