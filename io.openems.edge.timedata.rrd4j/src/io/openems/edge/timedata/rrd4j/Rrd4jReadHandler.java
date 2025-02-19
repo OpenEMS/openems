@@ -213,6 +213,7 @@ public class Rrd4jReadHandler {
 				}
 				continue;
 			}
+			var channelType = channel.getType();
 			try (final var database = this.rrd4jSupplier.getExistingUpdatedRrdDb(//
 					rrdDbId, channel.address(), channel.channelDoc().getUnit())) {
 				if (database == null) {
@@ -255,9 +256,13 @@ public class Rrd4jReadHandler {
 							continue;
 						}
 
+						var jval = switch (channelType) {
+							case FLOAT, DOUBLE -> new JsonPrimitive((float)value);
+							default -> new JsonPrimitive((int)value);
+						};
 						// return timestamps in milliseconds
 						resultMap.computeIfAbsent(timestamp * 1000, t -> new TreeMap<>()) //
-								.put(channelAddress, new JsonPrimitive(value));
+								.put(channelAddress, jval);
 					}
 				}
 
