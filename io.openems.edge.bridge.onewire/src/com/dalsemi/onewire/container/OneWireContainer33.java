@@ -822,7 +822,7 @@ public class OneWireContainer33 extends OneWireContainer {
 		this.memoryPages[0].pageCRC = true;
 		this.memoryPages[0].checked = false;
 
-		// Set memory bank varialbes
+		// Set memory bank variables
 		this.memoryPages[1] = new MemoryBankSHAEE(this, this.mbScratchpad);
 		this.memoryPages[1].bankDescription = "Page One with EPROM mode and write protection.";
 		this.memoryPages[1].generalPurposeMemory = true;
@@ -836,7 +836,7 @@ public class OneWireContainer33 extends OneWireContainer {
 		this.memoryPages[1].pageCRC = true;
 		this.memoryPages[1].checked = false;
 
-		// Set memory bank varialbes
+		// Set memory bank variables
 		this.memoryPages[2] = new MemoryBankSHAEE(this, this.mbScratchpad);
 		this.memoryPages[2].bankDescription = "Page Two and Three with write protection.";
 		this.memoryPages[2].generalPurposeMemory = true;
@@ -1110,7 +1110,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	}
 
 	/**
-	 * Copy all 8 bytes of the Sratch Pad to a certain page and offset in memory.
+	 * Copy all 8 bytes of the Scratch Pad to a certain page and offset in memory.
 	 *
 	 * @param targetPage       the page to copy the data to
 	 * @param targetPageOffset the offset into the page to copy to
@@ -1129,7 +1129,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	}
 
 	/**
-	 * Copy all 8 bytes of the Sratch Pad to a certain page and offset in memory.
+	 * Copy all 8 bytes of the Scratch Pad to a certain page and offset in memory.
 	 *
 	 * The container secret must be set so that the container can produce the
 	 * correct MAC.

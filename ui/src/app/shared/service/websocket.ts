@@ -1,10 +1,13 @@
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { Injectable, signal, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
+import { Capacitor } from "@capacitor/core";
 import { TranslateService } from "@ngx-translate/core";
+import { SavePassword } from "capacitor-ios-autofill-save-password";
 import { CookieService } from "ngx-cookie-service";
 import { delay, retryWhen } from "rxjs/operators";
-import { WebSocketSubject, webSocket } from "rxjs/webSocket";
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { UserComponent } from "src/app/user/user.component";
 import { environment } from "src/environments";
 
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
@@ -18,6 +21,7 @@ import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 import { LogoutRequest } from "../jsonrpc/request/logoutRequest";
 import { RegisterUserRequest } from "../jsonrpc/request/registerUserRequest";
 import { AuthenticateResponse } from "../jsonrpc/response/authenticateResponse";
+import { States } from "../ngrx-store/states";
 import { Language } from "../type/language";
 import { Pagination } from "./pagination";
 import { Service } from "./service";
@@ -39,6 +43,8 @@ export class Websocket implements WebsocketInterface {
     | "online" // logged in + normal operation
     | "failed" // connection failed
     = "initial";
+
+  public state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
 
   private readonly wsdata = new WsData();
 
@@ -68,7 +74,17 @@ export class Websocket implements WebsocketInterface {
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
     return new Promise<void>((resolve) => {
       this.sendRequest(request).then(r => {
+        this.state.set(States.AUTHENTICATED);
         const authenticateResponse = (r as AuthenticateResponse).result;
+
+        if (request instanceof AuthenticateWithPasswordRequest) {
+          if (Capacitor.getPlatform() === "ios") {
+            SavePassword.promptDialog({
+              username: request.params.username,
+              password: request.params.password,
+            });
+          }
+        }
 
         const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
         localStorage.LANGUAGE = language.key;
@@ -78,7 +94,8 @@ export class Websocket implements WebsocketInterface {
         // received login token -> save in cookie
         this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
 
-        this.service.currentUser = authenticateResponse.user;
+        this.service.currentUser.set(authenticateResponse.user);
+        UserComponent.applyUserSettings(authenticateResponse.user);
 
         // Metadata
         this.service.metadata.next({
@@ -202,10 +219,12 @@ export class Websocket implements WebsocketInterface {
  * Opens a connection using a stored token. Called once by constructor
  */
   private connect() {
+    this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
     if (this.status != "initial") {
       return;
     }
     // trying to connect
+    this.state.set(States.WEBSOCKET_CONNECTING);
     this.status = "connecting";
 
     if (environment.debugMode) {
@@ -219,6 +238,7 @@ export class Websocket implements WebsocketInterface {
       url: environment.url,
       openObserver: {
         next: (value) => {
+          this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
           // Websocket connection is open
           if (environment.debugMode) {
             console.info("Websocket connection opened");
@@ -226,6 +246,7 @@ export class Websocket implements WebsocketInterface {
 
           const token = this.cookieService.get("token");
           if (token) {
+            this.state.set(States.AUTHENTICATING_WITH_TOKEN);
 
             // Login with Session Token
             this.login(new AuthenticateWithTokenRequest({ token: token }));
@@ -233,6 +254,7 @@ export class Websocket implements WebsocketInterface {
 
           } else {
             // No Token -> directly ask for Login credentials
+            this.state.set(States.NOT_AUTHENTICATED);
             this.status = "waiting for credentials";
             this.router.navigate(["login"]);
           }
@@ -241,10 +263,12 @@ export class Websocket implements WebsocketInterface {
       closeObserver: {
         next: (value) => {
           // Websocket connection is closed. Auto-Reconnect starts.
+          this.state.set(States.WEBSOCKET_CONNECTION_CLOSED);
           if (environment.debugMode) {
             console.info("Websocket connection closed");
           }
           // trying to connect
+          this.state.set(States.WEBSOCKET_CONNECTING);
           this.status = "connecting";
         },
       },

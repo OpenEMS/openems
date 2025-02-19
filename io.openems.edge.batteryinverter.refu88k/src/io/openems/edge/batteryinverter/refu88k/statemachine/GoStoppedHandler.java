@@ -10,23 +10,15 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		var inverter = context.getParent();
 
-		switch (inverter.getOperatingState()) {
-		case STARTING:
-		case MPPT:
-		case THROTTLED:
-		case STARTED:
+		return switch (inverter.getOperatingState()) {
+		case STARTING, MPPT, THROTTLED, STARTED -> {
 			inverter.stopInverter();
-			return State.GO_STOPPED;
-		case FAULT:
-		case STANDBY:
-			return State.STOPPED;
-		case SHUTTING_DOWN:
-		case OFF:
-		case SLEEPING:
-		case UNDEFINED:
-			return State.UNDEFINED;
+			yield State.GO_STOPPED;
 		}
-
-		return State.UNDEFINED;
+		case FAULT, STANDBY //
+			-> State.STOPPED;
+		case SHUTTING_DOWN, OFF, SLEEPING, UNDEFINED //
+			-> State.UNDEFINED;
+		};
 	}
 }

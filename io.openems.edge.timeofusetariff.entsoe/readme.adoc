@@ -6,6 +6,6 @@ To request a (free) authentication token, please see chapter "2. Authentication 
 
 Prices retrieved from ENTSO-E are subsequently converted to the user's currency (defined in Core.Meta Component) using the Exchange Rates API.
 
-For detailed information about the Exchange Rates API, please refer to: https://exchangerate.host/#/docs
+For detailed information about the Exchange Rates API, please refer to: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.entsoe[Source Code icon:github[]]

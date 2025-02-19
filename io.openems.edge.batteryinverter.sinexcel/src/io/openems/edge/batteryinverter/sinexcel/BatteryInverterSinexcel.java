@@ -44,7 +44,7 @@ public interface BatteryInverterSinexcel extends OffGridBatteryInverter, Managed
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
 		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)//
@@ -96,7 +96,7 @@ public interface BatteryInverterSinexcel extends OffGridBatteryInverter, Managed
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		FAULT_STATUS(Doc.of(Level.FAULT) //
+		FAULT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		ALERT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //

@@ -114,8 +114,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 		// Get DC-PV-Power for Hybrid ESS
 		Integer dcPvPower = null;
 		var batteryInverter = this.getBatteryInverter();
-		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			dcPvPower = ((HybridManagedSymmetricBatteryInverter) batteryInverter).getDcPvPower();
+		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter hybrid) {
+			dcPvPower = hybrid.getDcPvPower();
 		}
 
 		sb //
@@ -124,9 +124,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 
 		// For HybridEss show actual Battery charge power and PV production power
 		if (dcPvPower != null) {
-			HybridEss me = this;
 			sb //
-					.append("|Battery:").append(me.getDcDischargePower().asString()) //
+					.append("|Battery:").append(this.getDcDischargePower().asString()) //
 					.append("|PV:").append(dcPvPower);
 		}
 
@@ -190,12 +189,11 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 	}
 
 	@Override
-	public Integer getSurplusPower() {
-		var batteryInverter = this.getBatteryInverter();
-		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			return ((HybridManagedSymmetricBatteryInverter) batteryInverter).getSurplusPower();
-		}
-		return null;
+	public final Integer getSurplusPower() {
+		return switch (this.getBatteryInverter()) {
+		case HybridManagedSymmetricBatteryInverter hybrid -> hybrid.getSurplusPower();
+		case null, default -> null;
+		};
 	}
 
 	@Override
@@ -211,22 +209,10 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.startStopConfig) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.startStopConfig) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
 	}
-
 }

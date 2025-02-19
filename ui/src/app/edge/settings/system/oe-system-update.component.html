@@ -4,19 +4,19 @@
     <ng-container *ngIf="!edge.isOnline; else edgeIsOnline">
         <!-- Edge is Restarting after Update -->
         <ng-container *ngIf="executeUpdate.isEdgeRestarting; else edgeIsOffline">
-            <ion-item lines="none">
+            <ion-item lines="none" color="light">
                 <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.EDGE_RESTARTING' | translate:
                     { edge: environment.edgeShortName } }}<br />
                     {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate}}</ion-label>
             </ion-item>
-            <ion-item lines="none">
+            <ion-item lines="none" color="light">
                 <ion-progress-bar type="indeterminate" style="margin-top: 1%"></ion-progress-bar>
             </ion-item>
         </ng-container>
 
         <!-- Edge is offline -->
         <ng-template #edgeIsOffline>
-            <ion-item lines="none">
+            <ion-item lines="none" color="light">
                 <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.OFFLINE' | translate:
                     { edgeShortName: environment.edgeShortName } }}
                 </ion-label>
@@ -55,7 +55,8 @@
                                     </ion-label>
                                 </ion-item>
                                 <ion-item lines="none">
-                                    <percentagebar [value]="state.percentCompleted"></percentagebar>
+                                    <oe-flat-widget-percentagebar
+                                        [value]="state.percentCompleted"></oe-flat-widget-percentagebar>
                                 </ion-item>
                             </ng-container>
                         </ion-col>

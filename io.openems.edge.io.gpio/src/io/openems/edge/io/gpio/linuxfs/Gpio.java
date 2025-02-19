@@ -93,7 +93,7 @@ public class Gpio implements AutoCloseable {
 			} else if (msg.contains("busy")) {
 				throw new OpenemsException("Skipping write to GPIO pin [" + this.pinNumber + "]: device is busy.");
 			} else {
-				throw new OpenemsException("Unkown error writing GPIO file: " + msg);
+				throw new OpenemsException("Unknown error writing GPIO file: " + msg);
 			}
 		}
 	}

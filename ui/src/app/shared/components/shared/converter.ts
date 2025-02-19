@@ -93,6 +93,48 @@ export namespace Converter {
       Formatter.FORMAT_WATT(value));
   };
 
+  /**
+   * Formats a Power value as Watt [W].
+   *
+   * Value 1000 -> "1.000 W".
+   * Value null -> "-".
+   *
+   * @param value the power value
+   * @returns formatted value; '-' for null
+   */
+  export const POWER_IN_KILO_WATT: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_KILO_WATT(Utils.divideSafely(value, 1000)));
+  };
+
+  /**
+   * Formats a Energy value as Kilo watt hours [kWh].
+   *
+   * Value 1000 -> "1,00 kWh".
+   * Value null -> "-".
+   *
+   * @param value the power value
+   * @returns formatted value; '-' for null
+   */
+  export const WATT_HOURS_IN_KILO_WATT_HOURS: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_KILO_WATT_HOURS(value / 1000));
+  };
+
+  /**
+   * Formats a Energy value as Kilo watt hours [kWh].
+   *
+   * Value 1000 -> "1000 kWh".
+   * Value null -> "-".
+   *
+   * @param value the power value
+   * @returns formatted value; '-' for null
+   */
+  export const TO_KILO_WATT_HOURS: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_KILO_WATT_HOURS(value));
+  };
+
   export const STATE_IN_PERCENT: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_PERCENT(value));
@@ -134,6 +176,21 @@ export namespace Converter {
   export const CURRENT_IN_MILLIAMPERE_TO_AMPERE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_AMPERE(value / 1000));
+  };
+
+  /**
+   * Converts a formatted current value to the absolute value.
+   *
+   * Value -1000 -> "1.000 A".
+   * Value 1000 -> "1.000 A".
+   * Value null -> "-".
+   *
+   * @param value the current value
+   * @returns formatted value; '-' for null
+   */
+  export const CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_AMPERE(Math.abs(value) / 1000));
   };
 
   export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw) => {
@@ -215,6 +272,23 @@ export namespace Converter {
   export const ON_OFF = (translate: TranslateService) => {
     return (raw): string => {
       return translate.instant(raw == 1 ? "General.on" : "General.off");
+    };
+  };
+
+  export const HEAT_PUMP_STATES = (translate: TranslateService) => {
+    return (raw): string => {
+      switch (raw) {
+        case -1:
+          return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+        case 0:
+          return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+        case 1:
+          return translate.instant("Edge.Index.Widgets.HeatPump.normalOperationShort");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRecShort");
+        case 3:
+          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnComShort");
+      }
     };
   };
 

@@ -5,6 +5,7 @@ import { Language } from "../../type/language";
 
 @Pipe({
     name: "unitvalue",
+    standalone: false,
 })
 export class UnitvaluePipe implements PipeTransform {
 

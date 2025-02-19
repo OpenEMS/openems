@@ -95,6 +95,15 @@ public record Variable(String variable) {
 	}
 
 	/**
+	 * Checks if the current value of the variable is an array.
+	 * 
+	 * @return the created {@link BooleanExpression}
+	 */
+	public BooleanExpression isArray() {
+		return new BooleanExpression("Array.isArray(" + this.variable + ")");
+	}
+
+	/**
 	 * Uses this variable as an array.
 	 * 
 	 * @return the {@link ArrayExpression} of this variable

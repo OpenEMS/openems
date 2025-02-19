@@ -43,6 +43,7 @@ describe("PickdatePopover", () => {
         const popoverBtn = debugElement.query(By.css("[testId=\"popover-button\"]"));
         popoverBtn.triggerEventHandler("click", null);
         fixture.detectChanges();
+
         expect(component).toBeDefined();
         expect((debugElement?.nativeNode?.children as HTMLCollection)?.item(2)?.localName).toEqual("lib-angular-mydatepicker-calendar");
     });

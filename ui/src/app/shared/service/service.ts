@@ -1,13 +1,12 @@
 // @ts-strict-ignore
 import { registerLocaleData } from "@angular/common";
-import { Injectable } from "@angular/core";
+import { Injectable, WritableSignal, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first, take } from "rxjs/operators";
-import { ChosenFilter } from "src/app/index/filter/filter.component";
 import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
 import { Edge } from "../components/edge/edge";
@@ -20,6 +19,7 @@ import { GetEdgeResponse } from "../jsonrpc/response/getEdgeResponse";
 import { GetEdgesResponse } from "../jsonrpc/response/getEdgesResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { User } from "../jsonrpc/shared";
+import { States } from "../ngrx-store/states";
 import { ChannelAddress } from "../shared";
 import { Language } from "../type/language";
 import { Role } from "../type/role";
@@ -78,7 +78,7 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
-  public currentUser: User | null = null;
+  public currentUser: WritableSignal<User | null> = signal(null);
 
   /**
    * Holds the current Activated Route
@@ -134,7 +134,7 @@ export class Service extends AbstractService {
   }
 
   // https://v16.angular.io/api/core/ErrorHandler#errorhandler
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   public override handleError(error: any) {
     console.error(error);
     // TODO: show notification
@@ -198,6 +198,8 @@ export class Service extends AbstractService {
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
+    this.currentUser.set(null);
+    this.websocket.state.set(States.NOT_AUTHENTICATED);
     this.router.navigate(["/login"]);
   }
 
@@ -311,20 +313,13 @@ export class Service extends AbstractService {
   /**
    * Gets the page for the given number.
    *
-   * @param page the page number
-   * @param query the query to restrict the edgeId
-   * @param limit the number of edges to be retrieved
-   * @returns a Promise
+   * @param req the get edges request
+   * @returns a promise with the resulting edges
    */
-  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter["value"] }): Promise<Edge[]> {
+  public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
-      this.websocket.sendSafeRequest(
-        new GetEdgesRequest({
-          page: page,
-          ...(query && query != "" && { query: query }),
-          ...(limit && { limit: limit }),
-          ...(searchParamsObj && { searchParams: searchParamsObj }),
-        })).then((response) => {
+      this.websocket.sendSafeRequest(req)
+        .then((response) => {
 
           const result = (response as GetEdgesResponse).result;
 

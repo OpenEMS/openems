@@ -9,17 +9,14 @@ import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDir
 
 public class SimulatorPvInverterImplTest {
 
-	private static final String COMPONENT_ID = "pvInverter0";
-	private static final String DATASOURCE_ID = "datasource0";
-
 	@Test
 	public void test() throws OpenemsException, Exception {
 		new ComponentTest(new SimulatorPvInverterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("datasource", new SimulatorDatasourceCsvDirectImpl()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setDatasourceId(DATASOURCE_ID) //
+						.setId("pvInverter0") //
+						.setDatasourceId("datasource0") //
 						.build()); //
 		// .next(new TestCase()); // TODO requires DummyDatasource
 	}

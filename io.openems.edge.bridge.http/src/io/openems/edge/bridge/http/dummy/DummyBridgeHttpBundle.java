@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.http.dummy;
 
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
 import static java.util.Collections.emptyMap;
 
 import java.util.concurrent.CompletableFuture;
@@ -7,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.event.Event;
 
-import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bridge.http.api.CycleSubscriber;
@@ -17,9 +17,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 
 public class DummyBridgeHttpBundle {
 
-	private final DummyEndpointFetcher fetcher = DummyBridgeHttpFactory.dummyEndpointFetcher();
-	private final DummyBridgeHttpExecutor pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(new TimeLeapClock(),
-			true);
+	private final DummyEndpointFetcher fetcher = dummyEndpointFetcher();
+	private final DummyBridgeHttpExecutor pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(true);
 	private final CycleSubscriber cycleSubscriber = DummyBridgeHttpFactory.cycleSubscriber();
 	private final DummyBridgeHttpFactory bridgeFactory = DummyBridgeHttpFactory.ofBridgeImpl(() -> this.cycleSubscriber,
 			() -> this.fetcher, () -> this.pool);

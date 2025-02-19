@@ -18,9 +18,6 @@ import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorSimilardayModelImplTest {
 
-	private static final String TIMEDATA_ID = "timedata0";
-	private static final String PREDICTOR_ID = "predictor0";
-
 	private static final ChannelAddress METER1_ACTIVE_POWER = new ChannelAddress("meter1", "ActivePower");
 
 	@Test
@@ -32,7 +29,7 @@ public class PredictorSimilardayModelImplTest {
 		var values = Data.data;
 		var predictedValues = Data.predictedData;
 
-		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var timedata = new DummyTimedata("timedata0");
 		var start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
 		for (var i = 0; i < values.length; i++) {
@@ -45,7 +42,7 @@ public class PredictorSimilardayModelImplTest {
 				.addReference("timedata", timedata) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(PREDICTOR_ID) //
+						.setId("predictor0") //
 						.setNumOfWeeks(4) //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
 						.setLogVerbosity(LogVerbosity.NONE) //

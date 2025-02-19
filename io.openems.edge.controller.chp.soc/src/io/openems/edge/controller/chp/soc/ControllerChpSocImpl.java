@@ -90,21 +90,20 @@ public class ControllerChpSocImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 		boolean modeChanged;
 		do {
-			modeChanged = false;
-			switch (this.mode) {
-			case MANUAL_ON:
+			modeChanged = switch (this.mode) {
+			case MANUAL_ON -> {
 				this.setOutput(true);
-				modeChanged = this.changeMode(Mode.MANUAL_ON);
-				break;
-			case MANUAL_OFF:
-				this.setOutput(false);
-				modeChanged = this.changeMode(Mode.MANUAL_OFF);
-				break;
-			case AUTOMATIC:
-				this.automaticMode();
-				modeChanged = this.changeMode(Mode.AUTOMATIC);
-				break;
+				yield this.changeMode(Mode.MANUAL_ON);
 			}
+			case MANUAL_OFF -> {
+				this.setOutput(false);
+				yield this.changeMode(Mode.MANUAL_OFF);
+			}
+			case AUTOMATIC -> {
+				this.automaticMode();
+				yield this.changeMode(Mode.AUTOMATIC);
+			}
+			};
 		} while (modeChanged);
 
 		this.channel(ControllerChpSoc.ChannelId.MODE).setNextValue(this.mode);

@@ -7,6 +7,7 @@ import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 @Component({
     selector: "timeOfUseTariffWidget",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

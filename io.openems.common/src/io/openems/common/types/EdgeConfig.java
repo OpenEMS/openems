@@ -588,8 +588,7 @@ public class EdgeConfig {
 			var jPropertiesOpt = JsonUtils.getAsOptionalJsonObject(json, "properties");
 			if (jPropertiesOpt.isPresent()) {
 				for (Entry<String, JsonElement> entry : jPropertiesOpt.get().entrySet()) {
-					if (!ignorePropertyKey(entry.getKey())
-							&& !ignoreComponentPropertyKey(componentId, entry.getKey())) {
+					if (!ignorePropertyKey(entry.getKey())) {
 						properties.put(entry.getKey(), entry.getValue());
 					}
 				}
@@ -697,37 +696,20 @@ public class EdgeConfig {
 					description = "";
 				}
 
-				final OpenemsType type;
-				switch (ad.getType()) {
-				case AttributeDefinition.LONG:
-					type = OpenemsType.LONG;
-					break;
-				case AttributeDefinition.INTEGER:
-					type = OpenemsType.INTEGER;
-					break;
-				case AttributeDefinition.SHORT:
-				case AttributeDefinition.BYTE:
-					type = OpenemsType.SHORT;
-					break;
-				case AttributeDefinition.DOUBLE:
-					type = OpenemsType.DOUBLE;
-					break;
-				case AttributeDefinition.FLOAT:
-					type = OpenemsType.FLOAT;
-					break;
-				case AttributeDefinition.BOOLEAN:
-					type = OpenemsType.BOOLEAN;
-					break;
-				case AttributeDefinition.STRING:
-				case AttributeDefinition.CHARACTER:
-				case AttributeDefinition.PASSWORD:
-					type = OpenemsType.STRING;
-					break;
-				default:
+				final OpenemsType type = switch (ad.getType()) {
+				case AttributeDefinition.LONG -> OpenemsType.LONG;
+				case AttributeDefinition.INTEGER -> OpenemsType.INTEGER;
+				case AttributeDefinition.SHORT, AttributeDefinition.BYTE -> OpenemsType.SHORT;
+				case AttributeDefinition.DOUBLE -> OpenemsType.DOUBLE;
+				case AttributeDefinition.FLOAT -> OpenemsType.FLOAT;
+				case AttributeDefinition.BOOLEAN -> OpenemsType.BOOLEAN;
+				case AttributeDefinition.STRING, AttributeDefinition.CHARACTER, AttributeDefinition.PASSWORD ->
+					OpenemsType.STRING;
+				default -> {
 					EdgeConfig.LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
-					type = OpenemsType.STRING;
+					yield OpenemsType.STRING;
 				}
-
+				};
 				var defaultValues = ad.getDefaultValue();
 				JsonElement defaultValue;
 				if (defaultValues == null) {
@@ -770,15 +752,13 @@ public class EdgeConfig {
 
 				var id = ad.getID();
 				var name = ad.getName();
-				final boolean isRequired;
-				switch (id) {
-				case "alias":
-					// Set alias as not-required. If no alias is given it falls back to id.
-					isRequired = false;
-					break;
-				default:
-					isRequired = ad.getCardinality() == 0;
-				}
+				var isRequired = switch (id) {
+				case "alias" -> //
+					// Set alias as not-required. If no alias is given it falls back to id
+					false;
+				default //
+					-> ad.getCardinality() == 0;
+				};
 				return new Property(id, name, description, type, isRequired, isPassword, defaultValue, schema);
 			}
 
@@ -1171,9 +1151,9 @@ public class EdgeConfig {
 			}
 
 			/**
-			 * Builds the {@link ActualEdgeConfig}.
+			 * Builds the ActualEdgeConfig.
 			 * 
-			 * @return {@link ActualEdgeConfig}
+			 * @return ActualEdgeConfig
 			 */
 			public ActualEdgeConfig build() {
 				return new ActualEdgeConfig(ImmutableSortedMap.copyOf(this.getComponents()),
@@ -1191,16 +1171,16 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Creates an empty {@link ActualEdgeConfig}.
+		 * Creates an empty ActualEdgeConfig.
 		 * 
-		 * @return {@link ActualEdgeConfig}
+		 * @return ActualEdgeConfig
 		 */
 		public static ActualEdgeConfig empty() {
 			return ActualEdgeConfig.create().build();
 		}
 
 		/**
-		 * Create a {@link ActualEdgeConfig.Builder} builder.
+		 * Create a ActualEdgeConfig builder.
 		 * 
 		 * @return a {@link Builder}
 		 */
@@ -1248,9 +1228,9 @@ public class EdgeConfig {
 	private volatile JsonObject _json = null;
 
 	/**
-	 * Build from {@link ActualEdgeConfig}.
+	 * Build from ActualEdgeConfig.
 	 * 
-	 * @param actual the {@link ActualEdgeConfig}
+	 * @param actual the ActualEdgeConfig
 	 */
 	private EdgeConfig(ActualEdgeConfig actual) {
 		this._actual = actual;
@@ -1261,10 +1241,10 @@ public class EdgeConfig {
 	}
 
 	/**
-	 * Gets the {@link ActualEdgeConfig}. Either by parsing it from {@link #json} or
-	 * by returning from cache.
+	 * Gets the ActualEdgeConfig. Either by parsing it from {@link #json} or by
+	 * returning from cache.
 	 * 
-	 * @return {@link ActualEdgeConfig}; empty on JSON parse error
+	 * @return ActualEdgeConfig; empty on JSON parse error
 	 */
 	private synchronized ActualEdgeConfig getActual() {
 		if (this._actual != null) {
@@ -1461,27 +1441,6 @@ public class EdgeConfig {
 				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
 				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
 			true;
-
-		default -> false;
-		};
-	}
-
-	/**
-	 * Internal Method to decide whether a configuration property should be ignored.
-	 *
-	 * @param componentId the Component-ID
-	 * @param key         the property key
-	 * @return true if it should get ignored
-	 */
-	public static boolean ignoreComponentPropertyKey(String componentId, String key) {
-		return switch (componentId) {
-		// Filter for _sum component
-		case "_sum" -> switch (key) {
-		case "productionMaxActivePower", "consumptionMaxActivePower", "gridMinActivePower", "gridMaxActivePower" ->
-			true;
-
-		default -> false;
-		};
 
 		default -> false;
 		};

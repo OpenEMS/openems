@@ -1,28 +1,37 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { AfterContentChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, effect } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Capacitor } from "@capacitor/core";
+import { ModalController, PopoverController, ViewWillEnter } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
 
-import { Capacitor } from "@capacitor/core";
 import { AppService } from "../app.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
+import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
+import { States } from "../shared/ngrx-store/states";
 import { Edge, Service, Utils, Websocket } from "../shared/shared";
+import { UserComponent } from "../user/user.component";
 
 @Component({
   selector: "login",
   templateUrl: "./login.component.html",
+  standalone: false,
 })
-export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
+export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
+
+  public currentThemeMode: string;
   public environment = environment;
   public form: FormGroup;
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
+  protected showPassword: boolean = false;
   protected readonly operatingSystem = AppService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
+
 
   constructor(
     public service: Service,
@@ -31,19 +40,27 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private cdref: ChangeDetectorRef,
-  ) { }
+    protected popoverctrl: PopoverController,
+    protected modalctrl: ModalController,
+  ) {
+    effect(() => {
+      const user = this.service.currentUser();
+      this.currentThemeMode = UserComponent.getPreferedColorSchemeFromTheme(UserComponent.getCurrentTheme(user));
+      UserComponent.applyUserSettings(user);
+    });
+  }
 
   /**
- * Trims credentials
- *
- * @param password the password
- * @param username the username
- * @returns trimmed credentials
- */
-  public static trimCredentials(password: string, username?: string): { password: string, username?: string } {
+   * Preprocesses the credentials
+   *
+   * @param password the password
+   * @param username the username
+   * @returns trimmed credentials
+   */
+  public static preprocessCredentials(password: string, username?: string): { password: string, username?: string } {
     return {
       password: password?.trim(),
-      ...(username && { username: username?.trim() }),
+      ...(username && { username: username?.trim().toLowerCase() }),
     };
   }
 
@@ -52,18 +69,16 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   }
 
   ngOnInit() {
-
-    // TODO add websocket status observable
     const interval = setInterval(() => {
-      if (this.websocket.status === "online") {
+      if (this.websocket.status === "online" && !this.router.url.split("/").includes("live")) {
         this.router.navigate(["/overview"]);
         clearInterval(interval);
       }
     }, 1000);
   }
 
-  async ionViewWillEnter() {
 
+  async ionViewWillEnter() {
     // Execute Login-Request if url path matches 'demo'
     if (this.route.snapshot.routeConfig.path == "demo") {
 
@@ -93,7 +108,8 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
    */
   public doLogin(param: { username?: string, password: string }) {
 
-    param = LoginComponent.trimCredentials(param.password, param.username);
+    this.websocket.state.set(States.AUTHENTICATION_WITH_CREDENTIALS);
+    param = LoginComponent.preprocessCredentials(param.password, param.username);
 
     // Prevent that user submits via keyevent 'enter' multiple times
     if (this.formIsDisabled) {
@@ -105,7 +121,7 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
       .finally(() => {
 
         // Unclean
-        this.ngOnInit();
+        this.ionViewWillEnter();
         this.formIsDisabled = false;
       });
   }
@@ -123,7 +139,9 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
 
     return new Promise<Edge[]>((resolve, reject) => {
 
-      this.service.getEdges(this.page)
+      const req = new GetEdgesRequest({ page: this.page });
+
+      this.service.getEdges(req)
         .then((edges) => {
           setTimeout(() => {
             this.router.navigate(["/device", edges[0].id]);
@@ -151,4 +169,5 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
       this.popoverActive = operatingSystem;
     }
   }
+
 }

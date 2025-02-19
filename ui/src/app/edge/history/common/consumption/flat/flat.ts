@@ -6,6 +6,7 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../shared/s
 @Component({
     selector: "consumptionWidget",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -14,26 +15,23 @@ export class FlatComponent extends AbstractFlatWidget {
     protected totalOtherEnergy: number;
 
     protected override getChannelAddresses(): ChannelAddress[] {
+        const channels: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActiveEnergy")];
 
         this.evcsComponents = this.config?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
             .filter(component =>
                 !(component.factoryId === "Evcs.Cluster.SelfConsumption") &&
                 !(component.factoryId === "Evcs.Cluster.PeakShaving") &&
                 !component.isEnabled === false);
-
-        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
-
-        const channels: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActiveEnergy")];
-
         this.evcsComponents.forEach((component) => {
             channels.push(new ChannelAddress(component.id, "ActiveConsumptionEnergy"));
         });
 
+        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component)
+                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs"));
         this.consumptionMeterComponents.forEach((component) => {
             channels.push(new ChannelAddress(component.id, "ActiveProductionEnergy"));
         });
-
 
         return channels;
     }

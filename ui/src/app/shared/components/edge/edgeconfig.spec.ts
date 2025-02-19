@@ -170,6 +170,53 @@ export namespace DummyConfig {
                 "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
                 "io.openems.edge.evcs.api.ManagedEvcs",
                 "io.openems.edge.evcs.api.Evcs",
+                "io.openems.edge.evcs.api.DeprecatedEvcs",
+                "io.openems.edge.meter.api.ElectricityMeter",
+            ],
+        };
+
+        export const EVCS_MENNEKES = {
+            id: "Evcs.Mennekes",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
+                "io.openems.edge.evcs.api.ManagedEvcs",
+                "io.openems.edge.evcs.api.Evcs",
+                "io.openems.edge.meter.api.ElectricityMeter",
+            ],
+        };
+
+        export const MODBUS_TCP_READWRITE = {
+            id: "Controller.Api.ModbusTcp.ReadWrite",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.JsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.modbus.ModbusTcpApi",
+                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusTcpReadWrite",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const MODBUS_RTU_READWRITE = {
+            id: "Controller.Api.ModbusRtu.ReadWrite",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.JsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.modbus.ModbusRtuApi",
+                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusRtuReadWrite",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const HEAT_PUMP_SG_READY = {
+            id: "Controller.Io.HeatPump.SgReady",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.io.heatpump.sgready.ControllerIoHeatPumpSgReady",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
     }
@@ -191,6 +238,17 @@ export namespace DummyConfig {
             alias: alias ?? id,
             factoryId: "Evcs.HardyBarth",
             factory: Factory.EVCS_HARDY_BARTH,
+            properties: {
+                enabled: "true",
+            },
+            channels: {},
+        });
+
+        export const EVCS_MENNEKES = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Evcs.Mennekes",
+            factory: Factory.EVCS_MENNEKES,
             properties: {
                 enabled: "true",
             },
@@ -295,6 +353,32 @@ export namespace DummyConfig {
             },
             channels: {},
         });
+
+        export const MODBUS_TCP_READWRITE = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.MODBUS_TCP_READWRITE,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "PRODUCTION",
+                writeChannels: [
+                    "Ess0SetActivePowerEquals",
+                ],
+            },
+            channels: {},
+        });
+
+        export const HEAT_PUMP_SG_READY = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.HEAT_PUMP_SG_READY,
+            properties: {
+                enabled: true,
+                mode: "AUTOMATIC",
+            },
+            channels: {},
+        });
     }
 }
 
@@ -302,7 +386,7 @@ export namespace DummyConfig {
  * Factories.
  */
 // identifier `Factory` is also used in namespace
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 type Factory = {
     id: string,
     natureIds: string[],

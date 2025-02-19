@@ -86,7 +86,8 @@ public class ManualRelayControl extends
 		ALIAS(alias()), //
 		OUTPUT_CHANNEL(AppDef.copyOfGeneric(relayContactDef(1), def -> def//
 				.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description"))), //
+				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description")) //
+				.setRequired(true)), //
 		;
 
 		private final AppDef<? super ManualRelayControl, ? super Property, ? super ManualRelayControlParameter> def;
@@ -114,7 +115,8 @@ public class ManualRelayControl extends
 				return new ManualRelayControlParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true)), //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
+										RelayProps.gpioFilter()), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);
@@ -173,7 +175,8 @@ public class ManualRelayControl extends
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true)));
+				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true),
+						CheckRelayCountFilters.deviceHardware()));
 	}
 
 	@Override

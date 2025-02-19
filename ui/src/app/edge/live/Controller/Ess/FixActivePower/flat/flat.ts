@@ -9,6 +9,7 @@ import { ModalComponent } from "../modal/modal";
 @Component({
   selector: "Controller_Ess_FixActivePower",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

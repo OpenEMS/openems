@@ -11,6 +11,7 @@ type Priority = "CAR" | "STORAGE";
 @Component({
     selector: "Evcs_Api_Cluster-modal",
     templateUrl: "./evcsCluster-modal.page.html",
+    standalone: false,
 })
 export class Evcs_Api_ClusterModalComponent implements OnInit {
 

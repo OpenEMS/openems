@@ -28,8 +28,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 /**
  * Represents a JSON-RPC Response for 'channelExportXlsxRequest'.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -86,19 +84,17 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 								description += "ERROR: " + e.getMessage();
 							}
 
-						} else if (channel instanceof StateChannel
-								&& ((StateChannel) channel).value().orElse(false) == true) {
+						} else if (channel instanceof StateChannel sc && sc.value().orElse(false) == true) {
 							if (!description.isEmpty()) {
 								description += "; ";
 							}
-							description += ((StateChannel) channel).channelDoc().getText();
+							description += sc.channelDoc().getText();
 
-						} else if (channel instanceof StateCollectorChannel
-								&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
+						} else if (channel instanceof StateCollectorChannel scc && scc.value().orElse(0) != 0) {
 							if (!description.isEmpty()) {
 								description += "; ";
 							}
-							description += ((StateCollectorChannel) channel).listStates();
+							description += scc.listStates();
 						}
 
 						ws.value(row, COL_CHANNEL_ID, channel.channelId().id());

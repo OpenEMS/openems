@@ -1,6 +1,6 @@
 import { endOfMonth, endOfWeek, endOfYear, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from "date-fns";
 import { DefaultTypes } from "../../service/defaulttypes";
-import { TestContext, sharedSetup } from "../shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "../shared/testing/utils.spec";
 
 import { PickDateComponent } from "./pickdate.component";
 
@@ -16,7 +16,7 @@ describe("Pickdate", () => {
 
   let TEST_CONTEXT: TestContext;
   beforeEach(async () =>
-    TEST_CONTEXT = await sharedSetup(),
+    TEST_CONTEXT = await TestingUtils.sharedSetup(),
   );
 
   it("#isPreviousPeriodAllowed && #isNextPeriodAllowed - Day-View: firstSetupProtocol = today", () => {
