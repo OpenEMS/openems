@@ -71,7 +71,6 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 				StartStoppable.ChannelId.values(), //
 				Edge2EdgeEss.ChannelId.values() //
 		);
-		this._setMaxApparentPower(Integer.MAX_VALUE); // has no effect, as long as AllowedCharge/DischargePower are null
 	}
 
 	@Activate
