@@ -1,16 +1,20 @@
-package io.openems.edge.sma.enums;
+package io.openems.edge.ess.sma.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum SetControlMode implements OptionsEnum {
+public enum BatteryState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	START(802, "START"), //
-	STOP(803, "STOP");
+	OFF(303, "Off"), //
+	STANDBY(2291, "Standby"), //
+	EMERGENCY_CHARGE(3664, "Emergency Charge"), //
+	CHARGE(2292, "Charge"), //
+	DISCHARGE(2293, "Discharge"), //
+	;
 
 	private final int value;
 	private final String name;
 
-	private SetControlMode(int value, String name) {
+	private BatteryState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
@@ -29,4 +33,5 @@ public enum SetControlMode implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
 	}
+
 }
