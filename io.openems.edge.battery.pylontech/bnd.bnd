@@ -1,0 +1,15 @@
+Bundle-Name: OpenEMS Edge Battery Pylontech
+Bundle-Vendor: RVR Energy Technology Ltd.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	com.ghgande.j2mod,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.battery.api
+
+-testpath: \
+	${testpath}
