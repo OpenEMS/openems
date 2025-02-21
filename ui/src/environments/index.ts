@@ -15,6 +15,7 @@ export interface Environment {
 
     readonly url: string;
     readonly backend: DefaultTypes.Backend;
+    readonly loginWithUsername: boolean;
 
     readonly production: boolean;
     debugMode: boolean;
