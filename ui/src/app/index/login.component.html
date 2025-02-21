@@ -28,9 +28,9 @@
                     </ion-text>
                   </ion-item>
                   <ion-item>
-                    <ion-label position="floating" translate>Login.passwordLabel</ion-label>
-                    <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
-                      value="user"></ion-input>
+                    <ion-input #password required autocomplete="current-password" type="password" [placeholder]="'Login.passwordLabel' | translate"
+                      label-placement="floating" [label]="'Login.passwordLabel' | translate">
+                    </ion-input>
                   </ion-item>
 
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
@@ -53,14 +53,15 @@
                     </ion-text>
                   </ion-item>
                   <ion-item>
-                    <ion-label position="floating"><span translate>Login.user</span></ion-label>
-                    <ion-input #username required type="input" [placeholder]="('Login.user' | translate)">
+                    <ion-input #username required autocomplete="on"
+                      [placeholder]="('Login.user' | translate)"
+                      [label]="'Login.user' | translate" label-placement="floating">
                     </ion-input>
                   </ion-item>
                   <ion-item>
-                    <ion-label position="floating" translate>Login.passwordLabel</ion-label>
-                    <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
-                      value="user"></ion-input>
+                    <ion-input #password required autocomplete="current-password" type="password" [placeholder]="'Login.passwordLabel' | translate"
+                      label-placement="floating" [label]="'Login.passwordLabel' | translate">
+                    </ion-input>
                   </ion-item>
 
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
@@ -77,13 +78,13 @@
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({username: username.value, password: password.value})">
                 <ion-item>
-                  <ion-input #username required type="input"
+                  <ion-input #username required autocomplete="on"
                     [placeholder]="'E-Mail / ' + ('Login.user' | translate)"
                     [label]="'E-Mail / '  + ('Login.user' | translate)" label-placement="floating">
                   </ion-input>
                 </ion-item>
                 <ion-item>
-                  <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
+                  <ion-input #password required autocomplete="current-password" type="password" [placeholder]="'Login.passwordLabel' | translate"
                     label-placement="floating" [label]="'Login.passwordLabel' | translate">
                   </ion-input>
                 </ion-item>
