@@ -14,12 +14,12 @@ import { CookieService } from "ngx-cookie-service";
 import { DeviceDetectorService } from "ngx-device-detector";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { AppService } from "./app.service";
 import { CheckForUpdateService } from "./appupdateservice";
 import { EdgeModule } from "./edge/edge.module";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { SystemLogComponent } from "./edge/settings/systemlog/systemlog.component";
 import { IndexModule } from "./index/index.module";
+import { PlatFormService } from "./platform.service";
 import { RegistrationModule } from "./registration/registration.module";
 import { StatusSingleComponent } from "./shared/components/status/single/status.component";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
@@ -64,7 +64,7 @@ import { UserModule } from "./user/user.module";
     DeviceDetectorService,
     Pagination,
     CheckForUpdateService,
-    AppService,
+    PlatFormService,
     AppStateTracker,
     UserService,
     {

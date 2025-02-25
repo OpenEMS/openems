@@ -57,7 +57,7 @@ export class UserService {
         const isThemeSet = user?.settings ? "theme" in user.settings : false;
 
         if (!user || isThemeSet) {
-            this.updateTheme(user.settings["theme"]);
+            this.updateTheme(user?.settings["theme"]);
             return;
         }
 

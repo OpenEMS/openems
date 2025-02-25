@@ -7,8 +7,8 @@ import { ModalController, ViewWillEnter } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
 
-import { AppService } from "../app.service";
 import { Theme as UserTheme } from "../edge/history/shared";
+import { PlatFormService } from "../platform.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { User } from "../shared/jsonrpc/shared";
@@ -30,7 +30,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
   protected showPassword: boolean = false;
-  protected readonly operatingSystem = AppService.deviceInfo.os;
+  protected readonly operatingSystem = PlatFormService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
@@ -163,7 +163,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   }
 
   protected async showPopoverOrRedirectToStore(operatingSystem: "android" | "ios") {
-    const link: string | null = AppService.getAppStoreLink();
+    const link: string | null = PlatFormService.getAppStoreLink();
     if (link) {
       window.open(link, "_blank");
     } else {

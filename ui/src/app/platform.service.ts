@@ -2,18 +2,21 @@
 import { Injectable } from "@angular/core";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { AlertController } from "@ionic/angular";
+import { AlertController, ToastController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { saveAs } from "file-saver-es";
 import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
 import { BehaviorSubject, Subject } from "rxjs";
 import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
+import { GetSetupProtocolRequest } from "./shared/jsonrpc/request/getSetupProtocolRequest";
+import { Base64PayloadResponse } from "./shared/jsonrpc/response/base64PayloadResponse";
 import { PreviousRouteService } from "./shared/service/previousRouteService";
+import { Websocket } from "./shared/shared";
 import { ArrayUtils } from "./shared/utils/array/array.utils";
 
 @Injectable()
-export class AppService {
+export class PlatFormService {
 
   public static readonly platform: string = Capacitor.getPlatform();
 
@@ -29,9 +32,10 @@ export class AppService {
     private translate: TranslateService,
     private deviceService: DeviceDetectorService,
     private routeService: PreviousRouteService,
+    private toaster: ToastController,
   ) {
-    AppService.deviceInfo = this.deviceService.getDeviceInfo();
-    AppService.isMobile = this.deviceService.isMobile();
+    PlatFormService.deviceInfo = this.deviceService.getDeviceInfo();
+    PlatFormService.isMobile = this.deviceService.isMobile();
   }
 
   public static handleRefresh() {
@@ -42,7 +46,7 @@ export class AppService {
 
   public static getAppStoreLink(): string | null {
     if (this.isMobile) {
-      switch (AppService.deviceInfo.os) {
+      switch (PlatFormService.deviceInfo.os) {
         case "iOS":
           return environment.links.APP.IOS;
         case "Android":
@@ -56,7 +60,7 @@ export class AppService {
 
   public listen() {
     // Don't use in web
-    if (AppService.platform === "web") {
+    if (PlatFormService.platform === "web") {
       return;
     }
 
@@ -67,53 +71,68 @@ export class AppService {
     });
   }
 
-  public async downloadFile(path: string, blob: Blob, fileName: string) {
-    // await this.presentAlert("Di", "asd", () => { }).then((state) => {
-    //   console.log("state", state);
-    // });
+  /**
+   * Converts a base 64 encoded string to blob
+  *
+  * @param res the base 64 string
+  * @returns null, if string is invalid, else the blob
+  */
+  public convertBase64ToBlob(res: Base64PayloadResponse | null): Blob | null {
 
-    fileName = "test.txt";
+    if (!res?.result?.payload) {
+      return null;
+    }
 
-    const writeSecretFile = async () => {
-      await Filesystem.writeFile({
-        path: fileName,
-        data: "this is a test",
-        directory: Directory.Data,
-        encoding: Encoding.UTF8,
-      });
-    };
+    const binary = atob(res.result.payload.replace(/\s/g, ""));
+    const length = binary.length;
 
-    // const openFile = async () => {
-    //   const { uri } = await Filesystem.getUri({ path: fileName, directory: Directory.Data });
+    const buffer = new ArrayBuffer(length);
+    const view = new Uint8Array(buffer);
 
-    //   let fOpts = {
-    //     filePath: uri + fileName,
-    //     openWithDefault: true
-    //   }
+    for (let i = 0; i < length; i++) {
+      view[i] = binary.charCodeAt(i);
+    }
 
-    //   FileOpener.open(fOpts);
-    // }
+    const data: Blob = new Blob([view], {
+      type: "application/pdf",
+    });
 
-    const readSecretFile = async () => {
-      const contents = await Filesystem.readFile({
-        path: fileName,
-        directory: Directory.Documents,
-        encoding: Encoding.UTF8,
-      });
-
-      console.log("secrets:", contents);
-    };
-
-    await writeSecretFile();
-    // await openFile();
-    await readSecretFile();
+    return data;
   }
 
   /**
-    * Method that shows a confirmation window for the app selection
-    *
-    * @param clickedApp the app that has been clicked
-    */
+   * Downloads the data as pdf
+  *
+  * @param data the data as blob
+  * @param fileName the file name to save the pdf to
+  */
+  public downloadAsPdf(data: Blob, fileName: string) {
+
+    if (!this.deviceHasFilePermissions()) {
+      return;
+    }
+    saveAs(data, fileName);
+  }
+
+  public deviceHasFilePermissions(): boolean {
+    if (PlatFormService.isMobile) {
+      this.toast(this.translate.instant("APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE"), "warning");
+      return false;
+    }
+    return true;
+  }
+
+  public async sendRequest(req: GetSetupProtocolRequest, websocket: Websocket): Promise<Base64PayloadResponse> | null {
+    if (!this.deviceHasFilePermissions()) {
+      return null;
+    }
+    return await websocket.sendRequest(req) as Base64PayloadResponse;
+  }
+  /**
+   * Method that shows a confirmation window for the app selection
+  *
+  * @param clickedApp the app that has been clicked
+  */
   public async presentAlert(header: string, message: string, successCallback: () => void) {
     const alert = this.alertCtrl.create({
       header: header,
@@ -133,10 +152,20 @@ export class AppService {
     (await alert).present();
   }
 
+  public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
+    const toast = await this.toaster.create({
+      message: message,
+      color: level,
+      duration: duration ?? 2000,
+      cssClass: "container",
+    });
+    toast.present();
+  }
+
   private async updateState() {
     const { isActive } = await App.getState();
     this.reloadBehavior(isActive);
-    AppService.isActive.next(isActive);
+    PlatFormService.isActive.next(isActive);
   }
 
   /**
@@ -150,11 +179,12 @@ export class AppService {
     const isForbiddenToReload: boolean = ArrayUtils.containsStrings(route.split("/"), FORBIDDEN_ROUTES_TO_RELOAD);
 
     if (isAppCurrentlyActive === true
-      && AppService.isActive?.getValue() === false
+      && PlatFormService.isActive?.getValue() === false
       && !isForbiddenToReload) {
       window.location.reload();
     }
   }
+
 }
 
 export const FORBIDDEN_ROUTES_TO_RELOAD: string[] = ["login", "installation", "index"];

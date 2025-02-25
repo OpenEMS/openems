@@ -90,7 +90,7 @@ export class Service extends AbstractService {
 
   constructor(
     private router: Router,
-    private spinner: NgxSpinnerService,
+    public spinner: NgxSpinnerService,
     private toaster: ToastController,
     public translate: TranslateService,
   ) {

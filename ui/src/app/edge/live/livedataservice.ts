@@ -3,7 +3,7 @@ import { Directive, Inject, OnDestroy } from "@angular/core";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
-import { AppService } from "src/app/app.service";
+import { PlatFormService } from "src/app/platform.service";
 import { DataService } from "../../shared/components/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
 
@@ -62,6 +62,6 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     public override refresh(ev: RefresherCustomEvent) {
-        AppService.handleRefresh();
+        PlatFormService.handleRefresh();
     }
 }
