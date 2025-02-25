@@ -134,9 +134,6 @@
                 </li>
               </ul>
             </div>
-            <p class="ion-padding">
-              <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
-            </p>
           </ion-card-content>
         </ion-card>
         <ion-card>
@@ -154,7 +151,7 @@
                 </ion-select-option>
               </ion-select>
             </ion-item>
-            <ion-item id="theme-switcher" lines="none" class="page-content" *ngIf="environment.theme === 'FENECON'">
+            <ion-item id="theme-switcher" lines="none" class="page-content">
               <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="userTheme" interface="popover"
                 [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" label="Theme">
                 <ion-select-option *ngFor="let theme of themes" [value]="theme.value">

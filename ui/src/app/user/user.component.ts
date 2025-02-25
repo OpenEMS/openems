@@ -38,7 +38,7 @@ export class UserComponent implements OnInit {
 
   private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
   protected userTheme: UserTheme; // Theme as of "Light","Dark" or "System" Themes.
-  protected systemTheme: SystemTheme; // SystemTheme as of "FENECON","Heckert" or "OpenEMS" Themes.
+  protected systemTheme: SystemTheme; // SystemTheme as of "OpenEMS" or other OEM Themes.
 
   protected readonly themes: KeyValue<string, string>[] = [
     { key: "Light", value: "light" },
