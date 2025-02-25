@@ -23,6 +23,7 @@ import { HistoryDataService } from "./edge/history/historydataservice";
 import { HistoryParentComponent } from "./edge/history/historyparent.component";
 import { AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component";
 import { SymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
+import { ThresholdPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/threshold/thresholdpeakshavingchartoverview/thresholdpeakshavingchartoverview.component";
 import { TimeslotPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
 import { StorageChartOverviewComponent } from "./edge/history/storage/storagechartoverview/storagechartoverview.component";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
@@ -93,6 +94,7 @@ export const routes: Routes = [
           { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
           { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
           { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
+          { path: ":componentId/thresholdpeakshavingchart", component: ThresholdPeakshavingChartOverviewComponent },
           { path: "autarchychart", component: AutarchyChartOverviewComponent },
           { path: "consumptionchart", component: ConsumptionChartOverviewComponent },
           { path: "consumptionchart/:componentId", component: ConsumptionDetailsOverviewComponent },

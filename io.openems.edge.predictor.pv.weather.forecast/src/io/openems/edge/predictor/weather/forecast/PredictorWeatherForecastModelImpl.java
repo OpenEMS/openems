@@ -248,6 +248,7 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor
 			}
 
 			this.logDebug(this.log, "Weather data successfully fetched: " + this.apiUrl);
+			log.info("API Response: " + this.json.toString());			
 		} catch (Exception e) {
 			log.error("Error in fetching weather data from OpenMeteo API: ", e);
 			throw e;
@@ -267,13 +268,31 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor
 	 *         cover , snow cover etc , each parameters can be fetched individually
 	 *         and used for production power calculation
 	 */
-	public Optional<List<Double>> getRadiation(String forecastModel) {
+	public Optional<List<Double>> getRadiationOld(String forecastModel) {
 		return Optional.ofNullable(json).map(j -> j.getAsJsonObject("minutely_15"))
 				// .map(m -> m.getAsJsonArray("shortwave_radiation"))
 				.map(m -> m.getAsJsonArray(forecastModel)).map(arr -> IntStream.range(0, arr.size()).mapToObj(arr::get)
 						.map(element -> element.getAsDouble()).collect(Collectors.toList()));
 	}
 
+	public Optional<List<Double>> getRadiation(String forecastModel) {
+	    return Optional.ofNullable(json)
+	        .map(j -> j.getAsJsonObject("minutely_15"))
+	        .flatMap(m -> {
+	            if (m.has(forecastModel) && !m.get(forecastModel).isJsonNull()) {
+	                return Optional.of(m.getAsJsonArray(forecastModel));
+	            } else {
+	                log.warn("Weather API response does not contain data for forecastModel: " + forecastModel);
+	                return Optional.empty();
+	            }
+	        })
+	        .map(arr -> IntStream.range(0, arr.size())
+	            .mapToObj(arr::get)
+	            .map(element -> element.isJsonNull() ? 0.0 : element.getAsDouble()) // NULL checks
+	            .collect(Collectors.toList()));
+	}
+	
+	
 	/**
 	 * Uses Info Log for further debug features.
 	 */
