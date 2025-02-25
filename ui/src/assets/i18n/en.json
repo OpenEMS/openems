@@ -471,6 +471,13 @@
     }
   },
   "General": {
+    "THEME_SELECTION": {
+      "TITLE": "Lights off, comfort on!",
+      "DESCRIPTION": "Our monitoring is now available in <b>dark mode</b>.<hr>Simply switch over and get started!"
+    },
+    "LIGHT": "Light",
+    "DARK": "Dark",
+    "SYSTEM_THEME": "System",
     "active": "Active",
     "actualPower": "e-car Charge power",
     "ALL": "All",

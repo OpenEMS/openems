@@ -1,7 +1,7 @@
 import { registerLocaleData } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import localDE from "@angular/common/locales/de";
-import { ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
+import { APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
@@ -26,6 +26,7 @@ import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popov
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";
+import { UserService } from "./shared/service/user.service";
 import { SharedModule } from "./shared/shared.module";
 import { registerTranslateExtension } from "./shared/translate.extension";
 import { Language, MyTranslateLoader } from "./shared/type/language";
@@ -65,6 +66,13 @@ import { UserModule } from "./user/user.module";
     CheckForUpdateService,
     AppService,
     AppStateTracker,
+    UserService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeService,
+      deps: [UserService], // Dependencies for the factory function
+      multi: true, // Allows multiple initializers
+    },
     provideCharts(withDefaultRegisterables()),
   ],
   bootstrap: [AppComponent],
@@ -73,4 +81,8 @@ export class AppModule {
   constructor() {
     registerLocaleData(localDE);
   }
+}
+
+export function initializeService(): () => Promise<void> {
+  return async () => { };
 }
