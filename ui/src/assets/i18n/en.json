@@ -532,6 +532,7 @@
     "selfConsumption": "Self Consumption",
     "soc": "State of charge",
     "state": "State",
+    "STATUS": "Status",
     "storageSystem": "Storage System",
     "SYSTEM_STATE": "System state",
     "TOTAL": "Total",

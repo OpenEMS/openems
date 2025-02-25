@@ -2,7 +2,7 @@
     helpKey="CONTROLLER_ESS_TIME_OF_USE_TARIFF" *ngIf="isInitialized && formGroup">
 
     <!-- Discharge State -->
-    <oe-modal-line [name]="'General.state' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
+    <oe-modal-line [name]="'General.STATUS' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
         [channelAddress]="component.id + '/StateMachine'"></oe-modal-line>
 
     <!-- Price -->
