@@ -66,6 +66,7 @@
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
+	bnd.identity;id='io.openems.edge.controller.cleverpv',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
@@ -243,6 +244,7 @@
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.chp.soc;version=snapshot,\
+	io.openems.edge.controller.cleverpv;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
