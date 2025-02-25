@@ -492,6 +492,14 @@ formly-input-section {
         width: 50%;
         color: var(--ion-color-primary);
     }
+
+    // Ensure content is fitting inside tooltip
+    ion-range::part(pin) {
+        width: max-content !important;
+        white-space: nowrap;
+        padding: 0.5em;
+        text-align: center;
+    }
 }
 
 // auto height for modals
