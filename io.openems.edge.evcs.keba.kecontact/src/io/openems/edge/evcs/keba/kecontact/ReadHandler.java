@@ -4,7 +4,7 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
-import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
+import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
@@ -200,7 +200,7 @@ public class ReadHandler implements Consumer<String> {
 			// TODO use COS_PHI to calculate ReactivePower
 			this.setInt(EvcsKebaKeContact.ChannelId.COS_PHI, j, "PF");
 
-			final var phases = evaluatePhaseCount(appp.activePowerL1, appp.activePowerL2, appp.activePowerL3);
+			final var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
 			keba._setPhases(phases);
 			if (phases != null) {
 				keba.logInfoInDebugmode(this.log, "Used phases: " + phases);
