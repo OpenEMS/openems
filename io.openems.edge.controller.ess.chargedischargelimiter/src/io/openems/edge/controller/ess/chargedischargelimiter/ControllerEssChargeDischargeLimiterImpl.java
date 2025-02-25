@@ -36,6 +36,7 @@ import io.openems.edge.common.type.TypeUtils;
 
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.controller.symmetric.thresholdpeakshaver.ControllerEssThresholdPeakshaver;
+import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -81,7 +82,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int taperStartSoc = 0;
 	private int taperPercent = 3; // decrease charge power during the last X percent before hitting the max. Soc
 	private int fullChargePower = 0;
-
+	
 	@Reference
 	private ComponentManager componentManager;
 
@@ -99,6 +100,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			target = "(enabled=true)")
 	private List<ControllerEssThresholdPeakshaver> ctrlEssThresholdPeakshavers = new CopyOnWriteArrayList<>();
 
+	
+	@Reference
+	private TimeOfUseTariff timeOfUseTariff;		
+	
 	public ControllerEssChargeDischargeLimiterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -431,12 +436,13 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private boolean shouldBalance() {
 
 		Integer chargedEnergy = this.getChargedEnergy().get();
+		Integer currentPrice = (int) Math.round(this.timeOfUseTariff.getPrices().getFirst()/10); // Price in €/MWh. Divided to ct/kWh
 		
 		if (chargedEnergy == null) {
 			this.logDebug(this.log, "ERROR: Cannot determine charged energy");
 			return false;
 		}
-
+		
 		// are there any peakshavers active
 		if (this.isPeakshavingActive() == true) {
 			this.logDebug(this.log, "Balancing is deactivated due to active peakshaving");
@@ -448,6 +454,13 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.logDebug(this.log, "Balancing is deactivated due to config setting");
 			return false;
 		}
+		
+		// balancing is not desired
+		if (config.maxPrice() != 0 && currentPrice > config.maxPrice() ) {
+			this.logDebug(this.log, "Balancing is deactivated due to high price");
+			return false;
+		}
+		
 
 		if (this.state == State.BALANCING_ACTIVE) {
 			this.logDebug(this.log, "Balancing already active");

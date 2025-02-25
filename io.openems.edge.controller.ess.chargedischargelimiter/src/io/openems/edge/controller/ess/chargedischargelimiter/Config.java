@@ -34,6 +34,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	@AttributeDefinition(name = "Charge energy between balancing [kWh]", description = "Charged energy to the next balancing cycle. Set to 0 if balancing is not desired")
 	int energyBetweenBalancingCycles() default 100;
+	
+	
+	@AttributeDefinition(name = "Maximum Price [ct/kWh]", description = "If grid purchase power above that value battery will NOT process balaning. Leave 0 if price should not be considered")
+	int maxPrice() default 0;		
 
 	@AttributeDefinition(name = "Force-Charge Power [W]", description = "The charge power during force-charging. Attention! Includes charging from grid")
 	int forceChargePower() default 500;

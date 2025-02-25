@@ -3,6 +3,7 @@ package io.openems.edge.controller.symmetric.thresholdpeakshaver;
 import java.time.Duration;
 import java.time.Instant;
 
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -29,8 +30,8 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
-
 import io.openems.edge.common.sum.GridMode;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -56,7 +57,8 @@ public class ControllerEssThresholdPeakshaverImpl extends AbstractOpenemsCompone
 
 	@Reference
 	private ElectricityMeter meter;
-
+	
+	
 	private Config config;
 
 	private int essCheckPowerHyteresesPercent = 20; // check if real ess power differs from target peakshaving power +
