@@ -115,7 +115,7 @@ export class PlatFormService {
   }
 
   public deviceHasFilePermissions(): boolean {
-    if (PlatFormService.isMobile) {
+    if (this.getIsApp()) {
       this.toast(this.translate.instant("APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE"), "warning");
       return false;
     }
@@ -160,6 +160,10 @@ export class PlatFormService {
       cssClass: "container",
     });
     toast.present();
+  }
+
+  public getIsApp() {
+    return Capacitor.getPlatform() !== "web";
   }
 
   private async updateState() {
