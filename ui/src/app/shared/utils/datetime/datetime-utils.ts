@@ -8,6 +8,8 @@ import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { DateUtils } from "../date/dateutils";
 
+export const DATE_TIME_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$/;
+
 /** IONIC implemented DateTime formats */
 export enum DateTimeFormats {
   YEAR = "yyyy",
