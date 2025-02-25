@@ -53,10 +53,6 @@ public class RestHandler extends Handler.Abstract {
 		this.parent = parent;
 	}
 
-	/**
-	 * Jetty 12 now requires a handler method with this signature returning a
-	 * boolean.
-	 */
 	@Override
 	public boolean handle(Request baseRequest, Response response, Callback callback) throws Exception {
 		HttpServletRequest request = (HttpServletRequest) baseRequest;
@@ -108,6 +104,13 @@ public class RestHandler extends Handler.Abstract {
 		}
 	}
 
+	/**
+	 * Authenticate a user.
+	 *
+	 * @param request the HttpServletRequest
+	 * @return the User
+	 * @throws OpenemsNamedException on error
+	 */
 	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
 		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
@@ -175,6 +178,17 @@ public class RestHandler extends Handler.Abstract {
 		};
 	}
 
+	/**
+	 * Handles HTTP GET request.
+	 *
+	 * @param user           the {@link User}
+	 * @param channelAddress the ChannelAddress (may include RegExp)
+	 * @param baseRequest    the HTTP POST base-request
+	 * @param request        the HTTP POST request
+	 * @param response       the result to be returned
+	 * @return false if request cannot be handled or ok response was not sent
+	 * @throws OpenemsNamedException on error
+	 */
 	private boolean handleGet(User user, ChannelAddress channelAddress, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
@@ -218,6 +232,15 @@ public class RestHandler extends Handler.Abstract {
 		return this.sendOkResponse(response, result);
 	}
 
+	/**
+	 * Gets a list of Channels that match the {@link ChannelAddress}; regular
+	 * expressions are allowed.
+	 * 
+	 * @param components     a list of {@link OpenemsComponent}s
+	 * @param channelAddress the {@link ChannelAddress} of the GET request
+	 * @return a list of matching {@link Channel}s
+	 * @throws PatternSyntaxException on regular expression error
+	 */
 	protected static List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
 			throws PatternSyntaxException {
 		return components.stream().filter(component -> Pattern.matches(channelAddress.getComponentId(), component.id()))
@@ -255,6 +278,17 @@ public class RestHandler extends Handler.Abstract {
 		}
 	}
 
+	/**
+	 * Handles HTTP POST request.
+	 *
+	 * @param user           the {@link User}
+	 * @param channelAddress the {@link ChannelAddress}
+	 * @param baseRequest    the HTTP POST base-request
+	 * @param request        the HTTP POST request
+	 * @param response       the result to be returned
+	 * @return false if ok response was not sent
+	 * @throws OpenemsNamedException on error
+	 */
 	private boolean handlePost(User user, ChannelAddress channelAddress, Request baseRequest,
 			HttpServletRequest request, HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP POST", Role.OWNER);
@@ -279,6 +313,13 @@ public class RestHandler extends Handler.Abstract {
 		return this.sendOkResponse(response, new JsonObject());
 	}
 
+	/**
+	 * Parses a Request to JSON.
+	 *
+	 * @param request the Request
+	 * @return the request as JSON
+	 * @throws OpenemsException on error
+	 */
 	private static JsonObject parseJson(HttpServletRequest request) throws OpenemsException {
 		try (var br = request.getReader()) {
 			return parseToJsonObject(br.lines().collect(joining("\n")));
@@ -287,6 +328,15 @@ public class RestHandler extends Handler.Abstract {
 		}
 	}
 
+	/**
+	 * Handles an http request to 'jsonrpc' endpoint.
+	 *
+	 * @param user         the {@link User}
+	 * @param baseRequest  the HTTP POST base-request
+	 * @param httpRequest  the HTTP POST request
+	 * @param httpResponse the HTTP response
+	 * @throws OpenemsNamedException on error
+	 */
 	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP POST JSON-RPC", Role.OWNER);

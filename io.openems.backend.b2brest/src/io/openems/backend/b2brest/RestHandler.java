@@ -12,7 +12,7 @@ import java.util.UUID;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.util.Callback; // Note: Using org.eclipse.jetty.util.Callback
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +39,6 @@ public class RestHandler extends Handler.Abstract {
 		this.parent = parent;
 	}
 
-	/**
-	 * Jetty 12 now requires a handler method with this signature returning a
-	 * boolean.
-	 */
 	@Override
 	public boolean handle(Request baseRequest, Response response, Callback callback) throws Exception {
 		HttpServletRequest httpRequest = (HttpServletRequest) baseRequest;
@@ -72,6 +68,13 @@ public class RestHandler extends Handler.Abstract {
 		}
 	}
 
+	/**
+	 * Authenticate a user.
+	 *
+	 * @param request the HttpServletRequest
+	 * @return the {@link User}
+	 * @throws OpenemsNamedException on error
+	 */
 	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
 		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
@@ -122,6 +125,13 @@ public class RestHandler extends Handler.Abstract {
 		}
 	}
 
+	/**
+	 * Parses a Request to JSON.
+	 *
+	 * @param request the Request
+	 * @return the {@link JsonObject}
+	 * @throws OpenemsException on error
+	 */
 	private static JsonObject parseJson(HttpServletRequest request) throws OpenemsException {
 		try (BufferedReader br = request.getReader()) {
 			String jsonStr = br.lines().collect(joining("\n"));
@@ -131,6 +141,13 @@ public class RestHandler extends Handler.Abstract {
 		}
 	}
 
+	/**
+	 * Handles an http request to 'jsonrpc' endpoint.
+	 *
+	 * @param user         the {@link User}
+	 * @param httpRequest  the {@link HttpServletRequest}
+	 * @param httpResponse the {@link HttpServletResponse}
+	 */
 	private void handleJsonRpc(User user, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		UUID requestId = new UUID(0L, 0L); // dummy UUID in case of error
 		try {
