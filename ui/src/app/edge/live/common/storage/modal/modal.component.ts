@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { isBefore } from "date-fns";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 
 @Component({
     selector: "storage-modal",
@@ -224,7 +225,14 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             const properties: { name: string, value: any }[] = [];
             controllers.forEach((element) => {
                 const name = element.keys().next().value;
-                const value = element.values().next().value;
+                const rawValue = element.values().next().value;
+                let value = rawValue;
+
+                // Needs to be done to get Datetime string in this format: YYYY-MM-DDTHH:mm:ssTZD
+                if (name === "targetTime") {
+                    value = DateTimeUtils.formatToISOZonedDateTime(rawValue);
+                }
+
                 properties.push({
                     name: name,
                     value: value,
