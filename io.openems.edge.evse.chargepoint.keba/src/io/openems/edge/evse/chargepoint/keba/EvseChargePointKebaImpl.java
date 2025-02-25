@@ -4,12 +4,12 @@ import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.TypeUtils.getAsType;
 
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -29,6 +29,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
@@ -42,15 +44,27 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evse.api.Limit;
+import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.evse.api.chargepoint.Profile;
 import io.openems.edge.evse.api.chargepoint.Status;
+import io.openems.edge.evse.chargepoint.keba.enums.Phase;
+import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchSource;
+import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchState;
+import io.openems.edge.evse.chargepoint.keba.enums.ProductTypeAndFeatures;
+import io.openems.edge.evse.chargepoint.keba.enums.SetEnable;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -59,15 +73,24 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent implements EvseChargePointKeba,
-		EvseChargePoint, ElectricityMeter, OpenemsComponent, EventHandler, ModbusComponent {
+		EvseChargePoint, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EvseChargePointKebaImpl.class);
+	private final CalculateEnergyFromPower calculateEnergyL1 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1);
+	private final CalculateEnergyFromPower calculateEnergyL2 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1);
+	private final CalculateEnergyFromPower calculateEnergyL3 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1);
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -121,19 +144,6 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled() || this.config.readOnly()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
-			// this.writeHandler.run();
-			break;
-		}
-		}
-	}
-
-	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		// TODO: Add functionality to distinguish between firmware version. For firmware
 		// version >= 5.22 there are several new registers. Currently it is programmed
@@ -156,7 +166,7 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 						m(EvseChargePointKeba.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
 				new FC3ReadRegistersTask(1006, Priority.LOW, //
 						m(EvseChargePointKeba.ChannelId.ERROR_CODE, new UnsignedDoublewordElement(1006))),
-				new FC3ReadRegistersTask(1008, Priority.LOW, //
+				new FC3ReadRegistersTask(1008, Priority.LOW, // TODO apply phase rotation
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(1008))),
 				new FC3ReadRegistersTask(1010, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(1010))),
@@ -165,17 +175,25 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 				new FC3ReadRegistersTask(1014, Priority.LOW, //
 						m(EvseChargePointKeba.ChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1014))),
 				new FC3ReadRegistersTask(1016, Priority.LOW, //
-						m(EvseChargePointKeba.ChannelId.PRODUCT_TYPE, new UnsignedDoublewordElement(1016))),
+						m(new UnsignedDoublewordElement(1016)).build().onUpdateCallback(value -> {
+							var ptaf = ProductTypeAndFeatures.from(value);
+							setValue(this, EvseChargePointKeba.ChannelId.PTAF_PRODUCT_TYPE, ptaf.productType());
+							setValue(this, EvseChargePointKeba.ChannelId.PTAF_CABLE_OR_SOCKET, ptaf.cableOrSocket());
+							setValue(this, EvseChargePointKeba.ChannelId.PTAF_SUPPORTED_CURRENT,
+									ptaf.supportedCurrent());
+							setValue(this, EvseChargePointKeba.ChannelId.PTAF_DEVICE_SERIES, ptaf.deviceSeries());
+							setValue(this, EvseChargePointKeba.ChannelId.PTAF_ENERGY_METER, ptaf.energyMeter());
+							setValue(this, EvseChargePointKeba.ChannelId.PTAF_AUTHORIZATION, ptaf.authorization());
+						})),
 				new FC3ReadRegistersTask(1018, Priority.LOW, //
 						m(EvseChargePointKeba.ChannelId.FIRMWARE, new UnsignedDoublewordElement(1018),
-								new ElementToChannelConverter(t -> {
-									return convertToFirmwareVersion(getAsType(LONG, t));
-								}))),
-				new FC3ReadRegistersTask(1020, Priority.LOW, //
+								CONVERT_FIRMWARE_VERSION)),
+				new FC3ReadRegistersTask(1020, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020),
 								SCALE_FACTOR_MINUS_3)),
 				new FC3ReadRegistersTask(1036, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(1036))),
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(1036),
+								SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(1040, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(1040))),
 				new FC3ReadRegistersTask(1042, Priority.LOW, //
@@ -210,23 +228,40 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 				new FC6WriteRegisterTask(5014,
 						m(EvseChargePointKeba.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))),
 				new FC6WriteRegisterTask(5050,
-						m(EvseChargePointKeba.ChannelId.SET_PHASE_SWITCH_TOGGLE, new UnsignedWordElement(5050))),
+						m(EvseChargePointKeba.ChannelId.SET_PHASE_SWITCH_SOURCE, new UnsignedWordElement(5050))),
 				new FC6WriteRegisterTask(5052,
-						m(EvseChargePointKeba.ChannelId.SET_TRIGGER_PHASE_SWITCH, new UnsignedWordElement(5052))));
+						m(EvseChargePointKeba.ChannelId.SET_PHASE_SWITCH_STATE, new UnsignedWordElement(5052))));
 	}
 
 	@Override
 	public ChargeParams getChargeParams() {
 		var config = this.config;
-		if (config == null || config.readOnly()) {
+		var phaseSwitchState = this.getPhaseSwitchState().actual;
+		if (config == null || config.readOnly() || phaseSwitchState == null) {
 			return null;
 		}
+		var singlePhaseLimit = new Limit(SingleThreePhase.SINGLE, 6000, 32000);
+		var threePhaseLimit = new Limit(SingleThreePhase.THREE, 6000, 32000);
+
 		var limit = switch (config.phase()) {
-		// TODO adjust phase for phase rotation
-		case SINGLE -> new Limit(io.openems.edge.evse.api.Phase.L1, 6000, 32000);
-		case THREE -> new Limit(io.openems.edge.evse.api.Phase.ALL, 6000, 32000);
+		case FIXED_SINGLE -> singlePhaseLimit;
+		case FIXED_THREE -> threePhaseLimit;
+		case HAS_S10_PHASE_SWITCHING_DEVICE //
+			-> switch (phaseSwitchState) { // Read current phase switch state
+			case SINGLE -> singlePhaseLimit;
+			case THREE -> threePhaseLimit;
+			};
 		};
-		return new ChargeParams(limit, this.applyChargeCallback);
+
+		var profiles = ImmutableList.<Profile>builder();
+		if (config.phase() == Phase.HAS_S10_PHASE_SWITCHING_DEVICE) {
+			profiles.add(switch (phaseSwitchState) {
+			case SINGLE -> new Profile.PhaseSwitchToThreePhase(threePhaseLimit);
+			case THREE -> new Profile.PhaseSwitchToSinglePhase(singlePhaseLimit);
+			});
+		}
+
+		return new ChargeParams(limit, profiles.build());
 	}
 
 	@Override
@@ -243,41 +278,90 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 		return b.toString();
 	}
 
-	private final class ApplyChargeCallback implements Consumer<ApplyCharge> {
+	@Override
+	public void apply(ApplyCharge applyCharge, ImmutableList<Profile.Command> profileCommands) {
+		// TODO this apply method should use a StateMachine. Consider having the
+		// StateMachine inside EVSE Single-Controller
 
-		private Tuple<Instant, ApplyCharge> previous = null;
+		// TODO Phase Switch Three-to-Single is always possible without interruption
+		// TODO Allow Phase Switch always if no car is connected
+		final var p = EvseChargePointKebaImpl.this;
+		final var now = Instant.now();
 
-		@Override
-		public void accept(ApplyCharge ac) {
-			var p = EvseChargePointKebaImpl.this;
-			var now = Instant.now();
-			if (this.previous != null && Duration.between(this.previous.a(), now).getSeconds() < 5) {
-				p.logInfo(p.log, "[" + p.id() + "] NOT applying " + ac);
-				return;
-			}
-			this.previous = Tuple.of(now, ac);
+		this.handleApplyCharge(now, applyCharge);
 
-			p.logInfo(p.log, "[" + p.id() + "] Apply " + ac);
-			try {
-				var setEnable = p.<IntegerWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_ENABLE);
-				switch (ac) {
-				case ApplyCharge.SetCurrent sc -> {
-					setEnable.setNextWriteValue(1 /* Enable charging station (Charging) */);
-					var setChargingCurrent = p
-							.<IntegerWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_CHARGING_CURRENT);
-					setChargingCurrent.setNextWriteValue(sc.current());
-				}
-				case ApplyCharge.Zero z -> {
-					setEnable.setNextWriteValue(0 /* Disable charging station (Suspended mode) */);
-				}
-				}
-			} catch (OpenemsNamedException e) {
-				e.printStackTrace();
+		for (var pc : profileCommands) {
+			switch (pc) {
+			case Profile.PhaseSwitchToThreePhase.Command tp ->
+				this.handlePhaseSwitch(p, now, PhaseSwitchState.Actual.THREE);
+			case Profile.PhaseSwitchToSinglePhase.Command sp ->
+				this.handlePhaseSwitch(p, now, PhaseSwitchState.Actual.SINGLE);
 			}
 		}
 	}
 
-	private final ApplyChargeCallback applyChargeCallback = new ApplyChargeCallback();
+	private Tuple<Instant, ApplyCharge> previousApplyCharge = null;
+
+	private void handleApplyCharge(Instant now, ApplyCharge ac) {
+		if (this.previousApplyCharge != null && Duration.between(this.previousApplyCharge.a(), now).getSeconds() < 5) {
+			return;
+		}
+		this.previousApplyCharge = Tuple.of(now, ac);
+
+		this.logDebug("Apply " + ac);
+		try {
+			var setEnable = this.<EnumWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_ENABLE);
+			switch (ac) {
+			case ApplyCharge.SetCurrent sc -> {
+				setEnable.setNextWriteValue(SetEnable.ENABLE);
+				var setChargingCurrent = this
+						.<IntegerWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_CHARGING_CURRENT);
+				setChargingCurrent.setNextWriteValue(sc.current());
+			}
+			case ApplyCharge.Zero z -> {
+				setEnable.setNextWriteValue(SetEnable.DISABLE);
+			}
+			}
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Tuple<Instant, ApplyCharge> previousPhaseSwitch = null;
+
+	private void handlePhaseSwitch(EvseChargePointKebaImpl p, Instant now, PhaseSwitchState.Actual pss) {
+		if (this.previousPhaseSwitch != null && Duration.between(this.previousPhaseSwitch.a(), now).getSeconds() < 5) {
+			return;
+		}
+
+		p.logInfo(p.log, "[" + p.id() + "] Apply Phase Switch to " + pss);
+		try {
+			// Set Phase Switch Source to MODBUS if it was not set
+			if (p.getPhaseSwitchSource() == PhaseSwitchSource.VIA_MODBUS) {
+				var setPhaseSwitchSource = p
+						.<EnumWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_PHASE_SWITCH_SOURCE);
+				setPhaseSwitchSource.setNextWriteValue(PhaseSwitchSource.VIA_MODBUS);
+			}
+
+			// Apply actual phase switch
+			// TODO evaluate if this has to be more complicated, i.e. wait for a while or
+			// block any concurrent writes to SET_CHARGING_CURRENT.
+			var setPhaseSwitchState = p.<EnumWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_PHASE_SWITCH_STATE);
+			setPhaseSwitchState.setNextWriteValue(//
+					switch (pss) {
+					case SINGLE -> PhaseSwitchState.SINGLE;
+					case THREE -> PhaseSwitchState.THREE;
+					});
+			// TODO set PHASE_SWITCH_STATE prio to HIGH to track change faster
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		return this.config.phaseRotation();
+	}
 
 	/**
 	 * Converts an unsigned 32-bit integer value to a firmware version string.
@@ -286,17 +370,43 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 	 *              version
 	 * @return the firmware version string in the format "major.minor.patch" or null
 	 */
-	protected static String convertToFirmwareVersion(Long value) {
-		if (value == null) {
+	protected static final ElementToChannelConverter CONVERT_FIRMWARE_VERSION = new ElementToChannelConverter(obj -> {
+		if (obj == null) {
 			return null;
 		}
-		var hexValue = Long.toHexString(value & 0xFFFFFFFFL).toUpperCase();
-		while (hexValue.length() < 7) {
-			hexValue = "0" + hexValue;
+		var value = (long) getAsType(LONG, obj);
+		// Extract major, minor, and patch versions using bit manipulation
+		return new StringBuilder() //
+				.append((value >> 24) & 0xFF) //
+				.append(".") //
+				.append((value >> 16) & 0xFF) //
+				.append(".") //
+				.append((value >> 8) & 0xFF) //
+				.toString();
+	});
+
+	protected void logDebug(String message) {
+		if (this.config.debugMode()) {
+			this.logInfo(this.log, message);
 		}
-		int major = Integer.parseInt(hexValue.substring(0, 1), 16);
-		int minor = Integer.parseInt(hexValue.substring(1, 3), 16);
-		int patch = Integer.parseInt(hexValue.substring(3, 5), 16);
-		return major + "." + minor + "." + patch;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.calculateEnergyL1.update(this.getActivePowerL1Channel().getNextValue().get());
+			this.calculateEnergyL2.update(this.getActivePowerL2Channel().getNextValue().get());
+			this.calculateEnergyL3.update(this.getActivePowerL3Channel().getNextValue().get());
+			break;
+		}
 	}
 }

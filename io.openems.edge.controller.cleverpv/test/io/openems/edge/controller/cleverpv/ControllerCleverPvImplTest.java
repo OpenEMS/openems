@@ -2,6 +2,7 @@ package io.openems.edge.controller.cleverpv;
 
 import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getSubElement;
+import static io.openems.edge.controller.cleverpv.LogVerbosity.NONE;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -30,6 +31,7 @@ public class ControllerCleverPvImplTest {
 				.activate(MyConfig.create() //
 						.setId("ctrlCleverPv0") //
 						.setUrl("") //
+						.setLogVerbosity(NONE) //
 						.build())
 				.next(new TestCase()) //
 				.deactivate();

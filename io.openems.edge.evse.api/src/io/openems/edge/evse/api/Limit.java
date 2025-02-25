@@ -1,4 +1,4 @@
 package io.openems.edge.evse.api;
 
-public record Limit(Phase phase, int minCurrent, int maxCurrent) {
+public record Limit(SingleThreePhase phase, int minCurrent, int maxCurrent) {
 }

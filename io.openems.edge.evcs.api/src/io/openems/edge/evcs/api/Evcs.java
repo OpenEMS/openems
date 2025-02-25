@@ -21,7 +21,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
- * Represents an Electric Vehicle Charging System.
+ * Represents an Electric Vehicle Charging Station.
  * 
  * <p>
  * Not all EVCS provide all necessary values for an {@link ElectricityMeter}.

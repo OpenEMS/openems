@@ -1,4 +1,4 @@
-package io.openems.edge.evse.chargepoint.keba;
+package io.openems.edge.evse.chargepoint.keba.enums;
 
 import io.openems.common.types.OptionsEnum;
 

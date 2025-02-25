@@ -1,6 +1,6 @@
 package io.openems.edge.evse.api.chargepoint;
 
-import java.util.function.Consumer;
+import com.google.common.collect.ImmutableList;
 
 import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.channel.Channel;
@@ -51,7 +51,7 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 		}
 	}
 
-	public record ChargeParams(Limit limit, Consumer<ApplyCharge> applyChargeCallback) {
+	public record ChargeParams(Limit limit, ImmutableList<Profile> profiles) {
 	}
 
 	/**
@@ -60,6 +60,22 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	 * @return list of {@link ChargeParams}s
 	 */
 	public ChargeParams getChargeParams();
+
+	/**
+	 * Apply an {@link ApplyCharge} and optionally {@link Profile.Command}s.
+	 * 
+	 * @param applyCharge     the {@link ApplyCharge}
+	 * @param profileCommands the {@link Profile.Command}s
+	 */
+	public void apply(ApplyCharge applyCharge, ImmutableList<Profile.Command> profileCommands);
+
+	/**
+	 * Is this Charge-Point installed according to standard or rotated wiring?. See
+	 * {@link PhaseRotation} for details.
+	 *
+	 * @return the {@link PhaseRotation}.
+	 */
+	public PhaseRotation getPhaseRotation();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#STATUS}.

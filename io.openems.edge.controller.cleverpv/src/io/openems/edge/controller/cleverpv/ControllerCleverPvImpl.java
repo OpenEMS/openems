@@ -1,5 +1,7 @@
 package io.openems.edge.controller.cleverpv;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -11,6 +13,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -22,6 +26,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -52,6 +57,8 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	private final Logger log = LoggerFactory.getLogger(ControllerCleverPvImpl.class);
+
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
@@ -61,6 +68,7 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 
 	private String url;
 	private Instant lastSend = Instant.MIN;
+	private LogVerbosity logVerbosity = LogVerbosity.NONE;
 
 	public ControllerCleverPvImpl() {
 		super(//
@@ -80,6 +88,7 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 
 		this.httpBridge = this.httpBridgeFactory.get();
 		this.url = config.url();
+		this.logVerbosity = config.logVerbosity();
 	}
 
 	@Override
@@ -145,7 +154,41 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	private void sendData(JsonObject data) {
 		this.httpBridge.postJson(this.url, data) //
 				.whenComplete((msg, ex) -> {
+					this.log(data, msg, ex);
 					this.channel(ControllerCleverPv.ChannelId.UNABLE_TO_SEND).setNextValue(ex != null);
 				});
+	}
+
+	private void log(JsonObject data, HttpResponse<JsonElement> msg, Throwable ex) {
+		switch (this.logVerbosity) {
+		case NONE, DEBUG_LOG -> doNothing();
+		case FULL_JSON_ON_SEND -> {
+			var b = new StringBuilder("");
+			b.append("Data:").append(data.toString());
+			if (ex != null) {
+				b.append("|").append("Error:").append(ex.getClass().getSimpleName()).append(":").append(ex.toString());
+			}
+			if (msg != null) {
+				b.append("|").append("Response:").append(msg.toString());
+			}
+			this.logInfo(this.log, b.toString());
+		}
+		}
+	}
+
+	@Override
+	public String debugLog() {
+		return switch (this.logVerbosity) {
+		case NONE -> null;
+		case DEBUG_LOG, FULL_JSON_ON_SEND -> {
+			var b = new StringBuilder("Sent:");
+			if (this.lastSend == Instant.MIN) {
+				b.append("NEVER");
+			} else {
+				b.append(Duration.between(this.lastSend, Instant.now()).getSeconds()).append("s ago");
+			}
+			yield b.toString();
+		}
+		};
 	}
 }

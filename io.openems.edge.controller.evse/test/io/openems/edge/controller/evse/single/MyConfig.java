@@ -13,6 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String chargePointId;
 		private Mode mode;
 		private String electricVehicleId;
+		private String smartConfig;
 		private boolean debugMode;
 
 		private Builder() {
@@ -35,6 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setElectricVehicleId(String electricVehicleId) {
 			this.electricVehicleId = electricVehicleId;
+			return this;
+		}
+
+		public Builder setSmartConfig(String smartConfig) {
+			this.smartConfig = smartConfig;
 			return this;
 		}
 
@@ -77,6 +83,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String electricVehicle_id() {
 		return this.builder.electricVehicleId;
+	}
+
+	@Override
+	public String smartConfig() {
+		return this.builder.smartConfig;
 	}
 
 	@Override

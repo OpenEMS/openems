@@ -17,6 +17,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -24,7 +26,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
 import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.chargepoint.Profile;
 import io.openems.edge.evse.api.chargepoint.Status;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
@@ -39,8 +43,6 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvseSingleImpl.class);
 
-	private BiConsumer<Value<Status>, Value<Status>> onChargePointStatusChange;
-
 	@Reference
 	private ConfigurationAdmin cm;
 
@@ -52,6 +54,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 	private EvseElectricVehicle electricVehicle;
 
 	private Config config;
+	private BiConsumer<Value<Status>, Value<Status>> onChargePointStatusChange = null;
 
 	public ControllerEvseSingleImpl() {
 		this(Clock.systemDefaultZone());
@@ -78,15 +81,17 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 				config.electricVehicle_id())) {
 			return;
 		}
-		if (config.mode() == Mode.SMART) {
-			this.chargePoint.getStatusChannel().onChange(this.onChargePointStatusChange);
+		if (!config.enabled()) {
+			return;
 		}
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.chargePoint.getStatusChannel().removeOnChangeCallback(this.onChargePointStatusChange);
+		if (this.onChargePointStatusChange != null) {
+			this.chargePoint.getStatusChannel().removeOnChangeCallback(this.onChargePointStatusChange);
+		}
 		super.deactivate();
 	}
 
@@ -116,7 +121,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 			return null;
 		}
 
-		return new Params(readyForCharging, actualMode, limits, chargePoint.applyChargeCallback());
+		return new Params(readyForCharging, actualMode, limits, chargePoint.profiles());
 	}
 
 	@Override
@@ -124,8 +129,15 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		// Actual logic is carried out in the EVSE Cluster
 	}
 
+	@Override
+	public void apply(ApplyCharge applyCharge, ImmutableList<Profile.Command> profileCommands) {
+		this.chargePoint.apply(applyCharge, profileCommands);
+	}
+
 	protected static final Limit mergeLimits(EvseChargePoint.ChargeParams chargePoint,
 			EvseElectricVehicle.ChargeParams electricVehicle) {
+		// TODO if EV is single-phase and CP is three-phase, this should still produce a
+		// non-null result
 		if (chargePoint == null || electricVehicle == null) {
 			return null;
 		}

@@ -8,6 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id = null;
 		private String url;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -19,6 +20,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setUrl(String url) {
 			this.url = url;
+			return this;
+		}
+		
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
 			return this;
 		}
 
@@ -46,5 +52,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String url() {
 		return this.builder.url;
+	}
+
+	@Override
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
 	}
 }

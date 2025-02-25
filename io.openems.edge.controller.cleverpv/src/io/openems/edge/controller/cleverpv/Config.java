@@ -21,5 +21,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "URL", description = "Full API URL. See https://www.clever-pv.com/anleitungen/push-api", type = AttributeType.PASSWORD)
 	String url();
 
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
+
 	String webconsole_configurationFactory_nameHint() default "Controller Clever-PV [{id}]";
 }

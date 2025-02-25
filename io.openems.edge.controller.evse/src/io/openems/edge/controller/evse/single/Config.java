@@ -28,6 +28,11 @@ import io.openems.edge.evse.api.chargepoint.Mode;
 	@AttributeDefinition(name = "Electric-Vehicle-ID", description = "ID of EVSE Electric-Vehicle.")
 	String electricVehicle_id() default "evseElectricVehicle0";
 
+	// TODO implement
+	@AttributeDefinition(name = "JSON Configuration for SMART mode", description = "")
+	String smartConfig() default "";
+	
+	// TODO replace with logVerbosity
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 

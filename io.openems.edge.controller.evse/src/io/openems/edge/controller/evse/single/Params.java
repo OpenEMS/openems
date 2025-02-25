@@ -1,22 +1,10 @@
 package io.openems.edge.controller.evse.single;
 
-import java.util.function.Consumer;
+import com.google.common.collect.ImmutableList;
 
 import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
 import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.chargepoint.Profile;
 
-public record Params(boolean readyForCharging, Mode.Actual actualMode, Limit limit,
-		Consumer<ApplyCharge> applyChargeCallback) {
-
-	/**
-	 * Applies charging.
-	 * 
-	 * @param applyCharge the {@link ApplyCharge} record
-	 */
-	public void applyCharge(ApplyCharge applyCharge) {
-		if (this.applyChargeCallback != null) {
-			this.applyChargeCallback.accept(applyCharge);
-		}
-	}
+public record Params(boolean readyForCharging, Mode.Actual actualMode, Limit limit, ImmutableList<Profile> profiles) {
 }

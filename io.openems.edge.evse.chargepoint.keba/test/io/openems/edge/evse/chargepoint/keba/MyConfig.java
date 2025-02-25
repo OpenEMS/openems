@@ -1,6 +1,8 @@
 package io.openems.edge.evse.chargepoint.keba;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.evse.chargepoint.keba.enums.Phase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,6 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean debugMode;
 		private String modbusId;
 		private Phase phase;
+		private PhaseRotation phaseRotation;
 
 		private Builder() {
 		}
@@ -34,9 +37,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusId = modbusId;
 			return this;
 		}
-		
+
 		public Builder setPhase(Phase phase) {
 			this.phase = phase;
+			return this;
+		}
+		
+		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
+			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -79,5 +87,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Phase phase() {
 		return this.builder.phase;
+	}
+
+	@Override
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 }

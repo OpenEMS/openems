@@ -3,6 +3,9 @@ package io.openems.edge.evse.chargepoint.keba;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.evse.chargepoint.keba.enums.Phase;
+
 @ObjectClassDefinition(name = "EVSE Charge-Point KEBA", //
 		description = "The KEBA KeContact P30 or P40 electric vehicle charging station")
 @interface Config {
@@ -23,7 +26,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean debugMode() default false;
 
 	@AttributeDefinition(name = "Phase(s)", description = "", required = true)
-	Phase phase() default Phase.THREE; // TODO drop
+	Phase phase() default Phase.FIXED_THREE;
+
+	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
+	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge")
 	String modbus_id() default "modbus0";
