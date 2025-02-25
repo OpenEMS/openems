@@ -401,6 +401,20 @@ formly-input-section {
 
 :root {
 
+    ion-text {
+        small {
+            color: var(--ion-card-content-color);
+        }
+    }
+
+    ion-card {
+
+        ion-card-title,
+        ion-card-subtitle {
+            color: var(--ion-text-color);
+        }
+    }
+
     --ion-color-primary-item: shade($primary-color, #000);
 
     ion-segment {
@@ -468,8 +482,8 @@ formly-input-section {
     }
 
     ion-toggle {
-        --background-checked: var(--ion-color-toggle-background);
-        --background: #9C9C9C;
+        --track-background: var(--ion-color-toggle-background);
+        --track-background-checked: var(--ion-color-toggle-background);
     }
 
     ion-spinner {

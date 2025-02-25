@@ -76,6 +76,8 @@ export namespace ChartConstants {
   }
 
   export namespace Colors {
+
+    export const LEGEND_LABEL_BG_OPACITY: number = 0.2;
     export const BLUE: string = new RGBColor(54, 174, 209).toString();
     export const RED: string = new RGBColor(255, 98, 63).toString();
     export const GREEN: string = new RGBColor(14, 190, 84).toString();

@@ -86,7 +86,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     order: 1,
                 },
                 {
-                    name: this.translate.instant("General.gridBuy"),
+                    name: this.translate.instant("General.gridBuyAdvanced"),
                     converter: () => data["GridBuy"],
                     color: ChartConstants.Colors.BLUE_GREY,
                     yAxisId: ChartAxis.RIGHT_2,
