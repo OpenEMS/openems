@@ -457,7 +457,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		
 		// balancing is not desired
 		if (config.maxPrice() != 0 && currentPrice > config.maxPrice() ) {
-			this.logDebug(this.log, "Balancing is deactivated due to high price");
+			this.logDebug(this.log, "Balancing is deactivated due to high price. Configured limit: " + config.maxPrice() + " Current price: " + currentPrice + "[ct/kWh]" );
 			return false;
 		}
 		
