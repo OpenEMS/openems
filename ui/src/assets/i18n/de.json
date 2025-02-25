@@ -1047,5 +1047,10 @@
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "Ist erforderlich"
+    }
   }
 }

@@ -1044,5 +1044,10 @@
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "This function is temporarily not available in the app, please use the web app instead."
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "Is required"
+    }
   }
 }

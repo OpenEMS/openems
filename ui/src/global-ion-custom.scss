@@ -41,6 +41,13 @@
     --background: var(--ion-item-background) !important;
 }
 
+.ion-white-space-pre-wrap {
+
+    &::part(label) {
+        white-space: pre-wrap;
+    }
+}
+
 /* Functions */
 @function tint($color, $percentage) {
     @return mix(white, $color, $percentage);
