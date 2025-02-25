@@ -23,6 +23,9 @@ describe("Edge", () => {
                 globalRole: "admin", hasMultipleEdges: true, id: "", language: Language.DE.key, name: "test.user", settings: {}, getThemeFromSettings() {
                     return null;
                 },
+                isAtLeast(role) {
+                    return true;
+                },
             },
         }),
     });
@@ -85,6 +88,9 @@ export async function expectNgOnInit(serviceSypObject: jasmine.SpyObj<Service>, 
             globalRole: "admin", hasMultipleEdges: true, id: "", language: Language.DE.key, name: "test.user", settings: {},
             getThemeFromSettings: function (): Theme | null {
                 throw new Error("Function not implemented.");
+            },
+            isAtLeast(role) {
+                return true;
             },
         },
     });

@@ -1,4 +1,5 @@
 import { Theme } from "src/app/edge/history/shared";
+import { Role } from "../type/role";
 import { ArrayUtils } from "../utils/array/array.utils";
 import { AuthenticateResponse } from "./response/authenticateResponse";
 
@@ -57,5 +58,9 @@ export class User {
         }
 
         return null;
+    }
+
+    public isAtLeast(role: Role) {
+        return Role.isAtLeast(this.globalRole, role);
     }
 };
