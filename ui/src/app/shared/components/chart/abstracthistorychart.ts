@@ -461,6 +461,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
       // Assuming the dataset is a bar chart using the 'stacked' option
       const stack = items[0].dataset.stack || datasetIndex;
+      const yAxisId = items[0].dataset.yAxisID;
 
       // If only one item in stack do not show sum of values
       if (items.length <= 1) {
@@ -469,9 +470,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
       const afterTitle = typeof chartObject.tooltip?.afterTitle == "function" ? chartObject.tooltip?.afterTitle(stack) : null;
 
-      const totalValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      const cumulatedValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      const unit = chartObject.yAxes?.find(el => el.yAxisId === yAxisId)?.unit
+        ?? chartObject.yAxes[0]?.unit;
+
+      if (unit != null) {
+        tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(unit, chartType, cumulatedValue, translate);
+      }
+
+
       if (afterTitle) {
-        return afterTitle + ": " + formatNumber(totalValue, locale, chartObject.tooltip.formatNumber) + " " + tooltipsLabel;
+        return afterTitle + ": " + formatNumber(cumulatedValue, locale, chartObject.tooltip.formatNumber) + " " + tooltipsLabel;
       }
 
       return null;
