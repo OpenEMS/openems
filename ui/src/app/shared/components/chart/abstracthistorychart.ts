@@ -366,7 +366,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber,);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -495,7 +495,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       function rebuildScales(chart: Chart.Chart) {
         let options = chart.options;
         chartObject.yAxes.forEach((element) => {
-          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, _dataSets, true);
+          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, _dataSets, true, chartObject.tooltip.formatNumber,);
         });
       }
 
@@ -546,9 +546,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param locale the current locale
    * @returns the chart options {@link Chart.ChartOptions}
    */
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean): Chart.ChartOptions {
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"]): Chart.ChartOptions {
     const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
-    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType);
+    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType, formatNumber);
     switch (element.unit) {
       case YAxisType.RELAY:
         options.scales[element.yAxisId] = {

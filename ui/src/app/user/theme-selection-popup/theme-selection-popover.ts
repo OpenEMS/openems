@@ -1,6 +1,7 @@
-import { Component, Input } from "@angular/core";
+import { Component } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { UserService } from "src/app/shared/service/user.service";
 import { Theme as UserTheme } from "../../edge/history/shared";
 
 
@@ -17,19 +18,19 @@ import { Theme as UserTheme } from "../../edge/history/shared";
   standalone: false,
 })
 export class ThemePopoverComponent {
-  @Input() public userTheme: UserTheme = "light" as UserTheme; // Current theme (light, dark, system)
+  protected userTheme: UserTheme = UserService.DEFAULT_THEME; // Current theme (light, dark, system)
 
   protected readonly displayThemes = [
-    { key: "light", label: this.translate.instant("General.LIGHT"), img: "assets/img/Light-Mode-preview.jpg" },
-    { key: "dark", label: this.translate.instant("General.DARK"), img: "assets/img/Dark-Mode-preview.jpg" },
-    { key: "system", label: this.translate.instant("General.SYSTEM_THEME"), img: "assets/img/System-Mode-preview.jpg" },
+    { key: UserTheme.LIGHT, label: this.translate.instant("General.LIGHT"), img: "assets/img/light-mode-preview.jpg" },
+    { key: UserTheme.DARK, label: this.translate.instant("General.DARK"), img: "assets/img/dark-mode-preview.jpg" },
+    { key: UserTheme.SYSTEM, label: this.translate.instant("General.SYSTEM_THEME"), img: "assets/img/system-mode-preview.jpg" },
   ];
 
   constructor(
     protected modalCtrl: ModalController,
     private translate: TranslateService,
   ) {
-    this.userTheme = this.userTheme || "light" as UserTheme;
+    this.userTheme = this.userTheme || UserService.DEFAULT_THEME;
   }
 
   /**
