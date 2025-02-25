@@ -185,12 +185,12 @@ public class RestHandler extends Handler.Abstract {
 			try {
 				rpcResponse = responseFuture.get();
 			} catch (Exception e) {
-				sendErrorResponse(httpResponse, request.getId(), e);
+				this.sendErrorResponse(httpResponse, request.getId(), e);
 				return;
 			}
 			sendOkResponse(httpResponse, rpcResponse.toJsonObject());
 		} catch (OpenemsNamedException e) {
-			sendErrorResponse(httpResponse, requestId,
+			this.sendErrorResponse(httpResponse, requestId,
 					new OpenemsException("Unable to get Response: " + e.getMessage()));
 		}
 	}
