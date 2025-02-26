@@ -19,6 +19,7 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
+import io.openems.common.utils.DictionaryUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -92,11 +93,13 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		/*
 		 * Create Default Logging configuration
 		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		"org.ops4j.pax.logging".equals(c.pid) && c.properties.get("log4j2.rootLogger.level") != null)) {
+		if (existingConfigs.stream().noneMatch(c -> "org.ops4j.pax.logging".equals(c.pid) //
+				&& !DictionaryUtils.containsAnyKey(c.properties, "log4j2.rootLogger.level"))) {
 			// Adding Configuration manually, because this is not a OpenEMS Configuration
 			try {
 				var log4j = new Hashtable<String, Object>();
+				log4j.put("org.ops4j.pax.logging.log4j2.config.file", "");
+
 				log4j.put("log4j2.appender.console.type", "Console");
 				log4j.put("log4j2.appender.console.name", "console");
 				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");

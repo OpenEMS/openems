@@ -37,6 +37,8 @@ updates:
       capacitor:
         patterns:
           - "@capacitor/*"
+          - "@capacitor-community/*"
+          - "capacitor-*"
       ionic-native:
         patterns:
           - "@ionic-native/*"

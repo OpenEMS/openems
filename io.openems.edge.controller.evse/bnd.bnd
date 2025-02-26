@@ -1,0 +1,17 @@
+Bundle-Name: OpenEMS Edge Electric Vehicle Supply Equipment (EVSE) Controllers
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.energy.api,\
+	io.openems.edge.evse.api,\
+	io.openems.edge.meter.api,\
+
+-testpath: \
+	${testpath},\
+	org.apache.commons.math3,\

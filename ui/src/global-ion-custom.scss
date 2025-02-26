@@ -4,8 +4,18 @@
     font-size: medium !important;
 }
 
+.ion-font-size-large {
+    font-size: xx-large !important;
+}
+
 .ion-font-size-smaller {
     font-size: small !important;
+}
+.ion-font-size-small {
+    font-size: small !important;
+}
+.ion-font-size-larger {
+    font-size: larger !important;
 }
 
 .ion-font-weight-bolder {
@@ -24,6 +34,10 @@
     text-align: center;
 }
 
+.ion-text-align-end {
+    text-align: end;
+}
+
 .ion-col-with-icon {
     display: flex;
     justify-content: center;
@@ -35,6 +49,13 @@
 
 .ion-toolbar-button::part(native) {
     --background: var(--ion-item-background) !important;
+}
+
+.ion-white-space-pre-wrap {
+
+    &::part(label) {
+        white-space: pre-wrap;
+    }
 }
 
 /* Functions */

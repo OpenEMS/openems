@@ -79,7 +79,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     hidden: false,
                 });
                 this.colors.push({
-                    backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.05),
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.05),
                     borderColor: ChartConstants.Colors.RED,
                 });
             }

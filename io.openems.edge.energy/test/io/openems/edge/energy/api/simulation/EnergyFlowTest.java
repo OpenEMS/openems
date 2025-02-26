@@ -1,9 +1,9 @@
 package io.openems.edge.energy.api.simulation;
 
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyBalancing;
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyChargeGrid;
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyDelayDischarge;
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyDischargeGrid;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyBalancing;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyChargeGrid;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyDelayDischarge;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyDischargeGrid;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;

@@ -141,6 +141,8 @@ export class EdgeConfig {
                 category: { title: "E-Auto-Ladestation", icon: "car-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evcs.api.Evcs"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evse.api.chargepoint.EvseChargePoint"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle"),
                 ].flat(2),
             },
             {
@@ -148,6 +150,8 @@ export class EdgeConfig {
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Evcs",
+                        "Evse.Controller.Single",
+                        "Evse.Controller.Cluster",
                     ]),
                 ].flat(2),
             },
@@ -200,6 +204,7 @@ export class EdgeConfig {
                     ]),
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Api.Backend",
+                        "Controller.Clever-PV",
                     ]),
                 ].flat(2),
             },
@@ -552,6 +557,9 @@ export class EdgeConfig {
         }
         const natures = this.getNatureIdsByFactoryId(component.factoryId);
         if (natures.includes("io.openems.edge.evcs.api.Evcs") && !natures.includes("io.openems.edge.evcs.api.MetaEvcs")) {
+            return true;
+        }
+        if (natures.includes("io.openems.edge.evse.api.chargepoint.EvseChargePoint")) {
             return true;
         }
         return false;

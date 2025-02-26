@@ -17,7 +17,7 @@ import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
-import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyState;
+import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 /**
@@ -65,9 +65,9 @@ public final class UtilsV1 {
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param ctrlLimiter14as        the list of {@link ControllerEssLimiter14a}s
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
-	 * @return {@link ApplyState}
+	 * @return {@link ApplyMode}
 	 */
-	public static ApplyState calculateAutomaticMode(EnergyScheduleHandlerV1 esh, Sum sum, ManagedSymmetricEss ess,
+	public static ApplyMode calculateAutomaticMode(EnergyScheduleHandlerV1 esh, Sum sum, ManagedSymmetricEss ess,
 			List<ControllerEssLimiter14a> ctrlLimiter14as, int maxChargePowerFromGrid) {
 		final var targetState = getCurrentPeriodState(esh);
 		final var essChargeInChargeGrid = esh.getCurrentEssChargeInChargeGrid();
@@ -85,9 +85,9 @@ public final class UtilsV1 {
 	 * @param maxChargePowerFromGrid     the configured max charge from grid power
 	 * @param limitChargePowerFor14aEnWG Limit Charge Power for §14a EnWG
 	 * @param targetState                the scheduled target {@link StateMachine}
-	 * @return {@link ApplyState}
+	 * @return {@link ApplyMode}
 	 */
-	protected static ApplyState calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer essChargeInChargeGrid,
+	protected static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer essChargeInChargeGrid,
 			int maxChargePowerFromGrid, int limitChargePowerFor14aEnWG, StateMachine targetState) {
 		final StateMachine actualState;
 		final Integer setPoint;
@@ -96,7 +96,7 @@ public final class UtilsV1 {
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (gridActivePower == null || essActivePower == null) {
 			// undefined state
-			return new ApplyState(BALANCING, null);
+			return new ApplyMode(BALANCING, null);
 		}
 
 		// Post-process and get actual state
@@ -113,7 +113,7 @@ public final class UtilsV1 {
 		case CHARGE_GRID -> pwrChargeGrid;
 		};
 
-		return new ApplyState(actualState, setPoint);
+		return new ApplyMode(actualState, setPoint);
 	}
 
 	/**

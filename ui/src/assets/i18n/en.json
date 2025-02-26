@@ -325,7 +325,7 @@
       "CURRENT_AND_VOLTAGE": "Current & Voltage",
       "CURRENT": "Current",
       "VOLTAGE": "Voltage",
-      "PHASE_ACCURATE": "Phasengenau"
+      "PHASE_ACCURATE": "phase-accurate"
     },
     "Config": {
       "Index": {
@@ -471,6 +471,13 @@
     }
   },
   "General": {
+    "THEME_SELECTION": {
+      "TITLE": "Lights off, comfort on!",
+      "DESCRIPTION": "Our monitoring is now available in <b>dark mode</b>.<hr>Simply switch over and get started!"
+    },
+    "LIGHT": "Light",
+    "DARK": "Dark",
+    "SYSTEM_THEME": "System",
     "active": "Active",
     "actualPower": "e-car Charge power",
     "ALL": "All",
@@ -532,6 +539,7 @@
     "selfConsumption": "Self Consumption",
     "soc": "State of charge",
     "state": "State",
+    "STATUS": "Status",
     "storageSystem": "Storage System",
     "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
@@ -1036,5 +1044,10 @@
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "This function is temporarily not available in the app, please use the web app instead."
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "Is required"
+    }
   }
 }

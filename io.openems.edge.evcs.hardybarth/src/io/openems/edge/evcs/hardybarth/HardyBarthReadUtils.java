@@ -5,7 +5,7 @@ import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.types.OpenemsType.STRING;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
-import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
+import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
@@ -108,7 +108,7 @@ public class HardyBarthReadUtils {
 		setPhaseRotatedActivePowerChannels(hb, activePowerL1, activePowerL2, activePowerL3);
 
 		// Phases: keep last value if no power value was given
-		var phases = evaluatePhaseCount(activePowerL1, activePowerL2, activePowerL3);
+		var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
 		if (phases != null) {
 			hb._setPhases(phases);
 			hb.debugLog("Used phases: " + phases);

@@ -246,7 +246,7 @@ export abstract class AbstractHistoryChart {
                     });
 
                 // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", this.datasets, true);
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", this.datasets, true, chartObject.tooltip.formatNumber,);
                 options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
                 options.scales[ChartAxis.LEFT]["stacked"] = false;
                 options.scales.x["stacked"] = true;

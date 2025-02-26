@@ -17,9 +17,9 @@ public enum ControlMode {
 			StateMachine.CHARGE_GRID //
 	);
 
-	public final StateMachine[] states;
+	public final StateMachine[] modes;
 
-	private ControlMode(StateMachine... states) {
-		this.states = states;
+	private ControlMode(StateMachine... modes) {
+		this.modes = modes;
 	}
 }

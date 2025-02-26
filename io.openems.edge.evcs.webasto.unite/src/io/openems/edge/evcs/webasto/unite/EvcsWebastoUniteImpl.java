@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.webasto.unite;
 
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -83,6 +85,7 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 				ModbusComponent.ChannelId.values(), //
 				EvcsWebastoUnite.ChannelId.values() //
 		);
+		calculateUsedPhasesFromCurrent(this);
 	}
 
 	@Activate

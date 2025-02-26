@@ -1,6 +1,9 @@
-import { NgModule } from "@angular/core";
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { ChangelogComponent } from "src/app/changelog/view/component/changelog.component";
+import tr from "src/app/edge/settings/shared/translation.json";
 import { ComponentsModule } from "src/app/shared/components/components.module";
+import { Language } from "src/app/shared/type/language";
 import { SharedModule } from "./../../shared/shared.module";
 import { AlertingComponent } from "./alerting/alerting.component";
 import { AppModule } from "./app/app.module";
@@ -48,5 +51,13 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
   exports: [
     OeSystemUpdateComponent,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class SettingsModule { }
+export class SettingsModule {
+
+  constructor(private translate: TranslateService) {
+    Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
+      translate.setTranslation(lang, translations, shouldMerge);
+    });
+  }
+}

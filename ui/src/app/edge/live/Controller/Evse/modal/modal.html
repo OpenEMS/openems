@@ -1,0 +1,9 @@
+<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+
+    <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
+    { name: 'Aus', value: 'ZERO', icon: {color:'primary', name: 'close-circle-outline'}},
+    { name: 'Minimal', value: 'MINIMUM', icon: {color:'primary', name: 'radio-button-off-outline'}},
+    { name: 'Schnellladen', value: 'FORCE', icon: {color:'primary', name: 'radio-button-on-outline'}}]">
+    </oe-modal-buttons>
+
+</oe-modal>

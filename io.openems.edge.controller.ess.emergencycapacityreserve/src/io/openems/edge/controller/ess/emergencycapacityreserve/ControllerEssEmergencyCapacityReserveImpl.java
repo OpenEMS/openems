@@ -1,10 +1,8 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
-import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
-import static java.lang.Math.max;
+import static io.openems.edge.controller.ess.emergencycapacityreserve.EnergyScheduler.buildEnergyScheduleHandler;
 
 import java.util.OptionalInt;
-import java.util.function.Supplier;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -31,7 +29,7 @@ import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.Cont
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine.State;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
@@ -77,7 +75,8 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 				ControllerEssEmergencyCapacityReserve.ChannelId.values() //
 		);
 		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.config.isReserveSocEnabled() //
+				() -> this.id(), //
+				() -> this.config.enabled() && this.config.isReserveSocEnabled() //
 						? this.config.reserveSoc() //
 						: null);
 	}
@@ -206,29 +205,6 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 				.filter(Value::isDefined) //
 				.mapToInt(Value::get) //
 				.findFirst();
-	}
-
-	/**
-	 * Builds the {@link EnergyScheduleHandler}.
-	 * 
-	 * <p>
-	 * This is public so that it can be used by the EnergyScheduler integration
-	 * test.
-	 * 
-	 * @param minSoc supplier for the configured minSoc
-	 * @return a {@link EnergyScheduleHandler}
-	 */
-	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Integer> minSoc) {
-		return EnergyScheduleHandler.WithOnlyOneState.<Integer>create() //
-				.setContextFunction(simContext -> minSoc.get() == null //
-						? null //
-						: socToEnergy(simContext.ess().totalEnergy(), minSoc.get())) //
-				.setSimulator((simContext, period, energyFlow, minEnergy) -> {
-					if (minEnergy != null) {
-						energyFlow.setEssMaxDischarge(max(0, simContext.ess.getInitialEnergy() - minEnergy));
-					}
-				}) //
-				.build();
 	}
 
 	@Override
