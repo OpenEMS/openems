@@ -1,9 +1,9 @@
 package io.openems.common.utils;
 
-import com.google.common.primitives.Ints;
-
 import java.util.Dictionary;
 import java.util.Optional;
+
+import com.google.common.primitives.Ints;
 
 /**
  * Provides helper utilities to handle {@link Dictionary}s.

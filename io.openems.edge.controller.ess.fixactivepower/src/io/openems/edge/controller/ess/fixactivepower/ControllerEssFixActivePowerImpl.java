@@ -1,8 +1,7 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
+import static io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.buildEnergyScheduleHandler;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
-
-import java.util.function.Supplier;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,13 +20,13 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.PowerConstraint;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -62,13 +61,16 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				ControllerEssFixActivePower.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(() -> new EshContext(//
-				this.config.mode(), //
-				toEnergy(switch (this.config.phase()) {
-				case ALL -> this.config.power();
-				case L1, L2, L3 -> this.config.power() * 3;
-				}), //
-				this.config.relationship()));
+		this.energyScheduleHandler = buildEnergyScheduleHandler(//
+				() -> this.id(), //
+				() -> this.config.enabled() && this.config.mode() == Mode.MANUAL_ON //
+						? new OptimizationContext(//
+								toEnergy(switch (this.config.phase()) {
+								case ALL -> this.config.power();
+								case L1, L2, L3 -> this.config.power() * 3;
+								}), //
+								this.config.relationship()) //
+						: null);
 	}
 
 	@Activate
@@ -150,38 +152,6 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
-	}
-
-	/**
-	 * Builds the {@link EnergyScheduleHandler}.
-	 * 
-	 * <p>
-	 * This is public so that it can be used by the EnergyScheduler integration
-	 * test.
-	 * 
-	 * @param context a supplier for the configured {@link EshContext}
-	 * @return a {@link EnergyScheduleHandler}
-	 */
-	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<EshContext> context) {
-		return EnergyScheduleHandler.WithOnlyOneState.<EshContext>create() //
-				.setContextFunction(simContext -> context.get()) //
-				.setSimulator((simContext, period, energyFlow, ctrlContext) -> {
-					switch (ctrlContext.mode) {
-					case MANUAL_ON:
-						switch (ctrlContext.relationship) {
-						case EQUALS -> energyFlow.setEss(ctrlContext.energy);
-						case GREATER_OR_EQUALS -> energyFlow.setEssMaxCharge(-ctrlContext.energy);
-						case LESS_OR_EQUALS -> energyFlow.setEssMaxDischarge(ctrlContext.energy);
-						}
-						break;
-					case MANUAL_OFF:
-						break;
-					}
-				}) //
-				.build();
-	}
-
-	public static record EshContext(Mode mode, int energy, Relationship relationship) {
 	}
 
 	@Override
