@@ -122,7 +122,8 @@ export default [{
         "@typescript-eslint/no-unused-vars": [
           "error",
           {
-            "args": "none"
+            "args": "none",
+            "ignoreRestSiblings": true
           }
         ],
         "@typescript-eslint/no-explicit-any": 0,

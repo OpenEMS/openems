@@ -275,6 +275,23 @@ export namespace Converter {
     };
   };
 
+  export const HEAT_PUMP_STATES = (translate: TranslateService) => {
+    return (raw): string => {
+      switch (raw) {
+        case -1:
+          return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+        case 0:
+          return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+        case 1:
+          return translate.instant("Edge.Index.Widgets.HeatPump.normalOperationShort");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRecShort");
+        case 3:
+          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnComShort");
+      }
+    };
+  };
+
   export const FORMAT_SECONDS_TO_DURATION: any = (locale: string) => {
     return (raw): any => {
       return IF_NUMBER(raw, value => {

@@ -78,12 +78,16 @@ public final class CommunicationProps {
 				def -> def.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> {
 					try {
 						var ips = app.getHost().getSystemIPs();
-						final var exclusionPattern = ips.stream().map(ip -> ip.getHostAddress())//
-								.map(ip -> ip.replace(".", "\\.")) //
-								.collect(joining("|"));
+						if (ips.isEmpty()) {
+							f.setValidation(IP);
+						} else {
+							final var exclusionPattern = ips.stream().map(ip -> ip.getHostAddress())//
+									.map(ip -> ip.replace(".", "\\.")) //
+									.collect(joining("|"));
 
-						final var regex = "^(?!.*(?:" + exclusionPattern + ")$)" + PATTERN_INET4ADDRESS;
-						f.setValidation(regex, getTranslation(param.bundle(), "communication.excludingIp"));
+							f.setValidation("^(?!.*(?:" + exclusionPattern + ")$)" + PATTERN_INET4ADDRESS,
+									getTranslation(param.bundle(), "communication.excludingIp"));
+						}
 					} catch (OpenemsNamedException e) {
 						f.setValidation(IP);
 					}

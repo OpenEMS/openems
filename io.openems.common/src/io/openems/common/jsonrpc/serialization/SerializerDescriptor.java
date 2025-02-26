@@ -19,8 +19,4 @@ public class SerializerDescriptor {
 		return this.obj.buildPath();
 	}
 
-	public JsonElementPathDummy getObj() {
-		return this.obj;
-	}
-
 }

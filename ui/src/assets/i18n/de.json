@@ -470,6 +470,13 @@
     }
   },
   "General": {
+    "THEME_SELECTION": {
+      "TITLE": "Licht aus, Komfort an!",
+      "DESCRIPTION": "Ab sofort steht dir unser Monitoring im <b>Darkmode</b> zur Verfügung.<hr>Einfach umschalten und loslegen!"
+    },
+    "LIGHT": "Hell",
+    "DARK": "Dunkel",
+    "SYSTEM_THEME": "System",
     "active": "Aktiv",
     "actualPower": "E-Auto Beladung",
     "ALL": "Alle",
@@ -530,6 +537,7 @@
     "selfConsumption": "Eigenverbrauch",
     "soc": "Ladezustand",
     "state": "Zustand",
+    "STATUS": "Status",
     "storageSystem": "Speichersystem",
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
@@ -1039,5 +1047,10 @@
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "Ist erforderlich"
+    }
   }
 }

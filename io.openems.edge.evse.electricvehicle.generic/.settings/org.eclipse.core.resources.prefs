@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/evse/electricvehicle/generic/Config.java=UTF-8
+encoding//src/io/openems/edge/evse/electricvehicle/generic/EvseElectricVehicleGeneric.java=UTF-8
+encoding//src/io/openems/edge/evse/electricvehicle/generic/EvseElectricVehicleGenericImpl.java=UTF-8
+encoding//test/io/openems/edge/evse/electricvehicle/generic/EvseElectricVehicleGenericImplTest.java=UTF-8
+encoding//test/io/openems/edge/evse/electricvehicle/generic/MyConfig.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8
