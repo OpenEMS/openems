@@ -88,11 +88,12 @@
           </oe-modal-line>
 
           <!-- this section has to be change later -->
-          <table class="full_width" *ngIf="numberOfPhases && formGroup.value.forceChargeMinPower">
+          <table class="full_width"
+            *ngIf="minChargePower && maxChargePower && numberOfPhases && formGroup.value.forceChargeMinPower">
             <tr>
               <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller, numberOfPhases)"
                 min="{{ formatNumber(minChargePower) }}" max="{{ formatNumber(maxChargePower) }}" color="dark"
-                pin="true" style="padding-top: 8px;" step="100" debounce="500"
+                pin="true" style="padding-top: 8px;" step="100" debounce="500" [pinFormatter]="pinFormatter"
                 value="{{controller.properties['forceChargeMinPower'] * numberOfPhases}}">
                 <ion-label slot="start">
                   {{ formatNumber(minChargePower) |
