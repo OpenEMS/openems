@@ -37,6 +37,9 @@ export type Option = {
  * @param field
  * @returns the title of the option
  */
-export function getTitleFromOptionConfig(option: OptionConfig, field: FormlyFieldConfig): string {
+export function getTitleFromOptionConfig(option: OptionConfig, field: FormlyFieldConfig): string | null {
+    if (!option) {
+        return null;
+    }
     return option.expressions?.title?.(field) ?? option.title ?? option.value;
 }

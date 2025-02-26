@@ -19,10 +19,10 @@ import com.google.gson.JsonNull;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -296,7 +296,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 	}
 
 	private void deleteComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {
-		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfigRequest(comp.getId()));
+		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(comp.getId()));
 	}
 
 	private void createComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {
@@ -306,7 +306,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		properties.add(new Property("alias", comp.getAlias()));
 
 		this.componentManager.handleCreateComponentConfigRequest(user,
-				new CreateComponentConfigRequest(comp.getFactoryId(), properties));
+				new CreateComponentConfig.Request(comp.getFactoryId(), properties));
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		properties.add(new Property("alias", myComp.getAlias()));
 
 		this.componentManager.handleUpdateComponentConfigRequest(user,
-				new UpdateComponentConfigRequest(actualComp.getId(), properties));
+				new UpdateComponentConfig.Request(actualComp.getId(), properties));
 	}
 
 	@Override
