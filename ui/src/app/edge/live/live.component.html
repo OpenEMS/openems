@@ -66,6 +66,10 @@
                 <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
               </ion-col>
 
+              <ion-col *ngSwitchCase="'Evse.Controller.Single'" size="12" size-lg="6" class="ion-no-padding">
+                <oe-controller-evse-single [componentId]="widget.componentId"></oe-controller-evse-single>
+              </ion-col>
+
               <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Channelthreshold [componentId]="widget.componentId"></Controller_Channelthreshold>
               </ion-col>
@@ -94,6 +98,10 @@
 
               <ion-col *ngSwitchCase="'Controller.IO.HeatingElement'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_HeatingElement [componentId]="widget.componentId"></Controller_Io_HeatingElement>
+              </ion-col>
+
+              <ion-col *ngSwitchCase="'Controller.IO.Heating.Room'" size="12" size-lg="6" class="ion-no-padding">
+                <oe-controller-io-heating-room [componentId]="widget.componentId"></oe-controller-io-heating-room>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">

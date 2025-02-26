@@ -3,7 +3,7 @@ package io.openems.edge.energy.optimizer;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.jenetics.engine.Limits.byFixedGeneration;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
-import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.calculateSleepMillis;
 import static io.openems.edge.energy.optimizer.Utils.createSimulator;
@@ -32,8 +32,8 @@ import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.LogVerbosity;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
@@ -45,19 +45,19 @@ public class Optimizer implements Runnable {
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	private final Supplier<LogVerbosity> logVerbosity;
-	private final ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier;
+	private final ThrowingSupplier<GlobalOptimizationContext, OpenemsException> gocSupplier;
 	private final Channel<Integer> simulationsPerQuarterChannel;
 	private final AtomicBoolean rescheduleCurrentPeriod = new AtomicBoolean(false);
 
 	private Simulator simulator = null;
-	private SimulationResult simulationResult = EMPTY;
+	private SimulationResult simulationResult = EMPTY_SIMULATION_RESULT;
 	private ScheduledFuture<?> future;
 
 	public Optimizer(Supplier<LogVerbosity> logVerbosity,
-			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, //
+			ThrowingSupplier<GlobalOptimizationContext, OpenemsException> gocSupplier, //
 			Channel<Integer> simulationsPerQuarterChannel) {
 		this.logVerbosity = logVerbosity;
-		this.gscSupplier = gscSupplier;
+		this.gocSupplier = gocSupplier;
 		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
 	}
@@ -115,9 +115,9 @@ public class Optimizer implements Runnable {
 
 	@Override
 	public void run() {
-		var simulationResult = SimulationResult.EMPTY;
+		var simulationResult = EMPTY_SIMULATION_RESULT;
 		try {
-			if (this.rescheduleCurrentPeriod.getAndSet(false) || this.simulationResult == EMPTY) {
+			if (this.rescheduleCurrentPeriod.getAndSet(false) || this.simulationResult == EMPTY_SIMULATION_RESULT) {
 				this.traceLog(() -> "Run Quick Optimization...");
 				simulationResult = this.runQuickOptimization();
 			} else {
@@ -141,13 +141,13 @@ public class Optimizer implements Runnable {
 	 */
 	private Simulator updateSimulator() throws InterruptedException {
 		try {
-			// Create the Simulator with GlobalSimulationsContext
+			// Create the Simulator with GlobalOptimizationContext
 			this.traceLog(() -> "updateSimulator()...");
-			createSimulator(this.gscSupplier, //
+			createSimulator(this.gocSupplier, //
 					simulator -> this.simulator = simulator, //
 					error -> {
 						this.traceLog(error);
-						this.applySimulationResult(EMPTY);
+						this.applySimulationResult(EMPTY_SIMULATION_RESULT);
 					});
 			final var simulator = this.simulator;
 			if (simulator == null) {
@@ -172,10 +172,10 @@ public class Optimizer implements Runnable {
 	protected SimulationResult runQuickOptimization() throws InterruptedException, ExecutionException {
 		var simulator = this.updateSimulator();
 		if (simulator == null) {
-			return SimulationResult.EMPTY;
+			return EMPTY_SIMULATION_RESULT;
 		}
 
-		if (this.simulationResult == EMPTY) {
+		if (this.simulationResult == EMPTY_SIMULATION_RESULT) {
 			this.traceLog(() -> "reschedule because previous simulationresult is EMPTY");
 		} else {
 			this.traceLog(() -> "triggerReschedule() had been called -> reschedule");
@@ -202,7 +202,7 @@ public class Optimizer implements Runnable {
 		}
 		var simulator = this.updateSimulator();
 		if (simulator == null) {
-			return SimulationResult.EMPTY;
+			return EMPTY_SIMULATION_RESULT;
 		}
 
 		this.traceLog(() -> "Run Simulation");
@@ -234,7 +234,7 @@ public class Optimizer implements Runnable {
 	 * @param simulationResult the {@link SimulationResult}
 	 */
 	protected void applySimulationResult(SimulationResult simulationResult) {
-		if (simulationResult == EMPTY /* no result */) {
+		if (simulationResult == EMPTY_SIMULATION_RESULT /* no result */) {
 			this.traceLog(() -> "Simulation gave no result!");
 		}
 

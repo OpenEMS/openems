@@ -1,7 +1,6 @@
 package io.openems.edge.app.api;
 
-import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+import static io.openems.edge.app.common.props.CommonProps.alias;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -18,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite.Property;
@@ -28,7 +26,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
-import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -39,7 +36,6 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for ReadWrite Modbus/TCP Api.
@@ -75,30 +71,11 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsAppWithProps<ModbusTcp
 		// Component-IDs
 		CONTROLLER_ID(AppDef.componentId("ctrlApiModbusTcp0")), //
 		// Properties
-		API_TIMEOUT(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.Api.apiTimeout.label") //
-				.setTranslatedDescription("App.Api.apiTimeout.description") //
-				.setDefaultValue(60) //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
-					field.setInputType(NUMBER) //
-							.setMin(0);
-				}) //
-		)), //
-		COMPONENT_IDS(AppDef.copyOfGeneric(ModbusTcpApiProps.pickModbusIds(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
-					final var jsonArrayBuilder = JsonUtils.buildJsonArray() //
-							.add("_sum");
-
-					// add ess ids
-					app.getComponentUtil().getEnabledComponentsOfStartingId("ess").stream() //
-							.sorted((o1, o2) -> o1.id().compareTo(o2.id())) //
-							.forEach(ess -> jsonArrayBuilder.add(ess.id()));
-
-					return jsonArrayBuilder.build();
-				}) //
-				.bidirectional(CONTROLLER_ID, "component.ids", ComponentManagerSupplier::getComponentManager) //
-				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)))), //
+		ALIAS(alias()), //
+		API_TIMEOUT(ModbusApiProps.apiTimeout() //
+				.setRequired(true)), //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID) //
+				.setRequired(true)) //
 		;
 
 		private final AppDef<? super ModbusTcpApiReadWrite, ? super Property, ? super BundleParameter> def;

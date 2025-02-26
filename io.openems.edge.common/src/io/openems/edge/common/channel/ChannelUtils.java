@@ -114,6 +114,22 @@ public final class ChannelUtils {
 	}
 
 	/**
+	 * Set next read value of a {@link Channel}.
+	 * 
+	 * <p>
+	 * Use this method as a short form for `this.channel(XYZ).setNextValue(value)`.
+	 * 
+	 * @param component the {@link OpenemsComponent}
+	 * @param channelId the {@link ChannelId}
+	 * @param value     value to be set
+	 * @throws IllegalArgumentException on error
+	 */
+	public static void setValue(OpenemsComponent component, ChannelId channelId, Object value)
+			throws IllegalArgumentException {
+		component.channel(channelId).setNextValue(value);
+	}
+
+	/**
 	 * Set write value of a {@link EnumWriteChannel} if the read value is not equal.
 	 * 
 	 * <p>

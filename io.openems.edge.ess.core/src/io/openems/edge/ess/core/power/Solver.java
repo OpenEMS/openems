@@ -1,5 +1,10 @@
 package io.openems.edge.ess.core.power;
 
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL;
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL;
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER;
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -161,34 +166,27 @@ public class Solver {
 			var targetInverters = this.optimizers.reduceNumberOfUsedInverters.apply(allInverters, targetDirection,
 					this.solveWithDisabledInverters);
 
-			switch (strategy) {
-			case UNDEFINED:
-			case ALL_CONSTRAINTS:
-			case NONE:
-				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints);
-				break;
+			solution = switch (strategy) {
+			case UNDEFINED, ALL_CONSTRAINTS, NONE //
+				-> this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints);
 
-			case OPTIMIZE_BY_MOVING_TOWARDS_TARGET:
-				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
-						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET,
-						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER);
-				break;
+			case OPTIMIZE_BY_MOVING_TOWARDS_TARGET //
+				-> this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						OPTIMIZE_BY_MOVING_TOWARDS_TARGET,
+						OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER);
 
-			case OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER:
-				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
-						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
-						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
-				break;
+			case OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER //
+				-> this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
+						OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 
-			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
-			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
-				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
-						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
-						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
-						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
-						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
-				break;
-			}
+			case OPTIMIZE_BY_KEEPING_ALL_EQUAL, OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL //
+				-> this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
+						OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
+						OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
+						OPTIMIZE_BY_MOVING_TOWARDS_TARGET); // //
+			};
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 			if (this.debugMode) {
@@ -332,7 +330,7 @@ public class Solver {
 				}
 			}
 
-			if (ess instanceof ManagedAsymmetricEss && (invL1 != null || invL2 != null || invL3 != null)) {
+			if (ess instanceof ManagedAsymmetricEss e && (invL1 != null || invL2 != null || invL3 != null)) {
 				/*
 				 * Call applyPower() of ManagedAsymmetricEss
 				 */
@@ -347,7 +345,6 @@ public class Solver {
 					invL3 = new PowerTuple();
 				}
 
-				var e = (ManagedAsymmetricEss) ess;
 				// set debug channels on Ess
 				e._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
 				e._setDebugSetReactivePower(

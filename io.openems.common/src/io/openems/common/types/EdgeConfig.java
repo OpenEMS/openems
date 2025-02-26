@@ -696,37 +696,20 @@ public class EdgeConfig {
 					description = "";
 				}
 
-				final OpenemsType type;
-				switch (ad.getType()) {
-				case AttributeDefinition.LONG:
-					type = OpenemsType.LONG;
-					break;
-				case AttributeDefinition.INTEGER:
-					type = OpenemsType.INTEGER;
-					break;
-				case AttributeDefinition.SHORT:
-				case AttributeDefinition.BYTE:
-					type = OpenemsType.SHORT;
-					break;
-				case AttributeDefinition.DOUBLE:
-					type = OpenemsType.DOUBLE;
-					break;
-				case AttributeDefinition.FLOAT:
-					type = OpenemsType.FLOAT;
-					break;
-				case AttributeDefinition.BOOLEAN:
-					type = OpenemsType.BOOLEAN;
-					break;
-				case AttributeDefinition.STRING:
-				case AttributeDefinition.CHARACTER:
-				case AttributeDefinition.PASSWORD:
-					type = OpenemsType.STRING;
-					break;
-				default:
+				final OpenemsType type = switch (ad.getType()) {
+				case AttributeDefinition.LONG -> OpenemsType.LONG;
+				case AttributeDefinition.INTEGER -> OpenemsType.INTEGER;
+				case AttributeDefinition.SHORT, AttributeDefinition.BYTE -> OpenemsType.SHORT;
+				case AttributeDefinition.DOUBLE -> OpenemsType.DOUBLE;
+				case AttributeDefinition.FLOAT -> OpenemsType.FLOAT;
+				case AttributeDefinition.BOOLEAN -> OpenemsType.BOOLEAN;
+				case AttributeDefinition.STRING, AttributeDefinition.CHARACTER, AttributeDefinition.PASSWORD ->
+					OpenemsType.STRING;
+				default -> {
 					EdgeConfig.LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
-					type = OpenemsType.STRING;
+					yield OpenemsType.STRING;
 				}
-
+				};
 				var defaultValues = ad.getDefaultValue();
 				JsonElement defaultValue;
 				if (defaultValues == null) {
@@ -769,15 +752,13 @@ public class EdgeConfig {
 
 				var id = ad.getID();
 				var name = ad.getName();
-				final boolean isRequired;
-				switch (id) {
-				case "alias":
-					// Set alias as not-required. If no alias is given it falls back to id.
-					isRequired = false;
-					break;
-				default:
-					isRequired = ad.getCardinality() == 0;
-				}
+				var isRequired = switch (id) {
+				case "alias" -> //
+					// Set alias as not-required. If no alias is given it falls back to id
+					false;
+				default //
+					-> ad.getCardinality() == 0;
+				};
 				return new Property(id, name, description, type, isRequired, isPassword, defaultValue, schema);
 			}
 

@@ -22,7 +22,7 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
  * }
  * </pre>
  */
-public class TimestampedDataNotification extends AbstractDataNotification {
+public final class TimestampedDataNotification extends AbstractDataNotification {
 
 	public static final String METHOD = "timestampedData";
 

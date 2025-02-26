@@ -1,0 +1,59 @@
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+= Logging
+
+== Log4j2
+
+Configuring log outputs in OpenEMS with fine granularity is often useful for debugging purposes. Setting the ROOT log level to DEBUG or TRACE may flood the console output, making it difficult to debug specific packages. OpenEMS utilizes the Log4j2 framework for logging. To customize log output using a `log4j2.xml` file, follow these steps:
+
+=== Create config file
+
+Create a new file `log4j2.xml` in any location of your choice. As a example, this config represents the default OpenEMS log configuration:
+
+[source,xml]
+----
+<Configuration>
+    <Appenders>
+        <!-- Console Appender -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n" />            
+        </Console>
+
+        <!-- PaxOsgi Appender -->
+        <PaxOsgi name="paxosgi" />
+    </Appenders>
+
+    <Loggers>
+        <!-- OpenEMS Logger -->
+        <Logger name="io.openems" level="info" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="info">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="paxosgi" />
+        </Root>
+    </Loggers>
+</Configuration>
+----
+
+NOTE: for more information, about the log4j2 configuration, see the official documentation: 
+https://logging.apache.org/log4j/2.x/manual/configuration.html[]
+
+
+=== Update OpenEMS configuration
+
+To tell OpenEMS to use this configuration file, change the logging config using Apache Felix. Open the Apache Felix Web Console in your browser (e.g. `http://localhost:8080/system/console/configMgr`) and search for the `org.ops4j.pax.logging` configuration. Change the `org.ops4j.pax.logging.log4j2.config.file` value to the path of your `log4j2.xml` file.
+
+image::pax_logging_component.png[Logging Component, 400, align="left"]
+
+image::pax_logging_settings.png[Logging Settings, 400, align="left"]
+

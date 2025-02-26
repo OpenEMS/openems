@@ -6,14 +6,9 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.StringReadChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -27,14 +22,14 @@ public interface EvcsMennekes extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
-		 * Apply charge power limit.
+		 * Apply charge current limit.
 		 * 
 		 * <p>
 		 * WriteChannel for the modbus register to apply the charge power given by the
 		 * applyChargePowerLimit method
 		 */
 		APPLY_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		FIRMWARE_VERSION(Doc.of(OpenemsType.STRING)//
@@ -307,18 +302,6 @@ public interface EvcsMennekes extends OpenemsComponent {
 				.initialValue(VehicleState.UNDEFINED)), //
 
 		/**
-		 * CP AVAILABILITY.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Boolean
-		 * <li>Unit: None
-		 * </ul>
-		 */
-		CP_AVAILABILITY(Doc.of(OpenemsType.BOOLEAN)//
-				.unit(Unit.NONE)), //
-
-		/**
 		 * SAFE_CURRENT.
 		 *
 		 * <ul>
@@ -415,36 +398,6 @@ public interface EvcsMennekes extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#FIRMWARE_VERSION}.
-	 * 
-	 * @return returns the channel
-	 *
-	 */
-	public default StringReadChannel getFirmwareVersionChannel() {
-		return this.channel(ChannelId.FIRMWARE_VERSION);
-	}
-
-	/**
-	 * Internal method to get the 'nextValue' of {@link ChannelId#FIRMWARE_VERSION}
-	 * Channel.
-	 *
-	 * @return value of firmware version value
-	 */
-	public default Value<String> getFirmwareVersionValue() {
-		return this.getFirmwareVersionChannel().getNextValue();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#FIRMWARE_VERSION}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setFirmwareVersion(String value) {
-		this.getFirmwareVersionChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#RAW_FIRMWARE_VERSION}.
 	 *
 	 * @return the Channel
@@ -452,95 +405,4 @@ public interface EvcsMennekes extends OpenemsComponent {
 	public default StateChannel getFirmwareOutdatedChannel() {
 		return this.channel(ChannelId.FIRMWARE_OUTDATED);
 	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#OCPP_CP_STATUS}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<MennekesOcppState> getOcppCpStatusChannel() {
-		return this.channel(ChannelId.OCPP_CP_STATUS);
-	}
-
-	/**
-	 * Gets the OCPP Status of the EVCS charging station. See
-	 * {@link ChannelId#OCPP_CP_STATUS}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default MennekesOcppState getOcppCpStatus() {
-		return this.getOcppCpStatusChannel().value().asEnum();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#CP_AVAILABILITY}.
-	 *
-	 * @return the Channel
-	 */
-
-	public default BooleanReadChannel getCpAvailabilityChannel() {
-		return this.channel(ChannelId.CP_AVAILABILITY);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAX_CURRENT_EV}.
-	 *
-	 * @return the Channel
-	 */
-
-	public default IntegerReadChannel getMaxCurrentEvChannel() {
-		return this.channel(ChannelId.MAX_CURRENT_EV);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#VEHICLE_STATE}.
-	 *
-	 * @return the Channel
-	 */
-
-	public default Channel<VehicleState> getVehicleStateChannel() {
-		return this.channel(ChannelId.VEHICLE_STATE);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MIN_CURRENT_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-
-	public default IntegerReadChannel getMinCurrentLimitChannel() {
-		return this.channel(ChannelId.MIN_CURRENT_LIMIT);
-	}
-
-	/**
-	 * Gets the Minimum current limit in [A] of the AC charger. See
-	 * {@link ChannelId#MIN_CURRENT_LIMIT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-
-	public default Value<Integer> getMinCurrentLimit() {
-		return this.getMinCurrentLimitChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#EMS_CURRENT_LIMIT}
-	 * Channel. Sets the value in Ampere as an Integer-Value.
-	 *
-	 * @return returns the EMS current limit
-	 */
-
-	public default Value<Integer> getEmsCurrentLimit() {
-		return this.getEmsCurrentLimitChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#EMS_CURRENT_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getEmsCurrentLimitChannel() {
-		return this.channel(ChannelId.EMS_CURRENT_LIMIT);
-	}
-
 }

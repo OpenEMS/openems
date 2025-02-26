@@ -37,10 +37,9 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdateRequest;
-import io.openems.edge.core.host.jsonrpc.GetIpAddresses;
-import io.openems.edge.core.host.jsonrpc.GetIpAddresses.Response;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigResponse;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateRequest;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
@@ -188,13 +187,13 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 					ExecuteSystemRestartRequest.from(call.getRequest())).get();
 		});
 
-		builder.handleRequest(new GetIpAddresses(), endpoint -> {
+		builder.handleRequest(new GetNetworkInfo(), endpoint -> {
 			endpoint.setDescription("""
-					Gets the current ip addresses.
+					Gets the networkinfo.
 					""".stripIndent());
 
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> new Response(this.getSystemIPs()));
+		}, call -> this.operatingSystem.getNetworkInfo());
 
 	}
 

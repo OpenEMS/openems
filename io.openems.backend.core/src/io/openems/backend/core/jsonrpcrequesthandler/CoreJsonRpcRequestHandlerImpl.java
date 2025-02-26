@@ -98,26 +98,21 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleRequest(String context, User user,
 			JsonrpcRequest request) throws OpenemsNamedException {
-		switch (request.getMethod()) {
-
-		case EdgeRpcRequest.METHOD:
-			return this.edgeRpcRequestHandler.handleRequest(user, request.getId(), EdgeRpcRequest.from(request));
-
-		case GetEdgesStatusRequest.METHOD:
-			return this.handleGetEdgesStatusRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
-
-		case GetEdgesChannelsValuesRequest.METHOD:
-			return this.handleGetEdgesChannelsValuesRequest(user, request.getId(),
+		return switch (request.getMethod()) {
+		case EdgeRpcRequest.METHOD //
+			-> this.edgeRpcRequestHandler.handleRequest(user, request.getId(), EdgeRpcRequest.from(request));
+		case GetEdgesStatusRequest.METHOD //
+			-> this.handleGetEdgesStatusRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
+		case GetEdgesChannelsValuesRequest.METHOD //
+			-> this.handleGetEdgesChannelsValuesRequest(user, request.getId(),
 					GetEdgesChannelsValuesRequest.from(request));
-
-		case SetGridConnScheduleRequest.METHOD:
-			return this.handleSetGridConnScheduleRequest(user, request.getId(),
-					SetGridConnScheduleRequest.from(request));
-
-		default:
+		case SetGridConnScheduleRequest.METHOD //
+			-> this.handleSetGridConnScheduleRequest(user, request.getId(), SetGridConnScheduleRequest.from(request));
+		default -> {
 			this.logWarn(context, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
+		};
 	}
 
 	/**

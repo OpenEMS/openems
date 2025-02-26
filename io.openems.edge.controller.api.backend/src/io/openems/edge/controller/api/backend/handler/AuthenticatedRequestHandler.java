@@ -49,12 +49,15 @@ public class AuthenticatedRequestHandler implements JsonApi {
 			final var authenticatedRpcRequest = AuthenticatedRpcRequest.from(t.getRequest(), User::from);
 			t.put(EdgeKeys.USER_KEY, authenticatedRpcRequest.getUser());
 			return authenticatedRpcRequest.getPayload();
+
 		}, c -> this.binder.getJsonApiBuilder(), response -> {
 			// wrap response in a AuthenticatedRpcResponse if successful
-			if (response instanceof JsonrpcResponseSuccess success) {
-				return new AuthenticatedRpcResponse(response.getId(), success);
-			}
-			return response;
+			return switch (response) {
+			case JsonrpcResponseSuccess success //
+				-> new AuthenticatedRpcResponse(response.getId(), success);
+			default -> response;
+			};
+
 		}, () -> {
 			final var subrequest = new Subrequest(JsonUtils.buildJsonObject().build());
 			subrequest.addRpcBuilderFor(this.binder.getJsonApiBuilder(), "payload");

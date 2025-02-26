@@ -19,15 +19,15 @@ import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16Reserved;
 
 /**
- * This implementation answers Modbus-TCP Slave requests.
+ * This implementation answers Modbus-TCP/RTU Slave requests.
  */
 public class MyProcessImage implements ProcessImage {
 
 	private final Logger log = LoggerFactory.getLogger(MyProcessImage.class);
 
-	protected final AbstractModbusTcpApi parent;
+	protected final AbstractModbusApi parent;
 
-	protected MyProcessImage(AbstractModbusTcpApi parent) {
+	protected MyProcessImage(AbstractModbusApi parent) {
 		this.parent = parent;
 	}
 
