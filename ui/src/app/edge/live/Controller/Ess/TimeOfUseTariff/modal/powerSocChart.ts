@@ -106,7 +106,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE_GREY, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 0.2),
                 borderColor: ChartConstants.Colors.BLUE_GREY,
             });
 
@@ -118,7 +118,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.PURPLE, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.PURPLE, 0.2),
                 borderColor: ChartConstants.Colors.PURPLE,
             });
 
@@ -130,7 +130,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
                 borderColor: ChartConstants.Colors.BLUE,
             });
 
@@ -142,7 +142,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.YELLOW, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
                 borderColor: ChartConstants.Colors.YELLOW,
             });
 
@@ -155,7 +155,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 unit: YAxisType.POWER,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.GREEN, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.GREEN, 0.2),
                 borderColor: ChartConstants.Colors.GREEN,
             });
 
@@ -168,7 +168,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 unit: YAxisType.POWER,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.2),
                 borderColor: ChartConstants.Colors.RED,
             });
 

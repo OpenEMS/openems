@@ -41,7 +41,7 @@
             <ion-row *ngIf="step.description">
                 <ion-col>
                     <ion-item lines="none" style="padding-top: 8px;">
-                        <ion-text style="white-space: pre-wrap;">{{step.description}}</ion-text>
+                        <ion-text style="white-space: pre-line;" [innerHtml]="step.description"></ion-text>
                     </ion-item>
                 </ion-col>
             </ion-row>
@@ -50,7 +50,7 @@
                     <img class="center" [src]="url">
                 </ion-item>
             </ion-row>
-            <ion-row class="ion-justify-content-center ion-padding">
+            <ion-row *ngIf="!props.hideButtons" class="ion-justify-content-center ion-padding">
                 <div class="step-controls" *ngIf="i === currentStep && !props.disabled">
                     <ion-button size="small" fill="outline" (click)="prevStep()" [disabled]="i === 0">
                         <ion-icon name="arrow-back-outline"></ion-icon>

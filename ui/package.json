@@ -21,6 +21,7 @@
     "@capacitor/filesystem": "^6.0.2",
     "@capacitor/ios": "^6.2.0",
     "@capacitor/splash-screen": "^6.0.3",
+    "@date-fns/tz": "^1.2.0",
     "@ionic/angular": "^7.8.6",
     "@ngx-formly/core": "^6.3.12",
     "@ngx-formly/ionic": "^6.3.12",

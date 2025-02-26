@@ -1,7 +1,5 @@
 package io.openems.edge.evcs.webasto.unite;
 
-import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
-
 import io.openems.edge.evcs.api.Status;
 
 // TODO: Can also be done by registering onSetNextValue listeners on the depending channel in the WebastoImpl.
@@ -14,7 +12,6 @@ public class WebastoReadHandler {
 	}
 
 	protected void run() {
-		this.setPhaseCount();
 		this.setStatus();
 	}
 
@@ -30,13 +27,4 @@ public class WebastoReadHandler {
 		});
 	}
 
-	/**
-	 * Writes the Amount of Phases in the Phase channel.
-	 */
-	private void setPhaseCount() {
-		this.parent._setPhases(evaluatePhaseCount(//
-				this.parent.getActivePowerL1().get(), //
-				this.parent.getActivePowerL2().get(), //
-				this.parent.getActivePowerL3().get()));
-	}
 }
