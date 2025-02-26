@@ -1,5 +1,6 @@
 package io.openems.edge.controller.evse.single;
 
+import static io.openems.edge.controller.evse.single.EnergyScheduler.buildManualEnergyScheduleHandler;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -23,7 +24,13 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleRequest;
+import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleResponse;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
@@ -39,7 +46,7 @@ import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
-		implements Controller, ControllerEvseSingle, OpenemsComponent {
+		implements Controller, ControllerEvseSingle, EnergySchedulable, OpenemsComponent, ComponentJsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvseSingleImpl.class);
 
@@ -55,6 +62,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 
 	private Config config;
 	private BiConsumer<Value<Status>, Value<Status>> onChargePointStatusChange = null;
+	private EnergyScheduleHandler energyScheduleHandler;
 
 	public ControllerEvseSingleImpl() {
 		this(Clock.systemDefaultZone());
@@ -83,6 +91,21 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		}
 		if (!config.enabled()) {
 			return;
+		}
+
+		this.energyScheduleHandler = switch (config.mode()) {
+		case SMART -> null; // TODO
+		case ZERO, MINIMUM, FORCE -> buildManualEnergyScheduleHandler(//
+				() -> this.id(), //
+				() -> EnergyScheduler.OptimizationContext.Manual.from(this.chargePoint, config.mode().actual));
+		};
+		if (config.mode() == Mode.SMART) {
+			this.onChargePointStatusChange = (oldStatus, newStatus) -> {
+				// Trigger Reschedule on Status change
+				this.energyScheduleHandler.triggerReschedule(
+						"ControllerEvseSingle::onChargePointStatusChange from " + oldStatus + " to " + newStatus);
+			};
+			this.chargePoint.getStatusChannel().onChange(this.onChargePointStatusChange);
 		}
 	}
 
@@ -155,5 +178,16 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(GetScheduleRequest.METHOD, //
+				call -> GetScheduleResponse.from(call.getRequest().getId(), this.energyScheduleHandler));
 	}
 }

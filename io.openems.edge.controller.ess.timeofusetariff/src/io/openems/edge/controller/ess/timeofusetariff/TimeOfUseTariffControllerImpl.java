@@ -1,21 +1,9 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.buildEnergyScheduleHandler;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeEnergyInChargeGrid;
-import static io.openems.edge.energy.api.simulation.Coefficient.CONS;
-import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
-import static io.openems.edge.energy.api.simulation.Coefficient.GRID_TO_CONS;
-import static io.openems.edge.energy.api.simulation.Coefficient.GRID_TO_ESS;
-import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_ESS;
-import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_GRID;
-import static java.lang.Math.min;
-import static java.lang.Math.round;
-import static org.apache.commons.math3.optim.linear.Relationship.EQ;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -24,8 +12,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -48,16 +34,15 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
-import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyState;
+import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
+import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1.ContextV1;
 import io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.EnergyScheduler;
-import io.openems.edge.energy.api.simulation.EnergyFlow;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -78,7 +63,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Deprecated
 	private final EnergyScheduleHandlerV1 energyScheduleHandlerV1;
-	private final EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> energyScheduleHandler;
+	private final EshWithDifferentModes<StateMachine, OptimizationContext, Void> energyScheduleHandler;
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.DELAYED_TIME);
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
@@ -117,7 +102,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Reference
 	@Deprecated
-	private EnergyScheduler energyScheduler;
+	private io.openems.edge.energy.api.EnergyScheduler energyScheduler;
 
 	private Config config = null;
 
@@ -129,15 +114,16 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		);
 
 		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
-				() -> this.config.controlMode().states, //
+				() -> this.config.controlMode().modes, //
 				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
 
 		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.ess, //
-				() -> this.config.controlMode(), //
-				() -> this.config.maxChargePowerFromGrid());
+				() -> this.id(), //
+				() -> this.config.enabled() && this.config.mode() == Mode.AUTOMATIC //
+						? new EnergyScheduler.Config(this.config.controlMode()) //
+						: null);
 	}
 
 	@Activate
@@ -174,7 +160,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		}
 
 		// Version and Mode given from the configuration.
-		final var as = switch (this.energyScheduler.getImplementationVersion()) {
+		final var am = switch (this.energyScheduler.getImplementationVersion()) {
 
 		case V1_ESS_ONLY //
 			-> switch (this.config.mode()) {
@@ -182,7 +168,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, this.sum, this.ess,
 						this.ctrlLimiter14as, this.config.maxChargePowerFromGrid());
 			case OFF //
-				-> new ApplyState(StateMachine.BALANCING, null);
+				-> new ApplyMode(StateMachine.BALANCING, null);
 			};
 
 		case V2_ENERGY_SCHEDULABLE //
@@ -191,20 +177,20 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				-> calculateAutomaticMode(this.sum, this.ess, this.config.maxChargePowerFromGrid(),
 						this.energyScheduleHandler.getCurrentPeriod());
 			case OFF //
-				-> new ApplyState(StateMachine.BALANCING, null);
+				-> new ApplyMode(StateMachine.BALANCING, null);
 			};
 		};
 
 		// Update Channels
-		this._setStateMachine(as.actualState());
-		this.calculateChargedTime.update(as.actualState() == CHARGE_GRID);
-		this.calculateDelayedTime.update(as.actualState() == DELAY_DISCHARGE);
+		this._setStateMachine(am.actualMode());
+		this.calculateChargedTime.update(am.actualMode() == CHARGE_GRID);
+		this.calculateDelayedTime.update(am.actualMode() == DELAY_DISCHARGE);
 		this._setQuarterlyPrices(this.timeOfUseTariff.getPrices().getFirst());
 
 		// Apply ActivePower set-point
-		if (as.setPoint() != null) {
+		if (am.setPoint() != null) {
 			this.ess.setActivePowerLessOrEquals(this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess,
-					Phase.ALL, Pwr.ACTIVE, as.setPoint()));
+					Phase.ALL, Pwr.ACTIVE, am.setPoint()));
 		}
 	}
 
@@ -254,101 +240,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		return b.toString();
 	}
 
-	/**
-	 * Builds the {@link EnergyScheduleHandler}.
-	 * 
-	 * <p>
-	 * This is public so that it can be used by the EnergyScheduler integration
-	 * test.
-	 * 
-	 * @param ess                    a supplier for the {@link ManagedSymmetricEss}
-	 * @param controlMode            a supplier for the configured
-	 *                               {@link ControlMode}
-	 * @param maxChargePowerFromGrid a supplier for the configured
-	 *                               maxChargePowerFromGrid
-	 * @return a typed {@link EnergyScheduleHandler}
-	 */
-	public static EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> buildEnergyScheduleHandler(
-			Supplier<ManagedSymmetricEss> ess, Supplier<ControlMode> controlMode, IntSupplier maxChargePowerFromGrid) {
-		return EnergyScheduleHandler.WithDifferentStates.<StateMachine, EshContext>create() //
-				.setDefaultState(StateMachine.BALANCING) //
-				.setAvailableStates(() -> controlMode.get().states) //
-				.setContextFunction(simContext -> {
-					// Maximium-SoC in CHARGE_GRID is 90 %
-					var maxSocEnergyInChargeGrid = round(simContext.ess().totalEnergy() * (ESS_MAX_SOC / 100));
-					var essChargeInChargeGrid = calculateChargeEnergyInChargeGrid(simContext);
-					return new EshContext(ess.get(), controlMode.get(), maxChargePowerFromGrid.getAsInt(),
-							maxSocEnergyInChargeGrid, essChargeInChargeGrid);
-				}) //
-				.setSimulator((simContext, period, energyFlow, ctrlContext, state) -> {
-					switch (state) {
-					case BALANCING -> applyBalancing(energyFlow); // TODO Move to CtrlBalancing
-					case DELAY_DISCHARGE -> applyDelayDischarge(energyFlow);
-					case CHARGE_GRID -> {
-						energyFlow.setEssMaxCharge(
-								ctrlContext.maxSocEnergyInChargeGrid - simContext.ess.getInitialEnergy());
-						applyChargeGrid(energyFlow, ctrlContext.essChargeInChargeGrid);
-					}
-					}
-					return 0.;
-				}) //
-				.setPostProcessor(Utils::postprocessSimulatorState) //
-				.build();
-	}
-
-	/**
-	 * Simulate {@link EnergyFlow} in {@link StateMachine#BALANCING}.
-	 * 
-	 * @param model the {@link EnergyFlow.Model}
-	 */
-	public static void applyBalancing(EnergyFlow.Model model) {
-		var consumption = model.setExtremeCoefficientValue(CONS, MINIMIZE);
-		var target = consumption - model.production;
-		model.setFittingCoefficientValue(ESS, EQ, target);
-	}
-
-	/**
-	 * Simulate {@link EnergyFlow} in DELAY_DISCHARGE.
-	 * 
-	 * @param model the {@link EnergyFlow.Model}
-	 */
-	public static void applyDelayDischarge(EnergyFlow.Model model) {
-		var consumption = model.setExtremeCoefficientValue(CONS, MINIMIZE);
-		var target = min(0 /* Charge -> apply Balancing */, consumption - model.production);
-		model.setFittingCoefficientValue(ESS, EQ, target);
-	}
-
-	/**
-	 * Simulate {@link EnergyFlow} in {@link StateMachine#CHARGE_GRID}.
-	 * 
-	 * @param model        the {@link EnergyFlow.Model}
-	 * @param chargeEnergy the target charge-from-grid energy
-	 */
-	public static void applyChargeGrid(EnergyFlow.Model model, int chargeEnergy) {
-		model.setExtremeCoefficientValue(CONS, MINIMIZE);
-		model.setExtremeCoefficientValue(PROD_TO_ESS, MAXIMIZE);
-		model.setExtremeCoefficientValue(GRID_TO_CONS, MAXIMIZE);
-		model.setFittingCoefficientValue(GRID_TO_ESS, EQ, chargeEnergy);
-	}
-
-	/**
-	 * Simulate {@link EnergyFlow} in a future DISCHARGE_GRID state.
-	 * 
-	 * @param model           the {@link EnergyFlow.Model}
-	 * @param dischargeEnergy the target discharge-to-grid energy
-	 */
-	public static void applyDischargeGrid(EnergyFlow.Model model, int dischargeEnergy) {
-		model.setExtremeCoefficientValue(CONS, MINIMIZE);
-		model.setExtremeCoefficientValue(PROD_TO_GRID, MAXIMIZE);
-		model.setFittingCoefficientValue(GRID_TO_ESS, EQ, -dischargeEnergy);
-	}
-
-	public static record EshContext(ManagedSymmetricEss ess, ControlMode controlMode, int maxChargePowerFromGrid,
-			int maxSocEnergyInChargeGrid, int essChargeInChargeGrid) {
-	}
-
 	@Override
-	public EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> getEnergyScheduleHandler() {
+	public EshWithDifferentModes<StateMachine, OptimizationContext, Void> getEnergyScheduleHandler() {
 		return this.energyScheduleHandler;
 	}
 
