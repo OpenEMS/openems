@@ -6,7 +6,6 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 
 @Component({
@@ -86,7 +85,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     order: 1,
                 },
                 {
-                    name: this.translate.instant("General.gridBuy"),
+                    name: this.translate.instant("General.gridBuyAdvanced"),
                     converter: () => data["GridBuy"],
                     color: ChartConstants.Colors.BLUE_GREY,
                     yAxisId: ChartAxis.RIGHT_2,
@@ -99,6 +98,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 },
                 ];
             },
+
             tooltip: {
                 formatNumber: "1.1-4",
             },
@@ -143,6 +143,9 @@ export class ChartComponent extends AbstractHistoryChart {
                 this.labels = displayValues.labels;
                 this.setChartLabel();
 
+                this.chartObject.yAxes.forEach((element) => {
+                    this.options = AbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, this.chartType, this.datasets, true, this.chartObject.tooltip.formatNumber,);
+                });
                 this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
                 this.options.scales.x.ticks["source"] = "auto";
                 this.options.scales.x.grid = { offset: false };
@@ -174,16 +177,6 @@ export class ChartComponent extends AbstractHistoryChart {
                     return el;
                 });
 
-                const chartObject = this.chartObject;
-                this.options.scales[ChartAxis.LEFT].ticks.callback =
-                    function (value, index, ticks) {
-                        if (index == (ticks.length - 1)) {
-                            const upperMostTick = chartObject.yAxes.find(el => el.unit === YAxisType.CURRENCY).customTitle;
-                            AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
-                            return upperMostTick;
-                        }
-                        return value;
-                    };
                 this.options.scales.x["offset"] = false;
                 this.options["animation"] = false;
             });

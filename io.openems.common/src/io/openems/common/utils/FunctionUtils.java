@@ -102,6 +102,7 @@ public final class FunctionUtils {
 	 * the provided supplier. The value is computed and retrieved only once.
 	 * Subsequent calls to {@link Supplier#get()} will return the cached value,
 	 * avoiding recomputation.
+	 * 
 	 * <p>
 	 * This implementation is not thread-safe. If multiple threads invoke
 	 * {@link Supplier#get()} concurrently, it may lead to inconsistent behavior,
