@@ -2,9 +2,9 @@
 @org.osgi.annotation.bundle.Export
 package io.openems.edge.evse.api;
 
-// Beobachtungen:
-// - fems888
-//   - KONA D 
-//     - Unterbrechnung der Beladung funktioniert nicht. Beladung muss in dem Fall durch erneutes Einstecken oder über die App neu gestartet werden
-//     - PhaseSwitch THREE to SINGLE funktioniert
-//     - PhaseSwitch SINGLE to THREE funktioniert nicht mehr; lädt weiter nur auf einer Phase - dann sogar nur mit 16 A, weil eigentlich dreiphasig vorgegeben wird 
+// Observations:
+// - Hyundai KONA (2021)
+//   - Pause charge does not work. In that case car has to be either unplugged/replugged or charging has to be started again via App
+//   - PhaseSwitch from THREE to SINGLE without Paus works
+//   - PhaseSwitch from SINGLE to THREE does not work; continues charging with one phase.
+//      - Currently our implementation does not recognize that it keeps charging with one phase and so limits to 16 A (as suggested for three-phase)
