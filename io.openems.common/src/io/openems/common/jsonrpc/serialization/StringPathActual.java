@@ -1,32 +1,67 @@
 package io.openems.common.jsonrpc.serialization;
 
-import java.util.UUID;
+import static io.openems.common.utils.FunctionUtils.lazySingleton;
 
-import com.google.gson.JsonElement;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-import io.openems.common.exceptions.OpenemsRuntimeException;
+public final class StringPathActual {
 
-public class StringPathActual implements StringPath {
+	public static final class StringPathActualNonNull<T> implements StringPath<T> {
 
-	private final String element;
+		private final Function<String, T> parser;
+		private final String element;
+		private final Supplier<T> parsedValue;
 
-	public StringPathActual(JsonElement element) throws OpenemsRuntimeException {
-		super();
-		if (!element.isJsonPrimitive() //
-				|| !element.getAsJsonPrimitive().isString()) {
-			throw new OpenemsRuntimeException(element + " is not a String!");
+		public StringPathActualNonNull(String element, Function<String, T> parser) {
+			super();
+			this.parser = Objects.requireNonNull(parser);
+			this.element = Objects.requireNonNull(element);
+
+			this.parsedValue = lazySingleton(() -> this.parser.apply(this.element));
 		}
-		this.element = element.getAsString();
+
+		@Override
+		public String getRaw() {
+			return this.element;
+		}
+
+		@Override
+		public T get() {
+			return this.parsedValue.get();
+		}
+
 	}
 
-	@Override
-	public String get() {
-		return this.element;
+	public static final class StringPathActualNullable<T> implements StringPathNullable<T> {
+
+		private final Function<String, T> parser;
+		private final String element;
+		private final Supplier<T> parsedValue;
+
+		public StringPathActualNullable(String element, Function<String, T> parser) {
+			super();
+			this.parser = Objects.requireNonNull(parser);
+			this.element = element;
+
+			this.parsedValue = this.element == null ? () -> null
+					: lazySingleton(() -> this.parser.apply(this.element));
+		}
+
+		@Override
+		public String getRawOrNull() {
+			return this.element;
+		}
+
+		@Override
+		public T getOrNull() {
+			return this.parsedValue.get();
+		}
+
 	}
 
-	@Override
-	public UUID getAsUuid() {
-		return UUID.fromString(this.element);
+	private StringPathActual() {
 	}
 
 }

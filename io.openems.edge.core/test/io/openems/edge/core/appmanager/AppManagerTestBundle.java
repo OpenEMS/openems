@@ -5,6 +5,7 @@ import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setStaticAttributeViaReflection;
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -669,6 +670,20 @@ public class AppManagerTestBundle {
 				throw new OpenemsException(e);
 			}
 		}
+	}
+
+	/**
+	 * Tries to install the provided app with the minimal available configuration.
+	 * 
+	 * @param app the app to install
+	 * @throws InterruptedException  if the current thread was interruptedwhile
+	 *                               waiting
+	 * @throws ExecutionException    if this future completed exceptionally
+	 * @throws OpenemsNamedException on installation error
+	 */
+	public void tryInstallWithMinConfig(OpenemsApp app) throws OpenemsNamedException {
+		this.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(app.getAppId(), "key", "alias", Apps.getMinConfig(app.getAppId())));
 	}
 
 }

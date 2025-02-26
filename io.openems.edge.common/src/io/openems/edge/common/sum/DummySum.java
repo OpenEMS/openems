@@ -28,6 +28,17 @@ public class DummySum extends AbstractDummyOpenemsComponent<DummySum> implements
 	}
 
 	/**
+	 * Set {@link Sum.ChannelId#PRODUCTION_ACTIVE_POWER}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withProductionActivePower(int value) {
+		withValue(this, Sum.ChannelId.PRODUCTION_ACTIVE_POWER, value);
+		return this.self();
+	}
+
+	/**
 	 * Set {@link Sum.ChannelId#PRODUCTION_AC_ACTIVE_POWER}.
 	 *
 	 * @param value the value
@@ -68,6 +79,17 @@ public class DummySum extends AbstractDummyOpenemsComponent<DummySum> implements
 	 */
 	public DummySum withEssSoc(int value) {
 		withValue(this, Sum.ChannelId.ESS_SOC, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Sum.ChannelId#ESS_ACTIVE_POWER}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssActivePower(Integer value) {
+		withValue(this, Sum.ChannelId.ESS_ACTIVE_POWER, value);
 		return this.self();
 	}
 
