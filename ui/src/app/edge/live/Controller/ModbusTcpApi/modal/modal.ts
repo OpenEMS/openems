@@ -1,9 +1,14 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { ProfileComponent } from "src/app/edge/settings/profile/profile.component";
+import { PlatFormService } from "src/app/platform.service";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { Converter } from "src/app/shared/components/shared/converter";
-import { ChannelAddress, ChannelRegister, CurrentData } from "src/app/shared/shared";
+import { ChannelAddress, ChannelRegister, CurrentData, Service, Websocket } from "src/app/shared/shared";
 import { OverrideStatus } from "src/app/shared/type/general";
 
 @Component({
@@ -22,8 +27,21 @@ export class ModalComponent extends AbstractModal {
   protected activePowerEqualsChannel: ChannelAddress | null = null;
   protected activePowerEqualsValue: number | null = null;
   protected channelRegisters = ChannelRegister;
+  private profile = new ProfileComponent(this.service, this.route, null, this.translate, this.websocket, this.platFormService);
 
-  private profile = new ProfileComponent(this.service, this.route, null, this.translate);
+  constructor(
+    protected override websocket: Websocket,
+    protected override route: ActivatedRoute,
+    protected override service: Service,
+    public override modalController: ModalController,
+    protected override translate: TranslateService,
+    public override formBuilder: FormBuilder,
+    public override ref: ChangeDetectorRef,
+    private platFormService: PlatFormService,
+  ) {
+    super(websocket, route, service, modalController, translate, formBuilder, ref);
+  }
+
 
   protected override getChannelAddresses(): ChannelAddress[] {
     this.activePowerEqualsChannel = new ChannelAddress(this.component.id, "Ess0SetActivePowerEquals");

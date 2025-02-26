@@ -4,6 +4,7 @@ import { differenceInDays, endOfMonth, endOfYear, format, getDay, getMonth, getY
 
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Service } from "../shared";
+import { StringUtils } from "../utils/string/string.utils";
 
 export namespace DefaultTypes {
 
@@ -257,14 +258,14 @@ export type TKeyValue<T> = {
 /**  */
 export type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
 
-type Range<N extends number, Acc extends number[] = []> = Acc["length"] extends N
+export type Range<N extends number, Acc extends number[] = []> = Acc["length"] extends N
   ? Acc[number]
   : Range<N, [...Acc, Acc["length"]]>;
 
 export type RGBValue = Range<256>; // 0 to 255
 
 export class RGBColor<T extends RGBValue = RGBValue> {
-  private static INVALID_RGB_VALUES_ERROR = new Error("All values need to be valid");
+  private static INVALID_RGB_VALUES_ERROR = "All values need to be valid";
   private readonly red: T;
   private readonly green: T;
   private readonly blue: T;
@@ -275,22 +276,65 @@ export class RGBColor<T extends RGBValue = RGBValue> {
     this.blue = blue;
   }
 
-  public static fromString(rgbString: string) {
-    const rgb: string[] = rgbString.split(",").map(el => el.trim());
+  /**
+   * Parses a string into a rgbColor
+   *
+   * @param rgbString the rgb or rgba string
+   * @returns the rgb color
+   */
+  public static fromString(rgbString: string | null): RGBColor {
+
+    const subStr: string | null = StringUtils.getSubstringInBetween("(", ")", rgbString);
+    if (!subStr) {
+      throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);
+    }
+
+    const rgb: string[] = subStr.split(",").map(el => el.trim());
     const red: RGBValue = parseInt(rgb[0]) as RGBValue;
     const green: RGBValue = parseInt(rgb[1]) as RGBValue;
     const blue: RGBValue = parseInt(rgb[2]) as RGBValue;
 
-    if (!red || !green || !blue) {
-      throw RGBColor.INVALID_RGB_VALUES_ERROR;
+    if (red == null || green == null || blue == null) {
+      throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);
     }
+
     return new RGBColor(red, green, blue);
   }
 
+  /**
+   * Converts a rgb string into rgba string
+   *
+   * @param opacity the opacity to use for rgba
+   * @param color the original color
+   * @returns the new rgba string
+   */
+  public static rgbStringToRgba(opacity: number, color: string): string {
+    const rgbColor = RGBColor.fromString(color);
+    return "rgba(" + [rgbColor.red, rgbColor.green, rgbColor.blue, opacity].join(",") + ")";
+  }
+
+  /**
+   * Converts the rgb color to a rgb string
+   *
+   * @returns the rgb color as string
+   */
   public toString(): string {
     if (this.red == null || this.green == null || this.blue == null) {
-      throw RGBColor.INVALID_RGB_VALUES_ERROR;
+      throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);
     }
     return `rgb(${this.red},${this.green},${this.blue})`;
+  }
+
+  /**
+   * Converts the Rgb color to a rgba string
+   *
+   * @param opacity the opacity for the new rgba string
+   * @returns a rgba string
+   */
+  public toRgba(opacity: number | null): string {
+    if (opacity == null) {
+      throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);
+    }
+    return `rgba(${this.red},${this.green},${this.blue},${opacity})`;
   }
 }

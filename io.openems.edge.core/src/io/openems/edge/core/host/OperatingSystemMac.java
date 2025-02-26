@@ -13,7 +13,7 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
-import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Response;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 public class OperatingSystemMac implements OperatingSystem {
@@ -59,7 +59,7 @@ public class OperatingSystemMac implements OperatingSystem {
 	}
 
 	@Override
-	public Response getNetworkInfo() throws OpenemsNamedException {
+	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
 		throw new NotImplementedException("This request is not implemented for mac");
 	}
 
