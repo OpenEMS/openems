@@ -44,7 +44,7 @@ public class RestHandler extends Handler.Abstract {
 		HttpServletRequest httpRequest = (HttpServletRequest) baseRequest;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		try {
-			var user = authenticate(httpRequest);
+			var user = this.authenticate(httpRequest);
 
 			// Determine the target from the path info.
 			String target = httpRequest.getPathInfo();
@@ -56,13 +56,13 @@ public class RestHandler extends Handler.Abstract {
 			var thisTarget = parts[0];
 
 			if ("jsonrpc".equals(thisTarget)) {
-				handleJsonRpc(user, httpRequest, httpResponse);
+				this.handleJsonRpc(user, httpRequest, httpResponse);
 			}
 			// Signal that the request has been handled.
 			callback.succeeded();
 			return true;
 		} catch (Exception e) {
-			log.error("Error handling request: " + e.getMessage(), e);
+			this.log.error("Error handling request: " + e.getMessage(), e);
 			callback.failed(e);
 			return false;
 		}
@@ -188,7 +188,7 @@ public class RestHandler extends Handler.Abstract {
 				this.sendErrorResponse(httpResponse, request.getId(), e);
 				return;
 			}
-			sendOkResponse(httpResponse, rpcResponse.toJsonObject());
+			this.sendOkResponse(httpResponse, rpcResponse.toJsonObject());
 		} catch (OpenemsNamedException e) {
 			this.sendErrorResponse(httpResponse, requestId,
 					new OpenemsException("Unable to get Response: " + e.getMessage()));
