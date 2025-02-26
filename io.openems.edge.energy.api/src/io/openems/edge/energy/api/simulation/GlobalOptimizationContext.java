@@ -5,7 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.edge.common.type.TypeUtils.assertNull;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
-import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentStates;
+import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentModes;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 import static java.lang.Math.abs;
@@ -19,40 +19,35 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.RiskLevel;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Hour;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period.Quarter;
-import io.openems.edge.evcs.api.Status;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 /**
- * Holds the simulation context that is used globally for all simulations in one
- * optimization run.
+ * Holds the context that is used globally for an entire optimization run.
  * 
  * <p>
  * This record is usually created once per quarter.
  */
-public record GlobalSimulationsContext(//
+public record GlobalOptimizationContext(//
 		Clock clock, //
 		RiskLevel riskLevel,
 		/** Start-Timestamp */
 		ZonedDateTime startTime, //
 		ImmutableList<EnergyScheduleHandler> eshs, //
-		ImmutableList<EnergyScheduleHandler.WithDifferentStates<?, ?>> eshsWithDifferentStates, //
+		ImmutableList<EnergyScheduleHandler.WithDifferentModes> eshsWithDifferentModes, //
 		Grid grid, //
 		Ess ess, //
-		ImmutableMap<String, Evcs> evcss, //
 		/**
 		 * Period is either mixed, with {@link Hour}s and {@link Quarter}s, or
 		 * {@link Quarter}s only.
@@ -65,7 +60,6 @@ public record GlobalSimulationsContext(//
 				.add("startTime", this.startTime) //
 				.addValue(this.grid) //
 				.addValue(this.ess) //
-				.add("evcss", this.evcss) //
 				.add("eshs", this.eshs) //
 				.toString();
 	}
@@ -79,13 +73,6 @@ public record GlobalSimulationsContext(//
 			int maxChargeEnergy, //
 			/** ESS Max Discharge Energy [Wh] */
 			int maxDischargeEnergy) {
-	}
-
-	public static record Evcs(//
-			// Plugged state
-			Status status, //
-			// Energy Session [Wh]
-			int energySession) {
 	}
 
 	public static record Grid(//
@@ -221,13 +208,13 @@ public record GlobalSimulationsContext(//
 		}
 
 		/**
-		 * Builds the {@link GlobalSimulationsContext}.
+		 * Builds the {@link GlobalOptimizationContext}.
 		 * 
-		 * @return the {@link GlobalSimulationsContext} record
+		 * @return the {@link GlobalOptimizationContext} record
 		 */
-		public GlobalSimulationsContext build() throws OpenemsException, IllegalArgumentException {
+		public GlobalOptimizationContext build() throws OpenemsException, IllegalArgumentException {
 			try {
-				System.out.println("OPTIMIZER GlobalSimulationsContext::build()");
+				System.out.println("OPTIMIZER GlobalOptimizationContext::build()");
 
 				assertNull("ComponentManager is not available", this.componentManager);
 				assertNull("EnergyScheduleHandlers are not available", this.eshs);
@@ -237,19 +224,19 @@ public record GlobalSimulationsContext(//
 
 				final var clock = this.componentManager.getClock();
 				final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
-				System.out.println("OPTIMIZER GlobalSimulationsContext::build() startTime=" + startTime);
+				System.out.println("OPTIMIZER GlobalOptimizationContext::build() startTime=" + startTime);
 
 				// Prediction values
 				final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
 				System.out.println(
-						"OPTIMIZER GlobalSimulationsContext::build() consumptions=" + consumptions.asArray().length);
+						"OPTIMIZER GlobalOptimizationContext::build() consumptions=" + consumptions.asArray().length);
 				final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
 				System.out.println(
-						"OPTIMIZER GlobalSimulationsContext::build() productions=" + productions.asArray().length);
+						"OPTIMIZER GlobalOptimizationContext::build() productions=" + productions.asArray().length);
 
 				// Prices contains the price values and the time it is retrieved.
 				final var prices = this.timeOfUseTariff.getPrices();
-				System.out.println("OPTIMIZER GlobalSimulationsContext::build() prices=" + prices.asArray().length);
+				System.out.println("OPTIMIZER GlobalOptimizationContext::build() prices=" + prices.asArray().length);
 
 				// Helpers
 				final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
@@ -301,7 +288,7 @@ public record GlobalSimulationsContext(//
 								.takeWhile(Objects::nonNull)) //
 						.filter(Objects::nonNull) //
 						.collect(toImmutableList());
-				System.out.println("OPTIMIZER GlobalSimulationsContext::build() periods:" + periods.size());
+				System.out.println("OPTIMIZER GlobalOptimizationContext::build() periods:" + periods.size());
 
 				if (periods.isEmpty()) {
 					throw new IllegalArgumentException("No forecast periods available. " //
@@ -326,18 +313,10 @@ public record GlobalSimulationsContext(//
 				}
 				final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
-				final var evcss = this.componentManager.getEnabledComponentsOfType(io.openems.edge.evcs.api.Evcs.class)
-						.stream() //
-						.collect(ImmutableMap.toImmutableMap(//
-								OpenemsComponent::id, //
-								evcs -> new Evcs(//
-										evcs.getStatus(), //
-										evcs.getEnergySession().orElse(0))));
-
-				System.out.println("OPTIMIZER GlobalSimulationsContext::build() finished");
-				return new GlobalSimulationsContext(clock, this.riskLevel, startTime, //
-						this.eshs, filterEshsWithDifferentStates(this.eshs).collect(toImmutableList()), //
-						grid, ess, evcss, periods);
+				System.out.println("OPTIMIZER GlobalOptimizationContext::build() finished");
+				return new GlobalOptimizationContext(clock, this.riskLevel, startTime, //
+						this.eshs, filterEshsWithDifferentModes(this.eshs).collect(toImmutableList()), //
+						grid, ess, periods);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
@@ -346,12 +325,12 @@ public record GlobalSimulationsContext(//
 	}
 
 	/**
-	 * Create a {@link GlobalSimulationsContext} {@link Builder}.
+	 * Create a {@link GlobalOptimizationContext} {@link Builder}.
 	 * 
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
-		return new GlobalSimulationsContext.Builder();
+		return new GlobalOptimizationContext.Builder();
 	}
 
 	/**
