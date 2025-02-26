@@ -988,29 +988,29 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_PROTECT(Doc.of(GridProtect.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		POWER_SLOPE_ENABLE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
 
 		// CosPhi curve
-		ENABLE_CURVE_PU(Doc.of(EnableCurve.values()) //
+		ENABLE_CURVE_COS_PHI_P(Doc.of(EnableCurve.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		ENABLE_POWER_SLOPE_COS_PHI_P(Doc.of(EnableCurve.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		A_POINT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		A_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		B_POINT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		B_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		C_POINT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		C_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		LOCK_IN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
@@ -1022,11 +1022,15 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		// Power and frequency curve
-		POWER_FREQUENCY_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Power and Frequency Curve Enabled")), //
+		// Power and frequency curve = PF
+		ENABLE_PF_CURVE(Doc.of(EnableCurve.values()) //
+				.text("Power and Frequency Curve Enabled") //
+				.accessMode(AccessMode.READ_WRITE)), //
+		// Written together with ENABLE_PF_CURVE as GoodWe is not supporting Coils,
+		// relevant is anyways 0=Slope.
 		POWER_FREQUENCY_RESPONSE_MODE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Power and Frequency Curve: 0=Slope, 1=Fstop")), //
+				.text("Power and Frequency Curve: 0=Slope, 1=Fstop") //
+				.accessMode(AccessMode.READ_ONLY)), //
 
 		FFROZEN_DCH(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HERTZ) //
@@ -1065,37 +1069,37 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// QU curve
-		QU_CURVE(Doc.of(EnableCurve.values()) //
+		ENABLE_QU_CURVE(Doc.of(EnableCurve.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		LOCK_IN_POWER_QU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		LOCK_OUT_POWER_QU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V1_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V2_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V2_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V3_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V3_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V4_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V4_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		K_VALUE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -1105,7 +1109,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// PU curve
-		PU_CURVE(Doc.of(OpenemsType.INTEGER) //
+		ENABLE_PU_CURVE(Doc.of(EnableCurve.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		POWER_CHANGE_RATE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -1113,22 +1117,28 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V1_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V2_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V2_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V3_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V3_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V4_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		V4_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.THOUSANDTH) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		// Fixed Power Factor
 		FIXED_POWER_FACTOR(Doc.of(FixedPowerFactor.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		FIXED_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //

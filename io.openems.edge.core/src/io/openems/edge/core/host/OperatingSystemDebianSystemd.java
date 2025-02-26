@@ -1,5 +1,6 @@
 package io.openems.edge.core.host;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.lang.Runtime.getRuntime;
 import static java.util.concurrent.CompletableFuture.runAsync;
@@ -33,17 +34,19 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.InetAddressUtils;
 import io.openems.common.utils.JsonUtils;
@@ -56,6 +59,9 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoWrapper;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Route;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 
 /**
@@ -581,48 +587,120 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	@Override
 	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
-		var req = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
+		var reqIpShow = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
 		try {
-			var result = this.handleExecuteSystemCommandRequest(req).get().getResult().toString();
-			return parseIpJson(result);
+			var resultIpShow = this.handleExecuteSystemCommandRequest(reqIpShow).get().getResult().toString();
+			return parseShowJson(resultIpShow).stream().flatMap(t -> t.ips().stream().map(d -> d.getInet4Address()))
+					.toList();
 		} catch (InterruptedException | ExecutionException e) {
 			return Collections.emptyList();
 		}
 
 	}
 
-	/**
-	 * Parses the json returned by ip address get command.
-	 * 
-	 * @param result the json to be parsed
-	 * @return a list of parsed ips
-	 * @throws OpenemsNamedException on error
-	 */
-	protected static List<Inet4Address> parseIpJson(String result) throws OpenemsNamedException {
-		final var stdout = JsonUtils.getAsJsonArray(JsonUtils.getAsJsonObject(JsonUtils.parse(result)), "stdout");
+	@Override
+	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
+		var reqIpShow = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
+		var reqIpRoute = ExecuteSystemCommandRequest.withoutAuthentication("ip -j route", false, 5);
+		try {
+			var resultIpShow = this.handleExecuteSystemCommandRequest(reqIpShow).get().getResult().toString();
+			var resultIpRoute = this.handleExecuteSystemCommandRequest(reqIpRoute).get().getResult().toString();
+			return new GetNetworkInfo.Response(parseShowJson(resultIpShow), parseRouteJson(resultIpRoute));
+		} catch (InterruptedException | ExecutionException e) {
+			return new GetNetworkInfo.Response(Collections.emptyList(), Collections.emptyList());
+		}
+
+	}
+
+	protected static List<JsonObject> parseIpJson(String json) throws OpenemsNamedException {
+		final var stdout = JsonUtils.getAsJsonArray(JsonUtils.getAsJsonObject(JsonUtils.parse(json)), "stdout");
 		final var networkData = stdout.get(0).getAsString();
 		final var networkDataJson = JsonUtils.parseOptional(networkData);
 		if (networkDataJson.isPresent() && networkDataJson.get().isJsonArray()) {
 			final var networkInterfaces = JsonUtils.getAsJsonArray(JsonUtils.parse(networkData));
-
 			if (networkData.startsWith("[")) {
-				return networkInterfaces.asList().stream().map(JsonElement::getAsJsonObject)
-						.map(interfaceObject -> interfaceObject.getAsJsonArray("addr_info"))
-						.flatMap(addrInfoArray -> StreamSupport.stream(addrInfoArray.spliterator(), false))
-						.map(JsonElement::getAsJsonObject)
-						.filter(addrInfoObject -> "inet".equals(addrInfoObject.get("family").getAsString()))
-						.map(addrInfoObject -> addrInfoObject.get("local").getAsString()) //
-						.<Inet4Address>mapMulti((t, u) -> {
-							try {
-								u.accept((Inet4Address) Inet4Address.getByName(t));
-							} catch (UnknownHostException e) {
-								// do nothing
-							}
-						}) //
-						.toList();//
+				return JsonUtils.stream(networkInterfaces)//
+						.map(JsonElement::getAsJsonObject)//
+						.toList();
 			}
 		}
+
 		return Collections.emptyList();
+	}
+
+	protected static List<Route> parseRouteJson(String routeJson) throws OpenemsNamedException {
+		final var networkData = parseIpJson(routeJson);
+		if (networkData == null) {
+			return Collections.emptyList();
+		}
+		return networkData.stream().map(t -> routeSerializer().deserialize(t)).toList();
+	}
+
+	private static JsonSerializer<GetNetworkInfo.Route> routeSerializer() {
+		return jsonObjectSerializer(GetNetworkInfo.Route.class, json -> {
+			Inet4Address prefsrc;
+			try {
+				// TODO: use inet4 method
+				prefsrc = (Inet4Address) Inet4Address.getByName(json.getString("prefsrc"));
+			} catch (UnknownHostException e) {
+				prefsrc = null;
+			}
+			return new GetNetworkInfo.Route(//
+					json.getString("dst"), //
+					json.getString("dev"), //
+					json.getString("protocol"), //
+					// TODO: use orElse in JsonPath once available
+					JsonUtils.getAsOptionalString(json.get(), "scope").orElse("link"), //
+					prefsrc, //
+					// TODO: use orElse in JsonPath once available and int method
+					JsonUtils.getAsOptionalInt(json.get(), "metric").orElse(DEFAULT_METRIC));
+		}, obj -> {
+			return JsonUtils.buildJsonObject() //
+					.addProperty("dst", obj.dst())//
+					.addProperty("dev", obj.dev())//
+					.addProperty("protocol", obj.protocol())//
+					.addProperty("scope", obj.scope())//
+					.addProperty("prefsrc", obj.prefsrc().getHostAddress())//
+					.addProperty("metric", obj.metric())//
+					.build();
+		});
+	}
+
+	/**
+	 * Parses the json returned by ip address get command.
+	 * 
+	 * @param resultIpShow the json to be parsed
+	 * @return a list of parsed ips
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static List<NetworkInfoWrapper> parseShowJson(String resultIpShow) throws OpenemsNamedException {
+		final var networkInterfaces = parseIpJson(resultIpShow);
+		if (networkInterfaces == null) {
+			return Collections.emptyList();
+		}
+
+		final var networkDataRaw = networkInterfaces.stream()
+				.collect(Collectors.toMap(t -> t.get("ifname").getAsString(), interfaceObject -> {
+					var addrInfoArray = interfaceObject.getAsJsonArray("addr_info");
+					return JsonUtils.stream(addrInfoArray)//
+							.map(JsonElement::getAsJsonObject)//
+							.filter(addrInfoObject -> "inet".equals(addrInfoObject.get("family").getAsString())) //
+							.toList(); //
+				}));
+		return networkDataRaw.entrySet().stream().map(entry -> {
+			var ipsForKey = entry.getValue().stream().<Inet4AddressWithSubnetmask>mapMulti((t, u) -> {
+				try {
+					Inet4Address i4Address = (Inet4Address) Inet4Address.getByName(t.get("local").getAsString());
+					int subnetmask = t.get("prefixlen").getAsInt();
+					String family = t.get("family").getAsString();
+					u.accept(new Inet4AddressWithSubnetmask(family, i4Address, subnetmask));
+				} catch (Exception e) {
+					// do nothing
+				}
+			}).toList();
+			return new NetworkInfoWrapper(entry.getKey(), ipsForKey);
+		}).toList();
+
 	}
 
 	@Override

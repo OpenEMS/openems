@@ -1,6 +1,5 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
-import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.emptyObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
 import java.util.List;
@@ -9,14 +8,14 @@ import java.util.Objects;
 import com.google.gson.JsonArray;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
-import io.openems.edge.core.appmanager.jsonrpc.GetApps.Request;
 import io.openems.edge.core.appmanager.jsonrpc.GetApps.Response;
 import io.openems.edge.core.appmanager.validator.Validator;
 
@@ -63,7 +62,7 @@ import io.openems.edge.core.appmanager.validator.Validator;
  * }
  * </pre>
  */
-public class GetApps implements EndpointRequestType<Request, Response> {
+public class GetApps implements EndpointRequestType<EmptyObject, Response> {
 
 	@Override
 	public String getMethod() {
@@ -71,26 +70,13 @@ public class GetApps implements EndpointRequestType<Request, Response> {
 	}
 
 	@Override
-	public JsonSerializer<Request> getRequestSerializer() {
-		return Request.serializer();
+	public JsonSerializer<EmptyObject> getRequestSerializer() {
+		return EmptyObject.serializer();
 	}
 
 	@Override
 	public JsonSerializer<Response> getResponseSerializer() {
 		return Response.serializer();
-	}
-
-	public record Request() {
-
-		/**
-		 * Returns a {@link JsonSerializer} for a {@link GetApps.Response}.
-		 * 
-		 * @return the created {@link JsonSerializer}
-		 */
-		public static JsonSerializer<Request> serializer() {
-			return emptyObjectSerializer(Request::new);
-		}
-
 	}
 
 	public record Response(//

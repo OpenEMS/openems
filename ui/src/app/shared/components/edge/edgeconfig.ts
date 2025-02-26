@@ -141,6 +141,8 @@ export class EdgeConfig {
                 category: { title: "E-Auto-Ladestation", icon: "car-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evcs.api.Evcs"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evse.api.chargepoint.EvseChargePoint"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle"),
                 ].flat(2),
             },
             {
@@ -148,6 +150,8 @@ export class EdgeConfig {
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Evcs",
+                        "Evse.Controller.Single",
+                        "Evse.Controller.Cluster",
                     ]),
                 ].flat(2),
             },
@@ -165,6 +169,7 @@ export class EdgeConfig {
                         "Controller.IO.ChannelSingleThreshold",
                         "Controller.Io.FixDigitalOutput",
                         "Controller.IO.HeatingElement",
+                        "Controller.IO.Heating.Room",
                         "Controller.Io.HeatPump.SgReady",
                     ]),
                 ].flat(2),
@@ -199,6 +204,7 @@ export class EdgeConfig {
                     ]),
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Api.Backend",
+                        "Controller.Clever-PV",
                     ]),
                 ].flat(2),
             },
@@ -553,6 +559,9 @@ export class EdgeConfig {
         if (natures.includes("io.openems.edge.evcs.api.Evcs") && !natures.includes("io.openems.edge.evcs.api.MetaEvcs")) {
             return true;
         }
+        if (natures.includes("io.openems.edge.evse.api.chargepoint.EvseChargePoint")) {
+            return true;
+        }
         return false;
     }
 
@@ -689,7 +698,7 @@ export class EdgeConfig {
     }
 
     /**
-     * Safely gets a property from a component if it exists, else returns null.
+     * Safely gets a property from a component, if it exists, else returns null.
      *
      * @param component The component from which to retrieve the property.
      * @param property The property name to retrieve.

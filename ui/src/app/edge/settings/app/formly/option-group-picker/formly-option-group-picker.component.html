@@ -30,6 +30,15 @@
 
 <div *ngIf="optionGroups.length === 0; elseShowOptions">
     <!-- no options set -->
+    <ion-grid>
+        <ion-row class="ion-justify-content-center">
+            <ion-col size="12" class="ion-text-center">
+                <ion-label>
+                    <h1> {{ to.missingOptionsText }} </h1>
+                </ion-label>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </div>
 
 <div #elseShowOptions *ngIf="multi; else singleSelect">

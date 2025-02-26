@@ -61,18 +61,13 @@ export class ChartComponent extends AbstractHistoryChart {
             tooltip: {
                 formatNumber: ChartConstants.NumberFormat.NO_DECIMALS,
             },
-            yAxes: [
-                chartType === "line"
-                    ? {
-                        unit: YAxisType.LEVEL,
-                        position: "left",
-                        yAxisId: ChartAxis.LEFT,
-                    }
-                    : {
-                        unit: YAxisType.TIME,
-                        position: "left",
-                        yAxisId: ChartAxis.LEFT,
-                    },
+            yAxes: [{
+                unit: chartType === "line"
+                    ? YAxisType.HEATING_ELEMENT
+                    : YAxisType.TIME,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
+            },
             ],
         };
     }

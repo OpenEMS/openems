@@ -95,7 +95,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static addSafely(v1: number, v2: number): number {
+  public static addSafely(v1: number | null, v2: number | null): number {
     if (v1 == null) {
       return v2;
     } else if (v2 == null) {
@@ -147,7 +147,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static multiplySafely(v1: number, v2: number): number {
+  public static multiplySafely(v1: number | null, v2: number | null): number {
     if (v1 == null || v2 == null) {
       return null;
     } else {
@@ -215,7 +215,7 @@ export class Utils {
    * @param orElse the default value
    * @returns      the value or the default value
    */
-  public static orElse(v: number, orElse: number): number {
+  public static orElse(v: number | null, orElse: number): number {
     if (v == null) {
       return orElse;
     } else {
@@ -322,6 +322,17 @@ export class Utils {
   public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
     const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     return formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") + " kWh";
+  };
+
+  /**
+   * Converts a value in DEZIDEGREE_CELSIUS [dC] to DEGREE_CELSIUS [°C]
+   *
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS = (value: number): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    return formatNumber(Utils.divideSafely(value, 10), locale, "1.0-1") + " °C";
   };
 
   /**
@@ -642,6 +653,8 @@ export enum YAxisType {
   RELAY,
   TIME,
   VOLTAGE,
+  HEAT_PUMP,
+  HEATING_ELEMENT,
 }
 
 export enum ChartAxis {
@@ -670,15 +683,20 @@ export namespace HistoryUtils {
   }
 
   export type InputChannel = {
-
-    /** Must be unique, is used as identifier in {@link ChartData.input} */
     name: string,
-    powerChannel: ChannelAddress,
-    energyChannel?: ChannelAddress
-
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
-  };
+  } & ({
+    powerChannel: ChannelAddress | null,
+    energyChannel?: undefined
+  } | {
+    energyChannel: ChannelAddress,
+    powerChannel?: undefined
+  } | {
+    powerChannel: ChannelAddress | null,
+    energyChannel: ChannelAddress
+  });
+
   export type DisplayValue<T extends CustomOptions = PluginCustomOptions> = {
     name: string,
     /** suffix to the name */
