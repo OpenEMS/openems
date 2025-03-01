@@ -366,7 +366,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber,);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -461,6 +461,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
       // Assuming the dataset is a bar chart using the 'stacked' option
       const stack = items[0].dataset.stack || datasetIndex;
+      const yAxisId = items[0].dataset.yAxisID;
 
       // If only one item in stack do not show sum of values
       if (items.length <= 1) {
@@ -469,9 +470,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
       const afterTitle = typeof chartObject.tooltip?.afterTitle == "function" ? chartObject.tooltip?.afterTitle(stack) : null;
 
-      const totalValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      const cumulatedValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      const unit = chartObject.yAxes?.find(el => el.yAxisId === yAxisId)?.unit
+        ?? chartObject.yAxes[0]?.unit;
+
+      if (unit != null) {
+        tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(unit, chartType, cumulatedValue, translate);
+      }
+
+
       if (afterTitle) {
-        return afterTitle + ": " + formatNumber(totalValue, locale, chartObject.tooltip.formatNumber) + " " + tooltipsLabel;
+        return afterTitle + ": " + formatNumber(cumulatedValue, locale, chartObject.tooltip.formatNumber) + " " + tooltipsLabel;
       }
 
       return null;
@@ -486,7 +495,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       function rebuildScales(chart: Chart.Chart) {
         let options = chart.options;
         chartObject.yAxes.forEach((element) => {
-          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, _dataSets, true);
+          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, _dataSets, true, chartObject.tooltip.formatNumber,);
         });
       }
 
@@ -537,9 +546,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param locale the current locale
    * @returns the chart options {@link Chart.ChartOptions}
    */
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean): Chart.ChartOptions {
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"]): Chart.ChartOptions {
     const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
-    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType);
+    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType, formatNumber);
     switch (element.unit) {
       case YAxisType.RELAY:
         options.scales[element.yAxisId] = {

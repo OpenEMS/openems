@@ -4,9 +4,9 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObj
 
 import java.util.List;
 
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
 import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent.Request;

@@ -63,7 +63,7 @@ public class OpenemsAppInstance {
 				json -> new OpenemsAppInstance(//
 						json.getString("appId"), //
 						json.getString("alias"), //
-						json.getStringPath("instanceId").getAsUuid(), //
+						json.getUuid("instanceId"), //
 						json.getJsonObject("properties"), //
 						// TODO add optional methods
 						json.getList("dependencies", Dependency.serializer())), //

@@ -1,16 +1,14 @@
 <ion-content>
   <ion-grid *ngIf="config">
     <ion-row class="ion-justify-content-center">
-
-      <ion-col size="12" size-md="6" *ngIf="edge">
+      <ion-col size="12" size-md="8" *ngIf="edge">
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
             <ion-label>Allgemeine Daten</ion-label>
           </ion-item>
-
           <ion-card-content>
-            <ion-list>
+            <ion-list class="ion-font-size-small">
               <ion-item *ngIf="environment.backend === 'OpenEMS Backend'">
                 <ion-label>Edge-ID</ion-label>
                 {{ edge.id }}
@@ -26,7 +24,8 @@
               <ion-item>
                 <ion-label style="white-space: initial;">{{ environment.edgeShortName }}
                   Version</ion-label>
-                <a class="ion-link" style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
+                <a class="ion-link"
+                  style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
                   routerLinkActive="active" routerLink="/changelog">{{ edge.version |
                   version:edge.role }}</a>
               </ion-item>
@@ -42,11 +41,48 @@
           </ion-card-content>
         </ion-card>
       </ion-col>
-
     </ion-row>
-    <ion-row class="ion-justify-content-center">
 
-      <ion-col size="12" size-md="6" *ngIf="components !== null">
+    <ion-row class="ion-justify-content-center" *ngIf="edge.firstSetupProtocol && isAtLeastOwner">
+      <ion-col size="12" size-md="8">
+        <ion-card>
+          <ion-item color="light" lines="full">
+            <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
+            <ion-label translate>PROFILE.SYSTEM_PROTOCOL.TITLE</ion-label>
+          </ion-item>
+          <ion-card-content class="ion-padding ion-font-size-larger">
+            <ion-grid class="ion-padding">
+
+              <ion-row *ngIf="latestSetupProtocolData" class="ion-align-items-center"
+                style="color: var(--ion-color-white)">
+                <ion-col size-md="4" size-xs="6">
+                  <ion-label translate>
+                    PROFILE.SYSTEM_PROTOCOL.LABEL
+                  </ion-label>
+                </ion-col>
+                <ion-col size-md="4" size-xs="6" class="ion-text-align-end ion-text-md-center">
+                  <ion-label>
+                    {{latestSetupProtocolData.createDate | date:'dd.MM.YYYY HH:mm'}}
+                  </ion-label>
+                </ion-col>
+                <ion-col size-md="4" class="ion-text-align-end" size-xs="12">
+                  <ngx-spinner [name]="spinnerId"></ngx-spinner>
+                  <ion-button *ngIf="!isLoading()" size="small" (click)="downloadLatestSetupProtocol()">
+                    <ion-label translate>
+                      PROFILE.SYSTEM_PROTOCOL.DOWNLOAD
+                    </ion-label>
+                    <ion-icon name="download-outline" slot="end"></ion-icon>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8" *ngIf="components !== null">
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>

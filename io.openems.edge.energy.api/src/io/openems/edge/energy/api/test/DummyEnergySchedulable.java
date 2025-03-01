@@ -2,7 +2,7 @@ package io.openems.edge.energy.api.test;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
 /**
  * Provides a simple, simulated {@link EnergySchedulable} component that can be
