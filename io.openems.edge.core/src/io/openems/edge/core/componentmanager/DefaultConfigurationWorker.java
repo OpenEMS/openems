@@ -98,8 +98,6 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 			// Adding Configuration manually, because this is not a OpenEMS Configuration
 			try {
 				var log4j = new Hashtable<String, Object>();
-				log4j.put("org.ops4j.pax.logging.log4j2.config.file", "");
-
 				log4j.put("log4j2.appender.console.type", "Console");
 				log4j.put("log4j2.appender.console.name", "console");
 				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
