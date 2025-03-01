@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
+import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Websocket } from "src/app/shared/shared";
 import { environment } from "src/environments";
 
@@ -22,6 +23,7 @@ export class JsonrpcTestComponent implements OnInit {
     private route: ActivatedRoute,
     private service: Service,
     private websocket: Websocket,
+    private userService: UserService,
   ) {
 
   }

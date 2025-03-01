@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.api;
 
+import static io.openems.edge.common.type.TypeUtils.divide;
+
 import java.util.function.Consumer;
 
 import io.openems.common.channel.AccessMode;
@@ -18,6 +20,20 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.meter.api.ElectricityMeter;
 
+/**
+ * Represents an Electric Vehicle Charging Station.
+ * 
+ * <p>
+ * Not all EVCS provide all necessary values for an {@link ElectricityMeter}.
+ * Therefore consider using one of the helper methods which are useful for EVCS
+ * only:
+ * <ul>
+ * <li>{@link #addCalculatePowerLimitListeners(Evcs)}
+ * <li>{@link #calculateUsedPhasesFromCurrent(Evcs)}
+ * <li>{@link #calculatePhasesFromActivePowerAndPhaseCurrents(Evcs)}
+ * <li>{@link #evaluatePhaseCountFromCurrent(Integer, Integer, Integer)}
+ * </ul>
+ */
 public interface Evcs extends ElectricityMeter, OpenemsComponent {
 
 	public static final Integer DEFAULT_MAXIMUM_HARDWARE_POWER = 22_080; // W
@@ -26,6 +42,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	public static final Integer DEFAULT_MINIMUM_HARDWARE_CURRENT = 6_000; // mA
 	public static final Integer DEFAULT_VOLTAGE = 230; // V
 	public static final int DEFAULT_POWER_RECISION = 230;
+	public static final int MIN_EVCS_ACTIVITY_CURRENT = 450; // mA (~100W)
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -635,6 +652,10 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	 *
 	 * @param evcs evcs
 	 */
+	// TODO: @clehne 2024.08.20 implementation may be broken on some chargepoint
+	// implementations. Reason: not all implementations always update nextValue
+	// in every cycle. Therefore nextValue is null from time to time.
+	// Suggestion: method should work on value()
 	public static void addCalculatePowerLimitListeners(Evcs evcs) {
 
 		final Consumer<Value<Integer>> calculateHardwarePowerLimits = ignore -> {
@@ -658,34 +679,101 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	}
 
 	/**
-	 * Evaluates the number of Phases from the individual powers per phase.
+	 * Adds listeners on the current channels to calculate the number of used
+	 * {@link ChannelId#PHASES}.
+	 *
+	 * @param evcs the evcs
+	 */
+	public static void calculateUsedPhasesFromCurrent(Evcs evcs) {
+		final Consumer<Value<Integer>> calculatePhases = ignore -> {
+			var phases = evaluatePhaseCountFromCurrent(//
+					evcs.getCurrentL1().get(), evcs.getCurrentL2().get(), evcs.getCurrentL3().get());
+			if (phases == null) {
+				/*
+				 * Always set 3 phases in case of an unplugged/uncharging car. This is, because
+				 * we should always start computation for new charging sessions based on 3
+				 * phases.
+				 */
+				phases = 3;
+			}
+			evcs._setPhases(phases);
+		};
+		evcs.getCurrentL1Channel().onSetNextValue(calculatePhases);
+		evcs.getCurrentL2Channel().onSetNextValue(calculatePhases);
+		evcs.getCurrentL3Channel().onSetNextValue(calculatePhases);
+	}
+
+	/**
+	 * Evaluates the number of Phases from the individual currents per phase.
 	 *
 	 * <p>
 	 * The EVCS will pull power from the grid for its own consumption and report
 	 * that on one of the phases. This value is different from EVCS to EVCS but can
-	 * be high. Because of this, this will only register a phase starting with 100W
-	 * because then we definitively know that this load is caused by a car.
+	 * be high. Because of this, this will only register a phase starting with
+	 * ~450mA because then we definitively know that this load is caused by a car.
 	 *
-	 * @param activePowerL1 active power on L1
-	 * @param activePowerL2 active power on L2
-	 * @param activePowerL3 active power on L3
+	 * @param currentL1 current on L1 in mA
+	 * @param currentL2 current on L2 in mA
+	 * @param currentL3 current on L3 in mA
 	 * @return integer value indicating the number of phases; null if undefined
 	 */
-	public static Integer evaluatePhaseCount(Integer activePowerL1, Integer activePowerL2, Integer activePowerL3) {
+	public static Integer evaluatePhaseCountFromCurrent(Integer currentL1, Integer currentL2, Integer currentL3) {
+
 		var phases = 0;
-		if (activePowerL1 != null && activePowerL1 > 100) {
+		if (currentL1 != null && currentL1 > MIN_EVCS_ACTIVITY_CURRENT) {
 			phases++;
 		}
-		if (activePowerL2 != null && activePowerL2 > 100) {
+		if (currentL2 != null && currentL2 > MIN_EVCS_ACTIVITY_CURRENT) {
 			phases++;
 		}
-		if (activePowerL3 != null && activePowerL3 > 100) {
+		if (currentL3 != null && currentL3 > MIN_EVCS_ACTIVITY_CURRENT) {
 			phases++;
 		}
 		return switch (phases) {
 		case 1, 2, 3 -> phases;
 		default -> null;
 		};
+	}
+
+	/**
+	 * Adds a listener to calculate the phase powers
+	 * {@link ChannelId#ACTIVE_POWER_L1}, {@link ChannelId#ACTIVE_POWER_L2},
+	 * {@link ChannelId#ACTIVE_POWER_L3} based on the {@link ChannelId#ACTIVE_POWER}
+	 * active power and the phase currents {@link ChannelId#CURRENT_L1},
+	 * {@link ChannelId#CURRENT_L2}, {@link ChannelId#CURRENT_L3}.
+	 *
+	 * <p/>
+	 * Note:
+	 * <ul>
+	 * <li>This is different from
+	 * {@link ElectricityMeter.calculatePhasesFromActivePower}}, which handles
+	 * symmetric consumers only.</li>
+	 * <li>if no active {@link ChannelId#PHASES} can be detected, it is set to 3 by
+	 * default. This avoids sideeffects in some charge stations, when the charge
+	 * process is started.</li>
+	 * </ul>
+	 * 
+	 * @param evcs the evcs
+	 */
+	public static void calculatePhasesFromActivePowerAndPhaseCurrents(Evcs evcs) {
+		final Consumer<Value<Integer>> calculatePhasePowers = ignore -> {
+			var currentL1 = evcs.getCurrentL1().get();
+			var currentL2 = evcs.getCurrentL2().get();
+			var currentL3 = evcs.getCurrentL3().get();
+			var phaseCnt = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
+			if (phaseCnt == null) {
+				// assume three phases by default
+				phaseCnt = 3;
+			}
+			var phasePower = divide(evcs.getActivePower().get(), phaseCnt);
+			evcs._setActivePowerL1((currentL1 != null && currentL1 > MIN_EVCS_ACTIVITY_CURRENT) ? phasePower : 0);
+			evcs._setActivePowerL2((currentL2 != null && currentL2 > MIN_EVCS_ACTIVITY_CURRENT) ? phasePower : 0);
+			evcs._setActivePowerL3((currentL3 != null && currentL3 > MIN_EVCS_ACTIVITY_CURRENT) ? phasePower : 0);
+		};
+		evcs.getActivePowerChannel().onSetNextValue(calculatePhasePowers);
+		evcs.getCurrentL1Channel().onSetNextValue(calculatePhasePowers);
+		evcs.getCurrentL2Channel().onSetNextValue(calculatePhasePowers);
+		evcs.getCurrentL3Channel().onSetNextValue(calculatePhasePowers);
 	}
 
 	/**

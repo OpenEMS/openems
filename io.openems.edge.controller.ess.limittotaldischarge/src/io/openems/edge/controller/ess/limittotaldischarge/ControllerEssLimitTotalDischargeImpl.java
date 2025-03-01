@@ -1,12 +1,10 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
-import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
-import static java.lang.Math.max;
+import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.function.IntSupplier;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,7 +22,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -63,7 +61,10 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				ControllerEssLimitTotalDischarge.ChannelId.values() //
 		);
 		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.minSoc);
+				() -> this.id(), //
+				() -> this.isEnabled() //
+						? this.minSoc //
+						: null);
 	}
 
 	@Activate
@@ -219,25 +220,6 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 			this._setAwaitingHysteresisValue(true);
 			return false;
 		}
-	}
-
-	/**
-	 * Builds the {@link EnergyScheduleHandler}.
-	 * 
-	 * <p>
-	 * This is public so that it can be used by the EnergyScheduler integration
-	 * test.
-	 * 
-	 * @param minSoc a supplier for the configured minSoc
-	 * @return a {@link EnergyScheduleHandler}
-	 */
-	public static EnergyScheduleHandler buildEnergyScheduleHandler(IntSupplier minSoc) {
-		return EnergyScheduleHandler.WithOnlyOneState.<Integer>create() //
-				.setContextFunction(simContext -> socToEnergy(simContext.ess().totalEnergy(), minSoc.getAsInt())) //
-				.setSimulator((simContext, period, energyFlow, minEnergy) -> {
-					energyFlow.setEssMaxDischarge(max(0, simContext.ess.getInitialEnergy() - minEnergy));
-				}) //
-				.build();
 	}
 
 	@Override
