@@ -39,8 +39,6 @@ public class BackendApp {
 			final var properties = config.getProperties();
 			if (!DictionaryUtils.containsAnyKey(properties, "log4j2.rootLogger.level")) {
 				final var log4j = new Hashtable<String, Object>();
-				log4j.put("org.ops4j.pax.logging.log4j2.config.file", "");
-
 				log4j.put("log4j2.appender.console.type", "Console");
 				log4j.put("log4j2.appender.console.name", "console");
 				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
