@@ -27,8 +27,10 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	public static final boolean DEFAULT_DEBUG_MODE = true;
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
+
 	private final Logger log = LoggerFactory.getLogger(ControllerApiRestReadOnlyImpl.class);
 	private final String implementationName;
+
 	private Server server = null;
 	private boolean isDebugModeEnabled = DEFAULT_DEBUG_MODE;
 
@@ -66,13 +68,13 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		try {
 			// Start the RestApi-Server.
 			this.server = new Server(port);
-			// Use the Jetty 12–compatible RestHandler.
 			this.server.setHandler(new RestHandler(this));
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
 			this.server.addBean(new ConnectionLimit(connectionlimit, this.server));
 			this.server.start();
 			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
 			this._setUnableToStart(false);
+
 		} catch (Exception e) {
 			this.logError(this.log,
 					"Unable to start " + this.implementationName + " on port [" + port + "]: " + e.getMessage());

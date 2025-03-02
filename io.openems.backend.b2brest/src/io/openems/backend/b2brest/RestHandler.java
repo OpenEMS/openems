@@ -1,5 +1,6 @@
 package io.openems.backend.b2brest;
 
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static java.util.stream.Collectors.joining;
 
@@ -26,7 +27,6 @@ import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.utils.JsonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -47,12 +47,12 @@ public class RestHandler extends Handler.Abstract {
 			var user = this.authenticate(httpRequest);
 
 			// Determine the target from the path info.
-			String target = httpRequest.getPathInfo();
+			var target = httpRequest.getPathInfo();
 			if (target == null || target.isEmpty() || "/".equals(target)) {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
 			// Remove leading '/' and split by '/'
-			String[] parts = target.substring(1).split("/");
+			var parts = target.substring(1).split("/");
 			var thisTarget = parts[0];
 
 			if ("jsonrpc".equals(thisTarget)) {
@@ -61,6 +61,7 @@ public class RestHandler extends Handler.Abstract {
 			// Signal that the request has been handled.
 			callback.succeeded();
 			return true;
+
 		} catch (Exception e) {
 			this.log.error("Error handling request: " + e.getMessage(), e);
 			callback.failed(e);
@@ -78,14 +79,14 @@ public class RestHandler extends Handler.Abstract {
 	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
 		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
-			String[] parts = authHeader.split(" ");
+			var parts = authHeader.split(" ");
 			if (parts.length >= 2 && "Basic".equalsIgnoreCase(parts[0])) {
 				try {
-					String credentials = new String(Base64.getDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+					var credentials = new String(Base64.getDecoder().decode(parts[1]), StandardCharsets.UTF_8);
 					int p = credentials.indexOf(":");
 					if (p != -1) {
-						String username = credentials.substring(0, p).trim();
-						String password = credentials.substring(p + 1).trim();
+						var username = credentials.substring(0, p).trim();
+						var password = credentials.substring(p + 1).trim();
 						return this.parent.metadata.authenticate(username, password);
 					}
 				} catch (Exception e) {
@@ -101,6 +102,7 @@ public class RestHandler extends Handler.Abstract {
 			response.setContentType("application/json");
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.getWriter().write(data.toString());
+
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to send Ok-Response: " + e.getMessage());
 		}
@@ -111,7 +113,7 @@ public class RestHandler extends Handler.Abstract {
 			response.setContentType("application/json");
 			// Using SC_OK so the error message is delivered in the response body.
 			response.setStatus(HttpServletResponse.SC_OK);
-			JsonrpcResponseError message;
+			final JsonrpcResponseError message;
 			if (ex instanceof OpenemsNamedException) {
 				message = new JsonrpcResponseError(jsonrpcId, (OpenemsNamedException) ex);
 			} else if (ex.getCause() instanceof OpenemsNamedException) {
@@ -120,6 +122,7 @@ public class RestHandler extends Handler.Abstract {
 				message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
 			}
 			response.getWriter().write(message.toString());
+
 		} catch (IOException e) {
 			this.parent.logWarn(this.log, "Unable to send Error-Response: " + e.getMessage());
 		}
@@ -134,8 +137,9 @@ public class RestHandler extends Handler.Abstract {
 	 */
 	private static JsonObject parseJson(HttpServletRequest request) throws OpenemsException {
 		try (BufferedReader br = request.getReader()) {
-			String jsonStr = br.lines().collect(joining("\n"));
+			var jsonStr = br.lines().collect(joining("\n"));
 			return parseToJsonObject(jsonStr);
+
 		} catch (Exception e) {
 			throw new OpenemsException("Unable to parse: " + e.getMessage());
 		}
@@ -149,13 +153,13 @@ public class RestHandler extends Handler.Abstract {
 	 * @param httpResponse the {@link HttpServletResponse}
 	 */
 	private void handleJsonRpc(User user, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-		UUID requestId = new UUID(0L, 0L); // dummy UUID in case of error
+		var requestId = new UUID(0L, 0L); // dummy UUID in case of error
 		try {
 			if (!"POST".equals(httpRequest.getMethod())) {
 				throw new OpenemsException(
 						"Method [" + httpRequest.getMethod() + "] is not supported for JSON-RPC endpoint");
 			}
-			JsonObject json = parseJson(httpRequest);
+			var json = parseJson(httpRequest);
 			if (!json.has("jsonrpc")) {
 				json.addProperty("jsonrpc", "2.0");
 			}
@@ -163,9 +167,9 @@ public class RestHandler extends Handler.Abstract {
 				json.addProperty("id", UUID.randomUUID().toString());
 			}
 			if (json.has("params")) {
-				JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+				var params = getAsJsonObject(json, "params");
 				if (params.has("payload")) {
-					JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+					var payload = getAsJsonObject(params, "payload");
 					if (!payload.has("jsonrpc")) {
 						payload.addProperty("jsonrpc", "2.0");
 					}
@@ -181,7 +185,7 @@ public class RestHandler extends Handler.Abstract {
 				throw new OpenemsException("Only JSON-RPC Request is supported here.");
 			}
 			var responseFuture = this.parent.jsonRpcRequestHandler.handleRequest(this.parent.getName(), user, request);
-			JsonrpcResponseSuccess rpcResponse;
+			final JsonrpcResponseSuccess rpcResponse;
 			try {
 				rpcResponse = responseFuture.get();
 			} catch (Exception e) {
@@ -189,6 +193,7 @@ public class RestHandler extends Handler.Abstract {
 				return;
 			}
 			this.sendOkResponse(httpResponse, rpcResponse.toJsonObject());
+
 		} catch (OpenemsNamedException e) {
 			this.sendErrorResponse(httpResponse, requestId,
 					new OpenemsException("Unable to get Response: " + e.getMessage()));
