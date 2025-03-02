@@ -56,9 +56,6 @@ public class RestHandler extends Handler.Abstract {
 		this.parent = parent;
 	}
 
-	/**
-	 * Jetty 12 requires a handler method with this signature.
-	 */
 	@Override
 	public boolean handle(Request request, Response response, Callback callback) throws Exception {
 		try {
