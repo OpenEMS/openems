@@ -20,10 +20,10 @@ import io.openems.edge.controller.levl.common.LogVerbosity;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
-	String ess_id();
+	String ess_id() default "ess0";
 
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
-	String meter_id();
+	String meter_id() default "meter0";
 
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity")
 	LogVerbosity logVerbosity() default LogVerbosity.DEBUG_LOG;

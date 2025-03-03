@@ -1,108 +1,84 @@
 package io.openems.edge.controller.levl.balancing;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsDouble;
+import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsLong;
+import static io.openems.common.utils.JsonUtils.getAsString;
+
+import java.time.Instant;
+
+import com.google.common.base.MoreObjects;
 import com.google.gson.JsonObject;
+
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
-import java.time.Instant;
-import java.util.Objects;
 
-public class LevlControlRequest {	
-	public static final String METHOD = "sendLevlControlRequest";
-	public static final int QUARTER_HOUR_SECONDS = 900;
-	protected int sellToGridLimitW;
-	protected int buyFromGridLimitW;
-	protected String levlRequestId;
-	protected String timestamp;
-	protected long energyWs;
-	protected Instant start;
-	protected Instant deadline;
-	protected int levlSocWh;
-	protected double socLowerBoundPercent;
-	protected double socUpperBoundPercent;
-	protected double efficiencyPercent;
-	protected boolean influenceSellToGrid;
-	
-	
-	protected LevlControlRequest(JsonObject params, Instant now) throws OpenemsError.OpenemsNamedException {
-		try {
-			this.parseFields(params, now);
-		} catch (NullPointerException e) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("missing fields in request: " + e.getMessage());
-		} catch (NumberFormatException e) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("wrong field type in request: " + e.getMessage());
-		}
-		if (this.efficiencyPercent < 0) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be > 0");
-		}
-		if (this.efficiencyPercent > 100) {
-			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be <= 100");
-		}
-	}
-	
-	//Just for testing
-	protected LevlControlRequest() {
-		
-	}
+public class LevlControlRequest extends JsonrpcRequest {
 
-	//Just for testing
-	protected LevlControlRequest(int sellToGridLimitW, int buyFromGridLimitW, String levlRequestId, String timestamp,
-			long energyWs, Instant start, Instant deadline, int levlSocWh, int socLowerBoundPercent,
-			int socUpperBoundPercent, double efficiencyPercent, boolean influenceSellToGrid) {
-		this.sellToGridLimitW = sellToGridLimitW;
-		this.buyFromGridLimitW = buyFromGridLimitW;
-		this.levlRequestId = levlRequestId;
-		this.timestamp = timestamp;
-		this.energyWs = energyWs;
-		this.start = start;
-		this.deadline = deadline;
-		this.levlSocWh = levlSocWh;
-		this.socLowerBoundPercent = socLowerBoundPercent;
-		this.socUpperBoundPercent = socUpperBoundPercent;
-		this.efficiencyPercent = efficiencyPercent;
-		this.influenceSellToGrid = influenceSellToGrid;
-	}
+	public static final String METHOD = "levlControl";
 
-	//Just for testing
-	protected LevlControlRequest(int startDelay, int duration, Instant now) {
-		this.start = now.plusSeconds(startDelay);
-		this.deadline = this.start.plusSeconds(duration);
+	private static final int QUARTER_HOUR_SECONDS = 900;
+
+	public record Payload(int sellToGridLimitW, int buyFromGridLimitW, String levlRequestId, String timestamp,
+			long energyWs, Instant start, Instant deadline, int levlSocWh, double socLowerBoundPercent,
+			double socUpperBoundPercent, double efficiencyPercent, boolean influenceSellToGrid) {
 	}
 
 	/**
-	 * Generates a levl control request object based on the JSON-RPC request.
-	 * 
-	 * @param request the JSON-RPC request
-	 * @param now the current time
-	 * @return the levl control request
+	 * Creates a {@link LevlControlRequest} from a {@link JsonrpcRequest}.
+	 *
+	 * @param r the {@link JsonrpcRequest}
+	 * @return the {@link LevlControlRequest}
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static LevlControlRequest from(JsonrpcRequest request, Instant now) throws OpenemsNamedException {
-		var params = request.getParams();
-		return new LevlControlRequest(params, now);
+	public static final LevlControlRequest from(JsonrpcRequest r, Instant now) throws OpenemsNamedException {
+		final var p = r.getParams();
+		var sellToGridLimitW = getAsInt(p, "sellToGridLimitW");
+		var buyFromGridLimitW = getAsInt(p, "buyFromGridLimitW");
+		var levlRequestId = getAsString(p, "levlRequestId");
+		var timestamp = getAsString(p, "levlRequestTimestamp");
+		var energyWs = getAsLong(p, "levlPowerW") * QUARTER_HOUR_SECONDS;
+		var start = now.plusSeconds(getAsInt(p, "levlChargeDelaySec"));
+		var deadline = start.plusSeconds(getAsInt(p, "levlChargeDurationSec"));
+		var levlSocWh = getAsInt(p, "levlSocWh");
+		var socLowerBoundPercent = getAsDouble(p, "levlSocLowerBoundPercent");
+		var socUpperBoundPercent = getAsDouble(p, "levlSocUpperBoundPercent");
+		var efficiencyPercent = getAsDouble(p, "efficiencyPercent");
+		var influenceSellToGrid = getAsBoolean(p, "influenceSellToGrid");
+
+		if (efficiencyPercent < 0) {
+			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be > 0");
+		}
+		if (efficiencyPercent > 100) {
+			throw OpenemsError.JSONRPC_INVALID_MESSAGE.exception("efficiencyPercent must be <= 100");
+		}
+
+		return new LevlControlRequest(r,
+				new Payload(sellToGridLimitW, buyFromGridLimitW, levlRequestId, timestamp, energyWs, start, deadline,
+						levlSocWh, socLowerBoundPercent, socUpperBoundPercent, efficiencyPercent, influenceSellToGrid));
 	}
 
-	private void parseFields(JsonObject params, Instant now) throws OpenemsNamedException {
-		this.levlRequestId = JsonUtils.getAsString(params, "levlRequestId");
-		this.timestamp = JsonUtils.getAsString(params, "levlRequestTimestamp");
-		this.energyWs = JsonUtils.getAsLong(params, "levlPowerW") * QUARTER_HOUR_SECONDS;
-		this.start = now.plusSeconds(JsonUtils.getAsInt(params, "levlChargeDelaySec"));
-		this.deadline = this.start.plusSeconds(JsonUtils.getAsInt(params, "levlChargeDurationSec"));
-		this.levlSocWh = JsonUtils.getAsInt(params, "levlSocWh");
-		this.socLowerBoundPercent = JsonUtils.getAsDouble(params, "levlSocLowerBoundPercent");
-		this.socUpperBoundPercent = JsonUtils.getAsDouble(params, "levlSocUpperBoundPercent");
-		this.sellToGridLimitW = JsonUtils.getAsInt(params, "sellToGridLimitW");
-		this.buyFromGridLimitW = JsonUtils.getAsInt(params, "buyFromGridLimitW");
-		this.efficiencyPercent = JsonUtils.getAsDouble(params, "efficiencyPercent");
-		this.influenceSellToGrid = JsonUtils.getAsBoolean(params, "influenceSellToGrid");
+	public final Payload payload;
+
+	private LevlControlRequest(JsonrpcRequest request, Payload payload) {
+		super(request, LevlControlRequest.METHOD);
+		this.payload = payload;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.buyFromGridLimitW, this.deadline, this.efficiencyPercent, this.energyWs,
-				this.influenceSellToGrid, this.levlRequestId, this.levlSocWh, this.sellToGridLimitW,
-				this.socLowerBoundPercent, this.socUpperBoundPercent, this.start, this.timestamp);
+	public LevlControlRequest(Payload payload) {
+		super(LevlControlRequest.METHOD);
+		this.payload = payload;
+	}
+
+	// Just for testing
+	protected LevlControlRequest(int startDelay, int duration, Instant now) {
+		this(new Payload(//
+				0, 0, null, null, 0, //
+				now.plusSeconds(startDelay), now.plusSeconds(startDelay).plusSeconds(duration), //
+				0, 0, 0, 0, false));
 	}
 
 	@Override
@@ -117,23 +93,31 @@ public class LevlControlRequest {
 			return false;
 		}
 		LevlControlRequest other = (LevlControlRequest) obj;
-		return this.buyFromGridLimitW == other.buyFromGridLimitW && Objects.equals(this.deadline, other.deadline)
-				&& Double.doubleToLongBits(this.efficiencyPercent) == Double.doubleToLongBits(other.efficiencyPercent)
-				&& this.energyWs == other.energyWs && this.influenceSellToGrid == other.influenceSellToGrid
-				&& Objects.equals(this.levlRequestId, other.levlRequestId) && this.levlSocWh == other.levlSocWh
-				&& this.sellToGridLimitW == other.sellToGridLimitW
-				&& this.socLowerBoundPercent == other.socLowerBoundPercent
-				&& this.socUpperBoundPercent == other.socUpperBoundPercent && Objects.equals(this.start, other.start)
-				&& Objects.equals(this.timestamp, other.timestamp);
+		return this.payload.equals(other.payload);
 	}
 
 	@Override
 	public String toString() {
-		return "LevlControlRequest [sellToGridLimitW=" + this.sellToGridLimitW + ", buyFromGridLimitW="
-				+ this.buyFromGridLimitW + ", levlRequestId=" + this.levlRequestId + ", timestamp=" + this.timestamp
-				+ ", energyWs=" + this.energyWs + ", start=" + this.start + ", deadline=" + this.deadline
-				+ ", levlSocWh=" + this.levlSocWh + ", socLowerBoundPercent=" + this.socLowerBoundPercent
-				+ ", socUpperBoundPercent=" + this.socUpperBoundPercent + ", efficiencyPercent="
-				+ this.efficiencyPercent + ", influenceSellToGrid=" + this.influenceSellToGrid + "]";
+		return MoreObjects.toStringHelper(this.getClass()) //
+				.addValue(this.payload) //
+				.toString();
+	}
+
+	@Override
+	public JsonObject getParams() {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("sellToGridLimitW", this.payload.sellToGridLimitW) //
+				.addProperty("buyFromGridLimitW", this.payload.buyFromGridLimitW) //
+				.addProperty("levlRequestId", this.payload.levlRequestId) //
+				.addProperty("levlRequestTimestamp", this.payload.timestamp) //
+				.addProperty("levlPowerW", this.payload.energyWs) //
+				.addProperty("levlChargeDelaySec", this.payload.start) //
+				.addProperty("levlChargeDurationSec", this.payload.deadline) //
+				.addProperty("levlSocWh", this.payload.levlSocWh) //
+				.addProperty("levlSocLowerBoundPercent", this.payload.socLowerBoundPercent) //
+				.addProperty("levlSocUpperBoundPercent", this.payload.socUpperBoundPercent) //
+				.addProperty("efficiencyPercent", this.payload.efficiencyPercent) //
+				.addProperty("influenceSellToGrid", this.payload.influenceSellToGrid) //
+				.build();
 	}
 }

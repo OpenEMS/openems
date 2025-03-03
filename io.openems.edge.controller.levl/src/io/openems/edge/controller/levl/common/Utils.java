@@ -7,10 +7,10 @@ import static java.lang.Math.round;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import com.google.gson.JsonObject;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.utils.JsonUtils;
 
 public class Utils {
 
@@ -324,11 +324,8 @@ public class Utils {
 	 */
 	public static JsonrpcResponseSuccess generateResponse(UUID requestId, String levlRequestId)
 			throws OpenemsNamedException {
-		JsonObject response = new JsonObject();
-		var result = new JsonObject();
-		result.addProperty("levlRequestId", levlRequestId);
-		response.addProperty("id", requestId.toString());
-		response.add("result", result);
-		return JsonrpcResponseSuccess.from(response);
+		return new GenericJsonrpcResponseSuccess(requestId, JsonUtils.buildJsonObject() //
+				.addProperty("levlRequestId", levlRequestId) //
+				.build());
 	}
 }

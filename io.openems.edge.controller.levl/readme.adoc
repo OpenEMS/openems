@@ -1,19 +1,24 @@
-= Levl Controller for ESS Balancing
+= Levl Flexibility Trading Controllers
 
-This is a beta version.
+== Levl Ess Balancing Controller
 
 This controller combines the optimization of self-consumption with flexibility trading by levl.
+
 Note: This controller can only be used in combination with an optimization contract with Levl Energy. For contact und more information please visit https://levl.energy
 
-== How it works
+=== How it works
+
 This controller receives charging and discharging instructions from Levl Energy and executes these taking into account local optimization and various constraints (such as SoC, grid limits, etc.).
 
-== Requirements
+=== Requirements
+
 The following components are required to use this controller successfully:
 - Contract with Levl Energy for system optimization 
 - ManagedSymmetricEss - a controllable energy storage system
 - ElectricityMeter - a meter at the grid connection point
 
-== Further information
+=== Further information
+
 Detailed information on self-consumption optimization can be found in the OpenEMS source code.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.balancing[Source Code icon:github[]]

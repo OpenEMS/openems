@@ -231,15 +231,15 @@ public class ControllerLevlEssBalancingImpl extends AbstractOpenemsComponent
 		this.log.info("Received new levl request: {}", request);
 		this.nextRequest = request;
 		var realizedEnergyBatteryWs = this.getRealizedEnergyBattery().getOrError();
-		var updatedLevlSoc = request.levlSocWh * SECONDS_PER_HOUR - realizedEnergyBatteryWs;
+		var updatedLevlSoc = request.payload.levlSocWh() * SECONDS_PER_HOUR - realizedEnergyBatteryWs;
 		this._setLevlSoc(updatedLevlSoc);
 		this.log.info("Updated levl soc: {}", updatedLevlSoc);
-		return generateResponse(call.getRequest().getId(), request.levlRequestId);
+		return generateResponse(call.getRequest().getId(), request.payload.levlRequestId());
 	}
 
 	private boolean isActive(LevlControlRequest request) {
 		var now = Instant.now(this.clock);
-		return !(request == null || now.isBefore(request.start) || now.isAfter(request.deadline));
+		return !(request == null || now.isBefore(request.payload.start()) || now.isAfter(request.payload.deadline()));
 	}
 
 	@Override
@@ -322,7 +322,7 @@ public class ControllerLevlEssBalancingImpl extends AbstractOpenemsComponent
 
 		this._setLastRequestRealizedEnergyGrid(realizedEnergyGridWs);
 		this._setLastRequestRealizedEnergyBattery(realizedEnergyBatteryWs);
-		this._setLastRequestTimestamp(this.currentRequest.timestamp);
+		this._setLastRequestTimestamp(this.currentRequest.payload.timestamp());
 		this._setRemainingLevlEnergy(0L);
 		this._setRealizedEnergyGrid(0L);
 		this._setRealizedEnergyBattery(0L);
@@ -337,13 +337,13 @@ public class ControllerLevlEssBalancingImpl extends AbstractOpenemsComponent
 		this.logDebug("starting levl request: " + this.nextRequest);
 		this.currentRequest = this.nextRequest;
 		this.nextRequest = null;
-		this._setEssEfficiency(this.currentRequest.efficiencyPercent);
-		this._setSocLowerBoundLevl(this.currentRequest.socLowerBoundPercent);
-		this._setSocUpperBoundLevl(this.currentRequest.socUpperBoundPercent);
-		this._setRemainingLevlEnergy(this.currentRequest.energyWs);
-		this._setBuyFromGridLimit((long) this.currentRequest.buyFromGridLimitW);
-		this._setSellToGridLimit((long) this.currentRequest.sellToGridLimitW);
-		this._setInfluenceSellToGrid(this.currentRequest.influenceSellToGrid);
+		this._setEssEfficiency(this.currentRequest.payload.efficiencyPercent());
+		this._setSocLowerBoundLevl(this.currentRequest.payload.socLowerBoundPercent());
+		this._setSocUpperBoundLevl(this.currentRequest.payload.socUpperBoundPercent());
+		this._setRemainingLevlEnergy(this.currentRequest.payload.energyWs());
+		this._setBuyFromGridLimit((long) this.currentRequest.payload.buyFromGridLimitW());
+		this._setSellToGridLimit((long) this.currentRequest.payload.sellToGridLimitW());
+		this._setInfluenceSellToGrid(this.currentRequest.payload.influenceSellToGrid());
 	}
 
 	private boolean hasSignChanged(long a, long b) {
