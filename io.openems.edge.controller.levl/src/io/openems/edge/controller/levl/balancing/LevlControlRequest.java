@@ -1,4 +1,4 @@
-package io.openems.edge.levl.controller;
+package io.openems.edge.controller.levl.balancing;
 
 import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError;

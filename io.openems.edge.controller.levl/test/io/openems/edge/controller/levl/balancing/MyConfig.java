@@ -1,8 +1,9 @@
-package io.openems.edge.levl.controller;
+package io.openems.edge.controller.levl.balancing;
+
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.levl.controller.Config;
+import io.openems.edge.controller.levl.common.LogVerbosity;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,7 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String essId;
 		private String meterId;
-		private int targetGridSetpoint;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -31,6 +32,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
+			return this;
+		}
+		
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -63,12 +69,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
+	}
+
+	@Override
 	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
+		return generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 	@Override
 	public String meter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
+		return generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 }

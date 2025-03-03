@@ -1,69 +1,75 @@
-package io.openems.edge.levl.controller;
+package io.openems.edge.controller.levl.balancing;
 
-import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.PERCENT;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.channel.Unit.WATT_HOURS;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+import static io.openems.common.types.OpenemsType.DOUBLE;
+import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.common.types.OpenemsType.STRING;
+
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DoubleReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
-public interface ControllerEssBalancing extends Controller, OpenemsComponent {
+public interface ControllerLevlEssBalancing extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		REMAINING_LEVL_ENERGY(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("energy to be realized [Ws]")), //
-		LEVL_STATE_OF_CHARGE(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("levl state of charge [Wh]")), //
-		SELL_TO_GRID_LIMIT(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("maximum power that may be sold to the grid [W]")), //
-		BUY_FROM_GRID_LIMIT(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("maximum power that may be bought from the grid [W]")), //
-		STATE_OF_CHARGE_LOWER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("lower soc bound levl has to respect [%]")), //
-		STATE_OF_CHARGE_UPPER_BOUND_LEVL(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("upper soc bound levl has to respect [%]")), //
-		INFLUENCE_SELL_TO_GRID(Doc.of(OpenemsType.BOOLEAN) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("defines if levl is allowed to influence the sell to grid power [true/false]")), //
-		ESS_EFFICIENCY(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("ess efficiency defined by levl [%]")), //
-		PRIMARY_USE_CASE_BATTERY_POWER(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("power that is applied for the ess primary use case")), //
-		REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("energy realized for the current request on the grid [Ws])")), //
-		REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("energy realized for the current request in the battery [Ws])")), //
-		LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("energy that has been realized for the last request on the grid [Ws]")), //
-		LAST_REQUEST_REALIZED_ENERGY_BATTERY(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("energy that has been realized for the last request in the battery [Ws]")), //
-		LAST_REQUEST_TIMESTAMP(Doc.of(OpenemsType.STRING) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("the timestamp of the last levl control request")); //
+		REMAINING_LEVL_ENERGY(Doc.of(LONG) //
+				.persistencePriority(HIGH) //
+				.text("Energy to be realized [Ws]")), //
+		LEVL_STATE_OF_CHARGE(Doc.of(LONG) //
+				.unit(WATT_HOURS) //
+				.persistencePriority(HIGH) //
+				.text("Levl state of charge [Wh]")), //
+		SELL_TO_GRID_LIMIT(Doc.of(LONG) //
+				.unit(WATT) //
+				.persistencePriority(HIGH) //
+				.text("Maximum power that may be sold to the grid [W]")), //
+		BUY_FROM_GRID_LIMIT(Doc.of(LONG) //
+				.unit(WATT) //
+				.persistencePriority(HIGH) //
+				.text("Maximum power that may be bought from the grid [W]")), //
+		STATE_OF_CHARGE_LOWER_BOUND_LEVL(Doc.of(DOUBLE) //
+				.unit(PERCENT) //
+				.persistencePriority(HIGH) //
+				.text("Lower soc bound levl has to respect [%]")), //
+		STATE_OF_CHARGE_UPPER_BOUND_LEVL(Doc.of(DOUBLE) //
+				.unit(PERCENT) //
+				.persistencePriority(HIGH) //
+				.text("Upper soc bound levl has to respect [%]")), //
+		INFLUENCE_SELL_TO_GRID(Doc.of(BOOLEAN) //
+				.persistencePriority(HIGH) //
+				.text("Defines if levl is allowed to influence the sell to grid power [true/false]")), //
+		ESS_EFFICIENCY(Doc.of(DOUBLE) //
+				.unit(PERCENT) //
+				.persistencePriority(HIGH) //
+				.text("Ess efficiency defined by levl [%]")), //
+		PRIMARY_USE_CASE_BATTERY_POWER(Doc.of(LONG) //
+				.unit(WATT) //
+				.persistencePriority(HIGH) //
+				.text("Power that is applied for the ess primary use case")), //
+		REALIZED_ENERGY_GRID(Doc.of(LONG) //
+				.persistencePriority(HIGH) //
+				.text("Energy realized for the current request on the grid [Ws])")), //
+		REALIZED_ENERGY_BATTERY(Doc.of(LONG) //
+				.persistencePriority(HIGH) //
+				.text("Energy realized for the current request in the battery [Ws])")), //
+		LAST_REQUEST_REALIZED_ENERGY_GRID(Doc.of(LONG) //
+				.persistencePriority(HIGH) //
+				.text("Energy that has been realized for the last request on the grid [Ws]")), //
+		LAST_REQUEST_REALIZED_ENERGY_BATTERY(Doc.of(LONG) //
+				.persistencePriority(HIGH) //
+				.text("Energy that has been realized for the last request in the battery [Ws]")), //
+		LAST_REQUEST_TIMESTAMP(Doc.of(STRING) //
+				.persistencePriority(HIGH) //
+				.text("The timestamp of the last levl control request")); //
 
 		private final Doc doc;
 
