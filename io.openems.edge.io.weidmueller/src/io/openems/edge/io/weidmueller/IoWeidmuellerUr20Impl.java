@@ -152,6 +152,18 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 						tasks = myTasks.toArray(Task[]::new);
 						break;
 					}
+
+					case UR20_16DI_P: {
+						var element = new BitsWordElement(inputRegisterOffset, this);
+						for (var i = 0; i < 16; i++) {
+							var channelId = FieldbusChannelId.forDigitalInput(moduleCount, i + 1);
+							var channel = (BooleanReadChannel) this.addChannel(channelId);
+							this.modules.get(module).add(channel);
+							element.bit(i, channelId);
+						}
+						tasks = new Task[] { new FC3ReadRegistersTask(element.startAddress, Priority.HIGH, element) };
+						break;
+					}
 					}
 
 					if (tasks == null || tasks.length == 0) {

@@ -812,7 +812,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 						// Create Voltage Channel
 						var channelId = new ChannelIdImpl(//
 								generateSingleCellPrefix(tower, module, cell) + "_VOLTAGE",
-								Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT));
+								Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
 						this.addChannel(channelId);
 
 						// Create Modbus-Mapping for Voltages

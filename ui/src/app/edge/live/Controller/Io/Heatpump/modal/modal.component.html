@@ -5,7 +5,7 @@
     <ion-buttons slot="end">
       <oe-help-button key="CONTROLLER_IO_HEAT_PUMP_SG_READY"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
-        <ion-icon name="close-outline"></ion-icon>
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -60,14 +60,14 @@
       <!-- Controller Mode -->
       <ion-segment (ionChange)="updateControllerMode($event)" [value]="component.properties['mode']" scrollable="false">
         <ion-segment-button value="MANUAL">
-          <ion-label translate>
+          <ion-label style="color: var(--ion-color-text)" translate>
             General.manually
           </ion-label>
           <ion-icon [color]="component.properties['mode'] === 'MANUAL'? 'success': 'normal'" style="width:40px"
             name="power-outline"></ion-icon>
         </ion-segment-button>
         <ion-segment-button value="AUTOMATIC">
-          <ion-label translate>
+          <ion-label style="color: var(--ion-color-text)" translate>
             General.automatic
           </ion-label>
           <ion-icon style="width:40px" name="sunny-outline"

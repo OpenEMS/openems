@@ -197,11 +197,13 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = (error instanceof HttpError.ResponseError re) ? re.status.code() : INTERNAL_ERROR;
-		var serverError = (httpStatusCode == SERVER_ERROR_CODE);
-		var badRequest = (httpStatusCode == BAD_REQUEST_ERROR_CODE);
-		var timeoutError = (error instanceof HttpError.UnknownError e
-				&& e.getCause() instanceof SocketTimeoutException);
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
+		var serverError = httpStatusCode == SERVER_ERROR_CODE;
+		var badRequest = httpStatusCode == BAD_REQUEST_ERROR_CODE;
+		var timeoutError = error instanceof HttpError.UnknownError e && e.getCause() instanceof SocketTimeoutException;
 
 		this.setChannelValues(httpStatusCode, serverError, badRequest, timeoutError);
 		this.log.error("HTTP Error [{}]: {}", httpStatusCode, error.getMessage());

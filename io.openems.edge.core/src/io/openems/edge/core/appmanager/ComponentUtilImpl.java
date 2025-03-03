@@ -34,6 +34,7 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -522,12 +523,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 			if (fallBackInARowRelays == null) {
 				count = 0;
-				var startIndex = 1;
+				var startIndex = 0;
 				for (var channelInfo : relayInfo.channels()) {
+					count++;
 					if (!channelInfo.usingComponents().isEmpty() //
 							|| !channelInfo.disabledReasons().isEmpty()) {
 						startIndex += count;
-						count = 1;
+						count = 0;
 					}
 					if (count >= numberOfRelays) {
 						break;
@@ -623,7 +625,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 
 			var ids = componentIds.stream().map(JsonPrimitive::new).collect(toJsonArray());
-			final var request = new UpdateComponentConfigRequest(scheduler.getId(), List.of(//
+			final var request = new UpdateComponentConfig.Request(scheduler.getId(), List.of(//
 					new UpdateComponentConfigRequest.Property("controllers.ids", ids) //
 			));
 

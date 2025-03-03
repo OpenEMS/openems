@@ -78,6 +78,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.TimeOfUseTariff.Tibber", "") //
 			.put("App.Api.ModbusTcp.ReadOnly", "") //
 			.put("App.Api.ModbusTcp.ReadWrite", "") //
+			.put("App.Api.ModbusRtu.ReadOnly", "") //
+			.put("App.Api.ModbusRtu.ReadWrite", "") //
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
 			.put("App.Timedata.InfluxDb", "")//

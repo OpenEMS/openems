@@ -1,3 +1,5 @@
+import { Utils } from "../../shared";
+
 export namespace ArrayUtils {
   export function equalsCheck<T>(a: T[], b: T[]): boolean {
     return a.length === b.length &&
@@ -26,6 +28,18 @@ export namespace ArrayUtils {
   export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
     const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
     return filteredArr.length > 0 ? Math.max(...filteredArr) : null;
+  }
+
+  export function summarizeValuesByIndex(data: { [name: string]: number[] }): number[] {
+    const result: number[] = [];
+
+    for (const key in data) {
+      data[key].forEach((value, index) => {
+        result[index] = Utils.addSafely(result[index], value);
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -61,13 +75,21 @@ export namespace ArrayUtils {
   }
 
   /**
-  * Checks if array contains at least one of the passed strings
-  *
-  * @param strings the strings
-  * @param arr the array
-  * @returns true if arr contains all of the strings
-  */
+   * Checks if array contains all of the passed strings
+   *
+   * @param strings the strings
+   * @param arr the array
+   * @returns true if arr contains all of the strings
+   */
   export function containsAllStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
     return arr.every(el => strings.includes(el));
+  }
+
+  export function getArrayOfLength(length: number): number[] {
+    return Array.from({ length }, (_, index) => index);
+  }
+
+  export function sanitize<T>(arr: T[]): T[] {
+    return arr.filter(el => el != null);
   }
 }

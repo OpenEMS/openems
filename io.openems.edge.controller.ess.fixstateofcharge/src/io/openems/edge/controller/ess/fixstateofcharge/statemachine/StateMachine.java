@@ -78,23 +78,15 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<StateMachine.State, Context> getStateHandler(State state) {
-		switch (state) {
-		case IDLE:
-			return new IdleHander();
-		case NOT_STARTED:
-			return new NotStartedHandler();
-		case ABOVE_TARGET_SOC:
-			return new AboveTargetSocHandler();
-		case BELOW_TARGET_SOC:
-			return new BelowTargetSocHandler();
-		case AT_TARGET_SOC:
-			return new AtTargetSocHandler();
-		case WITHIN_LOWER_TARGET_SOC_BOUNDARIES:
-			return new WithinLowerTargetSocBoundariesHandler();
-		case WITHIN_UPPER_TARGET_SOC_BOUNDARIES:
-			return new WithinUpperTargetSocBoundariesHandler();
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		return switch (state) {
+		case IDLE -> new IdleHander();
+		case NOT_STARTED -> new NotStartedHandler();
+		case ABOVE_TARGET_SOC -> new AboveTargetSocHandler();
+		case BELOW_TARGET_SOC -> new BelowTargetSocHandler();
+		case AT_TARGET_SOC -> new AtTargetSocHandler();
+		case WITHIN_LOWER_TARGET_SOC_BOUNDARIES -> new WithinLowerTargetSocBoundariesHandler();
+		case WITHIN_UPPER_TARGET_SOC_BOUNDARIES -> new WithinUpperTargetSocBoundariesHandler();
+		};
 	}
 
 }

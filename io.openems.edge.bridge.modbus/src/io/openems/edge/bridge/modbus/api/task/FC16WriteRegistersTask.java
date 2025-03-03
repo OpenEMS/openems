@@ -85,7 +85,8 @@ public class FC16WriteRegistersTask
 			Consumer<String> logWarn) {
 		final var writes = new ArrayList<MergedWriteRegisters>();
 		for (var element : elements) {
-			if (element instanceof ModbusRegisterElement<?, ?> e) {
+			switch (element) {
+			case ModbusRegisterElement<?, ?> e -> {
 				var registers = e.getNextWriteValueAndReset();
 				if (registers != null) {
 					// found value registers -> add to 'writes'
@@ -107,7 +108,8 @@ public class FC16WriteRegistersTask
 					}
 					write.add(registers);
 				}
-			} else {
+			}
+			default -> //
 				logWarn.accept(
 						"Unable to execute Write for ModbusElement [" + element + "]: No ModbusRegisterElement!");
 			}

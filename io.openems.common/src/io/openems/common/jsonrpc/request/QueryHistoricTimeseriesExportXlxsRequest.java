@@ -66,6 +66,16 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 		this.toDate = toDate;
 	}
 
+	public QueryHistoricTimeseriesExportXlxsRequest(ZonedDateTime fromDate, ZonedDateTime toDate)
+			throws OpenemsNamedException {
+		super(QueryHistoricTimeseriesExportXlxsRequest.METHOD);
+
+		DateUtils.assertSameTimezone(fromDate, toDate);
+		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
+		this.fromDate = fromDate;
+		this.toDate = toDate;
+	}
+
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //

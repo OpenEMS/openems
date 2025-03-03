@@ -304,8 +304,8 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public BooleanReadChannel[] digitalInputChannels() {
-		List<BooleanReadChannel> channels = new ArrayList<>();
-		for (FieldbusModule module : this.modules) {
+		var channels = new ArrayList<BooleanReadChannel>();
+		for (var module : this.modules) {
 			Collections.addAll(channels, module.getChannels());
 		}
 		var result = new BooleanReadChannel[channels.size()];
@@ -317,11 +317,11 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public BooleanWriteChannel[] digitalOutputChannels() {
-		List<BooleanWriteChannel> channels = new ArrayList<>();
-		for (FieldbusModule module : this.modules) {
-			for (BooleanReadChannel channel : module.getChannels()) {
-				if (channel instanceof BooleanWriteChannel) {
-					channels.add((BooleanWriteChannel) channel);
+		var channels = new ArrayList<BooleanWriteChannel>();
+		for (var module : this.modules) {
+			for (var channel : module.getChannels()) {
+				if (channel instanceof BooleanWriteChannel bwc) {
+					channels.add(bwc);
 				}
 			}
 		}

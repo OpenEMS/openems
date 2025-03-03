@@ -139,8 +139,46 @@ public final class Exp {
 	 */
 	public static StringExpression ifElse(BooleanExpression statement, StringExpression ifTrue,
 			StringExpression ifFalse) {
-		return new StringExpression(
-				statement.expression() + " ? " + ifTrue.expression() + " : " + ifFalse.expression());
+		return new StringExpression(ifElse(statement, ifTrue.expression(), ifFalse.expression()));
+	}
+
+	/**
+	 * Creates a combined {@link Variable} of the given {@link BooleanExpression}
+	 * and {@link Variable}, which returns the first {@link Variable} if the given
+	 * {@link BooleanExpression} returns true otherwise the second {@link Variable}
+	 * gets returned.
+	 * 
+	 * @param statement the {@link BooleanExpression} to determine which
+	 *                  {@link Variable} should be used
+	 * @param ifTrue    the {@link Variable} to use when the statement returns true
+	 * @param ifFalse   the {@link Variable} to use when the statement returns false
+	 * @return the final {@link Variable}
+	 */
+	public static Variable ifElse(BooleanExpression statement, Variable ifTrue, Variable ifFalse) {
+		return new Variable(ifElse(statement, ifTrue.variable(), ifFalse.variable()));
+	}
+
+	/**
+	 * Creates a combined {@link BooleanExpression} of the given
+	 * {@link BooleanExpression} and {@link BooleanExpression}, which returns the
+	 * first {@link BooleanExpression} if the given {@link BooleanExpression}
+	 * returns true otherwise the second {@link BooleanExpression} gets returned.
+	 * 
+	 * @param statement the {@link BooleanExpression} to determine which
+	 *                  {@link BooleanExpression} should be used
+	 * @param ifTrue    the {@link BooleanExpression} to use when the statement
+	 *                  returns true
+	 * @param ifFalse   the {@link BooleanExpression} to use when the statement
+	 *                  returns false
+	 * @return the final {@link BooleanExpression}
+	 */
+	public static BooleanExpression ifElse(BooleanExpression statement, BooleanExpression ifTrue,
+			BooleanExpression ifFalse) {
+		return new BooleanExpression(ifElse(statement, ifTrue.expression(), ifFalse.expression()));
+	}
+
+	private static String ifElse(BooleanExpression statement, String ifTrue, String ifFalse) {
+		return "( " + statement.expression() + " ? " + ifTrue + " : " + ifFalse + ")";
 	}
 
 	private Exp() {

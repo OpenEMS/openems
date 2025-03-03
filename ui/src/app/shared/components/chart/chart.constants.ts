@@ -8,6 +8,7 @@ import { HistoryUtils, Utils } from "../../service/utils";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { AssertionUtils } from "../../utils/assertions/assertions-utils";
+import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 
 export namespace ChartConstants {
@@ -17,6 +18,25 @@ export namespace ChartConstants {
   export const REQUEST_TIMEOUT = 500;
 
   export class Plugins {
+
+    public static ToolTips = class {
+      public static HEAT_PUMP_SUFFIX = (translate: TranslateService, value: number | null): string => {
+        switch (value) {
+          case -1:
+            return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+          case 0:
+            return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+          case 1:
+            return translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
+          case 2:
+            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+          case 3:
+            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom");
+          default:
+            return "";
+        }
+      };
+    };
 
     public static readonly DEFAULT_EMPTY_SCREEN: (text: string) => ChartComponentLike = (text) => ({
       id: "empty_chart",
@@ -57,6 +77,8 @@ export namespace ChartConstants {
   }
 
   export namespace Colors {
+
+    export const LEGEND_LABEL_BG_OPACITY: number = 0.2;
     export const BLUE: string = new RGBColor(54, 174, 209).toString();
     export const RED: string = new RGBColor(255, 98, 63).toString();
     export const GREEN: string = new RGBColor(14, 190, 84).toString();
@@ -64,6 +86,7 @@ export namespace ChartConstants {
     export const PURPLE: string = new RGBColor(91, 92, 214).toString();
     export const YELLOW: string = new RGBColor(255, 206, 0).toString();
     export const BLUE_GREY: string = new RGBColor(77, 106, 130).toString();
+    export const DARK_GREY: string = new RGBColor(169, 169, 169).toString();
     export const GREY: string = new RGBColor(189, 189, 189).toString();
 
     export const SHADES_OF_RED: string[] = [RED, "rgb(204,78,50)", "rgb(153,59,38)", "rgb(102,39,25)", "rgb(51,20,13)"];
@@ -84,7 +107,7 @@ export namespace ChartConstants {
    * @param datasets the chart datasets
    * @returns scale options
    */
-  export const DEFAULT_Y_SCALE_OPTIONS = (element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean) => {
+  export const DEFAULT_Y_SCALE_OPTIONS = (element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"],) => {
     const beginAtZero: boolean = ChartConstants.isDataSeriesPositive(datasets);
     const scaleOptions: ReturnType<typeof getScaleOptions> = getScaleOptions(datasets, element, chartType);
 
@@ -117,7 +140,9 @@ export namespace ChartConstants {
             AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
             return upperMostTick;
           }
-          return value;
+
+          // Formats a value safely
+          return Formatter.formatSafely(value, formatNumber);
         },
       },
     };

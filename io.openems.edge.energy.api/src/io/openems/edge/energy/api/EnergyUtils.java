@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+
 public class EnergyUtils {
 
 	private EnergyUtils() {
@@ -91,16 +93,16 @@ public class EnergyUtils {
 
 	/**
 	 * From a list of {@link EnergyScheduleHandler}s, filters only the ones of type
-	 * {@link EnergyScheduleHandler.WithDifferentStates}.
+	 * {@link EnergyScheduleHandler.WithDifferentModes}.
 	 * 
 	 * @param eshs list of {@link EnergyScheduleHandler}s
-	 * @return new stream of {@link EnergyScheduleHandler.WithDifferentStates}s
+	 * @return new stream of {@link EnergyScheduleHandler.WithDifferentModes}s
 	 */
-	public static Stream<EnergyScheduleHandler.WithDifferentStates<?, ?>> filterEshsWithDifferentStates(
+	public static Stream<EnergyScheduleHandler.WithDifferentModes> filterEshsWithDifferentModes(
 			ImmutableList<EnergyScheduleHandler> eshs) {
 		return eshs.stream() //
-				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
-				.<EnergyScheduleHandler.WithDifferentStates<?, ?>>map(
-						EnergyScheduleHandler.WithDifferentStates.class::cast);
+				.filter(EnergyScheduleHandler.WithDifferentModes.class::isInstance) //
+				.map(EnergyScheduleHandler.WithDifferentModes.class::cast);
+		// TODO only ESHs with actually more than one Mode
 	}
 }

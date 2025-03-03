@@ -61,24 +61,15 @@ public final class EnergyMeter implements DataSet {
 	 * @throws Exception wrong parameters or no inverter data available
 	 */
 	public float getEInverterFeedIn(int timePeriod) throws Exception {
-		float r = 0.0f;
 		if (e_inverter_feed_in.refreshTime() == 0) {
 			throw new RuntimeException("no data");
 		}
-		switch (timePeriod) {
-		default:
-			throw new RuntimeException("wrong parameters");
-		case EnergyMeter.DAY:
-			r = qXToFloat(e_inverter_feed_in.getLong(timePeriod), 16, 240000.0f);
-			break;
-		case EnergyMeter.MONTH:
-			r = qXToFloat(e_inverter_feed_in.getLong(timePeriod), 16, 7200000.0f);
-			break;
-		case EnergyMeter.YEAR:
-			r = qXToFloat(e_inverter_feed_in.getLong(timePeriod), 32, 87600000.0f);
-			break;
-		}
-		return r;
+		return switch (timePeriod) {
+		default -> throw new RuntimeException("wrong parameters");
+		case EnergyMeter.DAY -> qXToFloat(e_inverter_feed_in.getLong(timePeriod), 16, 240000.0f);
+		case EnergyMeter.MONTH -> qXToFloat(e_inverter_feed_in.getLong(timePeriod), 16, 7200000.0f);
+		case EnergyMeter.YEAR -> qXToFloat(e_inverter_feed_in.getLong(timePeriod), 32, 87600000.0f);
+		};
 	}
 
 	/**
@@ -90,24 +81,15 @@ public final class EnergyMeter implements DataSet {
 	 * @throws Exception wrong parameters or no inverter data available
 	 */
 	public float getEInverterCons(int timePeriod) throws Exception {
-		float r = 0.0f;
 		if (e_inverter_cons.refreshTime() == 0) {
 			throw new RuntimeException("no data");
 		}
-		switch (timePeriod) {
-		default:
-			throw new RuntimeException("wrong parameters");
-		case EnergyMeter.DAY:
-			r = qXToFloat(e_inverter_cons.getLong(timePeriod), 16, 240000.0f);
-			break;
-		case EnergyMeter.MONTH:
-			r = qXToFloat(e_inverter_cons.getLong(timePeriod), 16, 7200000.0f);
-			break;
-		case EnergyMeter.YEAR:
-			r = qXToFloat(e_inverter_cons.getLong(timePeriod), 32, 87600000.0f);
-			break;
-		}
-		return r;
+		return switch (timePeriod) {
+		default -> throw new RuntimeException("wrong parameters");
+		case EnergyMeter.DAY -> qXToFloat(e_inverter_cons.getLong(timePeriod), 16, 240000.0f);
+		case EnergyMeter.MONTH -> qXToFloat(e_inverter_cons.getLong(timePeriod), 16, 7200000.0f);
+		case EnergyMeter.YEAR -> qXToFloat(e_inverter_cons.getLong(timePeriod), 32, 87600000.0f);
+		};
 	}
 
 	/**
@@ -119,24 +101,15 @@ public final class EnergyMeter implements DataSet {
 	 * @throws Exception wrong parameters or no inverter data available
 	 */
 	public float getEGridFeedIn(int timePeriod) throws Exception {
-		float r = 0.0f;
 		if (e_grid_feed_in.refreshTime() == 0) {
 			throw new RuntimeException("no data");
 		}
-		switch (timePeriod) {
-		default:
-			throw new RuntimeException("wrong parameters");
-		case EnergyMeter.DAY:
-			r = qXToFloat(e_grid_feed_in.getLong(timePeriod), 16, 2400000.0f);
-			break;
-		case EnergyMeter.MONTH:
-			r = qXToFloat(e_grid_feed_in.getLong(timePeriod), 16, 72000000.0f);
-			break;
-		case EnergyMeter.YEAR:
-			r = qXToFloat(e_grid_feed_in.getLong(timePeriod), 32, 876000000.0f);
-			break;
-		}
-		return r;
+		return switch (timePeriod) {
+		default -> throw new RuntimeException("wrong parameters");
+		case EnergyMeter.DAY -> qXToFloat(e_grid_feed_in.getLong(timePeriod), 16, 2400000.0f);
+		case EnergyMeter.MONTH -> qXToFloat(e_grid_feed_in.getLong(timePeriod), 16, 72000000.0f);
+		case EnergyMeter.YEAR -> qXToFloat(e_grid_feed_in.getLong(timePeriod), 32, 876000000.0f);
+		};
 	}
 
 	/**
@@ -148,24 +121,15 @@ public final class EnergyMeter implements DataSet {
 	 * @throws Exception wrong parameters or no inverter data available
 	 */
 	public float getEConsFromGrid(int timePeriod) throws Exception {
-		float r = 0.0f;
 		if (e_consumption_from_grid.refreshTime() == 0) {
 			throw new RuntimeException("no data");
 		}
-		switch (timePeriod) {
-		default:
-			throw new RuntimeException("wrong parameters");
-		case EnergyMeter.DAY:
-			r = qXToFloat(e_consumption_from_grid.getLong(timePeriod), 16, 2400000.0f);
-			break;
-		case EnergyMeter.MONTH:
-			r = qXToFloat(e_consumption_from_grid.getLong(timePeriod), 16, 72000000.0f);
-			break;
-		case EnergyMeter.YEAR:
-			r = qXToFloat(e_consumption_from_grid.getLong(timePeriod), 32, 876000000.0f);
-			break;
-		}
-		return r;
+		return switch (timePeriod) {
+		default -> throw new RuntimeException("wrong parameters");
+		case EnergyMeter.DAY -> qXToFloat(e_consumption_from_grid.getLong(timePeriod), 16, 2400000.0f);
+		case EnergyMeter.MONTH -> qXToFloat(e_consumption_from_grid.getLong(timePeriod), 16, 72000000.0f);
+		case EnergyMeter.YEAR -> qXToFloat(e_consumption_from_grid.getLong(timePeriod), 32, 876000000.0f);
+		};
 	}
 
 	/**
@@ -177,24 +141,15 @@ public final class EnergyMeter implements DataSet {
 	 * @throws Exception wrong parameters or no inverter data available
 	 */
 	public float getESelfConsumption(int timePeriod) throws Exception {
-		float r = 0.0f;
 		if (e_self_consumption.refreshTime() == 0) {
 			throw new RuntimeException("no data");
 		}
-		switch (timePeriod) {
-		default:
-			throw new RuntimeException("wrong parameters");
-		case EnergyMeter.DAY:
-			r = qXToFloat(e_self_consumption.getLong(timePeriod), 16, 240000.0f);
-			break;
-		case EnergyMeter.MONTH:
-			r = qXToFloat(e_self_consumption.getLong(timePeriod), 16, 7200000.0f);
-			break;
-		case EnergyMeter.YEAR:
-			r = qXToFloat(e_self_consumption.getLong(timePeriod), 32, 87600000.0f);
-			break;
-		}
-		return r;
+		return switch (timePeriod) {
+		default -> throw new RuntimeException("wrong parameters");
+		case EnergyMeter.DAY -> qXToFloat(e_self_consumption.getLong(timePeriod), 16, 240000.0f);
+		case EnergyMeter.MONTH -> qXToFloat(e_self_consumption.getLong(timePeriod), 16, 7200000.0f);
+		case EnergyMeter.YEAR -> qXToFloat(e_self_consumption.getLong(timePeriod), 32, 87600000.0f);
+		};
 	}
 
 	/**
@@ -206,29 +161,19 @@ public final class EnergyMeter implements DataSet {
 	 * @throws Exception wrong parameters or no inverter data available
 	 */
 	public float getAhBattery(int timePeriod) throws Exception {
-		float r = 0.0f;
 		if (ah_battery.refreshTime() == 0) {
 			throw new RuntimeException("no data");
 		}
-		switch (timePeriod) {
-		default:
-			throw new RuntimeException("wrong parameters");
-		case EnergyMeter.DAY:
-			r = qXToFloat(ah_battery.getLong(timePeriod), 16, 600.0f);
-			break;
-		case EnergyMeter.MONTH:
-			r = qXToFloat(ah_battery.getLong(timePeriod), 16, 18000.0f);
-			break;
-		case EnergyMeter.YEAR:
-			r = qXToFloat(ah_battery.getLong(timePeriod), 32, 219000.0f);
-			break;
-		}
-		return r;
+		return switch (timePeriod) {
+		default -> throw new RuntimeException("wrong parameters");
+		case EnergyMeter.DAY -> qXToFloat(ah_battery.getLong(timePeriod), 16, 600.0f);
+		case EnergyMeter.MONTH -> qXToFloat(ah_battery.getLong(timePeriod), 16, 18000.0f);
+		case EnergyMeter.YEAR -> qXToFloat(ah_battery.getLong(timePeriod), 32, 219000.0f);
+		};
 	}
 
 	protected static float qXToFloat(long qx, int fractBitsCnt, float fMax) {
-		float f = (float) (((double) fMax * qx) / (float) ((long) 1 << fractBitsCnt));
-		return f;
+		return (float) (((double) fMax * qx) / (float) ((long) 1 << fractBitsCnt));
 	}
 
 	@Override

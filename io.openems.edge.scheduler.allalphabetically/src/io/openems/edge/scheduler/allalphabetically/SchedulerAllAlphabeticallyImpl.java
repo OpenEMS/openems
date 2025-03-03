@@ -59,8 +59,8 @@ public class SchedulerAllAlphabeticallyImpl extends AbstractOpenemsComponent
 		var result = new LinkedHashSet<String>();
 
 		// add sorted controllers
-		for (String id : this.config.controllers_ids()) {
-			if (id.equals("")) {
+		for (var id : this.config.controllers_ids()) {
+			if (id.isBlank()) {
 				continue;
 			}
 			result.add(id);
@@ -68,7 +68,7 @@ public class SchedulerAllAlphabeticallyImpl extends AbstractOpenemsComponent
 
 		// add remaining controllers
 		this.componentManager.getEnabledComponents().stream() //
-				.filter(c -> c instanceof Controller) //
+				.filter(Controller.class::isInstance) //
 				.sorted(Comparator.comparing(OpenemsComponent::id)) //
 				.forEach(c -> result.add(c.id()));
 

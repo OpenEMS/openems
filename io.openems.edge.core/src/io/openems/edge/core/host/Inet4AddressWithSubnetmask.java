@@ -1,16 +1,102 @@
 package io.openems.edge.core.host;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
+
 import java.net.Inet4Address;
 import java.util.Objects;
 
+import com.google.gson.JsonPrimitive;
+
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsRuntimeException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.jsonrpc.serialization.StringParser;
 import io.openems.common.utils.InetAddressUtils;
+import io.openems.common.utils.JsonUtils;
 
 /**
  * Helper class for wrapping an IPv4 address together with its subnetmask in
  * CIDR format.
  */
 public class Inet4AddressWithSubnetmask {
+
+	public static class StringParserInet4AddressWithSubnetmask implements StringParser<Inet4AddressWithSubnetmask> {
+
+		@Override
+		public Inet4AddressWithSubnetmask parse(String value) {
+			try {
+				return Inet4AddressWithSubnetmask.fromString(value);
+			} catch (OpenemsException e) {
+				throw new OpenemsRuntimeException(e);
+			}
+		}
+
+		@Override
+		public ExampleValues<Inet4AddressWithSubnetmask> getExample() {
+			try {
+				final var address = "127.0.0.1/16";
+				return new ExampleValues<>(address, Inet4AddressWithSubnetmask.fromString(address));
+			} catch (OpenemsException e) {
+				throw new OpenemsRuntimeException(e);
+			}
+		}
+
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for a {@link Inet4Address}.
+	 * 
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<Inet4Address> inet4AddressSerializer() {
+		return jsonSerializer(Inet4Address.class, json -> {
+			return json.getAsStringParsed(new StringParserInet4Address());
+		}, obj -> {
+			return new JsonPrimitive(obj.getHostAddress());
+		});
+	}
+
+	public static class StringParserInet4Address implements StringParser<Inet4Address> {
+
+		@Override
+		public Inet4Address parse(String value) {
+			try {
+				return InetAddressUtils.parseOrError(value);
+			} catch (OpenemsException e) {
+				throw new OpenemsRuntimeException(e);
+			}
+		}
+
+		@Override
+		public ExampleValues<Inet4Address> getExample() {
+			try {
+				final var address = "255.255.255.0";
+				return new ExampleValues<>(address, InetAddressUtils.parseOrError(address));
+			} catch (OpenemsException e) {
+				throw new OpenemsRuntimeException(e);
+			}
+		}
+
+	}
+
+	public static class StringParserCidrFromSubnetmask implements StringParser<Integer> {
+
+		@Override
+		public Integer parse(String value) {
+			try {
+				return getCidrFromSubnetmask(InetAddressUtils.parseOrError(value));
+			} catch (OpenemsException e) {
+				throw new OpenemsRuntimeException(e);
+			}
+		}
+
+		@Override
+		public ExampleValues<Integer> getExample() {
+			return new ExampleValues<>("255.255.255.0", 24);
+		}
+
+	}
 
 	/**
 	 * Parse a string in the form "192.168.100.100/24" to an IPv4 address. Label is
@@ -74,6 +160,27 @@ public class Inet4AddressWithSubnetmask {
 			}
 		}
 		return cidr;
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for a {@link Inet4AddressWithSubnetmask}.
+	 * 
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<Inet4AddressWithSubnetmask> serializer() {
+		return jsonObjectSerializer(Inet4AddressWithSubnetmask.class, json -> {
+			return new Inet4AddressWithSubnetmask(//
+					json.getString("label"), //
+					json.getStringParsed("address", new Inet4AddressWithSubnetmask.StringParserInet4Address()), //
+					json.getStringParsed("subnetmask", new Inet4AddressWithSubnetmask.StringParserCidrFromSubnetmask()) //
+			);
+		}, obj -> {
+			return JsonUtils.buildJsonObject() //
+					.addProperty("label", obj.getLabel()) //
+					.addProperty("address", obj.getInet4Address().getHostAddress()) //
+					.addProperty("subnetmask", obj.getSubnetmaskAsString()) //
+					.build();
+		});
 	}
 
 	private final String label;
