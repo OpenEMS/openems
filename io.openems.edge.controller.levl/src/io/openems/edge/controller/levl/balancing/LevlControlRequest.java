@@ -30,7 +30,8 @@ public class LevlControlRequest extends JsonrpcRequest {
 	/**
 	 * Creates a {@link LevlControlRequest} from a {@link JsonrpcRequest}.
 	 *
-	 * @param r the {@link JsonrpcRequest}
+	 * @param r   the {@link JsonrpcRequest}
+	 * @param now {@link Instant} of now
 	 * @return the {@link LevlControlRequest}
 	 * @throws OpenemsNamedException on error
 	 */
