@@ -1,16 +1,15 @@
-import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
-import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
+import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { OeTester } from "src/app/shared/components/shared/testing/common";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { EdgeConfig } from "src/app/shared/shared";
-import { removeFunctions, TestContext } from "src/app/shared/test/utils.spec";
-
-import { OeChartTester } from "../../../../../shared/genericComponents/shared/testing/tester";
+import { OeChartTester } from "../../../../../shared/components/shared/testing/tester";
 import { ChartComponent } from "./chart";
 
-export function expectView(config: EdgeConfig, testContext: TestContext, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, view: OeChartTester.View): void {
-  expect(removeFunctions(OeChartTester
+export function expectView(config: EdgeConfig, testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
+  expect(TestingUtils.removeFunctions(OeChartTester
     .apply(ChartComponent
       .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate), chartType, channels, testContext, config)))
-    .toEqual(removeFunctions(view));
+    .toEqual(TestingUtils.removeFunctions(view));
 }
 
 export const DATASET = (data: OeChartTester.Dataset.Data, labels: OeChartTester.Dataset.LegendLabel, options: OeChartTester.Dataset.Option) => ({
@@ -19,7 +18,7 @@ export const DATASET = (data: OeChartTester.Dataset.Data, labels: OeChartTester.
   options: options,
 });
 
-export const DATA = (name: string, value: number[]): OeChartTester.Dataset.Data => ({
+export const DATA = (name: string, value: (number | null)[]): OeChartTester.Dataset.Data => ({
   type: "data",
   label: name,
   value: value,

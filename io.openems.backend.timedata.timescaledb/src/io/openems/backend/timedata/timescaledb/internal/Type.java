@@ -6,6 +6,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -17,7 +19,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 
 public enum Type {
 	INTEGER(1, "data_integer", "bigint" /* 8 bytes; covers Java byte, int and long */, //
@@ -151,7 +152,8 @@ public enum Type {
 				if (n.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
 					// Avoid 'discouraged access'
 					// LazilyParsedNumber stores value internally as String
-					if (StringUtils.matchesFloatPattern(n.toString())) {
+					final var doubleValue = Doubles.tryParse(n.toString());
+					if (doubleValue != null) {
 						return Type.FLOAT;
 					}
 					return Type.INTEGER;
@@ -168,24 +170,18 @@ public enum Type {
 
 			} else if (p.isString()) {
 				// Strings are parsed if they start with a number or minus
-				var s = p.getAsString();
-				if (StringUtils.matchesFloatPattern(s)) {
-					try {
-						Double.parseDouble(s); // try parsing to Double
-						return Type.FLOAT;
-					} catch (NumberFormatException e) {
-						return Type.STRING;
-					}
+				final var s = p.getAsString();
 
-				} else if (StringUtils.matchesIntegerPattern(s)) {
-					try {
-						Long.parseLong(s); // try parsing to Long
-						return Type.INTEGER;
-					} catch (NumberFormatException e) {
-						return Type.STRING;
-					}
+				// try to save string value as numbers
+				final var longValue = Longs.tryParse(s);
+				if (longValue != null) {
+					return Type.INTEGER;
 				}
-				return Type.STRING;
+
+				final var doubleValue = Doubles.tryParse(s);
+				if (doubleValue != null) {
+					return Type.FLOAT;
+				}
 			}
 		}
 		// TODO parse JsonObject and JsonArray

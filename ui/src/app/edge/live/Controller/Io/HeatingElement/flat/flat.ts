@@ -1,19 +1,20 @@
-import { Component } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
-import { WorkMode } from 'src/app/shared/type/general';
+// @ts-strict-ignore
+import { Component } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
+import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
+import { WorkMode } from "src/app/shared/type/general";
 
-import { ModalComponent } from '../modal/modal';
+import { ModalComponent } from "../modal/modal";
 
 @Component({
-    selector: 'Controller_Io_HeatingElement',
-    templateUrl: './flat.html',
+    selector: "Controller_Io_HeatingElement",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    private outputChannelArray: ChannelAddress[] = [];
-    private static PROPERTY_MODE: string = '_PropertyMode';
+    private static PROPERTY_MODE: string = "_PropertyMode";
 
     protected activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
     protected mode: string;
@@ -22,44 +23,55 @@ export class FlatComponent extends AbstractFlatWidget {
     protected workMode: WorkMode;
     protected readonly WorkMode = WorkMode;
     protected readonly CONVERT_SECONDS_TO_DATE_FORMAT = Utils.CONVERT_SECONDS_TO_DATE_FORMAT;
+    private outputChannelArray: ChannelAddress[] = [];
+
+    async presentModal() {
+        const modal = await this.modalController.create({
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        });
+        return await modal.present();
+    }
 
     protected override getChannelAddresses() {
 
         this.outputChannelArray.push(
             ChannelAddress.fromString(
-                this.component.properties['outputChannelPhaseL1']),
+                this.component.properties["outputChannelPhaseL1"]),
             ChannelAddress.fromString(
-                this.component.properties['outputChannelPhaseL2']),
+                this.component.properties["outputChannelPhaseL2"]),
             ChannelAddress.fromString(
-                this.component.properties['outputChannelPhaseL3']),
+                this.component.properties["outputChannelPhaseL3"]),
         );
 
         const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
+            new ChannelAddress(this.component.id, "ForceStartAtSecondsOfDay"),
             ...this.outputChannelArray,
-            new ChannelAddress(this.component.id, 'Status'),
+            new ChannelAddress(this.component.id, "Status"),
             new ChannelAddress(this.component.id, FlatComponent.PROPERTY_MODE),
-            new ChannelAddress(this.component.id, '_PropertyWorkMode'),
+            new ChannelAddress(this.component.id, "_PropertyWorkMode"),
         ];
         return channelAddresses;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
 
-        this.workMode = currentData.allComponents[this.component.id + '/' + '_PropertyWorkMode'];
+        this.workMode = currentData.allComponents[this.component.id + "/" + "_PropertyWorkMode"];
 
         // get current mode
-        switch (currentData.allComponents[this.component.id + '/' + FlatComponent.PROPERTY_MODE]) {
-            case 'MANUAL_ON': {
-                this.mode = 'General.on';
+        switch (currentData.allComponents[this.component.id + "/" + FlatComponent.PROPERTY_MODE]) {
+            case "MANUAL_ON": {
+                this.mode = "General.on";
                 break;
             }
-            case 'MANUAL_OFF': {
-                this.mode = 'General.off';
+            case "MANUAL_OFF": {
+                this.mode = "General.off";
                 break;
             }
-            case 'AUTOMATIC': {
-                this.mode = 'General.automatic';
+            case "AUTOMATIC": {
+                this.mode = "General.automatic";
                 break;
             }
         }
@@ -75,34 +87,25 @@ export class FlatComponent extends AbstractFlatWidget {
         // Get current state
         this.activePhases.next(value);
         if (this.activePhases.value > 0) {
-            this.state = 'General.active';
+            this.state = "General.active";
 
             // Check forced heat
             // TODO: Use only Status if edge version is latest [2022.8]
-            this.runState = currentData.allComponents[this.component.id + '/' + 'Status'];
+            this.runState = currentData.allComponents[this.component.id + "/" + "Status"];
 
             if (this.runState == Status.ActiveForced) {
-                this.state = 'Edge.Index.Widgets.Heatingelement.activeForced';
+                this.state = "Edge.Index.Widgets.Heatingelement.activeForced";
             }
         } else if (this.activePhases.value == 0) {
-            this.state = 'General.inactive';
+            this.state = "General.inactive";
         }
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-            componentProps: {
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
 }
 
 export enum Status {
     "Undefined" = -1,
     "Inactive" = 0,
     "Active" = 1,
-    "ActiveForced" = 2
+    "ActiveForced" = 2,
 }

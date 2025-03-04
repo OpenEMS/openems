@@ -190,4 +190,17 @@ public class CalculateEnergyFromPower {
 		// update 'cumulatedEnergy'
 		this.component.channel(this.channelId).setNextValue(this.baseCumulatedEnergy);
 	}
+
+	/**
+	 * Set baseEnergy manually.
+	 * 
+	 * <p>
+	 * Set baseEnergy manually & go to CALCULATE_ENERGY_OPERATION
+	 * 
+	 * @param baseCumulatedEnergy baseCumulatedEnergy
+	 */
+	public void setBaseEnergyManually(long baseCumulatedEnergy) {
+		this.baseCumulatedEnergy = baseCumulatedEnergy;
+		this.state = State.CALCULATE_ENERGY_OPERATION;
+	}
 }

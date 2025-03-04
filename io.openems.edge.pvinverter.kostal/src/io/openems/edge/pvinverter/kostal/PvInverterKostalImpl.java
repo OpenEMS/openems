@@ -73,7 +73,7 @@ public class PvInverterKostalImpl extends AbstractSunSpecPvInverter implements P
 		super.setModbus(modbus);
 	}
 
-	public PvInverterKostalImpl() throws OpenemsException {
+	public PvInverterKostalImpl() {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //

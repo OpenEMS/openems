@@ -33,7 +33,7 @@ public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerServi
 
 	@Override
 	public <T extends Message> MessageScheduler<T> register(Handler<T> handler) {
-		var msgSch = new MessageScheduler<>(handler);
+		final var msgSch = new MessageScheduler<>(handler);
 		this.msgScheduler.add(msgSch);
 		return msgSch;
 	}

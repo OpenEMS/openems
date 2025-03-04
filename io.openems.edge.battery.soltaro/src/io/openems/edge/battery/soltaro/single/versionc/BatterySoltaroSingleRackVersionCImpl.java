@@ -3,6 +3,8 @@ package io.openems.edge.battery.soltaro.single.versionc;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.soltaro.common.batteryprotection.BatteryProtectionDefinitionSoltaro3500Wh;
@@ -152,22 +153,10 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 	 * Gets the Number of Modules.
 	 *
 	 * @return the Number of Modules as a {@link CompletableFuture}.
-	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		final var result = new CompletableFuture<Integer>();
-		try {
-			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(0x20C1), true)
-					.thenAccept(numberOfModules -> {
-						if (numberOfModules == null) {
-							return;
-						}
-						result.complete(numberOfModules);
-					});
-		} catch (OpenemsException e) {
-			result.completeExceptionally(e);
-		}
-		return result;
+		return readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull,
+				new UnsignedWordElement(0x20C1));
 	}
 
 	@Override
@@ -219,7 +208,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
 				new FC6WriteRegisterTask(0x2004, //
 						m(BatterySoltaroSingleRackVersionC.ChannelId.SYSTEM_RESET, new UnsignedWordElement(0x2004)) //
@@ -731,14 +720,8 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 				}
 				// Add a Modbus read task for this module
 				var startAddress = type.getOffset() + i * type.getSensorsPerModule();
-				try {
-					this.getModbusProtocol().addTask(//
-							new FC3ReadRegistersTask(startAddress, Priority.LOW, elements));
-				} catch (OpenemsException e) {
-					this.logWarn(this.log, "Error while adding Modbus task for slave [" + i + "] starting at ["
-							+ startAddress + "]: " + e.getMessage());
-					e.printStackTrace();
-				}
+				this.getModbusProtocol().addTask(//
+						new FC3ReadRegistersTask(startAddress, Priority.LOW, elements));
 			}
 		};
 		addCellChannels.accept(CellChannelFactory.Type.VOLTAGE_SINGLE);
@@ -766,22 +749,10 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get(); // read StartStop-Channel
+		case START -> StartStop.START; // force START
+		case STOP -> StartStop.STOP; // force STOP
+		};
 	}
-
 }

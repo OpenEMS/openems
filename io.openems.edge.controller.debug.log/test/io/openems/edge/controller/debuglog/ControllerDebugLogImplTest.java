@@ -1,5 +1,6 @@
 package io.openems.edge.controller.debuglog;
 
+import static io.openems.edge.common.sum.Sum.ChannelId.ESS_SOC;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -7,7 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -15,20 +15,6 @@ import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.controller.test.DummyController;
 
 public class ControllerDebugLogImplTest {
-
-	private static final String CTRL_ID = "ctrl0";
-
-	private static final String DUMMY0_ID = "dummy0";
-	private static final String DUMMY1_ID = "dummy1";
-	private static final String DUMMY1_ALIAS = "This is Dummy1";
-	private static final String DUMMY2_ID = "dummy2";
-	private static final String DUMMY2_ALIAS = DUMMY2_ID;
-	private static final String DUMMY10_ID = "dummy10";
-
-	private static final String ANY_DUMMY = "dummy*";
-
-	private static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
-	private static final ChannelAddress SUM_FOO_BAR = new ChannelAddress("_sum", "FooBar");
 
 	@Test
 	public void test() throws Exception {
@@ -39,25 +25,26 @@ public class ControllerDebugLogImplTest {
 				return "foo:bar";
 			}
 		});
-		components.add(new DummyController(DUMMY0_ID) {
+		components.add(new DummyController("dummy0") {
 			@Override
 			public String debugLog() {
 				return "abc:xyz";
 			}
 		});
-		components.add(new DummyController(DUMMY1_ID, DUMMY1_ALIAS) {
+		components.add(new DummyController("dummy1", "This is Dummy1") {
+
 			@Override
 			public String debugLog() {
 				return "def:uvw";
 			}
 		});
-		components.add(new DummyController(DUMMY2_ID, DUMMY2_ALIAS) {
+		components.add(new DummyController("dummy2", "dummy2") {
 			@Override
 			public String debugLog() {
 				return "ghi:rst";
 			}
 		});
-		components.add(new DummyController(DUMMY10_ID) {
+		components.add(new DummyController("dummy10") {
 			@Override
 			public String debugLog() {
 				return "jkl:opq";
@@ -68,19 +55,14 @@ public class ControllerDebugLogImplTest {
 		new ControllerTest(sut) //
 				.addReference("components", components) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setShowAlias(true) //
 						.setCondensedOutput(true) //
-						.setAdditionalChannels(new String[] { //
-								SUM_ESS_SOC.toString(), //
-								SUM_FOO_BAR.toString() //
-						}) //
-						.setIgnoreComponents(new String[] { //
-								DUMMY0_ID //
-						}) //
+						.setAdditionalChannels("_sum/EssSoc", "_sum/FooBar") //
+						.setIgnoreComponents("dummy0") //
 						.build()) //
 				.next(new TestCase() //
-						.input(SUM_ESS_SOC, 50));
+						.input(ESS_SOC, 50));
 
 		assertEquals(
 				"_sum[Core.Sum|foo:bar|EssSoc:50 %|FooBar:CHANNEL_IS_NOT_DEFINED] dummy1[This is Dummy1|def:uvw] dummy2[ghi:rst] dummy10[jkl:opq]",
@@ -97,13 +79,14 @@ public class ControllerDebugLogImplTest {
 				return "foo:bar";
 			}
 		});
-		components.add(new DummyController(DUMMY0_ID) {
+		components.add(new DummyController("dummy0") {
 			@Override
 			public String debugLog() {
 				return "abc:xyz";
 			}
 		});
-		components.add(new DummyController(DUMMY1_ID) {
+		components.add(new DummyController("dummy1") {
+
 			@Override
 			public String debugLog() {
 				return "def:uvw";
@@ -116,17 +99,14 @@ public class ControllerDebugLogImplTest {
 				.addComponent(components.get(0)) //
 				.addComponent(components.get(1)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setCondensedOutput(true) //
-						.setAdditionalChannels(new String[] { //
-								SUM_ESS_SOC.toString() //
-						}) //
-						.setIgnoreComponents(new String[] { //
-								ANY_DUMMY //
-						}) //
+						.setAdditionalChannels("_sum/EssSoc") //
+						.setIgnoreComponents("dummy*") //
 						.build()) //
 				.next(new TestCase() //
-						.input(SUM_ESS_SOC, 50));
+						.input(ESS_SOC, 50)) //
+				.deactivate();
 
 		assertEquals("_sum[foo:bar|EssSoc:50 %]", sut.getLogMessage());
 

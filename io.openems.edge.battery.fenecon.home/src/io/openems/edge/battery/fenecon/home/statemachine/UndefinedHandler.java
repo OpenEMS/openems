@@ -19,7 +19,9 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			if (battery.getModbusCommunicationFailed()) {
 				// Modbus Communication Failed -> try to start
 				yield State.GO_RUNNING;
+
 			} else if (battery.hasFaults()) {
+
 				// Has Faults -> error handling
 				yield State.ERROR;
 			} else {
@@ -29,7 +31,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 		}
 
 		case STOP ->
-			// STOP is impossible -> stuck in GO_STOPPED State
+			// force STOP
 			State.GO_STOPPED;
 		};
 	}

@@ -1,5 +1,7 @@
 package io.openems.backend.edgewebsocket;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +38,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	@Override
-	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
+	public void accept(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		// Validate authentication
 		WsData wsData = ws.getAttachment();
 		final String edgeId;
@@ -92,8 +94,6 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (this.parent.uiWebsocket != null) {
 				this.parent.uiWebsocket.sendBroadcast(edgeId, new EdgeRpcNotification(edgeId, message));
 			}
-		} catch (OpenemsNamedException e) {
-			this.parent.logWarn(this.log, edgeId, "Unable to forward EdgeConfigNotification to UI: " + e.getMessage());
 		} catch (NullPointerException e) {
 			this.parent.logWarn(this.log, edgeId,
 					"Unable to forward EdgeConfigNotification to UI: NullPointerException");
@@ -120,13 +120,16 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		var edgeId = wsData.assertEdgeId(message);
 
 		try {
-			// TODO java 21 switch case with type
-			if (message instanceof TimestampedDataNotification timestampNotification) {
+			switch (message) {
+			case TimestampedDataNotification timestampNotification -> {
 				wsData.edgeCache.updateCurrentData(timestampNotification);
 				this.parent.timedataManager.write(edgeId, timestampNotification);
-			} else if (message instanceof AggregatedDataNotification aggregatedNotification) {
+			}
+			case AggregatedDataNotification aggregatedNotification -> {
 				wsData.edgeCache.updateAggregatedData(aggregatedNotification);
 				this.parent.timedataManager.write(edgeId, aggregatedNotification);
+			}
+			case ResendDataNotification resendNotification -> doNothing(); // handled in handleResendDataNotification()
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -145,10 +148,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			// set specific Edge values
 			if (d.has("_sum/State") && d.get("_sum/State").isJsonPrimitive()) {
 				var sumState = Level.fromJson(d, "_sum/State").orElse(Level.FAULT);
-				EventBuilder.from(this.parent.eventAdmin, Events.ON_SET_SUM_STATE)
-						.addArg(Events.OnSetSumState.EDGE_ID, edgeId) //
-						.addArg(Events.OnSetSumState.SUM_STATE, sumState) //
-						.send();
+				edge.setSumState(sumState);
 			}
 
 			if (d.has("_meta/Version") && d.get("_meta/Version").isJsonPrimitive()) {

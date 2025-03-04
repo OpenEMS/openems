@@ -107,9 +107,9 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Override
 	public void handleEvent(Event event) {
-		var reader = new EventReader(event);
+		final var reader = new EventReader(event);
 		for (var h : this.handler) {
-			var task = h.getEventHandler(reader.getTopic());
+			final var task = h.getEventHandler(reader.getTopic());
 			if (task != null) {
 				this.execute(task, reader);
 			}
@@ -122,7 +122,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Override
 	public String debugLog() {
-		int queueSize = this.executor.getQueue().size();
+		final int queueSize = this.executor.getQueue().size();
 		if (queueSize >= THREAD_QUEUE_WARNING_THRESHOLD) {
 			return "%d tasks in the EventHandlerQueue!".formatted(queueSize);
 		} else {

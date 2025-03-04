@@ -3,6 +3,7 @@ package io.openems.edge.goodwe.batteryinverter;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.goodwe.GoodWeConstants;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
@@ -22,6 +23,9 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
+	StartStopConfig startStop() default StartStopConfig.AUTO;
 
 	@AttributeDefinition(name = "Control mode", description = "Sets the Control mode")
 	ControlMode controlMode() default ControlMode.SMART;
@@ -55,6 +59,9 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 	@AttributeDefinition(name = "Enable/disable Ripple Control Receiver", description = "Enable/disable Ripple Control Receiver (RCR) function")
 	EnableDisable rcrEnable() default EnableDisable.DISABLE;
+
+	@AttributeDefinition(name = "Enable/disable NA-protection", description = "Enable/disable NA-protection")
+	EnableDisable naProtectionEnable() default EnableDisable.DISABLE;
 
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
 }

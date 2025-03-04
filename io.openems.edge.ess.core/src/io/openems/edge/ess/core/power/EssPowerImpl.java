@@ -1,5 +1,7 @@
 package io.openems.edge.ess.core.power;
 
+import static io.openems.edge.ess.core.power.data.LogUtil.debugLogConstraints;
+
 import java.util.List;
 
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
@@ -30,7 +32,6 @@ import io.openems.edge.common.filter.DisabledPidFilter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.data.ConstraintUtil;
-import io.openems.edge.ess.core.power.data.LogUtil;
 import io.openems.edge.ess.core.power.solver.CalculatePowerExtrema;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
@@ -153,11 +154,11 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 			this.data.removeConstraint(constraint);
 			if (this.debugMode) {
 				var allConstraints = this.data.getConstraintsForAllInverters();
-				LogUtil.debugLogConstraints(this.log, "Unable to validate with following constraints:", allConstraints);
+				debugLogConstraints(this.log, "Unable to validate with following constraints:", allConstraints);
 				this.logWarn(this.log, "Failed to add Constraint: " + constraint);
 			}
-			if (e instanceof PowerException) {
-				((PowerException) e).setReason(constraint);
+			if (e instanceof PowerException pe) {
+				pe.setReason(constraint);
 			}
 			throw e;
 		}
@@ -216,13 +217,19 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 
 	@Override
 	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
-			this.solver.solve(this.config.strategy());
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-			this.data.initializeCycle();
-			break;
+		try {
+			switch (event.getTopic()) {
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
+				-> this.solver.solve(this.config.strategy());
+
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+				-> this.data.initializeCycle();
+			}
+
+		} catch (Exception e) {
+			this.logError(this.log,
+					"Error during handleEvent(). " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 

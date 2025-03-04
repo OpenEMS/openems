@@ -58,12 +58,27 @@ public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask,
 	 */
 	public ExecuteState execute(AbstractModbusBridge bridge);
 
-	public static enum ExecuteState {
+	public static sealed interface ExecuteState {
+
+		public static final class Ok implements ExecuteState {
+			private Ok() {
+			}
+		}
+
 		/** Successfully executed request(s). */
-		OK,
+		public static final ExecuteState.Ok OK = new ExecuteState.Ok();
+
+		public static final class NoOp implements ExecuteState {
+			private NoOp() {
+			}
+		}
+
 		/** No available requests -> no operation. */
-		NO_OP,
+		public static final ExecuteState.NoOp NO_OP = new ExecuteState.NoOp();
+
 		/** Executing request(s) failed. */
-		ERROR;
+		public static final record Error(Exception exception) implements ExecuteState {
+		}
+
 	}
 }

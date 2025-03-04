@@ -2,7 +2,9 @@ package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -10,6 +12,7 @@ import java.util.function.Function;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -56,7 +59,6 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"CONTROL_MODE": {@link ControlMode},
     	"ZONE": {@link Zone},
     },
     "appDescriptor": {
@@ -65,7 +67,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.TimeOfUseTariff.Awattar")
+@Component(name = "App.TimeOfUseTariff.Awattar")
 public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Property, Type.Parameter.BundleParameter>
 		implements OpenemsApp {
 
@@ -168,7 +170,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
 	}
 
 	@Override

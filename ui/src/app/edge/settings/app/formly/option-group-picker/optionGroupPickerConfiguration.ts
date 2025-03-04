@@ -10,25 +10,25 @@ export type OptionConfig = {
         title?: (field: FormlyFieldConfig) => string,
         disabled?: (field: FormlyFieldConfig) => boolean,
     }
-}
+};
 
 export type OptionGroupConfig = {
     group: string,
     title: string,
     options: OptionConfig[]
-}
+};
 
 export type OptionGroup = {
     group: string,
     title: string,
     options: Option[]
-}
+};
 export type Option = {
     value: string,
     title: string,
     disabled: boolean,
     selected: boolean,
-}
+};
 
 /**
  * Gets the title of an OptionConfig that should be display.
@@ -37,6 +37,9 @@ export type Option = {
  * @param field
  * @returns the title of the option
  */
-export function getTitleFromOptionConfig(option: OptionConfig, field: FormlyFieldConfig): string {
+export function getTitleFromOptionConfig(option: OptionConfig, field: FormlyFieldConfig): string | null {
+    if (!option) {
+        return null;
+    }
     return option.expressions?.title?.(field) ?? option.title ?? option.value;
 }

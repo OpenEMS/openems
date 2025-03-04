@@ -8,17 +8,14 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class EvcsSpelsbergSmartImplTest {
 
-	private static final String EVCS_ID = "evcs0";
-	private static final String MODBUS_ID = "modbus0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new EvcsSpelsbergSmartImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setModbusId(MODBUS_ID) //
-						.setId(EVCS_ID) //
+						.setModbusId("modbus0") //
+						.setId("evcs0") //
 						.setModbusUnitId(255) //
 						.setMaxHwCurrent(16000) //
 						.setMinHwCurrent(6000) //

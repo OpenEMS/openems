@@ -1,6 +1,6 @@
 package io.openems.edge.evcs.webasto.next;
 
-import java.util.function.Consumer;
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -32,7 +33,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -41,10 +41,12 @@ import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.evcs.webasto.next.enums.ChargePointState;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -55,11 +57,10 @@ import io.openems.edge.evcs.webasto.next.enums.ChargePointState;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
-		implements EvcsWebastoNext, Evcs, ManagedEvcs, ModbusComponent, OpenemsComponent, EventHandler {
+public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implements EvcsWebastoNext, Evcs, ManagedEvcs,
+		ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler {
 
 	private static final int DEFAULT_LIFE_BIT = 1;
-	private static final int DETECT_PHASE_ACTIVITY = 100; // W
 
 	private final Logger log = LoggerFactory.getLogger(EvcsWebastoNext.class);
 
@@ -84,10 +85,13 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 	public EvcsWebastoNextImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				EvcsWebastoNext.ChannelId.values());
+
+		calculateUsedPhasesFromCurrent(this);
 	}
 
 	@Activate
@@ -139,7 +143,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		// Cannot read the gaps, therefore there are so many tasks
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1000, Priority.HIGH,
@@ -151,21 +155,21 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(1006, Priority.LOW,
 						m(EvcsWebastoNext.ChannelId.EVSE_ERROR_CODE, new UnsignedWordElement(1006))),
 				new FC3ReadRegistersTask(1008, Priority.LOW,
-						m(EvcsWebastoNext.ChannelId.CURRENT_L1, new UnsignedWordElement(1008))),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(1008))),
 				new FC3ReadRegistersTask(1010, Priority.LOW,
-						m(EvcsWebastoNext.ChannelId.CURRENT_L2, new UnsignedWordElement(1010))),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(1010))),
 				new FC3ReadRegistersTask(1012, Priority.LOW,
-						m(EvcsWebastoNext.ChannelId.CURRENT_L3, new UnsignedWordElement(1012))),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(1012))),
 				new FC3ReadRegistersTask(1020, Priority.HIGH,
-						m(Evcs.ChannelId.CHARGE_POWER, new UnsignedDoublewordElement(1020))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020))),
 				new FC3ReadRegistersTask(1024, Priority.LOW,
-						m(EvcsWebastoNext.ChannelId.POWER_L1, new UnsignedDoublewordElement(1024))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(1024))),
 				new FC3ReadRegistersTask(1028, Priority.LOW,
-						m(EvcsWebastoNext.ChannelId.POWER_L2, new UnsignedDoublewordElement(1028))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(1028))),
 				new FC3ReadRegistersTask(1032, Priority.LOW,
-						m(EvcsWebastoNext.ChannelId.POWER_L3, new UnsignedDoublewordElement(1032))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(1032))),
 				new FC3ReadRegistersTask(1036, Priority.LOW,
-						m(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(1036))),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(1036))),
 				new FC3ReadRegistersTask(1100, Priority.LOW,
 						m(EvcsWebastoNext.ChannelId.MAX_HW_CURRENT, new UnsignedWordElement(1100))),
 				new FC3ReadRegistersTask(1102, Priority.LOW,
@@ -206,7 +210,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 						m(EvcsWebastoNext.ChannelId.LIFE_BIT, new UnsignedWordElement(6000))) //
 		);
 		this.addStatusListener();
-		this.addPhasesListener();
 		return modbusProtocol;
 	}
 
@@ -216,50 +219,26 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 			/**
 			 * Maps the raw state into a {@link Status}.
 			 */
-			switch (state) {
-			case CHARGING:
-				this._setStatus(Status.CHARGING);
-				break;
-			case NO_PERMISSION:
-			case CHARGING_STATION_RESERVED:
-				this._setStatus(Status.CHARGING_REJECTED);
-				break;
-			case ERROR:
-				this._setStatus(Status.ERROR);
-				break;
-			case NO_VEHICLE_ATTACHED:
-				this._setStatus(Status.NOT_READY_FOR_CHARGING);
-				break;
-			case CHARGING_PAUSED:
-				this._setStatus(Status.CHARGING_FINISHED);
-				break;
-			case UNDEFINED:
-			default:
-				this._setStatus(Status.UNDEFINED);
-			}
+			this._setStatus(switch (state) {
+			case CHARGING -> Status.CHARGING;
+			case NO_PERMISSION, CHARGING_STATION_RESERVED -> Status.CHARGING_REJECTED;
+			case ERROR -> Status.ERROR;
+			case NO_VEHICLE_ATTACHED -> Status.NOT_READY_FOR_CHARGING;
+			case CHARGING_PAUSED -> Status.CHARGING_REJECTED;
+			case UNDEFINED -> Status.UNDEFINED;
+			});
 		});
 	}
 
-	private void addPhasesListener() {
-		final Consumer<Value<Integer>> setPhases = ignore -> {
-			var phases = 0;
-			if (this.getPowerL1().orElse(0) > DETECT_PHASE_ACTIVITY) {
-				phases++;
-			}
-			if (this.getPowerL2().orElse(0) > DETECT_PHASE_ACTIVITY) {
-				phases++;
-			}
-			if (this.getPowerL3().orElse(0) > DETECT_PHASE_ACTIVITY) {
-				phases++;
-			}
-			if (phases == 0) {
-				phases = 3;
-			}
-			this._setPhases(phases);
-		};
-		this.getPowerL1Channel().onUpdate(setPhases);
-		this.getPowerL2Channel().onUpdate(setPhases);
-		this.getPowerL3Channel().onUpdate(setPhases);
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
 	}
 
 	@Override

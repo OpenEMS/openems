@@ -1,5 +1,6 @@
 package io.openems.edge.core.sum;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;
 
@@ -21,6 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -28,6 +30,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
@@ -37,11 +40,13 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
+import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -50,7 +55,7 @@ import io.openems.edge.timedata.api.Timedata;
 		property = { //
 				"enabled=true" //
 		})
-public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave {
+public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsComponent, ModbusSlave, TimedataProvider {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -63,6 +68,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	private final EnergyValuesHandler energyValuesHandler;
 	private final Set<String> ignoreStateComponents = new HashSet<>();
+
+	private final CalculateActiveTime calculateOffGridTime = new CalculateActiveTime(this,
+			Sum.ChannelId.GRID_MODE_OFF_GRID_TIME);
 
 	private final ExtremeEverValues extremeEverValues = ExtremeEverValues.create(SINGLETON_SERVICE_PID) //
 			.add(Sum.ChannelId.GRID_MIN_ACTIVE_POWER, "gridMinActivePower", //
@@ -143,6 +151,11 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this.calculateState();
 	}
 
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
 	/**
 	 * Calculates the sum-value for each Channel.
 	 */
@@ -170,6 +183,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var gridActivePowerL1 = new CalculateIntegerSum();
 		final var gridActivePowerL2 = new CalculateIntegerSum();
 		final var gridActivePowerL3 = new CalculateIntegerSum();
+		final var gridBuyPrice = new CalculateAverage();
 		final var gridBuyActiveEnergy = new CalculateLongSum();
 		final var gridSellActiveEnergy = new CalculateLongSum();
 
@@ -189,13 +203,12 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		// Consumption
 		final var managedConsumptionActivePower = new CalculateIntegerSum();
 
-		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
-			if (component instanceof SymmetricEss) {
-				/*
-				 * Ess
-				 */
-				var ess = (SymmetricEss) component;
-
+		for (var component : this.componentManager.getEnabledComponents()) {
+			switch (component) {
+			/*
+			 * Ess
+			 */
+			case SymmetricEss ess -> {
 				if (ess instanceof MetaEss) {
 					// ignore this Ess
 					continue;
@@ -209,56 +222,63 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essActiveDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
 				essCapacity.addValue(ess.getCapacityChannel());
 
-				if (ess instanceof AsymmetricEss) {
-					var e = (AsymmetricEss) ess;
+				switch (ess) {
+				case AsymmetricEss e -> {
 					essActivePowerL1.addValue(e.getActivePowerL1Channel());
 					essActivePowerL2.addValue(e.getActivePowerL2Channel());
 					essActivePowerL3.addValue(e.getActivePowerL3Channel());
-				} else {
+				}
+				default -> {
 					essActivePowerL1.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 					essActivePowerL2.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 					essActivePowerL3.addValue(ess.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
 				}
+				}
 
-				if (ess instanceof HybridEss) {
-					var e = (HybridEss) ess;
+				switch (ess) {
+				case HybridEss e -> {
 					essDcChargeEnergy.addValue(e.getDcChargeEnergyChannel());
 					essDcDischargeEnergy.addValue(e.getDcDischargeEnergyChannel());
 					essDcDischargePower.addValue(e.getDcDischargePowerChannel());
-				} else {
+				}
+				default -> {
 					essDcChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
 					essDcDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
 					essDcDischargePower.addValue(ess.getActivePowerChannel());
 				}
+				}
+			}
 
-			} else if (component instanceof ElectricityMeter meter) {
-				if (component instanceof VirtualMeter) {
-					if (!((VirtualMeter) component).addToSum()) {
-						// Ignore VirtualMeter if "addToSum" is not activated (default)
-						continue;
-					}
+			/*
+			 * Meter
+			 */
+			case ElectricityMeter meter -> {
+				if (component instanceof VirtualMeter vm && !vm.addToSum()) {
+					// Ignore VirtualMeter if "addToSum" is not activated (default)
+					continue;
 				}
 
-				/*
-				 * Meter
-				 */
 				switch (meter.getMeterType()) {
-				case PRODUCTION_AND_CONSUMPTION:
-					// TODO PRODUCTION_AND_CONSUMPTION
+				case PRODUCTION_AND_CONSUMPTION -> // TODO
 					// Production Power is positive, Consumption is negative
-					break;
+					doNothing();
 
-				case CONSUMPTION_METERED:
-					// TODO CONSUMPTION_METERED
+				case CONSUMPTION_METERED -> // TODO
 					// Consumption is positive
-					break;
+					doNothing();
 
-				case CONSUMPTION_NOT_METERED:
-					// TODO CONSUMPTION_NOT_METERED
+				case MANAGED_CONSUMPTION_METERED -> {
+					if (meter instanceof MetaEvcs) {
+						continue;
+					}
+					managedConsumptionActivePower.addValue(meter.getActivePowerChannel());
+				}
+
+				case CONSUMPTION_NOT_METERED -> // TODO
 					// Consumption is positive
-					break;
+					doNothing();
 
-				case GRID:
+				case GRID -> {
 					/*
 					 * Grid-Meter
 					 */
@@ -268,9 +288,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					gridActivePowerL1.addValue(meter.getActivePowerL1Channel());
 					gridActivePowerL2.addValue(meter.getActivePowerL2Channel());
 					gridActivePowerL3.addValue(meter.getActivePowerL3Channel());
-					break;
+				}
 
-				case PRODUCTION:
+				case PRODUCTION -> {
 					/*
 					 * Production-Meter
 					 */
@@ -280,28 +300,26 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					productionAcActivePowerL1.addValue(meter.getActivePowerL1Channel());
 					productionAcActivePowerL2.addValue(meter.getActivePowerL2Channel());
 					productionAcActivePowerL3.addValue(meter.getActivePowerL3Channel());
-					break;
-
 				}
+				}
+			}
 
-			} else if (component instanceof EssDcCharger) {
-				/*
-				 * Ess DC-Charger
-				 */
-				var charger = (EssDcCharger) component;
+			/*
+			 * Ess DC-Charger
+			 */
+			case EssDcCharger charger -> {
 				productionDcActualPower.addValue(charger.getActualPowerChannel());
 				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
+			}
 
-			} else if (component instanceof Evcs evcs) {
-				/*
-				 * Electric Vehicle Charging Station
-				 */
-				if (evcs instanceof MetaEvcs) {
-					// ignore this Evcs
-					continue;
-				}
+			/*
+			 * Time-of-Use-Tariff
+			 */
+			case TimeOfUseTariff tou -> {
+				gridBuyPrice.addValue(tou.getPrices().getFirst());
+			}
 
-				managedConsumptionActivePower.addValue(evcs.getChargePowerChannel());
+			default -> doNothing();
 			}
 		}
 
@@ -324,7 +342,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 		var essMaxApparentPowerSum = essMaxApparentPower.calculate();
 		this._setEssMaxApparentPower(essMaxApparentPowerSum);
-		this._setGridMode(essGridMode.calculate());
+		var gridMode = essGridMode.calculate();
+		this._setGridMode(gridMode);
+		this.calculateOffGridTime.update(gridMode == GridMode.OFF_GRID);
 
 		var essActiveChargeEnergySum = essActiveChargeEnergy.calculate();
 		essActiveChargeEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY,
@@ -348,6 +368,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setGridActivePowerL2(gridActivePowerL2Sum);
 		var gridActivePowerL3Sum = gridActivePowerL3.calculate();
 		this._setGridActivePowerL3(gridActivePowerL3Sum);
+		this._setGridBuyPrice(gridBuyPrice.calculate());
 
 		var gridBuyActiveEnergySum = gridBuyActiveEnergy.calculate();
 		gridBuyActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY,
@@ -412,7 +433,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	private void calculateState() {
 		var highestLevel = Level.OK;
 		var hasIgnoredComponentStates = false;
-		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
+		for (var component : this.componentManager.getEnabledComponents()) {
 			if (component == this) {
 				// ignore myself
 				continue;
@@ -441,7 +462,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				highestLevel = Level.INFO;
 			}
 		}
-
 		this.getStateChannel().setNextValue(highestLevel);
 	}
 

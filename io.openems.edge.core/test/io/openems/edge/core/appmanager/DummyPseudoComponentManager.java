@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -30,17 +29,15 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.session.Role;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.ActualEdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -157,57 +154,35 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(//
+	public void handleCreateComponentConfigRequest(//
 			final User user, //
-			final JsonrpcRequest request //
-	) throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
-
-		switch (request.getMethod()) {
-
-		case CreateComponentConfigRequest.METHOD:
-			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
-		case UpdateComponentConfigRequest.METHOD:
-			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
-		case DeleteComponentConfigRequest.METHOD:
-			return this.handleDeleteComponentConfigRequest(user, DeleteComponentConfigRequest.from(request));
-
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
-	}
-
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(//
-			final User user, //
-			final CreateComponentConfigRequest request //
+			final CreateComponentConfig.Request request //
 	) throws OpenemsNamedException {
 
 		final var component = componentOf(//
 				request.getComponentId(), //
-				request.getFactoryPid(), //
-				request.getProperties() //
+				request.factoryPid(), //
+				request.properties() //
 		);
 
 		this.components.add(component);
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(//
+	@Override
+	public void handleUpdateComponentConfigRequest(//
 			final User user, //
-			final UpdateComponentConfigRequest request //
+			final UpdateComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		final var foundComponent = this.getPossiblyDisabledComponent(request.getComponentId());
+		final var foundComponent = this.getPossiblyDisabledComponent(request.componentId());
 
 		if (foundComponent instanceof DummyOpenemsComponent) {
 			final var component = componentOf(//
-					request.getComponentId(), //
+					request.componentId(), //
 					foundComponent.serviceFactoryPid(), //
-					request.getProperties() //
+					request.properties() //
 			);
-			this.components.removeIf(t -> t.id().equals(request.getComponentId()));
+			this.components.removeIf(t -> t.id().equals(request.componentId()));
 			this.components.add(component);
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		}
 		if (this.configurationAdmin == null) {
 			throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
@@ -218,27 +193,26 @@ public class DummyPseudoComponentManager implements ComponentManager {
 				if (props == null) {
 					continue;
 				}
-				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+				if (props.get("id") == null || !props.get("id").equals(request.componentId())) {
 					continue;
 				}
 				var properties = new Hashtable<String, JsonElement>();
-				for (var property : request.getProperties()) {
+				for (var property : request.properties()) {
 					properties.put(property.getName(), property.getValue());
 				}
 				configuration.update(properties);
 			}
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		} catch (IOException | InvalidSyntaxException e) {
 			throw new OpenemsException("Can not update Component Config.");
 		}
 	}
 
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(//
+	@Override
+	public void handleDeleteComponentConfigRequest(//
 			final User user, //
-			final DeleteComponentConfigRequest request //
+			final DeleteComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		this.components.removeIf(t -> t.id().equals(request.getComponentId()));
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		this.components.removeIf(t -> t.id().equals(request.componentId()));
 	}
 
 	/**
@@ -415,6 +389,17 @@ public class DummyPseudoComponentManager implements ComponentManager {
 			return null;
 		}
 
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		try {
+			var dic = this.getComponent(componentId).getComponentContext().getProperties();
+			return StreamUtils.dictionaryToStream(dic) //
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		} catch (OpenemsNamedException e) {
+			return Collections.emptyMap();
+		}
 	}
 
 }

@@ -4,7 +4,13 @@
 module.exports = function (config) {
   config.set({
     basePath: '',
+    browserDisconnectTimeout: 10000,  // default 2000
+    browserNoActivityTimeout: 60000,  // default 30000
+    browserDisconnectTolerance: 2,    // default 0
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
+    preprocessor: {
+      'src/**/*.ts': ['coverage']
+    },
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
@@ -28,11 +34,12 @@ module.exports = function (config) {
       dir: require('path').join(__dirname, './coverage/ngv'),
       subdir: '.',
       reporters: [
+        { type: 'lcov' },
         { type: 'html' },
         { type: 'text-summary' }
       ],
     },
-    reporters: ['progress', 'kjhtml'],
+    reporters: ['progress', 'kjhtml', 'coverage'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,

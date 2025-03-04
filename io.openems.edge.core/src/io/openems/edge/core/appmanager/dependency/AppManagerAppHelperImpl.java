@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.condition.Condition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,11 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTask;
 
 @Component(//
 		immediate = true, //
@@ -65,6 +71,23 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Component(service = { StartTarget.class })
+	public static class StartTarget implements Condition {
+		@Reference
+		private ComponentAggregateTask componentAggregateTask;
+		@Reference
+		private PersistencePredictorAggregateTask persistencePredictorAggregateTask;
+		@Reference
+		private SchedulerAggregateTask schedulerAggregateTask;
+		@Reference
+		private SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask;
+		@Reference
+		private StaticIpAggregateTask staticIpAggregateTask;
+	}
+
+	@Reference
+	private StartTarget startCondition;
 
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
@@ -125,6 +148,47 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	@Override
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException {
 		return this.usingTemporaryApps(user, () -> this.deleteAppInternal(user, instance));
+	}
+
+	@Override
+	public List<AggregateTask.AggregateTaskExecutionConfiguration> getInstallConfiguration(//
+			User user, //
+			OpenemsAppInstance instance, //
+			OpenemsApp app //
+	) throws OpenemsNamedException {
+		return this.getConfigurations(user, () -> this.updateAppInternal(user, null, instance, app));
+	}
+
+	private List<AggregateTask.AggregateTaskExecutionConfiguration> getConfigurations(//
+			User user, //
+			ThrowingSupplier<UpdateValues, OpenemsNamedException> supplier //
+	) throws OpenemsNamedException {
+		Objects.requireNonNull(supplier);
+		// to make sure the temporaryApps get set to null
+		this.resetTasks();
+		this.temporaryApps = new TemporaryApps();
+		OpenemsNamedException exception = null;
+		RuntimeException runtimeException = null;
+		try {
+			supplier.get();
+		} catch (OpenemsNamedException e) {
+			exception = e;
+		} catch (RuntimeException e) {
+			runtimeException = e;
+		}
+		this.temporaryApps = null;
+		if (exception != null) {
+			this.log.error("An Exception occurred during handling the supplier.", exception);
+			throw exception;
+		}
+		if (runtimeException != null) {
+			this.log.error("An RuntimeException occurred during handling the supplier.", runtimeException);
+			throw runtimeException;
+		}
+
+		return this.tasks.stream() //
+				.map(AggregateTask::getExecutionConfiguration) //
+				.toList();
 	}
 
 	private UpdateValues usingTemporaryApps(User user, ThrowingSupplier<UpdateValues, OpenemsNamedException> supplier)
@@ -757,11 +821,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof AppIdKey)) {
+			if (!(other instanceof AppIdKey aik)) {
 				return false;
 			}
 
-			return ((AppIdKey) other).compareTo(this) == 0;
+			return aik.compareTo(this) == 0;
 		}
 
 		@Override

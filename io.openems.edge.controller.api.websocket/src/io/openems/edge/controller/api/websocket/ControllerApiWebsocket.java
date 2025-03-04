@@ -1,6 +1,5 @@
 package io.openems.edge.controller.api.websocket;
 
-import org.ops4j.pax.logging.spi.PaxAppender;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.Level;
@@ -8,7 +7,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
-public interface ControllerApiWebsocket extends Controller, OpenemsComponent, PaxAppender, EventHandler {
+public interface ControllerApiWebsocket extends Controller, OpenemsComponent, EventHandler {
 
 	public static final String EDGE_ID = "0";
 	public static final String EDGE_COMMENT = "";

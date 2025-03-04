@@ -33,9 +33,16 @@ public class DummyComponentContext implements ComponentContext {
 	}
 
 	private final Dictionary<String, Object> properties;
+	private final ComponentInstance<?> instance;
+
+	public DummyComponentContext(Dictionary<String, Object> properties, ComponentInstance<?> instance) {
+		super();
+		this.properties = properties;
+		this.instance = instance;
+	}
 
 	public DummyComponentContext(Dictionary<String, Object> properties) {
-		this.properties = properties;
+		this(properties, null);
 	}
 
 	public DummyComponentContext() {
@@ -85,8 +92,9 @@ public class DummyComponentContext implements ComponentContext {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <S> ComponentInstance<S> getComponentInstance() {
-		return null;
+		return (ComponentInstance<S>) this.instance;
 	}
 
 	@Override

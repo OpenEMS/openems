@@ -1,0 +1,68 @@
+@use "variables";
+
+.ion-font-size-medium {
+    font-size: medium !important;
+}
+
+.ion-font-size-large {
+    font-size: xx-large !important;
+}
+
+.ion-font-size-smaller {
+    font-size: small !important;
+}
+.ion-font-size-small {
+    font-size: small !important;
+}
+.ion-font-size-larger {
+    font-size: larger !important;
+}
+
+.ion-font-weight-bolder {
+    font-weight: bolder;
+}
+
+.ion-link {
+    color: var(--ion-color-primary);
+}
+
+.ion-full-width {
+    width: 100%;
+}
+
+.ion-text-align-center {
+    text-align: center;
+}
+
+.ion-text-align-end {
+    text-align: end;
+}
+
+.ion-col-with-icon {
+    display: flex;
+    justify-content: center;
+}
+
+.ion-item-min-content-height {
+    height: min-content;
+}
+
+.ion-toolbar-button::part(native) {
+    --background: var(--ion-item-background) !important;
+}
+
+.ion-white-space-pre-wrap {
+
+    &::part(label) {
+        white-space: pre-wrap;
+    }
+}
+
+/* Functions */
+@function tint($color, $percentage) {
+    @return mix(white, $color, $percentage);
+}
+
+@function shade($color, $percentage) {
+    @return mix(black, $color, $percentage);
+}

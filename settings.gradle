@@ -2,7 +2,7 @@ pluginManagement {
 	plugins {
 		id 'biz.aQute.bnd.workspace' version "${bnd_version}"
 		id 'biz.aQute.bnd' version "${bnd_version}"
-		id 'com.github.node-gradle.node' version "5.0.0"
+		id 'com.github.node-gradle.node' version "7.0.2"
 	}
 	repositories {
 		maven {

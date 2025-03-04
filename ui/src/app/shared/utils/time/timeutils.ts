@@ -1,5 +1,8 @@
+// @ts-strict-ignore
 import { DecimalPipe } from "@angular/common";
 
+import { TranslateService } from "@ngx-translate/core";
+import { Utils } from "../../shared";
 import { Language } from "../../type/language";
 
 export class TimeUtils {
@@ -22,9 +25,9 @@ export class TimeUtils {
     minutes -= hours * 60;
 
     if (hours <= 23 && minutes > 0) {
-      return decimalPipe.transform(hours, '1.0-0') + 'h' + " " + decimalPipe.transform(minutes, '1.0-0') + 'm';
+      return decimalPipe.transform(hours, "1.0-0") + "h" + " " + decimalPipe.transform(minutes, "1.0-0") + "m";
     } else {
-      return decimalPipe.transform(hours, '1.0-0') + 'h';
+      return decimalPipe.transform(hours, "1.0-0") + "h";
     }
   }
 
@@ -48,9 +51,23 @@ export class TimeUtils {
     const minutes = Math.floor(seconds / 60);
 
     if (minutes > 0) {
-      return decimalPipe.transform(minutes, '1.0-0') + ' min';
+      return decimalPipe.transform(minutes, "1.0-0") + " min";
     } else {
-      return decimalPipe.transform(seconds, '1.0-0') + ' s';
+      return decimalPipe.transform(seconds, "1.0-0") + " s";
     }
+  }
+
+  public static getDaysFromMilliSeconds(ms: number) {
+    return Utils.floorSafely(Utils.divideSafely(ms, 24 * 60 * 60 * 1000));
+  }
+  public static getHoursFromMilliSeconds(ms: number) {
+    return Utils.floorSafely(Utils.divideSafely(ms, 60 * 60 * 1000));
+  }
+  public static getMinutesFromMilliSeconds(ms: number) {
+    return Utils.floorSafely(Utils.divideSafely(ms, 60 * 1000));
+  }
+
+  public static getDurationText(ms: number, translate: TranslateService, singular: string, plural: string) {
+    return `${ms} ${translate.instant(ms > 1 ? plural : singular)}`;
   }
 }

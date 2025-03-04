@@ -41,6 +41,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case STRING16 -> ModbusRecordString16.BYTE_LENGTH;
 		case ENUM16, UINT16 -> ModbusRecordUint16.BYTE_LENGTH;
 		case UINT32 -> ModbusRecordUint32.BYTE_LENGTH;
+		case UINT64 -> ModbusRecordUint64.BYTE_LENGTH;
 		};
 		this.writeValueBuffer = new Byte[byteLength];
 	}
@@ -140,6 +141,11 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case READ_ONLY, READ_WRITE -> ModbusRecordUint32.toByteArray(value);
 			case WRITE_ONLY -> ModbusRecordUint32.UNDEFINED_VALUE;
 			};
+		case UINT64 -> //
+			switch (this.accessMode) {
+			case READ_ONLY, READ_WRITE -> ModbusRecordUint64.toByteArray(value);
+			case WRITE_ONLY -> ModbusRecordUint64.UNDEFINED_VALUE;
+			};
 		};
 	}
 
@@ -190,6 +196,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case STRING16 -> ""; // TODO implement String conversion
 		case ENUM16, UINT16 -> buff.getShort();
 		case UINT32 -> buff.getInt();
+		case UINT64 -> buff.getLong();
 		};
 
 		// Forward Value to ApiWorker

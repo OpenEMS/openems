@@ -1,17 +1,15 @@
 package io.openems.edge.meter.socomec.threephase;
 
+import static io.openems.common.types.MeterType.GRID;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.meter.api.MeterType;
 
 public class MeterSocomecThreephaseImplTest {
-
-	private static final String METER_ID = "meter0";
-	private static final String MODBUS_ID = "modbus0";
 
 	private static MeterSocomecThreephaseImpl meter;
 
@@ -20,11 +18,11 @@ public class MeterSocomecThreephaseImplTest {
 		meter = new MeterSocomecThreephaseImpl();
 		new ComponentTest(meter) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(METER_ID) //
-						.setModbusId(MODBUS_ID) //
-						.setType(MeterType.GRID) //
+						.setId("meter0") //
+						.setModbusId("modbus0") //
+						.setType(GRID) //
 						.setInvert(false) //
 						.build()); //
 	}

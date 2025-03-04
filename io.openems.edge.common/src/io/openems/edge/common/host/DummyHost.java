@@ -1,14 +1,12 @@
 package io.openems.edge.common.host;
 
-import java.util.concurrent.CompletableFuture;
+import java.net.Inet4Address;
+import java.util.List;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.TestUtils;
-import io.openems.edge.common.user.User;
 
 /**
  * Simulates a {@link Host} for the OpenEMS Component test framework.
@@ -38,9 +36,8 @@ public class DummyHost extends AbstractDummyOpenemsComponent<DummyHost> implemen
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		return null;
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		return List.of();
 	}
 
 }

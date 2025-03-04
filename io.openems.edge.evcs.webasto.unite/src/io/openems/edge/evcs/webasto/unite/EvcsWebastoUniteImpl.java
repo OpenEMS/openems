@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.webasto.unite;
 
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -39,8 +42,10 @@ import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -53,7 +58,7 @@ import io.openems.edge.evcs.api.WriteHandler;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
-		implements EvcsWebastoUnite, Evcs, ManagedEvcs, EventHandler, OpenemsComponent {
+		implements EvcsWebastoUnite, Evcs, ManagedEvcs, EventHandler, ElectricityMeter, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsWebastoUniteImpl.class);
 
@@ -74,11 +79,13 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 	public EvcsWebastoUniteImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				EvcsWebastoUnite.ChannelId.values() //
 		);
+		calculateUsedPhasesFromCurrent(this);
 	}
 
 	@Activate
@@ -114,7 +121,7 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		/*
 		 * The Webasto Unite does not support reading Multiple Registers in one task
 		 * with "gaps" in between. Therefore, this modbus protocol consists of many
@@ -150,25 +157,25 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(1006, Priority.LOW,
 						m(EvcsWebastoUnite.ChannelId.EVSE_FAULT_CODE, new UnsignedDoublewordElement(1006))),
 				new FC4ReadInputRegistersTask(1008, Priority.HIGH,
-						m(EvcsWebastoUnite.ChannelId.CURRENT_L1, new UnsignedWordElement(1008))),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(1008))),
 				new FC4ReadInputRegistersTask(1010, Priority.HIGH,
-						m(EvcsWebastoUnite.ChannelId.CURRENT_L2, new UnsignedWordElement(1010))),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(1010))),
 				new FC4ReadInputRegistersTask(1012, Priority.HIGH,
-						m(EvcsWebastoUnite.ChannelId.CURRENT_L3, new UnsignedWordElement(1012))),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(1012))),
 				new FC4ReadInputRegistersTask(1014, Priority.LOW,
-						m(EvcsWebastoUnite.ChannelId.VOLTAGE_L1, new UnsignedWordElement(1014))),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(1014))),
 				new FC4ReadInputRegistersTask(1016, Priority.LOW,
-						m(EvcsWebastoUnite.ChannelId.VOLTAGE_L2, new UnsignedWordElement(1016))),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(1016))),
 				new FC4ReadInputRegistersTask(1018, Priority.LOW,
-						m(EvcsWebastoUnite.ChannelId.VOLTAGE_L3, new UnsignedWordElement(1018))),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(1018))),
 				new FC4ReadInputRegistersTask(1020, Priority.HIGH,
-						m(EvcsWebastoUnite.ChannelId.ACTIVE_POWER_TOTAL, new UnsignedDoublewordElement(1020))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020))),
 				new FC4ReadInputRegistersTask(1024, Priority.HIGH,
-						m(EvcsWebastoUnite.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(1024))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(1024))),
 				new FC4ReadInputRegistersTask(1028, Priority.HIGH,
-						m(EvcsWebastoUnite.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(1028))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(1028))),
 				new FC4ReadInputRegistersTask(1032, Priority.HIGH,
-						m(EvcsWebastoUnite.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(1032))),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(1032))),
 				new FC4ReadInputRegistersTask(1036, Priority.LOW,
 						m(EvcsWebastoUnite.ChannelId.METER_READING, new UnsignedDoublewordElement(1036))),
 				new FC4ReadInputRegistersTask(1100, Priority.LOW,
@@ -205,6 +212,17 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(6000, //
 						m(EvcsWebastoUnite.ChannelId.ALIVE_REGISTER, new SignedWordElement(6000))));
 		return modbusProtocol;
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
 	}
 
 	@Override

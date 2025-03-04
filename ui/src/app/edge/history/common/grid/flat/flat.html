@@ -1,5 +1,12 @@
 <oe-flat-widget button routerLink="/device/{{edge.id}}/history/gridchart" [icon]="{name: 'oe-grid', color:'dark'}"
     [title]="'General.grid' | translate" *ngIf="isInitialized">
+    <oe-flat-widget-line *ngIf="offGridTime > 0" [name]="'GRID_STATES.OFF_GRID' | translate"
+        channelAddress="_sum/GridModeOffGridTime" [converter]="TIME_CONVERTER">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line *ngIf="restrictionTime > 0" [name]="'GRID_STATES.RESTRICTION' | translate"
+        channelAddress="ctrlEssLimiter14a0/CumulatedRestrictionTime" [converter]="TIME_CONVERTER">
+    </oe-flat-widget-line>
+    <oe-flat-widget-horizontal-line *ngIf="restrictionTime > 0 || offGridTime > 0 "></oe-flat-widget-horizontal-line>
     <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" channelAddress="_sum/GridSellActiveEnergy"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
     </oe-flat-widget-line>

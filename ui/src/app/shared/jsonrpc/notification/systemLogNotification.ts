@@ -1,5 +1,5 @@
-import { JsonrpcNotification } from "../base";
 import { SystemLog } from "../../type/systemlog";
+import { JsonrpcNotification } from "../base";
 
 /**
  * Represents a JSON-RPC Notification for sending the current system log.

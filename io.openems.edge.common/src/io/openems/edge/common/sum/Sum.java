@@ -7,11 +7,13 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.DoubleReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 
@@ -274,6 +276,18 @@ public interface Sum extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)),
 		/**
+		 * Grid: Price for Buy-from-Grid.
+		 *
+		 * <ul>
+		 * <li>Interface: Sum (origin: TimeOfUseTariff)
+		 * <li>Type: Integer
+		 * <li>Unit: Currency (see {@link Meta.ChannelId#CURRENCY}) per MWh
+		 * </ul>
+		 */
+		GRID_BUY_PRICE(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.MONEY_PER_MEGAWATT_HOUR) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)),
+		/**
 		 * Production: Active Power.
 		 *
 		 * <ul>
@@ -384,7 +398,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption")), //
 		/**
 		 * Consumption: Active Power L1.
 		 *
@@ -399,7 +414,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption on phase L1")), //
 		/**
 		 * Consumption: Active Power L2.
 		 *
@@ -414,7 +430,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption on phase L2")), //
 		/**
 		 * Consumption: Active Power L3.
 		 *
@@ -429,7 +446,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption on phase L3")), //
 		/**
 		 * Consumption: Maximum Ever Active Power.
 		 *
@@ -442,7 +460,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Maximum measured active power of the electrical consumpton")), //
 		/**
 		 * Unmanaged Consumption: Active Power.
 		 *
@@ -472,7 +491,18 @@ public interface Sum extends OpenemsComponent {
 		 */
 		GRID_MODE(Doc.of(GridMode.values()) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
-
+		/**
+		 * Cumulated Off-Grid time.
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Cumulated Seconds
+		 * </ul>
+		 */
+		GRID_MODE_OFF_GRID_TIME(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_SECONDS) //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Total Off-Grid time")), //
 		/**
 		 * Ess: Max Apparent Power.
 		 *
@@ -496,7 +526,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of the AC-side storage charging incl. excess PV generation at the hybrid inverter")), //
 		/**
 		 * Ess: Active Discharge Energy.
 		 *
@@ -508,7 +539,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of the AC-side storage discharge incl. excess PV generation at the hybrid inverter")), //
 		/**
 		 * Ess: DC Discharge Energy.
 		 *
@@ -520,7 +552,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated DC electrical energy of the storage discharging")), //
 		/**
 		 * Ess: DC Charge Energy.
 		 *
@@ -532,7 +565,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated DC electrical energy of the storage charging")), //
 		/**
 		 * Grid: Buy-from-grid Energy ("Production").
 		 *
@@ -544,7 +578,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		GRID_BUY_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of grid consumption")), //
 		/**
 		 * Grid: Sell-to-grid Energy ("Consumption").
 		 *
@@ -556,7 +591,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		GRID_SELL_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of grid feed-in")), //
 		/**
 		 * Production: Energy.
 		 *
@@ -567,7 +603,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of DC- and AC-side generators, e.g. photovoltaics")), //
 		/**
 		 * Production: AC Energy.
 		 *
@@ -579,7 +616,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_AC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of AC-side generators")), //
 		/**
 		 * Production: DC Energy.
 		 *
@@ -591,7 +629,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_DC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of DC-side generators")), //
 		/**
 		 * Consumption: Energy.
 		 *
@@ -603,7 +642,9 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy consumption")), //
+
 		/**
 		 * Is there any Component Info/Warning/Fault that is getting ignored/hidden
 		 * because of the 'ignoreStateComponents' configuration setting?.
@@ -690,6 +731,8 @@ public interface Sum extends OpenemsComponent {
 				.channel(111, ChannelId.CONSUMPTION_ACTIVE_POWER_L3, ModbusType.FLOAT32) //
 				.channel(113, ChannelId.ESS_DISCHARGE_POWER, ModbusType.FLOAT32) //
 				.channel(115, ChannelId.GRID_MODE, ModbusType.ENUM16) //
+				.channel(116, ChannelId.GRID_MODE_OFF_GRID_TIME, ModbusType.FLOAT32) //
+				.channel(118, ChannelId.ESS_CAPACITY, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -1190,6 +1233,35 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setGridActivePowerL3(int value) {
 		this.getGridActivePowerL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_BUY_PRICE}.
+	 *
+	 * @return the Channel
+	 */
+	public default DoubleReadChannel getGridBuyPriceChannel() {
+		return this.channel(ChannelId.GRID_BUY_PRICE);
+	}
+
+	/**
+	 * Gets the Buy-from-Grid price [Currency/MWh]. See
+	 * {@link ChannelId#GRID_BUY_PRICE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Double> getGridBuyPrice() {
+		return this.getGridBuyPriceChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_BUY_PRICE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridBuyPrice(Double value) {
+		this.getGridBuyPriceChannel().setNextValue(value);
 	}
 
 	/**
@@ -1833,6 +1905,35 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setGridMode(GridMode value) {
 		this.getGridModeChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_MODE_OFF_GRID_TIME} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridModeOffGridTime(int value) {
+		this.getGridModeOffGridTimeChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_MODE_OFF_GRID_TIME}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getGridModeOffGridTimeChannel() {
+		return this.channel(ChannelId.GRID_MODE_OFF_GRID_TIME);
+	}
+
+	/**
+	 * Gets the Overall GridMode of all Energy Storage Systems. See
+	 * {@link ChannelId#GRID_MODE_OFF_GRID_TIME}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getGridModeOffGridTimeValue() {
+		return this.getGridModeOffGridTimeChannel().value();
 	}
 
 	/**

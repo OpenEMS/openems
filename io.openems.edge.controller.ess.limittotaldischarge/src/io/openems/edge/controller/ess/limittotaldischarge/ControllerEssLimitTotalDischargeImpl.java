@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
+import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -19,6 +21,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -30,9 +34,10 @@ import io.openems.edge.ess.power.api.Pwr;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsComponent
-		implements ControllerEssLimitTotalDischarge, Controller, OpenemsComponent {
+		implements ControllerEssLimitTotalDischarge, EnergySchedulable, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssLimitTotalDischargeImpl.class);
+	private final EnergyScheduleHandler energyScheduleHandler;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -55,6 +60,11 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				Controller.ChannelId.values(), //
 				ControllerEssLimitTotalDischarge.ChannelId.values() //
 		);
+		this.energyScheduleHandler = buildEnergyScheduleHandler(//
+				() -> this.id(), //
+				() -> this.isEnabled() //
+						? this.minSoc //
+						: null);
 	}
 
 	@Activate
@@ -210,5 +220,10 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 			this._setAwaitingHysteresisValue(true);
 			return false;
 		}
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }

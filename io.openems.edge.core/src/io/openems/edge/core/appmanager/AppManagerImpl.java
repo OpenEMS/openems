@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static java.util.Collections.emptyList;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,10 +9,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -35,18 +39,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.function.ThrowingSupplier;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -54,11 +57,15 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.UpdateValues;
+import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.GetApp;
@@ -66,9 +73,10 @@ import io.openems.edge.core.appmanager.jsonrpc.GetAppAssistant;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppDescriptor;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances;
 import io.openems.edge.core.appmanager.jsonrpc.GetApps;
+import io.openems.edge.core.appmanager.jsonrpc.GetEstimatedConfiguration;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -77,9 +85,9 @@ import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 		property = { //
 				"enabled=true" //
 		})
-public class AppManagerImpl extends AbstractOpenemsComponent implements AppManager, OpenemsComponent, JsonApi {
+public class AppManagerImpl extends AbstractOpenemsComponent implements AppManager, OpenemsComponent, ComponentJsonApi {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(AppManagerImpl.class);
 
 	@Reference
 	private AppValidateWorker appValidateWorker;
@@ -89,8 +97,36 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC)
-	protected volatile List<OpenemsApp> availableApps;
+	protected volatile List<OpenemsApp> availableApps = new CopyOnWriteArrayList<>();
+
+	/**
+	 * Binds newly available OpenemsApp.
+	 * 
+	 * @param app the app
+	 */
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			bind = "bindApp", unbind = "unbindApp", //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			policyOption = ReferencePolicyOption.GREEDY)
+	public void bindApp(OpenemsApp app) {
+		this.availableApps.add(app);
+		var alwaysInstalled = app.hasFlag(Flags.ALWAYS_INSTALLED);
+		if (alwaysInstalled) {
+			this.instantiatedApps
+					.add(new OpenemsAppInstance(app.getAppId(), "", UUID.randomUUID(), new JsonObject(), emptyList()));
+		}
+	}
+
+	/**
+	 * Unbinds no longer available apps.
+	 * 
+	 * @param app the app
+	 */
+	public void unbindApp(OpenemsApp app) {
+		this.availableApps.remove(app);
+		var installedInstances = this.instantiatedApps.stream().filter(t -> t.appId == app.getAppId()).toList();
+		this.instantiatedApps.removeAll(installedInstances);
+	}
 
 	@Reference
 	private ComponentServiceObjects<AppManagerAppHelper> csoAppManagerAppHelper;
@@ -195,22 +231,27 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	/**
 	 * formats the given apps into a JSON array string.
 	 *
-	 * @param apps that should be formated
-	 * @return formated apps string
+	 * @param apps that should be formatted
+	 * @return formatted apps string
 	 */
-	private static String getJsonAppsString(List<OpenemsAppInstance> apps) {
-		return JsonUtils
-				.prettyToString(apps.stream().map(OpenemsAppInstance::toJsonObject).collect(JsonUtils.toJsonArray()));
+	private String getJsonAppsString(List<OpenemsAppInstance> apps) {
+		return JsonUtils.prettyToString(apps.stream() //
+				.filter(t -> !this.appIdIsAlwaysInstalled(t.appId)) //
+				.map(OpenemsAppInstance::toJsonObject) //
+				.collect(JsonUtils.toJsonArray()));
 	}
 
 	/**
 	 * Parses the configured apps to a List of {@link OpenemsAppInstance}s.
 	 *
-	 * @param apps the app configuration from Config.json as {@link JsonArray}
+	 * @param apps                the app configuration from Config.json as
+	 *                            {@link JsonArray}
+	 * @param alwaysInstalledApps list of all apps that are always installed
 	 * @return List of {@link OpenemsAppInstance}s
 	 * @throws OpenemsNamedException on parse error
 	 */
-	private static List<OpenemsAppInstance> parseInstantiatedApps(JsonArray apps) throws OpenemsNamedException {
+	private static List<OpenemsAppInstance> parseInstantiatedApps(JsonArray apps, List<String> alwaysInstalledApps)
+			throws OpenemsNamedException {
 		var errors = new ArrayList<String>();
 		var result = new ArrayList<OpenemsAppInstance>(apps.size());
 		for (var appElement : apps) {
@@ -236,6 +277,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			}
 			result.add(new OpenemsAppInstance(appId, alias, instanceId, properties, dependecies));
 		}
+		var aip = alwaysInstalledApps.stream()
+				.map(t -> new OpenemsAppInstance(t, "", UUID.randomUUID(), new JsonObject(), emptyList())).toList();
+		result.addAll(aip);
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
@@ -252,8 +296,14 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			if (apps == null || apps.isBlank()) {
 				apps = "[]"; // default to empty array
 			}
-			var instApps = parseInstantiatedApps(JsonUtils.parseToJsonArray(apps));
 
+			var alwaysInstalledApps = this.instantiatedApps.stream().filter(t -> {
+				return this.findAppById(t.appId)//
+						.map(a -> a.hasFlag(Flags.ALWAYS_INSTALLED))//
+						.orElse(false);
+			}).map(t -> t.appId).toList();
+
+			var instApps = parseInstantiatedApps(JsonUtils.parseToJsonArray(apps), alwaysInstalledApps);
 			// always replace old apps with the new ones
 			var currentApps = new ArrayList<>(this.instantiatedApps);
 
@@ -508,31 +558,31 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(//
+	public AddAppInstance.Response handleAddAppInstanceRequest(//
 			final User user, // nullable
 			final AddAppInstance.Request request, //
 			final boolean ignoreBackend //
 	) throws OpenemsNamedException {
 		// check if key is valid for this app
-		if (!ignoreBackend && !this.backendUtil.isKeyApplicable(user, request.key, request.appId)) {
+		if (!ignoreBackend && !this.backendUtil.isKeyApplicable(user, request.key(), request.appId())) {
 			throw new OpenemsException("Key not applicable!");
 		}
 
-		final var openemsApp = this.findAppByIdOrError(request.appId);
+		final var openemsApp = this.findAppByIdOrError(request.appId());
 
 		return this.lockModifyingApps(() -> {
 			// initial check if the app can even be installed
 			final var language = user == null ? Language.DEFAULT : user.getLanguage();
-			openemsApp.getAppConfiguration(ConfigurationTarget.ADD, request.properties, language);
+			openemsApp.getAppConfiguration(ConfigurationTarget.ADD, request.properties(), language);
 			this.validator.checkStatus(openemsApp, language);
 
 			List<String> warnings = new ArrayList<>();
-			var instance = new OpenemsAppInstance(openemsApp.getAppId(), request.alias, UUID.randomUUID(),
-					request.properties, null);
+			var instance = new OpenemsAppInstance(openemsApp.getAppId(), request.alias(), UUID.randomUUID(),
+					request.properties(), null);
 			if (!ignoreBackend) {
 				try {
 					// try to send the backend the install request
-					this.backendUtil.addInstallAppInstanceHistory(user, request.key, request.appId,
+					this.backendUtil.addInstallAppInstanceHistory(user, request.key(), request.appId(),
 							instance.instanceId);
 				} catch (OpenemsNamedException e) {
 					// if timeout happens but the backend registered the app as installed it may
@@ -564,8 +614,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 				this.instantiatedApps.add(instance);
 			}
 			var instanceWithFilledProperties = this.createInstanceWithFilledProperties(openemsApp, instance);
-			return new Pair<>(true, CompletableFuture.completedFuture(//
-					new AddAppInstance.Response(request.id, instanceWithFilledProperties, warnings)));
+			return new Pair<>(true, new AddAppInstance.Response(instanceWithFilledProperties, warnings));
 		}, (shouldUpdate) -> {
 			if (shouldUpdate == null || !shouldUpdate) {
 				return;
@@ -590,8 +639,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(User user,
-			AddAppInstance.Request request) throws OpenemsNamedException {
+	public AddAppInstance.Response handleAddAppInstanceRequest(User user, AddAppInstance.Request request)
+			throws OpenemsNamedException {
 		return this.handleAddAppInstanceRequest(user, request, false);
 	}
 
@@ -603,10 +652,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the request id
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleDeleteAppInstanceRequest(User user,
-			DeleteAppInstance.Request request) throws OpenemsNamedException {
+	public DeleteAppInstance.Response handleDeleteAppInstanceRequest(User user, DeleteAppInstance.Request request)
+			throws OpenemsNamedException {
 		final var updatedResultPair = this.<Boolean, Pair<UpdateValues, OpenemsAppInstance>>lockModifyingApps(() -> {
-			final var instance = this.findInstanceById(request.instanceId).orElse(null);
+			final var instance = this.findInstanceById(request.instanceId()).orElse(null);
 			if (instance == null) {
 				return new Pair<>(false, null);
 			}
@@ -626,12 +675,12 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			try {
 				this.updateAppManagerConfiguration(user, this.instantiatedApps);
 			} catch (OpenemsNamedException e) {
-				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId
+				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId()
 						+ "]: " + e.getMessage());
 			}
 		});
 		if (updatedResultPair == null) {
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));
+			return new DeleteAppInstance.Response(emptyList());
 		}
 
 		final var updatedResult = updatedResultPair.first;
@@ -648,10 +697,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			this._setAppsNotSyncedWithBackend(true);
 		});
 		if (updatedResult == null) {
-			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));
+			return new DeleteAppInstance.Response(emptyList());
 		} else {
-			return CompletableFuture
-					.completedFuture(new DeleteAppInstance.Response(request.id, updatedResult.warnings));
+			return new DeleteAppInstance.Response(updatedResult.warnings);
 		}
 	}
 
@@ -663,17 +711,12 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppAssistantRequest(//
+	private GetAppAssistant.Response handleGetAppAssistantRequest(//
 			final User user, //
 			final GetAppAssistant.Request request //
 	) throws OpenemsNamedException {
-		for (var app : this.availableApps) {
-			if (request.appId.equals(app.getAppId())) {
-				return CompletableFuture
-						.completedFuture(new GetAppAssistant.Response(request.id, app.getAppAssistant(user)));
-			}
-		}
-		throw new OpenemsException("App-ID [" + request.appId + "] is unknown");
+		final var app = this.findAppByIdOrError(request.appId());
+		return new GetAppAssistant.Response(app.getAppAssistant(user));
 	}
 
 	/**
@@ -684,11 +727,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppDescriptorRequest(User user,
-			GetAppDescriptor.Request request) throws OpenemsNamedException {
-		final var app = this.findAppByIdOrError(request.appId);
-		return CompletableFuture
-				.completedFuture(new GetAppDescriptor.Response(request.id, app.getAppDescriptor(this.oem)));
+	private GetAppDescriptor.Response handleGetAppDescriptorRequest(User user, GetAppDescriptor.Request request)
+			throws OpenemsNamedException {
+		final var app = this.findAppByIdOrError(request.appId());
+		return new GetAppDescriptor.Response(app.getAppDescriptor(this.oem));
 	}
 
 	/**
@@ -699,10 +741,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppInstancesRequest(User user,
-			GetAppInstances.Request request) throws OpenemsNamedException {
+	private GetAppInstances.Response handleGetAppInstancesRequest(User user, GetAppInstances.Request request)
+			throws OpenemsNamedException {
 		var instances = this.instantiatedApps.stream() //
-				.filter(i -> i.appId.equals(request.appId)) //
+				.filter(i -> i.appId.equals(request.appId())) //
 				.map(t -> {
 					final var app = this.findAppById(t.appId).orElse(null);
 					var properties = t.properties;
@@ -710,8 +752,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 						properties = AbstractOpenemsApp.fillUpProperties(app, properties);
 					}
 					return new OpenemsAppInstance(t.appId, t.alias, t.instanceId, properties, t.dependencies);
-				});
-		return CompletableFuture.completedFuture(new GetAppInstances.Response(request.id, instances));
+				}) //
+				.toList();
+		return new GetAppInstances.Response(instances);
 	}
 
 	/**
@@ -722,63 +765,220 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppRequest(User user, GetApp.Request request)
-			throws OpenemsNamedException {
-		var app = this.availableApps.stream().filter(t -> t.getAppId().equals(request.appId)).findFirst().get();
-		var instances = this.instantiatedApps.stream().filter(t -> t.appId.equals(request.appId))
-				.collect(Collectors.toList());
-		return CompletableFuture
-				.completedFuture(new GetApp.Response(request.id, app, instances, user.getLanguage(), this.validator));
+	private GetApp.Response handleGetAppRequest(User user, GetApp.Request request) throws OpenemsNamedException {
+		final var app = this.findAppByIdOrError(request.appId());
+		var instances = this.instantiatedApps.stream() //
+				.filter(t -> t.appId.equals(request.appId())) //
+				.toList();
+		return GetApp.Response.newInstance(app, instances, user.getLanguage(), this.validator);
 	}
 
 	/**
 	 * Handles a {@link GetApps.Request}.
 	 *
-	 * @param user    the User
-	 * @param request the {@link GetApps.Request}
+	 * @param user the User
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppsRequest(User user, GetApps.Request request)
-			throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(new GetApps.Response(request.id, this.availableApps,
-				this.instantiatedApps, user.getRole(), user.getLanguage(), this.validator));
+	private GetApps.Response handleGetAppsRequest(User user) throws OpenemsNamedException {
+		return GetApps.Response.newInstance(this.availableApps, this.instantiatedApps, user.getRole(),
+				user.getLanguage(), this.validator);
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.OWNER);
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(new GetApps(), endpoint -> {
+			endpoint.setDescription("""
+					Gets all available apps on the current edge.
+					""".stripIndent());
 
-		switch (request.getMethod()) {
+		}, call -> this.handleGetAppsRequest(call.get(EdgeKeys.USER_KEY)));
 
-		case GetApps.METHOD:
-			return this.handleGetAppsRequest(user, GetApps.Request.from(request));
+		builder.handleRequest(new GetApp(), endpoint -> {
+			endpoint.setDescription("""
+					Gets an app by its id.
+					""".stripIndent());
 
-		case GetApp.METHOD:
-			return this.handleGetAppRequest(user, GetApp.Request.from(request));
+			endpoint.applyRequestBuilder(request -> {
+				request.addExample("Get Keba app", new GetApp.Request("App.Evcs.Keba"));
+			});
 
-		case GetAppAssistant.METHOD:
-			return this.handleGetAppAssistantRequest(user, GetAppAssistant.Request.from(request));
+		}, call -> this.handleGetAppRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
 
-		case GetAppDescriptor.METHOD:
-			return this.handleGetAppDescriptorRequest(user, GetAppDescriptor.Request.from(request));
+		builder.handleRequest(new GetAppAssistant(), endpoint -> {
+			endpoint.setDescription("""
+					Gets the AppAssistant for a app.
+					""".stripIndent());
 
-		case GetAppInstances.METHOD:
-			return this.handleGetAppInstancesRequest(user, GetAppInstances.Request.from(request));
+			endpoint.applyRequestBuilder(request -> {
+				request.addExample("Get the AppAssistant for Keba app", new GetAppAssistant.Request("App.Evcs.Keba"));
+			});
 
-		case AddAppInstance.METHOD:
-			return this.handleAddAppInstanceRequest(user, AddAppInstance.Request.from(request), false);
+		}, call -> this.handleGetAppAssistantRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
 
-		case UpdateAppInstance.METHOD:
-			return this.handleUpdateAppInstanceRequest(user, UpdateAppInstance.Request.from(request));
+		builder.handleRequest(new GetAppDescriptor(), endpoint -> {
+			endpoint.setDescription("""
+					Gets the AppDescriptor for a app.
+					""".stripIndent());
 
-		case DeleteAppInstance.METHOD:
-			return this.handleDeleteAppInstanceRequest(user, DeleteAppInstance.Request.from(request));
+			endpoint.applyRequestBuilder(request -> {
+				request.addExample("Get the AppDescriptor for Keba app", new GetAppDescriptor.Request("App.Evcs.Keba"));
+			});
 
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		}, call -> this.handleGetAppDescriptorRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+
+		builder.handleRequest(new GetAppInstances(), endpoint -> {
+			endpoint.setDescription("""
+					Gets the AppInstances for a app.
+					""".stripIndent());
+
+			endpoint.applyRequestBuilder(request -> {
+				request.addExample("Get the instances of the Keba app", new GetAppInstances.Request("App.Evcs.Keba"));
+			});
+
+		}, call -> this.handleGetAppInstancesRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+
+		builder.handleRequest(new UpdateAppInstance(), endpoint -> {
+			endpoint.setDescription("""
+					Updates a AppInstance.
+					""".stripIndent());
+
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+
+		}, call -> this.handleUpdateAppInstanceRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+
+		builder.handleRequest(new DeleteAppInstance(), endpoint -> {
+			endpoint.setDescription("""
+					Deletes a AppInstance.
+					""".stripIndent()) //
+					.setGuards(EdgeGuards.roleIsAtleast(Role.INSTALLER));
+
+		}, call -> this.handleDeleteAppInstanceRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+
+		builder.handleRequest(new AddAppInstance(), endpoint -> {
+			endpoint.setDescription("""
+					Handles a AddAppInstance Request.
+					""".stripIndent());
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+
+			endpoint.applyRequestBuilder(request -> {
+				request.addExample(new AddAppInstance.Request("0000-0000-0000-0000", "App.Id", "alias",
+						JsonUtils.buildJsonObject() //
+								.addProperty("key", "value") //
+								.build()));
+			});
+			endpoint.applyResponseBuilder(response -> {
+				response.addExample(new AddAppInstance.Response(
+						new OpenemsAppInstance("App.Id", "alias", UUID.randomUUID(), new JsonObject(), emptyList()),
+						emptyList()));
+			});
+		}, call -> this.handleAddAppInstanceRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+
+		builder.handleRequest(new GetEstimatedConfiguration(), endpoint -> {
+
+			endpoint.applyRequestBuilder(request -> {
+				request.addExample("Home 30",
+						new GetEstimatedConfiguration.Request("App.FENECON.Home.30", "FENECON Home 30",
+								JsonUtils.buildJsonObject() //
+										.addProperty("SAFETY_COUNTRY", "GERMANY") //
+										.addProperty("FEED_IN_TYPE", "EXTERNAL_LIMITATION") //
+										.addProperty("FEED_IN_SETTING", "QU_ENABLE_CURVE") //
+										.addProperty("HAS_MPPT_1", "true") //
+										.addProperty("ALIAS_MPPT_1", "String A and String B") //
+										.build()));
+			});
+
+		}, call -> {
+			final var request = call.getRequest();
+			final var user = call.get(EdgeKeys.USER_KEY);
+
+			final var app = this.findAppByIdOrError(request.appId());
+
+			final var configs = this.useAppManagerAppHelper(t -> {
+				return t.getInstallConfiguration(user, new OpenemsAppInstance(request.appId(), request.alias(),
+						UUID.randomUUID(), request.properties(), null), app);
+			});
+
+			return new GetEstimatedConfiguration.Response(configs);
+		});
+
+		builder.handleRequest(new UpdateAppConfig(), endpoint -> {
+			endpoint.setDescription("""
+					Updates a AppInstance.
+					""".stripIndent());
+
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+
+		}, call -> {
+			this.handleUpdateAppConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest());
+			return EmptyObject.INSTANCE;
+		});
+	}
+
+	/**
+	 * Find unique instanceId for given componentId}.
+	 *
+	 * @param componentId Id of the component the app configures
+	 * @return the instanceId of the appInstance
+	 * @throws OpenemsNamedException on error
+	 */
+	private OpenemsAppInstance findInstanceByComponentId(String componentId) throws OpenemsNamedException {
+		for (var appConfig : this.appConfigs()) {
+			var containsComponent = appConfig.getValue().getComponents().stream()
+					.anyMatch(t -> t.getId().equals(componentId));
+			if (containsComponent) {
+				return appConfig.getKey();
+			}
 		}
+
+		return null;
+	}
+
+	/**
+	 * Handles {@link UpdateAppConfigRequest}.
+	 *
+	 * @param user    the User
+	 * @param request the {@link UpdateAppConfigRequest} Request
+	 * @throws OpenemsNamedException on error
+	 */
+	public void handleUpdateAppConfigRequest(User user, UpdateAppConfig.Request request) throws OpenemsNamedException {
+
+		final var appInstance = this.findInstanceByComponentId(request.componentId());
+
+		// update Component the old fashioned way if no app exists for the component
+		if (appInstance == null) {
+			this.updateComponentDirectly(user, request);
+			return;
+		}
+		final var app = this.findAppByIdOrError(appInstance.appId);
+
+		final var requestProperties = request.properties().entrySet().stream() //
+				.map(entry -> Map.entry(app.mapPropName(entry.getKey(), request.componentId(), appInstance),
+						entry.getValue()))
+				.filter(entry -> entry.getKey() != null)
+				.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue));
+
+		for (var entry : appInstance.properties.entrySet()) {
+			if (requestProperties.has(entry.getKey())) {
+				continue;
+			}
+			requestProperties.add(entry.getKey(), entry.getValue());
+		}
+
+		// build UpdateAppInstance Request and pass the request to the
+		// handleUpdateAppInstanceRequest Method
+		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, requestProperties);
+		this.handleUpdateAppInstanceRequest(user, req);
+	}
+
+	private void updateComponentDirectly(User user, UpdateAppConfig.Request from) throws OpenemsNamedException {
+		final var properties = from.properties();
+		final var componentUpdateProps = new ArrayList<UpdateComponentConfigRequest.Property>();
+		for (var key : properties.keySet()) {
+			componentUpdateProps.add(new UpdateComponentConfigRequest.Property(key, properties.get(key)));
+		}
+		final var updateRequest = new UpdateComponentConfig.Request(from.componentId(), componentUpdateProps);
+		this.componentManager.handleUpdateComponentConfigRequest(user, updateRequest);
 	}
 
 	/**
@@ -789,15 +989,43 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<UpdateAppInstance.Response> handleUpdateAppInstanceRequest(User user,
-			UpdateAppInstance.Request request) throws OpenemsNamedException {
+	public UpdateAppInstance.Response handleUpdateAppInstanceRequest(User user, UpdateAppInstance.Request request)
+			throws OpenemsNamedException {
 		return this.lockModifyingApps(() -> {
-			final var oldApp = this.findInstanceByIdOrError(request.instanceId);
+			final var oldApp = this.findInstanceByIdOrError(request.instanceId());
 			final var app = this.findAppByIdOrError(oldApp.appId);
-			app.getAppConfiguration(ConfigurationTarget.UPDATE, request.properties, user.getLanguage());
 
-			final var updatedInstance = new OpenemsAppInstance(oldApp.appId, request.alias, oldApp.instanceId,
-					request.properties, oldApp.dependencies);
+			final var props = request.properties();
+			final JsonObject restOfProps;
+
+			if (app instanceof AbstractOpenemsAppWithProps) {
+				restOfProps = AbstractOpenemsApp.fillUpProperties(app, oldApp.properties);
+			} else {
+				restOfProps = oldApp.properties;
+			}
+			final var notAllowedProperties = props.keySet().stream()//
+					.filter(key -> {
+						final var canEdit = app.assertCanEdit(key, user);
+						return !canEdit;
+					}) //
+					.filter(key -> {
+						final var element = restOfProps.get(key);
+						if (element == null) {
+							return false;
+						}
+
+						// TODO special handling for arrays
+						return (!props.get(key).getAsString().equals(restOfProps.get(key).getAsString()));
+					}) //
+					.collect(Collectors.joining(", "));
+			if (notAllowedProperties.length() > 0) {
+				throw new OpenemsException("User is not allowed to edit " + notAllowedProperties + "!");
+			}
+
+			app.getAppConfiguration(ConfigurationTarget.UPDATE, props, user.getLanguage());
+
+			final var updatedInstance = new OpenemsAppInstance(oldApp.appId, request.alias(), oldApp.instanceId, props,
+					oldApp.dependencies);
 
 			var result = this.lastUpdate = this.useAppManagerAppHelper(appHelper -> {
 				return appHelper.updateApp(user, oldApp, updatedInstance, app);
@@ -807,9 +1035,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			// replace old instances with new ones
 			this.instantiatedApps.removeAll(result.modifiedOrCreatedApps);
 			this.instantiatedApps.addAll(result.modifiedOrCreatedApps);
-			return new Pair<>(true, CompletableFuture.completedFuture(//
-					new UpdateAppInstance.Response(request.id, //
-							this.createInstanceWithFilledProperties(app, result.rootInstance), result.warnings)));
+
+			return new Pair<>(!this.appIdIsAlwaysInstalled(app.getAppId()), new UpdateAppInstance.Response(
+					this.createInstanceWithFilledProperties(app, result.rootInstance), result.warnings));
 		}, (shouldUpdate) -> {
 			if (shouldUpdate == null || !shouldUpdate) {
 				return;
@@ -817,10 +1045,22 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			try {
 				this.updateAppManagerConfiguration(user, this.instantiatedApps);
 			} catch (OpenemsNamedException e) {
-				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId
+				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId()
 						+ "]: " + e.getMessage());
 			}
 		});
+	}
+
+	/**
+	 * Checks from AppId if the app has the Flag alwaysInstalled.
+	 * 
+	 * @param appId appId of the app
+	 * @return if the app is always installed
+	 */
+	public boolean appIdIsAlwaysInstalled(String appId) {
+		return this.findAppById(appId)//
+				.map(t -> t.hasFlag(Flags.ALWAYS_INSTALLED))//
+				.orElse(false);
 	}
 
 	/**
@@ -833,14 +1073,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	private void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
 		this.waitingForModified = true;
 		AppManagerImpl.sortApps(apps);
-		var p = new Property("apps", getJsonAppsString(apps));
-		var updateRequest = new UpdateComponentConfigRequest(SINGLETON_COMPONENT_ID, Arrays.asList(p));
+		var p = new Property("apps", this.getJsonAppsString(apps));
 		// user can be null using internal method
-		if (user == null) {
-			((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
-		} else {
-			this.componentManager.handleJsonrpcRequest(user, updateRequest);
-		}
+		this.componentManager.handleUpdateComponentConfigRequest(user,
+				new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, Arrays.asList(p)));
 	}
 
 	private static void sortApps(List<OpenemsAppInstance> apps) {

@@ -51,11 +51,6 @@ public class StringUtilsTest {
 	}
 
 	@Test
-	public void testMatchesFloatPattern() {
-		assertTrue(StringUtils.matchesFloatPattern("208.6"));
-	}
-
-	@Test
 	public void testDefinedOrElse() {
 		assertEquals("foo", definedOrElse("foo", "bar"));
 		assertEquals("bar", definedOrElse(null, "bar"));

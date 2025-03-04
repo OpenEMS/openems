@@ -1,34 +1,45 @@
+import { Utils } from "../../shared";
+
 export namespace ArrayUtils {
-  export function equalsCheck(a: any[], b: any[]) {
+  export function equalsCheck<T>(a: T[], b: T[]): boolean {
     return a.length === b.length &&
       a.every((v, i) => v === b[i]);
   }
 
   /**
-   * Finds the smallest number in a array
+   * Finds the smallest number in a array.
+   * null, undefined, NaN, +-Infinity are ignored in this method.
    *
    * @param arr the arr
    * @returns a number if arr not empty, else null
    */
-  export function findSmallestNumber(arr: number[]): number | null {
-    if (arr?.length === 0 || arr?.every(el => el == null)) {
-      return null; // Return undefined for an empty array or handle it based on your requirements
-    }
-    return Math.min(...(arr.filter(Number.isFinite)));
+  export function findSmallestNumber(arr: (number | null | undefined)[]): number | null {
+    const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
+    return filteredArr.length > 0 ? Math.min(...filteredArr) : null;
   }
 
   /**
-   * Finds the biggest number in a array
-   *
-   * @param arr the arr
-   * @returns a number if arr not empty, else null
-   */
-  export function findBiggestNumber(arr: number[]): number | null {
-    if (arr?.length === 0 || arr?.every(el => el == null)) {
-      return null; // Return undefined for an empty array or handle it based on your requirements
+   * Finds the biggest number in a array.
+   * null, undefined, NaN, +-Infinity are ignored in this method.
+  *
+  * @param arr the arr
+  * @returns a number if arr not empty, else null
+  */
+  export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
+    const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
+    return filteredArr.length > 0 ? Math.max(...filteredArr) : null;
+  }
+
+  export function summarizeValuesByIndex(data: { [name: string]: number[] }): number[] {
+    const result: number[] = [];
+
+    for (const key in data) {
+      data[key].forEach((value, index) => {
+        result[index] = Utils.addSafely(result[index], value);
+      });
     }
 
-    return Math.max(...(arr.filter(Number.isFinite)));
+    return result;
   }
 
   /**
@@ -48,7 +59,37 @@ export namespace ArrayUtils {
       } else if (!bVal) {
         return -1;
       }
-      return aVal.localeCompare(bVal, undefined, { sensitivity: 'accent' });
+      return aVal.localeCompare(bVal, undefined, { sensitivity: "accent" });
     });
+  }
+
+  /**
+  * Checks if array contains at least one of the passed strings
+  *
+  * @param strings the strings
+  * @param arr the array
+  * @returns true if arr contains at least one of the strings
+  */
+  export function containsStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
+    return arr.filter(el => strings.includes(el)).length > 0;
+  }
+
+  /**
+   * Checks if array contains all of the passed strings
+   *
+   * @param strings the strings
+   * @param arr the array
+   * @returns true if arr contains all of the strings
+   */
+  export function containsAllStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
+    return arr.every(el => strings.includes(el));
+  }
+
+  export function getArrayOfLength(length: number): number[] {
+    return Array.from({ length }, (_, index) => index);
+  }
+
+  export function sanitize<T>(arr: T[]): T[] {
+    return arr.filter(el => el != null);
   }
 }

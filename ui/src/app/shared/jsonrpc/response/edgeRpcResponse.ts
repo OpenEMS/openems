@@ -16,7 +16,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../base";
 export class EdgeRpcResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
+        public override readonly id: string,
         public readonly params: {
             payload: JsonrpcRequest
         },

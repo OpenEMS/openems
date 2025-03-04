@@ -1,18 +1,24 @@
 package io.openems.edge.bridge.http.api;
 
-import static io.openems.edge.bridge.http.time.DelayTimeProviderChain.immediate;
 import static java.util.Collections.emptyMap;
 
+import java.util.Collection;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonElement;
 
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.time.DefaultDelayTimeProvider;
 import io.openems.edge.bridge.http.time.DelayTimeProvider;
+import io.openems.edge.bridge.http.time.DelayTimeProvider.Delay;
 import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 
 /**
@@ -54,16 +60,29 @@ public interface BridgeHttpTime {
 			/**
 			 * The url which should be fetched.
 			 */
-			Endpoint endpoint, //
+			Supplier<Endpoint> endpoint, //
 			/**
 			 * The callback to execute on every successful result.
 			 */
-			Consumer<String> onResult, //
+			Consumer<HttpResponse<String>> onResult, //
 			/**
 			 * The callback to execute on every error.
 			 */
-			Consumer<Throwable> onError //
+			Consumer<HttpError> onError //
 	) {
+
+		public TimeEndpoint {
+			Objects.requireNonNull(endpoint, "Endpoint of TimeEndpoint must not be null!");
+			Objects.requireNonNull(onResult, "OnResult of TimeEndpoint must not be null!");
+			Objects.requireNonNull(onError, "OnError of TimeEndpoint must not be null!");
+			Objects.requireNonNull(delayTimeProvider, "DelayTimeProvider of TimeEndpoint must not be null!");
+		}
+
+		@Override
+		public String toString() {
+			return "TimeEndpoint [delayTimeProvider=" + this.delayTimeProvider + ", endpoint="
+					+ this.endpoint.get().url() + "]";
+		}
 
 	}
 
@@ -75,8 +94,10 @@ public interface BridgeHttpTime {
 	 * gets executed depending on the result.
 	 * 
 	 * @param endpoint the {@link TimeEndpoint} to add a subscription
+	 * @return the added {@link TimeEndpoint} (always the provided one); or null if
+	 *         the {@link TimeEndpoint} could not be added
 	 */
-	public void subscribeTime(TimeEndpoint endpoint);
+	public TimeEndpoint subscribeTime(TimeEndpoint endpoint);
 
 	/**
 	 * Subscribes to an {@link Endpoint} with the delay provided by the
@@ -89,18 +110,47 @@ public interface BridgeHttpTime {
 	 * @param onResult          the method to call on successful fetch
 	 * @param onError           the method to call if an error happens during
 	 *                          fetching or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
 	 */
-	public default void subscribeTime(//
+	public default TimeEndpoint subscribeTime(//
 			DelayTimeProvider delayTimeProvider, //
 			Endpoint endpoint, //
-			ThrowingConsumer<String, Exception> onResult, //
-			Consumer<Throwable> onError //
+			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
+			Consumer<HttpError> onError //
 	) {
-		this.subscribeTime(new TimeEndpoint(delayTimeProvider, endpoint, t -> {
+		return this.subscribeTime(delayTimeProvider, () -> endpoint, onResult, onError);
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch either the
+	 * <code>onResult</code> or the <code>onError</code> method gets called.
+	 * 
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpointSupplier  the supplier to get the {@link Endpoint} to fetch;
+	 *                          the {@link Supplier} gets called right before the
+	 *                          fetch happens
+	 * @param onResult          the method to call on successful fetch
+	 * @param onError           the method to call if an error happens during
+	 *                          fetching or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	public default TimeEndpoint subscribeTime(//
+			DelayTimeProvider delayTimeProvider, //
+			Supplier<Endpoint> endpointSupplier, //
+			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
+			Consumer<HttpError> onError //
+	) {
+		return this.subscribeTime(new TimeEndpoint(delayTimeProvider, endpointSupplier, t -> {
 			try {
 				onResult.accept(t);
-			} catch (Exception e) {
+			} catch (HttpError e) {
 				onError.accept(e);
+			} catch (Exception e) {
+				onError.accept(new HttpError.UnknownError(e));
 			}
 		}, onError));
 	}
@@ -118,13 +168,41 @@ public interface BridgeHttpTime {
 	 *                          the endpoint if existing and the second argument is
 	 *                          passed if an error happend. One of the params is
 	 *                          always null and one not
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
 	 */
-	public default void subscribeTime(//
+	public default TimeEndpoint subscribeTime(//
 			DelayTimeProvider delayTimeProvider, //
 			Endpoint endpoint, //
-			BiConsumer<String, Throwable> action //
+			BiConsumer<HttpResponse<String>, HttpError> action //
 	) {
-		this.subscribeTime(new TimeEndpoint(delayTimeProvider, endpoint, r -> action.accept(r, null),
+		return this.subscribeTime(delayTimeProvider, () -> endpoint, action);
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch the
+	 * <code>action</code> gets called either with the result or the error at least
+	 * one is not null.
+	 * 
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpointSupplier  the supplier to get the {@link Endpoint} to fetch;
+	 *                          the {@link Supplier} gets called right before the
+	 *                          fetch happens
+	 * @param action            the action to perform; the first is the result of
+	 *                          the endpoint if existing and the second argument is
+	 *                          passed if an error happend. One of the params is
+	 *                          always null and one not
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	public default TimeEndpoint subscribeTime(//
+			DelayTimeProvider delayTimeProvider, //
+			Supplier<Endpoint> endpointSupplier, //
+			BiConsumer<HttpResponse<String>, HttpError> action //
+	) {
+		return this.subscribeTime(new TimeEndpoint(delayTimeProvider, endpointSupplier, r -> action.accept(r, null),
 				t -> action.accept(null, t)));
 	}
 
@@ -136,29 +214,33 @@ public interface BridgeHttpTime {
 	 * <p>
 	 * Note: the first fetch gets triggered immediately
 	 * 
-	 * @param onErrorDelay   the {@link DelayTimeProviderChain} when the last fetch
-	 *                       was not successful
-	 * @param onSuccessDelay the {@link DelayTimeProviderChain} when the last fetch
-	 *                       was successful
+	 * @param onErrorDelay   the delay provider when the last fetch was not
+	 *                       successful
+	 * @param onSuccessDelay the delay provider when the last fetch was successful
 	 * @param url            the url to fetch
 	 * @param onResult       the method to call on successful fetch
 	 * @param onError        the method to call if an error happens during fetching
 	 *                       or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
 	 */
-	public default void subscribeTime(//
-			DelayTimeProviderChain onErrorDelay, //
-			DelayTimeProviderChain onSuccessDelay, //
+	public default TimeEndpoint subscribeTime(//
+			Function<HttpError, Delay> onErrorDelay, //
+			Function<HttpResponse<String>, Delay> onSuccessDelay, //
 			String url, //
-			ThrowingConsumer<String, Exception> onResult, //
-			Consumer<Throwable> onError //
+			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
+			Consumer<HttpError> onError //
 	) {
-		this.subscribeTime(new DefaultDelayTimeProvider(immediate(), onErrorDelay, onSuccessDelay), new Endpoint(url, //
-				HttpMethod.GET, //
-				BridgeHttp.DEFAULT_CONNECT_TIMEOUT, //
-				BridgeHttp.DEFAULT_READ_TIMEOUT, //
-				null, //
-				emptyMap() //
-		), onResult, onError);
+		return this.subscribeTime(
+				new DefaultDelayTimeProvider(() -> DelayTimeProviderChain.immediate().getDelay(), onErrorDelay,
+						onSuccessDelay),
+				new Endpoint(url, //
+						HttpMethod.GET, //
+						BridgeHttp.DEFAULT_CONNECT_TIMEOUT, //
+						BridgeHttp.DEFAULT_READ_TIMEOUT, //
+						null, //
+						emptyMap() //
+				), onResult, onError);
 	}
 
 	/**
@@ -174,14 +256,16 @@ public interface BridgeHttpTime {
 	 * @param onResult the method to call on successful fetch
 	 * @param onError  the method to call if an error happens during fetching or
 	 *                 handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
 	 */
-	public default void subscribeTime(//
+	public default TimeEndpoint subscribeTime(//
 			DelayTimeProviderChain delay, //
 			String url, //
-			ThrowingConsumer<String, Exception> onResult, //
-			Consumer<Throwable> onError //
+			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
+			Consumer<HttpError> onError //
 	) {
-		this.subscribeTime(delay, delay, url, onResult, onError);
+		return this.subscribeTime(t -> delay.getDelay(), t -> delay.getDelay(), url, onResult, onError);
 	}
 
 	/**
@@ -195,13 +279,45 @@ public interface BridgeHttpTime {
 	 * @param delay    the {@link DelayTimeProviderChain} between each fetch
 	 * @param url      the url to fetch
 	 * @param onResult the method to call on successful fetch
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
 	 */
-	public default void subscribeTime(//
+	public default TimeEndpoint subscribeTime(//
 			DelayTimeProviderChain delay, //
 			String url, //
-			ThrowingConsumer<String, Exception> onResult //
+			ThrowingConsumer<HttpResponse<String>, Exception> onResult //
 	) {
-		this.subscribeTime(delay, delay, url, onResult, BridgeHttp.EMPTY_ERROR_HANDLER);
+		return this.subscribeTime(t -> delay.getDelay(), t -> delay.getDelay(), url, onResult,
+				FunctionUtils::doNothing);
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the delay
+	 * provider and after every endpoint fetch either the <code>onResult</code> or
+	 * the <code>onError</code> method gets called.
+	 * 
+	 * <p>
+	 * Note: the first fetch gets triggered immediately
+	 * 
+	 * @param onErrorDelay   the delay provider when the last fetch was not
+	 *                       successful
+	 * @param onSuccessDelay the delay provider when the last fetch was successful
+	 * @param url            the url to fetch
+	 * @param onResult       the method to call on successful fetch
+	 * @param onError        the method to call if an error happens during fetching
+	 *                       or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	public default TimeEndpoint subscribeJsonTime(//
+			Function<HttpError, Delay> onErrorDelay, //
+			Function<HttpResponse<String>, Delay> onSuccessDelay, //
+			String url, //
+			ThrowingConsumer<HttpResponse<JsonElement>, Exception> onResult, //
+			Consumer<HttpError> onError //
+	) {
+		return this.subscribeTime(onErrorDelay, onSuccessDelay, url,
+				t -> onResult.accept(t.withData(JsonUtils.parse(t.data()))), onError);
 	}
 
 	/**
@@ -215,14 +331,42 @@ public interface BridgeHttpTime {
 	 * @param onResult          the method to call on successful fetch
 	 * @param onError           the method to call if an error happens during
 	 *                          fetching or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
 	 */
-	public default void subscribeJsonTime(//
+	public default TimeEndpoint subscribeJsonTime(//
 			DelayTimeProvider delayTimeProvider, //
 			Endpoint endpoint, //
-			ThrowingConsumer<JsonElement, Exception> onResult, //
-			Consumer<Throwable> onError //
+			ThrowingConsumer<HttpResponse<JsonElement>, Exception> onResult, //
+			Consumer<HttpError> onError //
 	) {
-		this.subscribeTime(delayTimeProvider, endpoint, t -> onResult.accept(JsonUtils.parse(t)), onError);
+		return this.subscribeJsonTime(delayTimeProvider, () -> endpoint, onResult, onError);
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch either the
+	 * <code>onResult</code> or the <code>onError</code> method gets called.
+	 * 
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpointSupplier  the supplier to get the {@link Endpoint} to fetch;
+	 *                          the {@link Supplier} gets called right before the
+	 *                          fetch happens
+	 * @param onResult          the method to call on successful fetch
+	 * @param onError           the method to call if an error happens during
+	 *                          fetching or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	public default TimeEndpoint subscribeJsonTime(//
+			DelayTimeProvider delayTimeProvider, //
+			Supplier<Endpoint> endpointSupplier, //
+			ThrowingConsumer<HttpResponse<JsonElement>, Exception> onResult, //
+			Consumer<HttpError> onError //
+	) {
+		return this.subscribeTime(delayTimeProvider, endpointSupplier,
+				t -> onResult.accept(t.withData(JsonUtils.parse(t.data()))), onError);
 	}
 
 	/**
@@ -238,14 +382,70 @@ public interface BridgeHttpTime {
 	 *                          the endpoint if existing and the second argument is
 	 *                          passed if an error happend. One of the params is
 	 *                          always null and one not
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
 	 */
-	public default void subscribeJsonTime(//
+	public default TimeEndpoint subscribeJsonTime(//
 			DelayTimeProvider delayTimeProvider, //
 			Endpoint endpoint, //
-			BiConsumer<JsonElement, Throwable> action //
+			BiConsumer<HttpResponse<JsonElement>, HttpError> action //
 	) {
-		this.subscribeTime(delayTimeProvider, endpoint, t -> action.accept(JsonUtils.parse(t), null),
-				e -> action.accept(null, e));
+		return this.subscribeJsonTime(delayTimeProvider, () -> endpoint, action);
+	}
+
+	/**
+	 * Subscribes to an {@link Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch the
+	 * <code>action</code> gets called either with the result or the error at least
+	 * one is not null.
+	 * 
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpointSupplier  the supplier to get the {@link Endpoint} to fetch;
+	 *                          the {@link Supplier} gets called right before the
+	 *                          fetch happens
+	 * @param action            the action to perform; the first is the result of
+	 *                          the endpoint if existing and the second argument is
+	 *                          passed if an error happend. One of the params is
+	 *                          always null and one not
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	public default TimeEndpoint subscribeJsonTime(//
+			DelayTimeProvider delayTimeProvider, //
+			Supplier<Endpoint> endpointSupplier, //
+			BiConsumer<HttpResponse<JsonElement>, HttpError> action //
+	) {
+		return this.subscribeTime(delayTimeProvider, endpointSupplier,
+				t -> action.accept(t.withData(JsonUtils.parse(t.data())), null), e -> action.accept(null, e));
+	}
+
+	/**
+	 * Removes a {@link TimeEndpoint} if it matches the provided {@link Predicate}.
+	 * 
+	 * @param condition the {@link Predicate} to match
+	 * @return the removed {@link TimeEndpoint TimeEndpoints}
+	 */
+	public Collection<TimeEndpoint> removeTimeEndpointIf(Predicate<TimeEndpoint> condition);
+
+	/**
+	 * Removes all active {@link TimeEndpoint TimeEndpoints}.
+	 * 
+	 * @return the removed {@link TimeEndpoint TimeEndpoints}
+	 */
+	public default Collection<TimeEndpoint> removeAllTimeEndpoints() {
+		return this.removeTimeEndpointIf(t -> true);
+	}
+
+	/**
+	 * Removes a {@link TimeEndpoint} if it matches the provided
+	 * {@link TimeEndpoint}.
+	 * 
+	 * @param timeEndpoint the {@link TimeEndpoint} to match
+	 * @return the removed {@link TimeEndpoint TimeEndpoints}
+	 */
+	public default boolean removeTimeEndpoint(TimeEndpoint timeEndpoint) {
+		return !this.removeTimeEndpointIf(Predicate.isEqual(timeEndpoint)).isEmpty();
 	}
 
 }

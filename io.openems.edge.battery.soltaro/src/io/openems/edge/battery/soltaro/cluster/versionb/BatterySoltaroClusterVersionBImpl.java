@@ -509,7 +509,7 @@ public class BatterySoltaroClusterVersionBImpl extends AbstractOpenemsModbusComp
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this,
 				// -------- control registers of master --------------------------------------
 				new FC16WriteRegistersTask(0x1004, //

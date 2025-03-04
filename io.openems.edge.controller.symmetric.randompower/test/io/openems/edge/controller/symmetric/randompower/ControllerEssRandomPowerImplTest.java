@@ -7,19 +7,17 @@ import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerEssRandomPowerImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-	private static final String ESS_ID = "ess0";
-
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssRandomPowerImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setEssId(ESS_ID) //
+						.setId("ctrl0") //
+						.setEssId("ess0") //
 						.setMinPower(0) //
 						.setMaxPower(1000) //
-						.build()); //
+						.build()) //
+				.deactivate();
 	}
 
 }

@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -34,7 +36,6 @@ import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.CollectorUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.DbDataUtils;
 import io.openems.shared.influxdb.InfluxConnector.InfluxConnection;
 
@@ -615,30 +616,16 @@ public class InfluxQlProxy extends QueryProxy {
 	}
 
 	private static JsonElement convertToJsonElement(Object valueObj) {
-		if (valueObj == null) {
-			return JsonNull.INSTANCE;
-		}
-		if (valueObj instanceof Number) {
-			return new JsonPrimitive((Number) valueObj);
-		}
-
-		final String str;
-		if (valueObj instanceof String) {
-			str = (String) valueObj;
-		} else {
-			str = valueObj.toString();
-		}
-		if (str.isEmpty()) {
-			return JsonNull.INSTANCE;
-		}
-		if (StringUtils.matchesFloatPattern(str)) {
-			return new JsonPrimitive(Double.parseDouble(str));
-		}
-		if (StringUtils.matchesIntegerPattern(str)) {
-			return new JsonPrimitive(Long.parseLong(str));
-		}
-
-		return new JsonPrimitive(valueObj.toString());
+		return switch (valueObj) {
+		case null //
+			-> JsonNull.INSTANCE;
+		case Number n //
+			-> new JsonPrimitive(n);
+		case String s //
+			-> parseToJsonElement(s);
+		default //
+			-> parseToJsonElement(valueObj.toString());
+		};
 	}
 
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResultSingleValueInDay(//
@@ -685,28 +672,17 @@ public class InfluxQlProxy extends QueryProxy {
 								continue;
 							}
 							var valueObj = record.getValueByKey(column);
-							JsonElement value;
-							if (valueObj == null) {
-								value = JsonNull.INSTANCE;
-							} else if (valueObj instanceof Number n) {
-								value = new JsonPrimitive(n);
-							} else {
-								final String str;
-								if (valueObj instanceof String) {
-									str = (String) valueObj;
-								} else {
-									str = valueObj.toString();
-								}
-								if (str.isEmpty()) {
-									value = JsonNull.INSTANCE;
-								} else if (StringUtils.matchesFloatPattern(str)) {
-									value = new JsonPrimitive(Double.parseDouble(str));
-								} else if (StringUtils.matchesIntegerPattern(str)) {
-									value = new JsonPrimitive(Long.parseLong(str));
-								} else {
-									value = new JsonPrimitive(valueObj.toString());
-								}
-							}
+							var value = switch (valueObj) {
+							case null //
+								-> JsonNull.INSTANCE;
+							case Number n //
+								-> new JsonPrimitive(n);
+							case String str //
+								-> parseToJsonElement(str);
+							default //
+								-> parseToJsonElement(valueObj.toString());
+							};
+
 							try {
 								m.accept(new Pair<>(ChannelAddress.fromString(column), value));
 							} catch (OpenemsNamedException e) {
@@ -746,28 +722,17 @@ public class InfluxQlProxy extends QueryProxy {
 								continue;
 							}
 							var valueObj = record.getValueByKey(column);
-							JsonElement value;
-							if (valueObj == null) {
-								value = JsonNull.INSTANCE;
-							} else if (valueObj instanceof Number) {
-								value = assertPositive((Number) valueObj, influxEdgeId, channels);
-							} else {
-								final String str;
-								if (valueObj instanceof String) {
-									str = (String) valueObj;
-								} else {
-									str = valueObj.toString();
-								}
-								if (str.isEmpty()) {
-									value = JsonNull.INSTANCE;
-								} else if (StringUtils.matchesFloatPattern(str)) {
-									value = assertPositive(Double.parseDouble(str), influxEdgeId, channels);
-								} else if (StringUtils.matchesIntegerPattern(str)) {
-									value = assertPositive(Long.parseLong(str), influxEdgeId, channels);
-								} else {
-									value = new JsonPrimitive(valueObj.toString());
-								}
-							}
+							var value = switch (valueObj) {
+							case null //
+								-> JsonNull.INSTANCE;
+							case Number n //
+								-> assertPositive(n, influxEdgeId, channels);
+							case String s //
+								-> parseToJsonElement(s);
+							default //
+								-> parseToJsonElement(valueObj.toString());
+							};
+
 							map.put(ChannelAddress.fromString(column), value);
 						}
 					}
@@ -843,5 +808,33 @@ public class InfluxQlProxy extends QueryProxy {
 		} else {
 			return new JsonPrimitive(number);
 		}
+	}
+
+	/**
+	 * Parses a String to a JsonElement; handles null/empty, double and long.
+	 * 
+	 * @param str the String
+	 * @return the {@link JsonElement}
+	 */
+	protected static JsonElement parseToJsonElement(String str) {
+		// Null/Empty
+		if (str == null || str.isEmpty()) {
+			return JsonNull.INSTANCE;
+		}
+
+		// Try to parse long
+		var l = Longs.tryParse(str);
+		if (l != null) {
+			return new JsonPrimitive(l);
+		}
+
+		// Try to parse double
+		var d = Doubles.tryParse(str);
+		if (d != null) {
+			return new JsonPrimitive(d);
+		}
+
+		// Fallback
+		return new JsonPrimitive(str);
 	}
 }

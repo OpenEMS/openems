@@ -1,7 +1,9 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -9,11 +11,11 @@ import java.util.function.Function;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -65,7 +67,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.TimeOfUseTariff.Tibber")
+@Component(name = "App.TimeOfUseTariff.Tibber")
 public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.Parameter.BundleParameter>
 		implements OpenemsApp {
 
@@ -101,10 +103,9 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 		FILTER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
 				.setTranslatedDescriptionWithAppPrefix(".filterForHome.description") //
-				.setDefaultValue((app, property, l, parameter) -> JsonNull.INSTANCE)
+				.setDefaultValue("") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(MULTIPLE_HOMES_CHECK).notNull()
-							.or(Exp.currentModelValue(property).notNull()));
+					field.onlyShowIf(Exp.currentModelValue(MULTIPLE_HOMES_CHECK).notNull());
 				}) //
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
 						ComponentManagerSupplier::getComponentManager)));
@@ -146,7 +147,8 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
-			final var filter = this.getValueOrDefault(p, Property.FILTER, null);
+			final var multipleHomesCheck = this.getBoolean(p, Property.MULTIPLE_HOMES_CHECK);
+			final var filter = multipleHomesCheck ? this.getString(p, Property.FILTER) : "";
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
@@ -158,7 +160,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 									.onlyIf(accessToken != null && !accessToken.equals("xxx"), b -> {
 										b.addProperty("accessToken", accessToken);
 									}) //
-									.addPropertyIfNotNull("filter", filter) //
+									.addProperty("filter", filter) //
 									.build())//
 			);
 
@@ -196,7 +198,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
 	}
 
 	@Override

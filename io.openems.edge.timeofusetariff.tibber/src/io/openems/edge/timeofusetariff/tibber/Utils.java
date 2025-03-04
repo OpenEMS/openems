@@ -16,11 +16,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
@@ -141,7 +141,7 @@ public class Utils {
 		// Adding to an array to avoid individual variables for individual for loops.
 		JsonArray[] days = { today, tomorrow };
 
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
 
 		// parse the arrays for price and time stamps.
 		for (var day : days) {
@@ -158,7 +158,7 @@ public class Utils {
 				result.put(startsAt.plusMinutes(45), price);
 			}
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	/**

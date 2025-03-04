@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
@@ -44,7 +44,6 @@ import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.InfluxConnector;
 
 @Designate(ocd = Config.class, factory = true)
@@ -70,6 +69,7 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 	private Config config;
 	private InfluxConnector influxConnector = null;
 	private TimeFilter timeFilter;
+	private ChannelFilter channelFilter;
 
 	// edgeId, channelIds which are timestamped channels
 	private final Multimap<Integer, String> timestampedChannelsForEdge = HashMultimap.create();
@@ -83,6 +83,7 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 	private void activate(Config config) throws OpenemsException, IllegalArgumentException {
 		this.config = config;
 		this.timeFilter = TimeFilter.from(config.startDate(), config.endDate());
+		this.channelFilter = ChannelFilter.from(config.blacklistedChannels());
 
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
@@ -223,6 +224,9 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 				if (!shouldWriteValue.apply(influxEdgeId, channelEntry.getKey())) {
 					continue;
 				}
+				if (!this.channelFilter.isValid(channelEntry.getKey())) {
+					continue;
+				}
 				this.addValue(//
 						point, //
 						channelEntry.getKey(), //
@@ -284,68 +288,74 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 	 */
 	private void addValue(Point builder, String field, JsonElement element) {
 		if (element == null || element.isJsonNull() //
-				|| !isAllowed(field) // Channel-Address is not allowed/blacklisted
-				// already handled by special case handling
-				|| this.specialCaseFieldHandling(builder, field, element)) {
+				|| this.specialCaseFieldHandling(builder, field, element)) { // already handled by special case handling
 			return;
 		}
 
-		if (element.isJsonPrimitive()) {
-			var p = (JsonPrimitive) element;
-			if (p.isNumber()) {
-				// Numbers can be directly converted
-				var n = p.getAsNumber();
-				if (n.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
-					// Avoid 'discouraged access'
-					// LazilyParsedNumber stores value internally as String
-					if (StringUtils.matchesFloatPattern(n.toString())) {
-						builder.addField(field, n.doubleValue());
-						return;
-					}
-					builder.addField(field, n.longValue());
+		if (!element.isJsonPrimitive()) {
+			// Non-Primitives are ignored
+			this.logWarn(this.log, "Ignoring non-primitive Field [" + field + "] Value [" + element + "]");
+			return;
+		}
+
+		final var p = (JsonPrimitive) element;
+		if (p.isNumber()) {
+			// Numbers can be directly converted
+			final var n = p.getAsNumber();
+			if (n.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
+				// Avoid 'discouraged access'
+				// LazilyParsedNumber stores value internally as String
+				final var s = n.toString();
+
+				final var longValue = Longs.tryParse(s);
+				if (longValue != null) {
+					builder.addField(field, longValue);
 					return;
+				}
 
-				} else if (n instanceof Integer || n instanceof Long || n instanceof Short || n instanceof Byte) {
-					builder.addField(field, n.longValue());
+				final var doubleValue = Doubles.tryParse(s);
+				if (doubleValue != null) {
+					builder.addField(field, doubleValue);
 					return;
-
 				}
-				builder.addField(field, n.doubleValue());
-				return;
 
-			} else if (p.isBoolean()) {
-				// Booleans are converted to integer (0/1)
-				builder.addField(field, p.getAsBoolean());
-				return;
-
-			} else if (p.isString()) {
-				// Strings are parsed if they start with a number or minus
-				var s = p.getAsString();
-				if (StringUtils.matchesFloatPattern(s)) {
-					try {
-						builder.addField(field, Double.parseDouble(s)); // try parsing to Double
-						return;
-					} catch (NumberFormatException e) {
-						builder.addField(field, s);
-						return;
-					}
-
-				} else if (StringUtils.matchesIntegerPattern(s)) {
-					try {
-						builder.addField(field, Long.parseLong(s)); // try parsing to Long
-						return;
-					} catch (NumberFormatException e) {
-						builder.addField(field, s);
-						return;
-					}
-				}
-				builder.addField(field, s);
+				// unable to parse lazy number
 				return;
 			}
 
-		} else {
-			builder.addField(field, element.toString());
+			if (n instanceof Integer || n instanceof Long || n instanceof Short || n instanceof Byte) {
+				builder.addField(field, n.longValue());
+				return;
+			}
+
+			builder.addField(field, n.doubleValue());
 			return;
+		}
+
+		if (p.isBoolean()) {
+			// Booleans are converted to integer (0/1)
+			builder.addField(field, p.getAsBoolean());
+			return;
+		}
+
+		if (p.isString()) {
+			// Strings are parsed if they start with a number or minus
+			final var s = p.getAsString();
+
+			// try to save string value as numbers
+			final var longValue = Longs.tryParse(s);
+			if (longValue != null) {
+				builder.addField(field, longValue);
+				return;
+			}
+
+			final var doubleValue = Doubles.tryParse(s);
+			if (doubleValue != null) {
+				builder.addField(field, doubleValue);
+				return;
+			}
+
+			// string not can not be parsed to any number => currently not saved
 		}
 	}
 
@@ -367,8 +377,13 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 			// no special handling exists for this field
 			return false;
 		}
-		// call special handler
-		handler.accept(builder, value);
+		try {
+			// call special handler
+			handler.accept(builder, value);
+		} catch (RuntimeException e) {
+			this.logError(this.log,
+					"Unexpected error in special case field handler for Field [" + field + "] Value [" + value + "]");
+		}
 		return true;
 	}
 
@@ -385,60 +400,6 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 	@Override
 	public String id() {
 		return this.config.id();
-	}
-
-	private static final Predicate<String> SUNSPEC_PATTERN = //
-			Pattern.compile("^S[0-9]+[A-Z][a-zA-Z0-9]*$").asPredicate();
-
-	/**
-	 * Pattern for Component-IDs.
-	 * 
-	 * <p>
-	 * Either:
-	 * 
-	 * <ul>
-	 * <li>starts with lower case letter
-	 * <li>contains only ASCII letters and numbers
-	 * <li>ends with a number
-	 * </ul>
-	 * 
-	 * <p>
-	 * Or:
-	 * <ul>
-	 * <li>starts with underscore (by convention for singleton Components)
-	 * <li>continues with lower case letter
-	 * <li>contains only ASCII letters and numbers
-	 * <li>ends with a letter
-	 * </ul>
-	 */
-	// TODO move to io.openems.common and validate pattern on Edge
-	private static final Predicate<String> COMPONENT_ID_PATTERN = //
-			Pattern.compile("^([a-z][a-zA-Z0-9]+[0-9]+|_[a-z][a-zA-Z0-9]+[a-zA-Z])$").asPredicate();
-
-	protected static boolean isAllowed(String channelAddress) {
-		if (channelAddress == null) {
-			return false;
-		}
-
-		var c = channelAddress.split("/");
-		if (c.length != 2) {
-			return false;
-		}
-
-		// Valid Component-ID
-		var componentId = c[0];
-		if (!COMPONENT_ID_PATTERN.test(componentId)) {
-			return false;
-		}
-
-		// Valid Channel-ID
-		var channelId = c[1];
-		if (SUNSPEC_PATTERN.test(channelId)) {
-			// SunSpec Channels
-			return false;
-		}
-
-		return true;
 	}
 
 	@Override

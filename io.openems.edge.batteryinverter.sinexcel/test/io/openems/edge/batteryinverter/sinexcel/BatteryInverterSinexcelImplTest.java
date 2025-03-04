@@ -1,5 +1,11 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
+import static io.openems.edge.batteryinverter.api.OffGridBatteryInverter.ChannelId.INVERTER_STATE;
+import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER;
+import static io.openems.edge.batteryinverter.sinexcel.BatteryInverterSinexcel.ChannelId.SET_OFF_GRID_MODE;
+import static io.openems.edge.batteryinverter.sinexcel.BatteryInverterSinexcel.ChannelId.SET_ON_GRID_MODE;
+import static io.openems.edge.batteryinverter.sinexcel.BatteryInverterSinexcel.ChannelId.STATE_MACHINE;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -8,10 +14,8 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
-import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.CountryCode;
 import io.openems.edge.batteryinverter.sinexcel.enums.EnableDisable;
@@ -27,21 +31,9 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BatteryInverterSinexcelImplTest {
 
-	private static final String BATTERY_INVERTER_ID = "batteryInverter0";
-	private static final String BATTERY_ID = "battery0";
-	private static final String MODBUS_ID = "modbus0";
-	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_INVERTER_ID, "StateMachine");
-	private static final ChannelAddress SET_ON_GRID_MODE = new ChannelAddress(BATTERY_INVERTER_ID, "SetOnGridMode");
-	private static final ChannelAddress SET_OFF_GRID_MODE = new ChannelAddress(BATTERY_INVERTER_ID, "SetOffGridMode");
-	private static final ChannelAddress MAX_APPARENT_POWER = new ChannelAddress(BATTERY_INVERTER_ID, //
-			"MaxApparentPower");
-
-	private static final ChannelAddress INVERTER_STATE = new ChannelAddress(BATTERY_INVERTER_ID, //
-			OffGridBatteryInverter.ChannelId.INVERTER_STATE.id());
-
 	private static class MyComponentTest extends ComponentTest {
 
-		private final Battery battery = new DummyBattery(BATTERY_ID);
+		private final Battery battery = new DummyBattery("battery0");
 
 		public MyComponentTest(OpenemsComponent sut) throws OpenemsException {
 			super(sut);
@@ -64,11 +56,11 @@ public class BatteryInverterSinexcelImplTest {
 		new MyComponentTest(new BatteryInverterSinexcelImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(BATTERY_INVERTER_ID) //
+						.setId("batteryInverter0") //
 						.setStartStopConfig(StartStopConfig.START) //
-						.setModbusId(MODBUS_ID) //
+						.setModbusId("modbus0") //
 						.setCountryCode(CountryCode.GERMANY)//
 						.setEmergencyPower(EnableDisable.DISABLE)//
 						.build()) //
@@ -100,11 +92,11 @@ public class BatteryInverterSinexcelImplTest {
 		new MyComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(BATTERY_INVERTER_ID) //
+						.setId("batteryInverter0") //
 						.setStartStopConfig(StartStopConfig.START) //
-						.setModbusId(MODBUS_ID) //
+						.setModbusId("modbus0") //
 						.setCountryCode(CountryCode.GERMANY)//
 						.setEmergencyPower(EnableDisable.DISABLE)//
 						.build()) //

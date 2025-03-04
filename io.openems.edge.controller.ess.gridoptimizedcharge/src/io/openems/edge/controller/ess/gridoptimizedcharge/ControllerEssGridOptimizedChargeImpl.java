@@ -33,6 +33,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -46,8 +48,9 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsComponent implements
-		ControllerEssGridOptimizedCharge, Controller, OpenemsComponent, TimedataProvider, ComponentManagerProvider {
+public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsComponent
+		implements ControllerEssGridOptimizedCharge, EnergySchedulable, Controller, OpenemsComponent, TimedataProvider,
+		ComponentManagerProvider {
 
 	/**
 	 * Buffer in watt taken into account in the calculation of the first and last
@@ -58,6 +61,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	protected final RampFilter rampFilter = new RampFilter();
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssGridOptimizedChargeImpl.class);
+	private final EnergyScheduleHandler energyScheduleHandler;
 
 	/*
 	 * Time counter for the important states
@@ -107,6 +111,16 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 				Controller.ChannelId.values(), //
 				ControllerEssGridOptimizedCharge.ChannelId.values() //
 		);
+		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(//
+				() -> this.id(), //
+				() -> this.config.enabled() //
+						? switch (this.config.mode()) {
+						case AUTOMATIC -> new EnergyScheduler.Config.Automatic();
+						case MANUAL ->
+							new EnergyScheduler.Config.Manual(DelayCharge.parseTime(this.config.manualTargetTime()));
+						case OFF -> null;
+						} //
+						: null);
 	}
 
 	@Activate
@@ -146,11 +160,17 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		if (!this.ess.isManaged()) {
+		if (!this.ess.isManaged() && this.config.mode() != Mode.OFF) {
 			this._setConfiguredEssIsNotManaged(true);
 			return;
 		}
 		this._setConfiguredEssIsNotManaged(false);
+
+		if (!this.sum.getProductionActivePower().isDefined()) {
+			this._setNoValidProductionPredictionChannel(true);
+			return;
+		}
+		this._setNoValidProductionPredictionChannel(false);
 
 		// Updates the time channels.
 		this.calculateTime();
@@ -436,4 +456,8 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		return this.timedata;
 	}
 
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
+	}
 }

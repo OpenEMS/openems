@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import { ChannelAddress } from "../../../shared/type/channeladdress";
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";

@@ -3,7 +3,6 @@ package io.openems.edge.controller.symmetric.balancingschedule;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -21,14 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.InvalidValueException;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
 import io.openems.common.session.Role;
@@ -36,8 +31,9 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.user.User;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -49,7 +45,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
-		implements ControllerEssBalancingSchedule, Controller, OpenemsComponent, JsonApi {
+		implements ControllerEssBalancingSchedule, Controller, OpenemsComponent, ComponentJsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssBalancingScheduleImpl.class);
 
@@ -163,32 +159,14 @@ public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.OWNER);
-
-		switch (request.getMethod()) {
-
-		case SetGridConnScheduleRequest.METHOD:
-			return this.handleSetGridConnScheduleRequest(user, SetGridConnScheduleRequest.from(request));
-
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
-	}
-
-	/**
-	 * Handles a SetGridConnScheduleRequest.
-	 *
-	 * @param user    the User
-	 * @param request the SetGridConnScheduleRequest
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSetGridConnScheduleRequest(User user,
-			SetGridConnScheduleRequest request) {
-		this.schedule = request.getSchedule();
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), new JsonObject()));
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(SetGridConnScheduleRequest.METHOD, def -> {
+			def.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+		}, call -> {
+			final var request = SetGridConnScheduleRequest.from(call.getRequest());
+			this.schedule = request.getSchedule();
+			return new GenericJsonrpcResponseSuccess(request.getId());
+		});
 	}
 
 	/**

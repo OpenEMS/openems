@@ -1,19 +1,21 @@
+// @ts-strict-ignore
 import { Component, EventEmitter, Output } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TKeyValue } from "src/app/shared/service/defaulttypes";
+import { Utils } from "src/app/shared/shared";
 import { environment } from "src/environments";
 import { SUM_STATES } from "../shared/sumState";
-import { Utils } from "src/app/shared/shared";
 
 @Component({
-  selector: 'oe-filter',
-  templateUrl: './filter.component.html',
+  selector: "oe-filter",
+  templateUrl: "./filter.component.html",
+  standalone: false,
 })
 export class FilterComponent {
 
-  @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter['value']>> = new EventEmitter<Map<string, ChosenFilter['value']>>();
+  @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<Map<string, ChosenFilter["value"]>>();
   protected filters: Filter[] = [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)];
-  protected searchParams: Map<string, ChosenFilter['value']> = new Map();
+  protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
 
   constructor(private translate: TranslateService) { }
 
@@ -68,7 +70,7 @@ export class FilterComponent {
   }
 }
 
-export type ChosenFilter = TKeyValue<string | string[] | boolean | null>
+export type ChosenFilter = TKeyValue<string | string[] | boolean | null>;
 
 export type Filter = {
   placeholder: string,
@@ -77,9 +79,9 @@ export type Filter = {
 
   // sets additional filter
   setAdditionalFilter?: () => ChosenFilter
-}
+};
 
 export type FilterOption = {
   name: string,
   value: string | null
-}
+};

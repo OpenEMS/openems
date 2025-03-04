@@ -34,6 +34,7 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -41,9 +42,8 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
-import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
-import io.openems.edge.core.componentmanager.ComponentManagerImpl;
+import io.openems.edge.core.host.HostImpl;
 import io.openems.edge.core.host.NetworkInterface;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 import io.openems.edge.io.api.DigitalOutput;
@@ -523,12 +523,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 			if (fallBackInARowRelays == null) {
 				count = 0;
-				var startIndex = 1;
+				var startIndex = 0;
 				for (var channelInfo : relayInfo.channels()) {
+					count++;
 					if (!channelInfo.usingComponents().isEmpty() //
 							|| !channelInfo.disabledReasons().isEmpty()) {
 						startIndex += count;
-						count = 1;
+						count = 0;
 					}
 					if (count >= numberOfRelays) {
 						break;
@@ -548,8 +549,8 @@ public class ComponentUtilImpl implements ComponentUtil {
 
 	@Override
 	public void updateInterfaces(User user, List<NetworkInterface<?>> interfaces) throws OpenemsNamedException {
-		JsonApi host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
-		host.handleJsonrpcRequest(user, new SetNetworkConfigRequest(interfaces));
+		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
+		host.handleSetNetworkConfigRequest(user, new SetNetworkConfigRequest(interfaces));
 
 		// wait until its updated
 		do {
@@ -624,16 +625,11 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 
 			var ids = componentIds.stream().map(JsonPrimitive::new).collect(toJsonArray());
-			final var request = new UpdateComponentConfigRequest(scheduler.getId(), List.of(//
+			final var request = new UpdateComponentConfig.Request(scheduler.getId(), List.of(//
 					new UpdateComponentConfigRequest.Property("controllers.ids", ids) //
 			));
 
-			if (user != null) {
-				this.componentManager.handleJsonrpcRequest(user, request).get();
-				return;
-			}
-
-			((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, request).get();
+			this.componentManager.handleUpdateComponentConfigRequest(user, request);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new OpenemsException("Could not update Scheduler!");

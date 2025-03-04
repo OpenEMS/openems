@@ -25,8 +25,8 @@ public class FeneconHomeBatteryProtection64 implements BatteryProtectionDefiniti
 				.addPoint(Math.nextUp(3000), 1) //
 				.addPoint(3450, 1) //
 				.addPoint(3540, 0.08) //
-				.addPoint(Math.nextDown(3550), 0.08) //
-				.addPoint(3550, 0) //
+				.addPoint(Math.nextDown(3580), 0.08) //
+				.addPoint(3580, 0) //
 				.build();
 	}
 
@@ -51,8 +51,26 @@ public class FeneconHomeBatteryProtection64 implements BatteryProtectionDefiniti
 	}
 
 	@Override
+	public PolyLine getChargeSocToPercent() {
+		return PolyLine.create() //
+				.addPoint(0, 1) //
+				.addPoint(Math.nextDown(96), 1) //
+				.addPoint(96, 0.8) //
+				.addPoint(97, 0.6) //
+				.addPoint(98, 0.4) //
+				.addPoint(99, 0.2) //
+				.addPoint(100, 0.08) //
+				.build();
+	}
+
+	@Override
+	public PolyLine getDischargeSocToPercent() {
+		return PolyLine.empty();
+	}
+
+	@Override
 	public ForceDischarge.Params getForceDischargeParams() {
-		return new ForceDischarge.Params(3600, 3540, 3450);
+		return new ForceDischarge.Params(3630, 3540, 3450);
 	}
 
 	@Override
@@ -64,5 +82,4 @@ public class FeneconHomeBatteryProtection64 implements BatteryProtectionDefiniti
 	public Double getMaxIncreaseAmperePerSecond() {
 		return 0.1; // [A] per second
 	}
-
 }

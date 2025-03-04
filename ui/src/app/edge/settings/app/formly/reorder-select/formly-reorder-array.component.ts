@@ -1,10 +1,12 @@
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ItemReorderEventDetail } from "@ionic/angular";
 import { FieldType, FieldTypeConfig, FormlyFieldConfig, FormlyFieldProps } from "@ngx-formly/core";
 
 @Component({
-    selector: 'reorder-array',
-    templateUrl: './formly-reorder-array.component.html',
+    selector: "reorder-array",
+    templateUrl: "./formly-reorder-array.component.html",
+    standalone: false,
 })
 export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<FormlyFieldProps & {
     allowDuplicates?: boolean,
@@ -15,6 +17,22 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
     protected availableItems: SelectOption[];
 
     protected itemToAdd: SelectOption | null = null;
+
+    private get allowDuplicates(): boolean {
+        return this.props.allowDuplicates ?? false;
+    }
+
+    private get selectOptions(): SelectOption[] {
+        return this.props.selectOptions.map<SelectOption>(optionConfig => {
+            return {
+                label: optionConfig.label,
+                value: optionConfig.value,
+                expressions: {
+                    locked: optionConfig.expressions?.locked?.(this.field) ?? false,
+                },
+            };
+        }) ?? [];
+    }
 
     public ngOnInit(): void {
         const oldValues = this.formControl.getRawValue() as string[];
@@ -91,22 +109,6 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
         });
     }
 
-    private get allowDuplicates(): boolean {
-        return this.props.allowDuplicates ?? false;
-    }
-
-    private get selectOptions(): SelectOption[] {
-        return this.props.selectOptions.map<SelectOption>(optionConfig => {
-            return {
-                label: optionConfig.label,
-                value: optionConfig.value,
-                expressions: {
-                    locked: optionConfig.expressions?.locked?.(this.field) ?? false,
-                },
-            };
-        }) ?? [];
-    }
-
 }
 
 export type SelectOptionConfig = {
@@ -115,7 +117,7 @@ export type SelectOptionConfig = {
     expressions?: {
         locked?: (field: FormlyFieldConfig) => boolean,
     }
-}
+};
 
 type SelectOption = {
     label: string,
@@ -123,4 +125,4 @@ type SelectOption = {
     expressions: {
         locked: boolean,
     }
-}
+};

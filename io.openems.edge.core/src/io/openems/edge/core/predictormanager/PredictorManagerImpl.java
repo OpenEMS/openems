@@ -127,9 +127,9 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 				ESS_DISCHARGE_POWER, ESS_MIN_DISCHARGE_POWER, ESS_MAX_DISCHARGE_POWER, ESS_MAX_APPARENT_POWER,
 				ESS_REACTIVE_POWER, ESS_SOC, //
 
-				GRID_ACTIVE_POWER, GRID_ACTIVE_POWER_L1, GRID_ACTIVE_POWER_L2, GRID_ACTIVE_POWER_L3,
+				GRID_ACTIVE_POWER, GRID_ACTIVE_POWER_L1, GRID_ACTIVE_POWER_L2, GRID_ACTIVE_POWER_L3, GRID_BUY_PRICE,
 				GRID_BUY_ACTIVE_ENERGY, GRID_MAX_ACTIVE_POWER, GRID_MIN_ACTIVE_POWER, GRID_MODE,
-				GRID_SELL_ACTIVE_ENERGY, //
+				GRID_MODE_OFF_GRID_TIME, GRID_SELL_ACTIVE_ENERGY, //
 
 				PRODUCTION_ACTIVE_ENERGY, PRODUCTION_AC_ACTIVE_ENERGY, PRODUCTION_AC_ACTIVE_POWER_L1,
 				PRODUCTION_AC_ACTIVE_POWER_L2, PRODUCTION_AC_ACTIVE_POWER_L3, PRODUCTION_DC_ACTIVE_ENERGY,
@@ -162,25 +162,18 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 			// Sum up "ActivePower" prediction of all ElectricityMeter
 			List<ElectricityMeter> meters = this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class)
 					.stream() //
-					.filter(meter -> {
-						switch (meter.getMeterType()) {
-						case GRID:
-						case CONSUMPTION_METERED:
-						case CONSUMPTION_NOT_METERED:
-							return false;
-						case PRODUCTION:
-						case PRODUCTION_AND_CONSUMPTION:
-							// Get only Production meters
-							return true;
-						}
-						// should never come here
-						return false;
-					}).toList();
+					.filter(meter -> switch (meter.getMeterType()) {
+					case GRID, CONSUMPTION_METERED, MANAGED_CONSUMPTION_METERED, CONSUMPTION_NOT_METERED //
+						-> false;
+					case PRODUCTION, PRODUCTION_AND_CONSUMPTION //
+						-> true; // Get only Production meters
+					}) //
+					.toList();
 			var predictions = new Prediction[meters.size()];
 			for (var i = 0; i < meters.size(); i++) {
 				var meter = meters.get(i);
-				predictions[i] = this
-						.getPrediction(new ChannelAddress(meter.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id()));
+				predictions[i] = this.getPrediction(//
+						new ChannelAddress(meter.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id()));
 			}
 			yield sum(predictions);
 		}

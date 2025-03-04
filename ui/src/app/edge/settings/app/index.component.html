@@ -3,7 +3,6 @@
   <ion-col *ngFor="let app of appCatList.apps" size="6" size-xs="6" size-sm="4" size-lg="3" size-xl="2">
     <ion-card>
       <ion-item lines="full" color="primary" style="cursor: pointer" (click)="onAppClicked(app)">
-        <ion-icon slot="start" size="medium" name="grid-outline"></ion-icon>
         <ion-label style="white-space: initial" class="ion-no-margin">
           <!-- Use short name if existing otherwise use normal name -->
           {{ app.shortName ?? app.name }}
@@ -61,7 +60,7 @@
 </ng-template>
 
 <!-- Start of Page -->
-<header></header>
+
 <ion-content>
 
   <ngx-spinner [name]="spinnerId"></ngx-spinner>
