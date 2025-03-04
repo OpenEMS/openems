@@ -31,6 +31,7 @@ import static io.openems.common.exceptions.OpenemsError.JSON_NO_STRING_MEMBER;
 import static io.openems.common.exceptions.OpenemsError.JSON_NO_UUID;
 import static io.openems.common.exceptions.OpenemsError.JSON_NO_UUID_MEMBER;
 import static io.openems.common.exceptions.OpenemsError.JSON_PARSE_FAILED;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.generateJsonArray;
@@ -90,6 +91,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -692,6 +694,15 @@ public class JsonUtilsTest {
 		assertEquals("1900-01-01T00:00Z", getAsZonedDateTime(JSON_OBJECT, "ZonedDateTime").toString());
 
 		assertTrue(getAsOptionalZonedDateTime(JSON_OBJECT, "foo").isEmpty());
+	}
+
+	@Test
+	public void testGetAsInstant() throws OpenemsNamedException {
+		var j = buildJsonObject() //
+				.addProperty("instant", Instant.now(createDummyClock())) //
+				.build();
+
+		assertEquals("2020-01-01T00:00:00Z", getAsString(j, "instant"));
 	}
 
 	@Test
