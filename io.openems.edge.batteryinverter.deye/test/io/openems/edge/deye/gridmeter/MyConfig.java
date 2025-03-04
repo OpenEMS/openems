@@ -2,7 +2,6 @@ package io.openems.edge.deye.gridmeter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.startstop.StartStopConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -56,6 +55,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
+
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;

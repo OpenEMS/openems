@@ -1,5 +1,7 @@
 package io.openems.edge.deye.productionmeter;
 
+import java.util.function.Consumer;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
@@ -11,8 +13,6 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
-
-import java.util.function.Consumer;
 
 public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, OpenemsComponent {
 
@@ -84,7 +84,6 @@ public interface PvInverterDeye extends ElectricityMeter, ModbusComponent, Opene
 	 * powers and adjusting for generator power. This method assumes all necessary
 	 * values are always present and uses a simple fallback for any missing data.
 	 *
-	 * @param meter the {@link ElectricityMeter}
 	 * @param meter the {@link PvInverterDeye} instance being updated
 	 */
 	public static void calculateSumActivePowerFromPhases(PvInverterDeye meter) {

@@ -1,25 +1,5 @@
 package io.openems.edge.deye.productionmeter;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-import io.openems.edge.timedata.api.Timedata;
-import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -36,6 +16,27 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Deye.Production-Meter", //
@@ -49,11 +50,14 @@ import org.slf4j.Logger;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
-		implements PvInverterDeye, ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
+		implements PvInverterDeye, ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent, OpenemsComponent,
+		EventHandler, ModbusSlave, TimedataProvider {
 
-	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this, ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
+	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
+			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -84,7 +88,8 @@ public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus", config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 		this.config = config;
@@ -104,7 +109,7 @@ public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(672, Priority.LOW, //
 						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_1, new UnsignedWordElement(672)),
@@ -112,7 +117,7 @@ public class PvInverterDeyeImpl extends AbstractOpenemsModbusComponent
 						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_3, new UnsignedWordElement(674)),
 						m(PvInverterDeye.ChannelId.ACTIVE_POWER_STRING_4, new UnsignedWordElement(675))),
 				new FC3ReadRegistersTask(667, Priority.LOW, //
-								m(PvInverterDeye.ChannelId.ACTIVE_POWER_GENERATOR, new UnsignedWordElement(667))));
+						m(PvInverterDeye.ChannelId.ACTIVE_POWER_GENERATOR, new UnsignedWordElement(667))));
 	}
 
 	@Override

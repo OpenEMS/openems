@@ -1,5 +1,7 @@
 package io.openems.edge.deye.ess;
 
+import org.osgi.service.event.EventHandler;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
@@ -14,7 +16,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.timedata.api.TimedataProvider;
-import org.osgi.service.event.EventHandler;
 
 public interface DeyeSunHybrid
 		extends ManagedSymmetricEss, SymmetricEss, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
