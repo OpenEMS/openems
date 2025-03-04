@@ -12,6 +12,7 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 		private int port;
 		private LogVerbosity logVerbosity;
 		private int invalidateElementsAfterReadErrors;
+		private int intervalBetweenAccesses;
 
 		private Builder() {
 		}
@@ -38,6 +39,11 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 
 		public Builder setInvalidateElementsAfterReadErrors(int invalidateElementsAfterReadErrors) {
 			this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
+			return this;
+		}
+
+		public Builder setIntervalBetweenAccesses(int intervalBetweenAccesses) {
+			this.intervalBetweenAccesses = intervalBetweenAccesses;
 			return this;
 		}
 
@@ -80,6 +86,11 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 	@Override
 	public int invalidateElementsAfterReadErrors() {
 		return this.builder.invalidateElementsAfterReadErrors;
+	}
+
+	@Override
+	public int intervalBetweenAccesses() {
+		return this.builder.intervalBetweenAccesses;
 	}
 
 }
