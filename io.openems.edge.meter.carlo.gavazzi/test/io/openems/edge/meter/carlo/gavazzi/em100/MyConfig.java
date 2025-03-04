@@ -1,8 +1,10 @@
-package io.openems.edge.meter.carlo.gavazzi.em300;
+package io.openems.edge.meter.carlo.gavazzi.em100;
+
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.meter.api.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId;
 		private int modbusUnitId;
 		private MeterType type;
+		private SinglePhase phase;
 		private boolean invert;
 
 		private Builder() {
@@ -27,13 +30,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+
 		public Builder setType(MeterType type) {
 			this.type = type;
 			return this;
 		}
 
-		public Builder setModbusUnitId(int unitId) {
-			this.modbusUnitId = unitId;
+		public Builder setPhase(SinglePhase phase) {
+			this.phase = phase;
 			return this;
 		}
 
@@ -49,7 +57,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 *
+	 * 
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -70,7 +78,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+		return generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override
@@ -84,8 +92,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public SinglePhase phase() {
+		return this.builder.phase;
+	}
+
+	@Override
 	public boolean invert() {
 		return this.builder.invert;
 	}
-
 }

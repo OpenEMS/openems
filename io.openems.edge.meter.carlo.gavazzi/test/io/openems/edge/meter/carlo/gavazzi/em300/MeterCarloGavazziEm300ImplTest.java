@@ -25,6 +25,7 @@ public class MeterCarloGavazziEm300ImplTest {
 						.setId("meter0") //
 						.setModbusId("modbus0") //
 						.setType(GRID) //
+						.setInvert(false) //
 						.build()) //
 		;
 	}
@@ -57,8 +58,8 @@ public class MeterCarloGavazziEm300ImplTest {
 										0x0000, 0x0000, //
 										0x261c, 0x0000, //
 										0x261d, 0x0000, //
-										0x0090, 0x0000 }) //
-				).activate(MyConfig.create() //
+										0x0090, 0x0000 })) //
+				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus2") //
 						.setModbusUnitId(1) //
@@ -69,7 +70,7 @@ public class MeterCarloGavazziEm300ImplTest {
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 224300) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 0) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 0) //
-						//
+
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, 4354) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, 0) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, 0) //
@@ -82,7 +83,7 @@ public class MeterCarloGavazziEm300ImplTest {
 						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, 14) //
 						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, 0) //
 						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, 0) //
-						//
+
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 976) //
 						.output(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER, 976) //
 						.output(ElectricityMeter.ChannelId.REACTIVE_POWER, 14) //
