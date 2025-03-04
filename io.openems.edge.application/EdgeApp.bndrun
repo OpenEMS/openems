@@ -30,7 +30,7 @@
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\
-	bnd.identity;id='org.apache.felix.http.jetty',\
+	bnd.identity;id='org.apache.felix.http.jetty12',\
 	bnd.identity;id='org.apache.felix.http.servlet-api',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
@@ -101,6 +101,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
+	bnd.identity;id='io.openems.edge.controller.levl',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
@@ -282,6 +283,7 @@
 	io.openems.edge.controller.io.heating.room;version=snapshot,\
 	io.openems.edge.controller.io.heatingelement;version=snapshot,\
 	io.openems.edge.controller.io.heatpump.sgready;version=snapshot,\
+	io.openems.edge.controller.levl;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\
@@ -425,7 +427,7 @@
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty;version='[5.1.28,5.1.29)',\
+	org.apache.felix.http.jetty12;version='[1.0.20,1.0.21)',\
 	org.apache.felix.http.servlet-api;version='[3.0.0,3.0.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
