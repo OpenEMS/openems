@@ -481,6 +481,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				channel.channelDoc().getUnit(), //
 				channel.channelDoc().getChannelCategory(), //
 				channel.channelDoc() instanceof StateChannelDoc c ? c.getLevel() : null, //
+				channel.channelDoc().getStringOptions(), //
 				channel.channelDoc() instanceof EnumDoc c ? Lists.newArrayList(c.getOptions()) : null);
 	}
 
