@@ -33,6 +33,12 @@ public abstract class AbstractWorker {
 	private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
 	private final AtomicBoolean isStopped = new AtomicBoolean(false);
+	/**
+	 * This value is set to true, in case the thread waits for the trigger of the
+	 * next run, in case cycle time is set to
+	 * {@link AbstractWorker#ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN}.
+	 */
+	private final AtomicBoolean isWaitingForTriggerNextRun = new AtomicBoolean(false);
 	private final Mutex cycleMutex = new Mutex(false);
 
 	/**
@@ -75,6 +81,9 @@ public abstract class AbstractWorker {
 	 */
 	public void modified(String name) {
 		this.modified(name, true);
+		if (this.isWaitingForTriggerNextRun.get() && this.getCycleTime() >= 0) {
+			this.triggerNextRun();
+		}
 	}
 
 	private synchronized void startWorker(String name, boolean autoTriggerNextRun) {
@@ -143,7 +152,13 @@ public abstract class AbstractWorker {
 						}
 					} else { // < 0 (ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN)
 						// wait till next run is triggered
+						AbstractWorker.this.isWaitingForTriggerNextRun.set(true);
 						AbstractWorker.this.cycleMutex.await();
+						AbstractWorker.this.isWaitingForTriggerNextRun.set(false);
+						if (AbstractWorker.this.getCycleTime() >= 0) {
+							// cycle time config changed while waiting
+							continue;
+						}
 					}
 
 					// store start time
