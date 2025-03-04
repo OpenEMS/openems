@@ -8,6 +8,7 @@ import { HistoryUtils, Utils } from "../../service/utils";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { AssertionUtils } from "../../utils/assertions/assertions-utils";
+import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 
 export namespace ChartConstants {
@@ -76,6 +77,8 @@ export namespace ChartConstants {
   }
 
   export namespace Colors {
+
+    export const LEGEND_LABEL_BG_OPACITY: number = 0.2;
     export const BLUE: string = new RGBColor(54, 174, 209).toString();
     export const RED: string = new RGBColor(255, 98, 63).toString();
     export const GREEN: string = new RGBColor(14, 190, 84).toString();
@@ -104,7 +107,7 @@ export namespace ChartConstants {
    * @param datasets the chart datasets
    * @returns scale options
    */
-  export const DEFAULT_Y_SCALE_OPTIONS = (element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean) => {
+  export const DEFAULT_Y_SCALE_OPTIONS = (element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"],) => {
     const beginAtZero: boolean = ChartConstants.isDataSeriesPositive(datasets);
     const scaleOptions: ReturnType<typeof getScaleOptions> = getScaleOptions(datasets, element, chartType);
 
@@ -137,7 +140,9 @@ export namespace ChartConstants {
             AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
             return upperMostTick;
           }
-          return value;
+
+          // Formats a value safely
+          return Formatter.formatSafely(value, formatNumber);
         },
       },
     };
