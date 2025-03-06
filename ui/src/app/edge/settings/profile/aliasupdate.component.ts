@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 @Component({
     selector: "aliasupdate",
     templateUrl: "./aliasupdate.component.html",
+    standalone: false,
 })
 export class AliasUpdateComponent implements OnInit {
 

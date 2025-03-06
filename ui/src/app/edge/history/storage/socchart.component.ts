@@ -11,6 +11,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "socStorageChart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

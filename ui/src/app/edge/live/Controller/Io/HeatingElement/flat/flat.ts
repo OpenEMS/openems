@@ -10,6 +10,7 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "Controller_Io_HeatingElement",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

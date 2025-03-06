@@ -398,7 +398,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption")), //
 		/**
 		 * Consumption: Active Power L1.
 		 *
@@ -413,7 +414,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption on phase L1")), //
 		/**
 		 * Consumption: Active Power L2.
 		 *
@@ -428,7 +430,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption on phase L2")), //
 		/**
 		 * Consumption: Active Power L3.
 		 *
@@ -443,7 +446,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Active power of the electrical consumption on phase L3")), //
 		/**
 		 * Consumption: Maximum Ever Active Power.
 		 *
@@ -456,7 +460,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Maximum measured active power of the electrical consumpton")), //
 		/**
 		 * Unmanaged Consumption: Active Power.
 		 *
@@ -521,7 +526,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of the AC-side storage charging incl. excess PV generation at the hybrid inverter")), //
 		/**
 		 * Ess: Active Discharge Energy.
 		 *
@@ -533,7 +539,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of the AC-side storage discharge incl. excess PV generation at the hybrid inverter")), //
 		/**
 		 * Ess: DC Discharge Energy.
 		 *
@@ -545,7 +552,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated DC electrical energy of the storage discharging")), //
 		/**
 		 * Ess: DC Charge Energy.
 		 *
@@ -557,7 +565,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		ESS_DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated DC electrical energy of the storage charging")), //
 		/**
 		 * Grid: Buy-from-grid Energy ("Production").
 		 *
@@ -569,7 +578,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		GRID_BUY_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of grid consumption")), //
 		/**
 		 * Grid: Sell-to-grid Energy ("Consumption").
 		 *
@@ -581,7 +591,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		GRID_SELL_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of grid feed-in")), //
 		/**
 		 * Production: Energy.
 		 *
@@ -592,7 +603,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of DC- and AC-side generators, e.g. photovoltaics")), //
 		/**
 		 * Production: AC Energy.
 		 *
@@ -604,7 +616,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_AC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of AC-side generators")), //
 		/**
 		 * Production: DC Energy.
 		 *
@@ -616,7 +629,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		PRODUCTION_DC_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy of DC-side generators")), //
 		/**
 		 * Consumption: Energy.
 		 *
@@ -628,7 +642,8 @@ public interface Sum extends OpenemsComponent {
 		 */
 		CONSUMPTION_ACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.text("Accumulated electrical energy consumption")), //
 		/**
 		 * Production to Consumption: Power.
 		 * 

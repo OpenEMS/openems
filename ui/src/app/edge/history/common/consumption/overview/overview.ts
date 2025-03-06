@@ -8,6 +8,7 @@ import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
     templateUrl: "./overview.html",
+    standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
 
@@ -38,7 +39,7 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
                 && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs"));
 
         const sum: EdgeConfig.Component = this.config.getComponent("_sum");
-        sum.alias = this.translate.instant("General.TOTAL");
+        sum.alias = this.translate.instant("Edge.History.PHASE_ACCURATE");
 
         this.navigationButtons = [sum, ...this.evcsComponents, ...this.consumptionMeterComponents].map(el => (
             { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }

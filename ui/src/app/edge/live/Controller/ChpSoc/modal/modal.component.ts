@@ -12,6 +12,7 @@ type mode = "MANUAL_ON" | "MANUAL_OFF" | "AUTOMATIC";
 @Component({
     selector: Controller_ChpSocModalComponent.SELECTOR,
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class Controller_ChpSocModalComponent implements OnInit {
 

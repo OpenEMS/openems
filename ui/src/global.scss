@@ -10,26 +10,26 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import "~@ionic/angular/css/core.css";
-@import "~@ionic/angular/css/display.css";
-@import "~@ionic/angular/css/flex-utils.css";
-@import "~@ionic/angular/css/float-elements.css";
+@use "node_modules/@ionic/angular/css/core.css" as *;
+@use "node_modules/@ionic/angular/css/display.css" as *;
+@use "node_modules/@ionic/angular/css/flex-utils.css" as *;
+@use "node_modules/@ionic/angular/css/float-elements.css" as *;
 /* Basic CSS for apps built with Ionic */
-@import "~@ionic/angular/css/normalize.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/typography.css";
+@use "node_modules/@ionic/angular/css/normalize.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
 
 /* Optional CSS utils that can be commented out */
-@import "~@ionic/angular/css/padding.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/text-alignment.css";
-@import "~@ionic/angular/css/text-transformation.css";
-@import "~@ionic/angular/css/typography.css";
+@use "node_modules/@ionic/angular/css/padding.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/text-alignment.css" as *;
+@use "node_modules/@ionic/angular/css/text-transformation.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
 /* ngx-spinner */
-@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
-@import "./environments/index.scss";
-@import "variables";
-@import "./global-ion-custom.scss";
+@use "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css" as *;
+@use "./environments/index.scss" as *;
+@use "variables" as *;
+@use "./global-ion-custom.scss" as *;
 
 ion-alert {
     color: green;
@@ -45,6 +45,14 @@ ion-refresher-content {
 
 ion-card-content {
     color: var(--ion-card-content-color);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    background-color: transparent !important;
+    box-shadow: 0 0 0em 1000em var(--ion-background-color) inset !important;
+    -webkit-text-fill-color: var(--ion-text-color) !important;
+    margin-top: 0.1em;
 }
 
 .custom-ion-popover {
@@ -90,7 +98,7 @@ formly-field-ion-radio {
             white-space: initial;
 
             small {
-                white-space: initial;
+                white-space: nowrap;
             }
         }
 
@@ -151,6 +159,15 @@ formly-field-ion-radio {
 }
 
 .custom-ion-popover {
+
+    --border-width: 0;
+    --background: var(--ion-background-color);
+
+    // Floating label
+    &::part(label) {
+        color: var(--ion-color-primary) !important;
+    }
+
     // Overwrites default width of popover
     white-space: inherit;
     --min-width: min-content;
@@ -384,6 +401,20 @@ formly-input-section {
 
 :root {
 
+    ion-text {
+        small {
+            color: var(--ion-card-content-color);
+        }
+    }
+
+    ion-card {
+
+        ion-card-title,
+        ion-card-subtitle {
+            color: var(--ion-text-color);
+        }
+    }
+
     --ion-color-primary-item: shade($primary-color, #000);
 
     ion-segment {
@@ -451,7 +482,8 @@ formly-input-section {
     }
 
     ion-toggle {
-        --background-checked: var(--ion-color-primary-tint);
+        --track-background: var(--ion-color-toggle-background);
+        --track-background-checked: var(--ion-color-toggle-background);
     }
 
     ion-spinner {
@@ -459,6 +491,14 @@ formly-input-section {
         left: 25%;
         width: 50%;
         color: var(--ion-color-primary);
+    }
+
+    // Ensure content is fitting inside tooltip
+    ion-range::part(pin) {
+        width: max-content !important;
+        white-space: nowrap;
+        padding: 0.5em;
+        text-align: center;
     }
 }
 

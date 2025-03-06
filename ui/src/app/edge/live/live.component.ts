@@ -9,6 +9,7 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 @Component({
   selector: "live",
   templateUrl: "./live.component.html",
+  standalone: false,
 })
 export class LiveComponent implements OnInit, OnDestroy {
 

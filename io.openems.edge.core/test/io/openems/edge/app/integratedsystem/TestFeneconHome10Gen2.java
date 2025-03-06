@@ -99,7 +99,8 @@ public class TestFeneconHome10Gen2 {
 	}
 
 	/**
-	 * Gets a {@link JsonObject} with the full settings for a {@link FeneconHome10Gen2}.
+	 * Gets a {@link JsonObject} with the full settings for a
+	 * {@link FeneconHome10Gen2}.
 	 * 
 	 * @return the settings object
 	 */
@@ -121,4 +122,21 @@ public class TestFeneconHome10Gen2 {
 				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
 				.build();
 	}
+
+	/**
+	 * Gets a {@link JsonObject} with the minimum settings for a
+	 * {@link FeneconHome10}.
+	 * 
+	 * @return the settings object
+	 */
+	public static final JsonObject minSettings() {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("SAFETY_COUNTRY", "GERMANY") //
+				.addProperty("MAX_FEED_IN_POWER", 1000) //
+				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+				.addProperty("HAS_EMERGENCY_RESERVE", false) //
+				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
+				.build();
+	}
+
 }

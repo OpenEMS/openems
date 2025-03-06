@@ -164,26 +164,18 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 			// Sum up "ActivePower" prediction of all ElectricityMeter
 			List<ElectricityMeter> meters = this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class)
 					.stream() //
-					.filter(meter -> {
-						switch (meter.getMeterType()) {
-						case GRID:
-						case CONSUMPTION_METERED:
-						case MANAGED_CONSUMPTION_METERED:
-						case CONSUMPTION_NOT_METERED:
-							return false;
-						case PRODUCTION:
-						case PRODUCTION_AND_CONSUMPTION:
-							// Get only Production meters
-							return true;
-						}
-						// should never come here
-						return false;
-					}).toList();
+					.filter(meter -> switch (meter.getMeterType()) {
+					case GRID, CONSUMPTION_METERED, MANAGED_CONSUMPTION_METERED, CONSUMPTION_NOT_METERED //
+						-> false;
+					case PRODUCTION, PRODUCTION_AND_CONSUMPTION //
+						-> true; // Get only Production meters
+					}) //
+					.toList();
 			var predictions = new Prediction[meters.size()];
 			for (var i = 0; i < meters.size(); i++) {
 				var meter = meters.get(i);
-				predictions[i] = this
-						.getPrediction(new ChannelAddress(meter.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id()));
+				predictions[i] = this.getPrediction(//
+						new ChannelAddress(meter.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id()));
 			}
 			yield sum(predictions);
 		}

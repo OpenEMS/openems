@@ -42,7 +42,7 @@
                                 <ion-col>
                                     <ion-searchbar
                                         style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
-                                        [(ngModel)]="query" (ionChange)="searchOnChange()">
+                                        [(ngModel)]="query" (ionInput)="searchOnChange()" [debounce]="1000">
                                     </ion-searchbar>
                                 </ion-col>
                             </ion-row>
@@ -50,7 +50,7 @@
                             <!-- Filter -->
                             <ng-container *ngIf="(service.metadata | async)?.user as user">
                                 <oe-filter (setSearchParams)="searchOnChange($event)"
-                                    *ngIf="user.globalRole === 'admin'"></oe-filter>
+                                    *ngIf="isAtLeastInstaller"></oe-filter>
                             </ng-container>
 
                             <ion-row class="ion-justify-content-center">
@@ -90,7 +90,8 @@
                                         </ng-container>
                                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
                                             [disabled]="limitReached">
-                                            <ion-infinite-scroll-content [name]="'crescent'" ngClass="custom-spinner">
+                                            <ion-infinite-scroll-content [loadingSpinner]="'crescent'"
+                                                ngClass="custom-spinner">
                                             </ion-infinite-scroll-content>
                                         </ion-infinite-scroll>
 

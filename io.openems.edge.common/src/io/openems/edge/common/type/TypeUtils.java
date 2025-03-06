@@ -43,16 +43,16 @@ public class TypeUtils {
 		}
 		// Extract OptionsEnum
 		if (value instanceof OptionsEnum oe) {
-			value = oe.getValue();
+			return getAsType(type, oe.getValue());
 		}
 		// Extract Enum (lower priority than OptionsEnum)
 		if (value instanceof Enum<?> e) {
-			value = e.ordinal();
+			return getAsType(type, e.ordinal());
 		}
 		// Extract value from Array
 		if (type != OpenemsType.STRING && value != null && value.getClass().isArray()) {
 			if (Array.getLength(value) == 1) {
-				return TypeUtils.getAsType(type, Array.get(value, 0));
+				return getAsType(type, Array.get(value, 0));
 			}
 			return null;
 		}
@@ -66,26 +66,15 @@ public class TypeUtils {
 		}
 
 		return (T) switch (type) {
-		case BOOLEAN -> {
-			if (value instanceof Boolean b) {
-				yield b;
-
-			} else if (value instanceof Short s) {
-				yield s == 0 ? Boolean.FALSE : Boolean.TRUE;
-
-			} else if (value instanceof Integer i) {
-				yield i == 0 ? Boolean.FALSE : Boolean.TRUE;
-
-			} else if (value instanceof Long l) {
-				yield l == 0 ? Boolean.FALSE : Boolean.TRUE;
-
-			} else if (value instanceof Float f) {
-				yield f == 0 ? Boolean.FALSE : Boolean.TRUE;
-
-			} else if (value instanceof Double d) {
-				yield d == 0 ? Boolean.FALSE : Boolean.TRUE;
-
-			} else if (value instanceof String s) {
+		case BOOLEAN //
+			-> switch (value) {
+			case Boolean b -> b;
+			case Short s -> s == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Integer i -> i == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Long l -> l == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Float f -> f == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Double d -> d == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case String s -> {
 				if (s.isEmpty()) {
 					yield null;
 				} else if (s.equalsIgnoreCase("false")) {
@@ -96,17 +85,14 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Boolean.");
 				}
 			}
-			throw converterIsNotImplemented(type, value);
-		}
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case SHORT -> {
-			if (value instanceof Boolean b) {
-				yield Short.valueOf(b ? (short) 1 : (short) 0);
-
-			} else if (value instanceof Short s) {
-				yield s;
-
-			} else if (value instanceof Integer i) {
+		case SHORT //
+			-> switch (value) {
+			case Boolean b -> Short.valueOf(b ? (short) 1 : (short) 0);
+			case Short s -> s;
+			case Integer i -> {
 				var intValue = i.intValue();
 				if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
 					yield Short.valueOf((short) intValue);
@@ -114,8 +100,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Integer [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof Long l) {
+			}
+			case Long l -> {
 				var longValue = l.longValue();
 				if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
 					yield Short.valueOf((short) longValue);
@@ -123,8 +109,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Long [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof Float f) {
+			}
+			case Float f -> {
 				var intValue = Math.round(f.floatValue());
 				if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
 					yield Short.valueOf((short) intValue);
@@ -132,8 +118,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Float [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof Double d) {
+			}
+			case Double d -> {
 				var longValue = Math.round(d.doubleValue());
 				if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
 					yield Short.valueOf((short) longValue);
@@ -141,8 +127,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof String s) {
+			}
+			case String s -> {
 				if (s.isEmpty()) {
 					yield null;
 				}
@@ -152,20 +138,15 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Short.");
 				}
 			}
-			throw converterIsNotImplemented(type, value);
-		}
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case INTEGER -> {
-			if (value instanceof Boolean b) {
-				yield Integer.valueOf(b ? 1 : 0);
-
-			} else if (value instanceof Short s) {
-				yield Integer.valueOf(s);
-
-			} else if (value instanceof Integer i) {
-				yield i;
-
-			} else if (value instanceof Long l) {
+		case INTEGER //
+			-> switch (value) {
+			case Boolean b -> Integer.valueOf(b ? 1 : 0);
+			case Short s -> Integer.valueOf(s);
+			case Integer i -> i;
+			case Long l -> {
 				var longValue = l.longValue();
 				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
 					yield Integer.valueOf((int) longValue);
@@ -173,8 +154,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Long [" + value + "] is not fitting in Integer range.");
 				}
-
-			} else if (value instanceof Float f) {
+			}
+			case Float f -> {
 				var floatValue = f.floatValue();
 				if (floatValue >= Integer.MIN_VALUE && floatValue <= Integer.MAX_VALUE) {
 					yield Integer.valueOf((int) floatValue);
@@ -182,8 +163,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Float [" + value + "] is not fitting in Integer range.");
 				}
-
-			} else if (value instanceof Double d) {
+			}
+			case Double d -> {
 				var longValue = Math.round(d.doubleValue());
 				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
 					yield Integer.valueOf((int) longValue);
@@ -191,8 +172,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
 				}
-
-			} else if (value instanceof String s) {
+			}
+			case String s -> {
 				if (s.isEmpty()) {
 					yield null;
 				}
@@ -202,23 +183,16 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Integer.");
 				}
 			}
-			throw converterIsNotImplemented(type, value);
-		}
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case LONG -> {
-			if (value instanceof Boolean b) {
-				yield Long.valueOf(b ? 1L : 0L);
-
-			} else if (value instanceof Short s) {
-				yield (Long) s.longValue();
-
-			} else if (value instanceof Integer i) {
-				yield (Long) i.longValue();
-
-			} else if (value instanceof Long l) {
-				yield l;
-
-			} else if (value instanceof Float f) {
+		case LONG //
+			-> switch (value) {
+			case Boolean b -> Long.valueOf(b ? 1L : 0L);
+			case Short s -> (Long) s.longValue();
+			case Integer i -> (Long) i.longValue();
+			case Long l -> l;
+			case Float f -> {
 				var floatValue = f.floatValue();
 				if (floatValue >= Long.MIN_VALUE && floatValue <= Long.MAX_VALUE) {
 					yield Long.valueOf((long) floatValue);
@@ -226,8 +200,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Float [" + value + "] is not fitting in Long range.");
 				}
-
-			} else if (value instanceof Double d) {
+			}
+			case Double d -> {
 				var doubleValue = d.doubleValue();
 				if (doubleValue >= Long.MIN_VALUE && doubleValue <= Long.MAX_VALUE) {
 					yield (Long) Math.round(d.doubleValue());
@@ -235,8 +209,8 @@ public class TypeUtils {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Long range.");
 				}
-
-			} else if (value instanceof String s) {
+			}
+			case String s -> {
 				if (s.isEmpty()) {
 					yield null;
 				}
@@ -246,31 +220,21 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Long.");
 				}
 			}
-			throw converterIsNotImplemented(type, value);
-		}
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case FLOAT -> {
-			if (value instanceof Boolean b) {
-				yield Float.valueOf(b ? 1f : 0f);
-
-			} else if (value instanceof Short s) {
-				yield (Float) s.floatValue();
-
-			} else if (value instanceof Integer i) {
-				yield (Float) i.floatValue();
-
-			} else if (value instanceof Long l) {
-				yield (Float) l.floatValue();
-
-			} else if (value instanceof Float f) {
-				yield f;
-
-			} else if (value instanceof Double d) {
+		case FLOAT //
+			-> switch (value) {
+			case Boolean b -> Float.valueOf(b ? 1f : 0f);
+			case Short s -> (Float) s.floatValue();
+			case Integer i -> (Float) i.floatValue();
+			case Long l -> (Float) l.floatValue();
+			case Float f -> f;
+			case Double d ->
 				// Returns the value of this Double as a float after a narrowing primitive
 				// conversion.
-				yield Float.valueOf(d.floatValue());
-
-			} else if (value instanceof String s) {
+				Float.valueOf(d.floatValue());
+			case String s -> {
 				if (s.isEmpty()) {
 					yield null;
 				}
@@ -280,29 +244,18 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Float.");
 				}
 			}
-			throw converterIsNotImplemented(type, value);
-		}
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case DOUBLE -> {
-			if (value instanceof Boolean b) {
-				yield Double.valueOf(b ? 1L : 0L);
-
-			} else if (value instanceof Short s) {
-				yield Double.valueOf(s);
-
-			} else if (value instanceof Integer i) {
-				yield Double.valueOf(i);
-
-			} else if (value instanceof Long l) {
-				yield Double.valueOf(l);
-
-			} else if (value instanceof Float f) {
-				yield Double.valueOf(f);
-
-			} else if (value instanceof Double d) {
-				yield d;
-
-			} else if (value instanceof String s) {
+		case DOUBLE //
+			-> switch (value) {
+			case Boolean b -> Double.valueOf(b ? 1L : 0L);
+			case Short s -> Double.valueOf(s);
+			case Integer i -> Double.valueOf(i);
+			case Long l -> Double.valueOf(l);
+			case Float f -> Double.valueOf(f);
+			case Double d -> d;
+			case String s -> {
 				if (s.isEmpty()) {
 					yield null;
 				}
@@ -312,33 +265,25 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Double.");
 				}
 			}
-			throw converterIsNotImplemented(type, value);
-		}
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
 		case STRING -> {
-			if (value instanceof Object[]) {
-				yield Arrays.deepToString((Object[]) value);
+			if (value instanceof Object[] os) {
+				yield Arrays.deepToString(os);
 
 			} else if (value.getClass().isArray()) {
-				if (value instanceof boolean[]) {
-					yield Arrays.toString((boolean[]) value);
-				} else if (value instanceof byte[]) {
-					yield Arrays.toString((byte[]) value);
-				} else if (value instanceof char[]) {
-					yield Arrays.toString((char[]) value);
-				} else if (value instanceof double[]) {
-					yield Arrays.toString((double[]) value);
-				} else if (value instanceof float[]) {
-					yield Arrays.toString((float[]) value);
-				} else if (value instanceof int[]) {
-					yield Arrays.toString((int[]) value);
-				} else if (value instanceof long[]) {
-					yield Arrays.toString((long[]) value);
-				} else if (value instanceof short[]) {
-					yield Arrays.toString((short[]) value);
-				} else {
-					yield value.toString();
-				}
+				yield switch (value) {
+				case boolean[] bs -> Arrays.toString(bs);
+				case byte[] bs -> Arrays.toString(bs);
+				case char[] cs -> Arrays.toString(cs);
+				case double[] ds -> Arrays.toString(ds);
+				case float[] fs -> Arrays.toString(fs);
+				case int[] is -> Arrays.toString(is);
+				case long[] ls -> Arrays.toString(ls);
+				case short[] ss -> Arrays.toString(ss);
+				default -> value.toString();
+				};
 
 			} else {
 				yield value.toString();
@@ -878,6 +823,19 @@ public class TypeUtils {
 	 * @return the adjusted int value
 	 */
 	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+	
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the long lower boundary
+	 * @param highLimit the long upper boundary
+	 * @param value     the long actual value
+	 * @return the adjusted long value
+	 */
+	public static long fitWithin(long lowLimit, long highLimit, long value) {
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}

@@ -2,7 +2,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { AppService } from "src/app/app.service";
+import { PlatFormService } from "src/app/platform.service";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
 import { environment } from "src/environments";
@@ -10,6 +10,7 @@ import { environment } from "src/environments";
 @Component({
   selector: "history",
   templateUrl: "./history.component.html",
+  standalone: false,
 })
 export class HistoryComponent implements OnInit {
 
@@ -75,7 +76,7 @@ export class HistoryComponent implements OnInit {
     ) + "px";
   }
 
-  protected handleRefresh: () => void = () => AppService.handleRefresh();
+  protected handleRefresh: () => void = () => PlatFormService.handleRefresh();
 
   protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
     this.errorResponse = errorResponse;

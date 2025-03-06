@@ -9,6 +9,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
     selector: "controller-io-heatingelement-chart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
     public static getChartData(component: EdgeConfig.Component, phaseColors: string[], chartType: "line" | "bar"): HistoryUtils.ChartData {
@@ -60,18 +61,13 @@ export class ChartComponent extends AbstractHistoryChart {
             tooltip: {
                 formatNumber: ChartConstants.NumberFormat.NO_DECIMALS,
             },
-            yAxes: [
-                chartType === "line"
-                    ? {
-                        unit: YAxisType.LEVEL,
-                        position: "left",
-                        yAxisId: ChartAxis.LEFT,
-                    }
-                    : {
-                        unit: YAxisType.TIME,
-                        position: "left",
-                        yAxisId: ChartAxis.LEFT,
-                    },
+            yAxes: [{
+                unit: chartType === "line"
+                    ? YAxisType.HEATING_ELEMENT
+                    : YAxisType.TIME,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
+            },
             ],
         };
     }

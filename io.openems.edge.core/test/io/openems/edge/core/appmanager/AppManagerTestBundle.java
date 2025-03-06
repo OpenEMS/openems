@@ -1,7 +1,12 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setStaticAttributeViaReflection;
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
+import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -11,9 +16,9 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
@@ -276,7 +281,7 @@ public class AppManagerTestBundle {
 		if (!this.appValidateWorker.defectiveApps.isEmpty()) {
 			throw new Exception(this.appValidateWorker.defectiveApps.entrySet().stream() //
 					.map(e -> e.getKey() + "[" + e.getValue() + "]") //
-					.collect(Collectors.joining("|")));
+					.collect(joining("|")));
 		}
 	}
 
@@ -284,8 +289,10 @@ public class AppManagerTestBundle {
 	 * Prints out the instantiated {@link OpenemsAppInstance}s.
 	 */
 	public void printApps() {
-		JsonUtils.prettyPrint(this.sut.getInstantiatedApps().stream().map(OpenemsAppInstance::toJsonObject)
-				.collect(JsonUtils.toJsonArray()));
+		JsonUtils.prettyPrint(//
+				this.sut.getInstantiatedApps().stream() //
+						.map(OpenemsAppInstance::toJsonObject) //
+						.collect(toJsonArray()));
 	}
 
 	/**
@@ -300,9 +307,9 @@ public class AppManagerTestBundle {
 		final var config = this.cm.getConfiguration(this.sut.servicePid());
 		final var configObj = config.getProperties().get("apps");
 		if (configObj instanceof JsonPrimitive json) {
-			return JsonUtils.getAsJsonArray(JsonUtils.parse(JsonUtils.getAsString(json)));
+			return getAsJsonArray(JsonUtils.parse(getAsString(json)));
 		}
-		return JsonUtils.getAsJsonArray(JsonUtils.parse(configObj.toString()));
+		return getAsJsonArray(JsonUtils.parse(configObj.toString()));
 	}
 
 	/**
@@ -654,7 +661,7 @@ public class AppManagerTestBundle {
 			final var config = MyConfig.create() //
 					.setApps(this.instantiatedApps.stream() //
 							.map(OpenemsAppInstance::toJsonObject) //
-							.collect(JsonUtils.toJsonArray()) //
+							.collect(toJsonArray()) //
 							.toString())
 					.setKey("0000-0000-0000-0000") //
 					.build();
@@ -664,6 +671,20 @@ public class AppManagerTestBundle {
 				throw new OpenemsException(e);
 			}
 		}
+	}
+
+	/**
+	 * Tries to install the provided app with the minimal available configuration.
+	 * 
+	 * @param app the app to install
+	 * @throws InterruptedException  if the current thread was interruptedwhile
+	 *                               waiting
+	 * @throws ExecutionException    if this future completed exceptionally
+	 * @throws OpenemsNamedException on installation error
+	 */
+	public void tryInstallWithMinConfig(OpenemsApp app) throws OpenemsNamedException {
+		this.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(app.getAppId(), "key", "alias", Apps.getMinConfig(app.getAppId())));
 	}
 
 }

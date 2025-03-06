@@ -2,8 +2,14 @@ package io.openems.edge.evcs.mennekes;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
-
-import java.util.function.Consumer;
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
+import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
+import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedCurrentChannel;
+import static io.openems.edge.evcs.api.PhaseRotation.Phase.L1;
+import static io.openems.edge.evcs.api.PhaseRotation.Phase.L2;
+import static io.openems.edge.evcs.api.PhaseRotation.Phase.L3;
+import static io.openems.edge.meter.api.ElectricityMeter.calculateSumActivePowerFromPhases;
+import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -39,16 +45,15 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.ChargeStateHandler;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
@@ -99,6 +104,11 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 				ManagedEvcs.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				EvcsMennekes.ChannelId.values());
+
+		calculateUsedPhasesFromCurrent(this);
+		calculateSumCurrentFromPhases(this);
+		calculateSumActivePowerFromPhases(this);
+
 	}
 
 	@Override
@@ -172,8 +182,9 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		// TODO: Distinguish between firmware version. For firmware version >= 5.22
-		// there are several new registers.
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
+		// there are several new registers, e.g. Power is given by the charger since
+		// firmware 5.22
+		var modbusProtocol = new ModbusProtocol(this,
 				new FC3ReadRegistersTask(104, Priority.HIGH,
 						m(EvcsMennekes.ChannelId.OCPP_CP_STATUS, new UnsignedWordElement(104))),
 				new FC3ReadRegistersTask(111, Priority.LOW, //
@@ -184,7 +195,8 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 								.bit(3, EvcsMennekes.ChannelId.ERR_USB_STICK_HANDLING) //
 								.bit(4, EvcsMennekes.ChannelId.ERR_INCORRECT_PHASE_INSTALLATION) //
 								.bit(5, EvcsMennekes.ChannelId.ERR_NO_POWER),
-						m(new BitsWordElement(112, this)).bit(0, EvcsMennekes.ChannelId.ERR_RCMB_TRIGGERED) //
+						m(new BitsWordElement(112, this)) //
+								.bit(0, EvcsMennekes.ChannelId.ERR_RCMB_TRIGGERED) //
 								.bit(1, EvcsMennekes.ChannelId.ERR_VEHICLE_STATE_E) //
 								.bit(2, EvcsMennekes.ChannelId.ERR_MODE3_DIODE_CHECK) //
 								.bit(3, EvcsMennekes.ChannelId.ERR_MCB_TYPE2_TRIGGERED) //
@@ -206,42 +218,29 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 						m(EvcsMennekes.ChannelId.SAFE_CURRENT, new UnsignedWordElement(131))),
 				new FC3ReadRegistersTask(200, Priority.HIGH,
 						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(200))),
-				new FC3ReadRegistersTask(206, Priority.HIGH,
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(206)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(208)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(210)),
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(212)),
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(214)),
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(216))),
+				new FC3ReadRegistersTask(206, Priority.HIGH, //
+						m(new UnsignedDoublewordElement(206)).build() //
+								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L1)), //
+						m(new UnsignedDoublewordElement(208)).build() //
+								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L2)), //
+						m(new UnsignedDoublewordElement(210)).build() //
+								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L3)), //
+						m(new UnsignedDoublewordElement(212)).build() //
+								.onUpdateCallback(mapLongToPhaseRotatedCurrentChannel(this, L1)), //
+						m(new UnsignedDoublewordElement(214)).build() //
+								.onUpdateCallback(mapLongToPhaseRotatedCurrentChannel(this, L2)), //
+						m(new UnsignedDoublewordElement(216)).build() //
+								.onUpdateCallback(mapLongToPhaseRotatedCurrentChannel(this, L3))), //
+				// TODO Voltages are missing
 				new FC3ReadRegistersTask(1000, Priority.LOW,
 						m(EvcsMennekes.ChannelId.EMS_CURRENT_LIMIT, new UnsignedWordElement(1000))),
 				new FC16WriteRegistersTask(1000,
 						m(EvcsMennekes.ChannelId.APPLY_CURRENT_LIMIT, new UnsignedWordElement(1000))));
 
 		// Calculates required Channels from other existing Channels.
-		this.addCalculateChannelListeners();
-
 		this.addStatusListener();
 
 		return modbusProtocol;
-	}
-
-	private void addCalculateChannelListeners() {
-
-		// TODO: Power is given by the charger since firmware 5.22
-		final Consumer<Value<Integer>> powerChannels = ignore -> {
-			this._setActivePower(TypeUtils.sum(this.getActivePowerL1().orElse(0), this.getActivePowerL2().orElse(0),
-					this.getActivePowerL3().orElse(0)));
-			final var phases = Evcs.evaluatePhaseCount(//
-					this.getActivePowerL1().orElse(0), //
-					this.getActivePowerL2().orElse(0), //
-					this.getActivePowerL3().orElse(0));
-			this._setPhases(phases);
-		};
-
-		this.getActivePowerL1Channel().onSetNextValue(powerChannels);
-		this.getActivePowerL2Channel().onSetNextValue(powerChannels);
-		this.getActivePowerL3Channel().onSetNextValue(powerChannels);
 	}
 
 	private void addStatusListener() {
@@ -252,12 +251,12 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 			 * Maps the raw state into a {@link Status}.
 			 */
 			currentStatus = switch (rawState) {
-			case CHARGING -> Status.CHARGING;
+			case CHARGING, FINISHING -> Status.CHARGING;
 			case FAULTED -> Status.ERROR;
-			case FINISHING -> Status.CHARGING_FINISHED;
 			case PREPARING -> Status.READY_FOR_CHARGING;
 			case RESERVED -> Status.NOT_READY_FOR_CHARGING;
-			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE, OCCUPIED -> Status.CHARGING_REJECTED;
+			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE -> Status.CHARGING_REJECTED;
+			case OCCUPIED -> this.getActivePower().orElse(0) > 0 ? Status.CHARGING : Status.CHARGING_REJECTED;
 			case UNAVAILABLE -> Status.ERROR;
 			case UNDEFINED -> currentStatus;
 			};
@@ -352,14 +351,20 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		return this.config.phaseRotation();
+	}
+
 	private void detectSoftwareVersion() throws OpenemsException {
 		readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull,
-				new UnsignedDoublewordElement(100).wordOrder(WordOrder.MSWLSW)).thenAccept(registerValue -> {
+				new UnsignedDoublewordElement(100).wordOrder(WordOrder.MSWLSW)) //
+				.thenAccept(registerValue -> {
+					this.channel(EvcsMennekes.ChannelId.RAW_FIRMWARE_VERSION).setNextValue(registerValue);
 					if (registerValue == null) {
 						return;
 					}
 
-					this.channel(EvcsMennekes.ChannelId.RAW_FIRMWARE_VERSION).setNextValue(registerValue);
 					final var firmwareVersion = parseSoftwareVersion(registerValue.intValue());
 					this.channel(EvcsMennekes.ChannelId.FIRMWARE_VERSION.id()).setNextValue(firmwareVersion);
 					final var outdated = !SemanticVersion.fromString(firmwareVersion)
@@ -367,10 +372,9 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 					this.getFirmwareOutdatedChannel().setNextValue(outdated);
 
 					if (!outdated) {
-						this.getModbusProtocol().addTask(//
+						this.getModbusProtocol().addTasks(//
 								new FC3ReadRegistersTask(705, Priority.HIGH,
-										m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedWordElement(705))));
-						this.getModbusProtocol().addTask(//
+										m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedWordElement(705))), //
 								new FC3ReadRegistersTask(706, Priority.LOW,
 										m(EvcsMennekes.ChannelId.MAX_CURRENT_EV, new UnsignedWordElement(706)),
 										new DummyRegisterElement(707, 708),

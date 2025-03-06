@@ -14,8 +14,9 @@ import io.jenetics.Gene;
 import io.jenetics.Genotype;
 import io.jenetics.IntegerGene;
 import io.jenetics.util.ISeq;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
 /**
  * This class helps finding good initial populations.
@@ -28,7 +29,7 @@ public class InitialPopulation {
 	/**
 	 * Generate initial population.
 	 * 
-	 * @param gsc                  the {@link GlobalSimulationsContext}
+	 * @param goc                  the {@link GlobalOptimizationContext}
 	 * @param codec                the {@link EshCodec}
 	 * @param previousResult       the {@link SimulationResult} of the previous
 	 *                             optimization run
@@ -36,12 +37,20 @@ public class InitialPopulation {
 	 *                             the previousResult
 	 * @return a List of {@link Genotype}s, entries can be null
 	 */
-	public static ISeq<Genotype<IntegerGene>> generateInitialPopulation(GlobalSimulationsContext gsc, EshCodec codec,
+	public static ISeq<Genotype<IntegerGene>> generateInitialPopulation(GlobalOptimizationContext goc, EshCodec codec,
 			SimulationResult previousResult, boolean isCurrentPeriodFixed) {
+		for (var energyScheduleHandler : goc.eshsWithDifferentModes()) {
+			if (energyScheduleHandler instanceof EshWithDifferentModes esh) {
+				esh.getInitialPopulations(goc);
+			}
+		}
+
+		// TODO read good variations from ESHs.
+		// Example: force charge car during cheapest hours
 		return Stream //
 				.concat(//
-						variationsOfAllStatesDefault(gsc, previousResult, isCurrentPeriodFixed), //
-						variationsFromExistingSimulationResult(gsc, previousResult, isCurrentPeriodFixed)) //
+						variationsOfAllModesDefault(goc, previousResult, isCurrentPeriodFixed), //
+						variationsFromExistingSimulationResult(goc, previousResult, isCurrentPeriodFixed)) //
 				.filter(Objects::nonNull) //
 				.distinct() //
 				.map(codec::encode) //
@@ -49,35 +58,35 @@ public class InitialPopulation {
 	}
 
 	/**
-	 * Builds Schedules with all states default and all possible variations for
-	 * first adjustable period(s).
+	 * Builds Schedules with all Modes default and all possible variations for first
+	 * adjustable period(s).
 	 * 
-	 * @param gsc                  the {@link GlobalSimulationsContext}
+	 * @param goc                  the {@link GlobalOptimizationContext}
 	 * @param previousResult       the {@link SimulationResult} of the previous
 	 *                             optimization run
-	 * @param isCurrentPeriodFixed fixes the state of the first (current) period to
+	 * @param isCurrentPeriodFixed fixes the Mode of the first (current) period to
 	 *                             the previousResult
 	 * @return a Stream of Schedules
 	 */
-	protected static Stream<int[][]> variationsOfAllStatesDefault(GlobalSimulationsContext gsc,
+	protected static Stream<int[][]> variationsOfAllModesDefault(GlobalOptimizationContext goc,
 			SimulationResult previousResult, boolean isCurrentPeriodFixed) {
-		return generateAllVariations(gsc) //
-				.map(variation -> IntStream.range(0, gsc.periods().size()) //
+		return generateAllVariations(goc) //
+				.map(variation -> IntStream.range(0, goc.periods().size()) //
 						.mapToObj(periodIndex -> {
-							final var period = gsc.periods().get(periodIndex);
+							final var period = goc.periods().get(periodIndex);
 
-							return IntStream.range(0, gsc.eshsWithDifferentStates().size()) //
+							return IntStream.range(0, goc.eshsWithDifferentModes().size()) //
 									.map(eshIndex -> {
-										final var esh = gsc.eshsWithDifferentStates().get(eshIndex);
+										final var esh = goc.eshsWithDifferentModes().get(eshIndex);
 										final var previousSchedule = previousResult.schedules()
 												.getOrDefault(esh, ImmutableSortedMap.of()).get(period.time());
 
 										if (periodIndex == 0 && isCurrentPeriodFixed && previousSchedule != null) {
-											return previousSchedule.stateIndex(); // from previous result
+											return previousSchedule.modeIndex(); // from previous result
 										} else if (periodIndex < 2) {
 											return variation.get(eshIndex); // variation of first period(s)
 										} else {
-											return esh.getDefaultStateIndex(); // ESH default state
+											return esh.getDefaultModeIndex(); // ESH default Mode
 										}
 									}).toArray(); //
 						}) //
@@ -85,36 +94,36 @@ public class InitialPopulation {
 	}
 
 	/**
-	 * Builds Schedules with all states from an existing {@link SimulationResult}
-	 * and all possible variations for first adjustable period.
+	 * Builds Schedules with all Modes from an existing {@link SimulationResult} and
+	 * all possible variations for first adjustable period.
 	 * 
-	 * @param gsc                  the {@link GlobalSimulationsContext}
+	 * @param goc                  the {@link GlobalOptimizationContext}
 	 * @param previousResult       the {@link SimulationResult} of the previous
 	 *                             optimization run
-	 * @param isCurrentPeriodFixed fixes the state of the first (current) period to
+	 * @param isCurrentPeriodFixed fixes the Mode of the first (current) period to
 	 *                             the previousResult
 	 * @return a Stream of Schedules
 	 */
-	protected static Stream<int[][]> variationsFromExistingSimulationResult(GlobalSimulationsContext gsc,
+	protected static Stream<int[][]> variationsFromExistingSimulationResult(GlobalOptimizationContext goc,
 			SimulationResult previousResult, boolean isCurrentPeriodFixed) {
-		return generateAllVariations(gsc) //
-				.map(variation -> IntStream.range(0, gsc.periods().size()) //
+		return generateAllVariations(goc) //
+				.map(variation -> IntStream.range(0, goc.periods().size()) //
 						.mapToObj(periodIndex -> {
-							final var period = gsc.periods().get(periodIndex);
+							final var period = goc.periods().get(periodIndex);
 
-							return IntStream.range(0, gsc.eshsWithDifferentStates().size()) //
+							return IntStream.range(0, goc.eshsWithDifferentModes().size()) //
 									.map(eshIndex -> {
-										final var esh = gsc.eshsWithDifferentStates().get(eshIndex);
+										final var esh = goc.eshsWithDifferentModes().get(eshIndex);
 										final var previousSchedule = previousResult.schedules()
 												.getOrDefault(esh, ImmutableSortedMap.of()).get(period.time());
 
 										if (((periodIndex == 0 && isCurrentPeriodFixed) || periodIndex > 1)
 												&& previousSchedule != null) {
-											return previousSchedule.stateIndex(); // from previous result
+											return previousSchedule.modeIndex(); // from previous result
 										} else if (periodIndex < 2) {
 											return variation.get(eshIndex); // variation of first period(s)
 										} else {
-											return esh.getDefaultStateIndex(); // ESH default state
+											return esh.getDefaultModeIndex(); // ESH default Mode
 										}
 									}).toArray(); //
 						}) //
@@ -124,17 +133,17 @@ public class InitialPopulation {
 
 	/**
 	 * Generates all possible variations of
-	 * {@link EnergyScheduleHandler.WithDifferentStates} indexes and state-index for
-	 * a Period.
+	 * {@link EnergyScheduleHandler.WithDifferentModes} indexes and Mode-index for a
+	 * Period.
 	 * 
-	 * @param gsc {@link GlobalSimulationsContext}
+	 * @param goc the {@link GlobalOptimizationContext}
 	 * @return variations
 	 */
-	private static Stream<List<Integer>> generateAllVariations(GlobalSimulationsContext gsc) {
+	private static Stream<List<Integer>> generateAllVariations(GlobalOptimizationContext goc) {
 		return Lists.cartesianProduct(//
-				gsc.eshsWithDifferentStates().stream() //
+				goc.eshsWithDifferentModes().stream() //
 						.map(esh -> IntStream //
-								.range(0, esh.getAvailableStates().length) //
+								.range(0, esh.getNumberOfAvailableModes()) //
 								.mapToObj(Integer::valueOf) //
 								.toList()) //
 						.<List<Integer>>toArray(List[]::new) //

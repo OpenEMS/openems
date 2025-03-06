@@ -308,7 +308,7 @@ export class OeChartTester {
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
-    let options: Chart.ChartOptions = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels);
+    let options: Chart.ChartOptions = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, config, datasets, xAxisType, labels);
     options = prepareOptionsForTesting(options, chartData);
 
     return {
@@ -436,7 +436,6 @@ function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: Histor
     options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
     options.scales[axis.yAxisId]["title"] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId]["title"] as Chart.RadialTickOptions, ["color"]);
   });
-  console.log("options", options);
   return options;
 }
 

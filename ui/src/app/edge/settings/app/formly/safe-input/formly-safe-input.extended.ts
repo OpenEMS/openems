@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
@@ -9,6 +9,7 @@ import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.compone
 @Component({
     selector: "formly-safe-input-wrapper",
     templateUrl: "./formly-safe-input.extended.html",
+    standalone: false,
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
 
@@ -17,6 +18,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
 
     constructor(
         private modalController: ModalController,
+        private changeDetectorRef: ChangeDetectorRef,
     ) {
         super();
     }
@@ -58,7 +60,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             componentProps: {
                 title: this.props.label,
                 fields: this.getFields(),
-                model: this.model,
+                model: structuredClone(this.model),
             },
             cssClass: ["auto-height"],
         });
@@ -97,6 +99,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
                 }
             }
             this.formControl.markAsDirty();
+            this.changeDetectorRef.detectChanges();
         });
         return await modal.present();
     }

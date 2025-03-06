@@ -1,7 +1,8 @@
 package io.openems.edge.controller.api.common.handler;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 import java.io.IOException;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.TreeSet;
 
@@ -86,8 +87,8 @@ public class QueryRequestHandler implements JsonApi {
 		final var channelsByType = detailData.getChannelsBySaveType();
 		powerChannels.addAll(channelsByType.getOrDefault(HistoricTimedataSaveType.POWER, Collections.emptyList()));
 		energyChannels.addAll(channelsByType.getOrDefault(HistoricTimedataSaveType.ENERGY, Collections.emptyList()));
-		var powerData = this.timedata.queryHistoricData(null, request.getFromDate(), request.getToDate(),
-				powerChannels, new Resolution(15, ChronoUnit.MINUTES));
+		var powerData = this.timedata.queryHistoricData(null, request.getFromDate(), request.getToDate(), powerChannels,
+				new Resolution(15, MINUTES));
 
 		var energyData = this.timedata.queryHistoricEnergy(null, request.getFromDate(), request.getToDate(),
 				energyChannels);

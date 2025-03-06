@@ -15,8 +15,8 @@ import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
 import io.jenetics.engine.InvertibleCodec;
 import io.jenetics.util.Factory;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
 /**
  * {@link InvertibleCodec} implementation to convert between {@link Genotype}
@@ -26,9 +26,9 @@ import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
  * Genotype:
  * 
  * <ul>
- * <li>Separate Chromosome per EnergyScheduleHandler WithDifferentStates
+ * <li>Separate Chromosome per EnergyScheduleHandler WithDifferentModes
  * <li>Chromosome length = number of periods
- * <li>Integer-Genes represent the state
+ * <li>Integer-Genes represent the Mode
  * </ul>
  * 
  * <p>
@@ -36,8 +36,8 @@ import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
  * 
  * <ul>
  * <li>First dimension: period, i.e. [0] is first period
- * <li>Second dimension: state index of
- * {@link EnergyScheduleHandler.WithDifferentStates}
+ * <li>Second dimension: Mode index of
+ * {@link EnergyScheduleHandler.WithDifferentModes}
  * </ul>
  */
 public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
@@ -49,16 +49,16 @@ public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
 	/**
 	 * Creates an {@link EshCodec}.
 	 * 
-	 * @param gsc                the {@link GlobalSimulationsContext}
+	 * @param goc                the {@link GlobalOptimizationContext}
 	 * @param previousResult     the previous {@link SimulationResult}
 	 * @param isFirstPeriodFixed is the first period fixed to the value of the
 	 *                           previous result?
 	 * @return new {@link EshCodec} or null
 	 */
-	public static EshCodec of(GlobalSimulationsContext gsc, SimulationResult previousResult,
+	public static EshCodec of(GlobalOptimizationContext goc, SimulationResult previousResult,
 			boolean isFirstPeriodFixed) {
-		final var chromosomes = gsc.eshsWithDifferentStates().stream() //
-				.map(esh -> IntegerChromosome.of(0, esh.getAvailableStates().length, gsc.periods().size())) //
+		final var chromosomes = goc.eshsWithDifferentModes().stream() //
+				.map(esh -> IntegerChromosome.of(0, esh.getNumberOfAvailableModes(), goc.periods().size())) //
 				.collect(toISeq());
 		if (chromosomes.isEmpty()) {
 			return null;
@@ -70,24 +70,26 @@ public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
 
 				// Decoder
 				gt -> {
-					final var numberOfPeriods = gsc.periods().size();
-					final var numberOfEshs = gsc.eshsWithDifferentStates().size();
+					final var numberOfPeriods = goc.periods().size();
+					final var numberOfEshs = goc.eshsWithDifferentModes().size();
 					final var schedule = new int[numberOfPeriods][numberOfEshs];
 
 					for (var periodIndex = 0; periodIndex < numberOfPeriods; periodIndex++) {
 						for (var eshIndex = 0; eshIndex < numberOfEshs; eshIndex++) {
 							final int value = gt.get(eshIndex).get(periodIndex).intValue();
-							final int state;
+							final int mode;
+							// TODO Valid Modes per Period should be read from ESH here.
+							// Example: might be limited by a SmartConfig with JSCalendar payload
 							if (isFirstPeriodFixed && periodIndex == 0) {
-								final var time = gsc.periods().get(periodIndex).time();
-								final var esh = gsc.eshsWithDifferentStates().get(eshIndex);
-								state = Optional.ofNullable(previousResult.schedules().get(esh))
-										.flatMap(s -> Optional.ofNullable(s.get(time)).map(t -> t.stateIndex()))
+								final var time = goc.periods().get(periodIndex).time();
+								final var esh = goc.eshsWithDifferentModes().get(eshIndex);
+								mode = Optional.ofNullable(previousResult.schedules().get(esh))
+										.flatMap(s -> Optional.ofNullable(s.get(time)).map(t -> t.modeIndex()))
 										.orElse(value);
 							} else {
-								state = gt.get(eshIndex).get(periodIndex).intValue();
+								mode = gt.get(eshIndex).get(periodIndex).intValue();
 							}
-							schedule[periodIndex][eshIndex] = state;
+							schedule[periodIndex][eshIndex] = mode;
 						}
 					}
 					return schedule;
@@ -98,15 +100,15 @@ public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
 					if (schedule.length == 0) {
 						return null;
 					}
-					var numberOfEshs = min(schedule[0].length, gsc.eshsWithDifferentStates().size());
+					var numberOfEshs = min(schedule[0].length, goc.eshsWithDifferentModes().size());
 					if (numberOfEshs == 0) {
 						return null;
 					}
-					var numberOfPeriods = min(schedule.length, gsc.periods().size());
+					var numberOfPeriods = min(schedule.length, goc.periods().size());
 					return Genotype.of(range(0, numberOfEshs) //
 							.mapToObj(eshIndex -> {
-								var esh = gsc.eshsWithDifferentStates().get(eshIndex);
-								var max = esh.getAvailableStates().length;
+								final var esh = goc.eshsWithDifferentModes().get(eshIndex);
+								final var max = esh.getNumberOfAvailableModes();
 								return IntegerChromosome.of(range(0, numberOfPeriods) //
 										.mapToObj(periodIndex -> IntegerGene.of(//
 												min(schedule[periodIndex][eshIndex], max - 1), 0, max)) //

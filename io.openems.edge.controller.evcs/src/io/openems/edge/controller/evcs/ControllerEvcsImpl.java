@@ -1,15 +1,12 @@
 package io.openems.edge.controller.evcs;
 
-import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -27,19 +24,15 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.evcs.api.ChargeMode;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -48,7 +41,7 @@ import io.openems.edge.evcs.api.Status;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEvcsImpl extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, ModbusSlave, EnergySchedulable, ControllerEvcs {
+		implements Controller, ControllerEvcs, OpenemsComponent, ModbusSlave {
 
 	private static final int CHARGE_POWER_BUFFER = 200;
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
@@ -56,8 +49,6 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(ControllerEvcsImpl.class);
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 	private final Clock clock;
-	private final EnergyScheduleHandler energyScheduleHandler;
-	private final BiConsumer<Value<Status>, Value<Status>> onEvcsStatusChange;
 
 	// Time of last charge power change, used for the hysteresis
 	private Instant lastInitialCharge = Instant.MIN;
@@ -91,16 +82,6 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 		);
 		this.clock = clock;
 		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(clock);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(() -> new EshContext(//
-				this.config.evcs_id(), this.config.enabledCharging(), this.config.chargeMode(), this.config.priority(),
-				this.config.defaultChargeMinPower(), this.config.forceChargeMinPower(),
-				this.config.energySessionLimit() > 0 //
-						? this.config.energySessionLimit() //
-						: 30_000 // Apply a default limit
-		));
-		this.onEvcsStatusChange = (oldStatus, newStatus) -> {
-			this.energyScheduleHandler.triggerReschedule(); // Trigger Reschedule on Status change
-		};
 	}
 
 	@Activate
@@ -117,19 +98,18 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 		}
 
 		this.config = config;
-		this.evcs._setChargeMode(config.chargeMode());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
 		}
+
+		this.evcs._setChargeMode(config.chargeMode());
 		this.evcs._setMaximumPower(null);
-		this.evcs.getStatusChannel().onChange(this.onEvcsStatusChange);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.evcs.getStatusChannel().removeOnChangeCallback(this.onEvcsStatusChange);
 		super.deactivate();
 	}
 
@@ -175,21 +155,27 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 				this.resetMinMaxChannels();
 				return;
 			}
-			case CHARGING_REJECTED, READY_FOR_CHARGING, CHARGING_FINISHED -> {
-				this.evcs._setMaximumPower(null);
-			}
-			case CHARGING -> {
-			}
+			case CHARGING_REJECTED, READY_FOR_CHARGING //
+				-> this.evcs._setMaximumPower(null);
+			case CHARGING //
+				-> doNothing();
 			}
 		}
+
+		// Read parameters from Config
+		final var chargeMode = this.config.chargeMode();
+		final var priority = this.config.priority();
+		final var forceChargePower = this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+		final var defaultChargeMinPower = this.config.defaultChargeMinPower();
 
 		/*
 		 * Calculates the next charging power depending on the charge mode and priority
 		 */
-		var nextChargePower = //
-				switch (this.config.chargeMode()) {
+		var nextChargePower = chargeMode == null //
+				? 0 //
+				: switch (chargeMode) {
 				case EXCESS_POWER -> //
-					switch (this.config.priority()) {
+					switch (priority) {
 					case CAR -> calculateChargePowerFromExcessPower(this.sum, this.evcs);
 					case STORAGE -> {
 						// SoC > 97 % or always, when there is no ESS is available
@@ -200,12 +186,13 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 						}
 					}
 					};
-				case FORCE_CHARGE -> this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+				case FORCE_CHARGE -> forceChargePower;
 				};
 
-		var nextMinPower = //
-				switch (this.config.chargeMode()) {
-				case EXCESS_POWER -> this.config.defaultChargeMinPower();
+		var nextMinPower = chargeMode == null //
+				? 0 //
+				: switch (chargeMode) {
+				case EXCESS_POWER -> defaultChargeMinPower;
 				case FORCE_CHARGE -> 0;
 				};
 		this.evcs._setMinimumPower(nextMinPower);
@@ -250,7 +237,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 			}
 		}
 
-		if (this.config.chargeMode().equals(ChargeMode.EXCESS_POWER)) {
+		if (chargeMode == ChargeMode.EXCESS_POWER) {
 			// Apply hysteresis
 			nextChargePower = this.applyHysteresis(nextChargePower);
 		}
@@ -451,81 +438,5 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
-	}
-
-	/**
-	 * Builds the {@link EnergyScheduleHandler}.
-	 * 
-	 * <p>
-	 * This is public so that it can be used by the EnergyScheduler integration
-	 * test.
-	 * 
-	 * @param context a supplier for the configured {@link EshContext}
-	 * @return a {@link EnergyScheduleHandler}
-	 */
-	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<EshContext> context) {
-		return EnergyScheduleHandler.of(//
-				simContext -> context.get(), //
-				(simContext, period, energyFlow, ctrlContext) -> {
-					final var evcsGlobal = simContext.global.evcss().get(ctrlContext.evcsId);
-					final var evcsOne = simContext.evcss.get(ctrlContext.evcsId);
-					if (!ctrlContext.enabledCharging || evcsGlobal == null || evcsOne == null) {
-						return;
-					}
-					switch (evcsGlobal.status()) {
-					case CHARGING:
-					case READY_FOR_CHARGING:
-						break;
-					case CHARGING_FINISHED:
-					case CHARGING_REJECTED:
-					case ENERGY_LIMIT_REACHED:
-					case ERROR:
-					case NOT_READY_FOR_CHARGING:
-					case STARTING:
-					case UNDEFINED:
-						return;
-					}
-
-					// Evaluate Charge-Energy per mode
-					final var chargeEnergy = switch (ctrlContext.chargeMode) {
-					case EXCESS_POWER //
-						-> switch (ctrlContext.priority) {
-						case CAR //
-							-> toEnergy(//
-									max(ctrlContext.defaultChargeMinPower,
-											energyFlow.production - energyFlow.unmanagedConsumption));
-						case STORAGE -> 0; // TODO not implemented
-						};
-					case FORCE_CHARGE //
-						-> toEnergy(ctrlContext.forceChargeMinPower);
-					};
-
-					if (chargeEnergy <= 0) {
-						return; // stop early
-					}
-
-					// Apply Session Limit
-					final int limitedChargeEnergy;
-					if (ctrlContext.energySessionLimit > 0) {
-						limitedChargeEnergy = min(chargeEnergy,
-								max(0, ctrlContext.energySessionLimit - evcsOne.getInitialEnergySession()));
-					} else {
-						limitedChargeEnergy = chargeEnergy;
-					}
-
-					if (limitedChargeEnergy > 0) {
-						energyFlow.addConsumption(limitedChargeEnergy);
-						evcsOne.calculateInitialEnergySession(limitedChargeEnergy);
-					}
-				});
-	}
-
-	public static record EshContext(String evcsId, boolean enabledCharging, ChargeMode chargeMode, Priority priority,
-			int defaultChargeMinPower, int forceChargeMinPower, int energySessionLimit) {
-	}
-
-	@Override
-	public EnergyScheduleHandler getEnergyScheduleHandler() {
-		return this.energyScheduleHandler;
 	}
 }

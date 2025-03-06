@@ -224,23 +224,16 @@ public class WriteHandler implements Runnable {
 		ChargeState chargeStatus = ChargeState.UNDEFINED;
 		Status status = this.parent.getStatusChannel().getNextValue().asEnum();
 
-		switch (status) {
-		case CHARGING:
-			chargeStatus = ChargeState.CHARGING;
-			break;
-		case CHARGING_FINISHED:
-		case CHARGING_REJECTED:
-		case ENERGY_LIMIT_REACHED:
-		case ERROR:
-		case STARTING:
-		case READY_FOR_CHARGING:
-		case NOT_READY_FOR_CHARGING:
-			chargeStatus = ChargeState.NOT_CHARGING;
-			break;
-		case UNDEFINED:
-			chargeStatus = ChargeState.UNDEFINED;
-			break;
-		}
+		chargeStatus = switch (status) {
+		case CHARGING -> ChargeState.CHARGING;
+		case CHARGING_REJECTED, //
+				ENERGY_LIMIT_REACHED, //
+				ERROR, STARTING, //
+				READY_FOR_CHARGING, //
+				NOT_READY_FOR_CHARGING ->
+			ChargeState.NOT_CHARGING;
+		case UNDEFINED -> ChargeState.UNDEFINED;
+		};
 		this.parent.getChargeStateHandler().applyNewChargeState(chargeStatus);
 	}
 

@@ -38,8 +38,6 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period;
-
 /**
  * Holds the {@link Solution} of an {@link EnergyFlow.Model} and provides helper
  * functions to access the individual {@link Coefficient}s.
@@ -49,9 +47,11 @@ public class EnergyFlow {
 	private static final Logger LOG = LoggerFactory.getLogger(EnergyFlow.class);
 
 	private final double[] point;
+	private final int managedConsumption;
 
-	private EnergyFlow(PointValuePair pvp) {
+	private EnergyFlow(PointValuePair pvp, int managedConsumption) {
 		this.point = pvp.getPointRef();
+		this.managedConsumption = managedConsumption;
 	}
 
 	/**
@@ -70,6 +70,15 @@ public class EnergyFlow {
 	 */
 	public int getCons() {
 		return this.getValue(CONS);
+	}
+
+	/**
+	 * Gets the part of {@link Coefficient#CONS} that is actively managed.
+	 * 
+	 * @return the value
+	 */
+	public int getManagedCons() {
+		return this.managedConsumption;
 	}
 
 	/**
@@ -177,29 +186,28 @@ public class EnergyFlow {
 	public static class Model {
 
 		/**
-		 * Generates a {@link EnergyFlow.Model} from a {@link OneSimulationContext} and
-		 * a {@link Period}.
+		 * Generates a {@link EnergyFlow.Model} from a {@link GlobalScheduleContext} and
+		 * a {@link GlobalOptimizationContext.Period}.
 		 * 
-		 * @param osc    the {@link OneSimulationContext}
-		 * @param period the {@link Period}
+		 * @param gsc    the {@link GlobalScheduleContext}
+		 * @param period the {@link GlobalOptimizationContext.Period}
 		 * @return a new {@link EnergyFlow.Model}
 		 */
-		public static EnergyFlow.Model from(OneSimulationContext osc, Period period) {
-			final int factor; // TODO replace with switch in Java 21
-			if (period instanceof GlobalSimulationsContext.Period.Hour) {
-				factor = 4;
-			} else {
-				factor = 1;
-			}
-			final var essGlobal = osc.global.ess();
-			final var essOne = osc.ess;
-			final var grid = osc.global.grid();
+		public static EnergyFlow.Model from(GlobalScheduleContext gsc, GlobalOptimizationContext.Period period) {
+			final var factor = switch (period) {
+			case GlobalOptimizationContext.Period.Hour p -> 4;
+			case GlobalOptimizationContext.Period.Quarter p -> 1;
+			};
+			final var essGlobal = gsc.goc.ess();
+			final var essOne = gsc.ess;
+			final var grid = gsc.goc.grid();
+
 			return new EnergyFlow.Model(//
 					/* production */ period.production(), //
 					/* consumption */ period.consumption(), //
 					/* essMaxCharge */ min(essGlobal.maxChargeEnergy() * factor,
 							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //
-					/* essMaxDischarge */ min(essGlobal.maxDischargeEnergy() * factor, osc.ess.getInitialEnergy()), //
+					/* essMaxDischarge */ min(essGlobal.maxDischargeEnergy() * factor, gsc.ess.getInitialEnergy()), //
 					/* gridMaxBuy */ grid.maxBuy() * factor, //
 					/* gridMaxSell */ grid.maxSell() * factor);
 		}
@@ -213,7 +221,7 @@ public class EnergyFlow {
 
 		private final List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
 
-		private int addedConsumption = 0;
+		private int managedConsumption = 0;
 
 		public Model(int production, int unmanagedConsumption, int essMaxCharge, int essMaxDischarge, int gridMaxBuy,
 				int gridMaxSell) {
@@ -359,8 +367,8 @@ public class EnergyFlow {
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
 		public synchronized double addConsumption(int value) {
-			this.addedConsumption += value;
-			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.addedConsumption);
+			this.managedConsumption += value;
+			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.managedConsumption);
 		}
 
 		/**
@@ -605,7 +613,8 @@ public class EnergyFlow {
 			var coefficients = initializeCoefficients();
 			Arrays.fill(coefficients, 1);
 			try {
-				return new EnergyFlow(solve(MINIMIZE, this.constraints, new LinearObjectiveFunction(coefficients, 0)));
+				return new EnergyFlow(solve(MINIMIZE, this.constraints, new LinearObjectiveFunction(coefficients, 0)),
+						this.managedConsumption);
 			} catch (MathIllegalStateException e) {
 				LOG.warn("[solve] " //
 						+ "Unable to solve EnergyFlow.Model: " + e.getMessage() + " " //

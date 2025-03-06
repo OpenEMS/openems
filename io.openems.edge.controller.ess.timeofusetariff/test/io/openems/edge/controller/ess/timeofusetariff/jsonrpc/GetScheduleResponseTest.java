@@ -2,7 +2,7 @@ package io.openems.edge.controller.ess.timeofusetariff.jsonrpc;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyBalancing;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyBalancing;
 import static io.openems.edge.controller.ess.timeofusetariff.UtilsTest.CLOCK;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_HOURLY_PRICES;
@@ -17,7 +17,6 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -27,12 +26,11 @@ import io.openems.common.utils.UuidUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
-import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
-import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.Version;
+import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -69,10 +67,9 @@ public class GetScheduleResponseTest {
 
 		// Simulate future Schedule
 		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, Version.V2_ENERGY_SCHEDULABLE, ess, timedata);
-		var esh = TimeOfUseTariffControllerImplTest.getEnergyScheduleHandler(ctrl);
-		((AbstractEnergyScheduleHandler<?> /* this is safe */) esh)
-				.initialize(new GlobalSimulationsContext(CLOCK, RiskLevel.MEDIUM, null, null, null, null, //
-						new GlobalSimulationsContext.Ess(0, 0, 0, 0), ImmutableMap.of(), ImmutableList.of()));
+		var esh = ctrl.getEnergyScheduleHandler();
+		esh.initialize(new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, null, null, null, null, //
+				new GlobalOptimizationContext.Ess(0, 0, 0, 0), ImmutableList.of()));
 		esh.applySchedule(ImmutableSortedMap.<ZonedDateTime, Period.Transition>naturalOrder() //
 				.put(now.plusMinutes(0), new Period.Transition(1, 0.1, energyFlow, 5000)) //
 				.put(now.plusMinutes(15), new Period.Transition(0, 0.2, energyFlow, 6000)) //
@@ -208,7 +205,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "2000-01-01T00:00:00Z",
 				    "price": 0.1,
-				    "state": 0,
+				    "state": 1,
 				    "grid": 0,
 				    "production": 10000,
 				    "consumption": 2000,

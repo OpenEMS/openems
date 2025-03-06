@@ -354,7 +354,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 						// dynamically get the Converter; this allows the converter to be changed
 						var converter = this.channelMaps.get(channel);
 						var convertedValue = converter.channelToElement(value);
-						if (this.element instanceof ModbusRegisterElement<?, ?> registerElement) {
+						switch (this.element) {
+						case ModbusRegisterElement<?, ?> registerElement -> {
 							try {
 								registerElement.setNextWriteValueFromObject(convertedValue);
 							} catch (IllegalArgumentException e) {
@@ -369,8 +370,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 									e.printStackTrace();
 								}
 							}
+						}
 
-						} else if (this.element instanceof CoilElement coilElement) {
+						case CoilElement coilElement -> {
 							try {
 								coilElement.setNextWriteValue(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue));
 							} catch (IllegalArgumentException e) {
@@ -378,9 +380,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 										"Unable to write to ModbusCoilElement " //
 												+ "[" + this.element.startAddress + "]: " + e.getMessage());
 							}
+						}
 
-						} else {
-							AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
+						default //
+							-> AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 									"Unable to write to Element " //
 											+ "[" + this.element.startAddress + "]: it is not a ModbusElement");
 						}

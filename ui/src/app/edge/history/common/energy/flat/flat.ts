@@ -2,7 +2,7 @@
 import { Component } from "@angular/core";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { saveAs } from "file-saver-es";
-import { AppService } from "src/app/app.service";
+import { PlatFormService } from "src/app/platform.service";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { QueryHistoricTimeseriesExportXlxsRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs";
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
@@ -11,6 +11,7 @@ import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared
 @Component({
     selector: "energy",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -18,7 +19,7 @@ export class FlatComponent extends AbstractFlatWidget {
     private static readonly EXCEL_EXTENSION = ".xlsx";
     protected autarchyValue: number | null;
     protected readonly isSmartphoneResolution = this.service.isSmartphoneResolution;
-    protected readonly isApp: boolean = AppService.platform !== "web";
+    protected readonly isApp: boolean = PlatFormService.platform !== "web";
 
     public getChartHeight(): number {
         return this.service.deviceHeight / 2;

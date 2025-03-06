@@ -7,7 +7,7 @@ import { MenuController, ModalController, Platform, ToastController } from "@ion
 import { Subject, Subscription } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
-import { AppService } from "./app.service";
+import { PlatFormService } from "./platform.service";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
 import { Service, UserPermission, Websocket } from "./shared/shared";
@@ -16,6 +16,7 @@ import { Language } from "./shared/type/language";
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -41,7 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public websocket: Websocket,
     private globalRouteChangeHandler: GlobalRouteChangeHandler,
     private meta: Meta,
-    private appService: AppService,
+    private appService: PlatFormService,
     private title: Title,
     private stateService: AppStateTracker,
   ) {

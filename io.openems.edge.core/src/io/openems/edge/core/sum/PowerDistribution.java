@@ -24,7 +24,7 @@ public record PowerDistribution(//
 	 * 
 	 * @param grid       the gridActivePower; possibly null
 	 * @param production the productionActivePower; possibly null
-	 * @param ess        the essActivePower; possibly null
+	 * @param ess        the essDcDischargePower; possibly null
 	 * @return a {@link PowerDistribution}; possibly {@link PowerDistribution#EMPTY}
 	 */
 	public static PowerDistribution of(Integer grid, Integer production, Integer ess) {

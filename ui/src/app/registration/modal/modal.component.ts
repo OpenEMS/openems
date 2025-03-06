@@ -11,6 +11,7 @@ import { environment } from "src/environments";
 @Component({
   selector: "registration-modal",
   templateUrl: "./modal.component.html",
+  standalone: false,
 })
 export class RegistrationModalComponent implements OnInit {
 

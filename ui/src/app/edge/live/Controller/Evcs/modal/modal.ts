@@ -6,6 +6,7 @@ import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 import { AdministrationComponent } from "../administration/administration.component";
@@ -14,6 +15,7 @@ import { PopoverComponent } from "../popover/popover";
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -198,6 +200,16 @@ export class ModalComponent extends AbstractModal {
       energySessionLimitKwh: new FormControl(Math.round(this.controller?.properties.energySessionLimit / 1000)),
       enabledCharging: new FormControl(this.isChargingEnabled),
     });
+  }
+
+  /**
+   * Formats the pin value
+   *
+   * @param value the value
+   * @returns a formatted value
+   */
+  protected pinFormatter(value: number): string {
+    return Formatter.FORMAT_WATT(value);
   }
 
   /**

@@ -925,8 +925,8 @@ public class OdooHandler {
 					Field.EdgeDevice.STOCK_PRODUCTION_LOT_ID);
 
 			var serialNumber = serialNumberField.get(Field.EdgeDevice.STOCK_PRODUCTION_LOT_ID.id());
-			if (serialNumber instanceof Object[] && ((Object[]) serialNumber).length > 1) {
-				return getAsOptional(((Object[]) serialNumber)[1], String.class);
+			if (serialNumber instanceof Object[] sns && sns.length > 1) {
+				return getAsOptional(sns[1], String.class);
 			}
 			return Optional.empty();
 		} catch (OpenemsException ex) {

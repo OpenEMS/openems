@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.ess.timeofusetariff.ControlMode.CHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.Mode.AUTOMATIC;
 
@@ -18,9 +18,7 @@ import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.EshContext;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduler;
 import io.openems.edge.energy.api.Version;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -108,17 +106,5 @@ public class TimeOfUseTariffControllerImplTest {
 						.build()) //
 				.next(new TestCase());
 		return sut;
-	}
-
-	/**
-	 * Gets the {@link EnergyScheduleHandler}.
-	 * 
-	 * @param ctrl the {@link TimeOfUseTariffControllerImpl}
-	 * @return the object
-	 * @throws Exception on error
-	 */
-	public static EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> getEnergyScheduleHandler(
-			TimeOfUseTariffControllerImpl ctrl) throws Exception {
-		return ctrl.getEnergyScheduleHandler();
 	}
 }

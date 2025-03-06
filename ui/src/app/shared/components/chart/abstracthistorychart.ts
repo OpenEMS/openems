@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Directive, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -8,7 +8,7 @@ import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
 import { v4 as uuidv4 } from "uuid";
 
-import { ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, Resolution, calculateResolution, isLabelVisible, setLabelVisible } from "src/app/edge/history/shared";
+import { calculateResolution, ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { JsonrpcResponseError } from "../../jsonrpc/base";
@@ -22,12 +22,14 @@ import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/
 import { ChartAxis, HistoryUtils, YAxisType } from "../../service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
+import { ArrayUtils } from "../../utils/array/array.utils";
 import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
+import { ChartTypes } from "./chart.types";
 
 Chart.Chart.register(annotationPlugin);
 
@@ -47,6 +49,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   @Input() public showTotal: boolean = false;
   @Input() public isOnlyChart: boolean = false;
   @Input() public xAxisScalingType: XAxisType = XAxisType.TIMESERIES;
+  @Output() public setChartConfig: EventEmitter<ChartTypes.ChartConfig> = new EventEmitter();
 
   public edge: Edge | null = null;
   public loading: boolean = true;
@@ -58,12 +61,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
   protected spinnerId: string = uuidv4();
   protected chartType: "line" | "bar" = "line";
+  protected chartTypeSignal: WritableSignal<"line" | "bar"> = signal("line");
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
-
   protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   protected debounceTimeout: any | null = null;
+
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
 
   constructor(
@@ -352,19 +356,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     translate: TranslateService,
     legendOptions: { label: string, strokeThroughHidingStyle: boolean; }[],
     channelData: { data: { [name: string]: number[]; }; },
-    locale: string,
     config: EdgeConfig,
     datasets: Chart.ChartDataset[],
     chartOptionsType: XAxisType,
     labels: (Date | string)[],
   ): Chart.ChartOptions {
-
     let tooltipsLabel: string | null = null;
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultOptions(chartOptionsType, service, labels)));
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, true);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber,);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -395,7 +397,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(unit, chartType, value, translate);
       }
 
-      return label.split(":")[0] + ": " + AbstractHistoryChart.getToolTipsSuffix(tooltipsLabel, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, locale, translate, config);
+      return AbstractHistoryChart.getToolTipsSuffix(label, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, translate, config);
     };
 
     options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
@@ -445,6 +447,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     };
 
     options.plugins.tooltip.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]) {
+      const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
 
       if (items?.length === 0) {
         return null;
@@ -458,6 +461,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
       // Assuming the dataset is a bar chart using the 'stacked' option
       const stack = items[0].dataset.stack || datasetIndex;
+      const yAxisId = items[0].dataset.yAxisID;
 
       // If only one item in stack do not show sum of values
       if (items.length <= 1) {
@@ -466,9 +470,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
       const afterTitle = typeof chartObject.tooltip?.afterTitle == "function" ? chartObject.tooltip?.afterTitle(stack) : null;
 
-      const totalValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      const cumulatedValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      const unit = chartObject.yAxes?.find(el => el.yAxisId === yAxisId)?.unit
+        ?? chartObject.yAxes[0]?.unit;
+
+      if (unit != null) {
+        tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(unit, chartType, cumulatedValue, translate);
+      }
+
+
       if (afterTitle) {
-        return afterTitle + ": " + formatNumber(totalValue, "de", chartObject.tooltip.formatNumber) + " " + tooltipsLabel;
+        return afterTitle + ": " + formatNumber(cumulatedValue, locale, chartObject.tooltip.formatNumber) + " " + tooltipsLabel;
       }
 
       return null;
@@ -483,7 +495,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       function rebuildScales(chart: Chart.Chart) {
         let options = chart.options;
         chartObject.yAxes.forEach((element) => {
-          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, _dataSets, true);
+          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, _dataSets, true, chartObject.tooltip.formatNumber,);
         });
       }
 
@@ -534,9 +546,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param locale the current locale
    * @returns the chart options {@link Chart.ChartOptions}
    */
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", locale: string, datasets: Chart.ChartDataset[], showYAxisType?: boolean): Chart.ChartOptions {
-
-    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType);
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"]): Chart.ChartOptions {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType, formatNumber);
     switch (element.unit) {
       case YAxisType.RELAY:
         options.scales[element.yAxisId] = {
@@ -570,7 +582,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
-
       case YAxisType.TIME:
         options.scales[element.yAxisId] = {
           ...baseConfig,
@@ -586,16 +597,33 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
-      case YAxisType.LEVEL:
+      case YAxisType.HEAT_PUMP: {
+        const { callback, ...rest } = baseConfig.ticks;
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          min: 1,
+          max: 4,
+          beginAtZero: true,
+          ticks: {
+            ...rest,
+            stepSize: 1,
+          },
+        };
+      }
+        break;
+      case YAxisType.HEATING_ELEMENT: {
+        const { callback, ...rest } = baseConfig.ticks;
         options.scales[element.yAxisId] = {
           ...baseConfig,
           min: 0,
           max: 3,
           beginAtZero: true,
           ticks: {
+            ...rest,
             stepSize: 1,
           },
         };
+      }
         break;
       case YAxisType.VOLTAGE:
       case YAxisType.CURRENT:
@@ -633,16 +661,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @returns a string, that is either the baseName, if no suffix is provided, or a baseName with a formatted number
    */
   public static getTooltipsLabelName(baseName: string, unit: YAxisType, suffix?: number | string): string {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (suffix != null) {
       if (typeof suffix === "string") {
         return baseName + " " + suffix;
       } else {
         switch (unit) {
           case YAxisType.ENERGY:
-            return baseName + ": " + formatNumber(suffix / 1000, "de", "1.0-1") + " kWh";
+            return baseName + ": " + formatNumber(suffix / 1000, locale, "1.0-1") + " kWh";
           case YAxisType.PERCENTAGE:
-            return baseName + ": " + formatNumber(suffix, "de", "1.0-1") + " %";
+            return baseName + ": " + formatNumber(suffix, locale, "1.0-1") + " %";
           case YAxisType.RELAY:
+          case YAxisType.HEAT_PUMP:
           case YAxisType.TIME: {
             const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(Language.DE.key));
             return baseName + ": " + pipe.transform(suffix);
@@ -661,52 +691,61 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param title the YAxisType
    * @returns the tooltips suffix
    */
-  public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisType, chartType: "bar" | "line", language: string, translate: TranslateService, config: EdgeConfig): string {
-    let tooltipsLabel: string | null = null;
+  public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisType, chartType: "bar" | "line", translate: TranslateService, config: EdgeConfig): string {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    const prefix: string = label.split(":")[0];
+    let suffix: string;
     switch (title) {
-      case YAxisType.RELAY: {
-        return Converter.ON_OFF(translate)(value);
-      }
+      case YAxisType.RELAY:
+        return prefix + ": " + Converter.ON_OFF(translate)(value);
+      case YAxisType.HEAT_PUMP:
+        return prefix + ": " + ChartConstants.Plugins.ToolTips.HEAT_PUMP_SUFFIX(translate, value);
       case YAxisType.TIME: {
-        const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(language));
-        return pipe.transform(value);
+        const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(locale));
+        return prefix + ": " + pipe.transform(value, true);
       }
       case YAxisType.CURRENCY: {
         const meta: EdgeConfig.Component = config?.getComponent("_meta");
         const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
-        tooltipsLabel = Currency.getCurrencyLabelByCurrency(currency);
-        break;
+        suffix = Currency.getCurrencyLabelByCurrency(currency); break;
       }
       case YAxisType.PERCENTAGE:
-        tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(title, chartType, value, translate);
-        break;
+        suffix = AbstractHistoryChart.getToolTipsAfterTitleLabel(title, chartType, value, translate); break;
       case YAxisType.VOLTAGE:
-        tooltipsLabel = "V";
+        suffix = "V";
         break;
       case YAxisType.CURRENT:
-        tooltipsLabel = "A";
+        suffix = "A";
         break;
       case YAxisType.POWER:
-        tooltipsLabel = "W";
+        suffix = "W";
         break;
       case YAxisType.ENERGY:
         if (chartType == "bar") {
-          tooltipsLabel = "kWh";
+          suffix = "kWh";
         } else {
-          tooltipsLabel = "kW";
+          suffix = "kW";
         }
         break;
       case YAxisType.REACTIVE:
-        tooltipsLabel = "var";
+        suffix = "var";
         break;
       default:
-        tooltipsLabel = "";
+        suffix = "";
         break;
     }
 
-    return formatNumber(value, "de", format) + " " + tooltipsLabel;
+    return prefix + ": " + formatNumber(value, locale, format) + " " + suffix;
   }
 
+  /**
+   * Gets the default x axis chart options
+   *
+   * @param xAxisType the x axis type
+   * @param service the service
+   * @param labels the x axis ticks labels
+   * @returns chartoptions
+   */
   public static getDefaultOptions(xAxisType: XAxisType, service: Service, labels: (Date | string)[]): Chart.ChartOptions {
 
     let options: Chart.ChartOptions;
@@ -752,6 +791,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Removes the external plugin features
+   *
+   * @param options the chart options
+   * @returns the chart options
+   */
   protected static removeExternalPluginFeatures(options: Chart.ChartOptions): Chart.ChartOptions {
     options.plugins["annotation"] = {};
     options.plugins["datalabels"] = {
@@ -884,51 +929,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   /**
    * Used to loadChart, dependent on the resolution
    */
-  protected loadChart() {
+  protected async loadChart() {
     this.labels = [];
     this.errorResponse = null;
     const unit: ChronoUnit.Type = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
-
     // Show Barchart if resolution is days or months
     if (ChronoUnit.isAtLeast(unit, ChronoUnit.Type.DAYS)) {
-      Promise.all([
-        this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
-        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
-      ]).then(([energyPeriodResponse, energyResponse]) => {
-        this.chartType = "bar";
-        this.chartObject = this.getChartData();
-
-        // TODO after chartjs migration, look for config
-        energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
-
-        const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
-        this.datasets = displayValues.datasets;
-        this.legendOptions = displayValues.legendOptions;
-        this.labels = displayValues.labels;
-        this.channelData = displayValues.channelData;
-        this.beforeSetChartLabel();
-        this.setChartLabel();
-      });
+      await this.loadBarChart(unit);
     } else {
-
-      // Shows Line-Chart
-      Promise.all([
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
-        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
-      ])
-        .then(([dataResponse, energyResponse]) => {
-          dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
-          this.chartType = "line";
-          this.chartObject = this.getChartData();
-          const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse, energyResponse);
-          this.datasets = displayValues.datasets;
-          this.legendOptions = displayValues.legendOptions;
-          this.labels = displayValues.labels;
-          this.channelData = displayValues.channelData;
-          this.beforeSetChartLabel();
-          this.setChartLabel();
-        });
+      await this.loadLineChart(unit);
     }
+
+    this.setChartConfig.emit({ chartType: this.chartType, datasets: this.datasets, labels: this.labels, options: this.options });
   }
 
   /**
@@ -1084,8 +1096,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * Sets the Labels of the Chart
    */
   protected setChartLabel() {
-    const locale = this.service.translate.currentLang;
-    this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, locale, this.config, this.datasets, this.xAxisScalingType, this.labels);
+    this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, this.config, this.datasets, this.xAxisScalingType, this.labels);
     this.loading = false;
     this.stopSpinner();
   }
@@ -1128,10 +1139,54 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
       if (this.chartObject?.input) {
         resolve({
-          powerChannels: this.chartObject.input.map(element => element.powerChannel),
-          energyChannels: this.chartObject.input.map(element => element.energyChannel),
+          powerChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.powerChannel)),
+          energyChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.energyChannel)),
         });
       }
+    });
+  }
+
+  private loadLineChart(unit: ChronoUnit.Type) {
+    return new Promise<void>((resolve) => {
+      Promise.all([
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
+        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
+      ])
+        .then(([dataResponse, energyResponse]) => {
+          this.chartType = "line";
+          dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
+          this.chartObject = this.getChartData();
+          const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse, energyResponse);
+          this.datasets = displayValues.datasets;
+          this.legendOptions = displayValues.legendOptions;
+          this.labels = displayValues.labels;
+          this.channelData = displayValues.channelData;
+          this.beforeSetChartLabel();
+          this.setChartLabel();
+        }).finally(() => resolve());
+    });
+  }
+
+  private loadBarChart(unit: ChronoUnit.Type): Promise<void> {
+    return new Promise((resolve) => {
+      Promise.all([
+        this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
+        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
+      ]).then(([energyPeriodResponse, energyResponse]) => {
+        this.chartType = "bar";
+        this.chartObject = this.getChartData();
+        // TODO after chartjs migration, look for config
+        energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
+
+        const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
+        this.datasets = displayValues.datasets;
+        this.legendOptions = displayValues.legendOptions;
+        this.labels = displayValues.labels;
+        this.channelData = displayValues.channelData;
+        this.beforeSetChartLabel();
+        this.setChartLabel();
+        resolve();
+      }).finally(() => resolve());
     });
   }
 

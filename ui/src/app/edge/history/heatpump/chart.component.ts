@@ -14,6 +14,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "heatpumpchart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -78,7 +79,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     hidden: false,
                 });
                 this.colors.push({
-                    backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.05),
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.05),
                     borderColor: ChartConstants.Colors.RED,
                 });
             }
