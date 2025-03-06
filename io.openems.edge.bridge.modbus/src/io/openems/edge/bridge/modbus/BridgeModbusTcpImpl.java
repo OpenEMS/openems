@@ -26,6 +26,15 @@ import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
+/** Experimental approach**/
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import java.util.Objects;
+
 /**
  * Provides a service for connecting to, querying and writing to a Modbus/TCP
  * device.
@@ -46,6 +55,15 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	/** The configured IP address. */
 	private InetAddress ipAddress = null;
 	private int port;
+
+	/** Experimental approach **/
+	private final Logger log = LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
+	private boolean shouldSkip = false;
+	private int noSkipIdx = 0;
+	private long cycleIdx = 0;
+
+	@Reference
+	protected ConfigurationAdmin cm;
 
 	public BridgeModbusTcpImpl() {
 		super(//
@@ -73,6 +91,18 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	private void applyConfig(ConfigTcp config) {
 		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));
 		this.port = config.port();
+		int coreCycleTime = 1000;
+		try {
+			// the default cycleTime is not persisted and won't be returned, only modified
+			// cycleTime will!
+			coreCycleTime = (int) (Integer) this.cm.getConfiguration("Core.Cycle").getProperties().get("cycleTime");
+		} catch (Exception e) {
+			this.logCycle("cycleTime reading failed, use default value " + coreCycleTime);
+		}
+		this.noSkipIdx = (int) Math.ceil(config.intervalBetweenAccesses() * 1.0 / coreCycleTime);
+		this.noSkipIdx = Math.max(this.noSkipIdx, 1);
+		this.logCycle("applyConfig: cycleTime=" + coreCycleTime + ", interval=" + config.intervalBetweenAccesses()
+				+ ", noSkipIdx=" + this.noSkipIdx);
 	}
 
 	@Override
@@ -127,5 +157,42 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	public void setIpAddress(InetAddress ipAddress) {
 		this.ipAddress = ipAddress;
+	}
+	
+	/** Experimental approach **/
+	private boolean isNewCycle(Event event) {
+		return Objects.equals(event.getTopic(), EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
+	}
+
+	private void logCycle(String msg) {
+		if (this.getLogVerbosity() == LogVerbosity.DEBUG_LOG) {
+			this.logInfo(this.log, msg);
+		}
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+
+		if (this.isNewCycle(event)) {
+			this.shouldSkip = this.cycleIdx % this.noSkipIdx != 0;
+			this.logCycle(
+					"handleEvent: Cycle " + this.cycleIdx + (this.shouldSkip ? " will" : " won't") + " be skipped");
+			this.cycleIdx++;
+		}
+		if (this.shouldSkip) {
+			return;
+		}
+
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.worker.onBeforeProcessImage();
+			break;
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			this.worker.onExecuteWrite();
+			break;
+		}
 	}
 }
