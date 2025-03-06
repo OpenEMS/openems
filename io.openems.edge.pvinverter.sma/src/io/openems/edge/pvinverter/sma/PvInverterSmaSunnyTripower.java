@@ -21,7 +21,7 @@ public interface PvInverterSmaSunnyTripower extends SunSpecPvInverter, ManagedSy
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		
 		COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.text("Communication to KACO blueplanet hybrid 10 failed. "
+				.text("Communication to SMA inverterfailed. "
 						+ "Please check the network connection and the status of the inverter")), //		
 
 		/**
