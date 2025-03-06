@@ -2,11 +2,13 @@ package io.openems.edge.pvinverter.sma;
 
 import org.osgi.service.event.EventHandler;
 
+import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -17,6 +19,10 @@ public interface PvInverterSmaSunnyTripower extends SunSpecPvInverter, ManagedSy
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		
+		COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
+				.text("Communication to KACO blueplanet hybrid 10 failed. "
+						+ "Please check the network connection and the status of the inverter")), //		
 
 		/**
 		 * Number of Modules (DC-Inputs).
@@ -987,6 +993,25 @@ public interface PvInverterSmaSunnyTripower extends SunSpecPvInverter, ManagedSy
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#COMMUNICATION_FAILED}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getCommunicationFailedChannel() {
+		return this.channel(ChannelId.COMMUNICATION_FAILED);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#USER_ACCESS_DENIED} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setCommunicationFailed(boolean value) {
+		this.getCommunicationFailedChannel().setNextValue(value);
 	}
 
 }

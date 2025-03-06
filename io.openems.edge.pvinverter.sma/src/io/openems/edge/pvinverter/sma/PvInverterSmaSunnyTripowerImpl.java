@@ -1,5 +1,7 @@
 package io.openems.edge.pvinverter.sma;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -129,6 +131,9 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 	private Config config;
 	private int numberOfModules = 0;
 
+	private Instant lastSuccessfulCommunication = null;  // Zeitstempel der letzten erfolgreichen Modbus-Kommunikation
+	
+	
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -329,6 +334,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		}
 
 		try {
+			
 			// modbus Task is active and Sunspec is initialized
 			IntegerReadChannel currentScaleFactorChannel = this.channel(PvInverterSmaSunnyTripower.ChannelId.DCA_SF);
 			int currentScaleFactor = currentScaleFactorChannel.value().getOrError().intValue();
@@ -341,6 +347,9 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 			IntegerReadChannel energyScaleFactorChannel = this.channel(PvInverterSmaSunnyTripower.ChannelId.DCWH_SF);
 			int energyScaleFactor = energyScaleFactorChannel.value().getOrError().intValue();
+			
+	        this.lastSuccessfulCommunication = Instant.now();
+	        this._setCommunicationFailed(false);			
 
 			for (int i = 0; i < this.numberOfModules; i++) {
 
@@ -386,7 +395,18 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			}
 
 		} catch (OpenemsException e) {
-			this.log.error("Number of modules unknown");
+
+	        boolean communicationFailed = (this.lastSuccessfulCommunication == null) ||
+	                this.lastSuccessfulCommunication.isBefore(Instant.now().minus(24, ChronoUnit.HOURS));
+
+	        this._setCommunicationFailed(communicationFailed);
+			
+			
+	        if (communicationFailed) {
+	            log.error("Inverter not available for over 24 hours");
+	        } else {
+	            log.warn("Inverter not available within 24 hours");
+	        }
 			return;
 		}
 
