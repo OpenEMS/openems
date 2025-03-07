@@ -212,7 +212,7 @@ public class ControllerLevlEssBalancingImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest("sendLevlControlRequest", call -> {
+		builder.handleRequest(LevlControlRequest.METHOD, call -> {
 			return this.handleRequest(call);
 		});
 	}
