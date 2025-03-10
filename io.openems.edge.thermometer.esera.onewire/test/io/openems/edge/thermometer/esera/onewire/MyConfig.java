@@ -1,6 +1,7 @@
-package io.openems.edge.modbus.thermometer;
+package io.openems.edge.thermometer.esera.onewire;
 
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.thermometer.esera.onewire.Config;
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -66,69 +67,22 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String aliasOwd1() {
+	public String alias() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public String aliasOwd2() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd3() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd4() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd5() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd6() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd7() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd8() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd9() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String aliasOwd10() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public boolean debugMode() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public io.openems.edge.thermometer.esera.onewire.enums.OneWireDevice OneWireDevice() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

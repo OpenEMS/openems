@@ -504,9 +504,11 @@ public class DelayCharge {
 
 		// Last hour when production was greater than consumption.
 		Optional<Integer> lastQuarterHour = Optional.empty();
+		int min = min(96 - predictionStartQuarterHourIndex, quarterHourlyProduction.length);
+		min = min(min, quarterHourlyConsumption.length);
 
 		// Iterate predictions till midnight
-		for (var i = 0; i < min(96 - predictionStartQuarterHourIndex, quarterHourlyProduction.length); i++) {
+		for (var i = 0; i < min; i++) {
 			// to avoid null and negative consumption values.
 			if (quarterHourlyProduction[i] != null && quarterHourlyConsumption[i] != null
 					&& quarterHourlyConsumption[i] >= 0) {

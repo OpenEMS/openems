@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>io.openems.edge.modbus.thermometer</name>
+	<name>io.openems.edge.thermometer.esera.onewire</name>
 	<comment></comment>
 	<projects>
 	</projects>

@@ -1,4 +1,4 @@
-package io.openems.edge.modbus.thermometer;
+package io.openems.edge.thermometer.esera.onewire;
 
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ public class MyModbusDeviceTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new ModbusThermometerImpl()) //
+		new ComponentTest(new EseraOneWireThermometerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //

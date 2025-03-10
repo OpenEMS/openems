@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/io/openems/edge/modbus/thermometer/Config.java=UTF-8
-encoding//src/io/openems/edge/modbus/thermometer/ModbusThermometer.java=UTF-8
-encoding//src/io/openems/edge/modbus/thermometer/ModbusThermometerImpl.java=UTF-8
-encoding//test/io/openems/edge/modbus/thermometer/MyConfig.java=UTF-8
-encoding//test/io/openems/edge/modbus/thermometer/MyModbusDeviceTest.java=UTF-8
-encoding/<project>=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/readme.adoc=UTF-8
