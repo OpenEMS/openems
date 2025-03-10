@@ -1,4 +1,6 @@
-= SMA SunnyIsland 6.0H and Sunny Island 4.4M
+= SMA ESS
+
+== SMA SunnyIsland 6.0H and Sunny Island 4.4M
 
 Implemented Natures::
 - SymmetricEss
@@ -7,5 +9,14 @@ Implemented Natures::
 - ManagedAsymmetricEss
 - SinglePhaseEss
 - ManagedSinglePhaseEss
+
+== SMA STP 10.0 SE
+
+Implemented Natures::
+- SymmetricBatteryInverter
+- ManagedSymmetricBatteryInverter
+- HybridManagedSymmetricBatteryInverter
+
+Includes a battery and a DC charger component. The inverter and the battery can be combined to a `EssGenericManagedSymmetric`
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.sma[Source Code icon:github[]]
