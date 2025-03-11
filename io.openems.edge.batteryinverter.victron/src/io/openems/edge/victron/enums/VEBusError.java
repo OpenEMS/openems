@@ -21,7 +21,7 @@ public enum VEBusError implements OptionsEnum {
     SWITCH_OVER_PROTECTION(24, "Switch-over system protection initiated"),
     FIRMWARE_INCOMPATIBILITY(25, "Firmware incompatibility. The firmware of one of the connected device is not sufficiently up to date to operate in conjunction with this device"),
     INTERNAL_ERROR(26, "Internal error");
-	
+
     private final int value;
     private final String option;
 
@@ -43,6 +43,6 @@ public enum VEBusError implements OptionsEnum {
     @Override
     public OptionsEnum getUndefined() {
 	return UNDEFINED;
-    }	
+    }
 
 }

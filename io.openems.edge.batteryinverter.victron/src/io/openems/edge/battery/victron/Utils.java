@@ -7,15 +7,16 @@ import static java.util.stream.IntStream.concat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
-
-import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
+import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 
 /**
  * Utils for {@link TimeOfUseTariffController}.
- * 
+ *
  * <p>
  * All energy values are in [Wh] and positive, unless stated differently.
  */
@@ -49,7 +50,7 @@ public final class Utils {
 
 	/**
 	 * Returns the configured minimum SoC, or zero.
-	 * 
+	 *
 	 * @param ctrlLimitTotalDischarges      the list of
 	 *                                      {@link ControllerEssLimitTotalDischarge}
 	 * @param ctrlEmergencyCapacityReserves the list of
@@ -69,11 +70,11 @@ public final class Utils {
 						.mapToInt(v -> max(0, v))) // only positives
 				.max().orElse(0);
 	}
-	
+
 	/**
 	 * Returns the minimum SoC [%] considering charge/discharge limiters, total discharge
 	 * limits, and emergency capacity reserves.
-	 * 
+	 *
 	 * @param ctrlChargeDischargeLimiters   the list of
 	 *                                      {@link ControllerEssChargeDischargeLimiter}
 	 * @param ctrlLimitTotalDischarges      the list of
@@ -116,7 +117,7 @@ public final class Utils {
 	    return max(minDischargeSoc, max(minReserveSoc, minLimiterSoc));
 	}
 
-	
+
 	public static void filterControllersByEssId(List<ControllerEssChargeDischargeLimiter> controllers, String myEssId) {
 	    Iterator<ControllerEssChargeDischargeLimiter> iterator = controllers.iterator();
 	    while (iterator.hasNext()) {
@@ -125,11 +126,11 @@ public final class Utils {
 	            iterator.remove(); // Remove controllers that do not refer to the specified ESS
 	        }
 	    }
-	}		
+	}
 
 	/**
 	 * Returns a range of useable SoC, e.g. min Soc:20, max SoC 95 -> range 75.
-	 * 
+	 *
 	 * @param ctrlChargeDischargeLimiters   the list of
 	 *                                      {@link ControllerEssChargeDischargeLimiter}
 	 * @param ctrlLimitTotalDischarges      the list of
@@ -179,7 +180,7 @@ public final class Utils {
 
 	/**
 	 * Returns the range of allow SoC. I.e. min: 30%, max: 95% -> 65%.
-	 * 
+	 *
 	 * @param ctrlLimitTotalDischarges      the list of
 	 *                                      {@link ControllerEssLimitTotalDischarge}
 	 * @param ctrlEmergencyCapacityReserves the list of

@@ -95,7 +95,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         hidden: false,
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.DARK_GREY, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.DARK_GREY, 0.2),
                         borderColor: "rgb(5, 5, 5)",
                         //borderWidth: 0.5,
                     });
@@ -117,7 +117,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         hidden: false,
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.2),
                         borderColor: "rgb(234, 11, 11)",
                         borderDash: [3, 3],
                     });
@@ -141,9 +141,9 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.ORANGE, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.ORANGE, 0.2),
                         borderColor: "rgb(234, 11, 11)",
-                        borderDash: [3, 3]
+                        borderDash: [3, 3],
                     });
                 }
 
@@ -164,7 +164,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderDash: [3, 3],
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.GREY, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.GREY, 0.2),
                         borderColor: "rgb(5, 5, 5)",
                     });
                 }
@@ -203,9 +203,9 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         fill: false, // Kein Füllen von dieser Linie aus
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.YELLOW, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
                         borderColor: "rgb(234, 11, 11)",
-                        borderDash: [3, 3]
+                        borderDash: [3, 3],
                     });
 
                     // Obere Linie (propertyPeakshavingPower) mit Füllung nach unten
@@ -294,7 +294,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: "rgba(0,223,0,0.05)",
                         borderColor: "rgb(3, 117, 48)",
-                        borderDash: [10, 10]
+                        borderDash: [10, 10],
                     });
                 }
 

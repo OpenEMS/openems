@@ -17,9 +17,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.channel.AccessMode;
-
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.victron.ess.symmetric.VictronEss;
 import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverterImpl;
@@ -39,10 +38,9 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
-
-import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 
 //import io.openems.edge.core.appmanager.ComponentUtil;
 
@@ -107,18 +105,16 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id())) {
-			return;
-		}
 		
+
 		// update filter for 'Controllers'
 //		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controllers", config.ess_id())) {
 //			return;
 //		}
 
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id()) || OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
 			return;
 		}
 
@@ -128,11 +124,11 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this.installListener();
-		
+
 
 	}
-	
-	
+
+
 
 	@Override
 	@Deactivate
@@ -144,7 +140,7 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return "SoC: " + this.getSoc();
 	}
-	
+
 	/**
 	 * Uses Info Log for further debug features.
 	 */
@@ -153,14 +149,14 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
-	}	
+	}
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		// TODO implement battery start/stop if needed
 		this._setStartStop(value);
 	}
-	
+
 	private void checkSocControllers() {
 
 		if (this.ess == null) {
@@ -181,7 +177,7 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 
 	private void installListener() {
 	    this.getCapacityInAmphoursChannel().onUpdate(value -> {
-	    	
+
 	        if (this.ess == null) {
 	            this.logError(this.log, "No ESS reference available.");
 	            return;
@@ -230,7 +226,7 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 
 	        // Calculate the usable capacity based on MinSoC and MaxSoC limits
 	        // First, calculate the percentage of capacity that can be used between MinSoC and MaxSoC
-	        double usableCapacityRange = ((double) (this.maxSocPercentage - this.minSocPercentage)) / 100.0;
+	        double usableCapacityRange = (this.maxSocPercentage - this.minSocPercentage) / 100.0;
 	        int totalUsableCapacityWh = (int) (totalCapacityWh * usableCapacityRange); // Usable capacity within min and max SoC range
 
 	        // Now calculate the current usable capacity based on the usable SoC
@@ -244,14 +240,14 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 	        this.ess._setUseableSoc(useableSoc);
 	        this.ess._setUseableCapacity(useableCapacityWh);
 
-	        this.logDebug(this.log, "installListener: SoC: real|usable " + soc + "|" + useableSoc + 
+	        this.logDebug(this.log, "installListener: SoC: real|usable " + soc + "|" + useableSoc +
 	                    "[%] Capacity real|usable " + totalCapacityWh + "|" + useableCapacityWh + " [Wh]");
 	    });
 	}
 
 
-	
-	
+
+
 	@Override
 	public void setMinSocPercentage(int minSocPercentage) {
 		this.minSocPercentage = minSocPercentage;
@@ -384,6 +380,7 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 
 	}
 
+	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //

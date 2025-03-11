@@ -18,8 +18,8 @@ public enum VEBusState implements OptionsEnum{
 	POWER_SUPPLY(11, "Power supply"),
 	SUSTAIN(244, "Sustain"),
 	EXTERNAL_CONTROL(252, "External Control");
-	
-	
+
+
     private final int value;
     private final String option;
 
@@ -28,18 +28,21 @@ public enum VEBusState implements OptionsEnum{
 	this.option = option;
     }
 
-    
-    public int getValue() {
+
+    @Override
+	public int getValue() {
 	return this.value;
     }
 
-    
-    public String getName() {
+
+    @Override
+	public String getName() {
 	return this.option;
     }
 
-    
-    public OptionsEnum getUndefined() {
+
+    @Override
+	public OptionsEnum getUndefined() {
 	return UNDEFINED;
     }
 

@@ -4,7 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 /*
  * Attention!. Differs from ChargeStateEss
- * 
+ *
  * */
 public enum ChargeState implements OptionsEnum {
 

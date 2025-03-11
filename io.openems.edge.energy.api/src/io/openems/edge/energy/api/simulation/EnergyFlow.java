@@ -56,7 +56,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#PROD}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getProd() {
@@ -65,7 +65,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#CONS}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getCons() {
@@ -74,7 +74,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets the part of {@link Coefficient#CONS} that is actively managed.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getManagedCons() {
@@ -83,7 +83,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#ESS}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getEss() {
@@ -92,7 +92,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#GRID}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getGrid() {
@@ -101,7 +101,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#PROD_TO_CONS}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getProdToCons() {
@@ -110,7 +110,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#PROD_TO_ESS}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getProdToEss() {
@@ -119,7 +119,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#PROD_TO_GRID}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getProdToGrid() {
@@ -128,7 +128,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#GRID_TO_CONS}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getGridToCons() {
@@ -137,7 +137,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#GRID_TO_ESS}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getGridToEss() {
@@ -146,7 +146,7 @@ public class EnergyFlow {
 
 	/**
 	 * Gets {@link Coefficient#ESS_TO_CONS}.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int getEssToCons() {
@@ -188,7 +188,7 @@ public class EnergyFlow {
 		/**
 		 * Generates a {@link EnergyFlow.Model} from a {@link GlobalScheduleContext} and
 		 * a {@link GlobalOptimizationContext.Period}.
-		 * 
+		 *
 		 * @param gsc    the {@link GlobalScheduleContext}
 		 * @param period the {@link GlobalOptimizationContext.Period}
 		 * @return a new {@link EnergyFlow.Model}
@@ -307,7 +307,7 @@ public class EnergyFlow {
 		/**
 		 * Sets the {@link Coefficient#ESS} Charge/Discharge Energy to the given value,
 		 * while making sure the value fits in the active constraints.
-		 * 
+		 *
 		 * @param value the value
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
@@ -318,7 +318,7 @@ public class EnergyFlow {
 		/**
 		 * Limits the {@link Coefficient#ESS} Charge Energy to the given value, while
 		 * making sure the value fits in the active constraints.
-		 * 
+		 *
 		 * @param value the value
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
@@ -329,7 +329,7 @@ public class EnergyFlow {
 		/**
 		 * Limits the {@link Coefficient#ESS} Discharge Energy to the given value, while
 		 * making sure the value fits in the active constraints.
-		 * 
+		 *
 		 * @param value the value
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
@@ -340,7 +340,7 @@ public class EnergyFlow {
 		/**
 		 * Limits the {@link Coefficient#GRID} Buy Energy to the given value, while
 		 * making sure the value fits in the active constraints.
-		 * 
+		 *
 		 * @param value the value
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
@@ -351,7 +351,7 @@ public class EnergyFlow {
 		/**
 		 * Limits the {@link Coefficient#GRID} Sell Energy to the given value, while
 		 * making sure the value fits in the active constraints.
-		 * 
+		 *
 		 * @param value the value
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
@@ -362,7 +362,7 @@ public class EnergyFlow {
 		/**
 		 * Adds {@link Coefficient#CONS} Energy, while making sure the value fits in the
 		 * active constraints.
-		 * 
+		 *
 		 * @param value the added consumption value
 		 * @return actually set value; {@link Double#NaN} on error
 		 */
@@ -396,7 +396,7 @@ public class EnergyFlow {
 
 		/**
 		 * Prints min/max values for a {@link Coefficient}.
-		 * 
+		 *
 		 * @param coefficient the {@link Coefficient}
 		 */
 		public void logMinMaxValues(Coefficient coefficient) {
@@ -444,7 +444,7 @@ public class EnergyFlow {
 
 		/**
 		 * Calculates the current Min and Max values for a given {@link Coefficient}.
-		 * 
+		 *
 		 * @param coefficient the {@link Coefficient}
 		 * @return result[0] is the Min value; result[1] is the Max value
 		 */
@@ -470,7 +470,7 @@ public class EnergyFlow {
 
 		/**
 		 * Gets the minimum or maximum allowed value for the given {@link Coefficient}.
-		 * 
+		 *
 		 * @param coefficient the {@link Coefficient}
 		 * @param goalType    the {@link GoalType}
 		 * @return the value
@@ -488,7 +488,7 @@ public class EnergyFlow {
 		/**
 		 * Adds a {@link LinearConstraint} that sets the given {@link Coefficient} to
 		 * the minimum or maximum allowed value.
-		 * 
+		 *
 		 * @param coefficient the {@link Coefficient}
 		 * @param goalType    the {@link GoalType}
 		 * @return actually set value; {@link Double#NaN} on error
@@ -509,7 +509,7 @@ public class EnergyFlow {
 		/**
 		 * Adds a {@link LinearConstraint} that sets the given {@link Coefficient} to
 		 * the given value, while making sure the value fits in the active constraints.
-		 * 
+		 *
 		 * @param coefficient  the {@link Coefficient}
 		 * @param relationship the {@link Relationship}l
 		 * @param value        the value
@@ -552,7 +552,7 @@ public class EnergyFlow {
 		/**
 		 * Adds a {@link LinearConstraint} that sets the given {@link Coefficient} to
 		 * the given value.
-		 * 
+		 *
 		 * @param coefficient the {@link Coefficient}
 		 * @param value       the value
 		 */
@@ -563,7 +563,7 @@ public class EnergyFlow {
 		/**
 		 * Adds a {@link LinearConstraint} that constrains the given {@link Coefficient}
 		 * to the given value and {@link Relationship}.
-		 * 
+		 *
 		 * @param coefficient  the {@link Coefficient}
 		 * @param relationship the {@link Relationship}
 		 * @param value        the value
@@ -576,7 +576,7 @@ public class EnergyFlow {
 
 		/**
 		 * Solves the {@link EnergyFlow.Model} and returns an {@link EnergyFlow}.
-		 * 
+		 *
 		 * @return the {@link EnergyFlow}; null if this {@link EnergyFlow.Model} is
 		 *         unsolvable
 		 */
@@ -625,7 +625,7 @@ public class EnergyFlow {
 
 		/**
 		 * Solves the linear equation system.
-		 * 
+		 *
 		 * @param goalType          {@link GoalType#MINIMIZE} or
 		 *                          {@link GoalType#MAXIMIZE} the objective function
 		 * @param constraints       the {@link LinearConstraint}s

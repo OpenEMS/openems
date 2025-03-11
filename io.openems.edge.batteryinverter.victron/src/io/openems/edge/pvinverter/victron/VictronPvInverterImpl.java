@@ -65,7 +65,7 @@ public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
-		
+
 	}
 
 	@Override

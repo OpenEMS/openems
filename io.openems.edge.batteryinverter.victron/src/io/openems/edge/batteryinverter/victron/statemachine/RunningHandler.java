@@ -34,7 +34,7 @@ public class RunningHandler extends StateHandler<State, Context> {
      * @throws OpenemsNamedException on error
      */
     private void applyPower(Context context) throws OpenemsNamedException {
-	;
+
 	// final VictronBatteryInverterImpl inverter = context.getParent();
 
 	// IntegerWriteChannel setActivePower =

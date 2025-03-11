@@ -23,14 +23,18 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
@@ -59,7 +63,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 )
 @SuppressWarnings("deprecation")
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,
-		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi {
+		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi, ModbusSlave {
 
 	@Deprecated
 	private final EnergyScheduleHandlerV1 energyScheduleHandlerV1;
@@ -84,6 +88,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
+
+	@Deprecated
+	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isChargeDischargeLimiterEnabled=true))")
+	private volatile List<ControllerEssChargeDischargeLimiter> ctrlEssChargeDischargeLimiters = new CopyOnWriteArrayList<>();
 
 	@Deprecated
 	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
@@ -115,7 +123,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
 				() -> this.config.controlMode().modes, //
-				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
+				() -> new ContextV1(this.ctrlEssChargeDischargeLimiters,this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
 
@@ -249,4 +257,11 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	public EnergyScheduleHandlerV1 getEnergyScheduleHandlerV1() {
 		return this.energyScheduleHandlerV1;
 	}
+	
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				this.getModbusSlaveNatureTable(accessMode)
+		);
+	}	
 }

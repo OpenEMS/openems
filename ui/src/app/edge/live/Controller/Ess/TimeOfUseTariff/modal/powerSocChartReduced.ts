@@ -102,7 +102,7 @@ export class SchedulePowerAndSocChartReducedComponent extends AbstractHistoryCha
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
                 borderColor: ChartConstants.Colors.BLUE,
             });
 
@@ -114,7 +114,7 @@ export class SchedulePowerAndSocChartReducedComponent extends AbstractHistoryCha
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.YELLOW, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
                 borderColor: ChartConstants.Colors.YELLOW,
             });
 
@@ -136,7 +136,7 @@ export class SchedulePowerAndSocChartReducedComponent extends AbstractHistoryCha
         const leftYAxis: HistoryUtils.yAxes = {
             position: "left",
             unit: YAxisType.POWER,
-            yAxisId: ChartAxis.LEFT
+            yAxisId: ChartAxis.LEFT,
         };
 
         // Only apply settings for the left Y-axis

@@ -8,7 +8,7 @@ public enum PvMode implements OptionsEnum {
 	NO_PV(2, "No PV array detacted"), //
 	PRODUCING(3, "PV is producing"), //
 	LIMIT_ACTIVE(4, "PV Limitation is active");
-	
+
 
 	private final int value;
 	private final String name;
@@ -17,7 +17,7 @@ public enum PvMode implements OptionsEnum {
 		this.value = value;
 		this.name = name;
 	}
-	
+
 	@Override
 	public int getValue() {
 		return this.value;
@@ -31,5 +31,5 @@ public enum PvMode implements OptionsEnum {
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
-	}	
+	}
 }

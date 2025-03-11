@@ -61,6 +61,7 @@ public class EnergyScheduler {
 
 				.setSimulator((period, gsc, coc, csc, ef, mode) -> {
 					switch (mode) {
+					case OFF -> applyBalancing(ef); // TODO Move to CtrlBalancing
 					case BALANCING -> applyBalancing(ef); // TODO Move to CtrlBalancing
 					case DELAY_DISCHARGE -> applyDelayDischarge(ef);
 					case CHARGE_GRID -> {

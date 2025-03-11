@@ -23,7 +23,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
                     yield State.GO_RUNNING;
                 }
             }
-            case STOP -> 
+            case STOP ->
                 // force STOP
                 State.GO_STOPPED;
         };

@@ -150,7 +150,7 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 		MAX_CHARGE_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)//
 				.unit(Unit.VOLT))
-		
+
 		/*
 		, //
 		SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.SHORT)//
@@ -188,7 +188,7 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 		Multiplus2GX8kVaL1L2L3("Multiplus II 8kVA Three Phase System", -6400 * 3, 6400 * 3, 6400 * 3), //
 		Multiplus2GX10kVaL1L2L3("Multiplus II 10kVA Three Phase System", -8000 * 3, 8000 * 3, 8000 * 3),
 		Multiplus2GX15kVaL1L2L3("Multiplus II 10kVA Three Phase System", -12000 * 3, 12000 * 3, 12000 * 3)
-		
+
 		;
 
 		private final int acInputLimit;
@@ -219,7 +219,7 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 			return this.apparentPowerLimit;
 		}
 	}
-*/	
+*/
 	// ###########################
 	// AC_PV_ON_OUTPUT_POWER_L1
 	public default Value<Integer> getAcPvOnOutputPowerL1() {
@@ -526,18 +526,18 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 	public default IntegerReadChannel getMaxChargeVoltageChannel() {
 	    return this.channel(ChannelId.MAX_CHARGE_VOLTAGE);
 	}
-	
+
 	public void setBattery(VictronBattery battery);
 
 	public void unsetBattery(VictronBattery battery);
-	
+
     //public VictronBattery getBattery();
 
-    
-    
+
+
     public Integer getMaxChargePower();
     public Integer getMaxDischargePower();
-    
+
 	@Override
 	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
@@ -558,9 +558,9 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 
 	public boolean calculateHardwareLimits();
 
-	
 
-	
-	
-	
+
+
+
+
 }

@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.victron.VictronBattery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
@@ -48,7 +47,6 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
@@ -121,13 +119,9 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
-
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id()) || OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
 			return;
 		}
 		this.config = config;
@@ -150,13 +144,14 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Calculates and sets the maximum charge and discharge power limits based on
 	 * hardware capabilities and the shared configuration limit.
-	 * 
+	 *
 	 * @return true if limits are successfully calculated, false if any required
 	 *         value is missing or invalid.
 	 */
+	@Override
 	public boolean calculateHardwareLimits() {
 
-		if (this.getBatteryInverterLimits() == false || this.getBatteryLimits() == false) {
+		if (!this.getBatteryInverterLimits() || !this.getBatteryLimits()) {
 			return false;
 		}
 
@@ -181,7 +176,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Gets BMS limits. Max charge current decreases according to SoC
-	 * 
+	 *
 	 */
 	public boolean getBatteryLimits() {
 
@@ -202,12 +197,12 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Gets BatteryInverter limits. Keep in mind that these may differ from battery
 	 * limits.
-	 * 
+	 *
 	 */
 	public boolean getBatteryInverterLimits() {
 
 		if (this.getMaxChargeVoltage().get() != null && this.getSystemMaxChargeCurrent().get() != null) {
-			batteryInverterMaxChargePower = (Integer) Math
+			batteryInverterMaxChargePower = Math
 					.round(this.getMaxChargeVoltage().get() * this.getSystemMaxChargeCurrent().get()); // in VA
 			batteryInverterMaxDischargePower = batteryInverterMaxChargePower;
 		} else {
@@ -321,7 +316,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setDefaultSettings() throws OpenemsNamedException {
-		;
+
 		// this.updateIfNotEqual(Victron.ChannelId.EMS_TIMEOUT, DEFAULT_EMS_TIMEOUT);
 		// this.updateIfNotEqual(Victron.ChannelId.BMS_TIMEOUT, DEFAULT_BMS_TIMEOUT);
 		// this.updateIfNotEqual(Victron.ChannelId.GRID_EXISTENCE_DETECTION_ON,
@@ -528,7 +523,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	public void softStart(boolean switchOn) throws OpenemsNamedException {
-		;
+
 		// BooleanWriteChannel setSoftStart =
 		// this.channel(Victron.ChannelId.SET_SOFT_START);
 		// setSoftStart.setNextWriteValue(switchOn ? true : false);

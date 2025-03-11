@@ -3,12 +3,14 @@ package io.openems.edge.batteryinverter.victron.ess.symmetric;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
-
 import io.openems.common.channel.PersistencePriority;
 //import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.battery.victron.VictronBattery;
+import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -22,20 +24,17 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.battery.victron.VictronBattery;
-import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverter;
-import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.victron.enums.ActiveInactive;
 import io.openems.edge.victron.enums.ActiveInputSource;
 import io.openems.edge.victron.enums.Alarm;
 import io.openems.edge.victron.enums.AllowDisallow;
+import io.openems.edge.victron.enums.ChargeStateEss;
 import io.openems.edge.victron.enums.EnableDisable;
-import io.openems.edge.victron.enums.ActiveInactive;
+import io.openems.edge.victron.enums.ErrorYesNo;
 import io.openems.edge.victron.enums.SwitchPosition;
 import io.openems.edge.victron.enums.VEBusBMSError;
 import io.openems.edge.victron.enums.VEBusError;
 import io.openems.edge.victron.enums.VEBusState;
-import io.openems.edge.victron.enums.ErrorYesNo;
-import io.openems.edge.victron.enums.ChargeStateEss;
 
 public interface VictronEss extends OpenemsComponent, EventHandler, ModbusComponent, ModbusSlave {
 
@@ -347,13 +346,13 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.accessMode(AccessMode.READ_ONLY)),
 		AC_INPUT2_IGNORED(Doc.of(EnableDisable.values()) // 0=AC input not ignored;1=AC input ignored
 				.accessMode(AccessMode.READ_ONLY)),
-/*		
+/*
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
 				.text("Running the Logic failed")), //
-*/				
-		
+*/
+
 		/**
 		 * current capacity of battery. Does not make use of emergency capacity
 		 *
@@ -364,10 +363,10 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		 * </ul>
 		 *
 		 */
-		USEABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) // 
+		USEABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)), //
-		
+
 		/**
 		 * current useable soc of ess.
 		 * Values from controllers are (ctrlEmergencyCapacityReserves and ctrlLimitTotalDischarges) are substracted
@@ -379,9 +378,9 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		 * </ul>
 		 *
 		 */
-		USEABLE_SOC(Doc.of(OpenemsType.INTEGER) // 
+		USEABLE_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH)), 		
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		AC_POWER_SETPOINT_AS_FEED_IN_LIMIT(Doc.of(OpenemsType.INTEGER) // 0=AcPowerSetpoint interpreted normally;
 																		// 1=AcPowerSetpoint is OvervoltageFeedIn limit
@@ -686,16 +685,16 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 
 	public default IntegerReadChannel getUseableSocChannel() {
 		return this.channel(ChannelId.USEABLE_SOC);
-	}	
+	}
 
 	public void setBatteryInverter(VictronBatteryInverter batteryInverter);
 
 	public void unsetBatteryInverter(VictronBatteryInverter batteryInverter);
-	
+
 	public void setBattery(VictronBattery battery);
 
 	public void unsetBattery(VictronBattery battery);
-	
+
     //public VictronBatteryInverter getBatteryInverter();
 
 
@@ -744,7 +743,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.channel(22, ChannelId.RIPPLE_ALARM_L1, ModbusType.UINT16) //
 				.channel(23, ChannelId.RIPPLE_ALARM_L2, ModbusType.UINT16) //
 				.channel(24, ChannelId.RIPPLE_ALARM_L3, ModbusType.UINT16) //
-				
+
 				.build();
 	}
 
@@ -752,5 +751,5 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 
 
 
-	
+
 }
