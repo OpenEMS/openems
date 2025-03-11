@@ -362,7 +362,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     labels: (Date | string)[],
   ): Chart.ChartOptions {
     let tooltipsLabel: string | null = null;
-    let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultOptions(chartOptionsType, service, labels)));
+    let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultXAxisOptions(chartOptionsType, service, labels)));
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
     chartObject.yAxes.forEach((element) => {
@@ -431,7 +431,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
         const isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
-        chartLegendLabelItems.push({
+        const chartLegendLabelItem = {
           text: dataset.label,
           datasetIndex: index,
           fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
@@ -440,8 +440,27 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           lineWidth: 2,
           ...(dataset.borderColor != null && { strokeStyle: dataset.borderColor.toString() }),
           ...(dataset["borderDash"] != null && { lineDash: dataset["borderDash"] }),
-        });
+        };
+
+        const currentDisplayValue = displayValues.find(el => el.name == chartLegendLabelItem.text.split(":")[0]);
+
+        if (currentDisplayValue.custom) {
+          const show = !chartLegendLabelItem.hidden;
+          // Hide plugin features on label generate
+          chart.options = AbstractHistoryChart.activateOrDeactivatePlugin(currentDisplayValue, options, chartType, show);
+        }
+
+        chartLegendLabelItems.push(chartLegendLabelItem);
       });
+
+      // TODO: implement plugin
+      setTimeout(() => {
+        if (!(chart as any)._updated) {
+          chart.options.plugins.legend.display = false; // Example update
+          chart.update();
+          (chart as any)._updated = true; // Prevent multiple updates
+        }
+      }, 0);
 
       return chartLegendLabelItems;
     };
@@ -510,6 +529,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         // original.call(this, event, legendItem1);
         setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
         const meta = chart.getDatasetMeta(item.index);
+        const currentDisplayValue = displayValues.find(el => el.name == legendItem.text.split(":")[0]);
+
+        if (currentDisplayValue.custom) {
+          const hidden = !chart.data.datasets[item.index].hidden;
+          // Hide plugin features on click
+          chart.options = AbstractHistoryChart.activateOrDeactivatePlugin(currentDisplayValue, options, chartType, !hidden);
+        }
+
         // See controller.isDatasetVisible comment
         meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
       });
@@ -531,7 +558,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     options.scales.x.ticks.maxTicksLimit = 31;
     options.scales.x["bounds"] = "ticks";
     options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
-    options = AbstractHistoryChart.getExternalPluginFeatures(displayValues, options, chartType);
 
     return options;
   }
@@ -746,7 +772,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param labels the x axis ticks labels
    * @returns chartoptions
    */
-  public static getDefaultOptions(xAxisType: XAxisType, service: Service, labels: (Date | string)[]): Chart.ChartOptions {
+  public static getDefaultXAxisOptions(xAxisType: XAxisType, service: Service, labels: (Date | string)[]): Chart.ChartOptions {
 
     let options: Chart.ChartOptions;
     switch (xAxisType) {
@@ -797,7 +823,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param options the chart options
    * @returns the chart options
    */
-  protected static removeExternalPluginFeatures(options: Chart.ChartOptions): Chart.ChartOptions {
+  protected static removePlugins(options: Chart.ChartOptions): Chart.ChartOptions {
     options.plugins["annotation"] = {};
     options.plugins["datalabels"] = {
       display: false,
@@ -837,39 +863,40 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   }
 
   /**
-   * Gets plugin options
+   * Activates or Deactivated chartjs plugins
    *
-   * @param displayValues the displayValues
-   * @param options the chart options
+   * @param displayValue the current displayValue
+   * @param options the options
    * @param chartType the chartType
-   * @returns plugin options
+   *
+   * @param show if plugin should be shown
+   * @note only applied for 'annotation'- plugin
+   *
+   * @returns updated chart options
    */
-  private static getExternalPluginFeatures(displayValues: (HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>)[], options: Chart.ChartOptions, chartType: "line" | "bar"): Chart.ChartOptions {
-    displayValues.flatMap(el => {
+  private static activateOrDeactivatePlugin(displayValue: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>, options: Chart.ChartOptions, chartType: "line" | "bar", show: boolean): Chart.ChartOptions {
+    if (!displayValue.custom) {
+      return options;
+    }
 
-      if (!el.custom) {
-        return;
-      }
-
-      switch (el.custom["pluginType"]) {
-        case "box":
+    switch (displayValue.custom["pluginType"]) {
+      case "box":
+        if ((displayValue.custom as HistoryUtils.BoxCustomOptions).annotations.length > 0) {
           options.plugins["annotation"] = {
-            annotations: (el.custom as HistoryUtils.BoxCustomOptions).annotations.map(annotation => {
-              return ({
-                ...AbstractHistoryChart.getColors(el.color, chartType),
-                ...annotation,
-              });
-            }),
+            annotations: (displayValue.custom as HistoryUtils.BoxCustomOptions).annotations.map(annotation => ({
+              ...annotation,
+              ...AbstractHistoryChart.getColors(displayValue.color, chartType),
+              display: show,
+            })),
           };
-          break;
-        case "datalabels":
-          options.plugins["datalabels"] =
-            ChartConstants.Plugins.BAR_CHART_DATALABELS((el.custom as HistoryUtils.DataLabelsCustomOptions).datalabels.displayUnit, true);
-          Chart.Chart.register(ChartConstants.Plugins.BAR_CHART_DATALABELS("kWh", true).plugin);
-          break;
-      }
-    });
-
+        }
+        break;
+      case "datalabels":
+        options.plugins["datalabels"] =
+          ChartConstants.Plugins.BAR_CHART_DATALABELS((displayValue.custom as HistoryUtils.DataLabelsCustomOptions).datalabels.displayUnit, true);
+        Chart.Chart.register(ChartConstants.Plugins.BAR_CHART_DATALABELS("kWh", true).plugin);
+        break;
+    }
     return options;
   }
 
@@ -911,7 +938,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.options = AbstractHistoryChart.removeExternalPluginFeatures(this.options);
+    this.options = AbstractHistoryChart.removePlugins(this.options);
   }
 
   protected getChartHeight(): number {
