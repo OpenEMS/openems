@@ -88,6 +88,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	public static final int DEFAULT_CRITICAL_MIN_VOLTAGE = 2800;
 	protected static final int TIMEOUT = 600; // [10 minutes in seconds]
 	private Instant timeCriticalMinVoltage;
+	private Integer lastKnownMinVoltage;
 
 	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
@@ -149,8 +150,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			this.batteryProtection.apply();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.checkCriticalMinVoltage();
 			this.handleStateMachine();
+			this.checkCriticalMinVoltage();
 			break;
 		}
 	}
@@ -1064,55 +1065,54 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	private void checkCriticalMinVoltage() {
-
-		final var subState = getMinVoltageSubState(DEFAULT_CRITICAL_MIN_VOLTAGE,
-				this.getMinCellVoltage().orElse(Integer.MAX_VALUE), this.getCurrent().orElse(0));
+		final Integer currentMinVoltage;
+		if (this.getMinCellVoltage().isDefined()) {
+			currentMinVoltage = this.getMinCellVoltage().get();
+			this.lastKnownMinVoltage = currentMinVoltage;
+		} else {
+			currentMinVoltage = this.lastKnownMinVoltage;
+		}
+		final var subState = getMinVoltageSubState(DEFAULT_CRITICAL_MIN_VOLTAGE, currentMinVoltage,
+				this.getCurrent().get());
 		var now = Instant.now(this.componentManager.getClock());
 
+		boolean batWillStoppWarning = false;
+		boolean batIsStoppingFault = false;
+		boolean batStoppedFault = false;
+
 		switch (subState) {
-		case ABOVE_LIMIT -> {
-			this._setLowMinVoltageFault(false);
-			this._setLowMinVoltageWarning(false);
-			this._setLowMinVoltageFaultBatteryStopped(false);
-			this.timeCriticalMinVoltage = null;
-		}
+		case ABOVE_LIMIT -> this.timeCriticalMinVoltage = null;
 		case BELOW_LIMIT -> {
-
 			if (this.stateMachine.getCurrentState() == StateMachine.State.STOPPED) {
-				this._setLowMinVoltageFaultBatteryStopped(true);
-				this._setLowMinVoltageFault(false);
-				this._setLowMinVoltageWarning(false);
-				return;
+				batStoppedFault = true;
+			} else {
+				if (this.timeCriticalMinVoltage == null) {
+					this.timeCriticalMinVoltage = now;
+				}
+				batIsStoppingFault = this.timeCriticalMinVoltage.isBefore(now.minusSeconds(TIMEOUT));
+				batWillStoppWarning = !batIsStoppingFault;
 			}
-
-			this._setLowMinVoltageFaultBatteryStopped(false);
-
-			if (this.timeCriticalMinVoltage == null) {
-				this.timeCriticalMinVoltage = now;
-			}
-
-			if (this.timeCriticalMinVoltage.isBefore(now.minusSeconds(TIMEOUT))) {
-				this._setLowMinVoltageFault(true);
-				this._setLowMinVoltageWarning(false);
-				return;
-			}
-			this._setLowMinVoltageWarning(true);
-			this._setLowMinVoltageFault(false);
 		}
 		case BELOW_LIMIT_CHARGING -> {
-			this._setLowMinVoltageFaultBatteryStopped(false);
-			this._setLowMinVoltageWarning(true);
-			this._setLowMinVoltageFault(false);
+			batWillStoppWarning = true;
 			this.timeCriticalMinVoltage = null;
 		}
 		}
+
+		this._setLowMinVoltageWarning(batWillStoppWarning);
+		this._setLowMinVoltageFault(batIsStoppingFault);
+		this._setLowMinVoltageFaultBatteryStopped(batStoppedFault);
 	}
 
-	protected static MinVoltageSubState getMinVoltageSubState(int minVoltageLimit, int currentMinVoltage, int current) {
+	protected static MinVoltageSubState getMinVoltageSubState(int minVoltageLimit, Integer currentMinVoltage,
+			Integer current) {
+		if (currentMinVoltage == null) {
+			return MinVoltageSubState.ABOVE_LIMIT;
+		}
 		if (currentMinVoltage > minVoltageLimit) {
 			return MinVoltageSubState.ABOVE_LIMIT;
 		}
-		if (current < 0) {
+		if (current != null && current < 0) {
 			return MinVoltageSubState.BELOW_LIMIT_CHARGING;
 		}
 		return MinVoltageSubState.BELOW_LIMIT;

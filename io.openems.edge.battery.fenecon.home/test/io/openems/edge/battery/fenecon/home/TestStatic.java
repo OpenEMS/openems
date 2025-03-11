@@ -24,6 +24,11 @@ public class TestStatic {
 		assertEquals(MinVoltageSubState.ABOVE_LIMIT,
 				BatteryFeneconHomeImpl.getMinVoltageSubState(2800, Integer.MAX_VALUE, 0));
 		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, 2900, 1000));
+
+		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, null, -2000));
+		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, null, null));
+		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, null, 2000));
+		assertEquals(MinVoltageSubState.BELOW_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, 2700, null));
 	}
 
 	@Test

@@ -393,6 +393,103 @@ public class BatteryFeneconHomeImplTest {
 				.next(new TestCase("MinCellVoltage below critical value - go stopped") //
 						.input(LOW_MIN_VOLTAGE_FAULT, true) //
 						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.output(STATE_MACHINE, State.GO_STOPPED) //
+						.onAfterControllersCallbacks(() -> clock.leap(2_100, SECONDS))) // 35 minutes
+				.next(new TestCase("MinCellVoltage below critical value - test modbus") //
+						.input(CURRENT, 0) //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, true) //
+						.output(STATE_MACHINE, State.GO_STOPPED)) // stateMachine changed in next cycle
+
+				.next(new TestCase("MinCellVoltage below critical value - stopped fault") //
+						.input(CURRENT, 0) //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, true) //
+						.output(STATE_MACHINE, State.STOPPED) //
+				);
+	}
+
+	@Test
+	public void testMinVoltageGoStoppedPassedValues() throws Exception {
+		final var clock = createDummyClock();
+
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addComponent(new DummyInputOutput("io0")) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build())//
+
+				.next(new TestCase() //
+						.input("io0", INPUT_OUTPUT4, false) //
+						.input(BMS_CONTROL, true) // Switched On
+						.output(STATE_MACHINE, State.UNDEFINED))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-Undefined")) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-StartUpRelayOff")) //
+						.output(STATE_MACHINE, State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-RetryModbusCommunication")) //
+						.output(STATE_MACHINE, State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForBmsControl")) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForModbusCommunication")) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.RUNNING))
+
+				/*
+				 * Critical min voltage
+				 */
+				.next(new TestCase("MinCellVoltage below critical value") //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(CURRENT, 0) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(STATE_MACHINE, State.RUNNING) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.onAfterControllersCallbacks(() -> clock.leap(TIMEOUT + 10, SECONDS))) //
+
+				.next(new TestCase("MinCellVoltage below critical value - time passed") //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.output(STATE_MACHINE, State.RUNNING)) //
+				.next(new TestCase("MinCellVoltage below critical value - error") //
+						.input(LOW_MIN_VOLTAGE_FAULT, true) //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.ERROR)) //
+				.next(new TestCase("MinCellVoltage below critical value - go stopped") //
+						.input(LOW_MIN_VOLTAGE_FAULT, true) //
+						.input(CURRENT, 0) //
 
 						// MinCellVoltage would be null, but there is not DummyTimedata for not to test
 						// "getPastValues"
@@ -404,11 +501,16 @@ public class BatteryFeneconHomeImplTest {
 						.onAfterControllersCallbacks(() -> clock.leap(2_100, SECONDS))) // 35 minutes
 				.next(new TestCase() //
 						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, null) //
+				) //
+				.next(new TestCase() //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, null) //
 				) //
 				.next(new TestCase("MinCellVoltage below critical value - stopped") //
 						.input(CURRENT, 0) //
 						.input(MODBUS_COMMUNICATION_FAILED, true) //
-						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(MIN_CELL_VOLTAGE, null) //
 						.output(LOW_MIN_VOLTAGE_WARNING, false) //
 						.output(LOW_MIN_VOLTAGE_FAULT, false) //
 						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, true) //
