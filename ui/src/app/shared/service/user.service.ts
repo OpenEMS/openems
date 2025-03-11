@@ -107,9 +107,9 @@ export class UserService {
         await modal.present();
 
         const { data } = await modal.onDidDismiss();
-        if (data?.selectedTheme) {
-            this.finalizeThemeSelection(data.selectedTheme);
-        }
+
+        const selectedTheme = data?.selectedTheme ?? UserService.DEFAULT_THEME;
+        this.finalizeThemeSelection(selectedTheme);
     }
 
     /**
