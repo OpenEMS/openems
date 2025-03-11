@@ -291,6 +291,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @returns a dataset
    */
   public static getDataSet(element: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>, label: string, data: number[], stack: number, chartObject: HistoryUtils.ChartData, chartType: "line" | "bar"): Chart.ChartDataset {
+    const colors = AbstractHistoryChart.getColors(element.color, chartType);
     const dataset: Chart.ChartDataset = {
       label: label,
       data: data,
@@ -302,8 +303,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       order: element.order ?? Number.MAX_VALUE,
       ...(element.hideShadow && { fill: !element.hideShadow }),
       ...(element.custom?.type && { type: chartType }),
-      ...AbstractHistoryChart.getColors(element.color, chartType),
+      ...colors,
       borderWidth: 2,
+      ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(colors),
     };
     return dataset;
   }

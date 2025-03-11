@@ -13,9 +13,10 @@
               <ion-row>
                 <ion-col>
                   <ion-item lines="none">
-                    <ion-checkbox (ionChange)="toggleSubscribe($event)" slot="start" [(ngModel)]="isSubscribed">
+                    <ion-checkbox [labelPlacement]="'start'" (ionChange)="toggleSubscribe($event)" slot="start"
+                      [(ngModel)]="isSubscribed">
+                      {{'Edge.Config.Log.automaticUpdating' | translate}}
                     </ion-checkbox>
-                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.automaticUpdating</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col *ngIf="isCondensedOutput !== null && isAtLeastGuest">

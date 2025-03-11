@@ -28,7 +28,7 @@ export class SystemComponent {
   ) {
     effect(async () => {
       const user = this.userService.currentUser();
-      this.edge = await this.service.getCurrentEdge();
+      this.edge = await this.service.currentEdge();
       this.canSeeSystemRestart = UserPermission.isAllowedToSeeSystemRestart(user, this.edge);
     });
   }

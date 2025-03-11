@@ -11,6 +11,10 @@ export namespace History {
   export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; } | null, ticks?: { stepSize: number }; }; }): OeChartTester.Dataset.Option => ({
     type: "option",
     options: {
+      "interaction": {
+        "mode": "index",  // Detect x-axis alignment
+        "intersect": false,  // Allow hovering over line, not just points
+      },
       "responsive": true,
       "maintainAspectRatio": false,
       "elements": {
@@ -70,6 +74,10 @@ export namespace History {
   export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks: { stepSize?: number; }; }; }): OeChartTester.Dataset.Option => ({
     type: "option",
     options: {
+      "interaction": {
+        "mode": "index",  // Detect x-axis alignment
+        "intersect": false,  // Allow hovering over line, not just points
+      },
       "responsive": true,
       "maintainAspectRatio": false,
       "elements": {
