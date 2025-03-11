@@ -112,6 +112,21 @@ public abstract class AbstractOpenemsAppWithProps<//
 		return this.getInt(map, property, PROPERTY::def);
 	}
 
+	protected double getDouble(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsDouble(this.getValueOrDefault(map, Language.DEFAULT, property, mapper));
+	}
+
+	protected double getDouble(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getDouble(map, property, PROPERTY::def);
+	}
+
 	protected <E extends Enum<E>> E getEnum(//
 			final Map<PROPERTY, JsonElement> map, //
 			final Class<E> enumType, //
