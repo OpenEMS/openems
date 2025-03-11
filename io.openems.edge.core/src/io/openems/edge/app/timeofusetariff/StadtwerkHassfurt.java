@@ -83,7 +83,9 @@ public class StadtwerkHassfurt extends
 				.setDefaultValue(TariffType.STROM_FLEX)//
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(TariffType.optionsFactory(), l);
-				})));
+				}))), //
+		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
+		;
 
 		private final AppDef<? super StadtwerkHassfurt, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -122,11 +124,13 @@ public class StadtwerkHassfurt extends
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var tariffType = this.getEnum(p, TariffType.class, Property.TARIFF_TYPE);
+			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
+									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Hassfurt",
 							JsonUtils.buildJsonObject() //
