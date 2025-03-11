@@ -18,9 +18,8 @@ public class EnergySchedulerTest {
 		assertTrue(esh.getId().startsWith("ESH.WithOnlyOneMode."));
 
 		var t = EnergyScheduleTester.from(esh);
-		var t0 = t.simulatePeriod(0);
 		assertEquals(4000 /* no discharge limitation */,
-				(int) t0.ef().getExtremeCoefficientValue(Coefficient.ESS, GoalType.MAXIMIZE));
+				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(Coefficient.ESS, GoalType.MAXIMIZE));
 	}
 
 	@Test
@@ -29,8 +28,7 @@ public class EnergySchedulerTest {
 		assertEquals("ctrl0", esh.getId());
 
 		var t = EnergyScheduleTester.from(esh);
-		var t0 = t.simulatePeriod(0);
 		assertEquals(600 /* discharge limited */,
-				(int) t0.ef().getExtremeCoefficientValue(Coefficient.ESS, GoalType.MAXIMIZE));
+				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(Coefficient.ESS, GoalType.MAXIMIZE));
 	}
 }

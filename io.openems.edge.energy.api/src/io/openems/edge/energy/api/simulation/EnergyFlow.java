@@ -372,6 +372,15 @@ public class EnergyFlow {
 		}
 
 		/**
+		 * Gets the cumulated managed Consumption.
+		 * 
+		 * @return the Managed Consumption
+		 */
+		public synchronized int getManagedConsumption() {
+			return this.managedConsumption;
+		}
+
+		/**
 		 * Prints a table with all constraints.
 		 */
 		public void logConstraints() {

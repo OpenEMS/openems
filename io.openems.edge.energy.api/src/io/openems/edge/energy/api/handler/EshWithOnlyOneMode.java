@@ -1,7 +1,6 @@
 package io.openems.edge.energy.api.handler;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
 
@@ -19,9 +18,9 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 	protected EshWithOnlyOneMode(//
 			String id, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
-			Supplier<SCHEDULE_CONTEXT> cscSupplier, //
+			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
 			Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator) {
-		super(id, cocFunction, cscSupplier);
+		super(id, cocFunction, cscFunction);
 		this.simulator = simulator;
 	}
 

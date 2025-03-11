@@ -6,6 +6,7 @@ import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
@@ -26,7 +27,7 @@ public class EnergyUtils {
 	}
 
 	/**
-	 * Finds the first valley in an array of doubles, e.g. prices.
+	 * Finds the last index of the first valley in an array of doubles, e.g. prices.
 	 * 
 	 * @param fromIndex start searching from this index
 	 * @param values    the values array
@@ -69,6 +70,27 @@ public class EnergyUtils {
 			}
 		}
 		return values.length - 1;
+	}
+
+	/**
+	 * Finds indexes of valleys in an array of doubles, e.g. prices.
+	 * 
+	 * @param values the values array
+	 * @return a list of valleys
+	 */
+	public static int[] findValleyIndexes(double[] values) {
+		final var result = ImmutableSet.<Integer>builder();
+		int valley = 0;
+		int peak = 0;
+		while (true) {
+			valley = findFirstValleyIndex(peak, values);
+			peak = findFirstPeakIndex(valley, values);
+			if (peak == valley) {
+				break;
+			}
+			result.add(valley);
+		}
+		return result.build().stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	/**

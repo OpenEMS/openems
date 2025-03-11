@@ -86,6 +86,9 @@ public class EnergyScheduler {
 
 							// Calculate actual charge limit
 							var noOfQuarters = (int) Duration.between(firstExcessEnergy, targetTime).toMinutes() / 15;
+							if (noOfQuarters == 0) {
+								continue;
+							}
 							final var totalEnergy = midnight == firstDayMignight //
 									? // use actual data for first day
 									goc.ess().totalEnergy() - goc.ess().currentEnergy()

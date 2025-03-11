@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.timeofusetariff;
 
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeEnergyInChargeGrid;
+import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
 import static io.openems.edge.energy.api.simulation.Coefficient.CONS;
 import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.GRID_TO_CONS;
@@ -10,15 +11,22 @@ import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_GRID;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
+import static java.util.Arrays.stream;
 import static org.apache.commons.math3.optim.linear.Relationship.EQ;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableList;
+
+import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 
 public class EnergyScheduler {
 
@@ -50,6 +58,18 @@ public class EnergyScheduler {
 					return config != null //
 							? config.controlMode.modes //
 							: new StateMachine[] { StateMachine.BALANCING };
+				})
+
+				.setInitialPopulationsFunction((goc, availableModes) -> {
+					// Prepare Initial Population with cheapest price per valley set to
+					// DELAY_DISCHARGE or CHARGE_GRID
+					var result = ImmutableList.<InitialPopulation<StateMachine>>builder();
+					generateInitialPopulation(result, goc, StateMachine.DELAY_DISCHARGE);
+					var hasChargeGrid = stream(availableModes).anyMatch(m -> m == StateMachine.CHARGE_GRID);
+					if (hasChargeGrid) {
+						generateInitialPopulation(result, goc, StateMachine.CHARGE_GRID);
+					}
+					return result.build();
 				})
 
 				.setOptimizationContext(goc -> {
@@ -121,5 +141,20 @@ public class EnergyScheduler {
 		model.setExtremeCoefficientValue(CONS, MINIMIZE);
 		model.setExtremeCoefficientValue(PROD_TO_GRID, MAXIMIZE);
 		model.setFittingCoefficientValue(GRID_TO_ESS, EQ, -dischargeEnergy);
+	}
+
+	private static void generateInitialPopulation(ImmutableList.Builder<InitialPopulation<StateMachine>> result,
+			GlobalOptimizationContext goc, StateMachine mode) {
+		final var prices = goc.periods().stream() //
+				.mapToDouble(Period::price) //
+				.toArray();
+		Arrays.stream(findValleyIndexes(prices)) //
+				.mapToObj(i -> goc.periods().stream() //
+						.map(p -> p.index() == i //
+								? mode // set mode
+								: StateMachine.BALANCING) // default
+						.toArray(StateMachine[]::new)) //
+				.map(InitialPopulation::new) //
+				.forEach(result::add);
 	}
 }

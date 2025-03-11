@@ -96,9 +96,8 @@ public final class Utils {
 
 		} catch (OpenemsException | IllegalArgumentException e) {
 			simulator.accept(null);
-			error.accept(() -> "Unable to create GlobalOptimizationContext. " + e.getClass().getSimpleName() + ": "
-					+ e.getMessage());
-			Thread.sleep(10 * 1000);
+			error.accept(() -> "Unable to create GlobalOptimizationContext: " + e.getMessage());
+			Thread.sleep(60 * 1000);
 			return;
 		}
 

@@ -5,6 +5,7 @@ import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentMode
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -65,8 +66,9 @@ public class AppUtils {
 					if (!nextTime.get().toLocalTime().equals(LocalTime.parse(m.group("time"), HOURS_MINUTES))) {
 						throw new IllegalArgumentException("Times do not match: " + time);
 					}
+					var index = (int) Duration.between(startDateTime, time).toMinutes() / 15;
 					nextTime.set(time.plusMinutes(15));
-					return (GlobalOptimizationContext.Period) new GlobalOptimizationContext.Period.Quarter(time, //
+					return (GlobalOptimizationContext.Period) new GlobalOptimizationContext.Period.Quarter(index, time, //
 							parseInt(m.group("production")), //
 							parseInt(m.group("consumption")), //
 							parseDouble(m.group("price")));
@@ -92,7 +94,6 @@ public class AppUtils {
 			+ "startTime=(?<startTime>\\S*), " //
 			+ "Grid\\[(?<grid>.*)\\], " //
 			+ "Ess\\[(?<ess>.*)\\], " //
-			+ "evcss=\\{(?<evcss>.*)\\}, " //
 			+ "eshs=\\[");
 
 	private static final Pattern GRID_PATTERN = Pattern.compile("" //
@@ -110,5 +111,4 @@ public class AppUtils {
 			+ "\\s+(?<price>-?\\d+\\.\\d+)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
-
 }

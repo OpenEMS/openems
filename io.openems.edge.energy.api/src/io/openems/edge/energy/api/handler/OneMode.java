@@ -20,7 +20,7 @@ public class OneMode {
 
 		private String componentId;
 		private Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
-		private Supplier<SCHEDULE_CONTEXT> cscSupplier;
+		private Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction;
 		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
 
 		/**
@@ -60,6 +60,18 @@ public class OneMode {
 		}
 
 		/**
+		 * Sets a {@link Function} to create a ControllerScheduleContext.
+		 * 
+		 * @param cscFunction the ControllerScheduleContext function
+		 * @return myself
+		 */
+		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
+				Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction) {
+			this.cscFunction = cscFunction;
+			return this;
+		}
+
+		/**
 		 * Sets a {@link Supplier} to create a ControllerScheduleContext.
 		 * 
 		 * @param cscSupplier the ControllerScheduleContext supplier
@@ -67,7 +79,7 @@ public class OneMode {
 		 */
 		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
 				Supplier<SCHEDULE_CONTEXT> cscSupplier) {
-			this.cscSupplier = cscSupplier;
+			this.cscFunction = gsc -> cscSupplier.get();
 			return this;
 		}
 
@@ -108,9 +120,9 @@ public class OneMode {
 					this.cocFunction == null //
 							? goc -> null // fallback
 							: this.cocFunction, //
-					this.cscSupplier == null //
-							? () -> null // fallback
-							: this.cscSupplier, //
+					this.cscFunction == null //
+							? coc -> null // fallback
+							: this.cscFunction, //
 					this.simulator == null //
 							? (period, gsc, coc, csc, ef) -> doNothing() // fallback
 							: this.simulator);

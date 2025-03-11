@@ -6,7 +6,6 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.google.common.base.MoreObjects;
 
@@ -34,7 +33,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 
 	private final String id;
 	private final Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
-	private final Supplier<SCHEDULE_CONTEXT> cscSupplier;
+	private final Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction;
 
 	protected Clock clock;
 	protected OPTIMIZATION_CONTEXT coc;
@@ -42,10 +41,10 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 
 	public AbstractEnergyScheduleHandler(String id,
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction,
-			Supplier<SCHEDULE_CONTEXT> cscSupplier) {
+			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction) {
 		this.id = id;
 		this.cocFunction = cocFunction;
-		this.cscSupplier = cscSupplier;
+		this.cscFunction = cscFunction;
 	}
 
 	public String getId() {
@@ -74,7 +73,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 	 * @return the ControllerScheduleContext
 	 */
 	public SCHEDULE_CONTEXT createScheduleContext() {
-		return this.cscSupplier.get();
+		return this.cscFunction.apply(this.coc);
 	}
 
 	/**

@@ -1,9 +1,10 @@
 package io.openems.edge.energy.api.handler;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.google.common.base.MoreObjects.toStringHelper;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
-import java.time.ZonedDateTime;
-import java.util.Map.Entry;
+import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -11,7 +12,6 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
@@ -29,7 +29,7 @@ public class DifferentModes {
 		private MODE defaultMode;
 		private BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction;
 		private Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
-		private Supplier<SCHEDULE_CONTEXT> cscSupplier;
+		private Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction;
 		private BiFunction<GlobalOptimizationContext, MODE[], ImmutableList<InitialPopulation<MODE>>> initialPopulationsFunction;
 		private Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
 		private PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor = PostProcessor.doNothing();
@@ -69,6 +69,18 @@ public class DifferentModes {
 		}
 
 		/**
+		 * Sets a {@link Function} to create a ControllerScheduleContext.
+		 * 
+		 * @param cscFunction the ControllerScheduleContext function
+		 * @return myself
+		 */
+		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
+				Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction) {
+			this.cscFunction = cscFunction;
+			return this;
+		}
+
+		/**
 		 * Sets a {@link Supplier} to create a ControllerScheduleContext.
 		 * 
 		 * @param cscSupplier the ControllerScheduleContext supplier
@@ -76,7 +88,7 @@ public class DifferentModes {
 		 */
 		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
 				Supplier<SCHEDULE_CONTEXT> cscSupplier) {
-			this.cscSupplier = cscSupplier;
+			this.cscFunction = coc -> cscSupplier.get();
 			return this;
 		}
 
@@ -153,9 +165,9 @@ public class DifferentModes {
 					this.cocFunction == null //
 							? goc -> null // fallback
 							: this.cocFunction, //
-					this.cscSupplier == null //
-							? () -> null // fallback
-							: this.cscSupplier, //
+					this.cscFunction == null //
+							? coc -> null // fallback
+							: this.cscFunction, //
 					this.initialPopulationsFunction == null //
 							? (goc, availableModes) -> ImmutableList.of() // fallback
 							: this.initialPopulationsFunction, //
@@ -166,12 +178,23 @@ public class DifferentModes {
 		}
 	}
 
-	public static record InitialPopulation<MODE>(ImmutableMap<ZonedDateTime, MODE> modes) {
+	public static record InitialPopulation<MODE>(MODE[] modes) {
 
 		/**
 		 * This class is only used internally to apply the InitialPopulation.
 		 */
-		public static record Transition(ImmutableMap<ZonedDateTime, Integer> modeIndexes) {
+		public static record Transition(int[] modeIndexes) implements Comparable<Transition> {
+			@Override
+			public final String toString() {
+				return toStringHelper("InitialPopulation") //
+						.addValue(Arrays.toString(this.modeIndexes)) //
+						.toString();
+			}
+
+			@Override
+			public int compareTo(Transition o) {
+				return Arrays.compare(this.modeIndexes, o.modeIndexes);
+			}
 		}
 
 		/**
@@ -181,13 +204,23 @@ public class DifferentModes {
 		 * @param modes  the Modes
 		 * @return a {@link InitialPopulation} record
 		 */
-		public static <MODE> InitialPopulation<MODE> of(ImmutableMap<ZonedDateTime, MODE> modes) {
+		public static <MODE> InitialPopulation<MODE> of(MODE[] modes) {
 			return new InitialPopulation<MODE>(modes);
 		}
 
 		protected Transition toTansition(ToIntFunction<MODE> toModeIndex) {
-			return new Transition(this.modes.entrySet().stream() //
-					.collect(toImmutableMap(Entry::getKey, e -> toModeIndex.applyAsInt(e.getValue()))));
+			return new Transition(stream(this.modes) //
+					.mapToInt(m -> toModeIndex.applyAsInt(m)) //
+					.toArray());
+		}
+
+		@Override
+		public final String toString() {
+			return toStringHelper("InitialPopulation") //
+					.addValue(stream(this.modes) //
+							.map(Object::toString) //
+							.collect(joining(","))) //
+					.toString();
 		}
 	}
 
@@ -267,13 +300,13 @@ public class DifferentModes {
 		 * NOTE: heavy computation is ok here, because this method is called only at the
 		 * end with the best Schedule.
 		 * 
-		 * @param gsc        the {@link GlobalScheduleContext}
-		 * @param energyFlow the {@link EnergyFlow}
-		 * @param coc        the ControllerOptimizationContext
-		 * @param mode       the initial Mode
+		 * @param gsc  the {@link GlobalScheduleContext}
+		 * @param ef   the {@link EnergyFlow}
+		 * @param coc  the ControllerOptimizationContext
+		 * @param mode the initial Mode
 		 * @return the new Mode
 		 */
-		public MODE postProcess(GlobalScheduleContext gsc, EnergyFlow energyFlow, OPTIMIZATION_CONTEXT coc, MODE mode);
+		public MODE postProcess(GlobalScheduleContext gsc, EnergyFlow ef, OPTIMIZATION_CONTEXT coc, MODE mode);
 	}
 
 	private DifferentModes() {
