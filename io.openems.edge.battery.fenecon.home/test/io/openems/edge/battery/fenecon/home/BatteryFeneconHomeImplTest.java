@@ -10,14 +10,8 @@ import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_FAULT;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_WARNING;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.STATE_MACHINE;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl.TIMEOUT;
 import static io.openems.edge.battery.protection.BatteryProtection.ChannelId.BP_CHARGE_BMS;
@@ -626,47 +620,14 @@ public class BatteryFeneconHomeImplTest {
 				.next(new TestCase() //
 						.output(NUMBER_OF_TOWERS, null))
 				.next(new TestCase() //
-						.input(NUMBER_OF_MODULES_PER_TOWER, 7) //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
+						.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 1) //
+						.input(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, 7) //
 						.output(NUMBER_OF_TOWERS, 1)) //
 				.next(new TestCase() //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, null) //
-						.output(NUMBER_OF_TOWERS, null)) //
-				.next(new TestCase() //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
-						.output(NUMBER_OF_TOWERS, 1)) //
-				.next(new TestCase() //
-						.output(NUMBER_OF_TOWERS, 1)) //
-				.next(new TestCase() //
-						.input(NUMBER_OF_TOWERS, null) //
-						.input(NUMBER_OF_MODULES_PER_TOWER, 7) //
-						.output(NUMBER_OF_TOWERS, null)) //
-				.next(new TestCase() //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
-						.output(NUMBER_OF_TOWERS, null)) //
-				.next(new TestCase() // Number of towers changes after TOWER_0_BMS_SOFTWARE_VERSION is set
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
-						.output(NUMBER_OF_TOWERS, 1)) //
+						.input(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, 7) //
+						.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 2) //
+						.output(NUMBER_OF_TOWERS, 2) //
+				) //
 		;
 	}
 

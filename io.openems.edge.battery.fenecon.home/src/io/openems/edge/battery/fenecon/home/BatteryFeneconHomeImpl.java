@@ -6,7 +6,6 @@ import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -59,7 +58,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -466,44 +464,21 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 * associated channel value could be read with the aid of
 	 * {@link ChannelUtils#getValues}. However, startup time is once again involved
 	 * in this process. This indicates that the last callback will have been made
-	 * before the record is set. Furthermore, there is no certainty that the
-	 * "software version channel value change" will occur, making it unlikely for
-	 * this to trigger a callback.
+	 * before the record is set.
 	 */
 	protected synchronized void updateNumberOfTowersAndModules() {
 		Channel<Integer> numberOfModulesPerTowerChannel = this
 				.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 		var numberOfModulesPerTowerOpt = numberOfModulesPerTowerChannel.value();
 
-		// Were all required registers read?
 		if (!numberOfModulesPerTowerOpt.isDefined()) {
 			return;
 		}
 
-		// Evaluate the total number of towers by reading the software versions of
-		// towers 2 and 3: they are '0' when the respective tower is not available.
-		final var softwareVersionlist = List.of(//
-				BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION//
-		) //
-				.stream() //
-				.map(c -> {
-					IntegerReadChannel channel = this.channel(c);
-					return channel.value().get();
-				}) //
-				.toList();
-
-		final var numberOfTowers = calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
-
-		// Write 'TOWER_NUMBER' Debug Channel
-		Channel<?> numberOfTowersChannel = this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS);
-		numberOfTowersChannel.setNextValue(numberOfTowers);
-		if (numberOfTowers == null) {
-			return;
-		}
+		// Register for NumberOfBatteryBcu was not existing in the very first firmware -
+		// at least one tower is used.
+		final var numberOfTowers = this.getRackNumberOfBatteryBcuChannel().getNextValue().orElse(1);
+		this._setNumberOfTowers(numberOfTowers);
 
 		final var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
 		final var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
@@ -522,21 +497,6 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			this.logError(this.log, "Unable to initialize tower modules channels: " + e.getMessage());
 			e.printStackTrace();
 		}
-	}
-
-	protected static Integer calculateTowerNumberFromSoftwareVersion(List<Integer> versionList) {
-		var numberOfTowers = 0;
-		for (var version : versionList) {
-			if (version == null) {
-				return null;
-			}
-			if (version == 0 || version == 256) {
-				// Ensure number of towers is never '0' if registers are not null.
-				return Math.max(1, numberOfTowers);
-			}
-			numberOfTowers++;
-		}
-		return numberOfTowers;
 	}
 
 	private int lastNumberOfTowers = 0;
