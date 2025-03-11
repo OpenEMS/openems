@@ -1087,6 +1087,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.C_EXT_TWOSSTEPF_FLG, new UnsignedWordElement(45522))//
 				), //
 
+				new FC16WriteRegistersTask(47500, //
+						// Internal GoodWe Battery Protection
+						m(GoodWe.ChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500))), //
+
 				new FC16WriteRegistersTask(47505, //
 						// If using EMS, must set to "2"
 						m(GoodWe.ChannelId.MANUFACTURE_CODE, new UnsignedWordElement(47505)), //
