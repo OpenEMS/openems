@@ -47,7 +47,6 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	private static final int reservSocMaxValue = 100;
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssEmergencyCapacityReserveImpl.class);
-	private final EnergyScheduleHandler energyScheduleHandler;
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final RampFilter rampFilter = new RampFilter();
 
@@ -67,6 +66,7 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	private ManagedSymmetricEss ess;
 
 	private Config config;
+	private EnergyScheduleHandler energyScheduleHandler;
 
 	public ControllerEssEmergencyCapacityReserveImpl() {
 		super(//
@@ -74,16 +74,15 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 				Controller.ChannelId.values(), //
 				ControllerEssEmergencyCapacityReserve.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.id(), //
-				() -> this.config.enabled() && this.config.isReserveSocEnabled() //
-						? this.config.reserveSoc() //
-						: null);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> this.config.enabled() && this.config.isReserveSocEnabled() //
+						? this.config.reserveSoc() //
+						: null);
 		this.updateConfig(config);
 	}
 

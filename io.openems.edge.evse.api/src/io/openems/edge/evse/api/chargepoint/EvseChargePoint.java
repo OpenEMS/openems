@@ -1,8 +1,9 @@
 package io.openems.edge.evse.api.chargepoint;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -26,7 +27,7 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 		 * </ul>
 		 */
 		STATUS(Doc.of(Status.values()) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+				.persistencePriority(HIGH)), //
 		;
 
 		private final Doc doc;

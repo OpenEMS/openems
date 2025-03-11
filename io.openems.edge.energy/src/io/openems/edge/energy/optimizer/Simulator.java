@@ -2,6 +2,7 @@ package io.openems.edge.energy.optimizer;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.jenetics.engine.EvolutionResult.toBestResult;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
@@ -32,7 +33,6 @@ import io.jenetics.SinglePointCrossover;
 import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -190,7 +190,7 @@ public class Simulator {
 					-> bestScheduleCollector.eshModes.accept(new EshToMode(e, srp, //
 							e.postProcessPeriod(period, gsc, energyFlow, schedule[periodIndex][eshIndex++])));
 				case EnergyScheduleHandler.WithOnlyOneMode e //
-					-> FunctionUtils.doNothing();
+					-> doNothing();
 				}
 			}
 		}

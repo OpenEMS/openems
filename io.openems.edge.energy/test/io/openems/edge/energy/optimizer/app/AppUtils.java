@@ -56,6 +56,12 @@ public class AppUtils {
 				parseInt(essMatcher.group("maxChargeEnergy")), //
 				parseInt(essMatcher.group("maxDischargeEnergy")));
 
+		applyPattern(ESHS_PATTERN, headerMatcher.group("eshs")).results() //
+				.forEach(eshMatcher -> {
+					// TODO use for ControllerOptimizationContext
+					System.out.println(eshMatcher.group("id") + ": " + eshMatcher.group("coc"));
+				});
+
 		var nextTime = new AtomicReference<>(startDateTime);
 		var periods = log.lines() //
 				.filter(l -> l.contains("OPTIMIZER ") && !l.contains("GlobalOptimizationContext")
@@ -94,7 +100,8 @@ public class AppUtils {
 			+ "startTime=(?<startTime>\\S*), " //
 			+ "Grid\\[(?<grid>.*)\\], " //
 			+ "Ess\\[(?<ess>.*)\\], " //
-			+ "eshs=\\[");
+			+ "eshs=\\[(?<eshs>.*)\\]" //
+			+ "}");
 
 	private static final Pattern GRID_PATTERN = Pattern.compile("" //
 			+ "maxBuy=(?<maxBuy>\\d+), " //
@@ -111,4 +118,6 @@ public class AppUtils {
 			+ "\\s+(?<price>-?\\d+\\.\\d+)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
+
+	private static final Pattern ESHS_PATTERN = Pattern.compile("ESH\\.(?<id>\\S+?)\\{(?<coc>.*?)\\}");
 }

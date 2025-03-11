@@ -204,7 +204,7 @@ public class EnergyFlow {
 
 			return new EnergyFlow.Model(//
 					/* production */ period.production(), //
-					/* consumption */ period.consumption(), //
+					/* unmanagedConsumption */ period.consumption(), //
 					/* essMaxCharge */ min(essGlobal.maxChargeEnergy() * factor,
 							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //
 					/* essMaxDischarge */ min(essGlobal.maxDischargeEnergy() * factor, gsc.ess.getInitialEnergy()), //

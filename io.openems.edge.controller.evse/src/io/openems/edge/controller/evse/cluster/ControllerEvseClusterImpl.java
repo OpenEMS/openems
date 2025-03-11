@@ -1,13 +1,16 @@
 package io.openems.edge.controller.evse.cluster;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.evse.api.EvseConstants.MIN_CURRENT;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -32,6 +35,7 @@ import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile;
+import io.openems.edge.evse.api.chargepoint.Profile.Command;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -77,12 +81,39 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void run() throws OpenemsNamedException {
-		for (var ctrl : this.ctrls) {
-			var params = ctrl.getParams();
-			if (params == null) {
-				continue;
-			}
+	public void run() {
+		calculate(this.sum, this.ctrls, this::logDebug) //
+				.forEach(o -> o.ctrl.apply(o.ac, o.commands));
+	}
+
+	private static record Input(ControllerEvseSingle ctrl, Params params) {
+	}
+
+	protected static record Output(ControllerEvseSingle ctrl, ApplyCharge ac, ImmutableList<Command> commands) {
+	}
+
+	protected static ImmutableList<Output> calculate(Sum sum, List<ControllerEvseSingle> ctrls,
+			Consumer<String> logDebug) {
+		var inputs = ctrls.stream() //
+				.map(ctrl -> {
+					var params = ctrl.getParams();
+					if (params == null) {
+						return null;
+					}
+					return new Input(ctrl, params);
+				}) //
+				.filter(Objects::nonNull) //
+				.toList();
+
+		var outputs = ImmutableList.<Output>builder();
+		var allParams = inputs.stream().map(i -> i.params()) //
+				.collect(toImmutableList());
+		var remainingExcessPower = calculateTotalExcessPower(sum, allParams);
+		remainingExcessPower -= calculateOverallMinimumPower(allParams);
+
+		for (var input : inputs) {
+			final var ctrl = input.ctrl;
+			final var params = input.params;
 
 			// Handle Profile Commands
 			final var commands = ImmutableList.<Profile.Command>builder();
@@ -92,7 +123,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 						.map(Profile.PhaseSwitchToSinglePhase.class::cast) //
 						.findFirst().ifPresent(phaseSwitch -> {
 							// Switch from THREE to SINGLE phase in MINIMUM mode
-							this.logDebug(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
+							logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
 							commands.add(phaseSwitch.command());
 						});
 
@@ -102,7 +133,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 						.map(Profile.PhaseSwitchToThreePhase.class::cast) //
 						.findFirst().ifPresent(phaseSwitch -> {
 							// Switch from SINGLE to THREE phase in FORCE mode
-							this.logDebug(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
+							logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
 							commands.add(phaseSwitch.command());
 						});
 			}
@@ -111,12 +142,23 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 			var ac = switch (params.actualMode()) {
 			case ZERO -> ApplyCharge.ZERO;
 			case MINIMUM -> new ApplyCharge.SetCurrent(MIN_CURRENT);
-			case SURPLUS -> new ApplyCharge.SetCurrent(calculateExcessCurrent(this.sum, params));
+			case SURPLUS -> {
+				var limit = params.limit();
+				var maxPower = limit.getMaxPower();
+				var minPower = limit.getMinPower();
+				var power = fitWithin(0, maxPower - minPower, //
+						minPower + remainingExcessPower); // because minPower was considered before in
+				// calculateOverallMinimumPower
+				remainingExcessPower -= power;
+				yield new ApplyCharge.SetCurrent(limit.calculateCurrent(power));
+			}
 			case FORCE -> new ApplyCharge.SetCurrent(params.limit().maxCurrent());
 			};
 
-			ctrl.apply(ac, commands.build());
+			outputs.add(new Output(ctrl, ac, commands.build()));
 		}
+
+		return outputs.build();
 	}
 
 	protected void logDebug(String message) {
@@ -126,24 +168,40 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Calculates the next charging current, depending on the current PV production
-	 * and house consumption.
+	 * Calculates the total excess power, depending on the current PV production and
+	 * house consumption.
 	 * 
-	 * <p>
-	 * COPIED FROM ControllerEvcsImpl
-	 *
 	 * @param sum    the {@link Sum} component
-	 * @param params the {@link Params}
-	 * @return the available excess power for charging
-	 * @throws OpenemsNamedException on error
+	 * @param params the {@link Params} of the {@link ControllerEvseSingle}s
+	 * @return the available additional excess power for charging
 	 */
-	protected static int calculateExcessCurrent(Sum sum, Params params) throws OpenemsNamedException {
+	protected static int calculateTotalExcessPower(Sum sum, ImmutableList<Params> params) {
 		var buyFromGrid = sum.getGridActivePower().orElse(0);
 		var essDischarge = sum.getEssDischargePower().orElse(0);
-		var evcsCharge = Optional.ofNullable(params.activePower()).orElse(0);
-		var power = Math.max(0, evcsCharge - buyFromGrid - essDischarge);
+		var evseCharge = params.stream() //
+				.map(p -> p.activePower()) //
+				.filter(Objects::nonNull) //
+				.mapToInt(Integer::intValue) //
+				.sum();
 
-		var current = params.limit().calculateCurrent(power);
-		return current;
+		return Math.max(0, evseCharge - buyFromGrid - essDischarge);
+	}
+
+	/**
+	 * Calculates the overall minimum power.
+	 * 
+	 * @param params the {@link Params} of the {@link ControllerEvseSingle}s
+	 * @return the available additional excess power for charging
+	 */
+	protected static int calculateOverallMinimumPower(ImmutableList<Params> params) {
+		return params.stream() //
+				.filter(p -> p.readyForCharging()) //
+				.filter(p -> switch (p.actualMode()) {
+				case FORCE, MINIMUM, SURPLUS -> true;
+				case ZERO -> false;
+				}) //
+				.map(p -> p.limit().getMinPower()) //
+				.mapToInt(Integer::intValue) //
+				.sum();
 	}
 }

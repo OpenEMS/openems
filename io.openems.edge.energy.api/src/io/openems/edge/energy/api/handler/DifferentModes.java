@@ -13,6 +13,7 @@ import java.util.function.ToIntFunction;
 
 import com.google.common.collect.ImmutableList;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
@@ -25,7 +26,8 @@ public class DifferentModes {
 
 	public static final class Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
-		private String componentId;
+		private final String id;
+
 		private MODE defaultMode;
 		private BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction;
 		private Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
@@ -35,14 +37,34 @@ public class DifferentModes {
 		private PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor = PostProcessor.doNothing();
 
 		/**
-		 * Sets the parent Component-ID for easier debugging.
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
 		 * 
-		 * @param componentId the parent Component-ID
-		 * @return myself
+		 * @param parent the parent {@link OpenemsComponent}
 		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setComponentId(String componentId) {
-			this.componentId = componentId;
-			return this;
+		protected Builder(OpenemsComponent parent) {
+			this(parent.serviceFactoryPid(), parent.id());
+		}
+
+		/**
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
+		 * 
+		 * @param parentFactoryPid the parent Factory-PID
+		 * @param parentId         the parent ID
+		 */
+		protected Builder(String parentFactoryPid, String parentId) {
+			this((parentFactoryPid == null || parentFactoryPid.isBlank() ? "" : (parentFactoryPid + ":")) //
+					+ parentId);
+		}
+
+		/**
+		 * Sets the unique identification ID.
+		 * 
+		 * @param id the ID
+		 */
+		public Builder(String id) {
+			this.id = id;
 		}
 
 		/**
@@ -158,9 +180,7 @@ public class DifferentModes {
 		 */
 		public EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> build() {
 			return new EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(//
-					this.componentId == null //
-							? "ESH.WithDifferentModes." + Integer.toHexString(this.hashCode()) // fallback
-							: this.componentId, //
+					this.id, //
 					this.defaultMode, this.availableModesFunction, //
 					this.cocFunction == null //
 							? goc -> null // fallback

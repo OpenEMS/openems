@@ -4,7 +4,6 @@ import static io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler
 import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.time.LocalTime;
 import java.util.OptionalInt;
@@ -12,15 +11,14 @@ import java.util.OptionalInt;
 import org.junit.Test;
 
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.OptimizationContext;
+import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
 
 public class EnergySchedulerTest {
 
 	@Test
 	public void testNull() {
-		var esh = buildEnergyScheduleHandler(() -> null, () -> null);
-		assertTrue(esh.getId().startsWith("ESH.WithOnlyOneMode."));
-
+		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"), () -> null);
 		var t = EnergyScheduleTester.from(esh);
 		assertEquals(-3894 /* no charge limitation */,
 				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(ESS, MINIMIZE));
@@ -28,7 +26,7 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testManual() {
-		var esh = buildEnergyScheduleHandler(() -> "ctrl0",
+		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"),
 				() -> new EnergyScheduler.Config.Manual(LocalTime.of(10, 00)));
 		assertEquals("ctrl0", esh.getId());
 

@@ -37,7 +37,6 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 		implements ControllerEssLimitTotalDischarge, EnergySchedulable, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssLimitTotalDischargeImpl.class);
-	private final EnergyScheduleHandler energyScheduleHandler;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -48,6 +47,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	private static final int HYSTERESIS = 5;
 	private Instant lastStateChange = Instant.MIN;
 
+	private EnergyScheduleHandler energyScheduleHandler;
 	private String essId;
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
@@ -60,16 +60,15 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				Controller.ChannelId.values(), //
 				ControllerEssLimitTotalDischarge.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.id(), //
-				() -> this.isEnabled() //
-						? this.minSoc //
-						: null);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> this.isEnabled() //
+						? this.minSoc //
+						: null);
 
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();

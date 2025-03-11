@@ -42,7 +42,6 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 
 	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
 			ControllerEssFixActivePower.ChannelId.CUMULATED_ACTIVE_TIME);
-	private final EnergyScheduleHandler energyScheduleHandler;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -50,10 +49,11 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	private Config config;
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	private Config config;
+	private EnergyScheduleHandler energyScheduleHandler;
 
 	public ControllerEssFixActivePowerImpl() {
 		super(//
@@ -61,8 +61,12 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				ControllerEssFixActivePower.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.id(), //
+	}
+
+	@Activate
+	private void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
 				() -> this.config.enabled() && this.config.mode() == Mode.MANUAL_ON //
 						? new OptimizationContext(//
 								toEnergy(switch (this.config.phase()) {
@@ -71,11 +75,6 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 								}), //
 								this.config.relationship()) //
 						: null);
-	}
-
-	@Activate
-	private void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (this.applyConfig(context, config)) {
 			return;
 		}

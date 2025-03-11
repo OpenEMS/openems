@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
@@ -44,14 +45,13 @@ public class EnergyScheduler {
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param componentId    supplier for parent Component-ID
+	 * @param parent         the parent {@link OpenemsComponent}
 	 * @param configSupplier supplier for {@link Config}
 	 * @return a {@link EnergyScheduleHandler}
 	 */
 	public static EshWithDifferentModes<StateMachine, OptimizationContext, Void> buildEnergyScheduleHandler(
-			Supplier<String> componentId, Supplier<Config> configSupplier) {
-		return EnergyScheduleHandler.WithDifferentModes.<StateMachine, OptimizationContext, Void>create() //
-				.setComponentId(componentId.get()) //
+			OpenemsComponent parent, Supplier<Config> configSupplier) {
+		return EnergyScheduleHandler.WithDifferentModes.<StateMachine, OptimizationContext, Void>create(parent) //
 				.setDefaultMode(StateMachine.BALANCING) //
 				.setAvailableModes(() -> {
 					var config = configSupplier.get();

@@ -7,20 +7,18 @@ import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext;
+import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
 
 public class EnergySchedulerTest {
 
 	@Test
 	public void testNull() {
-		var esh = EnergyScheduler.buildEnergyScheduleHandler(() -> null, () -> null);
-		assertTrue(esh.getId().startsWith("ESH.WithOnlyOneMode."));
-
+		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"), () -> null);
 		var t = EnergyScheduleTester.from(esh);
 		var t0 = t.simulatePeriod();
 		assertEquals(4000 /* no discharge limitation */, (int) t0.ef().getExtremeCoefficientValue(ESS, MAXIMIZE));
@@ -28,7 +26,8 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testEquals() {
-		var esh = EnergyScheduler.buildEnergyScheduleHandler(() -> "ctrl0", () -> new OptimizationContext(500, EQUALS));
+		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"),
+				() -> new OptimizationContext(500, EQUALS));
 		assertEquals("ctrl0", esh.getId());
 
 		var t = EnergyScheduleTester.from(esh);
@@ -39,7 +38,7 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testGreaterOrEquals() {
-		var esh = EnergyScheduler.buildEnergyScheduleHandler(() -> "ctrl0",
+		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"),
 				() -> new OptimizationContext(500, GREATER_OR_EQUALS));
 		var t = EnergyScheduleTester.from(esh);
 
@@ -51,7 +50,7 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testLessOrEquals() {
-		var esh = EnergyScheduler.buildEnergyScheduleHandler(() -> "ctrl0",
+		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"),
 				() -> new OptimizationContext(500, LESS_OR_EQUALS));
 		var t = EnergyScheduleTester.from(esh);
 

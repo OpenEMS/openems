@@ -1,10 +1,16 @@
 package io.openems.edge.controller.evse.single;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
+import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
 public final class Utils {
 
@@ -12,6 +18,23 @@ public final class Utils {
 	protected static final int MIN_CHARGE_POWER = 4600; // [W]
 
 	private Utils() {
+	}
+
+	protected static final Limit mergeLimits(EvseChargePoint.ChargeParams chargePoint,
+			EvseElectricVehicle.ChargeParams electricVehicle) {
+		// TODO if EV is single-phase and CP is three-phase, this should still produce a
+		// non-null result
+		if (chargePoint == null || electricVehicle == null) {
+			return null;
+		}
+		var cp = chargePoint.limit();
+		return electricVehicle.limits().stream() //
+				.filter(ev -> ev.phase() == cp.phase()) //
+				.findFirst() //
+				.map(ev -> new Limit(cp.phase(), //
+						max(cp.minCurrent(), ev.minCurrent()), //
+						min(cp.maxCurrent(), ev.maxCurrent()))) //
+				.orElse(null);
 	}
 
 	protected static ZonedDateTime getTargetDateTime(ZonedDateTime startTime, int hour) {
@@ -26,8 +49,18 @@ public final class Utils {
 		return switch (chargePoint.getStatus()) {
 		case CHARGING, READY_FOR_CHARGING //
 			-> true;
-		case CHARGING_REJECTED, ENERGY_LIMIT_REACHED, ERROR, NOT_READY_FOR_CHARGING, STARTING, UNDEFINED //
+		case CHARGING_REJECTED, ERROR, NOT_READY_FOR_CHARGING, STARTING, UNDEFINED //
 			-> false;
 		};
+	}
+
+	protected static boolean getSessionLimitReached(Mode mode, Integer energy, int limit) {
+		if (mode == Mode.SMART) {
+			return false;
+		}
+		if (energy != null && limit > 0 && energy >= limit) {
+			return true;
+		}
+		return false;
 	}
 }

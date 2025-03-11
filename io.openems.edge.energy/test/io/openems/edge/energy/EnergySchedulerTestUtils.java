@@ -5,10 +5,12 @@ import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import java.time.LocalTime;
 
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
+import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.EnergyUtils;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ChargeParams;
 
 public class EnergySchedulerTestUtils {
 
@@ -25,8 +27,7 @@ public class EnergySchedulerTestUtils {
 	 */
 	public static EnergyScheduleHandler.WithOnlyOneMode eshEmergencyCapacityReserve(String id, int reserveSoc) {
 		return io.openems.edge.controller.ess.emergencycapacityreserve.EnergyScheduler //
-				.buildEnergyScheduleHandler(//
-						() -> id, //
+				.buildEnergyScheduleHandler(new DummyController(id), //
 						() -> reserveSoc);
 	}
 
@@ -62,8 +63,7 @@ public class EnergySchedulerTestUtils {
 	 */
 	public static EnergyScheduleHandler.WithOnlyOneMode eshLimitTotalDischarge(String id, int minSoc) {
 		return io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler //
-				.buildEnergyScheduleHandler(//
-						() -> id, //
+				.buildEnergyScheduleHandler(new DummyController(id), //
 						() -> minSoc);
 	}
 
@@ -100,8 +100,7 @@ public class EnergySchedulerTestUtils {
 	public static EnergyScheduleHandler.WithOnlyOneMode eshFixActivePower(String id, int power,
 			Relationship relationship) {
 		return io.openems.edge.controller.ess.fixactivepower.EnergyScheduler //
-				.buildEnergyScheduleHandler(//
-						() -> id, //
+				.buildEnergyScheduleHandler(new DummyController(id), //
 						() -> new io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext(
 								EnergyUtils.toEnergy(power), relationship));
 	}
@@ -138,8 +137,7 @@ public class EnergySchedulerTestUtils {
 	 */
 	public static EnergyScheduleHandler.WithOnlyOneMode eshGridOptimizedChargeManual(String id, LocalTime localTime) {
 		return io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler //
-				.buildEnergyScheduleHandler(//
-						() -> id, //
+				.buildEnergyScheduleHandler(new DummyController(id), //
 						() -> new io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Manual(
 								localTime));
 	}
@@ -176,9 +174,26 @@ public class EnergySchedulerTestUtils {
 	 */
 	public static EnergyScheduleHandler.WithDifferentModes eshTimeOfUseTariff(String id, ControlMode controlMode) {
 		return io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
-				.buildEnergyScheduleHandler(//
-						() -> id, //
+				.buildEnergyScheduleHandler(new DummyController(id), //
 						() -> new io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config(controlMode));
+	}
+
+	/**
+	 * Builds the {@link EnergyScheduleHandler} of Evse.Controller.Single.
+	 * 
+	 * @param id                 the Component-ID
+	 * @param mode               the actual Mode
+	 * @param chargeParams       the {@link ChargeParams}
+	 * @param sessionEnergyLimit the configured Session-Energy-Limit
+	 * @return the {@link EnergyScheduleHandler}
+	 */
+	public static EnergyScheduleHandler.WithOnlyOneMode eshEvseSingleManual(String id,
+			io.openems.edge.evse.api.chargepoint.Mode.Actual mode, ChargeParams chargeParams, int sessionEnergyLimit) {
+		return io.openems.edge.controller.evse.single.EnergyScheduler //
+				.buildManualEnergyScheduleHandler(new DummyController(id), //
+						() -> new io.openems.edge.controller.evse.single.EnergyScheduler.ManualOptimizationContext(mode,
+								true /* isReadyForCharging */, chargeParams, 0 /* sessionEnergy */,
+								sessionEnergyLimit));
 	}
 
 	/**

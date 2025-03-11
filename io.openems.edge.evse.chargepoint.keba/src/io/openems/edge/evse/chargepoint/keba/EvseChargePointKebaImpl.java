@@ -7,6 +7,8 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.TypeUtils.getAsType;
+import static io.openems.edge.evse.api.SingleThreePhase.SINGLE_PHASE;
+import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
 import static java.lang.Math.round;
 
 import java.net.UnknownHostException;
@@ -38,6 +40,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.common.types.Tuple;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -59,9 +62,6 @@ import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile;
 import io.openems.edge.evse.api.chargepoint.Status;
-import io.openems.edge.evse.chargepoint.keba.enums.Phase;
-import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchSource;
-import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.enums.ProductTypeAndFeatures;
 import io.openems.edge.evse.chargepoint.keba.enums.SetEnable;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -118,8 +118,10 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 	@Activate
 	private void activate(ComponentContext context, Config config) throws UnknownHostException, OpenemsException {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), 1 /* Unit-ID */, this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), 1 /* Unit-ID */, this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Modified
@@ -242,32 +244,43 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 	@Override
 	public ChargeParams getChargeParams() {
 		var config = this.config;
-		var phaseSwitchState = this.getPhaseSwitchState().actual;
-		if (config == null || config.readOnly() || phaseSwitchState == null) {
+		final var phases = this.getWiring();
+		if (config == null || config.readOnly() || phases == null) {
 			return null;
 		}
-		var singlePhaseLimit = new Limit(SingleThreePhase.SINGLE, 6000, 32000);
-		var threePhaseLimit = new Limit(SingleThreePhase.THREE, 6000, 32000);
 
-		var limit = switch (config.phase()) {
-		case FIXED_SINGLE -> singlePhaseLimit;
-		case FIXED_THREE -> threePhaseLimit;
-		case HAS_S10_PHASE_SWITCHING_DEVICE //
-			-> switch (phaseSwitchState) { // Read current phase switch state
-			case SINGLE -> singlePhaseLimit;
-			case THREE -> threePhaseLimit;
-			};
+		var singlePhaseLimit = new Limit(SINGLE_PHASE, 6000, 32000);
+		var threePhaseLimit = new Limit(THREE_PHASE, 6000, 32000);
+
+		var limit = switch (phases) {
+		case SINGLE_PHASE -> singlePhaseLimit;
+		case THREE_PHASE -> threePhaseLimit;
 		};
 
 		var profiles = ImmutableList.<Profile>builder();
-		if (config.phase() == Phase.HAS_S10_PHASE_SWITCHING_DEVICE) {
-			profiles.add(switch (phaseSwitchState) {
-			case SINGLE -> new Profile.PhaseSwitchToThreePhase(threePhaseLimit);
-			case THREE -> new Profile.PhaseSwitchToSinglePhase(singlePhaseLimit);
-			});
+		return new ChargeParams(limit, profiles.build());
+	}
+
+	private SingleThreePhase getWiring() {
+		// Handle P30 with S10
+		switch (this.config.p30S10PhaseSwitching()) {
+		case NOT_AVAILABLE -> FunctionUtils.doNothing();
+		case FORCE_SINGLE_PHASE, FORCE_THREE_PHASE -> {
+			var phaseSwitchState = this.getPhaseSwitchState().actual;
+			if (phaseSwitchState == null) {
+				return null;
+			}
+			return phaseSwitchState;
+		}
 		}
 
-		return new ChargeParams(limit, profiles.build());
+		// Evaluate fixed wiring
+		var config = this.config;
+		if (config == null) {
+			return null;
+		}
+
+		return config.wiring();
 	}
 
 	@Override
@@ -291,19 +304,10 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 
 		// TODO Phase Switch Three-to-Single is always possible without interruption
 		// TODO Allow Phase Switch always if no car is connected
-		final var p = EvseChargePointKebaImpl.this;
+		// final var p = EvseChargePointKebaImpl.this;
 		final var now = Instant.now();
 
 		this.handleApplyCharge(now, applyCharge);
-
-		for (var pc : profileCommands) {
-			switch (pc) {
-			case Profile.PhaseSwitchToThreePhase.Command tp ->
-				this.handlePhaseSwitch(p, now, PhaseSwitchState.Actual.THREE);
-			case Profile.PhaseSwitchToSinglePhase.Command sp ->
-				this.handlePhaseSwitch(p, now, PhaseSwitchState.Actual.SINGLE);
-			}
-		}
 	}
 
 	private Tuple<Instant, ApplyCharge> previousApplyCharge = null;
@@ -328,37 +332,6 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 				setEnable.setNextWriteValue(SetEnable.DISABLE);
 			}
 			}
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private Tuple<Instant, ApplyCharge> previousPhaseSwitch = null;
-
-	private void handlePhaseSwitch(EvseChargePointKebaImpl p, Instant now, PhaseSwitchState.Actual pss) {
-		if (this.previousPhaseSwitch != null && Duration.between(this.previousPhaseSwitch.a(), now).getSeconds() < 5) {
-			return;
-		}
-
-		p.logInfo(p.log, "[" + p.id() + "] Apply Phase Switch to " + pss);
-		try {
-			// Set Phase Switch Source to MODBUS if it was not set
-			if (p.getPhaseSwitchSource() == PhaseSwitchSource.VIA_MODBUS) {
-				var setPhaseSwitchSource = p
-						.<EnumWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_PHASE_SWITCH_SOURCE);
-				setPhaseSwitchSource.setNextWriteValue(PhaseSwitchSource.VIA_MODBUS);
-			}
-
-			// Apply actual phase switch
-			// TODO evaluate if this has to be more complicated, i.e. wait for a while or
-			// block any concurrent writes to SET_CHARGING_CURRENT.
-			var setPhaseSwitchState = p.<EnumWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_PHASE_SWITCH_STATE);
-			setPhaseSwitchState.setNextWriteValue(//
-					switch (pss) {
-					case SINGLE -> PhaseSwitchState.SINGLE;
-					case THREE -> PhaseSwitchState.THREE;
-					});
-			// TODO set PHASE_SWITCH_STATE prio to HIGH to track change faster
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}

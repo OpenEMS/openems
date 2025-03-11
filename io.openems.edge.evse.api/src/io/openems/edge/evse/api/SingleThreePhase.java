@@ -1,8 +1,8 @@
 package io.openems.edge.evse.api;
 
 public enum SingleThreePhase {
-	SINGLE(1), //
-	THREE(3);
+	SINGLE_PHASE(1), //
+	THREE_PHASE(3);
 
 	public final int count;
 

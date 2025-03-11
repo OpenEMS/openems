@@ -16,17 +16,21 @@ import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.test.DummyController;
+import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.energy.api.handler.OneMode;
 import io.openems.edge.energy.api.test.DummyGlobalOptimizationContext;
+import io.openems.edge.energy.optimizer.SimulatorTest.Esh2State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class SimulatorTest {
 
 	public static final EnergyScheduleHandler.WithOnlyOneMode ESH0 = //
-			EnergyScheduleHandler.WithOnlyOneMode.<Integer, Void>create() //
+			new OneMode.Builder<Integer, Void>("esh0") //
 					.setOptimizationContext(goc -> goc.ess().totalEnergy()) //
 					.setSimulator((period, gsc, coc, csc, ef) -> {
 						var minEnergy = socToEnergy(gsc.goc.ess().totalEnergy(), 10 /* [%] */);
@@ -42,8 +46,7 @@ public class SimulatorTest {
 
 	public static final EshWithDifferentModes<StateMachine, OptimizationContext, Void> ESH_TIME_OF_USE_TARIFF_CTRL = //
 			io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
-					.buildEnergyScheduleHandler(//
-							() -> "ctrlEssTimeOfUseTariff0", //
+					.buildEnergyScheduleHandler(new DummyController("ctrlEssTimeOfUseTariff0"), //
 							() -> new io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config(
 									ControlMode.CHARGE_CONSUMPTION));
 
@@ -52,8 +55,7 @@ public class SimulatorTest {
 	}
 
 	public static final EnergyScheduleHandler.WithDifferentModes ESH2 = //
-			EnergyScheduleHandler.WithDifferentModes.<Esh2State, Void, Void>create() //
-					.setComponentId("ctrlEsh2") //
+			new DifferentModes.Builder<Esh2State, Void, Void>("esh2") //
 					.setDefaultMode(Esh2State.BAR) //
 					.setAvailableModes(() -> Esh2State.values()) //
 					.setInitialPopulationsFunction((goc, availableModes) -> {

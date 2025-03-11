@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.fixactivepower;
 
 import java.util.function.Supplier;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -17,15 +18,13 @@ public class EnergyScheduler {
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param componentId supplier for parent Component-ID
+	 * @param parent      the parent {@link OpenemsComponent}
 	 * @param cocSupplier supplier for {@link OptimizationContext}
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(Supplier<String> componentId,
+	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<OptimizationContext> cocSupplier) {
-		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create() //
-				.setComponentId(componentId.get()) //
-
+		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
 				.setOptimizationContext(() -> cocSupplier.get()) //
 
 				.setSimulator((gsc, coc, ef) -> {

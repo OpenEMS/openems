@@ -5,6 +5,7 @@ import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 
 import java.util.function.Supplier;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -40,15 +41,13 @@ public class EnergyScheduler {
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param componentId supplier for parent Component-ID
+	 * @param parent      the parent {@link OpenemsComponent}
 	 * @param cocSupplier supplier for ControllerOptimizationContext
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EnergyScheduleHandler.WithOnlyOneMode buildManualEnergyScheduleHandler(Supplier<String> componentId,
+	public static EnergyScheduleHandler.WithOnlyOneMode buildManualEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<ManualOptimizationContext> cocSupplier) {
-		return EnergyScheduleHandler.WithOnlyOneMode.<ManualOptimizationContext, ScheduleContext>create() //
-				.setComponentId(componentId.get()) //
-
+		return EnergyScheduleHandler.WithOnlyOneMode.<ManualOptimizationContext, ScheduleContext>create(parent) //
 				.setOptimizationContext(gsc -> cocSupplier.get())
 				.setScheduleContext(coc -> coc == null ? null : new ScheduleContext(coc.sessionEnergy)) //
 
@@ -89,14 +88,14 @@ public class EnergyScheduler {
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param componentId supplier for parent Component-ID
+	 * @param parent      the parent {@link OpenemsComponent}
 	 * @param cocSupplier supplier for ControllerOptimizationContext
 	 * @return a {@link EnergyScheduleHandler}
 	 */
 	public static EshWithDifferentModes<Mode.Actual, SmartOptimizationContext, ScheduleContext> buildSmartEnergyScheduleHandler(
-			Supplier<String> componentId, Supplier<SmartOptimizationContext> cocSupplier) {
-		return EnergyScheduleHandler.WithDifferentModes.<Mode.Actual, SmartOptimizationContext, ScheduleContext>create() //
-				.setComponentId(componentId.get()) //
+			OpenemsComponent parent, Supplier<SmartOptimizationContext> cocSupplier) {
+		return EnergyScheduleHandler.WithDifferentModes.<Mode.Actual, SmartOptimizationContext, ScheduleContext>create(
+				parent) //
 				.setDefaultMode(Mode.Actual.MINIMUM) //
 				.setAvailableModes(() -> Mode.Actual.values()).setOptimizationContext(gsc -> cocSupplier.get()) //
 				.setScheduleContext(() -> new ScheduleContext(0 /* TODO */)) //
@@ -109,7 +108,6 @@ public class EnergyScheduler {
 
 				.build();
 	}
-
 
 	/**
 	 * Post-Process a state of a Period during Simulation, i.e. replace with

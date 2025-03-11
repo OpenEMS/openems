@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.Command;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
  * Provides a simple, simulated {@link EvseChargePoint} component that can be
@@ -16,7 +17,8 @@ public class DummyEvseChargePoint extends AbstractDummyEvseChargePoint<DummyEvse
 	public DummyEvseChargePoint(String id) {
 		super(id, //
 				OpenemsComponent.ChannelId.values(), //
-				EvseChargePoint.ChannelId.values());
+				EvseChargePoint.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values());
 	}
 
 	@Override

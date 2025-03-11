@@ -1,18 +1,19 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildManualEnergyScheduleHandler;
+import static io.openems.edge.evse.api.SingleThreePhase.SINGLE_PHASE;
+import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
+import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.simulation.Coefficient;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
 import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ChargeParams;
 import io.openems.edge.evse.api.chargepoint.Mode;
 
@@ -20,9 +21,7 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testNull() {
-		var esh = buildManualEnergyScheduleHandler(() -> null, () -> null);
-		assertTrue(esh.getId().startsWith("ESH.WithOnlyOneMode."));
-
+		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), () -> null);
 		var t = EnergyScheduleTester.from(esh);
 		assertEquals(4000 /* no discharge limitation */,
 				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(Coefficient.ESS, GoalType.MAXIMIZE));
@@ -30,10 +29,9 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testMinimum() {
-		var esh = buildManualEnergyScheduleHandler(//
-				() -> "ctrl0", //
+		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
 				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.MINIMUM, true,
-						new ChargeParams(new Limit(SingleThreePhase.THREE, 6000, 32000), ImmutableList.of()), //
+						new ChargeParams(new Limit(THREE_PHASE, 6000, 32000), ImmutableList.of()), //
 						1000, 5_000));
 		assertEquals("ctrl0", esh.getId());
 
@@ -47,10 +45,9 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testForce() {
-		var esh = buildManualEnergyScheduleHandler(//
-				() -> "ctrl0", //
+		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
 				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.FORCE, true,
-						new ChargeParams(new Limit(SingleThreePhase.THREE, 6000, 32000), ImmutableList.of()), //
+						new ChargeParams(new Limit(THREE_PHASE, 6000, 32000), ImmutableList.of()), //
 						1000, 20_000));
 		assertEquals("ctrl0", esh.getId());
 
@@ -64,10 +61,9 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testZero() {
-		var esh = buildManualEnergyScheduleHandler(//
-				() -> "ctrl0", //
+		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
 				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.ZERO, true,
-						new ChargeParams(new Limit(SingleThreePhase.THREE, 6000, 32000), ImmutableList.of()), //
+						new ChargeParams(new Limit(THREE_PHASE, 6000, 32000), ImmutableList.of()), //
 						1000, 20_000));
 		assertEquals("ctrl0", esh.getId());
 
@@ -79,10 +75,9 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testSurplus() {
-		var esh = buildManualEnergyScheduleHandler(//
-				() -> "ctrl0", //
+		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
 				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.SURPLUS, true,
-						new ChargeParams(new Limit(SingleThreePhase.SINGLE, 6000, 32000), ImmutableList.of()), //
+						new ChargeParams(new Limit(SINGLE_PHASE, 6000, 32000), ImmutableList.of()), //
 						1000, 15_000));
 		assertEquals("ctrl0", esh.getId());
 

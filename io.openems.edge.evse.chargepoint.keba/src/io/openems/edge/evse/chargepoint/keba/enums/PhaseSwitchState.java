@@ -1,22 +1,22 @@
 package io.openems.edge.evse.chargepoint.keba.enums;
 
+import static io.openems.edge.evse.api.SingleThreePhase.SINGLE_PHASE;
+import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
+
 import io.openems.common.types.OptionsEnum;
+import io.openems.edge.evse.api.SingleThreePhase;
 
 public enum PhaseSwitchState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined", null), //
-	SINGLE(0, "1 phase", Actual.SINGLE), //
-	THREE(1, "3 phases", Actual.THREE);
+	SINGLE(0, "1 phase", SINGLE_PHASE), //
+	THREE(1, "3 phases", THREE_PHASE);
 
-	public enum Actual {
-		SINGLE, THREE;
-	}
-
-	public final Actual actual;
+	public final SingleThreePhase actual;
 
 	private final int value;
 	private final String name;
 
-	private PhaseSwitchState(int value, String name, Actual actual) {
+	private PhaseSwitchState(int value, String name, SingleThreePhase actual) {
 		this.value = value;
 		this.name = name;
 		this.actual = actual;
