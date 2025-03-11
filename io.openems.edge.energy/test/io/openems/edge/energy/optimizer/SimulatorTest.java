@@ -23,7 +23,6 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.OneMode;
 import io.openems.edge.energy.api.test.DummyGlobalOptimizationContext;
-import io.openems.edge.energy.optimizer.SimulatorTest.Esh2State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
