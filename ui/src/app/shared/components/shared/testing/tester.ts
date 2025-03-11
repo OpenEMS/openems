@@ -9,6 +9,7 @@ import { CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
+import { ButtonLabel } from "../../modal/modal-button/modal-button";
 import { TextIndentation } from "../../modal/modal-line/modal-line";
 import { Converter } from "../converter";
 import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
@@ -148,6 +149,17 @@ export class OeFormlyViewTester {
       case "horizontal-line": {
         return {
           type: field.type,
+        };
+      }
+      /**
+       * {@link OeFormlyField.ButtonsFromFormControlLine}
+       */
+      case "buttons-from-form-control-line": {
+        return {
+          type: "buttons-from-form-control-line",
+          name: field.name,
+          controlName: field.controlName,
+          buttons: field.buttons,
         };
       }
     }
@@ -342,7 +354,9 @@ export namespace OeFormlyViewTester {
     | Field.ChannelLine
     | Field.ChildrenLine
     | Field.HorizontalLine
-    | Field.ValueLine;
+    | Field.ValueLine
+    | Field.ButtonsFromFormControlLine
+    ;
 
   export namespace Field {
 
@@ -379,6 +393,12 @@ export namespace OeFormlyViewTester {
 
     export type HorizontalLine = {
       type: "horizontal-line",
+    };
+    export type ButtonsFromFormControlLine = {
+      type: "buttons-from-form-control-line",
+      name: string,
+      controlName: string,
+      buttons: ButtonLabel[],
     };
   }
 
