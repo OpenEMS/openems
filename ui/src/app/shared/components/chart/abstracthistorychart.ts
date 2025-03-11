@@ -455,12 +455,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         chartLegendLabelItems.push(chartLegendLabelItem);
       });
 
-      // TODO: implement plugin
       setTimeout(() => {
         if (!(chart as any)._updated) {
-          chart.options.plugins.legend.display = false; // Example update
-          chart.update();
           (chart as any)._updated = true; // Prevent multiple updates
+          chart.update();
         }
       }, 0);
 
