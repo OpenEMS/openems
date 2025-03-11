@@ -9,7 +9,6 @@ import { UpdateUserSettingsRequest } from "../jsonrpc/request/updateUserSettings
 import { User } from "../jsonrpc/shared";
 import { Service } from "./service";
 
-
 @Directive()
 export class UserService {
 
@@ -46,6 +45,17 @@ export class UserService {
 
         currentUser.settings = { ...currentUser.settings, theme: theme };
         this.finalizeThemeSelection(theme);
+    }
+
+    public getValidBrowserTheme(userTheme: UserTheme | null): UserTheme {
+
+        const theme = userTheme === UserTheme.SYSTEM
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? UserTheme.DARK
+                : UserTheme.LIGHT
+            : userTheme;
+
+        return theme ?? UserService.DEFAULT_THEME;
     }
 
     /**
@@ -158,9 +168,5 @@ export class UserService {
                 localStorage.setItem("THEME", theme);
                 this.updateTheme(theme);
             });
-    }
-
-    private getValidBrowserTheme(userTheme: UserTheme | null): UserTheme {
-        return userTheme ?? UserService.DEFAULT_THEME;
     }
 }

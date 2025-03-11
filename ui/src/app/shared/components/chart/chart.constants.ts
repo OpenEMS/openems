@@ -24,13 +24,13 @@ export namespace ChartConstants {
         switch (value) {
           case -1:
             return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
-          case 0:
-            return translate.instant("Edge.Index.Widgets.HeatPump.lock");
           case 1:
-            return translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
+            return translate.instant("Edge.Index.Widgets.HeatPump.lock");
           case 2:
-            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+            return translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
           case 3:
+            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+          case 4:
             return translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom");
           default:
             return "";

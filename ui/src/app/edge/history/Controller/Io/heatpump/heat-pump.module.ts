@@ -7,7 +7,6 @@ import { TranslateModule } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
-import { FlatComponent } from "./flat/flat";
 import { OverviewComponent } from "./overview/overview";
 
 const routes: Routes = [
@@ -29,10 +28,8 @@ const routes: Routes = [
         NgxSpinnerModule,
     ],
     declarations: [
-        FlatComponent,
     ],
     exports: [
-        FlatComponent,
         RouterModule,
     ],
     schemas: [
