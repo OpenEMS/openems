@@ -2,14 +2,17 @@ package io.openems.edge.evse.chargepoint.keba;
 
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.TypeUtils.getAsType;
+import static java.lang.Math.round;
 
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -114,18 +117,18 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws UnknownHostException, OpenemsException {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), 1 /* Unit-ID */, this.cm, "Modbus",
 				config.modbus_id());
-		this.config = config;
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
 		if (super.modified(context, config.id(), config.alias(), config.enabled(), 1 /* Unit-ID */, this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
 		}
-		this.config = config;
 	}
 
 	@Override
@@ -145,6 +148,8 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
+		final var phaseRotated = this.getPhaseRotation();
+
 		// TODO: Add functionality to distinguish between firmware version. For firmware
 		// version >= 5.22 there are several new registers. Currently it is programmed
 		// for firmware version 5.14.
@@ -166,12 +171,12 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 						m(EvseChargePointKeba.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
 				new FC3ReadRegistersTask(1006, Priority.LOW, //
 						m(EvseChargePointKeba.ChannelId.ERROR_CODE, new UnsignedDoublewordElement(1006))),
-				new FC3ReadRegistersTask(1008, Priority.LOW, // TODO apply phase rotation
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(1008))),
+				new FC3ReadRegistersTask(1008, Priority.LOW, //
+						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(1008))),
 				new FC3ReadRegistersTask(1010, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(1010))),
+						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(1010))),
 				new FC3ReadRegistersTask(1012, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(1012))),
+						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(1012))),
 				new FC3ReadRegistersTask(1014, Priority.LOW, //
 						m(EvseChargePointKeba.ChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1014))),
 				new FC3ReadRegistersTask(1016, Priority.LOW, //
@@ -190,16 +195,17 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 								CONVERT_FIRMWARE_VERSION)),
 				new FC3ReadRegistersTask(1020, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020),
-								SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)
+								.onUpdateCallback(this.calculateActivePowerL1L2L3)),
 				new FC3ReadRegistersTask(1036, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(1036),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(1036),
 								SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(1040, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(1040))),
+						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(1040), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1042, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(1042))),
+						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(1042), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1044, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(1044))),
+						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(1044), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1046, Priority.LOW, //
 						m(EvseChargePointKeba.ChannelId.POWER_FACTOR, new UnsignedDoublewordElement(1046),
 								SCALE_FACTOR_MINUS_1)),
@@ -409,4 +415,38 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 			break;
 		}
 	}
+
+	/**
+	 * On Update of ACTIVE_POWER, calculates ACTIVE_POWER_L1, L2 and L3 from CURRENT
+	 * and VOLTAGE values and distributes the power to match the sum.
+	 */
+	private final Consumer<Long> calculateActivePowerL1L2L3 = (activePower) -> {
+		var currentL1 = this.getCurrentL1Channel().getNextValue().get();
+		var currentL2 = this.getCurrentL2Channel().getNextValue().get();
+		var currentL3 = this.getCurrentL3Channel().getNextValue().get();
+		var voltageL1 = this.getVoltageL1Channel().getNextValue().get();
+		var voltageL2 = this.getVoltageL2Channel().getNextValue().get();
+		var voltageL3 = this.getVoltageL3Channel().getNextValue().get();
+		final Integer activePowerL1;
+		final Integer activePowerL2;
+		final Integer activePowerL3;
+		if (activePower == null || currentL1 == null || currentL2 == null || currentL3 == null || voltageL1 == null
+				|| voltageL2 == null || voltageL3 == null) {
+			activePowerL1 = null;
+			activePowerL2 = null;
+			activePowerL3 = null;
+		} else {
+			var pL1 = (voltageL1 / 1000F) * (currentL1 / 1000F);
+			var pL2 = (voltageL2 / 1000F) * (currentL2 / 1000F);
+			var pL3 = (voltageL3 / 1000F) * (currentL3 / 1000F);
+			var pSum = pL1 + pL2 + pL3;
+			var factor = activePower / pSum / 1000F; // distribute power to match sum
+			activePowerL1 = round(pL1 * factor);
+			activePowerL2 = round(pL2 * factor);
+			activePowerL3 = round(pL3 * factor);
+		}
+		this._setActivePowerL1(activePowerL1);
+		this._setActivePowerL2(activePowerL2);
+		this._setActivePowerL3(activePowerL3);
+	};
 }

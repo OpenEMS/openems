@@ -19,7 +19,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.edge.controller.evse.single.EnergyScheduler.OptimizationContext;
 import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
@@ -72,7 +71,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 			return null;
 		}
 		@SuppressWarnings("unchecked")
-		var esh = (EshWithDifferentModes<Mode.Actual, OptimizationContext, Void>) energyScheduleHandler;
+		var esh = (EshWithDifferentModes<Mode.Actual, Void, Void>) energyScheduleHandler;
 		final var schedule = esh.getSchedule();
 		final JsonArray result;
 		if (schedule.isEmpty()) {
@@ -99,7 +98,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	 * @return {@link Stream} of {@link JsonObject}s
 	 */
 	protected static Stream<JsonObject> fromSchedule(
-			ImmutableSortedMap<ZonedDateTime, Period<Mode.Actual, OptimizationContext>> schedule) {
+			ImmutableSortedMap<ZonedDateTime, Period<Mode.Actual, Void>> schedule) {
 		return schedule.entrySet().stream() //
 				.map(e -> {
 					var p = e.getValue();

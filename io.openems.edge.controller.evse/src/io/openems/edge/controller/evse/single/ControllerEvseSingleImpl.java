@@ -1,6 +1,8 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildManualEnergyScheduleHandler;
+import static io.openems.edge.controller.evse.single.EnergyScheduler.buildSmartEnergyScheduleHandler;
+import static io.openems.edge.controller.evse.single.Utils.isReadyForCharging;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -27,6 +29,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.evse.single.EnergyScheduler.ManualOptimizationContext;
+import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
 import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleResponse;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -94,10 +98,16 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		}
 
 		this.energyScheduleHandler = switch (config.mode()) {
-		case SMART -> null; // TODO
-		case ZERO, MINIMUM, FORCE -> buildManualEnergyScheduleHandler(//
+		case SMART -> buildSmartEnergyScheduleHandler(//
 				() -> this.id(), //
-				() -> EnergyScheduler.OptimizationContext.Manual.from(this.chargePoint, config.mode().actual));
+				() -> new SmartOptimizationContext(isReadyForCharging(this.chargePoint)));
+		case ZERO, MINIMUM, SURPLUS, FORCE -> buildManualEnergyScheduleHandler(//
+				() -> this.id(), //
+				() -> new ManualOptimizationContext(config.mode().actual, isReadyForCharging(this.chargePoint),
+						this.chargePoint.getChargeParams(), this.getSessionEnergy().orElse(0),
+						config.manualEnergySessionLimit() > 0 //
+								? config.manualEnergySessionLimit() //
+								: 30_000 /* fallback */));
 		};
 		if (config.mode() == Mode.SMART) {
 			this.onChargePointStatusChange = (oldStatus, newStatus) -> {
@@ -121,21 +131,15 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 	@Override
 	public Params getParams() {
 		Mode.Actual actualMode = switch (this.config.mode()) {
-		case FORCE -> Mode.Actual.FORCE;
-		case ZERO -> Mode.Actual.ZERO;
-		case MINIMUM -> Mode.Actual.MINIMUM;
+		case ZERO, MINIMUM, SURPLUS, FORCE -> this.config.mode().actual;
 		case SMART -> null; // TODO for Time-of-Use
 		};
 
 		// Is Ready for Charging?
-		var readyForCharging = switch (this.chargePoint.getStatus()) {
-		case UNDEFINED, CHARGING_REJECTED, ENERGY_LIMIT_REACHED, ERROR, NOT_READY_FOR_CHARGING //
-			-> true;
-		case READY_FOR_CHARGING, CHARGING, STARTING //
-			-> false;
-		};
+		var readyForCharging = isReadyForCharging(this.chargePoint);
 
 		var chargePoint = this.chargePoint.getChargeParams();
+		var activePower = this.chargePoint.getActivePower().get();
 		var electricVehicle = this.electricVehicle.getChargeParams();
 		var limits = mergeLimits(chargePoint, electricVehicle);
 		this.logDebug("ActualMode:" + actualMode + "|ChargeParams:" + limits);
@@ -144,7 +148,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 			return null;
 		}
 
-		return new Params(readyForCharging, actualMode, limits, chargePoint.profiles());
+		return new Params(readyForCharging, actualMode, activePower, limits, chargePoint.profiles());
 	}
 
 	@Override

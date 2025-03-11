@@ -14,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private Mode mode;
 		private String electricVehicleId;
 		private String smartConfig;
+		private int manualEnergySessionLimit;
 		private boolean debugMode;
 
 		private Builder() {
@@ -41,6 +42,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setSmartConfig(String smartConfig) {
 			this.smartConfig = smartConfig;
+			return this;
+		}
+		
+		public Builder setManualEnergySessionLimit(int manualEnergySessionLimit) {
+			this.manualEnergySessionLimit = manualEnergySessionLimit;
 			return this;
 		}
 
@@ -88,6 +94,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String smartConfig() {
 		return this.builder.smartConfig;
+	}
+
+	@Override
+	public int manualEnergySessionLimit() {
+		return this.builder.manualEnergySessionLimit;
 	}
 
 	@Override

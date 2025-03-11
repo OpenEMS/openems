@@ -7,8 +7,14 @@ import static org.junit.Assert.assertTrue;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
+
 import io.openems.edge.energy.api.simulation.Coefficient;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
+import io.openems.edge.evse.api.Limit;
+import io.openems.edge.evse.api.SingleThreePhase;
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ChargeParams;
+import io.openems.edge.evse.api.chargepoint.Mode;
 
 public class EnergySchedulerTest {
 
@@ -18,67 +24,77 @@ public class EnergySchedulerTest {
 		assertTrue(esh.getId().startsWith("ESH.WithOnlyOneMode."));
 
 		var t = EnergyScheduleTester.from(esh);
-		var t0 = t.simulatePeriod(0);
 		assertEquals(4000 /* no discharge limitation */,
-				(int) t0.ef().getExtremeCoefficientValue(Coefficient.ESS, GoalType.MAXIMIZE));
+				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(Coefficient.ESS, GoalType.MAXIMIZE));
+	}
+
+	@Test
+	public void testMinimum() {
+		var esh = buildManualEnergyScheduleHandler(//
+				() -> "ctrl0", //
+				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.MINIMUM, true,
+						new ChargeParams(new Limit(SingleThreePhase.THREE, 6000, 32000), ImmutableList.of()), //
+						1000, 5_000));
+		assertEquals("ctrl0", esh.getId());
+
+		var t = EnergyScheduleTester.from(esh);
+		assertEquals(1035, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(1035, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(1035, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(895, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
+	}
+
+	@Test
+	public void testForce() {
+		var esh = buildManualEnergyScheduleHandler(//
+				() -> "ctrl0", //
+				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.FORCE, true,
+						new ChargeParams(new Limit(SingleThreePhase.THREE, 6000, 32000), ImmutableList.of()), //
+						1000, 20_000));
+		assertEquals("ctrl0", esh.getId());
+
+		var t = EnergyScheduleTester.from(esh);
+		assertEquals(5520, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(5520, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(5520, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(2440, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
+	}
+
+	@Test
+	public void testZero() {
+		var esh = buildManualEnergyScheduleHandler(//
+				() -> "ctrl0", //
+				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.ZERO, true,
+						new ChargeParams(new Limit(SingleThreePhase.THREE, 6000, 32000), ImmutableList.of()), //
+						1000, 20_000));
+		assertEquals("ctrl0", esh.getId());
+
+		var t = EnergyScheduleTester.from(esh);
+		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
+	}
+
+	@Test
+	public void testSurplus() {
+		var esh = buildManualEnergyScheduleHandler(//
+				() -> "ctrl0", //
+				() -> new EnergyScheduler.ManualOptimizationContext(Mode.Actual.SURPLUS, true,
+						new ChargeParams(new Limit(SingleThreePhase.SINGLE, 6000, 32000), ImmutableList.of()), //
+						1000, 15_000));
+		assertEquals("ctrl0", esh.getId());
+
+		var t = EnergyScheduleTester.from(esh);
+		for (var i = 0; i < 35; i++) {
+			assertEquals(345, t.simulatePeriod().ef().getManagedConsumption());
+		}
+		assertEquals(379, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(424, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(362, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(403, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(357, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
 	}
 }
-
-//private static int cons(GlobalOptimizationContext goc, int period) {
-//	return goc.periods().get(period).consumption();
-//}
-
-//@Test
-//public void testManualExcessCar() {
-//	var esh = buildEshManual(generateEshManualContext(ChargeMode.EXCESS_POWER));
-//	var goc = DummyGlobalOptimizationContext.fromHandlers(esh);
-//	((AbstractEnergyScheduleHandler<?>) esh /* this is safe */).initialize(gsc);
-//	var gsc = GlobalScheduleContext.from(gsc);
-//
-//	assertEquals(cons(gsc, 0) + 575, getConsumption(osc, esh, 0));
-//	assertEquals(cons(gsc, 1) + 575, getConsumption(osc, esh, 1));
-//	assertEquals(cons(gsc, 2) + 575, getConsumption(osc, esh, 2));
-//	assertEquals(cons(gsc, 3) + 275, getConsumption(osc, esh, 3));
-//	assertEquals(cons(gsc, 4), getConsumption(osc, esh, 4));
-//}
-
-//@Test
-//public void testManualForce() {
-//	var esh = buildEshManual(generateEshManualContext(Mode.Actual.FORCE));
-//	var goc = DummyGlobalOptimizationContext.fromHandlers(esh);
-//	((AbstractEnergyScheduleHandler<?>) esh /* this is safe */).initialize(goc);
-//	var gsc = GlobalScheduleContext.from(goc);
-//
-//	assertEquals(cons(goc, 0) + 1500, getConsumption(gsc, esh, 0));
-//	assertEquals(cons(goc, 1) + 500, getConsumption(gsc, esh, 1));
-//	assertEquals(cons(goc, 2), getConsumption(gsc, esh, 2));
-//	assertEquals(cons(goc, 3), getConsumption(gsc, esh, 3));
-//	assertEquals(cons(goc, 4), getConsumption(gsc, esh, 4));
-//}
-
-//@Test
-//public void testInitialPopulation() {
-//	// NOTE: not yet implemented
-//	var esh = buildEshSmart(generateEshSmartContext());
-//	var goc = DummyGlobalOptimizationContext.fromHandlers(esh);
-//	esh.initialize(goc);
-//	var ips = esh.getInitialPopulations(goc);
-//	assertEquals(0, ips.size());
-//	// var ip = ips.get(0);
-//	// assertEquals(2, ip.periods().size());
-//	// assertEquals("2020-01-01T11:00Z", ip.periods().get(0).toString());
-//	// assertEquals("2020-01-01T12:00Z", ip.periods().get(1).toString());
-//	//
-//	// var ps = gsc.periods().stream().filter(p ->
-//	// ip.periods().contains(p.time())).toList();
-//	// assertEquals(2, ps.size());
-//	// assertEquals(282.9, ps.get(0).price(), 0.001);
-//	// assertEquals(260.7, ps.get(1).price(), 0.001);
-//}
-
-//private static int getConsumption(GlobalScheduleContext gsc, EnergyScheduleHandler esh, int periodIndex) {
-//	var period = gsc.goc.periods().get(periodIndex);
-//	var ef = EnergyFlow.Model.from(gsc, period);
-//	((EnergyScheduleHandler.WithOnlyOneState<?, ?>) esh).simulatePeriod(gsc, period, ef);
-//	return ((int) ef.getExtremeCoefficientValue(Coefficient.CONS, GoalType.MINIMIZE));
-//}

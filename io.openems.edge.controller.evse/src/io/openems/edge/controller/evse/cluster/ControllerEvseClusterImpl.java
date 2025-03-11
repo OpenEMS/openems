@@ -6,6 +6,7 @@ import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -24,8 +25,10 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile;
@@ -43,6 +46,9 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private Sum sum;
 
 	// TODO sort by configuration
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
@@ -105,6 +111,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 			var ac = switch (params.actualMode()) {
 			case ZERO -> ApplyCharge.ZERO;
 			case MINIMUM -> new ApplyCharge.SetCurrent(MIN_CURRENT);
+			case SURPLUS -> new ApplyCharge.SetCurrent(calculateExcessCurrent(this.sum, params));
 			case FORCE -> new ApplyCharge.SetCurrent(params.limit().maxCurrent());
 			};
 
@@ -116,5 +123,27 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
+	}
+
+	/**
+	 * Calculates the next charging current, depending on the current PV production
+	 * and house consumption.
+	 * 
+	 * <p>
+	 * COPIED FROM ControllerEvcsImpl
+	 *
+	 * @param sum    the {@link Sum} component
+	 * @param params the {@link Params}
+	 * @return the available excess power for charging
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static int calculateExcessCurrent(Sum sum, Params params) throws OpenemsNamedException {
+		var buyFromGrid = sum.getGridActivePower().orElse(0);
+		var essDischarge = sum.getEssDischargePower().orElse(0);
+		var evcsCharge = Optional.ofNullable(params.activePower()).orElse(0);
+		var power = Math.max(0, evcsCharge - buyFromGrid - essDischarge);
+
+		var current = params.limit().calculateCurrent(power);
+		return current;
 	}
 }

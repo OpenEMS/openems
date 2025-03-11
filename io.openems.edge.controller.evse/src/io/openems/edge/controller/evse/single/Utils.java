@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+
 public final class Utils {
 
 	protected static final int FORCE_CHARGE_POWER = 11000; // [W]
@@ -18,5 +20,14 @@ public final class Utils {
 				? startTime.plusDays(1) //
 				: startTime;
 		return targetDate.truncatedTo(ChronoUnit.DAYS).withHour(hour);
+	}
+
+	protected static boolean isReadyForCharging(EvseChargePoint chargePoint) {
+		return switch (chargePoint.getStatus()) {
+		case CHARGING, READY_FOR_CHARGING //
+			-> true;
+		case CHARGING_REJECTED, ENERGY_LIMIT_REACHED, ERROR, NOT_READY_FOR_CHARGING, STARTING, UNDEFINED //
+			-> false;
+		};
 	}
 }
