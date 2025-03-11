@@ -189,7 +189,11 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		case WATT -> TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l), "watt");
 		default -> unit.symbol;
 		};
-		this.templateOptions.addProperty("unit", unitString);
+		return this.setUnit(unitString);
+	}
+
+	public InputBuilder setUnit(String unit) {
+		this.templateOptions.addProperty("unit", unit);
 		this.addWrapper(Wrappers.INPUT_WITH_UNIT);
 		return this;
 	}

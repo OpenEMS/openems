@@ -1,12 +1,15 @@
 package io.openems.edge.evse.api.chargepoint.dummy;
 
+import static io.openems.edge.common.test.TestUtils.withValue;
+
 import io.openems.common.types.MeterType;
-import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.evse.api.chargepoint.Status;
+import io.openems.edge.meter.test.AbstractDummyElectricityMeter;
 
 public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvseChargePoint<?>>
-		extends AbstractDummyOpenemsComponent<SELF> implements EvseChargePoint {
+		extends AbstractDummyElectricityMeter<SELF> implements EvseChargePoint {
 
 	private ChargeParams chargeParams;
 	private PhaseRotation phaseRotation;
@@ -51,5 +54,16 @@ public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvs
 	@Override
 	public PhaseRotation getPhaseRotation() {
 		return this.phaseRotation;
+	}
+
+	/**
+	 * Set the {@link EvseChargePoint.ChannelId.STATUS}.
+	 * 
+	 * @param status the {@link Status}
+	 * @return myself
+	 */
+	public SELF withStatus(Status status) {
+		withValue(this, EvseChargePoint.ChannelId.STATUS, status);
+		return this.self();
 	}
 }

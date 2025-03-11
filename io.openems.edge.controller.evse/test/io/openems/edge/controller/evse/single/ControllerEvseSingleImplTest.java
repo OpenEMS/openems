@@ -25,6 +25,7 @@ public class ControllerEvseSingleImplTest {
 						.setChargePointId("chargePoint0") //
 						.setElectricVehicleId("electricVehicle0") //
 						.setSmartConfig("") //
+						.setManualEnergySessionLimit(10_000) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
@@ -61,6 +62,7 @@ public class ControllerEvseSingleImplTest {
 								    "sessionEnergy": 10001
 								  }
 								}]""") //
+						.setManualEnergySessionLimit(0) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();

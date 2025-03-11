@@ -131,7 +131,7 @@ export abstract class AbstractHistoryChart {
             const translate = this.translate;
             this.service.getConfig().then((conf) => {
 
-                options = NewAbstractHistoryChart.getDefaultOptions(this.xAxisType, this.service, this.labels);
+                options = NewAbstractHistoryChart.getDefaultXAxisOptions(this.xAxisType, this.service, this.labels);
 
                 /** Hide default displayed yAxis */
                 options.scales["y"] = {

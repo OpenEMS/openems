@@ -45,7 +45,7 @@ export class Websocket implements WebsocketInterface {
     | "failed" // connection failed
     = "initial";
 
-  public state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
+  public readonly state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
 
   private readonly wsdata = new WsData();
 

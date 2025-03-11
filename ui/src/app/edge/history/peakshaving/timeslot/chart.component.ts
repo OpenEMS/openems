@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { YAxisType } from "src/app/shared/service/utils";
 
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
 import { AbstractHistoryChart } from "../../abstracthistorychart";
 
 @Component({
@@ -190,7 +190,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                         borderColor: "rgba(200,0,0,1)",
                     });
                 }
-                this.datasets = datasets;
+                this.datasets = datasets.map((el, i) => ({ ...el, ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(this.colors[i]) }));
                 this.loading = false;
                 this.stopSpinner();
 

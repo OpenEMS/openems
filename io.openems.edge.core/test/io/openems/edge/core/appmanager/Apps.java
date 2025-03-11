@@ -87,6 +87,7 @@ import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Swisspower;
 import io.openems.edge.app.timeofusetariff.Tibber;
+import io.openems.edge.app.timeofusetariff.manual.OctopusGo;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
 
@@ -213,6 +214,16 @@ public final class Apps {
 	 */
 	public static final GroupeE groupeE(AppManagerTestBundle t) {
 		return app(t, GroupeE::new, "App.TimeOfUseTariff.GroupeE");
+	}
+
+	/**
+	 * Test method for creating a {@link OctopusGo}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final OctopusGo octopusGo(AppManagerTestBundle t) {
+		return app(t, OctopusGo::new, "App.TimeOfUseTariff.OctopusGo");
 	}
 
 	/**
@@ -344,7 +355,7 @@ public final class Apps {
 	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
 		return app(t, TestPermissions::new, "App.Test.TestPermissions");
 	}
-	
+
 	// Test
 
 	/**

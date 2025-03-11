@@ -204,7 +204,7 @@ public class EnergyFlow {
 
 			return new EnergyFlow.Model(//
 					/* production */ period.production(), //
-					/* consumption */ period.consumption(), //
+					/* unmanagedConsumption */ period.consumption(), //
 					/* essMaxCharge */ min(essGlobal.maxChargeEnergy() * factor,
 							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //
 					/* essMaxDischarge */ min(essGlobal.maxDischargeEnergy() * factor, gsc.ess.getInitialEnergy()), //
@@ -369,6 +369,15 @@ public class EnergyFlow {
 		public synchronized double addConsumption(int value) {
 			this.managedConsumption += value;
 			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.managedConsumption);
+		}
+
+		/**
+		 * Gets the cumulated managed Consumption.
+		 * 
+		 * @return the Managed Consumption
+		 */
+		public synchronized int getManagedConsumption() {
+			return this.managedConsumption;
 		}
 
 		/**

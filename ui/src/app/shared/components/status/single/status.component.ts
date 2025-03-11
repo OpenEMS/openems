@@ -2,7 +2,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetStateChannelsOfComponentRequest } from "src/app/shared/jsonrpc/request/getStateChannelsOfComponentRequest";
 import { GetChannelsOfComponentResponse } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
@@ -53,7 +52,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
             });
         });
         //need to subscribe on currentedge because component is opened by app.component
-        this.service.currentEdge.pipe(takeUntil(this.stopOnDestroy)).subscribe(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
         });

@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Automatic;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Manual;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -37,15 +38,13 @@ public class EnergyScheduler {
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param componentId    supplier for parent Component-ID
+	 * @param parent         the parent {@link OpenemsComponent}
 	 * @param configSupplier supplier for {@link Config}
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(Supplier<String> componentId,
+	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<Config> configSupplier) {
-		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create() //
-				.setComponentId(componentId.get()) //
-
+		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
 				.setOptimizationContext(goc -> {
 					// TODO try to reuse existing logic for parsing, calculating limits, etc.; for
 					// now this only works for current day and MANUAL mode
@@ -86,6 +85,9 @@ public class EnergyScheduler {
 
 							// Calculate actual charge limit
 							var noOfQuarters = (int) Duration.between(firstExcessEnergy, targetTime).toMinutes() / 15;
+							if (noOfQuarters == 0) {
+								continue;
+							}
 							final var totalEnergy = midnight == firstDayMignight //
 									? // use actual data for first day
 									goc.ess().totalEnergy() - goc.ess().currentEnergy()

@@ -10,6 +10,7 @@ import { ArrayUtils } from "../../utils/array/array.utils";
 import { AssertionUtils } from "../../utils/assertions/assertions-utils";
 import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
+import { ChartTypes } from "./chart.types";
 
 export namespace ChartConstants {
   export const NUMBER_OF_Y_AXIS_TICKS: number = 7;
@@ -19,18 +20,38 @@ export namespace ChartConstants {
 
   export class Plugins {
 
+    public static Datasets = class {
+
+      /**
+       * Enhances the hover effect
+       *
+       * @info increases currently selected datapoints by increasing their radius
+       *
+       * @param color the color of the dataset
+       * @returns chartjs dataset options
+       */
+      public static HOVER_ENHANCE = (color: ChartTypes.Color) => ({
+        pointStyle: "circle",
+        pointHoverRadius: 2,
+        pointHoverBorderWidth: 5,
+        pointRadius: 0,
+        pointHoverBackgroundColor: color.backgroundColor,
+        pointHoverBorderColor: color.borderColor,
+      });
+    };
+
     public static ToolTips = class {
       public static HEAT_PUMP_SUFFIX = (translate: TranslateService, value: number | null): string => {
         switch (value) {
           case -1:
             return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
-          case 0:
-            return translate.instant("Edge.Index.Widgets.HeatPump.lock");
           case 1:
-            return translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
+            return translate.instant("Edge.Index.Widgets.HeatPump.lock");
           case 2:
-            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+            return translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
           case 3:
+            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+          case 4:
             return translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom");
           default:
             return "";

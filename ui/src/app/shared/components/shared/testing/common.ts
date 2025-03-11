@@ -24,6 +24,11 @@ export namespace OeTester {
     export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean }, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
+        // Important for point style on chart hover for line chart
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
         "responsive": true,
         "maintainAspectRatio": false,
         "elements": {
@@ -68,6 +73,10 @@ export namespace OeTester {
     export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
         "responsive": true,
         "maintainAspectRatio": false,
         "elements": {
@@ -118,6 +127,10 @@ export namespace OeTester {
     export const MULTI_LINE_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} },
         "plugins": {
           "colors": {
@@ -166,6 +179,10 @@ export namespace OeTester {
     export const MULTI_BAR_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
           "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,

@@ -72,6 +72,90 @@ public enum PhaseRotation {
 	}
 
 	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for CURRENT_L1 after applying the
+	 * {@link PhaseRotation}.
+	 * 
+	 * @return the mapped ChannelId for CURRENT_L1
+	 */
+	public final ElectricityMeter.ChannelId channelCurrentL1() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.CURRENT_L1;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.CURRENT_L2;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.CURRENT_L3;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for CURRENT_L2 after applying the
+	 * {@link PhaseRotation}.
+	 * 
+	 * @return the mapped ChannelId for CURRENT_L2
+	 */
+	public final ElectricityMeter.ChannelId channelCurrentL2() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.CURRENT_L2;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.CURRENT_L3;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.CURRENT_L1;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for CURRENT_L3 after applying the
+	 * {@link PhaseRotation}.
+	 * 
+	 * @return the mapped ChannelId for CURRENT_L3
+	 */
+	public final ElectricityMeter.ChannelId channelCurrentL3() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.CURRENT_L3;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.CURRENT_L1;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.CURRENT_L2;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for VOLTAGE_L1 after applying the
+	 * {@link PhaseRotation}.
+	 * 
+	 * @return the mapped ChannelId for VOLTAGE_L1
+	 */
+	public final ElectricityMeter.ChannelId channelVoltageL1() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.VOLTAGE_L1;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.VOLTAGE_L2;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.VOLTAGE_L3;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for VOLTAGE_L2 after applying the
+	 * {@link PhaseRotation}.
+	 * 
+	 * @return the mapped ChannelId for VOLTAGE_L2
+	 */
+	public final ElectricityMeter.ChannelId channelVoltageL2() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.VOLTAGE_L2;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.VOLTAGE_L3;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.VOLTAGE_L1;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for VOLTAGE_L3 after applying the
+	 * {@link PhaseRotation}.
+	 * 
+	 * @return the mapped ChannelId for VOLTAGE_L3
+	 */
+	public final ElectricityMeter.ChannelId channelVoltageL3() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.VOLTAGE_L3;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.VOLTAGE_L1;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.VOLTAGE_L2;
+		};
+	}
+
+	/**
 	 * Sets one of {@link ElectricityMeter.ChannelId#VOLTAGE_L1},
 	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L2} or
 	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L3} channels based on the

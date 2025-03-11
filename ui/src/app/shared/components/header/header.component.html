@@ -17,17 +17,17 @@
     <ion-title class="ion-hide-md-down" slot="start" style="color: var(--ion-title-color);">
       {{ service.currentPageTitle }}
     </ion-title>
-    <ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="service.currentEdge() as edge">
       <ng-container *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory'">
         <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
           class="ion-justify-content-center">
           <ion-segment-button
-            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-color-primary)"
+            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-color-primary); min-width: fit-content"
             value="IndexLive">
             <ion-label style="color: var(--ion-color-header-contrast);" translate>General.LIVE</ion-label>
           </ion-segment-button>
           <ion-segment-button
-            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-text-color)"
+            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-text-color);min-width: fit-content"
             value="IndexHistory">
             <ion-label style="color: var(--ion-color-header-contrast);" translate>General.HISTORY</ion-label>
           </ion-segment-button>
@@ -37,7 +37,7 @@
     <!-- this title tag is for spacing purpose only -->
     <ion-title class="ion-hide-md-down" slot="end">
     </ion-title>
-    <ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="service.currentEdge() as edge">
       <ion-buttons slot="end" class="ion-padding-end">
         <ng-container *ngIf="edge.currentData | async as currentData">
           <ng-container *ngIf="currentData.summary.system as sum">

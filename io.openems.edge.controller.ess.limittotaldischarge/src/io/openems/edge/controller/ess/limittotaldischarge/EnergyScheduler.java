@@ -5,6 +5,7 @@ import static java.lang.Math.max;
 
 import java.util.function.Supplier;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
 public class EnergyScheduler {
@@ -19,15 +20,13 @@ public class EnergyScheduler {
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param componentId    supplier for parent Component-ID
+	 * @param parent         the parent {@link OpenemsComponent}
 	 * @param minSocSupplier supplier for the configured minSoc
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(Supplier<String> componentId,
+	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<Integer> minSocSupplier) {
-		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create() //
-				.setComponentId(componentId.get()) //
-
+		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
 				.setOptimizationContext(gsc -> {
 					var minSoc = minSocSupplier.get();
 					return minSoc != null //

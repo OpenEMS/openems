@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduler;
@@ -50,10 +51,12 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * @param <MODE>                 the type of the Mode
 		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
 		 * @param <SCHEDULE_CONTEXT>     the type of the ControllerScheduleContext
+		 * @param parent                 the parent {@link OpenemsComponent}
 		 * @return a {@link DifferentModes.Builder}
 		 */
-		public static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> DifferentModes.Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> create() {
-			return new DifferentModes.Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>();
+		public static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> DifferentModes.Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> create(
+				OpenemsComponent parent) {
+			return new DifferentModes.Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(parent);
 		}
 
 		/**
@@ -127,10 +130,12 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 *
 		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
 		 * @param <SCHEDULE_CONTEXT>     the type of the ControllerScheduleContext
+		 * @param parent                 the parent {@link OpenemsComponent}
 		 * @return a {@link OneMode.Builder}
 		 */
-		public static <OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> OneMode.Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> create() {
-			return new OneMode.Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>();
+		public static <OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> OneMode.Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> create(
+				OpenemsComponent parent) {
+			return new OneMode.Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(parent);
 		}
 
 		/**

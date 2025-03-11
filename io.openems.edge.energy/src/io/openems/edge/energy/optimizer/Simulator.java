@@ -2,8 +2,11 @@ package io.openems.edge.energy.optimizer;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.jenetics.engine.EvolutionResult.toBestResult;
-import static io.openems.edge.energy.optimizer.InitialPopulation.generateInitialPopulation;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
+import static java.lang.Math.max;
 import static java.lang.Thread.currentThread;
 
 import java.util.concurrent.Executor;
@@ -19,14 +22,17 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 
+import io.jenetics.EliteSelector;
+import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
 import io.jenetics.Genotype;
 import io.jenetics.IntegerGene;
-import io.jenetics.Mutator;
+import io.jenetics.ShiftMutator;
+import io.jenetics.ShuffleMutator;
 import io.jenetics.SinglePointCrossover;
+import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -164,7 +170,7 @@ public class Simulator {
 		// https://community.openems.io/t/limitierung-bei-negativen-preisen-und-lastgang-einkauf/2713/2
 		if (energyFlow.getGrid() > 0) {
 			// Filter negative prices
-			var price = Math.max(0, period.price());
+			var price = max(0, period.price());
 
 			cost += // Cost for direct Consumption
 					energyFlow.getGridToCons() * price
@@ -184,7 +190,7 @@ public class Simulator {
 					-> bestScheduleCollector.eshModes.accept(new EshToMode(e, srp, //
 							e.postProcessPeriod(period, gsc, energyFlow, schedule[periodIndex][eshIndex++])));
 				case EnergyScheduleHandler.WithOnlyOneMode e //
-					-> FunctionUtils.doNothing();
+					-> doNothing();
 				}
 			}
 		}
@@ -230,13 +236,20 @@ public class Simulator {
 		}
 
 		// Build the Jenetics Engine
-		final var initialPopulation = generateInitialPopulation(this.goc, codec, previousResult, isCurrentPeriodFixed);
+		final var initialPopulation = generateInitialPopulation(codec);
+		var populationSize = fitWithin(10, 50, initialPopulation.population().size() * 2);
+
 		var engine = Engine //
 				.builder(this.cache::getUnchecked, codec) //
+				.selector(//
+						new EliteSelector<IntegerGene, Double>(populationSize / 4, //
+								new TournamentSelector<>(3)))
 				.alterers(//
-						new SinglePointCrossover<IntegerGene, Double>(0.2), //
-						new Mutator<IntegerGene, Double>(0.15)) //
-				.populationSize(initialPopulation.size()) //
+						new ShiftMutator<>(), //
+						new ShuffleMutator<>(), //
+						new SinglePointCrossover<>(), //
+						new GaussianMutator<>()) //
+				.populationSize(populationSize) //
 				.executor(executor) //
 				.minimizing();
 		if (engineInterceptor != null) {

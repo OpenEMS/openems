@@ -205,7 +205,6 @@ public class Optimizer implements Runnable {
 			return EMPTY_SIMULATION_RESULT;
 		}
 
-		this.traceLog(() -> "Run Simulation");
 		return this.runSimulation(simulator, //
 				true, // current period should not get adjusted
 				byExecutionTime(ofSeconds(calculateExecutionLimitSeconds()))) // Limit by execution time

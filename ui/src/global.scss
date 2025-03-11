@@ -55,14 +55,6 @@ input:-webkit-autofill:focus {
     margin-top: 0.1em;
 }
 
-.custom-ion-popover {
-
-    white-space: inherit;
-
-    // Overwrites default width of popover
-    --min-width: min-content;
-}
-
 .footer-color {
     background-color: var(--ion-color-toolbar-secondary) !important;
 }
@@ -160,7 +152,6 @@ formly-field-ion-radio {
 
 .custom-ion-popover {
 
-    --border-width: 0;
     --background: var(--ion-background-color);
 
     // Floating label
@@ -186,6 +177,10 @@ formly-field-ion-radio {
     .item-radio-checked {
         --background: var(--ion-color-primary-tint);
         --background-opacity: 0.9;
+    }
+
+    ion-list {
+        min-width: fit-content;
     }
 }
 

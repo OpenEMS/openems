@@ -9,7 +9,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import com.google.common.base.MoreObjects;
@@ -42,11 +41,11 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 			MODE defaultMode, //
 			BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
-			Supplier<SCHEDULE_CONTEXT> cscSupplier, //
+			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
 			BiFunction<GlobalOptimizationContext, MODE[], ImmutableList<InitialPopulation<MODE>>> initialPopulationsFunction, //
 			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
 			PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor) {
-		super(id, cocFunction, cscSupplier);
+		super(id, cocFunction, cscFunction);
 		this.defaultMode = defaultMode;
 		this.availableModesFunction = availableModesFunction;
 		this.initialPopulationsFunction = initialPopulationsFunction;
@@ -62,13 +61,13 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	}
 
 	/**
-	 * Generates {@link InitialPopulation}s for this
+	 * Generates {@link InitialPopulation} for this
 	 * {@link EnergyScheduleHandler.WithDifferentStates}.
 	 * 
 	 * @param goc the {@link GlobalOptimizationContext}
 	 * @return a List of {@link InitialPopulation}s
 	 */
-	public ImmutableList<InitialPopulation.Transition> getInitialPopulations(GlobalOptimizationContext goc) {
+	public ImmutableList<InitialPopulation.Transition> getInitialPopulation(GlobalOptimizationContext goc) {
 		return this.initialPopulationsFunction.apply(goc, this.availableModes).stream() //
 				.map(ip -> ip.toTansition(this::getModeIndex)) //
 				.collect(toImmutableList());

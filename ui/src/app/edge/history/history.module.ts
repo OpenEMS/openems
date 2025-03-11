@@ -5,12 +5,10 @@ import { ChpSocChartComponent } from "./chpsoc/chart.component";
 import { ChpSocWidgetComponent } from "./chpsoc/widget.component";
 import { Common } from "./common/common";
 import { Controller } from "./Controller/controller.module";
+import { FlatComponent as HeatpumpFlatComponent } from "./Controller/Io/heatpump/flat/flat";
 import { DelayedSellToGridChartComponent } from "./delayedselltogrid/chart.component";
 import { DelayedSellToGridChartOverviewComponent } from "./delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
 import { DelayedSellToGridWidgetComponent } from "./delayedselltogrid/widget.component";
-import { HeatPumpChartComponent } from "./heatpump/chart.component";
-import { HeatPumpChartOverviewComponent } from "./heatpump/heatpumpchartoverview/heatpumpchartoverview.component";
-import { HeatpumpWidgetComponent } from "./heatpump/widget.component";
 import { HistoryComponent } from "./history.component";
 import { HistoryParentComponent } from "./historyparent.component";
 import { AsymmetricPeakshavingChartOverviewComponent } from "./peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component";
@@ -46,9 +44,7 @@ import { StorageComponent } from "./storage/widget.component";
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
-    HeatPumpChartComponent,
-    HeatPumpChartOverviewComponent,
-    HeatpumpWidgetComponent,
+    HeatpumpFlatComponent,
     HistoryComponent,
     HistoryParentComponent,
     SocStorageChartComponent,

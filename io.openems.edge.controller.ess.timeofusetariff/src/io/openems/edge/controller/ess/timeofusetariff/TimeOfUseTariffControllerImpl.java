@@ -63,7 +63,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Deprecated
 	private final EnergyScheduleHandlerV1 energyScheduleHandlerV1;
-	private final EshWithDifferentModes<StateMachine, OptimizationContext, Void> energyScheduleHandler;
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.DELAYED_TIME);
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
@@ -104,6 +103,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Deprecated
 	private io.openems.edge.energy.api.EnergyScheduler energyScheduler;
 
+	private EshWithDifferentModes<StateMachine, OptimizationContext, Void> energyScheduleHandler;
 	private Config config = null;
 
 	public TimeOfUseTariffControllerImpl() {
@@ -118,17 +118,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
-
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.id(), //
-				() -> this.config.enabled() && this.config.mode() == Mode.AUTOMATIC //
-						? new EnergyScheduler.Config(this.config.controlMode()) //
-						: null);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> this.config.enabled() && this.config.mode() == Mode.AUTOMATIC //
+						? new EnergyScheduler.Config(this.config.controlMode()) //
+						: null);
 		this.applyConfig(config);
 	}
 
@@ -143,7 +141,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		this.config = config;
 
 		// update filter for 'ess'
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
 	}
 
 	@Override

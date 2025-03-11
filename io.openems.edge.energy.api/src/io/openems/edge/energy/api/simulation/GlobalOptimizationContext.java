@@ -84,6 +84,13 @@ public record GlobalOptimizationContext(//
 
 	public static sealed interface Period {
 		/**
+		 * Index of the Period.
+		 * 
+		 * @return the index
+		 */
+		public int index();
+
+		/**
 		 * Start-Timestamp of the Period.
 		 * 
 		 * @return the {@link ZonedDateTime}
@@ -112,6 +119,7 @@ public record GlobalOptimizationContext(//
 		public double price();
 
 		public static record Quarter(//
+				int index, //
 				ZonedDateTime time, //
 				int production, //
 				int consumption, //
@@ -120,6 +128,7 @@ public record GlobalOptimizationContext(//
 		}
 
 		public static record Hour(//
+				int index, //
 				ZonedDateTime time, //
 				int production, //
 				int consumption, //
@@ -214,8 +223,6 @@ public record GlobalOptimizationContext(//
 		 */
 		public GlobalOptimizationContext build() throws OpenemsException, IllegalArgumentException {
 			try {
-				System.out.println("OPTIMIZER GlobalOptimizationContext::build()");
-
 				assertNull("ComponentManager is not available", this.componentManager);
 				assertNull("EnergyScheduleHandlers are not available", this.eshs);
 				assertNull("Sum is not available", this.sum);
@@ -224,19 +231,14 @@ public record GlobalOptimizationContext(//
 
 				final var clock = this.componentManager.getClock();
 				final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
-				System.out.println("OPTIMIZER GlobalOptimizationContext::build() startTime=" + startTime);
+				final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
 
 				// Prediction values
 				final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
-				System.out.println(
-						"OPTIMIZER GlobalOptimizationContext::build() consumptions=" + consumptions.asArray().length);
 				final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
-				System.out.println(
-						"OPTIMIZER GlobalOptimizationContext::build() productions=" + productions.asArray().length);
 
 				// Prices contains the price values and the time it is retrieved.
 				final var prices = this.timeOfUseTariff.getPrices();
-				System.out.println("OPTIMIZER GlobalOptimizationContext::build() prices=" + prices.asArray().length);
 
 				// Helpers
 				final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
@@ -247,11 +249,12 @@ public record GlobalOptimizationContext(//
 						return null;
 					}
 					final var production = productions.getAtOrElse(time, 0);
-					return new Period.Quarter(time, toEnergy(production), toEnergy(consumption), price);
+					return new Period.Quarter(i, time, toEnergy(production), toEnergy(consumption), price);
 				};
-				final IntFunction<Period.Hour> toHourPeriod = (i) -> {
+				final IntFunction<Period.Hour> toHourPeriod = (j) -> {
+					final var i = periodLengthHourFromIndex + j * 4;
 					final var rangeStart = startTime.plusMinutes(i * 15);
-					final var rangeEnd = startTime.plusMinutes(i * 15).plusMinutes(60);
+					final var rangeEnd = rangeStart.plusMinutes(60);
 
 					final var consumption = consumptions //
 							.getBetween(rangeStart, rangeEnd) //
@@ -273,22 +276,19 @@ public record GlobalOptimizationContext(//
 							.mapToObj(toQuarterPeriod) //
 							.filter(Objects::nonNull) //
 							.collect(toImmutableList());
-					return new Period.Hour(rangeStart, //
+					return new Period.Hour(periodLengthHourFromIndex + j, rangeStart, //
 							toEnergy(production), toEnergy(stream(consumption).sum()), //
 							price, quarterPeriods);
 				};
 
-				final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
-
 				var periods = Stream.concat(//
 						IntStream.range(0, periodLengthHourFromIndex) //
 								.<Period>mapToObj(toQuarterPeriod), //
-						IntStream.iterate(periodLengthHourFromIndex, i -> i + 4) //
+						IntStream.iterate(0, i -> i + 1) //
 								.<Period>mapToObj(toHourPeriod) //
 								.takeWhile(Objects::nonNull)) //
 						.filter(Objects::nonNull) //
 						.collect(toImmutableList());
-				System.out.println("OPTIMIZER GlobalOptimizationContext::build() periods:" + periods.size());
 
 				if (periods.isEmpty()) {
 					throw new IllegalArgumentException("No forecast periods available. " //
@@ -313,7 +313,12 @@ public record GlobalOptimizationContext(//
 				}
 				final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
-				System.out.println("OPTIMIZER GlobalOptimizationContext::build() finished");
+				System.out.println("OPTIMIZER GlobalOptimizationContext: " //
+						+ "startTime=" + startTime + "; " //
+						+ "consumptions=" + consumptions.asArray().length + "; " //
+						+ "productions=" + productions.asArray().length + "; " //
+						+ "prices=" + prices.asArray().length + "; " //
+						+ "periods=" + periods.size());
 				return new GlobalOptimizationContext(clock, this.riskLevel, startTime, //
 						this.eshs, filterEshsWithDifferentModes(this.eshs).collect(toImmutableList()), //
 						grid, ess, periods);

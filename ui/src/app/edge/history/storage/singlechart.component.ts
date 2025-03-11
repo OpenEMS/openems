@@ -9,7 +9,7 @@ import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 import { Language } from "src/app/shared/type/language";
 
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
@@ -181,7 +181,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                 }
                             }
                         });
-                        this.datasets = datasets;
+                        this.datasets = datasets.map((el, i) => ({ ...el, ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(this.colors[i]) }));;
                     });
                 }).catch(reason => {
                     console.error(reason); // TODO error message

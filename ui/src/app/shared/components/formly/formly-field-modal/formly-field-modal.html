@@ -1,7 +1,9 @@
 <oe-modal [title]="props.attributes.title" *ngIf="props">
+    <ngx-spinner name="formly-field-modal"></ngx-spinner>
     <ng-container *ngFor="let entry of props.options">
         <ng-container *ngFor="let line of entry.lines">
             <ng-container [ngSwitch]="line.type">
+
 
                 <!-- OeFormlyField.ChannelLine -->
                 <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
@@ -30,6 +32,23 @@
                 <oe-modal-value-line *ngSwitchCase="'value-from-channels-line'"
                     [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'"
                     [valueCallback]="line.value" [filter]="line.filter" [name]="line.name"></oe-modal-value-line>
+
+                <!-- FormGrouped -->
+                <ng-container *ngSwitchCase="'buttons-from-form-control-line'">
+                    <oe-modal-buttons *ngIf="form.controls[line.controlName] !== null" [formGroup]="form"
+                        [controlName]="line.controlName" [component]="component" [buttons]="line.buttons"
+                        [channelAddress]="line.channel?.toString() ?? null">
+                    </oe-modal-buttons>
+                </ng-container>
+
+                <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
+                <ion-fab *ngIf="form?.dirty" vertical="bottom" style="position: fixed"
+                    [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
+                    <ion-fab-button (click)="onSubmit()">
+                        <ion-icon size="large" name="checkmark-circle-outline">
+                        </ion-icon>
+                    </ion-fab-button>
+                </ion-fab>
 
             </ng-container>
         </ng-container>

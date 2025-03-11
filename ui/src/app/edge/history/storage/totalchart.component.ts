@@ -6,7 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
@@ -105,14 +105,15 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                             }
 
                             if (channelAddress.channelId == "EssActivePower") {
+                                const color = {
+                                    backgroundColor: "rgba(0,223,0,0.05)",
+                                    borderColor: "rgba(0,223,0,1)",
+                                };
                                 datasets.push({
                                     label: this.translate.instant("General.TOTAL"),
                                     data: totalData,
                                 });
-                                this.colors.push({
-                                    backgroundColor: "rgba(0,223,0,0.05)",
-                                    borderColor: "rgba(0,223,0,1)",
-                                });
+                                this.colors.push(color);
 
                             } if (ObjectUtils.hasKeys(result.data, ["_sum/EssActivePowerL1", "_sum/EssActivePowerL2", "_sum/EssActivePowerL3"]) && this.showPhases == true) {
                                 if (channelAddress.channelId == "EssActivePowerL1") {
@@ -182,7 +183,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                             }
                         });
                     }).finally(async () => {
-                        this.datasets = datasets;
+                        this.datasets = datasets.map((el, i) => ({ ...el, ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(this.colors[i]) }));
                         this.unit = YAxisType.ENERGY;
                         await this.setOptions(this.options);
                         this.applyControllerSpecificChartOptions(this.options);
