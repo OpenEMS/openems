@@ -186,6 +186,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this.fullChargePower = 500;		
 
 		if(this.ess == null || this.ess.getAllowedChargePower().get() == null) {
+			this.changeState(State.UNDEFINED);
 			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");			
 			return;
 		}		
@@ -210,6 +211,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		setEssProperties();
 
+		if (this.ess == null) {
+			this.changeState(State.ERROR);
+			this.log.error("ESS is null in run method! Aborting execution.");
+			return;
+		}		
+		
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = this.getEssChargePower().get(); // no matter if AC or DC charging
 		Integer calculatedPower = 0; // No constraints
@@ -436,7 +443,13 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private boolean shouldBalance() {
 
 		Integer chargedEnergy = this.getChargedEnergy().get();
-		Integer currentPrice = (int) Math.round(this.timeOfUseTariff.getPrices().getFirst()/10); // Price in €/MWh. Divided to ct/kWh
+		Integer currentPrice = 0;
+		
+		if (this.timeOfUseTariff == null) {
+			this.log.warn("TimeOfUseTariff service is null.");
+		} else {
+			currentPrice = (int) Math.round(this.timeOfUseTariff.getPrices().getFirst()/10); // Price in €/MWh. Divided to ct/kWh	
+		}
 		
 		if (chargedEnergy == null) {
 			this.logDebug(this.log, "ERROR: Cannot determine charged energy");
