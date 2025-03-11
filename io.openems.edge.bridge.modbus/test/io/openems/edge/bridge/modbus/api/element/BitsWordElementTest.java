@@ -9,6 +9,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.function.Function;
+
 import org.junit.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -103,6 +105,42 @@ public class BitsWordElementTest {
 		assertArrayEquals(new byte[] { (byte) 0x01, (byte) 0x06 }, registers[0].toBytes());
 	}
 
+	@Test
+	public void testSetToNull() throws Exception {
+		var sutTrue = generateSut();
+
+		final var channel0 = addBit(sutTrue, 0);// true
+		final var channel1 = addBit(sutTrue, 1);// null
+		final var channel2 = addBit(sutTrue, 2);// null
+		convert(sutTrue, value -> {
+			if (value[0] != null && value[0]) { // Reset all values if bit 0 is true
+				return new Boolean[16];
+			}
+			return value;
+		});
+		sutTrue.element.setInputValue(new Register[] { new SimpleRegister(7) }); // 0x7 = 111b
+		assertNull(channel0.getNextValue().get());
+		assertNull(channel1.getNextValue().get());
+		assertNull(channel2.getNextValue().get());
+
+		var sutFalse = generateSut();
+
+		final var channel3 = addBit(sutFalse, 0);// null
+		final var channel4 = addBit(sutFalse, 1);// false
+		final var channel5 = addBit(sutFalse, 2);// null
+		convert(sutFalse, value -> {
+			if (value[1] != null && !value[1]) {
+				return new Boolean[16]; // Reset all values if bit 1 is false
+			}
+			return value;
+		});
+
+		sutFalse.element.setInputValue(new Register[] { new SimpleRegister(5) }); // 0x5 = 101b
+		assertNull(channel3.getNextValue().get());
+		assertNull(channel4.getNextValue().get());
+		assertNull(channel5.getNextValue().get());
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testRegistersLengthDoesNotMatch() throws Exception {
 		var sut = generateSut();
@@ -154,5 +192,10 @@ public class BitsWordElementTest {
 			sut.element.bit(i, channelId);
 		}
 		return channel;
+	}
+
+	private static void convert(ModbusTest.FC3ReadRegisters<BitsWordElement, ?> sut,
+			Function<Boolean[], Boolean[]> converter) {
+		sut.element.convert(converter);
 	}
 }

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnDestroy } from "@angular/core";
+import { Component, effect, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
@@ -8,6 +8,7 @@ import { Subject } from "rxjs";
 import { filter, take } from "rxjs/operators";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
 import { Pagination } from "src/app/shared/service/pagination";
+import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
@@ -31,6 +32,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
     protected loading: boolean = false;
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
+    protected isAtLeastInstaller: boolean = false;
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
@@ -51,7 +53,17 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         private route: ActivatedRoute,
         public translate: TranslateService,
         public pagination: Pagination,
-    ) { }
+        private userService: UserService,
+    ) {
+
+        effect(() => {
+            const user = this.userService.currentUser();
+
+            if (user) {
+                this.isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+            }
+        });
+    }
 
     ionViewWillEnter() {
         this.page = 0;
@@ -147,6 +159,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     private init() {
+
         this.loadNextPage().then((edges) => {
             this.service.metadata
                 .pipe(

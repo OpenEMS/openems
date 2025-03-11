@@ -1,6 +1,6 @@
 package io.openems.edge.evcs.webasto.next;
 
-import java.util.function.Consumer;
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -33,7 +33,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -91,6 +90,8 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				EvcsWebastoNext.ChannelId.values());
+
+		calculateUsedPhasesFromCurrent(this);
 	}
 
 	@Activate
@@ -209,7 +210,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 						m(EvcsWebastoNext.ChannelId.LIFE_BIT, new UnsignedWordElement(6000))) //
 		);
 		this.addStatusListener();
-		this.addPhasesListener();
 		return modbusProtocol;
 	}
 
@@ -228,18 +228,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 			case UNDEFINED -> Status.UNDEFINED;
 			});
 		});
-	}
-
-	private void addPhasesListener() {
-		final Consumer<Value<Integer>> setPhasesCallback = ignore -> {
-			this._setPhases(Evcs.evaluatePhaseCount(//
-					this.getActivePowerL1().get(), //
-					this.getActivePowerL2().get(), //
-					this.getActivePowerL3().get()));
-		};
-		this.getActivePowerL1Channel().onUpdate(setPhasesCallback);
-		this.getActivePowerL2Channel().onUpdate(setPhasesCallback);
-		this.getActivePowerL3Channel().onUpdate(setPhasesCallback);
 	}
 
 	@Override

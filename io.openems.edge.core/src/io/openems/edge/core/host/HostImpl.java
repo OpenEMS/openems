@@ -37,9 +37,9 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdateRequest;
-import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkConfigResponse;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateRequest;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 

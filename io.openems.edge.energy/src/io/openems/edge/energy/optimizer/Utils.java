@@ -20,7 +20,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.scheduler.api.Scheduler;
 
 public final class Utils {
@@ -80,32 +80,31 @@ public final class Utils {
 	 * This will possibly run forever and call the callbacks multiple times before
 	 * returning.
 	 * 
-	 * @param simulator   a callback for a {@link GlobalSimulationsContext};
-	 *                    possibly null
-	 * @param gscSupplier a {@link Supplier} for {@link GlobalSimulationsContext}
+	 * @param gocSupplier a {@link Supplier} for {@link GlobalOptimizationContext}
+	 * @param simulator   a callback for a {@link Simulator}; possibly null
 	 * @param error       a callback for a error string
 	 * @throws InterruptedException on interrupted sleep
 	 */
 	public static synchronized void createSimulator(
-			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, Consumer<Simulator> simulator,
+			ThrowingSupplier<GlobalOptimizationContext, OpenemsException> gocSupplier, Consumer<Simulator> simulator,
 			Consumer<Supplier<String>> error) throws InterruptedException {
-		final GlobalSimulationsContext gsc;
+		final GlobalOptimizationContext goc;
 		try {
-			// Create GlobalSimulationsContext -> this might fail a few times during
+			// Create GlobalOptimizationContext -> this might fail a few times during
 			// initialization of OpenEMS
-			gsc = gscSupplier.get();
+			goc = gocSupplier.get();
 
 		} catch (OpenemsException | IllegalArgumentException e) {
 			simulator.accept(null);
-			error.accept(() -> "Unable to create GlobalSimulationsContext. " + e.getClass().getSimpleName() + ": "
+			error.accept(() -> "Unable to create GlobalOptimizationContext. " + e.getClass().getSimpleName() + ": "
 					+ e.getMessage());
 			Thread.sleep(10 * 1000);
 			return;
 		}
 
 		// Are there any schedulable ESHs?
-		if (gsc.eshsWithDifferentStates().size() > 0) {
-			simulator.accept(new Simulator(gsc));
+		if (goc.eshsWithDifferentModes().size() > 0) {
+			simulator.accept(new Simulator(goc));
 			return;
 		}
 

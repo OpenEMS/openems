@@ -1,16 +1,43 @@
 // @ts-strict-ignore
 
-// cf. https://github.com/import-js/eslint-plugin-import/issues/1479
-import { differenceInMilliseconds, format, isSameYear, startOfMonth, startOfYear } from "date-fns";
+import { TZDate } from "@date-fns/tz";
+import { differenceInMilliseconds, format, isMatch, isSameYear, startOfMonth, startOfYear } from "date-fns";
 import { de } from "date-fns/locale";
-
 import { ChronoUnit } from "src/app/edge/history/shared";
-
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { DateUtils } from "../date/dateutils";
 
+export const DATE_TIME_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$/;
+
+/** IONIC implemented DateTime formats */
+export enum DateTimeFormats {
+  YEAR = "yyyy",
+  YEAR_MONTH_DAY = "yyyy-MM-dd",
+  YEAR_MONTH_DAY_TIME = "yyyy-MM-dd'T'HH:mm",
+  YEAR_MONTH_DAY_TIME_WITH_SECONDS = "yyyy-MM-dd'T'HH:mm:ss",
+  YEAR_MONTH_DAY_TIME_UTC_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+  HOUR_MINUTE = "HH:mm",
+}
+
 export class DateTimeUtils {
+
+  public static INVALID_DATE_TIME_STRING: string = "Invalid datetime string";
+
+  public static getLocaleTimeZone() {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+  /**
+   * Tests if the given string matches at least one of the ionic supported datetime formats.
+   *
+   * @param dateTime the date time string
+   */
+  public static isOfValidDateTimeFormat(dateTime: string | null) {
+    if (!dateTime) {
+      throw Error(this.INVALID_DATE_TIME_STRING);
+    }
+    return Object.values(DateTimeFormats).some(el => isMatch(dateTime, el));
+  }
 
   /**
    * Normalizes timestamps depending on chosen period
@@ -68,5 +95,18 @@ export class DateTimeUtils {
     }
     const milliSeconds = seconds * 1000;
     return differenceInMilliseconds(currentDate, dateToCompare) > milliSeconds;
+  }
+
+  /**
+   * Formats a datetime string into ISO8601 'YYYY-MM-DDTHH:mm:ss.SSS'.
+   *
+   * @param datetime the datetime string
+   * @returns the datetime string as ISO8601 'YYYY-MM-DDTHH:mm:ss.SSS' format
+   */
+  public static formatToISOZonedDateTime(datetime: string | null, timeZone: string = DateTimeUtils.getLocaleTimeZone()): string {
+    if (!DateTimeUtils.isOfValidDateTimeFormat(datetime)) {
+      throw new Error(DateTimeUtils.INVALID_DATE_TIME_STRING);
+    }
+    return new TZDate(datetime, timeZone).toISOString();
   }
 }

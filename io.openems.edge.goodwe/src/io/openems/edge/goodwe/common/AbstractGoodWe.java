@@ -2112,7 +2112,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				&& powerSet == 0;
 
 		if (batFullOrEmpty || emsTargetOfZero) {
-			return Math.abs(goodweDcPower) < 50 /* W */ ? 0 : goodweDcPower;
+			return Math.abs(goodweDcPower) < 100 /* W */ ? 0 : goodweDcPower;
 		}
 
 		return goodweDcPower;

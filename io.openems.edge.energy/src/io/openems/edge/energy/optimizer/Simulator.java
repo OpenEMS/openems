@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
 
 import io.jenetics.Gene;
 import io.jenetics.Genotype;
@@ -26,22 +27,22 @@ import io.jenetics.SinglePointCrossover;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
 import io.openems.common.utils.FunctionUtils;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
-import io.openems.edge.energy.api.simulation.OneSimulationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 public class Simulator {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Simulator.class);
 
-	public final GlobalSimulationsContext gsc;
+	public final GlobalOptimizationContext goc;
 
 	protected final LoadingCache<int[][], Double> cache;
 
-	public Simulator(GlobalSimulationsContext gsc) {
-		this.gsc = gsc;
+	public Simulator(GlobalOptimizationContext goc) {
+		this.goc = goc;
 		this.cache = CacheBuilder.newBuilder() //
 				.recordStats() //
 				.build(new CacheLoader<int[][], Double>() {
@@ -59,13 +60,13 @@ public class Simulator {
 					 *         error
 					 */
 					public Double load(final int[][] schedule) {
-						return simulate(Simulator.this.gsc, schedule, null);
+						return simulate(Simulator.this.goc, schedule, null);
 					}
 				});
 
 		// Initialize the EnergyScheduleHandlers.
-		for (var esh : gsc.eshs()) {
-			((AbstractEnergyScheduleHandler<?>) esh /* this is safe */).initialize(gsc);
+		for (var esh : goc.eshs()) {
+			((AbstractEnergyScheduleHandler<?, ?>) esh /* this is safe */).initialize(goc);
 		}
 	}
 
@@ -95,17 +96,25 @@ public class Simulator {
 	 *         {@link Double#POSITIVE_INFINITY} on error
 	 */
 	public double simulate(int[][] schedule, BestScheduleCollector bestScheduleCollector) {
-		return simulate(this.gsc, schedule, bestScheduleCollector);
+		return simulate(this.goc, schedule, bestScheduleCollector);
 	}
 
-	protected static double simulate(GlobalSimulationsContext gsc, int[][] schedule,
+	protected static double simulate(GlobalOptimizationContext goc, int[][] schedule,
 			BestScheduleCollector bestScheduleCollector) {
-		final var osc = OneSimulationContext.from(gsc);
-		final var noOfPeriods = gsc.periods().size();
+		final var gsc = GlobalScheduleContext.from(goc);
+		final var cscsBuilder = ImmutableMap.<EnergyScheduleHandler, Object>builder();
+		for (var esh : goc.eshs()) {
+			var csc = esh.createScheduleContext();
+			if (csc != null) {
+				cscsBuilder.put(esh, csc);
+			}
+		}
+		final var cscs = cscsBuilder.build();
+		final var noOfPeriods = goc.periods().size();
 
 		var sum = 0.;
 		for (var period = 0; period < noOfPeriods; period++) {
-			sum += simulatePeriod(osc, schedule, period, bestScheduleCollector);
+			sum += simulatePeriod(gsc, cscs, schedule, period, bestScheduleCollector);
 		}
 		return sum;
 	}
@@ -113,31 +122,33 @@ public class Simulator {
 	/**
 	 * Calculates the cost of one Period under the given Schedule.
 	 * 
-	 * @param simulation            the {@link OneSimulationContext}
+	 * @param gsc                   the {@link GlobalScheduleContext}
+	 * @param cscs                  the ControllerScheduleContexts
 	 * @param schedule              the schedule as defined by {@link EshCodec}
 	 * @param periodIndex           the index of the simulated period
 	 * @param bestScheduleCollector the {@link BestScheduleCollector}; or null
 	 * @return the cost, lower is better, always positive;
 	 *         {@link Double#POSITIVE_INFINITY} on error
 	 */
-	public static double simulatePeriod(OneSimulationContext simulation, int[][] schedule, int periodIndex,
-			BestScheduleCollector bestScheduleCollector) {
-		final var period = simulation.global.periods().get(periodIndex);
-		final var eshs = simulation.global.eshs();
-		final var model = EnergyFlow.Model.from(simulation, period);
+	public static double simulatePeriod(GlobalScheduleContext gsc, ImmutableMap<EnergyScheduleHandler, Object> cscs,
+			int[][] schedule, int periodIndex, BestScheduleCollector bestScheduleCollector) {
+		final var period = gsc.goc.periods().get(periodIndex);
+		final var eshs = gsc.goc.eshs();
+		final var ef = EnergyFlow.Model.from(gsc, period);
 
 		double cost = 0.;
 		var eshIndex = 0;
 		for (var esh : eshs) {
+			var csc = cscs.get(esh);
 			switch (esh) {
-			case EnergyScheduleHandler.WithDifferentStates<?, ?> e //
-				-> cost += e.simulatePeriod(simulation, period, model, schedule[periodIndex][eshIndex++]);
-			case EnergyScheduleHandler.WithOnlyOneState<?> e //
-				-> e.simulatePeriod(simulation, period, model);
+			case EnergyScheduleHandler.WithDifferentModes e //
+				-> cost += e.simulate(period, gsc, csc, ef, schedule[periodIndex][eshIndex++]);
+			case EnergyScheduleHandler.WithOnlyOneMode e //
+				-> e.simulate(period, gsc, csc, ef);
 			}
 		}
 
-		final EnergyFlow energyFlow = model.solve();
+		final EnergyFlow energyFlow = ef.solve();
 
 		if (energyFlow == null) {
 			LOG.error("Error while simulating period [" + periodIndex + "]");
@@ -158,28 +169,28 @@ public class Simulator {
 			cost += // Cost for direct Consumption
 					energyFlow.getGridToCons() * price
 							// Cost for future Consumption after storage
-							+ energyFlow.getGridToEss() * price * simulation.global.riskLevel().efficiencyFactor;
+							+ energyFlow.getGridToEss() * price * gsc.goc.riskLevel().efficiencyFactor;
 
 		} else {
 			// Sell-to-Grid -> no cost
 		}
 		if (bestScheduleCollector != null) {
-			final var srp = SimulationResult.Period.from(period, energyFlow, simulation.ess.getInitialEnergy());
+			final var srp = SimulationResult.Period.from(period, energyFlow, gsc.ess.getInitialEnergy());
 			bestScheduleCollector.allPeriods.accept(srp);
 			eshIndex = 0;
 			for (var esh : eshs) {
 				switch (esh) {
-				case EnergyScheduleHandler.WithDifferentStates<?, ?> e //
-					-> bestScheduleCollector.eshStates.accept(new EshToState(e, srp, //
-							e.postProcessPeriod(period, simulation, energyFlow, schedule[periodIndex][eshIndex++])));
-				case EnergyScheduleHandler.WithOnlyOneState<?> e //
+				case EnergyScheduleHandler.WithDifferentModes e //
+					-> bestScheduleCollector.eshModes.accept(new EshToMode(e, srp, //
+							e.postProcessPeriod(period, gsc, energyFlow, schedule[periodIndex][eshIndex++])));
+				case EnergyScheduleHandler.WithOnlyOneMode e //
 					-> FunctionUtils.doNothing();
 				}
 			}
 		}
 
 		// Prepare for next period
-		simulation.ess.calculateInitialEnergy(energyFlow.getEss());
+		gsc.ess.calculateInitialEnergy(energyFlow.getEss());
 
 		return cost;
 	}
@@ -200,7 +211,7 @@ public class Simulator {
 	public SimulationResult getBestSchedule(SimulationResult previousResult, boolean isCurrentPeriodFixed,
 			Function<Engine.Builder<IntegerGene, Double>, Engine.Builder<IntegerGene, Double>> engineInterceptor,
 			Function<EvolutionStream<IntegerGene, Double>, EvolutionStream<IntegerGene, Double>> evolutionStreamInterceptor) {
-		final var codec = EshCodec.of(this.gsc, previousResult, isCurrentPeriodFixed);
+		final var codec = EshCodec.of(this.goc, previousResult, isCurrentPeriodFixed);
 		if (codec == null) {
 			return EMPTY_SIMULATION_RESULT;
 		}
@@ -219,7 +230,7 @@ public class Simulator {
 		}
 
 		// Build the Jenetics Engine
-		final var initialPopulation = generateInitialPopulation(this.gsc, codec, previousResult, isCurrentPeriodFixed);
+		final var initialPopulation = generateInitialPopulation(this.goc, codec, previousResult, isCurrentPeriodFixed);
 		var engine = Engine //
 				.builder(this.cache::getUnchecked, codec) //
 				.alterers(//
@@ -245,18 +256,18 @@ public class Simulator {
 		if (bestGt == null) {
 			return EMPTY_SIMULATION_RESULT;
 		}
-		return SimulationResult.fromQuarters(this.gsc, bestGt);
+		return SimulationResult.fromQuarters(this.goc, bestGt);
 	}
 
 	protected static record BestScheduleCollector(//
 			Consumer<SimulationResult.Period> allPeriods, //
-			Consumer<EshToState> eshStates) {
+			Consumer<EshToMode> eshModes) {
 	}
 
-	protected static record EshToState(//
-			EnergyScheduleHandler.WithDifferentStates<?, ?> esh, //
+	protected static record EshToMode(//
+			EnergyScheduleHandler.WithDifferentModes esh, //
 			SimulationResult.Period period, //
-			int postProcessedStateIndex) {
+			int postProcessedModeIndex) {
 	}
 
 	/**
@@ -267,7 +278,7 @@ public class Simulator {
 	 */
 	public String toLogString(String prefix) {
 		return prefix + toStringHelper(this) //
-				.addValue(this.gsc) //
+				.addValue(this.goc) //
 				.addValue(this.cache.stats()) //
 				.toString();
 	}

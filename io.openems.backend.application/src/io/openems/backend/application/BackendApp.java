@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.utils.DictionaryUtils;
 
 @Component(immediate = true)
 public class BackendApp {
@@ -36,7 +37,7 @@ public class BackendApp {
 		try {
 			config = this.cm.getConfiguration("org.ops4j.pax.logging", null);
 			final var properties = config.getProperties();
-			if (properties == null || properties.isEmpty() || properties.get("log4j2.rootLogger.level") == null) {
+			if (!DictionaryUtils.containsAnyKey(properties, "log4j2.rootLogger.level")) {
 				final var log4j = new Hashtable<String, Object>();
 				log4j.put("log4j2.appender.console.type", "Console");
 				log4j.put("log4j2.appender.console.name", "console");
@@ -52,7 +53,7 @@ public class BackendApp {
 				config.update(log4j);
 			}
 		} catch (IOException | SecurityException e) {
-			e.printStackTrace();
+			this.log.error(e.getMessage(), e);
 		}
 	}
 

@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/meter/carlo/gavazzi/em100/Config.java=UTF-8
+encoding//src/io/openems/edge/meter/carlo/gavazzi/em100/MeterCarloGavazziEm100.java=UTF-8
+encoding//src/io/openems/edge/meter/carlo/gavazzi/em100/MeterCarloGavazziEm100Impl.java=UTF-8
+encoding//test/io/openems/edge/meter/carlo/gavazzi/em100/MeterCarloGavazziEm100ImplTest.java=UTF-8
+encoding//test/io/openems/edge/meter/carlo/gavazzi/em100/MyConfig.java=UTF-8
+encoding/<project>=UTF-8

@@ -48,7 +48,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	 * @param alias              the Alias
 	 * @param enabled            enable component?
 	 * @param isDebugModeEnabled enable debug mode?
-	 * @param apiTimeout         the API timeout
+	 * @param apiTimeout         the API timeout in seconds
 	 * @param port               the port; if '0', the port is automatically
 	 *                           assigned
 	 * @param connectionlimit    the connection limit
@@ -59,16 +59,14 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		this.isDebugModeEnabled = isDebugModeEnabled;
 
 		if (!this.isEnabled()) {
-			// abort if disabled
+			// Abort if disabled.
 			return;
 		}
 
 		this.apiWorker.setTimeoutSeconds(apiTimeout);
 
-		/*
-		 * Start RestApi-Server
-		 */
 		try {
+			// Start the RestApi-Server.
 			this.server = new Server(port);
 			this.server.setHandler(new RestHandler(this));
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
@@ -141,7 +139,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the JsonRpcRestHandler.
-	 * 
+	 *
 	 * @return the service
 	 */
 	protected abstract JsonRpcRestHandler getRpcRestHandler();

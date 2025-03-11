@@ -1105,21 +1105,21 @@ public class AppDef<APP extends OpenemsApp, //
 			});
 
 			final var p = componentManager.getComponentProperties(componentId);
-			try {
-				final var component = componentManager.getComponent(componentId);
 
-				return Optional.ofNullable(p.get(property)) //
-						.map(JsonUtils::getAsJsonElement) //
-						.map(mapper) //
-						.orElseGet(() -> {
+			return Optional.ofNullable(p.get(property)) //
+					.map(JsonUtils::getAsJsonElement) //
+					.map(mapper) //
+					.orElseGet(() -> {
+						try {
+							final var component = componentManager.getComponent(componentId);
 							return Optional.ofNullable(component.getComponentContext().getProperties().get(property)) //
 									.map(JsonUtils::getAsJsonElement) //
 									.map(mapper) //
 									.orElseGet(defaultValueSupplier);
-						});
-			} catch (OpenemsNamedException e) {
-				return defaultValueSupplier.get();
-			}
+						} catch (OpenemsNamedException e) {
+							return defaultValueSupplier.get();
+						}
+					});
 		};
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;

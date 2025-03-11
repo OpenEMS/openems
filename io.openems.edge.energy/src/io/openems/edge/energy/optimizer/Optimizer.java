@@ -32,8 +32,8 @@ import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.LogVerbosity;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
@@ -45,7 +45,7 @@ public class Optimizer implements Runnable {
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	private final Supplier<LogVerbosity> logVerbosity;
-	private final ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier;
+	private final ThrowingSupplier<GlobalOptimizationContext, OpenemsException> gocSupplier;
 	private final Channel<Integer> simulationsPerQuarterChannel;
 	private final AtomicBoolean rescheduleCurrentPeriod = new AtomicBoolean(false);
 
@@ -54,10 +54,10 @@ public class Optimizer implements Runnable {
 	private ScheduledFuture<?> future;
 
 	public Optimizer(Supplier<LogVerbosity> logVerbosity,
-			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, //
+			ThrowingSupplier<GlobalOptimizationContext, OpenemsException> gocSupplier, //
 			Channel<Integer> simulationsPerQuarterChannel) {
 		this.logVerbosity = logVerbosity;
-		this.gscSupplier = gscSupplier;
+		this.gocSupplier = gocSupplier;
 		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
 	}
@@ -141,9 +141,9 @@ public class Optimizer implements Runnable {
 	 */
 	private Simulator updateSimulator() throws InterruptedException {
 		try {
-			// Create the Simulator with GlobalSimulationsContext
+			// Create the Simulator with GlobalOptimizationContext
 			this.traceLog(() -> "updateSimulator()...");
-			createSimulator(this.gscSupplier, //
+			createSimulator(this.gocSupplier, //
 					simulator -> this.simulator = simulator, //
 					error -> {
 						this.traceLog(error);

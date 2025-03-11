@@ -22,6 +22,8 @@ export enum WidgetNature {
 }
 
 export enum WidgetFactory {
+    "Evse.Controller.Single",
+    "Evse.Controller.Cluster",
     "Controller.Api.ModbusTcp.ReadWrite",
     "Controller.Asymmetric.PeakShaving",
     "Controller.ChannelThreshold",

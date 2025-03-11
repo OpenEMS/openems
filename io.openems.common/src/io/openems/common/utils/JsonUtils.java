@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import static io.openems.common.utils.EnumUtils.toEnum;
 
 import java.net.Inet4Address;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -291,6 +292,23 @@ public final class JsonUtils {
 		public JsonObjectBuilder addProperty(String property, ZonedDateTime value) {
 			if (value != null) {
 				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_INSTANT));
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link Instant} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Instant value) {
+			if (value != null) {
+				this.j.addProperty(property, DateTimeFormatter.ISO_INSTANT.format(value));
 			}
 			return this;
 		}

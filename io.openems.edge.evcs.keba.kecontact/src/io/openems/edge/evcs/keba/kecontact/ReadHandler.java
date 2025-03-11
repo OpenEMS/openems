@@ -4,7 +4,7 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
-import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
+import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
@@ -122,17 +122,7 @@ public class ReadHandler implements Consumer<String> {
 				 */
 				var limit = keba.getSetEnergyLimit().get();
 				var energy = keba.getEnergySession().get();
-				if (limit != null && energy != null && energy >= limit) {
-					yield Status.ENERGY_LIMIT_REACHED;
-				}
-				yield switch (r2State) {
-				case UNDEFINED -> Status.UNDEFINED;
-				case STARTUP -> Status.STARTING;
-				case NOT_READY -> Status.NOT_READY_FOR_CHARGING;
-				case INTERRUPTED, READY -> Status.READY_FOR_CHARGING;
-				case CHARGING -> Status.CHARGING;
-				case ERROR -> Status.ERROR;
-				};
+				yield getStatus(r2State, limit, energy);
 			}
 			};
 
@@ -200,7 +190,7 @@ public class ReadHandler implements Consumer<String> {
 			// TODO use COS_PHI to calculate ReactivePower
 			this.setInt(EvcsKebaKeContact.ChannelId.COS_PHI, j, "PF");
 
-			final var phases = evaluatePhaseCount(appp.activePowerL1, appp.activePowerL2, appp.activePowerL3);
+			final var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
 			keba._setPhases(phases);
 			if (phases != null) {
 				keba.logInfoInDebugmode(this.log, "Used phases: " + phases);
@@ -254,6 +244,27 @@ public class ReadHandler implements Consumer<String> {
 			}
 		}
 		}
+	}
+	
+	/** Calculates the Status based on the raw status and energylimit.
+	 * 
+	 * @param r2State the r2 state
+	 * @param limit the set energy limit
+	 * @param energy the current energy session
+	 * @return the mapped Status
+	 */
+	public static Status  getStatus(R2State r2State, Integer limit, Integer energy) {
+		if (limit != null && energy != null && energy >= limit && limit != 0) {
+			return  Status.ENERGY_LIMIT_REACHED;
+		}
+		return switch (r2State) {
+		case UNDEFINED -> Status.UNDEFINED;
+		case STARTUP -> Status.STARTING;
+		case NOT_READY -> Status.NOT_READY_FOR_CHARGING;
+		case INTERRUPTED, READY -> Status.READY_FOR_CHARGING;
+		case CHARGING -> Status.CHARGING;
+		case ERROR -> Status.ERROR;
+		};
 	}
 
 	public record ActivePowerPerPhase(Integer activePowerL1, Integer activePowerL2, Integer activePowerL3) {

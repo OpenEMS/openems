@@ -2,4 +2,67 @@
 
 Implementations and Services for OpenEMS Energy Schedules.
 
+To understand the functionality and terms used in this implementation, its helpful to refer to the Jenetics manual available at https://jenetics.io/.
+
+= Terms
+
+Following terms and relations to Jenetics are used:
+
+== Mode
+
+The Mode refers to a predefined operation mode of a OpenEMS Controller.
+A Mode is represented in Jenetics as a `Gene`.
+
+== Period
+
+The Period refers to a space in time. A Period holds one Mode per OpenEMS Controller to define its operation mode within this period of time.
+A Period is represented in Jenetics as an index within a `Genotype` of `Chromosome` s.
+
+== Schedule
+
+A Schedule refers to a set of multiple Periods.
+A Schedule is represented in Jenetics as a `Genotype`.
+
+== Optimization
+
+A Optimization consists of multiple Schedules that are typically simulated within a 15-minutes period.
+A Optimization is represented in Jenetics as a `Population`.
+
+= Context and their Scopes
+
+Energy Scheduler uses `Context` objects that hold information that is relevant to a certain Scope of an Optimization run.
+
+OpenEMS Controllers use delegation to `EnergyScheduleHandler` objects to handle requirements of the Energy Scheduler.
+
+== GlobalOptimizationContext (`goc`)
+
+The GlobalOptimizationContext - commonly abbreviated as `goc` - is a Context that is valid throughout an entire Optimization. 
+It's typically recreated once per 15-minutes.
+
+Example data: 
+- Prediction of Production and Consumption
+- List of all Energy Schedulers
+- Global Limits like a limited Grid power
+- ...
+
+== GlobalScheduleContext (`gsc`)
+
+The GlobalScheduleContext - commonly abbreviated as `gsc` - is a Context that is valid for simulation of one Schedule.
+It's typically recreated multiple times per second.
+
+Example data:
+- Initial Energy of an ESS at the start of a Period.
+
+== ControllerOptimizationContext (`coc`)
+
+The ControllerOptimizationContext - commonly abbreviated as `coc` - is a Context that is valid throughout an entire Optimization for one Controller/EnergyScheduleHandler.
+It's typically recreated once per 15-minutes.
+
+
+== ControllerScheduleContext (`csc`)
+
+The ControllerScheduleContext - commonly abbreviated as `csc` - is a Context that is valid for simulation of one Schedule of one Controller/EnergyScheduleHandler.
+It's typically recreated multiple times per second.
+
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.energy[Source Code icon:github[]]

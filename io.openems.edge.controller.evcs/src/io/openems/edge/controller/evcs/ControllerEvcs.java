@@ -14,8 +14,6 @@ public interface ControllerEvcs extends OpenemsComponent {
 
 		AWAITING_HYSTERESIS(Doc.of(BOOLEAN) //
 				.persistencePriority(HIGH)), //
-		SMART_MODE(Doc.of(SmartMode.values()) //
-				.persistencePriority(HIGH)), //
 		EVCS_IS_READ_ONLY(Doc.of(Level.INFO) //
 				.translationKey(ControllerEvcs.class, "evcsIsReadOnly")); //
 

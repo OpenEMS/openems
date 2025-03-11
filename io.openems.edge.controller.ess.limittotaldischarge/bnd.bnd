@@ -12,4 +12,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.ess.api,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	org.apache.commons.math3,\

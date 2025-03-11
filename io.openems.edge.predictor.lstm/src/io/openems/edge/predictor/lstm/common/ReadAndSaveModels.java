@@ -43,9 +43,15 @@ public class ReadAndSaveModels {
 	 * @param hyperParameters The {@link HyperParameters} object to be saved.
 	 */
 	public static void save(HyperParameters hyperParameters) {
-		String modelName = hyperParameters.getModelName();
-		String filePath = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER, modelName)//
-				.toString();
+		var modelName = hyperParameters.getModelName();
+		var path = Paths.get(MODEL_DIRECTORY, MODEL_FOLDER, modelName);
+		var directory = path.getParent().toFile();
+		if (!directory.exists()) {
+			if (!directory.mkdirs()) {
+				System.err.println("Failed to create directory: " + directory);
+				return;
+			}
+		}
 
 		Gson gson = new GsonBuilder()//
 				.registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeAdapter())//
@@ -56,7 +62,7 @@ public class ReadAndSaveModels {
 			var compressedDataString = Base64.getEncoder().encodeToString(compressedData);
 			var json = gson.toJson(compressedDataString);
 
-			try (FileWriter writer = new FileWriter(filePath)) {
+			try (FileWriter writer = new FileWriter(path.toFile())) {
 				writer.write(json);
 			}
 		} catch (IOException e) {

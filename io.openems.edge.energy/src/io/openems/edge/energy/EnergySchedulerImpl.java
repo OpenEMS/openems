@@ -33,10 +33,10 @@ import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.EnergyScheduler;
 import io.openems.edge.energy.api.Version;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.optimizer.Optimizer;
 import io.openems.edge.energy.v1.jsonrpc.GetScheduleResponse;
 import io.openems.edge.energy.v1.optimizer.GlobalContextV1;
@@ -85,7 +85,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 			target = "(enabled=true)")
 	private void addSchedulable(EnergySchedulable schedulable) {
 		this.schedulables.add(schedulable);
-		var esh = (AbstractEnergyScheduleHandler<?>) schedulable.getEnergyScheduleHandler(); // this is safe
+		var esh = (AbstractEnergyScheduleHandler<?, ?>) schedulable.getEnergyScheduleHandler(); // this is safe
 		esh.setOnRescheduleCallback(reason -> this.triggerReschedule(reason));
 		this.triggerReschedule("EnergySchedulerImpl::addSchedulable() " + schedulable.id());
 	}
@@ -93,7 +93,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	@SuppressWarnings("unused")
 	private void removeSchedulable(EnergySchedulable schedulable) {
 		this.schedulables.remove(schedulable);
-		var esh = (AbstractEnergyScheduleHandler<?>) schedulable.getEnergyScheduleHandler(); // this is safe
+		var esh = (AbstractEnergyScheduleHandler<?, ?>) schedulable.getEnergyScheduleHandler(); // this is safe
 		esh.removeOnRescheduleCallback();
 		this.triggerReschedule("EnergySchedulerImpl::removeSchedulable() " + schedulable.id());
 	}
@@ -134,19 +134,19 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		this.optimizer = new Optimizer(//
 				() -> this.config.logVerbosity(), //
 				() -> {
-					System.out.println("OPTIMIZER gscSupplier: "
+					System.out.println("OPTIMIZER gocSupplier: "
 							+ this.schedulables.stream().map(s -> s.id()).collect(joining(", ")));
 					// Sort Schedulables by the order in the Scheduler
 					var schedulables = sortByScheduler(this.scheduler, this.schedulables);
-					System.out.println("OPTIMIZER gscSupplier sorted: "
+					System.out.println("OPTIMIZER gocSupplier sorted: "
 							+ schedulables.stream().map(s -> s.id()).collect(joining(", ")));
 					var eshs = schedulables.stream() //
 							.map(EnergySchedulable::getEnergyScheduleHandler) //
 							.collect(toImmutableList());
-					System.out.println("OPTIMIZER gscSupplier eshs: "
+					System.out.println("OPTIMIZER gocSupplier eshs: "
 							+ eshs.stream().map(e -> e.getClass().getSimpleName()).collect(joining(", ")));
 
-					return GlobalSimulationsContext.create() //
+					return GlobalOptimizationContext.create() //
 							.setComponentManager(this.componentManager) //
 							.setRiskLevel(this.config.riskLevel()) //
 							.setEnergyScheduleHandlers(eshs) //

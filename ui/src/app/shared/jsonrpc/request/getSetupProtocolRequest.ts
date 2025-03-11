@@ -23,3 +23,16 @@ export class GetSetupProtocolRequest extends JsonrpcRequest {
         super(GetSetupProtocolRequest.METHOD, params);
     }
 }
+
+export class GetSetupProtocolDataRequest extends JsonrpcRequest {
+
+    private static METHOD: string = "getSetupProtocolData";
+
+    public constructor(
+        public override readonly params: {
+            edgeId: string
+        },
+    ) {
+        super(GetSetupProtocolDataRequest.METHOD, params);
+    }
+}
