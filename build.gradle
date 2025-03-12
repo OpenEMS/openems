@@ -94,8 +94,8 @@ tasks.named('wrapper') {
 }
 
 task cleanEdge() {
-	group 'OpenEMS-Build'
-	description 'Clean all Edge-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Clean all Edge-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
@@ -107,8 +107,8 @@ task cleanEdge() {
 }
 
 task checkstyleAll() {
-	group 'OpenEMS-Build'
-	description 'Checkstyle all bundles'
+	group = 'OpenEMS-Build'
+	description = 'Checkstyle all bundles'
 
 	subprojects.each { proj ->
 		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
@@ -118,8 +118,8 @@ task checkstyleAll() {
 }
 
 task cleanBackend() {
-	group 'OpenEMS-Build'
-	description 'Clean all Backend-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Clean all Backend-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
@@ -131,8 +131,8 @@ task cleanBackend() {
 }
 
 task assembleEdge() {
-	group 'OpenEMS-Build'
-	description 'Assemble all Edge-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Assemble all Edge-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
@@ -144,8 +144,8 @@ task assembleEdge() {
 }
 
 task assembleBackend() {
-	group 'OpenEMS-Build'
-	description 'Assemble all Backend-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Assemble all Backend-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/ ) {
@@ -173,8 +173,8 @@ task buildComponents() {
 }
 
 task buildEdge() {
-	group 'OpenEMS-Build'
-	description 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
+	group = 'OpenEMS-Build'
+	description = 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
 	
 	def assemble = tasks.getByPath(':assembleEdge')
 	def export = tasks.getByPath(':io.openems.edge.application:export.EdgeApp')
@@ -206,8 +206,8 @@ task buildEdge() {
 }
 
 task buildBackend() {
-	group 'OpenEMS-Build'
-	description 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
+	group = 'OpenEMS-Build'
+	description = 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
 	
 	def assemble = tasks.getByPath(':assembleBackend')
 	def export = tasks.getByPath(':io.openems.backend.application:export.BackendApp')
@@ -344,7 +344,7 @@ task copyBundleReadmes() {
  * Build Antora docs
  */
 task buildAntoraDocs(dependsOn: copyBundleReadmes) {
-	group 'Documentation'
+	group = 'Documentation'
 	dependsOn ":doc:buildAntoraDocs"
 
 	def source = file("doc/build/www")
