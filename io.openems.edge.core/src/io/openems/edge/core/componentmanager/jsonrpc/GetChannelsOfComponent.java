@@ -5,7 +5,10 @@ import static io.openems.common.utils.JsonUtils.toJsonObject;
 import static java.util.Collections.emptyList;
 
 import java.util.List;
+import java.util.ListIterator;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
@@ -92,6 +95,10 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 			// category = ChannelCategory.STATE
 			Level level, //
 
+			// category = ChannelCategory.OPENEMS_TYPE
+			// type = OpenemsType.STRING
+			List<String> stringOptions,
+
 			// category = ChannelCategory.ENUM
 			List<OptionsEnum> options //
 	) {
@@ -107,6 +114,19 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 
 				return null; // new GetChannelsOfComponent.ChannelRecord();
 			}, obj -> {
+				JsonElement optionsJson = null;
+				if (obj.options() != null) {
+					optionsJson = obj.options().stream() //
+							.collect(toJsonObject(i -> i.getName(), i -> new JsonPrimitive(i.getValue())));
+				} else if (obj.stringOptions() != null) {
+					JsonArray optionsArray = new JsonArray();
+					ListIterator<String> it = obj.stringOptions().listIterator();
+					while (it.hasNext())
+						optionsArray.add(it.next());
+					optionsJson = optionsArray;
+				}
+				final JsonElement optionsJsonFinal = optionsJson;
+
 				return JsonUtils.buildJsonObject() //
 						.addProperty("id", obj.id()) //
 						.addProperty("accessMode", obj.accessMode().getAbbreviation()) //
@@ -116,8 +136,7 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 						.addProperty("unit", obj.unit().symbol) //
 						.addProperty("category", obj.category()) //
 						.onlyIf(obj.level() != null, t -> t.addProperty("level", obj.level())) //
-						.onlyIf(obj.options() != null, t -> t.add("options", obj.options().stream() //
-								.collect(toJsonObject(i -> i.getName(), i -> new JsonPrimitive(i.getValue()))))) //
+						.onlyIf(optionsJsonFinal != null, t -> t.add("options", optionsJsonFinal)) //
 						.build();
 			});
 		}
