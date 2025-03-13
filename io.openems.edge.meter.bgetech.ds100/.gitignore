@@ -1,0 +1,6 @@
+/bin/
+/bin_test/
+/generated/
+/.classpath
+/.project
+/.settings/

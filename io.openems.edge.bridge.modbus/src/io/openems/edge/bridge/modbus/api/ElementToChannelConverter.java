@@ -81,6 +81,19 @@ public class ElementToChannelConverter {
 			// channel -> element
 			StaticConverters.INVERT);
 
+    public static final ElementToChannelConverter INVERT_IF_POSITIVE = new ElementToChannelConverter(//
+        // element -> channel
+        StaticConverters.INVERT_IF_POSITIVE, //
+        // channel -> element
+        StaticConverters.INVERT);
+
+    public static final ElementToChannelConverter INVERT_IF_NEGATIVE = new ElementToChannelConverter(//
+        // element -> channel
+        StaticConverters.INVERT_IF_NEGATIVE, //
+        // channel -> element
+        StaticConverters.INVERT);
+
+
 	/**
 	 * Converts only negative values from Element to Channel and inverts them (makes
 	 * the value positive).
