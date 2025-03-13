@@ -1,0 +1,184 @@
+= Tutorial 7: Extend the UI Modal to Make Zip Code Configurable via JsonFormly
+In this tutorial, we will extend the OpenEMS UI modal using `JsonFormly` to allow users to configure the zip code for the Grünstromindex (GSI) component dynamically. This will provide a more user-friendly and standardized way to configure component settings within the OpenEMS AppCenter.
+
+== Objectives
+- Use `JsonFormly` to dynamically create a form in the UI for configuring the zip code.
+- Integrate the form into the existing GSI App modal.
+- Update the GSI component configuration using JSON-RPC requests based on user input from the form.
+
+== Prerequisites
+- Completion of <<tutorial-6, Tutorial 6: Add a JSON-RPC Request from UI to Edge>>.
+- Familiarity with Angular, `JsonFormly`, and OpenEMS UI development.
+
+== Step 1: Install and Set Up JsonFormly in OpenEMS AppCenter
+
+1. **Install `JsonFormly` Dependencies:**
+
+   Ensure `@ngx-formly/core` and `@ngx-formly/bootstrap` are installed in your AppCenter Angular project:
+
+   ```bash
+   npm install @ngx-formly/core @ngx-formly/bootstrap
+
+    Configure JsonFormly in AppModule:
+
+    Open app.module.ts and import the necessary modules for JsonFormly:
+
+    typescript
+
+    import { FormlyModule } from '@ngx-formly/core';
+    import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
+    import { ReactiveFormsModule } from '@angular/forms';
+
+    @NgModule({
+      declarations: [
+        // Other components
+      ],
+      imports: [
+        ReactiveFormsModule,
+        FormlyModule.forRoot(),
+        FormlyBootstrapModule,
+        // Other modules
+      ],
+      providers: [],
+      bootstrap: [AppComponent]
+    })
+    export class AppModule { }
+
+== Step 2: Update the GSI App Component to Use JsonFormly
+
+    Modify the GsiAppComponent to Include JsonFormly Form:
+
+    Update gsi-app.component.ts to include a dynamic form using JsonFormly:
+
+    typescript
+
+import { Component } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { FormlyFieldConfig } from '@ngx-formly/core';
+import { JsonrpcService } from 'src/app/services/jsonrpc.service';
+
+@Component({
+  selector: 'app-gsi-app',
+  templateUrl: './gsi-app.component.html',
+  styleUrls: ['./gsi-app.component.css']
+})
+export class GsiAppComponent {
+  form = new FormGroup({});
+  model = { zipCode: '' };
+  fields: FormlyFieldConfig[] = [
+    {
+      key: 'zipCode',
+      type: 'input',
+      templateOptions: {
+        label: 'Zip Code',
+        placeholder: 'Enter zip code',
+        required: true,
+      }
+    }
+  ];
+
+  constructor(private jsonrpcService: JsonrpcService) {}
+
+  onSubmit() {
+    if (this.form.valid) {
+      const params = {
+        component: 'io.openems.edge.gsi.GsiComponent',
+        config: {
+          zipCode: this.model.zipCode
+        }
+      };
+
+      this.jsonrpcService.call('component.setConfig', params).subscribe(response => {
+        if (response.success) {
+          alert('GSI zip code updated successfully.');
+        } else {
+          alert('Failed to update GSI zip code.');
+        }
+      });
+    }
+  }
+}
+
+    form Field: A reactive form group that manages the form state.
+    model Object: Holds the current values of the form fields.
+    fields Configuration: Defines a single input field for the zip code using JsonFormly.
+    onSubmit() Method: Sends a JSON-RPC request to component.setConfig to update the zip code when the form is submitted.
+
+Update the User Interface (gsi-app.component.html):
+
+Replace the existing UI with a JsonFormly form in gsi-app.component.html:
+
+html
+
+<div class="gsi-app-container">
+  <h2>Configure Grünstromindex (GSI)</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <formly-form [form]="form" [model]="model" [fields]="fields"></formly-form>
+    <button type="submit" [disabled]="!form.valid">Save</button>
+  </form>
+</div>
+
+    formly-form Component: Dynamically generates the form based on the fields configuration.
+    Submit Button: Triggers the onSubmit() method when clicked.
+
+Update Styling (gsi-app.component.css):
+
+Adjust the styles in gsi-app.component.css as needed to ensure the new form looks good:
+
+css
+
+    .gsi-app-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button[disabled] {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+== Step 3: Test the Dynamic Zip Code Configuration
+
+    Run OpenEMS Edge and AppCenter:
+        Start OpenEMS Edge with the GsiComponent configured.
+        Start the OpenEMS AppCenter by running ng serve in the AppCenter project folder.
+
+    Navigate to the GSI App:
+        Open a browser and navigate to the AppCenter (e.g., http://localhost:4200).
+        Click on the "Grünstromindex App" link in the sidebar menu.
+
+    Configure and Test the Zip Code:
+        Enter a valid zip code in the form.
+        Click the "Save" button to submit the form.
+        Verify that the zip code is updated on the Edge, and the current GSI value is fetched based on the new configuration.
+
+    Check OpenEMS Edge Logs:
+        Confirm that the JSON-RPC request is received by the Edge.
+        Ensure the GSI component is updated correctly and the value fetches as expected.
+
+== Conclusion
+
+In this tutorial, you successfully extended the OpenEMS UI modal using JsonFormly to allow dynamic configuration of the zip code for the Grünstromindex (GSI) component. This provides a more intuitive and flexible interface for users to manage their OpenEMS configurations.
+
+Congratulations on completing the tutorials! You now have a comprehensive understanding of implementing custom components, widgets, JSON-RPC communication, and dynamic forms in OpenEMS.
+
+Feel free to explore more advanced features and develop your own extensions for OpenEMS.
+
+csharp
+
+
+This tutorial provides detailed steps to implement a dynamic form for configuring the zip code using `JsonFormly`, integrating it into the existing OpenEMS UI, and ensuring the new setup works seamlessly with the backend.
+
