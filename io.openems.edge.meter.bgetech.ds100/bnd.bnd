@@ -1,0 +1,19 @@
+Bundle-Name: OpenEMS Edge Meter B+G E-TECH DS100
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: Integration of the B+G E-TECH DS100
+Bundle-Category: osgi
+Bundle-Vendor: Christian Poulter
+Bundle-ContactAddress: devel(at)poulter.de
+Bundle-Copyright: OpenEMS Edge Meter B+G E-TECH DS100 (C) 2025 Christian Poulter
+Bundle-License: https://www.eclipse.org/legal/epl-2.0
+
+-buildpath: \
+	${buildpath},\
+	com.ghgande.j2mod,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api
+
+-testpath: \
+	${testpath}

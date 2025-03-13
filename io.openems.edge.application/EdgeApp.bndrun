@@ -158,6 +158,7 @@
 	bnd.identity;id='io.openems.edge.meter.artemes.am2',\
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
 	bnd.identity;id='io.openems.edge.meter.bgetech',\
+	bnd.identity;id='io.openems.edge.meter.bgetech.ds100',\
 	bnd.identity;id='io.openems.edge.meter.camillebauer.aplus',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
@@ -347,6 +348,7 @@
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
 	io.openems.edge.meter.bcontrol.em300;version=snapshot,\
 	io.openems.edge.meter.bgetech;version=snapshot,\
+	io.openems.edge.meter.bgetech.ds100;version=snapshot,\
 	io.openems.edge.meter.camillebauer.aplus;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\

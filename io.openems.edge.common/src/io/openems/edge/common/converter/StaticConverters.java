@@ -38,4 +38,38 @@ public class StaticConverters {
 		default -> throw new IllegalArgumentException("Converter INVERT does not accept the type of [" + value + "]");
 		};
 	};
+	
+    /**
+     * Invert a value.
+     */
+    public static final Function<Object, Object> INVERT_IF_POSITIVE = value -> {
+        return switch (value) {
+        case null -> null;
+        case Boolean b -> false;
+        case String s -> s; // impossible
+        case Short s -> Math.abs(s) * -1;
+        case Integer i -> Math.abs(i) * -1;
+        case Long l -> Math.abs(l) * -1;
+        case Float f -> Math.abs(f) * -1;
+        case Double d -> Math.abs(d) * -1;
+        default -> throw new IllegalArgumentException("Converter INVERT_IF_POSITIVE does not accept the type of [" + value + "]");
+        };
+    };
+    
+    /**
+     * Invert a value.
+     */
+    public static final Function<Object, Object> INVERT_IF_NEGATIVE = value -> {
+        return switch (value) {
+        case null -> null;
+        case Boolean b -> false;
+        case String s -> s; // impossible
+        case Short s -> Math.abs(s);
+        case Integer i -> Math.abs(i);
+        case Long l -> Math.abs(l);
+        case Float f -> Math.abs(f);
+        case Double d -> Math.abs(d);
+        default -> throw new IllegalArgumentException("Converter INVERT_IF_NEGATIVE does not accept the type of [" + value + "]");
+        };
+    };      
 }
