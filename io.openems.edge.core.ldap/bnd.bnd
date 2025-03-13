@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Edge Core LDAP UserService
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: Allows edge authentication and authorization through a LDAP server.
+Bundle-Category: osgi
+Bundle-Vendor: Christian Poulter
+Bundle-ContactAddress: devel(at)poulter.de
+Bundle-Copyright: OpenEMS Edge Core LDAP UserService (C) 2024 Christian Poulter
+Bundle-License: https://www.eclipse.org/legal/epl-2.0
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common
+
+-testpath: \
+	${testpath}

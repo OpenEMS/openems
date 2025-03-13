@@ -9,5 +9,6 @@ export const environment: Environment = {
 
         production: true,
         debugMode: false,
+        loginWithUsername: false,
     },
 };
