@@ -1,7 +1,5 @@
 package io.openems.edge.thermometer.esera.onewire;
 
-
-
 import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.PersistencePriority.LOW;
 
@@ -18,18 +16,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.thermometer.api.Thermometer;
 import io.openems.edge.thermometer.esera.onewire.enums.OwdStatus;
-
-
 
 public interface EseraOneWireThermometer extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		
 
-		
 		OWD_STATUS(Doc.of(OwdStatus.values()).accessMode(AccessMode.READ_ONLY)), //
-		
+
 		/**
 		 * Temperature on OneWireDevice 1.
 		 *
@@ -39,15 +34,9 @@ public interface EseraOneWireThermometer extends OpenemsComponent {
 		 * <li>Unit: degree celsius
 		 * </ul>
 		 */
-		OWD_READ_FAILED(Doc.of(OpenemsType.BOOLEAN).persistencePriority(HIGH)),		
-		
-		
-        TEMPERATURE_OWD(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(HIGH)),
-        
-        
+		OWD_READ_FAILED(Doc.of(OpenemsType.BOOLEAN).persistencePriority(HIGH)),
 
-        TEMPERATURE_OWD_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW));
-		
+		TEMPERATURE_OWD_DEBUG(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(LOW));
 
 		private final Doc doc;
 
@@ -61,7 +50,6 @@ public interface EseraOneWireThermometer extends OpenemsComponent {
 		}
 	}
 
-	
 	/**
 	 * Gets the Channel for {@link ChannelId#OWD_STATUS}.
 	 *
@@ -88,8 +76,8 @@ public interface EseraOneWireThermometer extends OpenemsComponent {
 	 */
 	public default void setOwdStatus(OwdStatus value) throws OpenemsNamedException {
 		this.getOwdStatusChannel().setNextValue(value);
-	}	
-	
+	}
+
 	/**
 	 * Gets the Channel for {@link ChannelId#OWD_READ_FAILED}.
 	 *
@@ -126,47 +114,7 @@ public interface EseraOneWireThermometer extends OpenemsComponent {
 	 */
 	public default void _setOwdReadFailed(boolean value) {
 		this.getOwdReadFailedChannel().setNextValue(value);
-	}	
-	
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getTemperatureOwdChannel() {
-		return this.channel(ChannelId.TEMPERATURE_OWD);
 	}
-
-	/**
-	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getTemperatureOwd() {
-		return this.getTemperatureOwdChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#TEMPERATURE_OWD}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setTemperatureOwd(Integer value) {
-		this.getTemperatureOwdChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#TEMPERATURE_OWD}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setTemperatureOwd(int value) {
-		this.getTemperatureOwdChannel().setNextValue(value);
-	}
-	
 
 	/**
 	 * Gets the Channel for {@link ChannelId#TEMPERATURE_OWD_DEBUG}.
@@ -178,16 +126,28 @@ public interface EseraOneWireThermometer extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Temperature in [deci degC]. See {@link ChannelId#TEMPERATURE_OWD_DEBUG}.
+	 * Gets the Temperature in [deci degC]. See
+	 * {@link ChannelId#TEMPERATURE_OWD_DEBUG}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getTemperatureOwdDebug() {
 		return this.getTemperatureOwdDebugChannel().value();
 	}
-	
 
-
+	/**
+	 * Returns the {@link ModbusSlaveTable} for the given {@link AccessMode}.
+	 * The returned table consists of the {@link ModbusSlaveTable} from the
+	 * {@link OpenemsComponent} and the current instance.
+	 *
+	 * @param accessMode the access mode specifying read or write access
+	 * @return a {@link ModbusSlaveTable} containing the registers for the given access mode
+	 */	
+	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				this.getModbusSlaveNatureTable(accessMode));
+	}
 
 	/**
 	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
@@ -196,19 +156,11 @@ public interface EseraOneWireThermometer extends OpenemsComponent {
 	 * @param accessMode filters the Modbus-Records that should be shown
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
-	public default ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(EseraOneWireThermometer.class, accessMode, 100) //
-				.channel(0, ChannelId.TEMPERATURE_OWD, ModbusType.FLOAT32) //
-
-				.build();
+				.channel(0, ChannelId.OWD_READ_FAILED, ModbusType.UINT16) //
+				.channel(1, ChannelId.OWD_STATUS, ModbusType.UINT16) //
+				.channel(2, Thermometer.ChannelId.TEMPERATURE, ModbusType.FLOAT32).build();
 	}
-
-	ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode);
-
-
-
-
-
-
 
 }

@@ -2,6 +2,7 @@ package io.openems.edge.thermometer.esera.onewire;
 
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.thermometer.esera.onewire.Config;
+import io.openems.edge.thermometer.esera.onewire.enums.LogVerbosity;
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -74,13 +75,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 
 	@Override
-	public boolean debugMode() {
+	public io.openems.edge.thermometer.esera.onewire.enums.OneWireDevice OneWireDevice() {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override
-	public io.openems.edge.thermometer.esera.onewire.enums.OneWireDevice OneWireDevice() {
+	public LogVerbosity logVerbosity() {
 		// TODO Auto-generated method stub
 		return null;
 	}
