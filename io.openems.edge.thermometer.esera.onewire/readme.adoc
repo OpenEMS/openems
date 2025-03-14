@@ -1,3 +1,41 @@
-= io.openems.edge.modbus.thermometer
+= Esera OneWire Thermometers to modbus
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.modbus.thermometer[Source Code icon:github[]]
+
+=== Overview
+This module integrates Esera ECO 501, a OneWire-to-Modbus gateway, into OpenEMS. The ECO 501 supports up to 30 sensors on a single OneWire segment, enabling seamless temperature monitoring via Modbus.
+
+=== Implemented Natures:
+- Thermometer-API
+
+
+=== Source Code
+Find the source code on GitHub:
+[OpenEMS Esera OneWire Thermometer](https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.thermometer.esera.onewire[Source Code icon:github[]]
+
+=== Setting Up OneWire Segment
+Before integrating with OpenEMS, you must configure your OneWire topology correctly. Esera provides detailed guidelines on how to structure OneWire networks:
+
+[Esera OneWire Topology Guide (German)](https://esera.de/Service-Support/1-Wire-Grundlagen/1-Wire-Topologie/)
+
+=== Automatic Sensor Detection
+OneWire sensors, such as the **DS18B20**, are automatically detected by the ECO 501 in the order they are connected.
+
+To manage sensor configuration, including renaming and reordering, use the free **Esera Config Tool**:
+- [Esera Config Tool Download](https://download.esera.de/en/download/technical)
+- The tool is user-friendly and well-documented.
+
+=== Network Configuration
+For stable communication, it is **highly recommended** to set a **static IP address** for the ECO 501 instead of using DHCP.
+
+== Integrating with OpenEMS
+=== Step 1: Learning Sensors in ECO 501
+Once all sensors are connected and the ECO 501 has "learned" them, the system is ready for Modbus integration.
+
+=== Step 2: Setting Up the Modbus Bridge in OpenEMS
+Configure a **Modbus Bridge** in OpenEMS, e.g., `modbusEsera0`, to communicate with the ECO 501.
+
+=== Step 3: Configuring OneWire Thermometers
+After setting up the Modbus bridge, configure up to **10 OneWire thermometers** in OpenEMS.
+- The order of sensors in OpenEMS **matches the order in the ECO 501 device list**.
+- Example: `onewirethermometer4` in OpenEMS corresponds to the **4th sensor** in the ECO 501 list.
+
