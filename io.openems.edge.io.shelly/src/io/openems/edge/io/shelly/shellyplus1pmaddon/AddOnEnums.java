@@ -1,6 +1,6 @@
 package io.openems.edge.io.shelly.shellyplus1pmaddon;
 
-public class AddOnInputType {
+public class AddOnEnums {
 	
 	public enum InputType {
 		TEMPERATURE,

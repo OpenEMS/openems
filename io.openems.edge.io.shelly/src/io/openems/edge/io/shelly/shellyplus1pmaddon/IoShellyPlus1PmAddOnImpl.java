@@ -37,7 +37,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
-//import io.openems.edge.io.shelly.shellyplus1pmaddon.AddOnInputType;
+//import io.openems.edge.io.shelly.shellyplus1pmaddon.AddOnEnums;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -56,8 +56,8 @@ public class IoShellyPlus1PmAddOnImpl extends AbstractOpenemsComponent implement
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlus1PmAddOnImpl.class);
 	
 	private String baseUrl;
-	private AddOnInputType.InputType inputType;
-	private AddOnInputType.InputIndex inputIndex;
+	private AddOnEnums.InputType inputType;
+	private AddOnEnums.InputIndex inputIndex;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
@@ -169,7 +169,7 @@ public class IoShellyPlus1PmAddOnImpl extends AbstractOpenemsComponent implement
 	 * Extract values from JSON 
 	 */
 
-	private void getInput(JsonObject json, AddOnInputType.InputType inputType, AddOnInputType.InputIndex inputIndex) {
+	private void getInput(JsonObject json, AddOnEnums.InputType inputType, AddOnEnums.InputIndex inputIndex) {
 	
 		
 			switch (inputType) {

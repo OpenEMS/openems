@@ -4,9 +4,6 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 
-
-
-
 @ObjectClassDefinition(//
 		name = "IO Shelly Plus 1PM AddOn Input", //
 		description = "Implements the Shelly AddOn Channel")
@@ -25,10 +22,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String ip();
 
 	@AttributeDefinition(name = "Channel-Type", description = "What type of sensor is attached to this channel?")
-	AddOnInputType.InputType type() default AddOnInputType.InputType.TEMPERATURE;
+	AddOnEnums.InputType type() default AddOnEnums.InputType.TEMPERATURE;
 
 	@AttributeDefinition(name = "Channel-Index", description = "Index of this channel?")
-	AddOnInputType.InputIndex index() default AddOnInputType.InputIndex.Index100;
+	AddOnEnums.InputIndex index() default AddOnEnums.InputIndex.Index100;
 	
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus 1PM AddOn Channel[{id}]";
