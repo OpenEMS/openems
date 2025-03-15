@@ -15,7 +15,48 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
 
+	public enum ShellyModel {
+		/**
+		 * Defines a Shelly Plus 1 PM with relay
+		 * power can be read from the object "switch:0"
+		 */
+
+		Plus1PM("switch:0",true),
+		/**
+		 * Defines a Shelly Plus PM Mini. Power can be read from the channel pm1:0 
+		 */
+		PlusPMMini("pm1:0",false);
+		
+		String channel;
+		Boolean hasRelay;
+		ShellyModel (String channel, Boolean hasRelay) {
+			this.channel = channel;
+			this.hasRelay = hasRelay;
+		}
+		
+		public Boolean hasRelay() {
+			return this.hasRelay;
+		}
+		
+		public String channel() {
+			return this.channel;
+		}
+		
+	}
+	
+	
 	private Utils() {
+	}
+
+	/**
+	 * Generates a standard Debug-Log string for Shellys with power
+	 * meter.
+	 * 
+	 * @param activePowerChannel the ActivePower-Channel
+	 * @return suitable for {@link OpenemsComponent#debugLog()}
+	 */
+	public static String generateDebugLog(Channel<Integer> activePowerChannel) {
+		return activePowerChannel.value().asString();
 	}
 
 	/**
