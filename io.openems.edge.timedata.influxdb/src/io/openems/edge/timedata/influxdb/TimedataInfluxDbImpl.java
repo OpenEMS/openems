@@ -95,6 +95,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 				config.maxQueueSize(), //
 				(e) -> {
 					// ignore
+					return false;
 				});
 	}
 

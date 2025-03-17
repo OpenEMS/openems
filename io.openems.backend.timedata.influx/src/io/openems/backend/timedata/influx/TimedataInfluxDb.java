@@ -97,7 +97,7 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 				config.org(), config.apiKey(), config.bucket(), this.oem.getInfluxdbTag(), config.isReadOnly(),
 				config.poolSize(), config.maxQueueSize(), //
 				(e) -> {
-					this.fieldTypeConflictHandler.handleException(e);
+					return this.fieldTypeConflictHandler.handleException(e);
 				});
 	}
 

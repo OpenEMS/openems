@@ -37,9 +37,10 @@ public class FieldTypeConflictHandler {
 	 * fields that already exist in the database.
 	 *
 	 * @param e the {@link FieldTypeConflictException}
+	 * @return true means handled successfully (data written to influxdb)
 	 */
-	public synchronized void handleException(InfluxException e) throws IllegalStateException, IllegalArgumentException {
-		this.handleExceptionMessage(e.getMessage());
+	public synchronized boolean handleException(InfluxException e) throws IllegalStateException, IllegalArgumentException {
+		return this.handleExceptionMessage(e.getMessage());
 	}
 
 	protected synchronized boolean handleExceptionMessage(String message)

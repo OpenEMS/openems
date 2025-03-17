@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -87,7 +87,7 @@ public class InfluxConnector {
 	 */
 	public InfluxConnector(String componentId, QueryLanguageConfig queryLanguage, URI url, String org, String apiKey,
 			String bucket, String tag, boolean isReadOnly, int poolSize, int maxQueueSize,
-			Consumer<BadRequestException> onWriteError, boolean safeWrite, WriteParameters... parameters) {
+			Predicate<BadRequestException> onWriteError, boolean safeWrite, WriteParameters... parameters) {
 		this.queryProxy = QueryProxy.from(queryLanguage, tag);
 		this.url = url;
 		this.org = org;
@@ -136,7 +136,7 @@ public class InfluxConnector {
 
 	public InfluxConnector(String componentId, QueryLanguageConfig queryLanguage, URI url, String org, String apiKey,
 			String bucket, String tag, boolean isReadOnly, int poolSize, int maxQueueSize,
-			Consumer<BadRequestException> onWriteError, WriteParameters... parameters) {
+			Predicate<BadRequestException> onWriteError, WriteParameters... parameters) {
 		this(componentId, queryLanguage, url, org, apiKey, bucket, tag, isReadOnly, poolSize, maxQueueSize,
 				onWriteError, false, parameters);
 	}
