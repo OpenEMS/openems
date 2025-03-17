@@ -17,69 +17,76 @@ import io.openems.edge.kostal.enums.InverterState;
 import io.openems.edge.kostal.enums.SensorType;
 
 public interface KostalManagedESS
-		extends
-			// HybridManagedSymmetricBatteryInverter,
-			// EssDcCharger,
-			ManagedSymmetricEss,
-			SymmetricEss,
-			ModbusComponent,
-			OpenemsComponent {
+  extends
+    // HybridManagedSymmetricBatteryInverter,
+    // EssDcCharger,
+    ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent {
+  public static enum ChannelId implements
+    io.openems.edge.common.channel.ChannelId {
+    // EnumReadChannels
+    INVERTER_STATE(Doc.of(InverterState.values())), //
+    FUSE_STATE(Doc.of(FuseState.values())), //
+    ENERGY_MANAGER_MODE(Doc.of(EnergyManagerMode.values())), //
+    OPERATING_MODE_FOR_BATTERY_MANAGEMENT(
+      Doc.of(BatteryManagementMode.values())
+    ), //
 
-	public static enum ChannelId
-			implements
-				io.openems.edge.common.channel.ChannelId {
+    // EnumWriteChannsl
+    BATTERY_TYPE(Doc.of(BatteryType.values())), //
+    SENSOR_TYPE(Doc.of(SensorType.values())), //
 
-		// EnumReadChannels
-		INVERTER_STATE(Doc.of(InverterState.values())), //
-		FUSE_STATE(Doc.of(FuseState.values())), //
-		ENERGY_MANAGER_MODE(Doc.of(EnergyManagerMode.values())), //
-		OPERATING_MODE_FOR_BATTERY_MANAGEMENT(
-				Doc.of(BatteryManagementMode.values())), //
+    // LongReadChannels
+    SERIAL_NUMBER(
+      Doc.of(OpenemsType.LONG).persistencePriority(PersistencePriority.HIGH) //
+    ), //
 
-		// EnumWriteChannsl
-		BATTERY_TYPE(Doc.of(BatteryType.values())), //
-		SENSOR_TYPE(Doc.of(SensorType.values())), //
+    // IntegerWriteChannels
+    SET_ACTIVE_POWER(
+      Doc.of(OpenemsType.INTEGER) //
+        .accessMode(AccessMode.WRITE_ONLY) //
+        .unit(Unit.WATT)
+    ), //
+    SET_REACTIVE_POWER(
+      Doc.of(OpenemsType.INTEGER) //
+        .accessMode(AccessMode.WRITE_ONLY) //
+        .unit(Unit.VOLT_AMPERE)
+    ), //
 
-		// LongReadChannels
-		SERIAL_NUMBER(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+    GRID_VOLTAGE_L1(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
+    ), //
+    GRID_VOLTAGE_L2(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
+    ), //
+    GRID_VOLTAGE_L3(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
+    ), //
+    FREQUENCY(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIHERTZ) //
+    ), //
+    CURRENT_BATTERY_CAPACITY(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT) //
+    ), //
 
-		// IntegerWriteChannels
-		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.unit(Unit.WATT)), //
-		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.unit(Unit.VOLT_AMPERE)), //
+    BATTERY_VOLTAGE(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT) //
+    ), //
+    BATTERY_TEMPERATURE(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS) //
+    ), //
+    BATTERY_CURRENT(
+      Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE) //
+    );
 
-		GRID_VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		GRID_VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		GRID_VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIHERTZ)), //
-		CURRENT_BATTERY_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT)), //
+    private final Doc doc;
 
-		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)), //
-		BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS)), //
-		BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE));
+    private ChannelId(Doc doc) {
+      this.doc = doc;
+    }
 
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
+    @Override
+    public Doc doc() {
+      return this.doc;
+    }
+  }
 }
