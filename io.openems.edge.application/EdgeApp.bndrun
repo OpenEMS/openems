@@ -216,7 +216,7 @@
 	com.google.guava;version='[33.4.0,33.4.1)',\
 	com.google.guava.failureaccess;version='[1.0.2,1.0.3)',\
 	com.squareup.okio;version='[3.10.2,3.10.3)',\
-	com.sun.jna;version='[5.16.0,5.16.1)',\
+	com.sun.jna;version='[5.17.0,5.17.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
