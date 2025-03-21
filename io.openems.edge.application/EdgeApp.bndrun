@@ -469,6 +469,6 @@
 	io.openems.edge.meter.emh;version=snapshot,\
 	io.openems.edge.controller.ess.chargedischargelimiter;version=snapshot,\
 	io.openems.edge.energy;version=snapshot,\
-	io.openems.edge.controller.symmetric.thresholdpeakshaver;version=latest,\
 	io.openems.edge.predictor.pv.weather.forecast;version=snapshot,\
-	io.openems.edge.thermometer.esera.onewire;version=snapshot
+	io.openems.edge.thermometer.esera.onewire;version=snapshot,\
+	io.openems.edge.controller.symmetric.thresholdpeakshaver;version=snapshot

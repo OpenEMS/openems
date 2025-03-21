@@ -61,7 +61,6 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-@SuppressWarnings("deprecation")
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,
 		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi, ModbusSlave {
 
