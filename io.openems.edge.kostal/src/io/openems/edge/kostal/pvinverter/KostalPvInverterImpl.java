@@ -12,19 +12,19 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -37,7 +37,6 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(
@@ -55,16 +54,13 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 		implements
 			KostalPvInverter,
 			// ManagedSymmetricPvInverter,
-			EssDcCharger,
-			// ElectricityMeter,
+			// ManagedSymmetricBatteryInverter,
+			// EssDcCharger,
+			ElectricityMeter,
 			ModbusComponent,
 			OpenemsComponent,
-			EventHandler,
 			ModbusSlave,
 			TimedataProvider {
-
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(
-			this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -85,8 +81,8 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 				//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				// ElectricityMeter.ChannelId.values(), //
-				EssDcCharger.ChannelId.values(),
+				ElectricityMeter.ChannelId.values(), //
+				// EssDcCharger.ChannelId.values(),
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				KostalPvInverter.ChannelId.values() //
 		);
@@ -118,26 +114,73 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(531, Priority.HIGH, //
-						m(EssDcCharger.ChannelId.MAX_ACTUAL_POWER,
-								new FloatDoublewordElement(531)
-										.wordOrder(LSWMSW))),
+
+				new FC3ReadRegistersTask(152, Priority.HIGH, //
+						m(ElectricityMeter.ChannelId.FREQUENCY,
+								new FloatDoublewordElement(152)
+										.wordOrder(LSWMSW)), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1,
+								new FloatDoublewordElement(154)
+										.wordOrder(LSWMSW)), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
+								new FloatDoublewordElement(156)
+										.wordOrder(LSWMSW)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
+								new FloatDoublewordElement(158)
+										.wordOrder(LSWMSW)), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2,
+								new FloatDoublewordElement(160)
+										.wordOrder(LSWMSW)), // //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
+								new FloatDoublewordElement(162)
+										.wordOrder(LSWMSW)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
+								new FloatDoublewordElement(164)
+										.wordOrder(LSWMSW)), //
+						m(ElectricityMeter.ChannelId.CURRENT_L3,
+								new FloatDoublewordElement(166)
+										.wordOrder(LSWMSW)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
+								new FloatDoublewordElement(168)
+										.wordOrder(LSWMSW))), //
+
+				new FC3ReadRegistersTask(170, Priority.HIGH, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
+								new FloatDoublewordElement(170)
+										.wordOrder(LSWMSW))), //
+
+				new FC3ReadRegistersTask(531, Priority.LOW, //
+						m(ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER,
+								new UnsignedWordElement(531))), //
+
+//				new FC3ReadRegistersTask(1056, Priority.HIGH, //
+//						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+//								new FloatDoublewordElement(1056)
+//										.wordOrder(LSWMSW))),
 
 				new FC3ReadRegistersTask(1066, Priority.HIGH, //
-						m(EssDcCharger.ChannelId.ACTUAL_POWER,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 								new FloatDoublewordElement(1066)
 										.wordOrder(LSWMSW))));
+
+		// TODO reactive power / active power - battery power?
+
+		// new FC3ReadRegistersTask(1066, Priority.HIGH, //
+		// m(EssDcCharger.ChannelId.ACTUAL_POWER,
+		// new FloatDoublewordElement(1066)
+		// .wordOrder(LSWMSW))));
+
 	}
 
-	// @Override
-	// public MeterType getMeterType() {
-	// return MeterType.PRODUCTION;
-	// }
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.PRODUCTION;
+	}
 
 	@Override
 	public String debugLog() {
-		// return "L:" + this.getActivePower().asString();
-		return "L:" + this.getActualPower().asString();
+		return "L:" + this.getActivePower().asString();
+		// return "L:" + this.getActualPower().asString();
 	}
 
 	@Override
@@ -160,9 +203,4 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 		return this.timedata;
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		// TODO Auto-generated method stub
-
-	}
 }
