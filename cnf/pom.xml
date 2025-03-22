@@ -190,7 +190,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.16.0</version>
+			<version>5.17.0</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -231,7 +231,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.0.20</version>
+			<version>1.0.24</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
