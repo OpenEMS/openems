@@ -23,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -120,27 +121,29 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.CURRENT_L1,
 								new FloatDoublewordElement(154)
 										.wordOrder(LSWMSW)), //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
-								new FloatDoublewordElement(156)
-										.wordOrder(LSWMSW)),
+//						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
+//								new FloatDoublewordElement(156)
+//										.wordOrder(LSWMSW)),
+						new DummyRegisterElement(156, 157), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
 								new FloatDoublewordElement(158)
 										.wordOrder(LSWMSW)), //
 						m(ElectricityMeter.ChannelId.CURRENT_L2,
 								new FloatDoublewordElement(160)
 										.wordOrder(LSWMSW)), // //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
-								new FloatDoublewordElement(162)
-										.wordOrder(LSWMSW)),
+//						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
+//								new FloatDoublewordElement(162)
+//										.wordOrder(LSWMSW)),
+						new DummyRegisterElement(162, 163), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
 								new FloatDoublewordElement(164)
 										.wordOrder(LSWMSW)), //
 						m(ElectricityMeter.ChannelId.CURRENT_L3,
 								new FloatDoublewordElement(166)
-										.wordOrder(LSWMSW)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
-								new FloatDoublewordElement(168)
-										.wordOrder(LSWMSW))), //
+										.wordOrder(LSWMSW))),
+//						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
+//								new FloatDoublewordElement(168)
+//										.wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(170, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3,

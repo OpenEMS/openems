@@ -80,7 +80,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	private Config config;
 
 	private Instant lastApplyPower = Instant.MIN;
-	private int lastSetActivePower = Integer.MIN_VALUE;
+	private int lastSetActivePower = 0;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ElectricityMeter inverter;
@@ -143,7 +143,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePower, int reactivePower)
 			throws OpenemsNamedException {
+		System.out.println("set active power: " + activePower);
 		if (this.config.readOnlyMode()) {
+			System.out.println("is readonly!");
 			return;
 		}
 
@@ -157,6 +159,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 		IntegerWriteChannel setActivePowerChannel = this
 				.channel(KostalManagedESS.ChannelId.SET_ACTIVE_POWER);
+		
 		setActivePowerChannel.setNextWriteValue(activePower);
 
 		// TODO clarify reactive setter - Kostal does not support?
@@ -287,6 +290,10 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void handleEvent(Event event) {
 //		switch (event.getTopic()) {
+//			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+//				//this._setActualPower(getInverterPower());
+//				this._setActualPower(100);
+//				break;		
 //			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
 //				// TODO set EssDcCharger Power
 //				// (EssDcCharger.ChannelId.ACTUAL_POWER)
