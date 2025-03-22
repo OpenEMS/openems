@@ -15,6 +15,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -27,15 +29,20 @@ import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(
@@ -47,11 +54,13 @@ import io.openems.edge.ess.power.api.Power;
 public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		implements
 			KostalManagedESS,
-			// HybridManagedSymmetricBatteryInverter,
-			// EssDcCharger,
 			ManagedSymmetricEss,
 			SymmetricEss,
+			// HybridEss,
+			//EssDcCharger,
 			ModbusComponent,
+			TimedataProvider,
+			EventHandler,
 			OpenemsComponent {
 
 	private static final int WATCHDOG_SECONDS = 30;
@@ -73,12 +82,19 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	private Instant lastApplyPower = Instant.MIN;
 	private int lastSetActivePower = Integer.MIN_VALUE;
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private ElectricityMeter inverter;
+
+	private Timedata timeData;
+
 	public KostalManagedESSImpl() {
 		super(
 				//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
+				HybridEss.ChannelId.values(), //
+				//EssDcCharger.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				KostalManagedESS.ChannelId.values() //
 		);
@@ -96,13 +112,23 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this._setGridMode(GridMode.ON_GRID);
-		
+
+		try {
+			// reference PV inverter
+			if (OpenemsComponent.updateReferenceFilter(this.cm,
+					this.servicePid(), "inverter", config.inverter_id())) {
+				return;
+			}
+
+		} catch (Exception e) {
+			// Ignore exception for failed reference
+		}
+
 		try {
 			// initialize
 			this.applyPower(0, 0);
-			
+
 		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -111,6 +137,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		inverter = null;
 	}
 
 	@Override
@@ -133,9 +160,6 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		setActivePowerChannel.setNextWriteValue(activePower);
 
 		// TODO clarify reactive setter - Kostal does not support?
-		// IntegerWriteChannel setReactivePowerChannel =
-		// this.channel(KostalManagedESS.ChannelId.SET_REACTIVE_POWER);
-		// setReactivePowerChannel.setNextWriteValue(reactivePower);
 
 		this.lastApplyPower = Instant.now();
 		this.lastSetActivePower = activePower;
@@ -155,43 +179,29 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 						m(KostalManagedESS.ChannelId.ENERGY_MANAGER_MODE,
 								new UnsignedDoublewordElement(104)
 										.wordOrder(LSWMSW))), //
-				new FC3ReadRegistersTask(1046, Priority.LOW,
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
-								new FloatDoublewordElement(1046)
-										.wordOrder(LSWMSW)), //
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
-								new FloatDoublewordElement(1048)
-										.wordOrder(LSWMSW))), //
 
-//				new FC3ReadRegistersTask(529, Priority.LOW, //
-//						m(SymmetricEss.ChannelId.CAPACITY,
-//								new UnsignedDoublewordElement(529)
-//										.wordOrder(LSWMSW))), //
-				
-				new FC3ReadRegistersTask(582, Priority.HIGH, //
-						m(SymmetricEss.ChannelId.ACTIVE_POWER,
-								new SignedWordElement(582))),
+				// new FC3ReadRegistersTask(174, Priority.HIGH, //
+				// m(SymmetricEss.ChannelId.REACTIVE_POWER,
+				// new FloatDoublewordElement(174)
+				// .wordOrder(LSWMSW))), //
 
-				new FC3ReadRegistersTask(174, Priority.HIGH, //
-						m(SymmetricEss.ChannelId.REACTIVE_POWER,
-								new FloatDoublewordElement(174)
-										.wordOrder(LSWMSW))), //
-				new FC3ReadRegistersTask(152, Priority.HIGH, //
-						m(KostalManagedESS.ChannelId.FREQUENCY,
-								new FloatDoublewordElement(152)
-										.wordOrder(LSWMSW))), //
-				new FC3ReadRegistersTask(158, Priority.HIGH, //
-						m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L1,
-								new FloatDoublewordElement(158)
-										.wordOrder(LSWMSW))), //
-				new FC3ReadRegistersTask(164, Priority.HIGH, //
-						m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L2,
-								new FloatDoublewordElement(164)
-										.wordOrder(LSWMSW))), //
-				new FC3ReadRegistersTask(170, Priority.HIGH, //
-						m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L3,
-								new FloatDoublewordElement(170)
-										.wordOrder(LSWMSW))), //
+				// new FC3ReadRegistersTask(152, Priority.HIGH, //
+				// m(KostalManagedESS.ChannelId.FREQUENCY,
+				// new FloatDoublewordElement(152)
+				// .wordOrder(LSWMSW))), //
+				// new FC3ReadRegistersTask(158, Priority.HIGH, //
+				// m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L1,
+				// new FloatDoublewordElement(158)
+				// .wordOrder(LSWMSW))), //
+				// new FC3ReadRegistersTask(164, Priority.HIGH, //
+				// m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L2,
+				// new FloatDoublewordElement(164)
+				// .wordOrder(LSWMSW))), //
+				// new FC3ReadRegistersTask(170, Priority.HIGH, //
+				// m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L3,
+				// new FloatDoublewordElement(170)
+				// .wordOrder(LSWMSW))), //
+
 				new FC3ReadRegistersTask(190, Priority.HIGH, //
 						m(KostalManagedESS.ChannelId.BATTERY_CURRENT,
 								new FloatDoublewordElement(190)
@@ -208,6 +218,24 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(216)
 										.wordOrder(LSWMSW))), //
 
+				// new FC3ReadRegistersTask(529, Priority.LOW, //
+				// m(SymmetricEss.ChannelId.CAPACITY,
+				// new UnsignedDoublewordElement(529)
+				// .wordOrder(LSWMSW))), //
+
+				new FC3ReadRegistersTask(531, Priority.LOW, //
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
+								new UnsignedWordElement(531))), //
+				// new FloatDoublewordElement(1040).wordOrder(LSWMSW))), //
+
+				// new FC3ReadRegistersTask(582, Priority.HIGH, //
+				// m(HybridEss.ChannelId.DC_DISCHARGE_POWER,
+				// new SignedWordElement(582))), //
+
+				new FC3ReadRegistersTask(582, Priority.HIGH, //
+						m(SymmetricEss.ChannelId.ACTIVE_POWER,
+								new SignedWordElement(582))),
+
 				new FC3ReadRegistersTask(1038, Priority.HIGH, //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
 								new FloatDoublewordElement(1038)
@@ -215,7 +243,15 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
 								new FloatDoublewordElement(1040)
 										.wordOrder(LSWMSW))), //
-				
+
+				new FC3ReadRegistersTask(1046, Priority.LOW,
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
+								new FloatDoublewordElement(1046)
+										.wordOrder(LSWMSW)), //
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
+								new FloatDoublewordElement(1048)
+										.wordOrder(LSWMSW))), //
+
 				new FC16WriteRegistersTask(1034, //
 						m(KostalManagedESS.ChannelId.SET_ACTIVE_POWER,
 								new FloatDoublewordElement(1034)
@@ -226,6 +262,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return ("SoC:" + this.getSoc().asString() + //
 				"|L:" + this.getActivePower().asString() + //
+				"|PV:" + Integer.toString(getInverterPower()) + " W" +//
 				"|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit()
 				+ ";" + //
 				this.getAllowedDischargePower().asString() + //
@@ -240,5 +277,35 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 1;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timeData;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+//		switch (event.getTopic()) {
+//			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
+//				// TODO set EssDcCharger Power
+//				// (EssDcCharger.ChannelId.ACTUAL_POWER)
+//				//this._setActualPower(getInverterPower());
+//				this._setActualPower(100);
+//				break;
+//		}
+	}
+
+	private int getInverterPower() {
+		int power = -1;
+		if (this.inverter != null) {
+			try {
+				power = this.inverter.getActivePower().get();
+			} catch (NullPointerException e) {
+				// ignore
+				// e.printStackTrace();
+			}
+		}
+		return power;
 	}
 }

@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(
   //
   name = "ESS Kostal Plenticore", //
-  description = "Implements the Kostal Plenticore Hybrid energy storage system."
+  description = "Implements the Kostal Plenticore hybrid energy storage system."
 )
 @interface Config {
   @AttributeDefinition(
@@ -47,6 +47,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     description = "Capacity of the battery in [Wh]"
   )
   int capacity() default 10_000;
+  
+	@AttributeDefinition(name = "Kostal PV-Inverter", description = "ID of Kostal PV-Inverter.")
+	String inverter_id() default "pvInverter0";
 
   @AttributeDefinition(
     name = "Core target filter",
