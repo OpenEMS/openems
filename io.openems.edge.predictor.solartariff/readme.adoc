@@ -1,0 +1,18 @@
+= Similarday-Model Predictor
+
+This predictor uses "Similar day technique" for prediction. 
+This particular implementation requires mainly two inputs, which are
+* Num of past weeks (n)
+* The channels address data, which needs to predicted.
+
+
+ 
+ 
+The similar-day models predicts by calculating the average of a 'n' number of previous period values.
+
+_example_: the next monday predictions values is equal to average of past n = 4 monday values.
+
+This predictor is mainly used for predicting the Consumption power and energy. And the Accuracy of the model is scientifically verified within https://openems.io/research/emsig/[EMSIG project^].
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.similardaymodel[Source Code icon:github[]]
