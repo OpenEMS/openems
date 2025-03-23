@@ -14,7 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId;
 		private int modbusUnitId;
 		private int capacity;
-		private String inverter_id;
+		//private String inverter_id;
 		private String core_target;
 		private MeterType type;
 
@@ -46,10 +46,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setInverter_id(String inverter_id) {
-			this.inverter_id = inverter_id;
-			return this;
-		}
+//		public Builder setInverter_id(String inverter_id) {
+//			this.inverter_id = inverter_id;
+//			return this;
+//		}
 
 		public Builder setCore_target(String core_target) {
 			this.core_target = core_target;
@@ -97,10 +97,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.capacity;
 	}
 
-	@Override
-	public String inverter_id() {
-		return this.builder.inverter_id;
-	}
+//	@Override
+//	public String inverter_id() {
+//		return this.builder.inverter_id;
+//	}
 
 	@Override
 	public String core_target() {

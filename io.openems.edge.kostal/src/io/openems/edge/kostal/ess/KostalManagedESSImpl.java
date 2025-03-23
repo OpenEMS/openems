@@ -39,11 +39,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -118,16 +114,16 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		this._setGridMode(GridMode.ON_GRID);
 		this._setCapacity(config.capacity());
 
-		try {
-			// reference PV inverter
-			if (OpenemsComponent.updateReferenceFilter(this.cm,
-					this.servicePid(), "inverter", config.inverter_id())) {
-				return;
-			}
-
-		} catch (Exception e) {
-			// Ignore exception for failed reference
-		}
+//		try {
+//			// reference PV inverter
+//			if (OpenemsComponent.updateReferenceFilter(this.cm,
+//					this.servicePid(), "inverter", config.inverter_id())) {
+//				return;
+//			}
+//
+//		} catch (Exception e) {
+//			// Ignore exception for failed reference
+//		}
 
 		try {
 			// initialize
@@ -173,6 +169,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setActivePowerChannel = this
 				.channel(KostalManagedESS.ChannelId.SET_ACTIVE_POWER);
 
+		// TODO until now the values from openEMS aren't calculated and provided correctly...
 		setActivePowerChannel.setNextWriteValue(activePower);
 
 		// TODO clarify reactive setter - Kostal does not support?
@@ -278,7 +275,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return ("SoC:" + this.getSoc().asString() + //
 				"|Battery:" + this.getActivePower().asString() + //
-				"|PV:" + Integer.toString(getInverterPower()) + " W" + //
+				//"|PV:" + Integer.toString(getInverterPower()) + " W" + //
 				"|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit()
 				+ ";" + //
 				this.getAllowedDischargePower().asString() + //
@@ -379,16 +376,16 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		return (this.config.enabled() && !this.config.readOnlyMode());
 	}
 
-	private int getInverterPower() {
-		int power = -1;
-		if (this.inverter != null) {
-			try {
-				power = this.inverter.getActivePower().get();
-			} catch (NullPointerException e) {
-				// ignore
-				// e.printStackTrace();
-			}
-		}
-		return power;
-	}
+//	private int getInverterPower() {
+//		int power = -1;
+//		if (this.inverter != null) {
+//			try {
+//				power = this.inverter.getActivePower().get();
+//			} catch (NullPointerException e) {
+//				// ignore
+//				// e.printStackTrace();
+//			}
+//		}
+//		return power;
+//	}
 }
