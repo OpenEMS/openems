@@ -41,6 +41,15 @@ public interface KostalManagedESS
 				.persistencePriority(PersistencePriority.HIGH) //
 		), //
 
+		GRID_VOLTAGE_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
+		), //
+		GRID_VOLTAGE_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
+		), //
+		GRID_VOLTAGE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
+		), //
+		FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIHERTZ) //
+		), //
+
 		// IntegerWriteChannels
 		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY) //
