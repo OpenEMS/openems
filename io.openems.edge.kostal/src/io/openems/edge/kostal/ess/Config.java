@@ -48,8 +48,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
   )
   int capacity() default 10_000;
   
-	@AttributeDefinition(name = "Kostal PV-Inverter", description = "ID of Kostal PV-Inverter.")
-	String inverter_id() default "pvInverter0";
+//	@AttributeDefinition(name = "Kostal PV-Inverter", description = "ID of Kostal PV-Inverter.")
+//	String inverter_id() default "pvInverter0";
 
   @AttributeDefinition(
     name = "Core target filter",

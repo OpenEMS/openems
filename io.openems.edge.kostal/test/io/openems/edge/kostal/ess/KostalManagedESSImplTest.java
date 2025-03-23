@@ -19,7 +19,7 @@ public class KostalManagedESSImplTest {
 	          .setReadOnlyMode(true) //
 	          .setModbusId("modbus0") //
 	          .setCapacity(10000) //
-	          .setInverter_id("pvInverter0")
+	          //.setInverter_id("pvInverter0")
 	          .setModbusUnitId(71) //
 	          .build()
 	      ); //
