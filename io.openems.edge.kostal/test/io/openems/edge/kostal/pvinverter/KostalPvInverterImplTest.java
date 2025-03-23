@@ -1,12 +1,10 @@
 package io.openems.edge.kostal.pvinverter;
 
-import static io.openems.common.types.MeterType.PRODUCTION;
-import static io.openems.edge.pvinverter.sunspec.Phase.L1;
+import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import org.junit.Test;
 
 public class KostalPvInverterImplTest {
 
