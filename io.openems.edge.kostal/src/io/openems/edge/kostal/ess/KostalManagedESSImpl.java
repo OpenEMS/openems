@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
@@ -34,6 +35,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.HybridEss;
@@ -49,7 +51,11 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		//
 		name = "Ess.Kostal.Plenticore", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "="
+						+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		} //
 )
 public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		implements
@@ -114,16 +120,16 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		this._setGridMode(GridMode.ON_GRID);
 		this._setCapacity(config.capacity());
 
-//		try {
-//			// reference PV inverter
-//			if (OpenemsComponent.updateReferenceFilter(this.cm,
-//					this.servicePid(), "inverter", config.inverter_id())) {
-//				return;
-//			}
-//
-//		} catch (Exception e) {
-//			// Ignore exception for failed reference
-//		}
+		// try {
+		// // reference PV inverter
+		// if (OpenemsComponent.updateReferenceFilter(this.cm,
+		// this.servicePid(), "inverter", config.inverter_id())) {
+		// return;
+		// }
+		//
+		// } catch (Exception e) {
+		// // Ignore exception for failed reference
+		// }
 
 		try {
 			// initialize
@@ -169,7 +175,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setActivePowerChannel = this
 				.channel(KostalManagedESS.ChannelId.SET_ACTIVE_POWER);
 
-		// TODO until now the values from openEMS aren't calculated and provided correctly...
+		// TODO until now the values from openEMS aren't calculated and provided
+		// correctly...
 		setActivePowerChannel.setNextWriteValue(activePower);
 
 		// TODO clarify reactive setter - Kostal does not support?
@@ -193,27 +200,28 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(104)
 										.wordOrder(LSWMSW))), //
 
-				// new FC3ReadRegistersTask(174, Priority.HIGH, //
-				// m(SymmetricEss.ChannelId.REACTIVE_POWER,
-				// new FloatDoublewordElement(174)
-				// .wordOrder(LSWMSW))), //
+				new FC3ReadRegistersTask(174, Priority.HIGH, //
+						m(SymmetricEss.ChannelId.REACTIVE_POWER,
+								new FloatDoublewordElement(174)
+										.wordOrder(LSWMSW))), //
 
-				// new FC3ReadRegistersTask(152, Priority.HIGH, //
-				// m(KostalManagedESS.ChannelId.FREQUENCY,
-				// new FloatDoublewordElement(152)
-				// .wordOrder(LSWMSW))), //
-				// new FC3ReadRegistersTask(158, Priority.HIGH, //
-				// m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L1,
-				// new FloatDoublewordElement(158)
-				// .wordOrder(LSWMSW))), //
-				// new FC3ReadRegistersTask(164, Priority.HIGH, //
-				// m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L2,
-				// new FloatDoublewordElement(164)
-				// .wordOrder(LSWMSW))), //
-				// new FC3ReadRegistersTask(170, Priority.HIGH, //
-				// m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L3,
-				// new FloatDoublewordElement(170)
-				// .wordOrder(LSWMSW))), //
+				//TODO optimize, and add current? or remove it... ;)
+				new FC3ReadRegistersTask(152, Priority.HIGH, //
+						m(KostalManagedESS.ChannelId.FREQUENCY,
+								new FloatDoublewordElement(152)
+										.wordOrder(LSWMSW))), //
+				new FC3ReadRegistersTask(158, Priority.HIGH, //
+						m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L1,
+								new FloatDoublewordElement(158)
+										.wordOrder(LSWMSW))), //
+				new FC3ReadRegistersTask(164, Priority.HIGH, //
+						m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L2,
+								new FloatDoublewordElement(164)
+										.wordOrder(LSWMSW))), //
+				new FC3ReadRegistersTask(170, Priority.HIGH, //
+						m(KostalManagedESS.ChannelId.GRID_VOLTAGE_L3,
+								new FloatDoublewordElement(170)
+										.wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(190, Priority.HIGH, //
 						m(KostalManagedESS.ChannelId.BATTERY_CURRENT,
@@ -249,13 +257,13 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER,
 								new SignedWordElement(582))),
 
-//				new FC3ReadRegistersTask(1038, Priority.HIGH, //
-//						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
-//								new FloatDoublewordElement(1038)
-//										.wordOrder(LSWMSW)), //
-//						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
-//								new FloatDoublewordElement(1040)
-//										.wordOrder(LSWMSW))), //
+				// new FC3ReadRegistersTask(1038, Priority.HIGH, //
+				// m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				// new FloatDoublewordElement(1038)
+				// .wordOrder(LSWMSW)), //
+				// m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				// new FloatDoublewordElement(1040)
+				// .wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(1046, Priority.LOW,
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
@@ -275,7 +283,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	public String debugLog() {
 		return ("SoC:" + this.getSoc().asString() + //
 				"|Battery:" + this.getActivePower().asString() + //
-				//"|PV:" + Integer.toString(getInverterPower()) + " W" + //
+				// "|PV:" + Integer.toString(getInverterPower()) + " W" + //
 				"|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit()
 				+ ";" + //
 				this.getAllowedDischargePower().asString() + //
@@ -283,58 +291,58 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				"|Managed:" + this.isManaged();
 	}
 
-//	@Override
-//	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-//		// Read-Only-Mode
-//		if (this.config.readOnlyMode()) {
-//			return new Constraint[]{ //
-//					this.createPowerConstraint("Read-Only-Mode", Phase.ALL,
-//							Pwr.ACTIVE, Relationship.EQUALS, 0), //
-//			};
-//		}
-//
-//		if ((this.getSoc().get() < 100) && (this.getSoc().get() > 5)) {
-//			// Active Power constraints
-//			return new Constraint[]{ //
-//					this.createPowerConstraint("Plenticore Max Charge Power",
-//							Phase.ALL, Pwr.ACTIVE,
-//							Relationship.GREATER_OR_EQUALS,
-//							-1 * this.getAllowedChargePower().get()), //
-//					this.createPowerConstraint("Plenticore Max Discharge Power",
-//							Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-//							this.getAllowedDischargePower().get())};
-//		}
-//		
-//		if (this.getSoc().get() <= 5) {
-//			// Active Power constraints
-//			return new Constraint[]{ //
-//					this.createPowerConstraint("Plenticore Max Charge Power",
-//							Phase.ALL, Pwr.ACTIVE,
-//							Relationship.GREATER_OR_EQUALS,
-//							-1 * this.getAllowedChargePower().get()), //
-//					this.createPowerConstraint("Plenticore Max Discharge Power",
-//							Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-//							0)};
-//		}
-//		
-//		if (this.getSoc().get() > 99) {
-//			// Active Power constraints (im
-//			return new Constraint[]{ //
-//					this.createPowerConstraint("Plenticore Max Charge Power",
-//							Phase.ALL, Pwr.ACTIVE,
-//							Relationship.GREATER_OR_EQUALS, 0), //
-//					this.createPowerConstraint("Plenticore Max Discharge Power",
-//							Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-//							this.getAllowedDischargePower().get())};
-//		}
-//		
-//		// TODO verify
-//		// fail-safe
-//		return new Constraint[]{ //
-//				this.createPowerConstraint("Fail-Safe Mode", Phase.ALL,
-//						Pwr.ACTIVE, Relationship.EQUALS, 0), //
-//		};
-//	}
+	// @Override
+	// public Constraint[] getStaticConstraints() throws OpenemsNamedException {
+	// // Read-Only-Mode
+	// if (this.config.readOnlyMode()) {
+	// return new Constraint[]{ //
+	// this.createPowerConstraint("Read-Only-Mode", Phase.ALL,
+	// Pwr.ACTIVE, Relationship.EQUALS, 0), //
+	// };
+	// }
+	//
+	// if ((this.getSoc().get() < 100) && (this.getSoc().get() > 5)) {
+	// // Active Power constraints
+	// return new Constraint[]{ //
+	// this.createPowerConstraint("Plenticore Max Charge Power",
+	// Phase.ALL, Pwr.ACTIVE,
+	// Relationship.GREATER_OR_EQUALS,
+	// -1 * this.getAllowedChargePower().get()), //
+	// this.createPowerConstraint("Plenticore Max Discharge Power",
+	// Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+	// this.getAllowedDischargePower().get())};
+	// }
+	//
+	// if (this.getSoc().get() <= 5) {
+	// // Active Power constraints
+	// return new Constraint[]{ //
+	// this.createPowerConstraint("Plenticore Max Charge Power",
+	// Phase.ALL, Pwr.ACTIVE,
+	// Relationship.GREATER_OR_EQUALS,
+	// -1 * this.getAllowedChargePower().get()), //
+	// this.createPowerConstraint("Plenticore Max Discharge Power",
+	// Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+	// 0)};
+	// }
+	//
+	// if (this.getSoc().get() > 99) {
+	// // Active Power constraints (im
+	// return new Constraint[]{ //
+	// this.createPowerConstraint("Plenticore Max Charge Power",
+	// Phase.ALL, Pwr.ACTIVE,
+	// Relationship.GREATER_OR_EQUALS, 0), //
+	// this.createPowerConstraint("Plenticore Max Discharge Power",
+	// Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+	// this.getAllowedDischargePower().get())};
+	// }
+	//
+	// // TODO verify
+	// // fail-safe
+	// return new Constraint[]{ //
+	// this.createPowerConstraint("Fail-Safe Mode", Phase.ALL,
+	// Pwr.ACTIVE, Relationship.EQUALS, 0), //
+	// };
+	// }
 
 	@Override
 	public Power getPower() {
@@ -376,16 +384,16 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		return (this.config.enabled() && !this.config.readOnlyMode());
 	}
 
-//	private int getInverterPower() {
-//		int power = -1;
-//		if (this.inverter != null) {
-//			try {
-//				power = this.inverter.getActivePower().get();
-//			} catch (NullPointerException e) {
-//				// ignore
-//				// e.printStackTrace();
-//			}
-//		}
-//		return power;
-//	}
+	// private int getInverterPower() {
+	// int power = -1;
+	// if (this.inverter != null) {
+	// try {
+	// power = this.inverter.getActivePower().get();
+	// } catch (NullPointerException e) {
+	// // ignore
+	// // e.printStackTrace();
+	// }
+	// }
+	// return power;
+	// }
 }

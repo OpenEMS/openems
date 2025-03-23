@@ -12,6 +12,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -45,7 +48,10 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"type=PRODUCTION", //
+				EventConstants.EVENT_TOPIC + "="
+						+ EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
+
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
@@ -59,6 +65,7 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 			ModbusComponent,
 			OpenemsComponent,
 			ModbusSlave,
+			EventHandler,
 			TimedataProvider {
 
 	@Reference
@@ -85,6 +92,7 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				KostalPvInverter.ChannelId.values() //
 		);
+		ElectricityMeter.calculatePhasesFromActivePower(this);
 	}
 
 	@Activate
@@ -121,9 +129,9 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.CURRENT_L1,
 								new FloatDoublewordElement(154)
 										.wordOrder(LSWMSW)), //
-//						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
-//								new FloatDoublewordElement(156)
-//										.wordOrder(LSWMSW)),
+						// m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
+						// new FloatDoublewordElement(156)
+						// .wordOrder(LSWMSW)),
 						new DummyRegisterElement(156, 157), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
 								new FloatDoublewordElement(158)
@@ -131,9 +139,9 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.CURRENT_L2,
 								new FloatDoublewordElement(160)
 										.wordOrder(LSWMSW)), // //
-//						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
-//								new FloatDoublewordElement(162)
-//										.wordOrder(LSWMSW)),
+						// m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
+						// new FloatDoublewordElement(162)
+						// .wordOrder(LSWMSW)),
 						new DummyRegisterElement(162, 163), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
 								new FloatDoublewordElement(164)
@@ -141,9 +149,9 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.CURRENT_L3,
 								new FloatDoublewordElement(166)
 										.wordOrder(LSWMSW))),
-//						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
-//								new FloatDoublewordElement(168)
-//										.wordOrder(LSWMSW))), //
+				// m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
+				// new FloatDoublewordElement(168)
+				// .wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(170, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
@@ -154,10 +162,10 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 						m(ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER,
 								new UnsignedWordElement(531))), //
 
-//				new FC3ReadRegistersTask(1056, Priority.HIGH, //
-//						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-//								new FloatDoublewordElement(1056)
-//										.wordOrder(LSWMSW))),
+				// new FC3ReadRegistersTask(1056, Priority.HIGH, //
+				// m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+				// new FloatDoublewordElement(1056)
+				// .wordOrder(LSWMSW))),
 
 				new FC3ReadRegistersTask(1066, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
@@ -202,6 +210,30 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
+				this.calculateEnergy();
+				break;
+		}
+	}
+
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		//TODO prepared, but unused yet - production energy is missing in UI 
+		var actualPower = this.getActivePower().get();
+//		if (actualPower == null) {
+//			this.calculateActualEnergy.update(null);
+//		} else if (actualPower > 0) {
+//			this.calculateActualEnergy.update(actualPower);
+//		} else {
+//			this.calculateActualEnergy.update(0);
+//		}
 	}
 
 }
