@@ -205,7 +205,8 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-	bnd.identity;id='io.openems.edge.kostal'
+	bnd.identity;id='io.openems.edge.kostal',\
+	bnd.identity;id='io.openems.edge.predictor.solartariff'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	bcpkix;version='[1.80.0,1.80.1)',\
@@ -459,4 +460,5 @@
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
 	stax2-api;version='[4.2.2,4.2.3)',\
-	io.openems.edge.kostal;version=snapshot
+	io.openems.edge.kostal;version=snapshot,\
+	io.openems.edge.predictor.solartariff;version=snapshot
