@@ -219,5 +219,4 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 				break;
 		}
 	}
-
 }
