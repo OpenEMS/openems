@@ -95,7 +95,7 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 					.now(this.componentManager.getClock()).withNano(0)
 					.withMinute(0).withSecond(0);
 			ZoneId zoneId = ZoneId.of("UTC");
-			
+
 			JsonArray js = null;
 
 			if (!executed) {
@@ -108,13 +108,12 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 			} else {
 				// TODO correct?
 				if (cachedPrediction != null) {
-					System.out.println(
-							"SolarForecast.createNewPrediction cached");
+					log.debug("SolarForecast.createNewPrediction cached");
 					return cachedPrediction;
 				}
 			}
 
-			System.out.println("SolarForecast.createNewPrediction refreshing");
+			log.debug("SolarForecast.createNewPrediction refreshing");
 
 			if (js != null) {
 				hourlySolarData.clear();
@@ -131,12 +130,9 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 
 					JsonElement price = js.get(i).getAsJsonObject()
 							.get("price");
-					// log.debug(...);
+
 					log.debug("SolarForecast prediction: " + localTime + " "
 							+ price.getAsInt() + " Wh");
-					// TODO remove syso
-					System.out.println("SolarForecast prediction: " + localTime
-							+ " " + price.getAsInt() + " Wh");
 					hourlySolarData.put(localTime, price.getAsInt());
 				}
 				this.channel(PredictorSolarTariffEvcc.ChannelId.PREDICT_ENABLED)
@@ -149,42 +145,22 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 				log.warn("Failed to fetch solar forecast data.");
 				this.channel(PredictorSolarTariffEvcc.ChannelId.PREDICT_ENABLED)
 						.setNextValue(false);
-				System.out.println("SolarForecast.createNewPrediction failed.");
+				log.debug("SolarForecast.createNewPrediction failed.");
 				return Prediction.EMPTY_PREDICTION;
 			}
 
-			System.out
-					.println("SolarForecast.createNewPrediction transforming");
-
-			// // Calculate the index corresponding to the current 15-minute
-			// // interval
-			// int currentIntervalIndex = (int) ChronoUnit.HOURS
-			// .between(startOfDay, currentHour); // Index of current
-			// // 15-minute interval
-			//
-			// System.out.println("SolarForecast.createNewPrediction - getting
-			// first element");
-
-			// Entry<LocalDateTime, Integer> first = hourlySolarData.entrySet()
-			// .iterator().next();
-			// int firstIntervalIndex = (int)
-			// ChronoUnit.HOURS.between(startOfDay,
-			// first.getKey());
+			log.debug("SolarForecast.createNewPrediction transforming");
 
 			// Create an array to store the forecast values for the next 192
 			// intervals (48 hours in 15-minute steps)
 			var values = new Integer[192];
 
-			// System.out.println("SolarForecast/currentInvervalIndex: "
-			// + currentIntervalIndex);
-			// System.out.println(
-			// "SolarForecast/firstInvervalIndex: " + firstIntervalIndex);
-
 			int i = 0;
 			for (Entry<LocalDateTime, Integer> entry : hourlySolarData
 					.entrySet()) {
-				System.out.println("loop processing...");
-				if (!entry.getKey().atZone(zoneId).isBefore(currentHour.atZone(zoneId))
+				// System.out.println("loop processing...");
+				if (!entry.getKey().atZone(zoneId)
+						.isBefore(currentHour.atZone(zoneId))
 						&& i < values.length) {
 					// convert hourly values in 15min steps (summarized later,
 					// therefore divided by 4 //TODO correct?
@@ -195,8 +171,8 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 					values[i++] = entry.getValue();
 				}
 			}
-			System.out.println("loop completed");
-			
+			log.debug("loop completed");
+
 			this.channel(PredictorSolarTariffEvcc.ChannelId.PREDICT)
 					.setNextValue(hourlySolarData.firstEntry().getValue());
 
