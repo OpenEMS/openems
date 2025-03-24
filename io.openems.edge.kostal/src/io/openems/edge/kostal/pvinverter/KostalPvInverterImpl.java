@@ -128,39 +128,45 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.CURRENT_L1,
 								new FloatDoublewordElement(154)
 										.wordOrder(LSWMSW)), //
-						// m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
-						// new FloatDoublewordElement(156)
-						// .wordOrder(LSWMSW)),
-						new DummyRegisterElement(156, 157), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
+								new FloatDoublewordElement(156)
+										.wordOrder(LSWMSW)),
+						// new DummyRegisterElement(156, 157), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
 								new FloatDoublewordElement(158)
 										.wordOrder(LSWMSW)), //
 						m(ElectricityMeter.ChannelId.CURRENT_L2,
 								new FloatDoublewordElement(160)
 										.wordOrder(LSWMSW)), // //
-						// m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
-						// new FloatDoublewordElement(162)
-						// .wordOrder(LSWMSW)),
-						new DummyRegisterElement(162, 163), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
+								new FloatDoublewordElement(162)
+										.wordOrder(LSWMSW)),
+						// new DummyRegisterElement(162, 163), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
 								new FloatDoublewordElement(164)
 										.wordOrder(LSWMSW)), //
 						m(ElectricityMeter.ChannelId.CURRENT_L3,
 								new FloatDoublewordElement(166)
-										.wordOrder(LSWMSW))),
-				// m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
-				// new FloatDoublewordElement(168)
-				// .wordOrder(LSWMSW))), //
+										.wordOrder(LSWMSW)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
+								new FloatDoublewordElement(168)
+										.wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(170, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
 								new FloatDoublewordElement(170)
 										.wordOrder(LSWMSW))), //
 
+				new FC3ReadRegistersTask(322, Priority.HIGH, //
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								new FloatDoublewordElement(322)
+										.wordOrder(LSWMSW))),
+
 				new FC3ReadRegistersTask(531, Priority.LOW, //
 						m(ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER,
 								new UnsignedWordElement(531))), //
 
+				// //322 PV daily yield, float
 				// new FC3ReadRegistersTask(1056, Priority.HIGH, //
 				// m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 				// new FloatDoublewordElement(1056)
