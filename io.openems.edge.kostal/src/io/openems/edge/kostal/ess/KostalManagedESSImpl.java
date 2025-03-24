@@ -41,7 +41,11 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -54,7 +58,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				EventConstants.EVENT_TOPIC + "="
-						+ EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+						+ EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		} //
 )
 public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
@@ -177,7 +181,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 		// TODO until now the values from openEMS aren't calculated and provided
 		// correctly...
+
 		setActivePowerChannel.setNextWriteValue(activePower);
+		this._setActivePower(activePower); // TODO idea correct?
 
 		// TODO clarify reactive setter - Kostal does not support?
 
@@ -205,7 +211,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(174)
 										.wordOrder(LSWMSW))), //
 
-				//TODO optimize, and add current? or remove it... ;)
+				// TODO optimize, and add current? or remove it... ;)
 				new FC3ReadRegistersTask(152, Priority.HIGH, //
 						m(KostalManagedESS.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(152)
@@ -239,15 +245,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(216)
 										.wordOrder(LSWMSW))), //
 
-				// new FC3ReadRegistersTask(529, Priority.LOW, //
-				// m(SymmetricEss.ChannelId.CAPACITY,
-				// new UnsignedDoublewordElement(529)
-				// .wordOrder(LSWMSW))), //
-
 				new FC3ReadRegistersTask(531, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
 								new UnsignedWordElement(531))), //
-				// new FloatDoublewordElement(1040).wordOrder(LSWMSW))), //
 
 				// new FC3ReadRegistersTask(582, Priority.HIGH, //
 				// m(HybridEss.ChannelId.DC_DISCHARGE_POWER,
@@ -257,13 +257,13 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER,
 								new SignedWordElement(582))),
 
-				// new FC3ReadRegistersTask(1038, Priority.HIGH, //
-				// m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
-				// new FloatDoublewordElement(1038)
-				// .wordOrder(LSWMSW)), //
-				// m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
-				// new FloatDoublewordElement(1040)
-				// .wordOrder(LSWMSW))), //
+				new FC3ReadRegistersTask(1038, Priority.HIGH, //
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+								new FloatDoublewordElement(1038)
+										.wordOrder(LSWMSW)), //
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+								new FloatDoublewordElement(1040)
+										.wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(1046, Priority.LOW,
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
@@ -291,58 +291,60 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				"|Managed:" + this.isManaged();
 	}
 
-	// @Override
-	// public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-	// // Read-Only-Mode
-	// if (this.config.readOnlyMode()) {
-	// return new Constraint[]{ //
-	// this.createPowerConstraint("Read-Only-Mode", Phase.ALL,
-	// Pwr.ACTIVE, Relationship.EQUALS, 0), //
-	// };
-	// }
-	//
-	// if ((this.getSoc().get() < 100) && (this.getSoc().get() > 5)) {
-	// // Active Power constraints
-	// return new Constraint[]{ //
-	// this.createPowerConstraint("Plenticore Max Charge Power",
-	// Phase.ALL, Pwr.ACTIVE,
-	// Relationship.GREATER_OR_EQUALS,
-	// -1 * this.getAllowedChargePower().get()), //
-	// this.createPowerConstraint("Plenticore Max Discharge Power",
-	// Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-	// this.getAllowedDischargePower().get())};
-	// }
-	//
-	// if (this.getSoc().get() <= 5) {
-	// // Active Power constraints
-	// return new Constraint[]{ //
-	// this.createPowerConstraint("Plenticore Max Charge Power",
-	// Phase.ALL, Pwr.ACTIVE,
-	// Relationship.GREATER_OR_EQUALS,
-	// -1 * this.getAllowedChargePower().get()), //
-	// this.createPowerConstraint("Plenticore Max Discharge Power",
-	// Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-	// 0)};
-	// }
-	//
-	// if (this.getSoc().get() > 99) {
-	// // Active Power constraints (im
-	// return new Constraint[]{ //
-	// this.createPowerConstraint("Plenticore Max Charge Power",
-	// Phase.ALL, Pwr.ACTIVE,
-	// Relationship.GREATER_OR_EQUALS, 0), //
-	// this.createPowerConstraint("Plenticore Max Discharge Power",
-	// Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-	// this.getAllowedDischargePower().get())};
-	// }
-	//
-	// // TODO verify
-	// // fail-safe
-	// return new Constraint[]{ //
-	// this.createPowerConstraint("Fail-Safe Mode", Phase.ALL,
-	// Pwr.ACTIVE, Relationship.EQUALS, 0), //
-	// };
-	// }
+	@Override
+	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
+		// Read-Only-Mode
+		if (!this.config.readOnlyMode()) {
+			if ((this.getSoc().get() < 100) && (this.getSoc().get() > 5)) {
+				// Active Power constraints
+				return new Constraint[]{ //
+						this.createPowerConstraint(
+								"Plenticore Max Charge Power", Phase.ALL,
+								Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
+								-1 * this.getAllowedChargePower().get()), //
+						this.createPowerConstraint(
+								"Plenticore Max Discharge Power", Phase.ALL,
+								Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+								this.getAllowedDischargePower().get())};
+			}
+
+			if (this.getSoc().get() <= 5) {
+				// Active Power constraints
+				return new Constraint[]{ //
+						this.createPowerConstraint(
+								"Plenticore Max Charge Power", Phase.ALL,
+								Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
+								-1 * this.getAllowedChargePower().get()), //
+						this.createPowerConstraint(
+								"Plenticore Max Discharge Power", Phase.ALL,
+								Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 0)};
+			}
+
+			if (this.getSoc().get() > 99) {
+				// Active Power constraints
+				return new Constraint[]{ //
+						this.createPowerConstraint(
+								"Plenticore Max Charge Power", Phase.ALL,
+								Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, 0), //
+						this.createPowerConstraint(
+								"Plenticore Max Discharge Power", Phase.ALL,
+								Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+								this.getAllowedDischargePower().get())};
+			}
+		}
+		// TODO verify!
+		// empty
+		// return new Constraint[]{};
+
+		// fail-safe
+		return new Constraint[]{ //
+				this.createPowerConstraint("Fail-Safe Mode for discharging",
+						Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
+						this.getAllowedDischargePower().get()),
+				this.createPowerConstraint("Fail-Safe Mode for charging",
+						Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
+						-1 * this.getAllowedChargePower().get())};
+	}
 
 	@Override
 	public Power getPower() {
@@ -361,22 +363,24 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void handleEvent(Event event) {
-		// switch (event.getTopic()) {
-		// case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-		// //this._setActualPower(getInverterPower());
-		// //this._setActualPower(100);
-		// System.out.print("== update values before process image ==");
-		// break;
-		// case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
-		// // TODO set EssDcCharger Power
-		// // (EssDcCharger.ChannelId.ACTUAL_POWER)
-		// //this._setActualPower(getInverterPower());
-		// //this._setActualPower(100);
-		// System.out.print("== update values after process image ==");
-		// break;
-		// default :
-		// System.out.print("== other: " + event.getTopic() + " ==");
-		// }
+		// TODO the idea is to change ALLOWED CHARGE/DISCHARGE power based on
+		// SoC - eventually to replace contraints?
+		switch (event.getTopic()) {
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
+				// //this._setActualPower(getInverterPower());
+				// //this._setActualPower(100);
+				System.out.print("== update values before process image ==");
+				break;
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
+				// // TODO set EssDcCharger Power
+				// // (EssDcCharger.ChannelId.ACTUAL_POWER)
+				// //this._setActualPower(getInverterPower());
+				// //this._setActualPower(100);
+				System.out.print("== update values after process image ==");
+				break;
+			// default :
+			// System.out.print("== other: " + event.getTopic() + " ==");
+		}
 	}
 
 	@Override

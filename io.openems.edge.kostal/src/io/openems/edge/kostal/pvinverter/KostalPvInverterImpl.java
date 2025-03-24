@@ -104,7 +104,6 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		this.config = config;
-		// this._setMaxApparentPower(config.maxActivePower());
 
 		// Stop if component is disabled
 		if (!config.enabled()) {
@@ -216,24 +215,9 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
-				this.calculateEnergy();
+				// TODO do something here...
 				break;
 		}
-	}
-
-	/**
-	 * Calculate the Energy values from ActivePower.
-	 */
-	private void calculateEnergy() {
-		//TODO prepared, but unused yet - production energy is missing in UI 
-		var actualPower = this.getActivePower().get();
-//		if (actualPower == null) {
-//			this.calculateActualEnergy.update(null);
-//		} else if (actualPower > 0) {
-//			this.calculateActualEnergy.update(actualPower);
-//		} else {
-//			this.calculateActualEnergy.update(0);
-//		}
 	}
 
 }

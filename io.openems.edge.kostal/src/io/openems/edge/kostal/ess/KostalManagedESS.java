@@ -47,7 +47,7 @@ public interface KostalManagedESS
 		), //
 		GRID_VOLTAGE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
 		), //
-		FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIHERTZ) //
+		FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ) //
 		), //
 
 		// IntegerWriteChannels
