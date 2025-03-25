@@ -101,12 +101,15 @@ public class EvcsClusterPeakShavingImplTest {
 	                    .input("meter0", ACTIVE_POWER_L1, -2000) //
 	                    .input("meter0", ACTIVE_POWER_L2, -2000) //
 	                    .input("meter0", ACTIVE_POWER_L3, -2000) //
-	                    .input("ess0", ALLOWED_DISCHARGE_POWER, 0) //
+	                    .input("ess0", ALLOWED_DISCHARGE_POWER, 0)) //
+                .next(new TestCase() //
+	                    .output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 27000)) //
+                .next(new TestCase() //
 	                    .input("evcsCluster0", MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE, 15000)) //
 	            .next(new TestCase() //
 	                    .output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 15000)) //
 	            .next(new TestCase() //
-	                    .input("evcsCluster0", MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE, null)) //
+	                    .input("evcsCluster0", MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE, -1)) //
 	            .next(new TestCase() //
 	                    .output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 27000)) //
 	    ;

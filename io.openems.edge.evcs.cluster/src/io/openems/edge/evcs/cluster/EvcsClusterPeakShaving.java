@@ -151,7 +151,7 @@ public interface EvcsClusterPeakShaving extends MetaEvcs, OpenemsComponent {
 	 *
 	 * @param value the next value
 	 * @throws OpenemsNamedException on error
-	 */	
+	 */
 	public default void setMaximumAllowedPowerToDistribute(Integer value) throws OpenemsNamedException {
 		this.getMaximumAllowedPowerToDistributeChannel().setNextWriteValue(value);
 	}
