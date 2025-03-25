@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -499,13 +498,9 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 
 		int maximumPowerToDistribute =  allowedChargePower > 0 ? allowedChargePower : 0;
 
-		Value<Integer> maximumAllowedPowerToDistribute = getMaximumAllowedPowerToDistribute();
-		if (maximumAllowedPowerToDistribute.isDefined()) {
-			int maxPower = maximumAllowedPowerToDistribute.get();
-
-			if (maximumPowerToDistribute > maxPower) {
-				maximumPowerToDistribute = maxPower;
-			}
+		int maximumAllowedPowerToDistribute = getMaximumAllowedPowerToDistribute().orElse(-1);
+		if (maximumAllowedPowerToDistribute >= 0) {
+			maximumPowerToDistribute = Math.min(maximumPowerToDistribute, maximumAllowedPowerToDistribute);
 		}
 
 		this.logInfoInDebugmode(this.log, "EVCS Charge maximum power to distribute: " + maximumPowerToDistribute);
