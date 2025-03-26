@@ -1,21 +1,8 @@
 package io.openems.edge.predictor.solartariff;
 
-import static org.junit.Assert.assertEquals;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-
 import org.junit.Test;
 
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.predictor.api.prediction.LogVerbosity;
-import io.openems.edge.predictor.solartariff.PredictorSolarTariffEvccImpl;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorSolarTariffEvccImplTest {
 

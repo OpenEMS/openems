@@ -16,8 +16,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -33,6 +33,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -44,8 +45,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.kostal.enums.ControlMode;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -55,12 +55,14 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		//
 		name = "Ess.Kostal.Plenticore", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "="
-						+ EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		} //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+})
+
 public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		implements
 			KostalManagedESS,
@@ -73,7 +75,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			EventHandler,
 			OpenemsComponent {
 
-	private static final int WATCHDOG_SECONDS = 30;
+	private static int WATCHDOG_SECONDS = 30;
 
 	@Reference
 	private Power power;
@@ -90,12 +92,16 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	private Config config;
 
 	private Instant lastApplyPower = Instant.MIN;
-	private int lastSetActivePower = 0;
+	private int cycleCounter = 60;
+	private Integer lastSetPower;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ElectricityMeter inverter;
 
 	private Timedata timeData;
+
+	private ControlMode controlMode;
+	private int minsoc = 5;
 
 	public KostalManagedESSImpl() {
 		super(
@@ -123,6 +129,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 		this._setGridMode(GridMode.ON_GRID);
 		this._setCapacity(config.capacity());
+		this.controlMode = config.controlMode();
+		this.minsoc = config.minsoc();
+		WATCHDOG_SECONDS = config.watchdog();
 
 		// try {
 		// // reference PV inverter
@@ -135,12 +144,14 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		// // Ignore exception for failed reference
 		// }
 
-		try {
-			// initialize
-			this.applyPower(0, 0);
-
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
+		if (isManaged()) {
+			System.out.println("--> initially setting charge power to zero");
+			try {
+				// initialize
+				this.applyPower(0, 0);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -154,41 +165,57 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePower, int reactivePower)
 			throws OpenemsNamedException {
-		// TODO remove syso
-		System.out.println("set active power: " + activePower);
-		System.out.println("set reactive power: " + reactivePower);
-		if (this.config.readOnlyMode()) {
-			// TODO remove syso
-			System.out.println("is readonly!");
-			// this._setActivePower(0);
-			return;
+		// Using separate channel for the demanded charge/discharge power
+		this._setChargePowerWanted(activePower);
+
+		// Read-only mode -> switch to max. self consumption automatic
+		if (isManaged()) {
+			// allow minimum writes if values does not change (zero)
+			Instant now = Instant.now();
+			if (this.lastSetPower != null && activePower == this.lastSetPower
+					&& Duration.between(this.lastApplyPower, now)
+							.getSeconds() < WATCHDOG_SECONDS) {
+				// no need to apply to new set-point
+				// TODO remove syso
+				System.out.println("skipped");
+				return;
+			}
+
+			this.cycleCounter++;
+			if ((this.cycleCounter >= 10) || (activePower != lastSetPower)) {
+				this.cycleCounter = 0;
+
+				try {
+					// DebugSetActivePower
+					IntegerReadChannel setActivePowerEqualsChannel = this
+							.channel(
+									ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER);
+					int powerValue = setActivePowerEqualsChannel.value().get();
+
+					// TODO testing - realization depends on controller order
+					// (by scheduler)
+					System.out.println("old value: " + powerValue);
+
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				// Kostal is fine by writing one register with signed value
+				IntegerWriteChannel setActivePowerChannel = this
+						.channel(KostalManagedESS.ChannelId.SET_ACTIVE_POWER);
+				setActivePowerChannel.setNextWriteValue(activePower);
+
+				lastSetPower = activePower;
+				this.lastApplyPower = Instant.now();
+
+				// TODO remove...
+				System.out.println("--> activePowerWanted: " + activePower);
+			}
+		} else {
+			lastSetPower = null;
 		}
-
-		Instant now = Instant.now();
-		if (this.lastSetActivePower == activePower
-				&& Duration.between(this.lastApplyPower, now)
-						.getSeconds() < WATCHDOG_SECONDS) {
-			// no need to apply to new set-point
-			// TODO remove syso
-			System.out.println("skipped");
-			return;
-		}
-
-		// TODO remove syso
-		System.out.println("-- applying power values --");
-		IntegerWriteChannel setActivePowerChannel = this
-				.channel(KostalManagedESS.ChannelId.SET_ACTIVE_POWER);
-
-		// TODO until now the values from openEMS aren't calculated and provided
-		// correctly...
-
-		setActivePowerChannel.setNextWriteValue(activePower);
-		this._setActivePower(activePower); // TODO idea correct?
-
-		// TODO clarify reactive setter - Kostal does not support?
-
-		this.lastApplyPower = Instant.now();
-		this.lastSetActivePower = activePower;
 	}
 
 	@Override
@@ -265,6 +292,19 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(1040)
 										.wordOrder(LSWMSW))), //
 
+				new FC3ReadRegistersTask(1034, Priority.LOW,
+						m(KostalManagedESS.ChannelId.CHARGE_POWER,
+								new FloatDoublewordElement(1034)
+										.wordOrder(LSWMSW))), //
+
+				new FC3ReadRegistersTask(1038, Priority.HIGH, //
+						m(KostalManagedESS.ChannelId.MAX_CHARGE_POWER,
+								new FloatDoublewordElement(1038)
+										.wordOrder(LSWMSW)), //
+						m(KostalManagedESS.ChannelId.MAX_DISCHARGE_POWER,
+								new FloatDoublewordElement(1040)
+										.wordOrder(LSWMSW))), //
+
 				new FC3ReadRegistersTask(1046, Priority.LOW,
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
 								new FloatDoublewordElement(1046)
@@ -281,69 +321,36 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return ("SoC:" + this.getSoc().asString() + //
-				"|Battery:" + this.getActivePower().asString() + //
-				// "|PV:" + Integer.toString(getInverterPower()) + " W" + //
-				"|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit()
-				+ ";" + //
-				this.getAllowedDischargePower().asString() + //
-				"|Power:" + this.lastSetActivePower) + //
-				"|Managed:" + this.isManaged();
-	}
+		// return ("SoC:" + this.getSoc().asString() + //
+		// "|Battery:" + this.getActivePower().asString() + //
+		// // "|PV:" + Integer.toString(getInverterPower()) + " W" + //
+		// "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit()
+		// + ";" + //
+		// this.getAllowedDischargePower().asString() + //
+		// "|Power:" + this.lastSetActivePower) + //
+		// "|Managed:" + this.isManaged();
 
-	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		// Read-Only-Mode
-		if (!this.config.readOnlyMode()) {
-			if ((this.getSoc().get() < 100) && (this.getSoc().get() > 5)) {
-				// Active Power constraints
-				return new Constraint[]{ //
-						this.createPowerConstraint(
-								"Plenticore Max Charge Power", Phase.ALL,
-								Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
-								-1 * this.getAllowedChargePower().get()), //
-						this.createPowerConstraint(
-								"Plenticore Max Discharge Power", Phase.ALL,
-								Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-								this.getAllowedDischargePower().get())};
-			}
-
-			if (this.getSoc().get() <= 5) {
-				// Active Power constraints
-				return new Constraint[]{ //
-						this.createPowerConstraint(
-								"Plenticore Max Charge Power", Phase.ALL,
-								Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
-								-1 * this.getAllowedChargePower().get()), //
-						this.createPowerConstraint(
-								"Plenticore Max Discharge Power", Phase.ALL,
-								Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, 0)};
-			}
-
-			if (this.getSoc().get() > 99) {
-				// Active Power constraints
-				return new Constraint[]{ //
-						this.createPowerConstraint(
-								"Plenticore Max Charge Power", Phase.ALL,
-								Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, 0), //
-						this.createPowerConstraint(
-								"Plenticore Max Discharge Power", Phase.ALL,
-								Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-								this.getAllowedDischargePower().get())};
-			}
-		}
-		// TODO verify!
-		// empty
-		// return new Constraint[]{};
-
-		// fail-safe
-		return new Constraint[]{ //
-				this.createPowerConstraint("Fail-Safe Mode for discharging",
-						Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-						this.getAllowedDischargePower().get()),
-				this.createPowerConstraint("Fail-Safe Mode for charging",
-						Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
-						-1 * this.getAllowedChargePower().get())};
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed Charge Power:"
+				+ this.channel(
+						ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER)
+						.value().asStringWithoutUnit()
+				+ ";" + "|Allowed DisCharge Power:"
+				+ this.channel(
+						ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER)
+						.value().asStringWithoutUnit()
+				+ "|MaxChargePower "
+				+ this.channel(KostalManagedESS.ChannelId.MAX_CHARGE_POWER)
+						.value().asStringWithoutUnit() //
+				+ "|MaxDischargePower "
+				+ this.channel(KostalManagedESS.ChannelId.MAX_DISCHARGE_POWER)
+						.value().asStringWithoutUnit() //
+				+ "|ChargePower "
+				+ this.channel(KostalManagedESS.ChannelId.CHARGE_POWER).value()
+						.asString() //
+				+ "|" + this.getGridModeChannel().value().asOptionString() //
+		;
 	}
 
 	@Override
@@ -380,14 +387,39 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				break;
 			// default :
 			// System.out.print("== other: " + event.getTopic() + " ==");
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
+				this.setLimits();
+				break;
 		}
 	}
 
 	@Override
 	public boolean isManaged() {
-		return (this.config.enabled() && !this.config.readOnlyMode());
+		return (this.config.enabled() && !this.config.readOnlyMode()
+				&& this.controlMode == ControlMode.REMOTE);
 	}
 
+	private void setLimits() {
+		int maxDischargePower = getMaxDischargePower().orElse(0);
+		int maxChargePower = getMaxChargePower().orElse(0) * -1;
+
+		this._setAllowedDischargePower(maxDischargePower);
+		this._setAllowedChargePower(maxChargePower);
+
+		try {
+			int soc = getSoc().get();
+			if (soc == 100) {
+				// maximum state of charge
+				this._setAllowedChargePower(0);
+			}
+			if (soc <= this.minsoc) {
+				// minimum state of charge
+				this._setAllowedDischargePower(0);
+			}
+		} catch (NullPointerException e) {
+			// e.printStackTrace();
+		}
+	}
 	// private int getInverterPower() {
 	// int power = -1;
 	// if (this.inverter != null) {

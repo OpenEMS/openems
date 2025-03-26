@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.controller.api.Controller;
 
 public class PredictorSolarTariffEvccAPI {
 
