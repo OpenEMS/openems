@@ -5,6 +5,11 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jetty.server.AcceptRateLimit;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.http.HttpCompliance;
+import org.eclipse.jetty.http.UriCompliance;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.ServerConnector;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -66,13 +71,20 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		this.apiWorker.setTimeoutSeconds(apiTimeout);
 
 		try {
-			// Start the RestApi-Server.
-			this.server = new Server(port);
+			// Create a server with custom configuration
+			this.server = new Server();
+			HttpConfiguration httpConfig = new HttpConfiguration();
+			httpConfig.setUriCompliance(UriCompliance.UNAMBIGUOUS);
+			httpConfig.setHttpCompliance(HttpCompliance.LEGACY);
+			ServerConnector connector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
+			connector.setPort(port);
+			this.server.addConnector(connector);
 			this.server.setHandler(new RestHandler(this));
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
 			this.server.addBean(new ConnectionLimit(connectionlimit, this.server));
 			this.server.start();
-			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
+			this.logInfo(this.log, this.implementationName + " started on port [" + port
+					+ "] with UNSAFE URI compliance for special character support.");
 			this._setUnableToStart(false);
 
 		} catch (Exception e) {
@@ -80,7 +92,6 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 					"Unable to start " + this.implementationName + " on port [" + port + "]: " + e.getMessage());
 			this._setUnableToStart(true);
 		}
-
 		this.getRpcRestHandler().setOnCall(call -> {
 			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
 		});
