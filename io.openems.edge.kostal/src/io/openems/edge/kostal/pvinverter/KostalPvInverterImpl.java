@@ -157,9 +157,9 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(170)
 										.wordOrder(LSWMSW))), //
 
-				new FC3ReadRegistersTask(322, Priority.HIGH, //
+				new FC3ReadRegistersTask(320, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								new FloatDoublewordElement(322)
+								new FloatDoublewordElement(320)
 										.wordOrder(LSWMSW))),
 
 				new FC3ReadRegistersTask(531, Priority.LOW, //
