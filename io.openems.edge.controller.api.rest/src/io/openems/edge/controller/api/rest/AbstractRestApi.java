@@ -83,8 +83,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
 			this.server.addBean(new ConnectionLimit(connectionlimit, this.server));
 			this.server.start();
-			this.logInfo(this.log, this.implementationName + " started on port [" + port
-					+ "] with UNSAFE URI compliance for special character support.");
+			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
 			this._setUnableToStart(false);
 
 		} catch (Exception e) {
