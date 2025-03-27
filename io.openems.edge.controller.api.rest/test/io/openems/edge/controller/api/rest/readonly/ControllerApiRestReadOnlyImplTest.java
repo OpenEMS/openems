@@ -41,6 +41,11 @@ public class ControllerApiRestReadOnlyImplTest {
 	private static int port;
 	private static BridgeHttp bridgeHttp;
 
+	/**
+	 * Before class.
+	 * 
+	 * @throws Exception on error
+	 */
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		sum = new DummySum() //
@@ -71,6 +76,11 @@ public class ControllerApiRestReadOnlyImplTest {
 		bridgeHttp = bridgeHttpFactory.get();
 	}
 
+	/**
+	 * After class. Cleanup.
+	 * 
+	 * @throws Exception on error
+	 */
 	@AfterClass
 	public static void afterClass() throws Exception {
 		test.deactivate();
@@ -131,12 +141,10 @@ public class ControllerApiRestReadOnlyImplTest {
 
 	@Test(timeout = 5_000)
 	public void testGetChannelRegexEscape() throws Exception {
-		final var result = bridgeHttp.requestJson(
-				new BridgeHttp.Endpoint("http://localhost:" + port + "/rest/channel/_sum/EssActivePowerL%5Cd", // "%5C"
-																												// -> \
-						HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT, BridgeHttp.DEFAULT_READ_TIMEOUT, null,
-						ADMIN_AUTHENTICATION))
-				.get();
+		// "%5C" -> \
+		final var result = bridgeHttp.requestJson(new BridgeHttp.Endpoint(
+				"http://localhost:" + port + "/rest/channel/_sum/EssActivePowerL%5Cd", HttpMethod.GET,
+				BridgeHttp.DEFAULT_CONNECT_TIMEOUT, BridgeHttp.DEFAULT_READ_TIMEOUT, null, ADMIN_AUTHENTICATION)).get();
 
 		assertEquals(HttpStatus.OK, result.status());
 
