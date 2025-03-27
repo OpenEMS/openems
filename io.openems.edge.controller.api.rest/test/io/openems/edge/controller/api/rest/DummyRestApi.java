@@ -8,7 +8,7 @@ import io.openems.edge.common.user.UserService;
  * Dummy implementation of RestApi for testing.
  */
 public class DummyRestApi extends AbstractRestApi {
-	
+
 	/**
 	 * Creates a new DummyRestApi.
 	 */
@@ -35,7 +35,7 @@ public class DummyRestApi extends AbstractRestApi {
 	protected AccessMode getAccessMode() {
 		return null;
 	}
-	
+
 	@Override
 	protected boolean isDebugModeEnabled() {
 		return false;

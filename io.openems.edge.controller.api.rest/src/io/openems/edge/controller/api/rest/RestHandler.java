@@ -2,12 +2,12 @@ package io.openems.edge.controller.api.rest;
 
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -27,7 +27,6 @@ import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -42,6 +41,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -81,7 +81,7 @@ public class RestHandler extends Handler.Abstract {
 			}
 
 			// Split path segments preserving brackets
-			List<String> targets = this.splitPathPreservingBrackets(target.substring(1));
+			final var targets = splitPathPreservingBrackets(target.substring(1));
 
 			if (targets.isEmpty()) {
 				throw new OpenemsException("Missing arguments to handle request");
@@ -95,21 +95,14 @@ public class RestHandler extends Handler.Abstract {
 
 			// Dispatch based on the first path token
 			switch (thisTarget) {
-			case "rest":
-				this.handleRest(user, remainingTargets, request, response);
-				break;
-			case "jsonrpc":
+			case "rest" -> this.handleRest(user, remainingTargets, request, response);
+			case "jsonrpc" -> {
 				switch (this.parent.getAccessMode()) {
-				case READ_ONLY:
-					throw new OpenemsException("REST-Api is in Read-Only mode");
-				case READ_WRITE:
-				case WRITE_ONLY:
-					this.handleJsonRpc(user, request, response);
-					break;
+				case READ_ONLY -> throw new OpenemsException("REST-Api is in Read-Only mode");
+				case READ_WRITE, WRITE_ONLY -> this.handleJsonRpc(user, request, response);
 				}
-				break;
-			default:
-				throw new OpenemsException("Unknown REST endpoint: " + target);
+			}
+			default -> throw new OpenemsException("Unknown REST endpoint: " + target);
 			}
 			callback.succeeded();
 			return true;
@@ -129,7 +122,7 @@ public class RestHandler extends Handler.Abstract {
 	 * @param path The path string without leading slash
 	 * @return List of path segments
 	 */
-	private List<String> splitPathPreservingBrackets(String path) {
+	public static List<String> splitPathPreservingBrackets(String path) {
 		// Count open brackets to avoid splitting inside bracket patterns
 		int bracketDepth = 0;
 		StringBuilder processedPath = new StringBuilder();
@@ -152,28 +145,20 @@ public class RestHandler extends Handler.Abstract {
 		}
 
 		// Split by slashes, then restore internal slashes if needed
-		return Arrays.stream(processedPath.toString().split("/")).map(segment -> segment.replace('\u001F', '/'))
+		return Arrays.stream(processedPath.toString().split("/")) //
+				.map(segment -> segment.replace('\u001F', '/')) //
 				.toList();
 	}
 
 	private User authenticate(Request request) throws OpenemsNamedException {
-		// Skip authentication for favicon.ico
-		if (request.getHttpURI().toString().endsWith("/favicon.ico")) {
-			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-		}
-
 		var authHeader = request.getHeaders().get("Authorization");
 		if (authHeader != null) {
 			var st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
 				var basic = st.nextToken();
 				if (basic.equalsIgnoreCase("Basic")) {
-					String credentials;
-					try {
-						credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-					}
+					final var credentials = new String(Base64.getDecoder().decode(st.nextToken()),
+							StandardCharsets.UTF_8);
 					var p = credentials.indexOf(":");
 					if (p != -1) {
 						var username = credentials.substring(0, p).trim();
@@ -213,14 +198,14 @@ public class RestHandler extends Handler.Abstract {
 	}
 
 	private boolean handleChannel(User user, List<String> targets, Request request, Response response)
-			throws IOException, OpenemsNamedException {
+			throws OpenemsNamedException {
 		if (targets.size() != 2) {
 			throw new OpenemsException("Missing arguments to handle Channel");
 		}
 
 		// Extract componentId and channelId preserving special characters
-		String componentId = targets.get(0);
-		String channelId = targets.get(1);
+		final var componentId = targets.get(0);
+		final var channelId = targets.get(1);
 
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log,
@@ -266,21 +251,17 @@ public class RestHandler extends Handler.Abstract {
 			return false;
 		}
 
-		// Build JSON response.
-		var channeljson = new JsonArray();
-		for (var channel : channels) {
-			var j = new JsonObject();
-			j.addProperty("address", channel.address().toString());
-			j.addProperty("type", channel.getType().name());
-			var accessMode = channel.channelDoc().getAccessMode();
-			j.addProperty("accessMode", accessMode.getAbbreviation());
-			j.addProperty("text", channel.channelDoc().getText());
-			j.addProperty("unit", channel.channelDoc().getUnit().symbol);
-			if (accessMode != AccessMode.WRITE_ONLY) {
-				j.add("value", channel.value().asJson());
-			}
-			channeljson.add(j);
-		}
+		final var channeljson = channels.stream() //
+				.map(channel -> JsonUtils.buildJsonObject() //
+						.addProperty("address", channel.address().toString()) //
+						.addProperty("type", channel.getType().name()) //
+						.addProperty("accessMode", channel.channelDoc().getAccessMode().getAbbreviation()) //
+						.addProperty("text", channel.channelDoc().getText()) //
+						.addProperty("unit", channel.channelDoc().getUnit().symbol) //
+						.onlyIf(channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY,
+								b -> b.add("value", channel.value().asJson())) //
+						.build()) //
+				.collect(toJsonArray());
 
 		var result = channeljson.size() == 1 //
 				? channeljson.get(0) //
@@ -288,7 +269,7 @@ public class RestHandler extends Handler.Abstract {
 
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: GET " //
-					+ "Channel [" + channelAddress.toString() + "] " //
+					+ "Channel [" + channelAddress + "] " //
 					+ "Result [" + result.toString() + "]");
 		}
 
@@ -316,28 +297,19 @@ public class RestHandler extends Handler.Abstract {
 		}
 
 		try {
-			return components.stream().filter(component -> Pattern.matches(componentId, component.id()))
-					.flatMap(component -> component.channels().stream())
-					.filter(channel -> Pattern.matches(channelId, channel.channelId().id())).toList();
+			return components.stream() //
+					.filter(component -> Pattern.matches(componentId, component.id())) //
+					.flatMap(component -> component.channels().stream()) //
+					.filter(channel -> Pattern.matches(channelId, channel.channelId().id())) //
+					.toList();
 		} catch (PatternSyntaxException e) {
 			// If the regex pattern is invalid, try exact matching
-			return components.stream().filter(component -> component.id().equals(componentId))
-					.flatMap(component -> component.channels().stream())
-					.filter(channel -> channel.channelId().id().equals(channelId)).toList();
+			return components.stream() //
+					.filter(component -> component.id().equals(componentId)) //
+					.flatMap(component -> component.channels().stream()) //
+					.filter(channel -> channel.channelId().id().equals(channelId)) //
+					.toList();
 		}
-	}
-
-	/**
-	 * Alternative method name for backward compatibility with tests.
-	 *
-	 * @param components     The list of components to search
-	 * @param channelAddress The channel address to match
-	 * @return A list of matching channels
-	 * @throws PatternSyntaxException if the pattern is invalid
-	 */
-	protected List<Channel<?>> getChannelsWithBracketSupport(List<OpenemsComponent> components,
-			ChannelAddress channelAddress) throws PatternSyntaxException {
-		return this.getChannels(components, channelAddress);
 	}
 
 	private void sendErrorResponse(Response response, UUID jsonrpcId, Throwable ex) {
