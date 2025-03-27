@@ -44,6 +44,7 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.ManagedEvcsCluster;
 import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -59,7 +60,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
-		implements MetaEvcs, OpenemsComponent, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving,
+		implements MetaEvcs, OpenemsComponent, ManagedEvcsCluster, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving,
 		/*
 		 * Cluster is not a Controller, but we need to be placed at the correct position
 		 * in the Cycle by the Scheduler to be able to read the actually available ESS
@@ -106,6 +107,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				EvcsClusterPeakShaving.ChannelId.values(), //
+				ManagedEvcsCluster.ChannelId.values(), //
 				Controller.ChannelId.values() //
 		);
 	}
@@ -183,6 +185,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 				this.sortedEvcss.add(evcs);
 			}
 		}
+		this._setEvcsCount(this.evcsIds.length);
 	}
 
 	/**
@@ -216,7 +219,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.setMaximumAllowedPowerToDistribute();
+			this.updateChannels();
 			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS:
@@ -229,7 +232,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void setMaximumAllowedPowerToDistribute() {
+	private void updateChannels() {
 		Optional<Integer> maximumAllowedPowerToDistribute = this.getMaximumAllowedPowerToDistributeChannel().getNextWriteValueAndReset();
 		if (maximumAllowedPowerToDistribute.isPresent()) {
 			this._setMaximumAllowedPowerToDistribute(maximumAllowedPowerToDistribute.get());
