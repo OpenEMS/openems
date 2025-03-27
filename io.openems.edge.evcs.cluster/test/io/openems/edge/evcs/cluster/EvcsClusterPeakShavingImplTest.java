@@ -9,9 +9,10 @@ import static io.openems.edge.evcs.api.Evcs.ChannelId.STATUS;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.CHARGE_STATE;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_REQUEST;
+import static io.openems.edge.evcs.api.ManagedEvcsCluster.ChannelId.EVCS_COUNT;
+import static io.openems.edge.evcs.api.ManagedEvcsCluster.ChannelId.MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE;
 import static io.openems.edge.evcs.cluster.EvcsClusterPeakShaving.ChannelId.EVCS_CLUSTER_STATUS;
 import static io.openems.edge.evcs.cluster.EvcsClusterPeakShaving.ChannelId.MAXIMUM_POWER_TO_DISTRIBUTE;
-import static io.openems.edge.evcs.cluster.EvcsClusterPeakShaving.ChannelId.MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L1;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_L2;
@@ -68,7 +69,8 @@ public class EvcsClusterPeakShavingImplTest {
 						.input("meter0", ACTIVE_POWER_L2, -2000) //
 						.input("meter0", ACTIVE_POWER_L3, -2000)) //
 				.next(new TestCase() //
-						.output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 27000)) //
+						.output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 27000) //
+						.output("evcsCluster0", EVCS_COUNT, 2)) //
 				.next(new TestCase() //
 						.input("meter0", ACTIVE_POWER, 4500) //
 						.input("meter0", ACTIVE_POWER_L1, 1500) //

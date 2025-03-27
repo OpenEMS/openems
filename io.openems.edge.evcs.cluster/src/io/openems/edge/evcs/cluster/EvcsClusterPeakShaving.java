@@ -3,12 +3,10 @@ package io.openems.edge.evcs.cluster;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evcs.api.MetaEvcs;
@@ -29,12 +27,7 @@ public interface EvcsClusterPeakShaving extends MetaEvcs, OpenemsComponent {
 				.unit(Unit.WATT).text("Maximum available grid power.")),
 		USED_ESS_MAXIMUM_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)
-				.text("Dynamic maximum discharge power, that could be limited by us to ensure the possibility to discharge the battery.")),
-		MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER)
-				.unit(Unit.WATT)
-				.accessMode(AccessMode.READ_WRITE)
-				.text("Maximum power allowed to distribute, for all given Evcss.")),
-		;
+				.text("Dynamic maximum discharge power, that could be limited by us to ensure the possibility to discharge the battery."));
 
 		private final Doc doc;
 
@@ -115,45 +108,4 @@ public interface EvcsClusterPeakShaving extends MetaEvcs, OpenemsComponent {
 	public default void _setEvcsBlockedChargePower(int value) {
 		this.getEvcsBlockedChargePowerChannel().setNextValue(value);
 	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getMaximumAllowedPowerToDistributeChannel() {
-		return this.channel(ChannelId.MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE);
-	}
-
-	/**
-	 * Gets the maximum allowed power to distribute in [W]. See
-	 * {@link ChannelId#MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getMaximumAllowedPowerToDistribute() {
-		return this.getMaximumAllowedPowerToDistributeChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setMaximumAllowedPowerToDistribute(Integer value) {
-		this.getMaximumAllowedPowerToDistributeChannel().setNextValue(value);
-	}
-
-	/**
-	 * Sets maximum allowed power to distribute in [W] on
-	 * {@link ChannelId#MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE} Channel.
-	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setMaximumAllowedPowerToDistribute(Integer value) throws OpenemsNamedException {
-		this.getMaximumAllowedPowerToDistributeChannel().setNextWriteValue(value);
-	}
-
 }
