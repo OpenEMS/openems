@@ -60,7 +60,7 @@ public class RestHandler extends Handler.Abstract {
 	public boolean handle(Request request, Response response, Callback callback) throws Exception {
 		try {
 			// Use the new API to extract the target path.
-			var target = request.getHttpURI().getPath();
+			var target = request.getHttpURI().getDecodedPath();
 			if (target == null || target.isEmpty() || "/".equals(target)) {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
