@@ -1,14 +1,14 @@
 package io.openems.edge.controller.api.rest;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.AcceptRateLimit;
 import org.eclipse.jetty.server.ConnectionLimit;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.http.HttpCompliance;
-import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
@@ -73,10 +73,11 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		try {
 			// Create a server with custom configuration
 			this.server = new Server();
-			HttpConfiguration httpConfig = new HttpConfiguration();
-			httpConfig.setUriCompliance(UriCompliance.UNAMBIGUOUS);
-			httpConfig.setHttpCompliance(HttpCompliance.LEGACY);
-			ServerConnector connector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
+			final var httpConfig = new HttpConfiguration();
+			httpConfig.setUriCompliance(UriCompliance.from(Set.of(//
+					UriCompliance.Violation.SUSPICIOUS_PATH_CHARACTERS, //
+					UriCompliance.Violation.ILLEGAL_PATH_CHARACTERS)));
+			final var connector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
 			connector.setPort(port);
 			this.server.addConnector(connector);
 			this.server.setHandler(new RestHandler(this));

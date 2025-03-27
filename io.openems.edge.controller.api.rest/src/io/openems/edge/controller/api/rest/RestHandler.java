@@ -60,19 +60,16 @@ public class RestHandler extends Handler.Abstract {
 	public boolean handle(Request request, Response response, Callback callback) throws Exception {
 		try {
 			// Extract the raw request URI
-			String rawRequestUri = request.getHttpURI().toString();
+			final var target = request.getHttpURI().getDecodedPath();
 
 			// Special handling for favicon.ico requests
-			if (rawRequestUri.endsWith("/favicon.ico")) {
+			if (target.endsWith("/favicon.ico")) {
 				response.setStatus(HttpStatus.NOT_FOUND_404);
 				callback.succeeded();
 				return true;
 			}
 
-			// Parse the path manually to preserve brackets
-			String target = this.extractPathFromUri(rawRequestUri);
-
-			if (target == null || target.isEmpty() || "/".equals(target)) {
+			if (target.isEmpty() || "/".equals(target)) {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
 
@@ -127,29 +124,8 @@ public class RestHandler extends Handler.Abstract {
 	}
 
 	/**
-	 * Extract the path from a raw URI, preserving encoded characters.
-	 * 
-	 * @param rawUri The raw request URI
-	 * @return The path component of the URI
-	 */
-	private String extractPathFromUri(String rawUri) {
-		// Find where the path starts after scheme://host:port
-		int pathStart = rawUri.indexOf('/', rawUri.indexOf("//") + 2);
-		if (pathStart >= 0) {
-			// Find query string if exists
-			int queryStart = rawUri.indexOf('?', pathStart);
-			if (queryStart >= 0) {
-				return rawUri.substring(pathStart, queryStart);
-			} else {
-				return rawUri.substring(pathStart);
-			}
-		}
-		return "/";
-	}
-
-	/**
 	 * Split a path string into segments while preserving square brackets.
-	 * 
+	 *
 	 * @param path The path string without leading slash
 	 * @return List of path segments
 	 */
@@ -353,7 +329,7 @@ public class RestHandler extends Handler.Abstract {
 
 	/**
 	 * Alternative method name for backward compatibility with tests.
-	 * 
+	 *
 	 * @param components     The list of components to search
 	 * @param channelAddress The channel address to match
 	 * @return A list of matching channels
@@ -382,7 +358,7 @@ public class RestHandler extends Handler.Abstract {
 
 	/**
 	 * Sends an OK response with the given data.
-	 * 
+	 *
 	 * @param response The HTTP response
 	 * @param data     The data to send
 	 * @return true if the response was sent successfully
@@ -423,7 +399,7 @@ public class RestHandler extends Handler.Abstract {
 
 	/**
 	 * Parses a request body as JSON.
-	 * 
+	 *
 	 * @param request The HTTP request
 	 * @return The parsed JSON object
 	 * @throws OpenemsException if parsing fails
