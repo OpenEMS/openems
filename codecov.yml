@@ -4,8 +4,6 @@ codecov:
     wait_for_ci: true
 
 coverage:
-  round: up
-  precision: 2
   status:
     project:
       default:
@@ -13,7 +11,7 @@ coverage:
         threshold: 1%
     patch:
       default:
-        target: 75%
+        target: auto
 
 comment:
   layout: "condensed_header, diff"
