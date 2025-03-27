@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "19.2.1",
-    "@angular/common": "19.2.1",
+    "@angular/common": "19.2.4",
     "@angular/core": "19.2.1",
     "@angular/forms": "19.2.1",
     "@angular/platform-browser": "19.2.1",
@@ -54,8 +54,8 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.1",
-    "@angular-devkit/core": "^19.2.1",
-    "@angular-devkit/schematics": "^19.2.1",
+    "@angular-devkit/core": "^19.2.5",
+    "@angular-devkit/schematics": "^19.2.5",
     "@angular-eslint/builder": "^19.2.1",
     "@angular-eslint/eslint-plugin": "^19.2.1",
     "@angular-eslint/eslint-plugin-template": "^19.2.1",
@@ -68,7 +68,7 @@
     "@capacitor/cli": "7.0.1",
     "@ionic/angular-toolkit": "^12.1.1",
     "@ionic/cli": "^7.2.0",
-    "@schematics/angular": "^19.2.1",
+    "@schematics/angular": "^19.2.5",
     "@stylistic/eslint-plugin": "^4.2.0",
     "@types/jasmine": "~5.1.7",
     "@types/jasminewd2": "~2.0.13",
