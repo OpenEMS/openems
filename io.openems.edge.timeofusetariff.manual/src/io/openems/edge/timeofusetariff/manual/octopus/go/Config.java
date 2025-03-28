@@ -17,10 +17,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Standard Price", description = "The standard price [€/kWh]")
+	@AttributeDefinition(name = "Standard Price", description = "The standard price [Cent/kWh]")
 	double standardPrice();
 
-	@AttributeDefinition(name = "Low Price", description = "The low price, active between 00 and 05 am [€/kWh]")
+	@AttributeDefinition(name = "Low Price", description = "The low price, active between 00 and 05 am [Cent/kWh]")
 	double lowPrice();
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Octopus Go [{id}]";
