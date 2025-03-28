@@ -270,8 +270,9 @@
       "RETROFITTING": {
         "OPTIMAL": "Capacity expansion",
         "REFERENCING_OF_STORAGE": {
-          "HEADER": "Please note that the battery must be referenced before expanding the capacity (<a target='_blank' href={{link}}>link to instructions</a>):",
-          "CONTENT": "Before a capacity expansion, the battery must be referenced in the days before the capacity expansion takes place. This means that it must be fully discharged (SOC: 0 %) and then fully charged (SOC: 100 %)."
+          "HEADER": "Please note that the battery must be referenced before expanding the capacity",
+          "CONTENT": "Before a capacity expansion, the battery must be referenced in the days before the capacity expansion takes place. This means that it must be fully discharged (SOC: 0 %) and then fully charged (SOC: 100 %).",
+          "TO_INSTRUCTIONS": "Link to instructions"
         },
         "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
         "INSTANT_START": "Instant start",

@@ -270,8 +270,9 @@
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
         "OPTIMAL": "Kapazitätserweiterung",
         "REFERENCING_OF_STORAGE": {
-          "HEADER": "Bitte beachten Sie vor einer Kapazitätserweiterung eine Referenzierung des Speichers durchzuführen (<a target='_blank' href={{link}}>Link zur Anleitung</a>):",
-          "CONTENT": "Vor einer Kapazitätserweiterung muss eine Referenzierung des Speichers in den Tagen vor der Kapazitätserweiterung zwingend stattfinden. D.h., dass dieser vollständig entladen (SOC: 0 %) und anschließend vollständig beladen werden muss (SOC: 100 %)."
+          "HEADER": "Bitte beachten Sie vor einer Kapazitätserweiterung eine Referenzierung des Speichers durchzuführen",
+          "CONTENT": "Vor einer Kapazitätserweiterung muss eine Referenzierung des Speichers in den Tagen vor der Kapazitätserweiterung zwingend stattfinden. D.h., dass dieser vollständig entladen (SOC: 0 %) und anschließend vollständig beladen werden muss (SOC: 100 %).",
+          "TO_INSTRUCTIONS": "Link zur Anleitung"
         },
         "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",

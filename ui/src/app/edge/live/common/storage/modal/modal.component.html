@@ -963,8 +963,14 @@
     <ng-container *ngIf="environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING">
         <table class="full_width">
             <tr>
-                <td class="ion-padding"
-                    [innerHTML]="'Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.HEADER' | translate: {link: environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING}">
+                <td class="ion-padding" translate>
+                    <span translate>
+                        Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.HEADER
+                    </span>
+                    <span translate>
+                        (<oe-help-link [link]="environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING"
+                            [label]="'Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.TO_INSTRUCTIONS' | translate"></oe-help-link>):
+                    </span>
                 </td>
             </tr>
             <tr>
