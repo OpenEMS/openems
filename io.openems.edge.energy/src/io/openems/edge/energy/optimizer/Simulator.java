@@ -128,12 +128,18 @@ public class Simulator {
 
 		var eshIndex = 0;
 		for (var esh : eshs) {
-			var csc = cscs.get(esh);
-			switch (esh) {
-			case EnergyScheduleHandler.WithDifferentModes e //
-				-> e.simulate(period, gsc, csc, ef, schedule[periodIndex][eshIndex++], fitness);
-			case EnergyScheduleHandler.WithOnlyOneMode e //
-				-> e.simulate(period, gsc, csc, ef, fitness);
+			try {
+				var csc = cscs.get(esh);
+				switch (esh) {
+				case EnergyScheduleHandler.WithDifferentModes e //
+					-> e.simulate(period, gsc, csc, ef, schedule[periodIndex][eshIndex++], fitness);
+				case EnergyScheduleHandler.WithOnlyOneMode e //
+					-> e.simulate(period, gsc, csc, ef, fitness);
+				}
+
+			} catch (RuntimeException e) {
+				throw new RuntimeException("Error during simulation of [" + esh.getParentId() + "] " //
+						+ "Period [" + period.index() + "/" + period.time() + "]: " + e.getMessage(), e);
 			}
 		}
 

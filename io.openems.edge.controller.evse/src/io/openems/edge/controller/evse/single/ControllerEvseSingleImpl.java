@@ -7,7 +7,6 @@ import static io.openems.edge.controller.evse.single.EnergyScheduler.buildManual
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildSmartEnergyScheduleHandler;
 import static io.openems.edge.controller.evse.single.Utils.getSessionLimitReached;
 import static io.openems.edge.controller.evse.single.Utils.mergeLimits;
-import static io.openems.edge.controller.evse.single.Utils.parseSmartConfig;
 
 import java.time.Clock;
 import java.util.function.BiConsumer;
@@ -116,9 +115,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 		switch (config.mode()) {
 		case SMART -> {
 			this.smartEnergyScheduleHandler = buildSmartEnergyScheduleHandler(this, //
-					() -> new SmartOptimizationConfig(this.chargePoint.getChargeParams().isReadyForCharging(),
-							mergeLimits(this.chargePoint.getChargeParams(), this.electricVehicle.getChargeParams()),
-							parseSmartConfig(config.smartConfig())));
+					() -> SmartOptimizationConfig.from(this.chargePoint.getChargeParams(),
+							this.electricVehicle.getChargeParams(), config.smartConfig()));
 			this.onChargePointStatusChange = (oldStatus, newStatus) -> {
 				// Trigger Reschedule on Status change
 				this.smartEnergyScheduleHandler.triggerReschedule(
@@ -129,10 +127,9 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 		case ZERO, MINIMUM, SURPLUS, FORCE -> {
 			this.manualEnergyScheduleHandler = buildManualEnergyScheduleHandler(this, //
-					() -> new ManualOptimizationContext(config.mode().actual,
-							this.chargePoint.getChargeParams().isReadyForCharging(),
-							mergeLimits(this.chargePoint.getChargeParams(), this.electricVehicle.getChargeParams()),
-							this.getSessionEnergy().orElse(0), config.manualEnergySessionLimit() > 0 //
+					() -> ManualOptimizationContext.from(config.mode().actual, this.chargePoint.getChargeParams(),
+							this.electricVehicle.getChargeParams(), this.getSessionEnergy().orElse(0),
+							config.manualEnergySessionLimit() > 0 //
 									? config.manualEnergySessionLimit() //
 									: 30_000 /* fallback */));
 		}

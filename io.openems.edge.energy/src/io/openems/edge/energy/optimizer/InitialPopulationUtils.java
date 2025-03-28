@@ -38,8 +38,16 @@ public class InitialPopulationUtils {
 		var ipsPerEsh = codec.goc.eshsWithDifferentModes().stream() //
 				.filter(EshWithDifferentModes.class::isInstance) //
 				.map(EshWithDifferentModes.class::cast) //
-				.map(esh -> generateInitialPopulationPerEsh(codec, esh).stream() //
-						.collect(toImmutableList())) //
+				.map(esh -> {
+					try {
+						return generateInitialPopulationPerEsh(codec, esh).stream() //
+								.collect(toImmutableList()); //
+
+					} catch (RuntimeException e) {
+						throw new RuntimeException("Error while generating initial population of [" + esh.getParentId()
+								+ "]: " + e.getMessage(), e);
+					}
+				}) //
 				.collect(toImmutableList());
 
 		return EvolutionInit.of(//

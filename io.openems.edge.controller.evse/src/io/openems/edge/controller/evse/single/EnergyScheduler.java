@@ -7,6 +7,7 @@ import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.edge.controller.evse.single.Utils.parseSmartConfig;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 
 import java.time.Duration;
@@ -33,7 +34,9 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.evse.api.Limit;
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
 public class EnergyScheduler {
 
@@ -187,6 +190,10 @@ public class EnergyScheduler {
 
 	private static ImmutableList<InitialPopulation<Mode.Actual>> initialPopulationsProvider(
 			GlobalOptimizationContext goc, SmartOptimizationContext coc, Mode.Actual[] availableModes) {
+		if (coc == null) {
+			return ImmutableList.of();
+		}
+
 		var result = ImmutableList.<InitialPopulation<Mode.Actual>>builder();
 		var periodsBeforeTargetTime = goc.periods().stream() //
 				.filter(p -> !p.time().isAfter(coc.targetTime)) //
@@ -265,6 +272,21 @@ public class EnergyScheduler {
 		public static record ManualOptimizationContext(Mode.Actual mode, boolean isReadyForCharging, Limit limit,
 				int sessionEnergy, int sessionEnergyLimit) implements Config {
 
+			protected static ManualOptimizationContext from(Mode.Actual mode, EvseChargePoint.ChargeParams chargePoint,
+					EvseElectricVehicle.ChargeParams electricVehicle, int sessionEnergy, int sessionEnergyLimit) {
+				final boolean isReadyForCharging;
+				final Limit limit;
+				if (chargePoint == null || electricVehicle == null) {
+					isReadyForCharging = false;
+					limit = null;
+				} else {
+					isReadyForCharging = chargePoint.isReadyForCharging();
+					limit = Utils.mergeLimits(chargePoint, electricVehicle);
+				}
+				return new ManualOptimizationContext(mode, isReadyForCharging, limit, sessionEnergy,
+						sessionEnergyLimit);
+			}
+
 			@Override
 			public final EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent) {
 				return buildManualEnergyScheduleHandler(parent, () -> this);
@@ -273,6 +295,21 @@ public class EnergyScheduler {
 
 		public static record SmartOptimizationConfig(boolean isReadyForCharging, Limit limit,
 				ImmutableList<Task<Payload>> smartConfig) implements Config {
+
+			protected static SmartOptimizationConfig from(EvseChargePoint.ChargeParams chargePoint,
+					EvseElectricVehicle.ChargeParams electricVehicle, String smartConfigString) {
+				final boolean isReadyForCharging;
+				final Limit limit;
+				if (chargePoint == null || electricVehicle == null) {
+					isReadyForCharging = false;
+					limit = null;
+				} else {
+					isReadyForCharging = chargePoint.isReadyForCharging();
+					limit = Utils.mergeLimits(chargePoint, electricVehicle);
+				}
+				var smartConfig = parseSmartConfig(smartConfigString);
+				return new SmartOptimizationConfig(isReadyForCharging, limit, smartConfig);
+			}
 
 			@Override
 			public final EshWithDifferentModes<Mode.Actual, SmartOptimizationContext, ScheduleContext> buildEnergyScheduleHandler(
