@@ -4,7 +4,6 @@ import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { isBefore } from "date-fns";
-import { ModalModule } from "src/app/shared/components/modal/modal.module";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
@@ -14,7 +13,6 @@ import { environment, Environment } from "src/environments";
     selector: "storage-modal",
     templateUrl: "./modal.component.html",
     standalone: false,
-    imports: [ModalModule],
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
 
