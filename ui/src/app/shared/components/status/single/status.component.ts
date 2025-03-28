@@ -41,7 +41,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
 
     async ngOnInit() {
         this.config = await this.service.getConfig();
-        this.components = this.config.listActiveComponents();
+        this.components = this.config.listActiveComponents([], this.service.translate);
         this.components.forEach(categorizedComponent => {
             categorizedComponent.components.forEach(component => {
                 // sets all arrow buttons to standard position (folded)
