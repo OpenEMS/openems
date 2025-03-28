@@ -246,6 +246,11 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             },
         },
     },
+    layout: {
+        padding: {
+            top: 35, // Increase the top padding to create room for the title
+        },
+    },
 });
 
 export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions = {

@@ -310,7 +310,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     return dataset;
   }
 
-  public static getYAxisType(title: YAxisType, translate: TranslateService, chartType: "bar" | "line", customTitle?: string): string {
+  public static getYAxisTitle(title: YAxisType, translate: TranslateService, chartType: "bar" | "line", customTitle?: string): string {
     switch (title) {
       case YAxisType.RELAY:
         if (chartType === "line") {
@@ -330,6 +330,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         } else {
           return "kW";
         }
+      case YAxisType.POWER:
+        return "kW";
+      case YAxisType.HEAT_PUMP:
+        return translate.instant("General.state");
       case YAxisType.VOLTAGE:
         return "V";
       case YAxisType.CURRENT:
@@ -337,7 +341,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisType.NONE:
         return "";
       default:
-        return "kW";
+        return "";
     }
   }
 
@@ -367,8 +371,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultXAxisOptions(chartOptionsType, service, labels)));
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
-    chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber,);
+    chartObject.yAxes.filter(el => el satisfies HistoryUtils.yAxes).forEach((element) => {
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -446,7 +450,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
         const currentDisplayValue = displayValues.find(el => el.name == chartLegendLabelItem.text.split(":")[0]);
 
-        if (currentDisplayValue.custom) {
+        if (currentDisplayValue?.custom) {
           const show = !chartLegendLabelItem.hidden;
           // Hide plugin features on label generate
           chart.options = AbstractHistoryChart.activateOrDeactivatePlugin(currentDisplayValue, options, chartType, show);
@@ -616,7 +620,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           ticks: {
             ...baseConfig.ticks,
             callback: function (value, index, values) {
-
               if (typeof value === "number") {
                 return TimeUtils.formatSecondsToDuration(value, locale);
               }
@@ -936,7 +939,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.config = config;
 
       }).then(() => {
-
         this.chartObject = this.getChartData();
         this.loadChart();
       });
@@ -945,6 +947,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.options = AbstractHistoryChart.removePlugins(this.options);
+  }
+
+  ionViewWillLeave() {
+    this.ngOnDestroy();
   }
 
   protected getChartHeight(): number {
@@ -965,6 +971,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   protected async loadChart() {
     this.labels = [];
     this.errorResponse = null;
+
     const unit: ChronoUnit.Type = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
     // Show Barchart if resolution is days or months
     if (ChronoUnit.isAtLeast(unit, ChronoUnit.Type.DAYS)) {
@@ -1216,6 +1223,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.legendOptions = displayValues.legendOptions;
         this.labels = displayValues.labels;
         this.channelData = displayValues.channelData;
+
         this.beforeSetChartLabel();
         this.setChartLabel();
         resolve();
