@@ -187,12 +187,14 @@
                                             <ion-toggle mode="md" formControlName="isRunning">
                                             </ion-toggle>
                                         </td>
-
                                     </ion-item-divider>
                                 </tr>
+
                             </table>
                             <ng-container
                                 *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                <ng-container *ngTemplateOutlet="batteryReferencing">
+                                </ng-container>
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
@@ -575,6 +577,8 @@
                                     </table>
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                        <ng-container *ngTemplateOutlet="batteryReferencing">
+                                        </ng-container>
                                         <ng-container
                                             *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                             <ng-container
@@ -807,6 +811,8 @@
                             <ng-container
                                 *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
+                                    <ng-container *ngTemplateOutlet="batteryReferencing">
+                                    </ng-container>
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
                                         <ng-container
@@ -952,3 +958,20 @@
     </ion-fab>
 
 </ion-content>
+
+<ng-template #batteryReferencing>
+    <ng-container *ngIf="environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING">
+        <table class="full_width">
+            <tr>
+                <td class="ion-padding"
+                    [innerHTML]="'Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.HEADER' | translate: {link: environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING}">
+                </td>
+            </tr>
+            <tr>
+                <td class="ion-padding" translate>
+                    Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.CONTENT
+                </td>
+            </tr>
+        </table>
+    </ng-container>
+</ng-template>
