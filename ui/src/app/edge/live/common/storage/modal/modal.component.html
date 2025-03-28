@@ -401,7 +401,7 @@
                             </ng-container>
                         </table>
                         <!-- Info Text -->
-                        <ng-container *ngIf="service.currentEdge | async as edge">
+                        <ng-container *ngIf="service.currentEdge() as edge">
                             <ng-container *ngIf="edge.currentData | async as currentData">
                                 <ng-container *ngIf="currentData.summary.storage as sum">
                                     <ion-grid
