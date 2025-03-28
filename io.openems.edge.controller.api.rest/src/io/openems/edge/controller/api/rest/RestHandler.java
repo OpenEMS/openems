@@ -11,7 +11,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -199,50 +201,108 @@ public class RestHandler extends Handler.Abstract {
 
 	private boolean handleChannel(User user, List<String> targets, Request request, Response response)
 			throws OpenemsNamedException {
-		if (targets.size() != 2) {
-			throw new OpenemsException("Missing arguments to handle Channel");
+		// Get componentId and channelId from either path or query parameters
+		String componentId;
+		String channelId;
+		String componentRegex = null;
+		String channelRegex = null;
+
+		// Extract query parameters from the request URI
+		Map<String, String> queryParams = parseQueryParams(request.getHttpURI().getQuery());
+
+		// Check if we have component/channel regex in query parameters
+		if (queryParams.containsKey("componentRegex")) {
+			componentRegex = queryParams.get("componentRegex");
+		}
+		if (queryParams.containsKey("channelRegex")) {
+			channelRegex = queryParams.get("channelRegex");
 		}
 
-		// Extract componentId and channelId preserving special characters
-		final var componentId = targets.get(0);
-		final var channelId = targets.get(1);
+		// Check if we have exact component/channel in query parameters
+		if (queryParams.containsKey("component")) {
+			componentId = queryParams.get("component");
+		} else if (targets.size() >= 1) {
+			componentId = targets.get(0);
+		} else {
+			throw new OpenemsException("Missing component ID. Provide it in path or as 'component' query parameter.");
+		}
+
+		if (queryParams.containsKey("channel")) {
+			channelId = queryParams.get("channel");
+		} else if (targets.size() >= 2) {
+			channelId = targets.get(1);
+		} else {
+			throw new OpenemsException("Missing channel ID. Provide it in path or as 'channel' query parameter.");
+		}
 
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log,
-					"Processing channel request - componentId: [" + componentId + "], channelId: [" + channelId + "]");
+					"Processing channel request - componentId: [" + componentId + "], channelId: [" + channelId + "]"
+							+ (componentRegex != null ? ", componentRegex: [" + componentRegex + "]" : "")
+							+ (channelRegex != null ? ", channelRegex: [" + channelRegex + "]" : ""));
 		}
 
 		var channelAddress = new ChannelAddress(componentId, channelId);
 
 		return switch (request.getMethod()) {
 		case "GET" //
-			-> this.handleGet(user, channelAddress, request, response);
+			-> this.handleGet(user, channelAddress, componentRegex, channelRegex, response);
 		case "POST" //
 			-> switch (this.parent.getAccessMode()) {
 			case READ_ONLY //
 				-> throw new OpenemsException("REST-Api is in Read-Only mode");
 			case READ_WRITE, WRITE_ONLY //
-				-> this.handlePost(user, channelAddress, request, response);
+				-> this.handlePost(user, channelAddress, componentRegex, channelRegex, request, response);
 			};
 		default //
 			-> throw new OpenemsException("Unhandled REST Channel request method [" + request.getMethod() + "]");
 		};
 	}
 
-	private boolean handleGet(User user, ChannelAddress channelAddress, Request request, Response response)
-			throws OpenemsNamedException {
+	/**
+	 * Parse query parameters from query string.
+	 * 
+	 * @param queryString The query string part of the URI
+	 * @return Map of query parameter names to values
+	 */
+	private Map<String, String> parseQueryParams(String queryString) {
+		Map<String, String> params = new HashMap<>();
+		if (queryString == null || queryString.isEmpty()) {
+			return params;
+		}
+
+		String[] pairs = queryString.split("&");
+		for (String pair : pairs) {
+			int idx = pair.indexOf("=");
+			if (idx > 0) {
+				String key = pair.substring(0, idx);
+				String value = pair.substring(idx + 1);
+				params.put(key, value);
+			}
+		}
+		return params;
+	}
+
+	private boolean handleGet(User user, ChannelAddress channelAddress, String componentRegex, String channelRegex,
+			Response response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 		var components = this.parent.getComponentManager().getEnabledComponents();
 
 		if (this.parent.isDebugModeEnabled()) {
-			this.parent.logInfo(this.log, "Looking for channels matching [" + channelAddress.toString() + "]");
+			this.parent.logInfo(this.log,
+					"Looking for channels matching [" + channelAddress.toString() + "]"
+							+ (componentRegex != null ? " with componentRegex [" + componentRegex + "]" : "")
+							+ (channelRegex != null ? " with channelRegex [" + channelRegex + "]" : ""));
 		}
 
-		// Get channels with proper handling of square brackets
+		// Get channels with proper handling of regex patterns
 		List<Channel<?>> channels;
 		try {
-			channels = this.getChannels(components, channelAddress);
+			channels = this.getChannels(components, channelAddress, componentRegex, channelRegex);
 		} catch (PatternSyntaxException e) {
+			if (this.parent.isDebugModeEnabled()) {
+				this.parent.logError(this.log, "Invalid regex pattern: " + e.getMessage());
+			}
 			response.setStatus(HttpStatus.BAD_REQUEST_400);
 			return true;
 		}
@@ -287,20 +347,39 @@ public class RestHandler extends Handler.Abstract {
 	 * patterns. This version gracefully handles square brackets in patterns.
 	 *
 	 * @param components     The list of components to search
-	 * @param channelAddress The channel address to match
+	 * @param channelAddress The channel address to match (used when no regex
+	 *                       provided)
+	 * @param componentRegex Optional regex pattern for component ID
+	 * @param channelRegex   Optional regex pattern for channel ID
 	 * @return A list of matching channels
 	 * @throws PatternSyntaxException if the pattern is invalid
 	 */
-	protected List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
-			throws PatternSyntaxException {
-		final var componentId = channelAddress.getComponentId();
-		final var channelId = channelAddress.getChannelId();
+	protected List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress,
+			String componentRegex, String channelRegex) throws PatternSyntaxException {
+
+		// Use provided regex patterns if available, otherwise use the exact path
+		// components
+		final String componentPattern = componentRegex != null ? componentRegex : channelAddress.getComponentId();
+		final String channelPattern = channelRegex != null ? channelRegex : channelAddress.getChannelId();
+
+		if (this.parent.isDebugModeEnabled()) {
+			this.parent.logInfo(this.log, "Using patterns - componentPattern: [" + componentPattern
+					+ "], channelPattern: [" + channelPattern + "]");
+		}
 
 		return components.stream() //
-				.filter(component -> Pattern.matches(componentId, component.id())) //
+				.filter(component -> Pattern.matches(componentPattern, component.id())) //
 				.flatMap(component -> component.channels().stream()) //
-				.filter(channel -> Pattern.matches(channelId, channel.channelId().id())) //
+				.filter(channel -> Pattern.matches(channelPattern, channel.channelId().id())) //
 				.toList();
+	}
+
+	/**
+	 * Legacy method for backward compatibility with tests.
+	 */
+	protected List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
+			throws PatternSyntaxException {
+		return getChannels(components, channelAddress, null, null);
 	}
 
 	private void sendErrorResponse(Response response, UUID jsonrpcId, Throwable ex) {
@@ -335,11 +414,11 @@ public class RestHandler extends Handler.Abstract {
 		return true;
 	}
 
-	private boolean handlePost(User user, ChannelAddress channelAddress, Request request, Response response)
-			throws OpenemsNamedException {
+	private boolean handlePost(User user, ChannelAddress channelAddress, String componentRegex, String channelRegex,
+			Request request, Response response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP POST", Role.OWNER);
 
-		// Parse JSON request body using HttpServletRequest.
+		// Parse JSON request body
 		var jHttpPost = RestHandler.parseJson(request);
 
 		if (!jHttpPost.has("value")) {
@@ -347,15 +426,50 @@ public class RestHandler extends Handler.Abstract {
 		}
 		var jValue = jHttpPost.get("value");
 
+		// Check if we have regex patterns in the request body that override query
+		// parameters
+		if (jHttpPost.has("componentRegex")) {
+			componentRegex = jHttpPost.get("componentRegex").getAsString();
+		}
+
+		if (jHttpPost.has("channelRegex")) {
+			channelRegex = jHttpPost.get("channelRegex").getAsString();
+		}
+
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: POST " //
 					+ "Channel [" + channelAddress.toString() + "] " //
-					+ "value [" + jValue + "]");
+					+ "value [" + jValue + "]"
+					+ (componentRegex != null ? ", componentRegex: [" + componentRegex + "]" : "")
+					+ (channelRegex != null ? ", channelRegex: [" + channelRegex + "]" : ""));
 		}
 
-		// Dispatch the set channel value request.
-		this.parent.apiWorker.handleSetChannelValueRequest(this.parent.getComponentManager(), user,
-				new SetChannelValueRequest(channelAddress.getComponentId(), channelAddress.getChannelId(), jValue));
+		if (componentRegex != null || channelRegex != null) {
+			// Using regex patterns
+			var components = this.parent.getComponentManager().getEnabledComponents();
+
+			try {
+				// Get all matching channels
+				var channels = this.getChannels(components, channelAddress, componentRegex, channelRegex);
+
+				if (channels.isEmpty()) {
+					throw new OpenemsException("No channels match the provided patterns");
+				}
+
+				// Set value for all matching channels
+				for (var channel : channels) {
+					this.parent.apiWorker.handleSetChannelValueRequest(this.parent.getComponentManager(), user,
+							new SetChannelValueRequest(channel.address().getComponentId(),
+									channel.address().getChannelId(), jValue));
+				}
+			} catch (PatternSyntaxException e) {
+				throw new OpenemsException("Invalid regex pattern: " + e.getMessage());
+			}
+		} else {
+			// Standard single channel update
+			this.parent.apiWorker.handleSetChannelValueRequest(this.parent.getComponentManager(), user,
+					new SetChannelValueRequest(channelAddress.getComponentId(), channelAddress.getChannelId(), jValue));
+		}
 
 		return this.sendOkResponse(response, new JsonObject());
 	}
