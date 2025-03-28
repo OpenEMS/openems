@@ -6,7 +6,6 @@ import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildManualEnergyScheduleHandler;
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildSmartEnergyScheduleHandler;
 import static io.openems.edge.controller.evse.single.Utils.getSessionLimitReached;
-import static io.openems.edge.controller.evse.single.Utils.isReadyForCharging;
 import static io.openems.edge.controller.evse.single.Utils.mergeLimits;
 
 import java.time.Clock;
@@ -35,15 +34,20 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.evse.single.EnergyScheduler.ManualOptimizationContext;
+import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptimizationContext;
+import io.openems.edge.controller.evse.single.EnergyScheduler.Config.SmartOptimizationConfig;
+import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
 import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
 import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleResponse;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
 import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.chargepoint.Mode.Actual;
 import io.openems.edge.evse.api.chargepoint.Profile;
 import io.openems.edge.evse.api.chargepoint.Status;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
@@ -76,7 +80,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 	private Config config;
 	private BiConsumer<Value<Status>, Value<Status>> onChargePointStatusChange = null;
-	private EnergyScheduleHandler energyScheduleHandler;
+	private EshWithDifferentModes<Actual, SmartOptimizationContext, ScheduleContext> smartEnergyScheduleHandler = null;
+	private WithOnlyOneMode manualEnergyScheduleHandler = null;
 
 	public ControllerEvseSingleImpl() {
 		this(Clock.systemDefaultZone());
@@ -107,23 +112,27 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 			return;
 		}
 
-		this.energyScheduleHandler = switch (config.mode()) {
-		case SMART -> buildSmartEnergyScheduleHandler(this, //
-				() -> new SmartOptimizationContext(isReadyForCharging(this.chargePoint)));
-		case ZERO, MINIMUM, SURPLUS, FORCE -> buildManualEnergyScheduleHandler(this, //
-				() -> new ManualOptimizationContext(config.mode().actual, isReadyForCharging(this.chargePoint),
-						this.chargePoint.getChargeParams(), this.getSessionEnergy().orElse(0),
-						config.manualEnergySessionLimit() > 0 //
-								? config.manualEnergySessionLimit() //
-								: 30_000 /* fallback */));
-		};
-		if (config.mode() == Mode.SMART) {
+		switch (config.mode()) {
+		case SMART -> {
+			this.smartEnergyScheduleHandler = buildSmartEnergyScheduleHandler(this, //
+					() -> SmartOptimizationConfig.from(this.chargePoint.getChargeParams(),
+							this.electricVehicle.getChargeParams(), config.smartConfig()));
 			this.onChargePointStatusChange = (oldStatus, newStatus) -> {
 				// Trigger Reschedule on Status change
-				this.energyScheduleHandler.triggerReschedule(
+				this.smartEnergyScheduleHandler.triggerReschedule(
 						"ControllerEvseSingle::onChargePointStatusChange from " + oldStatus + " to " + newStatus);
 			};
 			this.chargePoint.getStatusChannel().onChange(this.onChargePointStatusChange);
+		}
+
+		case ZERO, MINIMUM, SURPLUS, FORCE -> {
+			this.manualEnergyScheduleHandler = buildManualEnergyScheduleHandler(this, //
+					() -> ManualOptimizationContext.from(config.mode().actual, this.chargePoint.getChargeParams(),
+							this.electricVehicle.getChargeParams(), this.getSessionEnergy().orElse(0),
+							config.manualEnergySessionLimit() > 0 //
+									? config.manualEnergySessionLimit() //
+									: 30_000 /* fallback */));
+		}
 		}
 	}
 
@@ -149,14 +158,11 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 			-> sessionLimitReached //
 					? Mode.Actual.ZERO //
 					: this.config.mode().actual;
-		case SMART //
-			-> null; // TODO for Time-of-Use
-		};
 
-		// Is Ready for Charging?
-		var readyForCharging = sessionLimitReached //
-				? false //
-				: isReadyForCharging(this.chargePoint);
+		case SMART //
+			-> this.getSmartModeActual(Mode.Actual.ZERO);
+		};
+		setValue(this, ControllerEvseSingle.ChannelId.ACTUAL_MODE, actualMode);
 
 		var chargePoint = this.chargePoint.getChargeParams();
 		var activePower = this.chargePoint.getActivePower().get();
@@ -167,6 +173,11 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 		if (limits == null) {
 			return null;
 		}
+
+		// Is Ready for Charging?
+		var readyForCharging = sessionLimitReached //
+				? false //
+				: chargePoint.isReadyForCharging();
 
 		return new Params(readyForCharging, actualMode, activePower, limits, chargePoint.profiles());
 	}
@@ -194,6 +205,18 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 		}
 	}
 
+	private Mode.Actual getSmartModeActual(Mode.Actual orElse) {
+		var esh = this.smartEnergyScheduleHandler;
+		if (esh == null) {
+			return orElse;
+		}
+		var period = esh.getCurrentPeriod();
+		if (period == null) {
+			return orElse;
+		}
+		return period.mode();
+	}
+
 	protected void logDebug(String message) {
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
@@ -202,12 +225,20 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 	@Override
 	public EnergyScheduleHandler getEnergyScheduleHandler() {
-		return this.energyScheduleHandler;
+		var esh = this.smartEnergyScheduleHandler;
+		if (esh != null) {
+			return esh;
+		}
+		return this.manualEnergyScheduleHandler;
 	}
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		var esh = this.smartEnergyScheduleHandler;
+		if (esh == null) {
+			return;
+		}
 		builder.handleRequest(GetScheduleRequest.METHOD, //
-				call -> GetScheduleResponse.from(call.getRequest().getId(), this.energyScheduleHandler));
+				call -> GetScheduleResponse.from(call.getRequest().getId(), esh));
 	}
 }

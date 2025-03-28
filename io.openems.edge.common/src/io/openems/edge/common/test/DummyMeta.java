@@ -50,4 +50,9 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 		TestUtils.withValue(this, Meta.ChannelId.IS_ESS_CHARGE_FROM_GRID_ALLOWED, value);
 		return this.self();
 	}
+
+	@Override
+	public int getGridConnectionPointFuseLimit() {
+		return 32; // [A]
+	}
 }

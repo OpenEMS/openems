@@ -478,7 +478,23 @@ formly-input-section {
 
     ion-toggle {
         --track-background: var(--ion-color-toggle-background);
-        --track-background-checked: var(--ion-color-toggle-background);
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --track-background-checked: var(--ion-color-primary);
+        --handle-background-checked: var(--ion-color-white);
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
+        padding: 0.8em;
+        padding-right: 0.2em;
+        padding-left: 0.2em;
+        overflow: visible;
+        scale: 0.95;
+    }
+
+    ion-toggle::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
+    }
+
+    ion-toggle.toggle-checked::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-active) !important;
     }
 
     ion-spinner {

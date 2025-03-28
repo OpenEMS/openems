@@ -276,6 +276,6 @@ public class UtilsTest {
 		var goc = new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, null, null, null,
 				new GlobalOptimizationContext.Ess(0, 0, 0, 0), null);
 		var gsc = GlobalScheduleContext.from(goc);
-		assertEquals(BALANCING, postprocessSimulatorState(gsc, ef, null, DELAY_DISCHARGE));
+		assertEquals(BALANCING, postprocessSimulatorState("ctrl0", null, gsc, ef, null, DELAY_DISCHARGE));
 	}
 }

@@ -7,6 +7,7 @@ import { isBefore } from "date-fns";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { environment, Environment } from "src/environments";
 
 @Component({
     selector: "storage-modal",
@@ -31,6 +32,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     protected config: EdgeConfig;
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected chargerComponents!: EdgeConfig.Component[];
+    protected readonly environment: Environment = environment;
 
     constructor(
         public service: Service,

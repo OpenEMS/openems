@@ -72,6 +72,12 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.techbaseCm4Max(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4s(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.enerixControl(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
+			this.apps.add(new TestTranslation(Apps.cleverPv(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //

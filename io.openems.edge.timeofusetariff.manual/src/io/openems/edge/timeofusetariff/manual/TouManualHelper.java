@@ -5,14 +5,13 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
-import io.openems.common.types.Tuple;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class TouManualHelper {
@@ -68,17 +67,10 @@ public class TouManualHelper {
 
 	private static Double getQuarterPrice(ImmutableList<Task<Double>> schedule, ZonedDateTime now,
 			double standardPrice) {
-		return schedule.stream() //
-				.map(task -> {
-					var next = task.getNextOccurence(now.plusNanos(1));
-					return next.isBefore(now.plusMinutes(15)) //
-							? Tuple.of(next, task)
-							: null;
-				}) //
-				.filter(Objects::nonNull) //
-				.sorted((t0, t1) -> t0.a().compareTo(t1.a())) //
-				.findFirst() //
-				.map(t -> t.b().payload()) //
+		return JSCalendar.Tasks.getNextOccurence(schedule, now.plusNanos(1))
+				.map(ot -> ot.start().isBefore(now.plusMinutes(15)) //
+						? ot.payload() //
+						: standardPrice) //
 				.orElse(standardPrice);
 	}
 }

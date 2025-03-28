@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Role;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -37,11 +37,10 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdateRequest;
-import io.openems.edge.core.host.jsonrpc.GetNetworkConfigRequest;
-import io.openems.edge.core.host.jsonrpc.GetNetworkConfigResponse;
+import io.openems.edge.core.host.jsonrpc.GetNetworkConfig;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateRequest;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 /**
  * The Host-Component handles access to the host computer and operating system.
@@ -157,14 +156,18 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(GetNetworkConfigRequest.METHOD, call -> {
-			return this.handleGetNetworkConfigRequest(call.get(EdgeKeys.USER_KEY),
-					GetNetworkConfigRequest.from(call.getRequest()));
+		builder.handleRequest(new GetNetworkConfig(), endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+		}, call -> {
+			return this.handleGetNetworkConfigRequest();
 		});
 
-		builder.handleRequest(SetNetworkConfigRequest.METHOD, call -> {
-			return this.handleSetNetworkConfigRequest(call.get(EdgeKeys.USER_KEY),
-					SetNetworkConfigRequest.from(call.getRequest()));
+		builder.handleRequest(new SetNetworkConfig(), endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+		}, call -> {
+			this.handleSetNetworkConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest());
+
+			return EmptyObject.INSTANCE;
 		});
 
 		builder.handleRequest(GetSystemUpdateStateRequest.METHOD, call -> {
@@ -205,16 +208,12 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	/**
 	 * Handles a GetNetworkConfigRequest.
 	 *
-	 * @param user    the User
-	 * @param request the GetNetworkConfigRequest
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private GetNetworkConfigResponse handleGetNetworkConfigRequest(User user, GetNetworkConfigRequest request)
-			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleGetNetworkConfigRequest", Role.OWNER);
+	private GetNetworkConfig.Response handleGetNetworkConfigRequest() throws OpenemsNamedException {
 		var config = this.operatingSystem.getNetworkConfiguration();
-		return new GetNetworkConfigResponse(request.getId(), config);
+		return new GetNetworkConfig.Response(config);
 	}
 
 	/**
@@ -222,19 +221,15 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	 *
 	 * @param user    the User
 	 * @param request the SetNetworkConfigRequest
-	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public GenericJsonrpcResponseSuccess handleSetNetworkConfigRequest(User user, SetNetworkConfigRequest request)
+	public void handleSetNetworkConfigRequest(User user, SetNetworkConfig.Request request)
 			throws OpenemsNamedException {
-		user.assertRoleIsAtLeast("handleSetNetworkConfigRequest", Role.OWNER);
 		var oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
 		this.operatingSystem.handleSetNetworkConfigRequest(user, oldNetworkConfiguration, request);
 
 		// Notify NetworkConfigurationWorker about the change
 		this.networkConfigurationWorker.triggerNextRun();
-
-		return new GenericJsonrpcResponseSuccess(request.getId());
 	}
 
 	/**

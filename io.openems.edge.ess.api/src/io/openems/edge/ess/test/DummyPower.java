@@ -27,7 +27,7 @@ public class DummyPower implements Power {
 	 * filter.
 	 */
 	public DummyPower() {
-		this(Integer.MAX_VALUE, new DisabledPidFilter());
+		this(Integer.MAX_VALUE, DisabledPidFilter.INSTANCE);
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class DummyPower implements Power {
 	 * @param maxApparentPower the MaxApparentPower
 	 */
 	public DummyPower(int maxApparentPower) {
-		this(maxApparentPower, new DisabledPidFilter());
+		this(maxApparentPower, DisabledPidFilter.INSTANCE);
 	}
 
 	public DummyPower(int maxApparentPower, PidFilter pidFilter) {

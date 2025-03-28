@@ -257,8 +257,20 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 		case THREE_PHASE -> threePhaseLimit;
 		};
 
+		var isReadyForCharging = switch (this.getPlug()) {
+		// TODO changed isReadyForCharging-State should trigger a EnergyScheduler-Reschedule
+		case PLUGGED_ON_EVCS_AND_ON_EV, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED //
+			-> switch (this.getStatus()) {
+			case CHARGING, READY_FOR_CHARGING, CHARGING_REJECTED, NOT_READY_FOR_CHARGING //
+				-> true;
+			case ERROR, STARTING, UNDEFINED //
+				-> false;
+			};
+		default -> false;
+		};
+
 		var profiles = ImmutableList.<Profile>builder();
-		return new ChargeParams(limit, profiles.build());
+		return new ChargeParams(isReadyForCharging, limit, profiles.build());
 	}
 
 	private SingleThreePhase getWiring() {

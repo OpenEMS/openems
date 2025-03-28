@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsEnum;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeEnergyInChargeGrid;
 import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
@@ -20,7 +22,10 @@ import java.util.Arrays;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -30,10 +35,6 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 
 public class EnergyScheduler {
-
-	// TODO maxChargePowerFromGrid is not used!
-	public static record Config(ControlMode controlMode) {
-	}
 
 	public static record OptimizationContext(int maxSocEnergyInChargeGrid, int essChargeInChargeGrid) {
 	}
@@ -52,6 +53,8 @@ public class EnergyScheduler {
 	public static EshWithDifferentModes<StateMachine, OptimizationContext, Void> buildEnergyScheduleHandler(
 			OpenemsComponent parent, Supplier<Config> configSupplier) {
 		return EnergyScheduleHandler.WithDifferentModes.<StateMachine, OptimizationContext, Void>create(parent) //
+				.setSerializer(() -> Config.toJson(configSupplier.get())) //
+
 				.setDefaultMode(StateMachine.BALANCING) //
 				.setAvailableModes(() -> {
 					var config = configSupplier.get();
@@ -60,7 +63,7 @@ public class EnergyScheduler {
 							: new StateMachine[] { StateMachine.BALANCING };
 				})
 
-				.setInitialPopulationsFunction((goc, availableModes) -> {
+				.setInitialPopulationsProvider((goc, coc, availableModes) -> {
 					// Prepare Initial Population with cheapest price per valley set to
 					// DELAY_DISCHARGE or CHARGE_GRID
 					var result = ImmutableList.<InitialPopulation<StateMachine>>builder();
@@ -79,7 +82,7 @@ public class EnergyScheduler {
 					return new OptimizationContext(maxSocEnergyInChargeGrid, essChargeInChargeGrid);
 				})
 
-				.setSimulator((period, gsc, coc, csc, ef, mode) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness) -> {
 					switch (mode) {
 					case BALANCING -> applyBalancing(ef); // TODO Move to CtrlBalancing
 					case DELAY_DISCHARGE -> applyDelayDischarge(ef);
@@ -88,7 +91,6 @@ public class EnergyScheduler {
 						applyChargeGrid(ef, coc.essChargeInChargeGrid);
 					}
 					}
-					return 0.;
 				})
 
 				.setPostProcessor(Utils::postprocessSimulatorState)
@@ -157,4 +159,43 @@ public class EnergyScheduler {
 				.map(InitialPopulation::new) //
 				.forEach(result::add);
 	}
+
+	// TODO maxChargePowerFromGrid is not used!
+	public static record Config(ControlMode controlMode) {
+
+		/**
+		 * Serialize.
+		 * 
+		 * @param config the {@link Config}, possibly null
+		 * @return the {@link JsonElement}
+		 */
+		private static JsonElement toJson(Config config) {
+			if (config == null) {
+				return JsonNull.INSTANCE;
+			}
+			return buildJsonObject() //
+					.addProperty("controlMode", config.controlMode()) //
+					.build();
+		}
+
+		/**
+		 * Deserialize.
+		 * 
+		 * @param j a {@link JsonElement}
+		 * @return the {@link Config}
+		 * @throws OpenemsNamedException on error
+		 */
+		public static Config fromJson(JsonElement j) {
+			if (j.isJsonNull()) {
+				return new Config(null);
+			}
+			try {
+				return new Config(//
+						getAsEnum(ControlMode.class, j, "controlMode"));
+			} catch (OpenemsNamedException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+	}
+
 }

@@ -105,11 +105,14 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 				.filter(Objects::nonNull) //
 				.toList();
 
-		var outputs = ImmutableList.<Output>builder();
+		final var outputs = ImmutableList.<Output>builder();
 		var allParams = inputs.stream().map(i -> i.params()) //
 				.collect(toImmutableList());
-		var remainingExcessPower = calculateTotalExcessPower(sum, allParams);
-		remainingExcessPower -= calculateOverallMinimumPower(allParams);
+		var totalExcessPower = calculateTotalExcessPower(sum, allParams);
+		var overallFixedPower = calculateOverallFixedPower(allParams);
+		var remainingExcessPower = totalExcessPower - overallFixedPower;
+		logDebug.accept("totalExcessPower=" + totalExcessPower + "; overallFixedPower=" + overallFixedPower
+				+ "; remainingExcessPower=" + remainingExcessPower);
 
 		for (var input : inputs) {
 			final var ctrl = input.ctrl;
@@ -146,11 +149,26 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 				var limit = params.limit();
 				var maxPower = limit.getMaxPower();
 				var minPower = limit.getMinPower();
-				var power = fitWithin(0, maxPower - minPower, //
-						minPower + remainingExcessPower); // because minPower was considered before in
-				// calculateOverallMinimumPower
+				var power = fitWithin(0, maxPower - minPower, remainingExcessPower);
 				remainingExcessPower -= power;
-				yield new ApplyCharge.SetCurrent(limit.calculateCurrent(power));
+				var rawCurrent = limit.calculateCurrent(power);
+				final int current;
+				// TODO consider Non-Interruptable SURPLUS
+				if (rawCurrent < limit.minCurrent()) {
+					current = 0; // Not sufficient
+				} else if (rawCurrent > limit.maxCurrent()) {
+					current = limit.maxCurrent();
+				} else {
+					current = rawCurrent;
+				}
+				logDebug.accept(input.ctrl.id() + " limit=" + limit + "; maxPower=" + maxPower + "; minPower="
+						+ minPower + "; power=" + power + "; remainingExcessPower=" + remainingExcessPower
+						+ "; rawCurrent=" + rawCurrent + "; current=" + current);
+				if (current == 0) {
+					yield ApplyCharge.ZERO;
+				} else {
+					yield new ApplyCharge.SetCurrent(current);
+				}
 			}
 			case FORCE -> new ApplyCharge.SetCurrent(params.limit().maxCurrent());
 			};
@@ -188,19 +206,20 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Calculates the overall minimum power.
+	 * Calculates the overall fixed power.
 	 * 
 	 * @param params the {@link Params} of the {@link ControllerEvseSingle}s
-	 * @return the available additional excess power for charging
+	 * @return the fixed required power for MINIMUM and FORCE mode
 	 */
-	protected static int calculateOverallMinimumPower(ImmutableList<Params> params) {
+	protected static int calculateOverallFixedPower(ImmutableList<Params> params) {
 		return params.stream() //
 				.filter(p -> p.readyForCharging()) //
-				.filter(p -> switch (p.actualMode()) {
-				case FORCE, MINIMUM, SURPLUS -> true;
-				case ZERO -> false;
+				.map(p -> switch (p.actualMode()) {
+				case FORCE -> p.limit().getMaxPower();
+				case MINIMUM -> p.limit().getMinPower();
+				case SURPLUS, ZERO -> null;
 				}) //
-				.map(p -> p.limit().getMinPower()) //
+				.filter(Objects::nonNull) //
 				.mapToInt(Integer::intValue) //
 				.sum();
 	}

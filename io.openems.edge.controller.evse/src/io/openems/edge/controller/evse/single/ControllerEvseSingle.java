@@ -11,11 +11,13 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
+import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile;
 
 public interface ControllerEvseSingle extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		ACTUAL_MODE(Doc.of(Mode.Actual.values())), //
 		SESSION_ENERGY(Doc.of(INTEGER) //
 				.unit(WATT_HOURS)), //
 		SESSION_LIMIT_REACHED(Doc.of(Level.INFO) //

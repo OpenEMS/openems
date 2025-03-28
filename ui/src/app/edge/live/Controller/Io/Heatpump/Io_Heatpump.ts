@@ -75,7 +75,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
         break;
       }
       case "MANUAL": {
-        this.mode = this.translate.instant("General.manually");
+        this.mode = this.translate.instant("General.manual");
         break;
       }
     }

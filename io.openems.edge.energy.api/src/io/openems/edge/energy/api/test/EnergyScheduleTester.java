@@ -1,11 +1,14 @@
 package io.openems.edge.energy.api.test;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation.Transition;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
@@ -57,22 +60,22 @@ public class EnergyScheduleTester {
 	}
 
 	public static record SimulatedPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-			EnergyFlow.Model ef, double cost) {
+			EnergyFlow.Model ef, Fitness fitness) {
 	}
 
 	/**
 	 * Test next Period.
 	 * 
-	 * @param modes simulated Modes
+	 * @param fitness the {@link Fitness} result
+	 * @param modes   simulated Modes
 	 * @return a {@link SimulatedPeriod} record
 	 */
-	public SimulatedPeriod simulatePeriod(int... modes) {
+	public SimulatedPeriod simulatePeriod(Fitness fitness, int... modes) {
 		var index = this.nextPeriod++;
 		var gsc = GlobalScheduleContext.from(this.goc);
 		var period = this.goc.periods().get(index);
 		var ef = EnergyFlow.Model.from(gsc, period);
 
-		double cost = 0.;
 		var eshIndex = 0;
 		for (var esh : this.goc.eshs()) {
 			var csc = this.cscs.get(esh);
@@ -82,14 +85,25 @@ public class EnergyScheduleTester {
 				if (modeIndex >= modes.length) {
 					throw new IllegalArgumentException("Missing ModeIndex [" + modeIndex + "] for " + esh);
 				}
-				cost += e.simulate(period, gsc, csc, ef, modes[modeIndex]);
+				e.simulate(period, gsc, csc, ef, modes[modeIndex], fitness);
 			}
 			case EnergyScheduleHandler.WithOnlyOneMode e //
-				-> e.simulate(period, gsc, csc, ef);
+				-> e.simulate(period, gsc, csc, ef, fitness);
 			}
 		}
 
-		return new SimulatedPeriod(period, gsc, ef, cost);
+		return new SimulatedPeriod(period, gsc, ef, fitness);
+	}
+
+	/**
+	 * Test next Period.
+	 * 
+	 * @param modes simulated Modes
+	 * @return a {@link SimulatedPeriod} record
+	 */
+	public SimulatedPeriod simulatePeriod(int... modes) {
+		var fitness = new Fitness();
+		return this.simulatePeriod(fitness, modes);
 	}
 
 	/**
@@ -100,7 +114,28 @@ public class EnergyScheduleTester {
 	 * @return a {@link SimulatedPeriod} record
 	 */
 	public SimulatedPeriod simulatePeriodIndex(int index, int... modes) {
+		return this.simulatePeriodIndex(index, new Fitness(), modes);
+	}
+
+	/**
+	 * Test Period with given index.
+	 * 
+	 * @param index   the index of the period
+	 * @param fitness the {@link Fitness} result
+	 * @param modes   simulated Modes
+	 * @return a {@link SimulatedPeriod} record
+	 */
+	public SimulatedPeriod simulatePeriodIndex(int index, Fitness fitness, int... modes) {
 		this.nextPeriod = index;
-		return this.simulatePeriod(modes);
+		return this.simulatePeriod(fitness, modes);
+	}
+
+	@Override
+	public String toString() {
+		return toStringHelper(this) //
+				.addValue(this.goc) //
+				.add("perEsh", this.perEsh) //
+				.add("cscs", this.cscs) //
+				.toString();
 	}
 }

@@ -87,6 +87,7 @@ public class CarloGavazziMeter
 				.setRequired(true) //
 				.setDefaultValue(6) //
 				.setAutoGenerateField(false))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
 				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def()))), //
 		;
@@ -139,12 +140,15 @@ public class CarloGavazziMeter
 			final var modbusId = this.getString(p, Property.MODBUS_ID);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 
+			final var invert = this.getBoolean(p, Property.INVERT);
+
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(meterId, alias, "Meter.CarloGavazzi.EM300", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
 									.addProperty("type", type) //
+									.addProperty("invert", invert)//
 									.build()) //
 			);
 

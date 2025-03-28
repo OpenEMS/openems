@@ -66,7 +66,7 @@ export class ProfileComponent implements OnInit {
         this.isAtLeastOwner = EdgePermission.isUserAllowedToSetupProtocolDownload(edge);
         this.config = config;
         const categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"];
-        this.components = config.listActiveComponents(categorizedComponentIds);
+        this.components = config.listActiveComponents(categorizedComponentIds, this.translate);
         await this.setLatestSetupProtocolData();
       });
     });

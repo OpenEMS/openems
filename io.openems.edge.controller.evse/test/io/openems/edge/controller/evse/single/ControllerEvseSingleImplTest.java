@@ -1,6 +1,7 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -10,6 +11,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.dummy.DummyEvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.test.DummyElectricVehicle;
 
 public class ControllerEvseSingleImplTest {
 
@@ -37,6 +39,7 @@ public class ControllerEvseSingleImplTest {
 		final var sut = new ControllerEvseSingleImpl(clock);
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("electricVehicle", new DummyElectricVehicle("electricVehicle0")) //
 				.addReference("chargePoint", new DummyEvseChargePoint("chargePoint0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
@@ -66,5 +69,7 @@ public class ControllerEvseSingleImplTest {
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
+
+		assertNull(sut.getParams());
 	}
 }

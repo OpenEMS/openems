@@ -1,14 +1,19 @@
 package io.openems.edge.energy.api.handler;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
 /**
@@ -31,24 +36,35 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>
 		permits EshWithDifferentModes, EshWithOnlyOneMode {
 
-	private final String id;
+	protected final String parentFactoryPid;
+	protected final String parentId;
+
+	private final Supplier<JsonElement> serializer;
 	private final Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
 	private final Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction;
 
 	protected Clock clock;
 	protected OPTIMIZATION_CONTEXT coc;
+	private JsonElement sourceLog;
 	private Consumer<String> onRescheduleCallback;
 
-	public AbstractEnergyScheduleHandler(String id,
+	public AbstractEnergyScheduleHandler(String parentFactoryPid, String parentId, //
+			Supplier<JsonElement> serializer, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction,
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction) {
-		this.id = id;
+		this.parentFactoryPid = parentFactoryPid;
+		this.parentId = parentId;
+		this.serializer = serializer;
 		this.cocFunction = cocFunction;
 		this.cscFunction = cscFunction;
 	}
 
-	public String getId() {
-		return this.id;
+	public String getParentFactoryPid() {
+		return this.parentFactoryPid;
+	}
+
+	public String getParentId() {
+		return this.parentId;
 	}
 
 	/**
@@ -64,6 +80,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 		this.clock = goc.clock();
 		var coc = this.cocFunction.apply(goc);
 		this.coc = coc;
+		this.sourceLog = this.serializer.get();
 		return coc;
 	}
 
@@ -112,15 +129,112 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 		return ZonedDateTime.now();
 	}
 
-	@Override
-	public final String toString() {
-		var toStringHelper = toStringHelper(this.id);
-		var coc = this.coc;
-		if (coc != null) {
-			toStringHelper.addValue(coc);
+	/**
+	 * Serialize.
+	 * 
+	 * @return the {@link JsonObject}
+	 */
+	public JsonObject toJson() {
+		var b = buildJsonObject() //
+				.addProperty("factoryPid", this.parentFactoryPid) //
+				.addProperty("id", this.parentId);
+		var sourceLog = this.sourceLog;
+		if (sourceLog != null) {
+			b.add("source", this.sourceLog);
 		}
-		return toStringHelper.toString();
+		return b.build();
 	}
 
 	protected abstract void buildToString(MoreObjects.ToStringHelper toStringHelper);
+
+	protected abstract static class Builder<BUILDER, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+
+		protected final String parentFactoryPid;
+		protected final String parentId;
+
+		protected Supplier<JsonElement> serializer = () -> JsonNull.INSTANCE;
+		protected Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction = goc -> null;
+		protected Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction = coc -> null;
+
+		/**
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
+		 * 
+		 * @param parent the parent {@link OpenemsComponent}
+		 */
+		protected Builder(OpenemsComponent parent) {
+			this(parent.serviceFactoryPid(), parent.id());
+		}
+
+		/**
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
+		 * 
+		 * @param parentFactoryPid the parent Factory-PID
+		 * @param parentId         the parent ID
+		 */
+		protected Builder(String parentFactoryPid, String parentId) {
+			this.parentFactoryPid = parentFactoryPid;
+			this.parentId = parentId;
+		}
+
+		protected abstract BUILDER self();
+
+		/**
+		 * Sets the source serializer for use in RunOptimizerFromLogApp.
+		 * 
+		 * @param serializer a {@link JsonElement} supplier
+		 * @return myself
+		 */
+		public final BUILDER setSerializer(Supplier<JsonElement> serializer) {
+			this.serializer = serializer;
+			return this.self();
+		}
+
+		/**
+		 * Sets a {@link Function} to create a ControllerOptimizationContext from a
+		 * {@link GlobalOptimizationContext}.
+		 * 
+		 * @param cocFunction the ControllerOptimizationContext function
+		 * @return myself
+		 */
+		public final BUILDER setOptimizationContext(
+				Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction) {
+			this.cocFunction = cocFunction;
+			return this.self();
+		}
+
+		/**
+		 * Sets a {@link Supplier} to create a ControllerOptimizationContext.
+		 * 
+		 * @param cocSupplier the ControllerOptimizationContext supplier
+		 * @return myself
+		 */
+		public final BUILDER setOptimizationContext(Supplier<OPTIMIZATION_CONTEXT> cocSupplier) {
+			this.cocFunction = gsc -> cocSupplier.get();
+			return this.self();
+		}
+
+		/**
+		 * Sets a {@link Function} to create a ControllerScheduleContext.
+		 * 
+		 * @param cscFunction the ControllerScheduleContext function
+		 * @return myself
+		 */
+		public final BUILDER setScheduleContext(Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction) {
+			this.cscFunction = cscFunction;
+			return this.self();
+		}
+
+		/**
+		 * Sets a {@link Supplier} to create a ControllerScheduleContext.
+		 * 
+		 * @param cscSupplier the ControllerScheduleContext supplier
+		 * @return myself
+		 */
+		public final BUILDER setScheduleContext(Supplier<SCHEDULE_CONTEXT> cscSupplier) {
+			this.cscFunction = gsc -> cscSupplier.get();
+			return this.self();
+		}
+	}
 }

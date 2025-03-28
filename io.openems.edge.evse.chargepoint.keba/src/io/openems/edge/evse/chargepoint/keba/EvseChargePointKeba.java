@@ -7,11 +7,13 @@ import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.STRING;
 
 import io.openems.common.channel.Unit;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.Status;
 import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchSource;
 import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.enums.Plug;
@@ -113,5 +115,23 @@ public interface EvseChargePointKeba extends EvseChargePoint, ElectricityMeter, 
 	 */
 	public default PhaseSwitchState getPhaseSwitchState() {
 		return this.getPhaseSwitchStateChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PLUG}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Status> getPlugChannel() {
+		return this.channel(ChannelId.PLUG);
+	}
+
+	/**
+	 * Gets the Plug-Status of the Charge Point. See {@link ChannelId#STATUS}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Plug getPlug() {
+		return this.getPlugChannel().value().asEnum();
 	}
 }

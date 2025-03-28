@@ -85,6 +85,7 @@ public class KdkMeter extends AbstractOpenemsAppWithProps<KdkMeter, Property, Pa
 				.setRequired(true) //
 				.setDefaultValue(6) //
 				.setAutoGenerateField(false))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
 				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def()))), //
 		;
@@ -134,13 +135,15 @@ public class KdkMeter extends AbstractOpenemsAppWithProps<KdkMeter, Property, Pa
 			final var type = this.getString(p, Property.TYPE);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var modbusId = this.getString(p, Property.MODBUS_ID);
-
+			final var invert = this.getBoolean(p, Property.INVERT);
+			
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(meterId, alias, "Meter.KDK.2PUCT", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
 									.addProperty("type", type) //
+									.addProperty("invert", invert)//
 									.build()) //
 			);
 

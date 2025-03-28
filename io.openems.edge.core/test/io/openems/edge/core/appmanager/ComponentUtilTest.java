@@ -56,13 +56,15 @@ public class ComponentUtilTest {
 		List<NetworkInterface<?>> expected = Lists
 				.newArrayList(new NetworkInterface<Void>("eth0", ConfigurationProperty.of(false),
 						ConfigurationProperty.of(false), ConfigurationProperty.asNull(), ConfigurationProperty.asNull(),
-						ConfigurationProperty.of(expectedInet4Addresses), ConfigurationProperty.of(145), null));
+						ConfigurationProperty.of(expectedInet4Addresses), ConfigurationProperty.of(145),
+						ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(), null));
 
 		var actualInet4Addresses = new HashSet<Inet4AddressWithSubnetmask>();
 		actualInet4Addresses.add(Inet4AddressWithSubnetmask.fromString("foo", "192.168.178.2/24"));
 		var networkInterface = new NetworkInterface<Void>("eth0", ConfigurationProperty.of(false),
 				ConfigurationProperty.of(false), ConfigurationProperty.asNull(), ConfigurationProperty.asNull(),
-				ConfigurationProperty.of(actualInet4Addresses), ConfigurationProperty.of(145), null);
+				ConfigurationProperty.of(actualInet4Addresses), ConfigurationProperty.of(145),
+				ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(), null);
 
 		List<NetworkInterface<?>> actual = Lists.newArrayList(networkInterface);
 

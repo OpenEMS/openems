@@ -28,7 +28,8 @@ public class EnergySchedulerTest {
 	public void testEquals() {
 		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"),
 				() -> new OptimizationContext(500, EQUALS));
-		assertEquals("ctrl0", esh.getId());
+		assertEquals("", esh.getParentFactoryPid());
+		assertEquals("ctrl0", esh.getParentId());
 
 		var t = EnergyScheduleTester.from(esh);
 		var t0 = t.simulatePeriod();
