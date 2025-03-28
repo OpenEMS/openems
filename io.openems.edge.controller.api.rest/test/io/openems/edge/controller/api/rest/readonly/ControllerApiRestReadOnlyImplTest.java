@@ -66,7 +66,7 @@ public class ControllerApiRestReadOnlyImplTest {
 						.withGridActivePower(300)) //
 				.activate(MyConfig.create() //
 						.setId("ctrlApiRest0") //
-						.setEnabled(true) // do not actually start server
+						.setEnabled(true) //
 						.setConnectionlimit(5) //
 						.setDebugMode(false) //
 						.setPort(port) //
