@@ -84,24 +84,26 @@
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('FORCE_ON')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
+              <ion-toggle mode="md" style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('RECOMMENDATION')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
+              <ion-toggle mode="md" style="pointer-events: none"
+                [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('REGULAR')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.normalOperation</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'REGULAR'">
+              <ion-toggle mode="md" style="pointer-events: none" [checked]="formGroup.value.manualState === 'REGULAR'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('LOCK')" lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'LOCK'"></ion-toggle>
+              <ion-toggle mode="md" style="pointer-events: none"
+                [checked]="formGroup.value.manualState === 'LOCK'"></ion-toggle>
             </ion-item>
           </ion-list>
         </ion-card-content>
@@ -115,7 +117,8 @@
             (click)="updateAutomaticEnableMode(formGroup.controls.automaticRecommendationCtrlEnabled.value !== true,'automaticRecommendationCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value === true"></ion-toggle>
+            <ion-toggle mode="md"
+              [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value === true"></ion-toggle>
           </ion-item>
 
           <table class="full_width">
@@ -151,7 +154,8 @@
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom
             </ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value === true"></ion-toggle>
+            <ion-toggle mode="md"
+              [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value === true"></ion-toggle>
           </ion-item>
 
           <ng-container>
@@ -207,7 +211,7 @@
             (click)="updateAutomaticEnableMode(formGroup.controls.automaticLockCtrlEnabled.value !== true,'automaticLockCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
+            <ion-toggle mode="md" [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
           </ion-item>
           <ng-container>
             <table class="full_width">
