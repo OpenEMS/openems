@@ -90,6 +90,7 @@ import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.app.timeofusetariff.manual.OctopusGo;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 
 public final class Apps {
 
@@ -471,16 +472,6 @@ public final class Apps {
 	}
 
 	// Evcs
-
-	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final AlpitronicEvcs alpitronic(AppManagerTestBundle t) {
-		return app(t, AlpitronicEvcs::new, "App.Evcs.Alpitronic");
-	}
 
 	/**
 	 * Test method for creating a {@link RestJsonApiReadOnly}.
@@ -918,9 +909,15 @@ public final class Apps {
 				t.componentUtil, t.appManagerUtil);
 	}
 
-	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor, String appId) {
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHostAndMeta<T> constructor,
+			String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
-				t.componentUtil, t.host);
+				t.componentUtil, t.host, t.meta);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithMeta<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.meta);
 	}
 
 	private static interface DefaultAppConstructor<A> {
@@ -937,10 +934,17 @@ public final class Apps {
 
 	}
 
-	private static interface DefaultAppConstructorWithHost<A> {
+	private static interface DefaultAppConstructorWithMeta<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
-				ComponentUtil componentUtil, Host host);
+				ComponentUtil componentUtil, Meta meta);
+
+	}
+
+	private static interface DefaultAppConstructorWithHostAndMeta<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Host host, Meta meta);
 
 	}
 

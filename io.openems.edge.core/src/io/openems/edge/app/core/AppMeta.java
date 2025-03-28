@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
@@ -48,6 +49,7 @@ import io.openems.edge.core.appmanager.flag.Flag;
 import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 @Component(name = "App.Core.Meta")
 public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Parameter.BundleParameter>
@@ -69,7 +71,8 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setPopupInput(property, DisplayType.BOOLEAN);
 					field.setFieldGroup(JsonUtils.buildJsonArray() //
 							.add(JsonFormlyUtil.buildText() //
-									.setText(TranslationUtil.getTranslation(bundle, "App.Core.Meta.gridCharge.description"))
+									.setText(TranslationUtil.getTranslation(bundle,
+											"App.Core.Meta.gridCharge.description"))
 									.build())
 							.add(JsonFormlyUtil.buildCheckboxFromNameable(property) //
 									.setLabel(TranslationUtil.getTranslation(bundle, "App.Core.Meta.gridCharge.label")) //
@@ -77,6 +80,13 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.build());
 				}) //
 				.bidirectional("_meta", "isEssChargeFromGridAllowed", ComponentManagerSupplier::getComponentManager))), //
+		GRID_CONNECTION_POINT_FUSE_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".gridConnectionPointFuseLimit.label")
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.NUMBER);
+					field.onlyPositiveNumbers();
+					field.setUnit(Unit.WATT, l);
+				}).bidirectional("_meta", "gridConnectionPointFuseLimit", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -117,6 +127,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 			final var currency = this.getEnum(p, CurrencyConfig.class, Property.CURRENCY);
 			final var isEssChargeFromGridAllowed = this.getBoolean(p, Property.IS_ESS_CHARGE_FROM_GRID_ALLOWED);
+			final var gridConnectionPointFuseLimit = this.getInt(p, Property.GRID_CONNECTION_POINT_FUSE_LIMIT);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -124,6 +135,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					JsonUtils.buildJsonObject() //
 							.addProperty("currency", currency) //
 							.addProperty("isEssChargeFromGridAllowed", isEssChargeFromGridAllowed) //
+							.addProperty("gridConnectionPointFuseLimit", gridConnectionPointFuseLimit) //
 							.build()));
 
 			return AppConfiguration.create() //
