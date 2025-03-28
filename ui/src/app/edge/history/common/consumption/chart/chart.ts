@@ -26,7 +26,7 @@ export class ChartComponent extends AbstractHistoryChart {
       .filter(component => !(
         component.factoryId == "Evcs.Cluster" ||
         component.factoryId == "Evcs.Cluster.PeakShaving" ||
-        component.factoryId == "Evcs.Cluster.SelfConsumption"));
+        component.factoryId == "Evcs.Cluster.SelfConsumption") && config.hasComponentNature("io.openems.edge.evcs.api.DeprecatedEvcs", component.id));
 
     // TODO Since 2024.11.0 EVCS implements EletricityMeter; use DeprecatedEvcs as filter
     evcsComponents.forEach(component => {
