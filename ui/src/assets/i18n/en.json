@@ -1,8 +1,11 @@
 {
   "About": {
-    "build": "This build",
+    "BUILD": "This build",
+    "CONTACT": "If you have any questions or suggestions about energy management and our products, please contact our team at <a class='ion-link' href='mailto:service@fenecon.de'>service@fenecon.de</a>. The <a class='ion-link' href='https://community.openems.io/' target='_blank'>OpenEMS Community-Forum</a> is available for questions about OpenEMS.",
     "currentDevelopments": "Current developments",
+    "DESCRIPTION": "Our Energy Management System is basis of OpenEMS, a open source software. OpenEMS - the Open Source Energy Management System - is a modular platform for energy management applications. It was initiated by FENECON and is now used by a large number of companies, universities and institutes for their research and development as well as their own energy management systems. The development is coordinated by the OpenEMS Association e.V.",
     "developed": "This user interface is developed as open-source software.",
+    "ENERGY_MANAGEMENT": "Energy management system",
     "faq": "Frequently asked questions (FAQ)",
     "language": "Select language:",
     "openEMS": "More about OpenEMS",
@@ -471,13 +474,16 @@
     }
   },
   "General": {
+    "EDIT": "Edit",
     "THEME_SELECTION": {
       "TITLE": "Lights off, comfort on!",
       "DESCRIPTION": "Our monitoring is now available in <b>dark mode</b>.<hr>Simply switch over and get started!"
     },
     "LIGHT": "Light",
     "DARK": "Dark",
+    "RESET": "Reset",
     "SYSTEM_THEME": "System",
+    "SAVE": "Save",
     "active": "Active",
     "actualPower": "e-car Charge power",
     "ALL": "All",
