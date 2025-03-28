@@ -18,12 +18,14 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 
 public class InitialPopulationUtilsTest {
 
 	private static final ZonedDateTime TIME = ZonedDateTime.now(createDummyClock());
 
-	public static final SimulationResult DUMMY_PREVIOUS_RESULT = new SimulationResult(0., ImmutableSortedMap.of(), //
+	public static final SimulationResult DUMMY_PREVIOUS_RESULT = new SimulationResult(new Fitness(),
+			ImmutableSortedMap.of(), //
 			ImmutableMap.<EnergyScheduleHandler.WithDifferentModes, ImmutableSortedMap<ZonedDateTime, Transition>>builder() //
 					.put(ESH_TIME_OF_USE_TARIFF_CTRL, ImmutableSortedMap.<ZonedDateTime, Transition>naturalOrder() //
 							.put(TIME.plusHours(0).plusMinutes(00), mode(2)) //

@@ -1,8 +1,8 @@
 package io.openems.edge.energy.optimizer;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.jenetics.engine.EvolutionResult.toBestResult;
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
@@ -21,11 +21,11 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonObject;
 
 import io.jenetics.EliteSelector;
 import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
-import io.jenetics.Genotype;
 import io.jenetics.IntegerGene;
 import io.jenetics.ShiftMutator;
 import io.jenetics.ShuffleMutator;
@@ -35,6 +35,7 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
@@ -45,13 +46,13 @@ public class Simulator {
 
 	public final GlobalOptimizationContext goc;
 
-	protected final LoadingCache<int[][], Double> cache;
+	protected final LoadingCache<int[][], Fitness> cache;
 
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
 		this.cache = CacheBuilder.newBuilder() //
 				.recordStats() //
-				.build(new CacheLoader<int[][], Double>() {
+				.build(new CacheLoader<int[][], Fitness>() {
 
 					@Override
 					/**
@@ -62,10 +63,9 @@ public class Simulator {
 					 * {@link LoadingCache#getUnchecked(Object)} below.
 					 * 
 					 * @param schedule the schedule as defined by {@link EshCodec}
-					 * @return the cost, lower is better, always positive; {@link Double#NaN} on
-					 *         error
+					 * @return the {@link Fitness}
 					 */
-					public Double load(final int[][] schedule) {
+					public Fitness load(final int[][] schedule) {
 						return simulate(Simulator.this.goc, schedule, null);
 					}
 				});
@@ -77,35 +77,19 @@ public class Simulator {
 	}
 
 	/**
-	 * Simulates a Schedule and calculates the cost.
+	 * Simulates a Schedule and calculates the {@link Fitness}.
 	 * 
 	 * <p>
-	 * This method internally uses a Cache for schedule costs.
+	 * This method internally uses a Cache for schedule {@link Fitness}.
 	 * 
 	 * @param schedule the schedule as defined by {@link EshCodec}
-	 * @return the cost, lower is better, always positive; {@link Double#NaN} on
-	 *         error
+	 * @return the {@link Fitness}
 	 */
-	public double calculateCost(int[][] schedule) {
+	public Fitness calculateFitness(int[][] schedule) {
 		return this.cache.getUnchecked(schedule);
 	}
 
-	/**
-	 * Simulates a Schedule and calculates the cost.
-	 * 
-	 * <p>
-	 * This method does not a Cache for {@link Genotype}s.
-	 * 
-	 * @param schedule              the schedule as defined by {@link EshCodec}
-	 * @param bestScheduleCollector the {@link BestScheduleCollector}
-	 * @return the cost, lower is better, always positive;
-	 *         {@link Double#POSITIVE_INFINITY} on error
-	 */
-	public double simulate(int[][] schedule, BestScheduleCollector bestScheduleCollector) {
-		return simulate(this.goc, schedule, bestScheduleCollector);
-	}
-
-	protected static double simulate(GlobalOptimizationContext goc, int[][] schedule,
+	protected static Fitness simulate(GlobalOptimizationContext goc, int[][] schedule,
 			BestScheduleCollector bestScheduleCollector) {
 		final var gsc = GlobalScheduleContext.from(goc);
 		final var cscsBuilder = ImmutableMap.<EnergyScheduleHandler, Object>builder();
@@ -117,12 +101,13 @@ public class Simulator {
 		}
 		final var cscs = cscsBuilder.build();
 		final var noOfPeriods = goc.periods().size();
+		final var fitness = new Fitness();
 
-		var sum = 0.;
 		for (var period = 0; period < noOfPeriods; period++) {
-			sum += simulatePeriod(gsc, cscs, schedule, period, bestScheduleCollector);
+			simulatePeriod(gsc, cscs, schedule, period, fitness, bestScheduleCollector);
 		}
-		return sum;
+
+		return fitness;
 	}
 
 	/**
@@ -133,24 +118,22 @@ public class Simulator {
 	 * @param schedule              the schedule as defined by {@link EshCodec}
 	 * @param periodIndex           the index of the simulated period
 	 * @param bestScheduleCollector the {@link BestScheduleCollector}; or null
-	 * @return the cost, lower is better, always positive;
-	 *         {@link Double#POSITIVE_INFINITY} on error
+	 * @param fitness               the {@link Fitness} result
 	 */
-	public static double simulatePeriod(GlobalScheduleContext gsc, ImmutableMap<EnergyScheduleHandler, Object> cscs,
-			int[][] schedule, int periodIndex, BestScheduleCollector bestScheduleCollector) {
+	public static void simulatePeriod(GlobalScheduleContext gsc, ImmutableMap<EnergyScheduleHandler, Object> cscs,
+			int[][] schedule, int periodIndex, Fitness fitness, BestScheduleCollector bestScheduleCollector) {
 		final var period = gsc.goc.periods().get(periodIndex);
 		final var eshs = gsc.goc.eshs();
 		final var ef = EnergyFlow.Model.from(gsc, period);
 
-		double cost = 0.;
 		var eshIndex = 0;
 		for (var esh : eshs) {
 			var csc = cscs.get(esh);
 			switch (esh) {
 			case EnergyScheduleHandler.WithDifferentModes e //
-				-> cost += e.simulate(period, gsc, csc, ef, schedule[periodIndex][eshIndex++]);
+				-> e.simulate(period, gsc, csc, ef, schedule[periodIndex][eshIndex++], fitness);
 			case EnergyScheduleHandler.WithOnlyOneMode e //
-				-> e.simulate(period, gsc, csc, ef);
+				-> e.simulate(period, gsc, csc, ef, fitness);
 			}
 		}
 
@@ -162,20 +145,19 @@ public class Simulator {
 			// LOG.info(simulation.toString());
 			// model.logConstraints();
 			// model.logMinMaxValues();
-			return Double.POSITIVE_INFINITY;
+			fitness.addHardConstraintViolation();
 		}
 
-		// Calculate Cost
-		// TODO should be done also by ESH to enable this use-case:
-		// https://community.openems.io/t/limitierung-bei-negativen-preisen-und-lastgang-einkauf/2713/2
+		// Calculate Grid-Buy Cost
 		if (energyFlow.getGrid() > 0) {
 			// Filter negative prices
 			var price = max(0, period.price());
 
-			cost += // Cost for direct Consumption
+			fitness.addGridBuyCost(
+					// Cost for direct Consumption
 					energyFlow.getGridToCons() * price
 							// Cost for future Consumption after storage
-							+ energyFlow.getGridToEss() * price * gsc.goc.riskLevel().efficiencyFactor;
+							+ energyFlow.getGridToEss() * price * gsc.goc.riskLevel().efficiencyFactor);
 
 		} else {
 			// Sell-to-Grid -> no cost
@@ -197,8 +179,6 @@ public class Simulator {
 
 		// Prepare for next period
 		gsc.ess.calculateInitialEnergy(energyFlow.getEss());
-
-		return cost;
 	}
 
 	/**
@@ -215,8 +195,8 @@ public class Simulator {
 	 * @return the best Schedule
 	 */
 	public SimulationResult getBestSchedule(SimulationResult previousResult, boolean isCurrentPeriodFixed,
-			Function<Engine.Builder<IntegerGene, Double>, Engine.Builder<IntegerGene, Double>> engineInterceptor,
-			Function<EvolutionStream<IntegerGene, Double>, EvolutionStream<IntegerGene, Double>> evolutionStreamInterceptor) {
+			Function<Engine.Builder<IntegerGene, Fitness>, Engine.Builder<IntegerGene, Fitness>> engineInterceptor,
+			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor) {
 		final var codec = EshCodec.of(this.goc, previousResult, isCurrentPeriodFixed);
 		if (codec == null) {
 			return EMPTY_SIMULATION_RESULT;
@@ -242,7 +222,7 @@ public class Simulator {
 		var engine = Engine //
 				.builder(this.cache::getUnchecked, codec) //
 				.selector(//
-						new EliteSelector<IntegerGene, Double>(populationSize / 4, //
+						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
 								new TournamentSelector<>(3)))
 				.alterers(//
 						new ShiftMutator<>(), //
@@ -284,15 +264,14 @@ public class Simulator {
 	}
 
 	/**
-	 * Builds a log string of this {@link Simulator}.
+	 * Serialize.
 	 * 
-	 * @param prefix a line prefix
-	 * @return log string
+	 * @return the {@link JsonObject}
 	 */
-	public String toLogString(String prefix) {
-		return prefix + toStringHelper(this) //
-				.addValue(this.goc) //
-				.addValue(this.cache.stats()) //
-				.toString();
+	public JsonObject toJson() {
+		return buildJsonObject() //
+				.add("GlobalOptimizationContext", this.goc.toJson()) //
+				.addProperty("cache", this.cache.stats().toString()) //
+				.build();
 	}
 }

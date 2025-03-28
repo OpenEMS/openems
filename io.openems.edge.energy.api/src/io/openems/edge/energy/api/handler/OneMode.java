@@ -2,12 +2,11 @@ package io.openems.edge.energy.api.handler;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 
-import java.util.function.Function;
-
 import org.apache.logging.log4j.util.Supplier;
 
 import io.openems.common.function.TriConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
@@ -17,13 +16,11 @@ import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
  */
 public class OneMode {
 
-	public static final class Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+	public static final class Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> extends
+			AbstractEnergyScheduleHandler.Builder<Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
-		private final String id;
-
-		private Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
-		private Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction;
-		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
+		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = (id, period, gsc, coc, csc, ef,
+				fitness) -> doNothing();
 
 		/**
 		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
@@ -32,7 +29,7 @@ public class OneMode {
 		 * @param parent the parent {@link OpenemsComponent}
 		 */
 		protected Builder(OpenemsComponent parent) {
-			this(parent.serviceFactoryPid(), parent.id());
+			super(parent);
 		}
 
 		/**
@@ -42,54 +39,11 @@ public class OneMode {
 		 * @param parentFactoryPid the parent Factory-PID
 		 * @param parentId         the parent ID
 		 */
-		protected Builder(String parentFactoryPid, String parentId) {
-			this((parentFactoryPid == null || parentFactoryPid.isBlank() ? "" : (parentFactoryPid + ":")) //
-					+ parentId);
+		public Builder(String parentFactoryPid, String parentId) {
+			super(parentFactoryPid, parentId);
 		}
 
-		/**
-		 * Sets the unique identification ID.
-		 * 
-		 * @param id the ID
-		 */
-		public Builder(String id) {
-			this.id = id;
-		}
-
-		/**
-		 * Sets a {@link Function} to create a ControllerOptimizationContext from a
-		 * {@link GlobalOptimizationContext}.
-		 * 
-		 * @param cocFunction the ControllerOptimizationContext function
-		 * @return myself
-		 */
-		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setOptimizationContext(
-				Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction) {
-			this.cocFunction = cocFunction;
-			return this;
-		}
-
-		/**
-		 * Sets a {@link Supplier} to create a ControllerOptimizationContext.
-		 * 
-		 * @param cocSupplier the ControllerOptimizationContext supplier
-		 * @return myself
-		 */
-		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setOptimizationContext(
-				Supplier<OPTIMIZATION_CONTEXT> cocSupplier) {
-			this.cocFunction = gsc -> cocSupplier.get();
-			return this;
-		}
-
-		/**
-		 * Sets a {@link Function} to create a ControllerScheduleContext.
-		 * 
-		 * @param cscFunction the ControllerScheduleContext function
-		 * @return myself
-		 */
-		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
-				Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction) {
-			this.cscFunction = cscFunction;
+		protected Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> self() {
 			return this;
 		}
 
@@ -118,14 +72,15 @@ public class OneMode {
 		}
 
 		/**
-		 * Sets a {@link Simulator} that simulates a Mode for one Period of a Schedule.
+		 * Sets a a simplified Simulator that simulates a Mode for one Period of a
+		 * Schedule.
 		 * 
 		 * @param simulator a simulator
 		 * @return myself
 		 */
 		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setSimulator(
 				TriConsumer<GlobalScheduleContext, OPTIMIZATION_CONTEXT, EnergyFlow.Model> simulator) {
-			this.simulator = (period, gsc, coc, csc, ef) -> simulator.accept(gsc, coc, ef);
+			this.simulator = (id, period, gsc, coc, csc, ef, fitness) -> simulator.accept(gsc, coc, ef);
 			return this;
 		}
 
@@ -136,16 +91,10 @@ public class OneMode {
 		 */
 		public EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> build() {
 			return new EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(//
-					this.id, //
-					this.cocFunction == null //
-							? goc -> null // fallback
-							: this.cocFunction, //
-					this.cscFunction == null //
-							? coc -> null // fallback
-							: this.cscFunction, //
-					this.simulator == null //
-							? (period, gsc, coc, csc, ef) -> doNothing() // fallback
-							: this.simulator);
+					this.parentFactoryPid, this.parentId, this.serializer, //
+					this.cocFunction, //
+					this.cscFunction, //
+					this.simulator);
 		}
 	}
 
@@ -154,14 +103,17 @@ public class OneMode {
 		/**
 		 * Simulates one Period of a Schedule.
 		 *
-		 * @param period the {@link GlobalSimulationsContext.Period}
-		 * @param gsc    the {@link GlobalScheduleContext}
-		 * @param coc    the ControllerOptimizationContext
-		 * @param csc    the ControllerScheduleContext
-		 * @param ef     the {@link EnergyFlow.Model}
+		 * @param parentComponentId the parent Component-ID
+		 * @param period            the {@link GlobalSimulationsContext.Period}
+		 * @param gsc               the {@link GlobalScheduleContext}
+		 * @param coc               the ControllerOptimizationContext
+		 * @param csc               the ControllerScheduleContext
+		 * @param ef                the {@link EnergyFlow.Model}
+		 * @param fitness           the {@link Fitness} result
 		 */
-		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-				OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef);
+		public void simulate(String parentComponentId, GlobalOptimizationContext.Period period,
+				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
+				Fitness fitness);
 	}
 
 	private OneMode() {

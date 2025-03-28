@@ -1,4 +1,4 @@
-package io.openems.edge.energy;
+package io.openems.edge.energy.api;
 
 public enum LogVerbosity {
 	NONE,

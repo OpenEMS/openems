@@ -59,7 +59,7 @@ public class InitialPopulationUtils {
 	protected static ImmutableSortedMap<ZonedDateTime, Period.Transition> getScheduleFromPreviousResult(
 			WithDifferentModes esh, SimulationResult previousResult) {
 		return previousResult.schedules().entrySet().stream() //
-				.filter(e -> e.getKey().getId().equals(esh.getId())) //
+				.filter(e -> e.getKey().getParentId().equals(esh.getParentId())) //
 				.map(Entry::getValue) //
 				.findFirst().orElse(null);
 	}

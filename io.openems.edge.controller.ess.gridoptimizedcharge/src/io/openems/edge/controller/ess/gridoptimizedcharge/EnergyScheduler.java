@@ -1,5 +1,8 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsString;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.time.Duration;
@@ -11,25 +14,16 @@ import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Automatic;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Manual;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
 public class EnergyScheduler {
-
-	public sealed interface Config {
-		public static record Manual(LocalTime targetTime) implements Config {
-		}
-
-		public static record Automatic() implements Config {
-		}
-	}
-
-	public static record OptimizationContext(ImmutableSortedMap<ZonedDateTime, OptionalInt> limits) {
-		// TODO Should be LocalDateTime to avoid compare issues
-	}
 
 	/**
 	 * Builds the {@link EnergyScheduleHandler}.
@@ -45,6 +39,8 @@ public class EnergyScheduler {
 	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<Config> configSupplier) {
 		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
+				.setSerializer(() -> Config.toJson(configSupplier.get())) //
+
 				.setOptimizationContext(goc -> {
 					// TODO try to reuse existing logic for parsing, calculating limits, etc.; for
 					// now this only works for current day and MANUAL mode
@@ -102,7 +98,7 @@ public class EnergyScheduler {
 					return new OptimizationContext(limits.build());
 				})
 
-				.setSimulator((period, gsc, coc, csc, ef) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
 					var limitEntry = coc.limits.floorEntry(period.time());
 					if (limitEntry == null) {
 						return;
@@ -114,5 +110,65 @@ public class EnergyScheduler {
 				}) //
 
 				.build();
+	}
+
+	public sealed interface Config {
+
+		public static record Manual(LocalTime targetTime) implements Config {
+		}
+
+		public static record Automatic() implements Config {
+		}
+
+		/**
+		 * Serialize.
+		 * 
+		 * @param config the {@link Config}, possibly null
+		 * @return the {@link JsonElement}
+		 */
+		private static JsonElement toJson(Config config) {
+			if (config == null) {
+				return JsonNull.INSTANCE;
+			}
+			var b = buildJsonObject() //
+					.addProperty("class", config.getClass().getSimpleName());
+			switch (config) {
+			case Manual moc -> b.addProperty("targetTime", moc.targetTime.toString());
+			case Automatic soc -> doNothing();
+			}
+			return b.build();
+		}
+
+		/**
+		 * Deserialize.
+		 * 
+		 * @param j a {@link JsonElement}
+		 * @return the {@link Config}
+		 */
+		public static Config fromJson(JsonElement j) {
+			if (j.isJsonNull()) {
+				return null;
+			}
+			try {
+				var clazz = getAsString(j, "class");
+				if (clazz.equals(Manual.class.getSimpleName())) {
+					return new Manual(//
+							LocalTime.parse(getAsString(j, "targetTime")));
+					// TODO should be a native JsonUtils helper
+
+				} else if (clazz.equals(Automatic.class.getSimpleName())) {
+					return new Automatic();
+
+				} else {
+					throw new IllegalArgumentException("Unsupported class [" + clazz + "]");
+				}
+			} catch (OpenemsNamedException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+	}
+
+	public static record OptimizationContext(ImmutableSortedMap<ZonedDateTime, OptionalInt> limits) {
+		// TODO Should be LocalDateTime to avoid compare issues
 	}
 }

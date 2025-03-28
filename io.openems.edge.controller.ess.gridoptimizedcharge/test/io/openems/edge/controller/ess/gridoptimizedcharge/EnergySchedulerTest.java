@@ -28,7 +28,8 @@ public class EnergySchedulerTest {
 	public void testManual() {
 		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"),
 				() -> new EnergyScheduler.Config.Manual(LocalTime.of(10, 00)));
-		assertEquals("ctrl0", esh.getId());
+		assertEquals("", esh.getParentFactoryPid());
+		assertEquals("ctrl0", esh.getParentId());
 
 		var t = EnergyScheduleTester.from(esh);
 		var csc = (OptimizationContext) t.perEsh.get(0).csc();

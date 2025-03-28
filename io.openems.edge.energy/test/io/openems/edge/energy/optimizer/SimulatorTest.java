@@ -29,9 +29,9 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 public class SimulatorTest {
 
 	public static final EnergyScheduleHandler.WithOnlyOneMode ESH0 = //
-			new OneMode.Builder<Integer, Void>("esh0") //
+			new OneMode.Builder<Integer, Void>("Controller.Dummy", "esh0") //
 					.setOptimizationContext(goc -> goc.ess().totalEnergy()) //
-					.setSimulator((period, gsc, coc, csc, ef) -> {
+					.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
 						var minEnergy = socToEnergy(gsc.goc.ess().totalEnergy(), 10 /* [%] */);
 						ef.setEssMaxDischarge(Math.max(0, gsc.ess.getInitialEnergy() - minEnergy));
 					}) //
@@ -54,10 +54,10 @@ public class SimulatorTest {
 	}
 
 	public static final EnergyScheduleHandler.WithDifferentModes ESH2 = //
-			new DifferentModes.Builder<Esh2State, Void, Void>("esh2") //
+			new DifferentModes.Builder<Esh2State, Void, Void>("Controller.Dummy", "esh2") //
 					.setDefaultMode(Esh2State.BAR) //
 					.setAvailableModes(() -> Esh2State.values()) //
-					.setInitialPopulationsFunction((goc, availableModes) -> {
+					.setInitialPopulationsProvider((goc, coc, availableModes) -> {
 						return ImmutableList.of(new InitialPopulation<Esh2State>(goc.periods().stream() //
 								.map(p -> p.index() % 3 == 0 //
 										? Esh2State.FOO // set FOO mode
