@@ -203,12 +203,11 @@ public class RestHandler extends Handler.Abstract {
 			throws OpenemsNamedException {
 		// Get componentId and channelId from either path or query parameters
 		String componentId;
-		String channelId;
 		String componentRegex = null;
 		String channelRegex = null;
 
 		// Extract query parameters from the request URI
-		Map<String, String> queryParams = parseQueryParams(request.getHttpURI().getQuery());
+		Map<String, String> queryParams = this.parseQueryParams(request.getHttpURI().getQuery());
 
 		// Check if we have component/channel regex in query parameters
 		if (queryParams.containsKey("componentRegex")) {
@@ -226,6 +225,8 @@ public class RestHandler extends Handler.Abstract {
 		} else {
 			throw new OpenemsException("Missing component ID. Provide it in path or as 'component' query parameter.");
 		}
+
+		String channelId;
 
 		if (queryParams.containsKey("channel")) {
 			channelId = queryParams.get("channel");
@@ -376,10 +377,17 @@ public class RestHandler extends Handler.Abstract {
 
 	/**
 	 * Legacy method for backward compatibility with tests.
+	 *
+	 * @param components     the list of OpenemsComponents to be processed
+	 * @param channelAddress the channel address used to filter the channels
+	 * @return a list of channels corresponding to the given channel address, or an
+	 *         empty list if none found
+	 * @throws PatternSyntaxException if the channel address pattern syntax is
+	 *                                invalid
 	 */
 	protected List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
 			throws PatternSyntaxException {
-		return getChannels(components, channelAddress, null, null);
+		return this.getChannels(components, channelAddress, null, null);
 	}
 
 	private void sendErrorResponse(Response response, UUID jsonrpcId, Throwable ex) {
