@@ -36,9 +36,6 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
 		final var ess = context.getParent();
-		ess._setTimeoutStartBattery(false);
-		ess._setTimeoutStopBattery(false);
-		ess._setTimeoutStartBatteryInverter(false);
-		ess._setTimeoutStopBatteryInverter(false);
+		ess.clearEssTimeoutFailure();
 	}
 }
