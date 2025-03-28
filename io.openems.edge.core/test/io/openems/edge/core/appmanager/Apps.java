@@ -15,6 +15,8 @@ import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
+import io.openems.edge.app.api.AppCleverPv;
+import io.openems.edge.app.api.AppEnerixControl;
 import io.openems.edge.app.api.ModbusRtuApiReadOnly;
 import io.openems.edge.app.api.ModbusRtuApiReadWrite;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
@@ -400,6 +402,26 @@ public final class Apps {
 	}
 
 	// Api
+
+	/**
+	 * Test method for creating a {@link AppEnerixControl}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppEnerixControl enerixControl(AppManagerTestBundle t) {
+		return app(t, AppEnerixControl::new, "App.Cloud.EnerixControl");
+	}
+	
+	/**
+	 * Test method for creating a {@link AppCleverPv}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppCleverPv cleverPv(AppManagerTestBundle t) {
+		return app(t, AppCleverPv::new, "App.Cloud.Clever-PV");
+	}
 
 	/**
 	 * Test method for creating a {@link ModbusTcpApiReadOnly}.
