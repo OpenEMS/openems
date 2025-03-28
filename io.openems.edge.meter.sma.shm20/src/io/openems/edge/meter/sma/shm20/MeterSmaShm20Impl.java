@@ -1,5 +1,6 @@
 package io.openems.edge.meter.sma.shm20;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 
 import java.util.function.Consumer;
@@ -50,6 +51,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 	}
 
 	private MeterType meterType = MeterType.PRODUCTION;
+	private boolean invert;
 
 	public MeterSmaShm20Impl() {
 		super(//
@@ -67,6 +69,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
+		this.invert = config.invert();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -87,29 +90,17 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		var modbusProtocol = new ModbusProtocol(this,
-				// Consumption and Production Energy
-				new FC3ReadRegistersTask(30581, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(30581)),
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(30583))),
-				// Power Readings
-				new FC3ReadRegistersTask(30865, Priority.HIGH, //
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER, new SignedDoublewordElement(30865)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30867))),
+
 				// Voltage, Power and Reactive Power
 				new FC3ReadRegistersTask(31253, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(31253), SCALE_FACTOR_1),
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(31255), SCALE_FACTOR_1),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257), SCALE_FACTOR_1),
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1, new UnsignedDoublewordElement(31259)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2, new UnsignedDoublewordElement(31261)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3, new UnsignedDoublewordElement(31263)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L1, new UnsignedDoublewordElement(31265)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L2, new UnsignedDoublewordElement(31267)),
-						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L3, new UnsignedDoublewordElement(31269)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(31271)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(31273)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(31275)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(31277))),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257), SCALE_FACTOR_1)),
+				new FC3ReadRegistersTask(31271, Priority.HIGH, //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(31271), INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(31273), INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(31275), INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(31277), INVERT_IF_TRUE(this.invert))),
 				// Current
 				new FC3ReadRegistersTask(31435, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(31435)),
@@ -118,6 +109,47 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 				// Frequency
 				new FC3ReadRegistersTask(31447, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(31447), SCALE_FACTOR_1)));
+		if (this.invert) {
+			modbusProtocol.addTask(
+					// Consumption and Production Energy
+					new FC3ReadRegistersTask(30581, Priority.HIGH, //
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+									new UnsignedDoublewordElement(30581)),
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+									new UnsignedDoublewordElement(30583))));
+			// Power Readings
+			modbusProtocol.addTask(new FC3ReadRegistersTask(30865, Priority.HIGH, //
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30865)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER, new SignedDoublewordElement(30867))));
+
+			modbusProtocol.addTask(new FC3ReadRegistersTask(31259, Priority.HIGH,
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L1, new UnsignedDoublewordElement(31259)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L2, new UnsignedDoublewordElement(31261)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L3, new UnsignedDoublewordElement(31263)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1, new UnsignedDoublewordElement(31265)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2, new UnsignedDoublewordElement(31267)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3, new UnsignedDoublewordElement(31269))));
+		} else {
+			modbusProtocol.addTask(
+					// Consumption and Production Energy
+					new FC3ReadRegistersTask(30581, Priority.HIGH, //
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+									new UnsignedDoublewordElement(30581)),
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+									new UnsignedDoublewordElement(30583))));
+			// Power Readings
+			modbusProtocol.addTask(new FC3ReadRegistersTask(30865, Priority.HIGH, //
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER, new SignedDoublewordElement(30865)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30867))));
+
+			modbusProtocol.addTask(new FC3ReadRegistersTask(31259, Priority.HIGH,
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1, new UnsignedDoublewordElement(31259)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2, new UnsignedDoublewordElement(31261)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3, new UnsignedDoublewordElement(31263)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L1, new UnsignedDoublewordElement(31265)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L2, new UnsignedDoublewordElement(31267)),
+					m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L3, new UnsignedDoublewordElement(31269))));
+		}
 
 		// Calculates required Channels from other existing Channels.
 		this.addCalculateChannelListeners();

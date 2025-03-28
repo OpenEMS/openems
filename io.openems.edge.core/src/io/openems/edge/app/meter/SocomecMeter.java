@@ -84,6 +84,7 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 				.setRequired(true) //
 				.setAutoGenerateField(false) //
 				.setDefaultValue(6))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
 				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def())));
 
@@ -132,6 +133,7 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 			final var type = this.getString(p, Property.TYPE);
 			final var modbusId = this.getString(p, Property.MODBUS_ID);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
+			final var invert = this.getBoolean(p, Property.INVERT);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(meterId, alias, "Meter.Socomec.Threephase", //
@@ -139,6 +141,7 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
 									.addProperty("type", type) //
+									.addProperty("invert", invert)//
 									.build()) //
 			);
 

@@ -1,5 +1,6 @@
 package io.openems.edge.meter.pqplus.umd96;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -45,6 +46,7 @@ public class MeterPqplusUmd96Impl extends AbstractOpenemsModbusComponent
 		implements MeterPqplusUmd96, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
+	private boolean invert;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -71,7 +73,7 @@ public class MeterPqplusUmd96Impl extends AbstractOpenemsModbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
-
+		this.invert = config.invert();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -102,24 +104,29 @@ public class MeterPqplusUmd96Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(0x1104), SCALE_FACTOR_3)),
 				// Currents
 				new FC3ReadRegistersTask(0x1200, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(0x1200), //
-								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(0x1202), //
-								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(0x1204), //
-								SCALE_FACTOR_3)),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(0x1200), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(0x1202), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(0x1204), SCALE_FACTOR_3)),
 				// Power values
 				new FC3ReadRegistersTask(0x1314, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x1314)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(0x1316)), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x1314),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(0x1316),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(0x1318, 0x131F), //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(0x1320)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(0x1322)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(0x1324)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(0x1320),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(0x1322),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(0x1324),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(0x1326, 0x1327), //
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(0x1328)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(0x132A)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(0x132C)))//
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(0x1328),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(0x132A),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(0x132C),
+								INVERT_IF_TRUE(this.invert)))//
 		);
 
 	}
