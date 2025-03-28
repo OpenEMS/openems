@@ -2,12 +2,12 @@ package io.openems.edge.controller.api.rest;
 
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -27,7 +27,6 @@ import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -42,6 +41,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -59,40 +59,50 @@ public class RestHandler extends Handler.Abstract {
 	@Override
 	public boolean handle(Request request, Response response, Callback callback) throws Exception {
 		try {
-			// Use the new API to extract the target path.
-			var target = request.getHttpURI().getPath();
-			if (target == null || target.isEmpty() || "/".equals(target)) {
+			// Extract the raw request URI
+			final var target = request.getHttpURI().getDecodedPath();
+
+			// Special handling for favicon.ico requests
+			if (target.endsWith("/favicon.ico")) {
+				response.setStatus(HttpStatus.NOT_FOUND_404);
+				callback.succeeded();
+				return true;
+			}
+
+			if (target.isEmpty() || "/".equals(target)) {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
-			// Remove the leading '/' and split the path.
-			var targets = Arrays.asList(target.substring(1).split("/"));
+
+			// Debug log for URIs with square brackets
+			if (target.contains("[") || target.contains("]")) {
+				if (this.parent.isDebugModeEnabled()) {
+					this.parent.logInfo(this.log, "Processing URI with square brackets: " + target);
+				}
+			}
+
+			// Split path segments preserving brackets
+			final var targets = splitPathPreservingBrackets(target.substring(1));
+
 			if (targets.isEmpty()) {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
 
-			// Authenticate the user.
+			// Authenticate the user
 			var user = this.authenticate(request);
 
 			var thisTarget = targets.get(0);
 			var remainingTargets = targets.subList(1, targets.size());
 
-			// Dispatch based on the first path token.
+			// Dispatch based on the first path token
 			switch (thisTarget) {
-			case "rest":
-				this.handleRest(user, remainingTargets, request, response);
-				break;
-			case "jsonrpc":
+			case "rest" -> this.handleRest(user, remainingTargets, request, response);
+			case "jsonrpc" -> {
 				switch (this.parent.getAccessMode()) {
-				case READ_ONLY:
-					throw new OpenemsException("REST-Api is in Read-Only mode");
-				case READ_WRITE:
-				case WRITE_ONLY:
-					this.handleJsonRpc(user, request, response);
-					break;
+				case READ_ONLY -> throw new OpenemsException("REST-Api is in Read-Only mode");
+				case READ_WRITE, WRITE_ONLY -> this.handleJsonRpc(user, request, response);
 				}
-				break;
-			default:
-				throw new OpenemsException("Unknown REST endpoint: " + target);
+			}
+			default -> throw new OpenemsException("Unknown REST endpoint: " + target);
 			}
 			callback.succeeded();
 			return true;
@@ -106,6 +116,40 @@ public class RestHandler extends Handler.Abstract {
 		}
 	}
 
+	/**
+	 * Split a path string into segments while preserving square brackets.
+	 *
+	 * @param path The path string without leading slash
+	 * @return List of path segments
+	 */
+	public static List<String> splitPathPreservingBrackets(String path) {
+		// Count open brackets to avoid splitting inside bracket patterns
+		int bracketDepth = 0;
+		StringBuilder processedPath = new StringBuilder();
+
+		// Replace slashes inside brackets with a temporary marker
+		for (int i = 0; i < path.length(); i++) {
+			char c = path.charAt(i);
+			if (c == '[') {
+				bracketDepth++;
+				processedPath.append(c);
+			} else if (c == ']') {
+				bracketDepth--;
+				processedPath.append(c);
+			} else if (c == '/' && bracketDepth > 0) {
+				// Replace slashes inside brackets with a temporary marker
+				processedPath.append('\u001F'); // ASCII unit separator as temporary marker
+			} else {
+				processedPath.append(c);
+			}
+		}
+
+		// Split by slashes, then restore internal slashes if needed
+		return Arrays.stream(processedPath.toString().split("/")) //
+				.map(segment -> segment.replace('\u001F', '/')) //
+				.toList();
+	}
+
 	private User authenticate(Request request) throws OpenemsNamedException {
 		var authHeader = request.getHeaders().get("Authorization");
 		if (authHeader != null) {
@@ -113,12 +157,8 @@ public class RestHandler extends Handler.Abstract {
 			if (st.hasMoreTokens()) {
 				var basic = st.nextToken();
 				if (basic.equalsIgnoreCase("Basic")) {
-					String credentials;
-					try {
-						credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-					}
+					final var credentials = new String(Base64.getDecoder().decode(st.nextToken()),
+							StandardCharsets.UTF_8);
 					var p = credentials.indexOf(":");
 					if (p != -1) {
 						var username = credentials.substring(0, p).trim();
@@ -158,12 +198,21 @@ public class RestHandler extends Handler.Abstract {
 	}
 
 	private boolean handleChannel(User user, List<String> targets, Request request, Response response)
-			throws IOException, OpenemsNamedException {
+			throws OpenemsNamedException {
 		if (targets.size() != 2) {
 			throw new OpenemsException("Missing arguments to handle Channel");
 		}
 
-		var channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
+		// Extract componentId and channelId preserving special characters
+		final var componentId = targets.get(0);
+		final var channelId = targets.get(1);
+
+		if (this.parent.isDebugModeEnabled()) {
+			this.parent.logInfo(this.log,
+					"Processing channel request - componentId: [" + componentId + "], channelId: [" + channelId + "]");
+		}
+
+		var channelAddress = new ChannelAddress(componentId, channelId);
 
 		return switch (request.getMethod()) {
 		case "GET" //
@@ -184,7 +233,20 @@ public class RestHandler extends Handler.Abstract {
 			throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 		var components = this.parent.getComponentManager().getEnabledComponents();
-		var channels = getChannels(components, channelAddress);
+
+		if (this.parent.isDebugModeEnabled()) {
+			this.parent.logInfo(this.log, "Looking for channels matching [" + channelAddress.toString() + "]");
+		}
+
+		// Get channels with proper handling of square brackets
+		List<Channel<?>> channels;
+		try {
+			channels = this.getChannels(components, channelAddress);
+		} catch (PatternSyntaxException e) {
+			response.setStatus(HttpStatus.BAD_REQUEST_400);
+			return true;
+		}
+
 		// If no channel matches, send a 404.
 		if (channels.isEmpty()) {
 			if (this.parent.isDebugModeEnabled()) {
@@ -195,21 +257,17 @@ public class RestHandler extends Handler.Abstract {
 			return false;
 		}
 
-		// Build JSON response.
-		var channeljson = new JsonArray();
-		for (var channel : channels) {
-			var j = new JsonObject();
-			j.addProperty("address", channel.address().toString());
-			j.addProperty("type", channel.getType().name());
-			var accessMode = channel.channelDoc().getAccessMode();
-			j.addProperty("accessMode", accessMode.getAbbreviation());
-			j.addProperty("text", channel.channelDoc().getText());
-			j.addProperty("unit", channel.channelDoc().getUnit().symbol);
-			if (accessMode != AccessMode.WRITE_ONLY) {
-				j.add("value", channel.value().asJson());
-			}
-			channeljson.add(j);
-		}
+		final var channeljson = channels.stream() //
+				.map(channel -> JsonUtils.buildJsonObject() //
+						.addProperty("address", channel.address().toString()) //
+						.addProperty("type", channel.getType().name()) //
+						.addProperty("accessMode", channel.channelDoc().getAccessMode().getAbbreviation()) //
+						.addProperty("text", channel.channelDoc().getText()) //
+						.addProperty("unit", channel.channelDoc().getUnit().symbol) //
+						.onlyIf(channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY,
+								b -> b.add("value", channel.value().asJson())) //
+						.build()) //
+				.collect(toJsonArray());
 
 		var result = channeljson.size() == 1 //
 				? channeljson.get(0) //
@@ -217,18 +275,32 @@ public class RestHandler extends Handler.Abstract {
 
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: GET " //
-					+ "Channel [" + channelAddress.toString() + "] " //
+					+ "Channel [" + channelAddress + "] " //
 					+ "Result [" + result.toString() + "]");
 		}
 
 		return this.sendOkResponse(response, result);
 	}
 
-	protected static List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
+	/**
+	 * Gets all channels for a given address, handling both exact matches and regex
+	 * patterns. This version gracefully handles square brackets in patterns.
+	 *
+	 * @param components     The list of components to search
+	 * @param channelAddress The channel address to match
+	 * @return A list of matching channels
+	 * @throws PatternSyntaxException if the pattern is invalid
+	 */
+	protected List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
 			throws PatternSyntaxException {
-		return components.stream().filter(component -> Pattern.matches(channelAddress.getComponentId(), component.id()))
-				.flatMap(component -> component.channels().stream())
-				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id())).toList();
+		final var componentId = channelAddress.getComponentId();
+		final var channelId = channelAddress.getChannelId();
+
+		return components.stream() //
+				.filter(component -> Pattern.matches(componentId, component.id())) //
+				.flatMap(component -> component.channels().stream()) //
+				.filter(channel -> Pattern.matches(channelId, channel.channelId().id())) //
+				.toList();
 	}
 
 	private void sendErrorResponse(Response response, UUID jsonrpcId, Throwable ex) {
@@ -247,6 +319,14 @@ public class RestHandler extends Handler.Abstract {
 		response.write(true, content, Callback.NOOP);
 	}
 
+	/**
+	 * Sends an OK response with the given data.
+	 *
+	 * @param response The HTTP response
+	 * @param data     The data to send
+	 * @return true if the response was sent successfully
+	 * @throws OpenemsException if an error occurs
+	 */
 	private boolean sendOkResponse(Response response, JsonElement data) throws OpenemsException {
 		response.getHeaders().put("Content-Type", "application/json");
 		response.setStatus(HttpStatus.OK_200);
@@ -280,6 +360,13 @@ public class RestHandler extends Handler.Abstract {
 		return this.sendOkResponse(response, new JsonObject());
 	}
 
+	/**
+	 * Parses a request body as JSON.
+	 *
+	 * @param request The HTTP request
+	 * @return The parsed JSON object
+	 * @throws OpenemsException if parsing fails
+	 */
 	private static JsonObject parseJson(Request request) throws OpenemsException {
 		try (BufferedReader br = new BufferedReader(
 				new InputStreamReader(Content.Source.asInputStream(request), StandardCharsets.UTF_8))) {

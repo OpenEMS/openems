@@ -14,4 +14,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	org.apache.felix.http.servlet-api,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.edge.bridge.http,\
