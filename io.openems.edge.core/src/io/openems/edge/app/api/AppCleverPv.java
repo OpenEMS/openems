@@ -126,7 +126,10 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
-		return new OpenemsAppPermissions(Role.ADMIN, Role.ADMIN);
+		return OpenemsAppPermissions.create() //
+				.setCanDelete(Role.ADMIN) //
+				.setCanSee(Role.ADMIN) //
+				.build();
 	}
 
 }
