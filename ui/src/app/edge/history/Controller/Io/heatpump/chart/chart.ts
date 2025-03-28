@@ -49,7 +49,10 @@ export class ChartComponent extends AbstractHistoryChart {
                 if (chartType === "line") {
                     return [{
                         name: translate.instant("General.state"),
-                        converter: () => data["Status"]?.map(val => Utils.multiplySafely(val, 1000)),
+                        converter: () => data["Status"]?.map(val => {
+                            const value = Utils.multiplySafely(val, 1000);
+                            return value != null ? Utils.addSafely(value, 1) : null;
+                        }),
                         color: ChartConstants.Colors.RED,
                         stack: 0,
                     }];
