@@ -239,7 +239,13 @@ public class RestHandler extends Handler.Abstract {
 		}
 
 		// Get channels with proper handling of square brackets
-		var channels = this.getChannels(components, channelAddress);
+		List<Channel<?>> channels;
+		try {
+			channels = this.getChannels(components, channelAddress);
+		} catch (PatternSyntaxException e) {
+			response.setStatus(HttpStatus.BAD_REQUEST_400);
+			return true;
+		}
 
 		// If no channel matches, send a 404.
 		if (channels.isEmpty()) {
@@ -287,29 +293,14 @@ public class RestHandler extends Handler.Abstract {
 	 */
 	protected List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
 			throws PatternSyntaxException {
-		String componentId = channelAddress.getComponentId();
-		String channelId = channelAddress.getChannelId();
+		final var componentId = channelAddress.getComponentId();
+		final var channelId = channelAddress.getChannelId();
 
-		// Check for simple patterns that are clearly invalid
-		if (componentId.equals("*") || channelId.equals("*")) {
-			throw new PatternSyntaxException("Invalid regex pattern",
-					(componentId.equals("*") ? componentId : channelId), 0);
-		}
-
-		try {
-			return components.stream() //
-					.filter(component -> Pattern.matches(componentId, component.id())) //
-					.flatMap(component -> component.channels().stream()) //
-					.filter(channel -> Pattern.matches(channelId, channel.channelId().id())) //
-					.toList();
-		} catch (PatternSyntaxException e) {
-			// If the regex pattern is invalid, try exact matching
-			return components.stream() //
-					.filter(component -> component.id().equals(componentId)) //
-					.flatMap(component -> component.channels().stream()) //
-					.filter(channel -> channel.channelId().id().equals(channelId)) //
-					.toList();
-		}
+		return components.stream() //
+				.filter(component -> Pattern.matches(componentId, component.id())) //
+				.flatMap(component -> component.channels().stream()) //
+				.filter(channel -> Pattern.matches(channelId, channel.channelId().id())) //
+				.toList();
 	}
 
 	private void sendErrorResponse(Response response, UUID jsonrpcId, Throwable ex) {

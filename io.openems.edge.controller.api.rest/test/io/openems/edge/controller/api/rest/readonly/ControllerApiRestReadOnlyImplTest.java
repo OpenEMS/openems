@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Base64;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,6 +20,7 @@ import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.types.HttpStatus;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpMethod;
 import io.openems.edge.bridge.http.api.UrlBuilder;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
@@ -30,6 +32,7 @@ import io.openems.edge.common.test.DummyUserService;
 import io.openems.edge.controller.api.rest.DummyJsonRpcRestHandlerFactory;
 import io.openems.edge.controller.api.rest.JsonRpcRestHandler;
 import io.openems.edge.controller.test.ControllerTest;
+import junit.framework.AssertionFailedError;
 
 public class ControllerApiRestReadOnlyImplTest {
 
@@ -166,6 +169,42 @@ public class ControllerApiRestReadOnlyImplTest {
 
 		final var channels = ChannelRecord.serializer().toListSerializer().deserialize(result.data());
 		assertEquals(sum.channels().size(), channels.size());
+	}
+
+	@Test(timeout = 5_000)
+	public void testGetChannelInvalidPatternStar() throws Exception {
+		try {
+			bridgeHttp.requestJson(new BridgeHttp.Endpoint(//
+					UrlBuilder.parse("http://localhost") //
+							.withPort(port) //
+							.withPath("/rest/channel/_sum/*") //
+							.toEncodedString(),
+					HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT, BridgeHttp.DEFAULT_READ_TIMEOUT, null,
+					ADMIN_AUTHENTICATION)).get();
+		} catch (ExecutionException e) {
+			if (!(e.getCause() instanceof HttpError.ResponseError responseError)) {
+				throw new AssertionFailedError("Response is not of type HttpError.ResponseError.");
+			}
+			assertEquals(HttpStatus.BAD_REQUEST, responseError.status);
+		}
+	}
+
+	@Test(timeout = 5_000)
+	public void testGetChannelInvalidPatternBrackets() throws Exception {
+		try {
+			bridgeHttp.requestJson(new BridgeHttp.Endpoint(//
+					UrlBuilder.parse("http://localhost") //
+							.withPort(port) //
+							.withPath("/rest/channel/_sum/[[") //
+							.toEncodedString(),
+					HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT, BridgeHttp.DEFAULT_READ_TIMEOUT, null,
+					ADMIN_AUTHENTICATION)).get();
+		} catch (ExecutionException e) {
+			if (!(e.getCause() instanceof HttpError.ResponseError responseError)) {
+				throw new AssertionFailedError("Response is not of type HttpError.ResponseError.");
+			}
+			assertEquals(HttpStatus.BAD_REQUEST, responseError.status);
+		}
 	}
 
 	private record ChannelRecord(//
