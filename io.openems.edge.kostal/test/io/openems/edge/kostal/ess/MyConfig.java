@@ -17,8 +17,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int capacity;
 		// private String inverter_id;
 		// private String core_target;
-		private String controller_id;
-		//private String controller_target;
+		private String ctrl_id;
+		private String ctrl_target;
 
 		private MeterType type;
 		public int minsoc;
@@ -72,15 +72,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		// return this;
 		// }
 
-		public Builder setControllerId(String controller_id) {
-			this.controller_id = controller_id;
+		public Builder setCtrlId(String ctrl_id) {
+			this.ctrl_id = ctrl_id;
 			return this;
 		}
 
-//		public Builder setControllerTarget(String controller_target) {
-//			this.controller_target = controller_target;
-//			return this;
-//		}
+		public Builder setCtrlTarget(String ctrl_target) {
+			this.ctrl_target = ctrl_target;
+			return this;
+		}
+
+		// public Builder setControllerTarget(String controller_target) {
+		// this.controller_target = controller_target;
+		// return this;
+		// }
 
 		public MyConfig build() {
 			return new MyConfig(this);
@@ -151,11 +156,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String ctrl_id() {
-		return this.builder.controller_id;
+		return this.builder.ctrl_id;
 	}
 
-//	@Override
-//	public String ctrl_target() {
-//		return this.builder.controller_target;
-//	}
+	@Override
+	public String ctrl_target() {
+		return this.builder.ctrl_target;
+	}
+
+	// @Override
+	// public String ctrl_target() {
+	// return this.builder.controller_target;
+	// }
 }

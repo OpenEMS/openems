@@ -1,6 +1,8 @@
 package io.openems.edge.kostal.gridmeter;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+//
 
 import java.util.Map;
 
@@ -39,182 +41,150 @@ import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(
-  //
-  name = "Grid-Meter.Kostal.KSEM.Inverter", //
-  immediate = true, //
-  configurationPolicy = ConfigurationPolicy.REQUIRE, //
-  property = { //
-    "type=GRID", //
-  }
-)
-@EventTopics(
-  { //
-    EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-  }
-)
-public class KostalGridMeterImpl
-  extends AbstractSunSpecMeter
-  implements
-    KostalGridMeter,
-    ElectricityMeter,
-    ModbusComponent,
-    OpenemsComponent,
-    TimedataProvider {
+		//
+		name = "Grid-Meter.Kostal.KSEM.Inverter", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				"type=GRID", //
+		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+})
+public class KostalGridMeterImpl extends AbstractSunSpecMeter
+		implements
+			KostalGridMeter,
+			ElectricityMeter,
+			ModbusComponent,
+			OpenemsComponent,
+			TimedataProvider {
 
-  private static final Map<SunSpecModel, Priority> ACTIVE_MODELS =
-    ImmutableMap.<SunSpecModel, Priority>builder()
-      .put(DefaultSunSpecModel.S_1, Priority.LOW) //
-      .put(DefaultSunSpecModel.S_203, Priority.HIGH) //
-      .build();
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap
+			.<SunSpecModel, Priority>builder()
+			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_203, Priority.HIGH) //
+			.build();
 
-  private static final int READ_FROM_MODBUS_BLOCK = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
-  @Reference
-  private ConfigurationAdmin cm;
+	@Reference
+	private ConfigurationAdmin cm;
 
-  @Override
-  @Reference(
-    policy = ReferencePolicy.STATIC,
-    policyOption = ReferencePolicyOption.GREEDY,
-    cardinality = ReferenceCardinality.MANDATORY
-  )
-  protected void setModbus(BridgeModbus modbus) {
-    super.setModbus(modbus);
-  }
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
-  private Config config;
+	private Config config;
 
-  @Reference(
-    policy = ReferencePolicy.DYNAMIC,
-    policyOption = ReferencePolicyOption.GREEDY,
-    cardinality = ReferenceCardinality.OPTIONAL
-  )
-  private volatile Timedata timedata = null;
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
-  public KostalGridMeterImpl() {
-    super(
-      //
-      ACTIVE_MODELS, //
-      OpenemsComponent.ChannelId.values(), //
-      ModbusComponent.ChannelId.values(), //
-      ElectricityMeter.ChannelId.values(), //
-      KostalGridMeter.ChannelId.values() //
-    );
-  }
+	public KostalGridMeterImpl() {
+		super(
+				//
+				ACTIVE_MODELS, //
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				KostalGridMeter.ChannelId.values() //
+		);
+	}
 
-  @Override
-  protected void onSunSpecInitializationCompleted() {
-    super.onSunSpecInitializationCompleted();
+	@Override
+	protected void onSunSpecInitializationCompleted() {
+		super.onSunSpecInitializationCompleted();
 
-    // override inverted values from sunspec model because this is a meter
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.ACTIVE_POWER, //
-        DIRECT_1_TO_1, //
-        S204.W,
-        S203.W,
-        S202.W,
-        S201.W
-      );
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.REACTIVE_POWER, //
-        DIRECT_1_TO_1, //
-        S204.VAR,
-        S203.VAR,
-        S202.VAR,
-        S201.VAR
-      );
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.ACTIVE_POWER_L1, //
-        DIRECT_1_TO_1, //
-        S204.WPH_A,
-        S203.WPH_A,
-        S202.WPH_A,
-        S201.WPH_A
-      );
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.ACTIVE_POWER_L2, //
-        DIRECT_1_TO_1, //
-        S204.WPH_B,
-        S203.WPH_B,
-        S202.WPH_B,
-        S201.WPH_B
-      );
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.ACTIVE_POWER_L3, //
-        DIRECT_1_TO_1, //
-        S204.WPH_C,
-        S203.WPH_C,
-        S202.WPH_C,
-        S201.WPH_C
-      );
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.REACTIVE_POWER_L1, //
-        DIRECT_1_TO_1, //
-        S204.V_A_RPH_A,
-        S203.V_A_RPH_A,
-        S202.V_A_RPH_A,
-        S201.V_A_RPH_A
-      );
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.REACTIVE_POWER_L2, //
-        DIRECT_1_TO_1, //
-        S204.V_A_RPH_B,
-        S203.V_A_RPH_B,
-        S202.V_A_RPH_B,
-        S201.V_A_RPH_B
-      );
-    this.mapFirstPointToChannel(
-        //
-        ElectricityMeter.ChannelId.REACTIVE_POWER_L3, //
-        DIRECT_1_TO_1, //
-        S204.V_A_RPH_C,
-        S203.V_A_RPH_C,
-        S202.V_A_RPH_C,
-        S201.V_A_RPH_C
-      );
-  }
+		// override inverted values from sunspec model because this is a meter
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.ACTIVE_POWER, //
+				DIRECT_1_TO_1, //
+				S204.W, S203.W, S202.W, S201.W);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.REACTIVE_POWER, //
+				DIRECT_1_TO_1, //
+				S204.VAR, S203.VAR, S202.VAR, S201.VAR);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.ACTIVE_POWER_L1, //
+				DIRECT_1_TO_1, //
+				S204.WPH_A, S203.WPH_A, S202.WPH_A, S201.WPH_A);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.ACTIVE_POWER_L2, //
+				DIRECT_1_TO_1, //
+				S204.WPH_B, S203.WPH_B, S202.WPH_B, S201.WPH_B);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.ACTIVE_POWER_L3, //
+				DIRECT_1_TO_1, //
+				S204.WPH_C, S203.WPH_C, S202.WPH_C, S201.WPH_C);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.REACTIVE_POWER_L1, //
+				DIRECT_1_TO_1, //
+				S204.V_A_RPH_A, S203.V_A_RPH_A, S202.V_A_RPH_A, S201.V_A_RPH_A);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.REACTIVE_POWER_L2, //
+				DIRECT_1_TO_1, //
+				S204.V_A_RPH_B, S203.V_A_RPH_B, S202.V_A_RPH_B, S201.V_A_RPH_B);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.REACTIVE_POWER_L3, //
+				DIRECT_1_TO_1, //
+				S204.V_A_RPH_C, S203.V_A_RPH_C, S202.V_A_RPH_C, S201.V_A_RPH_C);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				SCALE_FACTOR_3, //
+				S204.TOT_WH_IMP, S203.TOT_WH_IMP, S202.TOT_WH_IMP,
+				S201.TOT_WH_IMP);
+		this.mapFirstPointToChannel(
+				//
+				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				SCALE_FACTOR_3, //
+				S204.TOT_WH_EXP, S203.TOT_WH_EXP, S202.TOT_WH_EXP,
+				S201.TOT_WH_EXP);
+		
+//		this.mapFirstPointToChannel(//
+//				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+//				DIRECT_1_TO_1, //
+//				S204.TOT_WH_EXP, S203.TOT_WH_EXP, S202.TOT_WH_EXP, S201.TOT_WH_EXP);
+//		this.mapFirstPointToChannel(//
+//				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+//				DIRECT_1_TO_1, //
+//				S204.TOT_WH_IMP, S203.TOT_WH_IMP, S202.TOT_WH_IMP, S201.TOT_WH_IMP);
+		
+	}
 
-  @Activate
-  private void activate(ComponentContext context, Config config)
-    throws OpenemsException {
-    if (
-      super.activate(
-        context,
-        config.id(),
-        config.alias(),
-        config.enabled(),
-        config.modbusUnitId(),
-        this.cm,
-        "Modbus",
-        config.modbus_id(),
-        READ_FROM_MODBUS_BLOCK
-      )
-    ) {
-      return;
-    }
-    this.config = config;
-  }
+	@Activate
+	private void activate(ComponentContext context, Config config)
+			throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(),
+				config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+				config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+			return;
+		}
+		this.config = config;
+	}
 
-  @Override
-  @Deactivate
-  protected void deactivate() {
-    super.deactivate();
-  }
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
 
-  @Override
-  public Timedata getTimedata() {
-    return this.timedata;
-  }
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 
-  @Override
-  public MeterType getMeterType() {
-    return MeterType.GRID;
-  }
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.GRID;
+	}
 }
