@@ -155,15 +155,15 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 		try {
 			// reference PV inverter
-			if (!config.ctrl_id().isEmpty()
-					&& OpenemsComponent.updateReferenceFilter(this.cm,
-							this.servicePid(), "ctrl", config.ctrl_id())) {
-
+			// io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl
+			if (OpenemsComponent.updateReferenceFilter(this.cm,
+					this.servicePid(), "ctrl", config.ctrl_id())) {
 				return;
 			}
 
 		} catch (Exception e) {
 			this.ctrl = null;
+			this.mode = -1;
 			// Ignore exception for failed reference
 		}
 
@@ -240,7 +240,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 							.getSeconds() < WATCHDOG_SECONDS) {
 				// no need to apply to new set-point
 				// TODO remove syso
-				System.out.println("skipped");
+				System.out.println("skipped - wait for expiring watchdog");
 				return;
 			}
 
@@ -350,13 +350,13 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER,
 								new SignedWordElement(582))),
 
-//				new FC3ReadRegistersTask(1038, Priority.HIGH, //
-//						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
-//								new FloatDoublewordElement(1038)
-//										.wordOrder(LSWMSW)), //
-//						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
-//								new FloatDoublewordElement(1040)
-//										.wordOrder(LSWMSW))), //
+				// new FC3ReadRegistersTask(1038, Priority.HIGH, //
+				// m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				// new FloatDoublewordElement(1038)
+				// .wordOrder(LSWMSW)), //
+				// m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				// new FloatDoublewordElement(1040)
+				// .wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(1034, Priority.LOW,
 						m(KostalManagedESS.ChannelId.CHARGE_POWER,
@@ -454,7 +454,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			// default :
 			// System.out.print("== other: " + event.getTopic() + " ==");
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
-				System.out.print("== update values topic cycle before controllers ==");
+				System.out.print(
+						"== update values topic cycle before controllers ==");
 				this.setLimits();
 				break;
 		}
@@ -486,7 +487,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		} catch (NullPointerException e) {
 			// e.printStackTrace();
 		}
-		System.out.println("--> set limits: " +  maxDischargePower + " / " + maxChargePower);
+		System.out.println("--> set limits: " + maxDischargePower + " / "
+				+ maxChargePower);
 	}
 	// private int getInverterPower() {
 	// int power = -1;
