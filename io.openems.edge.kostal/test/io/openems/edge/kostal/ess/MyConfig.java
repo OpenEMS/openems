@@ -16,7 +16,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int modbusUnitId;
 		private int capacity;
 		// private String inverter_id;
-		private String core_target;
+		// private String core_target;
+		private String controller_id;
+		//private String controller_target;
+
 		private MeterType type;
 		public int minsoc;
 		public int watchdog;
@@ -64,10 +67,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		// return this;
 		// }
 
-		public Builder setCore_target(String core_target) {
-			this.core_target = core_target;
+		// public Builder setCore_target(String core_target) {
+		// this.core_target = core_target;
+		// return this;
+		// }
+
+		public Builder setControllerId(String controller_id) {
+			this.controller_id = controller_id;
 			return this;
 		}
+
+//		public Builder setControllerTarget(String controller_target) {
+//			this.controller_target = controller_target;
+//			return this;
+//		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
@@ -115,10 +128,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	// return this.builder.inverter_id;
 	// }
 
-	@Override
-	public String core_target() {
-		return this.builder.core_target;
-	}
+	// @Override
+	// public String core_target() {
+	// return this.builder.core_target;
+	// }
 
 	@Override
 	public ControlMode controlMode() {
@@ -135,4 +148,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int watchdog() {
 		return this.builder.watchdog;
 	}
+
+	@Override
+	public String ctrl_id() {
+		return this.builder.controller_id;
+	}
+
+//	@Override
+//	public String ctrl_target() {
+//		return this.builder.controller_target;
+//	}
 }

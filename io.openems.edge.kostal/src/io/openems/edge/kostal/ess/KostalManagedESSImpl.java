@@ -39,14 +39,13 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.kostal.enums.ControlMode;
-import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -95,8 +94,18 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	private int cycleCounter = 60;
 	private Integer lastSetPower;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private ElectricityMeter inverter;
+	// @Reference(policy = ReferencePolicy.STATIC, policyOption =
+	// ReferencePolicyOption.GREEDY, cardinality =
+	// ReferenceCardinality.MANDATORY)
+	// private ElectricityMeter inverter;
+
+	// @Reference(policy = ReferencePolicy.STATIC, policyOption =
+	// ReferencePolicyOption.GREEDY, cardinality =
+	// ReferenceCardinality.OPTIONAL)
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile TimeOfUseTariffController ctrl;
+
+	private int mode = -1;
 
 	private Timedata timeData;
 
@@ -144,22 +153,40 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		// // Ignore exception for failed reference
 		// }
 
-		if (isManaged()) {
-			System.out.println("--> initially setting charge power to zero");
-			try {
-				// initialize
-				this.applyPower(0, 0);
-			} catch (OpenemsNamedException e) {
-				e.printStackTrace();
+		try {
+			// reference PV inverter
+			if (!config.ctrl_id().isEmpty()
+					&& OpenemsComponent.updateReferenceFilter(this.cm,
+							this.servicePid(), "ctrl", config.ctrl_id())) {
+
+				return;
 			}
+
+		} catch (Exception e) {
+			this.ctrl = null;
+			// Ignore exception for failed reference
 		}
+
+		// if (isManaged()) {
+		// System.out.println("--> initially setting charge power to zero");
+		// try {
+		// // initialize
+		// this.applyPower(0, 0);
+		// } catch (OpenemsNamedException e) {
+		// e.printStackTrace();
+		// }
+		// }
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		inverter = null;
+		// inverter = null;
+
+		// smart mode
+		ctrl = null;
+		mode = -1;
 	}
 
 	@Override
@@ -168,8 +195,44 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		// Using separate channel for the demanded charge/discharge power
 		this._setChargePowerWanted(activePower);
 
+		// evaluate controller on smart control mode
+		if (this.controlMode == ControlMode.SMART && this.ctrl != null) {
+			System.out.println("Evaluating control mode");
+			mode = ctrl.getStateMachine().getValue();
+			System.out.println("evaluated to: " + mode);
+		}
+
 		// Read-only mode -> switch to max. self consumption automatic
 		if (isManaged()) {
+
+			// handle smart mode
+			if (this.mode >= 0 && this.controlMode == ControlMode.SMART
+					&& mode == StateMachine.BALANCING.getValue()) {
+				// TODO remove syso
+				System.out.println("skipped - balancing mode");
+				System.out.println("Controller: " + ctrl);
+				return;
+			} else {
+				if (this.mode >= 0 && this.controlMode == ControlMode.SMART) {
+					// TODO remove syso
+					System.out.println("smart - no balancing mode");
+					System.out.println("Controller: " + ctrl);
+				} else {
+					if (this.controlMode == ControlMode.SMART) {
+						// TODO remove syso
+						System.out.println("smart - with errors - skipping");
+						System.out.println("Controller: " + ctrl);
+						System.out.println("ControlMode: " + mode);
+						return;
+					} else {
+						// no smart mode
+						// TODO remove syso
+						System.out.println("configured ControlMode: "
+								+ config.controlMode());
+					}
+				}
+			}
+
 			// allow minimum writes if values does not change (zero)
 			Instant now = Instant.now();
 			if (this.lastSetPower != null && activePower == this.lastSetPower
@@ -181,8 +244,11 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				return;
 			}
 
+			// TODO check usage of cycleCounter... useless..?
 			this.cycleCounter++;
-			if ((this.cycleCounter >= 10) || (activePower != lastSetPower)) {
+			if ((this.cycleCounter >= 10) || (activePower != lastSetPower)
+					|| Duration.between(this.lastApplyPower, now)
+							.getSeconds() >= WATCHDOG_SECONDS) {
 				this.cycleCounter = 0;
 
 				try {
@@ -284,13 +350,13 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER,
 								new SignedWordElement(582))),
 
-				new FC3ReadRegistersTask(1038, Priority.HIGH, //
-						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
-								new FloatDoublewordElement(1038)
-										.wordOrder(LSWMSW)), //
-						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
-								new FloatDoublewordElement(1040)
-										.wordOrder(LSWMSW))), //
+//				new FC3ReadRegistersTask(1038, Priority.HIGH, //
+//						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+//								new FloatDoublewordElement(1038)
+//										.wordOrder(LSWMSW)), //
+//						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+//								new FloatDoublewordElement(1040)
+//										.wordOrder(LSWMSW))), //
 
 				new FC3ReadRegistersTask(1034, Priority.LOW,
 						m(KostalManagedESS.ChannelId.CHARGE_POWER,
@@ -388,6 +454,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			// default :
 			// System.out.print("== other: " + event.getTopic() + " ==");
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
+				System.out.print("== update values topic cycle before controllers ==");
 				this.setLimits();
 				break;
 		}
@@ -396,7 +463,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public boolean isManaged() {
 		return (this.config.enabled() && !this.config.readOnlyMode()
-				&& this.controlMode == ControlMode.REMOTE);
+				&& this.controlMode != ControlMode.INTERNAL);
 	}
 
 	private void setLimits() {
@@ -419,6 +486,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		} catch (NullPointerException e) {
 			// e.printStackTrace();
 		}
+		System.out.println("--> set limits: " +  maxDischargePower + " / " + maxChargePower);
 	}
 	// private int getInverterPower() {
 	// int power = -1;

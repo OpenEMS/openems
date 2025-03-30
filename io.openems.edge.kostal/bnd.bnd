@@ -17,7 +17,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.timedata.api,\
 	io.openems.edge.pvinverter.api,\
 	io.openems.edge.meter.sunspec,\
-	io.openems.edge.ess.api
+	io.openems.edge.ess.api,\
+	io.openems.edge.controller.ess.timeofusetariff
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
