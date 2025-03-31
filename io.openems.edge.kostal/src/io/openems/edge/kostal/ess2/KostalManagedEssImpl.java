@@ -48,6 +48,8 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -97,6 +99,11 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	private Integer lastSetPower;
 	private Instant lastApplyPower = Instant.MIN;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile TimeOfUseTariffController ctrl;
+
+	private int mode = -1;
+
 	private ControlMode controlMode;
 	private int minsoc = 5;
 
@@ -121,8 +128,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
-	private int targetDiff = 200;
-	private boolean managed = false;
 
 	public KostalManagedEssImpl() throws OpenemsException {
 		super(//
@@ -198,8 +203,44 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		// Using separate channel for the demanded charge/discharge power
 		this._setChargePowerWanted(activePowerWanted);
 
+		// evaluate controller on smart control mode
+		if (this.controlMode == ControlMode.SMART && this.ctrl != null) {
+			System.out.println("Evaluating control mode");
+			mode = ctrl.getStateMachine().getValue();
+			System.out.println("evaluated to: " + mode);
+		}
+
 		// Read-only mode -> switch to max. self consumption automatic
 		if (isManaged()) {
+
+			// handle smart mode
+			if (this.mode >= 0 && this.controlMode == ControlMode.SMART
+					&& mode == StateMachine.BALANCING.getValue()) {
+				// TODO remove syso
+				System.out.println("skipped - balancing mode");
+				System.out.println("Controller: " + ctrl);
+				return;
+			} else {
+				if (this.mode >= 0 && this.controlMode == ControlMode.SMART) {
+					// TODO remove syso
+					System.out.println("smart - no balancing mode");
+					System.out.println("Controller: " + ctrl);
+				} else {
+					if (this.controlMode == ControlMode.SMART) {
+						// TODO remove syso
+						System.out.println("smart - with errors - skipping");
+						System.out.println("Controller: " + ctrl);
+						System.out.println("ControlMode: " + mode);
+						return;
+					} else {
+						// no smart mode
+						// TODO remove syso
+						System.out.println("configured ControlMode: "
+								+ config.controlMode());
+					}
+				}
+			}
+
 			// allow minimum writes if values does not change (zero)
 			Instant now = Instant.now();
 			if (this.lastSetPower != null
@@ -207,52 +248,45 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 							.getSeconds() < WATCHDOG_SECONDS) {
 				// no need to apply to new set-point
 				// TODO remove syso
-				if (!this.managed) {
-					System.out.println("skipped, delayed");
-					return;
-				} else {
-					if (activePowerWanted == this.lastSetPower) {
-						System.out.println("skipped, equals");
-						return;
-					}
-				}
+				System.out.println("skipped - wait for expiring watchdog");
+				return;
 			}
 
+			// TODO check usage of cycleCounter... useless..?
 			this.cycleCounter++;
-			if ((this.cycleCounter >= 10)
-					|| (activePowerWanted != lastSetPower)) {
+			if ((this.cycleCounter >= 10) || (activePowerWanted != lastSetPower)
+					|| Duration.between(this.lastApplyPower, now)
+							.getSeconds() >= WATCHDOG_SECONDS) {
 				this.cycleCounter = 0;
 
-				try {
-					// DebugSetActivePower
-					IntegerReadChannel setActivePowerEqualsChannel = this
-							.channel(
-									ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER);
-					int powerValue = setActivePowerEqualsChannel.value().get();
+				if (config.debugMode()) {
+					try {
+						// DebugSetActivePower
+						IntegerReadChannel setActivePowerEqualsChannel = this
+								.channel(
+										ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER);
+						int powerValue = setActivePowerEqualsChannel.value()
+								.get();
 
-					// TODO testing - realization depends on controller order
-					// (by scheduler)
-					// System.out.println("old value: " + powerValue);
+						// TODO testing - realization depends on controller
+						// order
+						// (by scheduler)
+						System.out.println("old value: " + powerValue);
 
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 
 				// Kostal is fine by writing one register with signed value
 				IntegerWriteChannel setActivePowerChannel = this
 						.channel(KostalManagedEss.ChannelId.SET_ACTIVE_POWER);
-				if (!isSmartModeOptimized(activePowerWanted)) {
-					setActivePowerChannel.setNextWriteValue(activePowerWanted);
+				setActivePowerChannel.setNextWriteValue(activePowerWanted);
 
-					lastSetPower = activePowerWanted;
-					this.lastApplyPower = Instant.now();
-					managed = true;
-				} else {
-					managed = false;
-					this.lastApplyPower.plusSeconds(60);
-				}
+				lastSetPower = activePowerWanted;
+				this.lastApplyPower = Instant.now();
 
 				// TODO remove...
 				System.out
@@ -260,7 +294,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			}
 		} else {
 			lastSetPower = null;
-			managed = false;
 		}
 	}
 
@@ -454,9 +487,13 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE :
+				System.out
+						.print("== update values topic cycle execute write ==");
 				// this._setMyActivePower();
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
+				System.out.print(
+						"== update values topic cycle before controllers ==");
 				this.setLimits();
 				break;
 		}
@@ -482,6 +519,8 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		} catch (NullPointerException e) {
 			// e.printStackTrace();
 		}
+		System.out.println("--> set limits: " + maxDischargePower + " / "
+				+ maxChargePower);
 	}
 
 	@Override
@@ -509,7 +548,7 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	@Override
 	public boolean isManaged() {
 		return (this.config.enabled() && !this.config.readOnlyMode()
-				&& this.controlMode == ControlMode.REMOTE);
+				&& this.controlMode != ControlMode.INTERNAL);
 	}
 
 	@Override
@@ -517,26 +556,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		// return this.surplusFeedInHandler.run(this.chargers, this.config,
 		// this.componentManager);
 		return null;
-	}
-
-	private boolean isSmartModeOptimized(int activePower) {
-		if (this.controlMode == ControlMode.SMART) {
-			return false;
-		}
-		try {
-			int currentActivePowerAbs = Math.abs(this.getActivePower().get());
-			int activePowerAbs = Math.abs(activePower);
-
-			if (Math.abs(
-					currentActivePowerAbs - activePowerAbs) > this.targetDiff
-					&& !this.managed) {
-				// internal control is not sufficient
-				return true;
-			}
-		} catch (NullPointerException e) {
-			// e.printStackTrace();
-		}
-		return false;
 	}
 
 }

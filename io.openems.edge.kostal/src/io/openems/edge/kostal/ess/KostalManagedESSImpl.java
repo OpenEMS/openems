@@ -107,7 +107,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 	private int mode = -1;
 
-	private Timedata timeData;
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timeData;
 
 	private ControlMode controlMode;
 	private int minsoc = 5;
@@ -251,22 +252,22 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 							.getSeconds() >= WATCHDOG_SECONDS) {
 				this.cycleCounter = 0;
 
-				try {
-					// DebugSetActivePower
-					IntegerReadChannel setActivePowerEqualsChannel = this
-							.channel(
-									ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER);
-					int powerValue = setActivePowerEqualsChannel.value().get();
-
-					// TODO testing - realization depends on controller order
-					// (by scheduler)
-					System.out.println("old value: " + powerValue);
-
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+//				try {
+//					// DebugSetActivePower
+//					IntegerReadChannel setActivePowerEqualsChannel = this
+//							.channel(
+//									ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER);
+//					int powerValue = setActivePowerEqualsChannel.value().get();
+//
+//					// TODO testing - realization depends on controller order
+//					// (by scheduler)
+//					System.out.println("old value: " + powerValue);
+//
+//				} catch (NullPointerException e) {
+//					e.printStackTrace();
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
 
 				// Kostal is fine by writing one register with signed value
 				IntegerWriteChannel setActivePowerChannel = this
