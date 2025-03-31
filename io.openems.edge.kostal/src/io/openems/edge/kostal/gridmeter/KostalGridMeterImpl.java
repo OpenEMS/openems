@@ -62,6 +62,7 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap
 			.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_120, Priority.HIGH) //
 			.put(DefaultSunSpecModel.S_203, Priority.HIGH) //
 			.build();
 
@@ -94,7 +95,7 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 
 	@Override
 	protected void onSunSpecInitializationCompleted() {
-		super.onSunSpecInitializationCompleted();
+		//super.onSunSpecInitializationCompleted();
 
 		// override inverted values from sunspec model because this is a meter
 		this.mapFirstPointToChannel(
@@ -141,14 +142,14 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 				//
 				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 				SCALE_FACTOR_3, //
-				S204.TOT_WH_IMP, S203.TOT_WH_IMP, S202.TOT_WH_IMP,
-				S201.TOT_WH_IMP);
+				S204.TOT_WH_EXP, S203.TOT_WH_EXP, S202.TOT_WH_EXP,
+				S201.TOT_WH_EXP);
 		this.mapFirstPointToChannel(
 				//
 				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 				SCALE_FACTOR_3, //
-				S204.TOT_WH_EXP, S203.TOT_WH_EXP, S202.TOT_WH_EXP,
-				S201.TOT_WH_EXP);
+				S204.TOT_WH_IMP, S203.TOT_WH_IMP, S202.TOT_WH_IMP,
+				S201.TOT_WH_IMP);
 		
 //		this.mapFirstPointToChannel(//
 //				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
