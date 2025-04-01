@@ -5,14 +5,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -24,15 +30,18 @@ public class TestFeneconHome20 {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
+	private SocomecMeter meterApp;
+
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			return Apps.of(t, //
-					Apps::feneconHome20, //
-					Apps::gridOptimizedCharge, //
-					Apps::selfConsumptionOptimization, //
-					Apps::socomecMeter, //
-					Apps::prepareBatteryExtension //
+			return List.of(//
+					Apps.feneconHome20(t), //
+					Apps.gridOptimizedCharge(t), //
+					Apps.selfConsumptionOptimization(t), //
+					Apps.socomecMeter(t), //
+					Apps.prepareBatteryExtension(t), //
+					this.meterApp = Apps.socomecMeter(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -53,7 +62,7 @@ public class TestFeneconHome20 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
@@ -134,6 +143,17 @@ public class TestFeneconHome20 {
 				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
 	}
 
+	@Test
+	public void testGetMeterDefaultModbusIdValue() throws Exception {
+		this.createFullHome();
+
+		final var modbusIdProperty = Arrays.stream(this.meterApp.getProperties()) //
+				.filter(t -> t.name.equals(SocomecMeter.Property.MODBUS_ID.name())) //
+				.findFirst().orElseThrow();
+
+		assertEquals("modbus2", modbusIdProperty.getDefaultValue(Language.DEFAULT).map(JsonElement::getAsString).get());
+	}
+
 	private final OpenemsAppInstance createFullHome() throws Exception {
 		var fullConfig = fullSettings();
 
@@ -141,7 +161,7 @@ public class TestFeneconHome20 {
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
