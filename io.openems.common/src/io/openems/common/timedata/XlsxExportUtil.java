@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.XlsxExportDetailData.XlsxExportCategory;
@@ -55,7 +56,14 @@ public class XlsxExportUtil {
 			for (var nature : factory.getNatureIds()) {
 				// Electricity meter
 				switch (nature) {
+				case Natures.DC_CHARGER -> {
+					production.add(new XlsxExportDataEntry(component.getAlias(), //
+							new ChannelAddress(component.getId(), "ActualPower"), //
+							XlsxExportDataEntry.HistoricTimedataSaveType.POWER));
+				}
 				case Natures.METER -> {
+					final var channelId = Stream.of(factory.getNatureIds())
+							.anyMatch(t -> t.equals(Natures.DEPRECATED_EVCS)) ? "ChargePower" : "ActivePower";
 					final var props = component.getProperties();
 					var meterType = JsonUtils.<MeterType>getAsOptionalEnum(MeterType.class, props.get("type"))
 							.orElse(null);
@@ -67,7 +75,7 @@ public class XlsxExportUtil {
 						};
 						if (list != null) {
 							list.add(new XlsxExportDataEntry(component.getAlias(),
-									new ChannelAddress(component.getId(), "ActivePower"),
+									new ChannelAddress(component.getId(), channelId),
 									XlsxExportDataEntry.HistoricTimedataSaveType.POWER));
 						}
 						continue;
@@ -79,11 +87,14 @@ public class XlsxExportUtil {
 					}
 					enumMap.get(activePowerType)
 							.add(new XlsxExportDataEntry(component.getAlias(),
-									new ChannelAddress(component.getId(), "ActivePower"),
+									new ChannelAddress(component.getId(), channelId),
 									XlsxExportDataEntry.HistoricTimedataSaveType.POWER));
 				}
 				case Natures.TIME_OF_USE_TARIFF -> {
-					tou.add(new XlsxExportDataEntry(component.getAlias(), new ChannelAddress("_sum", "GridBuyPrice"),
+					final var controllerIds = edgeConfig.getComponentIdsByFactory("Controller.Ess.Time-Of-Use-Tariff");
+
+					tou.add(new XlsxExportDataEntry(component.getAlias(),
+							new ChannelAddress(controllerIds.getFirst(), "QuarterlyPrices"),
 							XlsxExportDataEntry.HistoricTimedataSaveType.POWER));
 				}
 				}
@@ -104,6 +115,8 @@ public class XlsxExportUtil {
 	private static final class Natures {
 		public static final String METER = "io.openems.edge.meter.api.ElectricityMeter";
 		public static final String TIME_OF_USE_TARIFF = "io.openems.edge.timeofusetariff.api.TimeOfUseTariff";
+		public static final String DC_CHARGER = "io.openems.edge.ess.dccharger.api.EssDcCharger";
+		public static final String DEPRECATED_EVCS = "io.openems.edge.evcs.api.DeprecatedEvcs";
 		public static final Set<String> PRODUCTION_NATURES = Set.of("Simulator.PvInverter", "Fenecon.Dess.PvMeter",
 				"Fenecon.Mini.PvMeter", "Kaco.BlueplanetHybrid10.PvInverter", "PvInverter.Cluster",
 				"PV-Inverter.Fronius", "PV-Inverter.KACO.blueplanet", "PV-Inverter.SMA.SunnyTripower",
