@@ -15,6 +15,8 @@ import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
+import io.openems.edge.app.api.AppCleverPv;
+import io.openems.edge.app.api.AppEnerixControl;
 import io.openems.edge.app.api.ModbusRtuApiReadOnly;
 import io.openems.edge.app.api.ModbusRtuApiReadWrite;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
@@ -36,6 +38,7 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
@@ -87,8 +90,10 @@ import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Swisspower;
 import io.openems.edge.app.timeofusetariff.Tibber;
+import io.openems.edge.app.timeofusetariff.manual.OctopusGo;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 
 public final class Apps {
 
@@ -213,6 +218,16 @@ public final class Apps {
 	 */
 	public static final GroupeE groupeE(AppManagerTestBundle t) {
 		return app(t, GroupeE::new, "App.TimeOfUseTariff.GroupeE");
+	}
+
+	/**
+	 * Test method for creating a {@link OctopusGo}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final OctopusGo octopusGo(AppManagerTestBundle t) {
+		return app(t, OctopusGo::new, "App.TimeOfUseTariff.OctopusGo");
 	}
 
 	/**
@@ -344,7 +359,7 @@ public final class Apps {
 	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
 		return app(t, TestPermissions::new, "App.Test.TestPermissions");
 	}
-	
+
 	// Test
 
 	/**
@@ -388,6 +403,26 @@ public final class Apps {
 	}
 
 	// Api
+
+	/**
+	 * Test method for creating a {@link AppEnerixControl}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppEnerixControl enerixControl(AppManagerTestBundle t) {
+		return app(t, AppEnerixControl::new, "App.Cloud.EnerixControl");
+	}
+	
+	/**
+	 * Test method for creating a {@link AppCleverPv}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppCleverPv cleverPv(AppManagerTestBundle t) {
+		return app(t, AppCleverPv::new, "App.Cloud.Clever-PV");
+	}
 
 	/**
 	 * Test method for creating a {@link ModbusTcpApiReadOnly}.
@@ -467,16 +502,6 @@ public final class Apps {
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final AlpitronicEvcs alpitronic(AppManagerTestBundle t) {
-		return app(t, AlpitronicEvcs::new, "App.Evcs.Alpitronic");
-	}
-
-	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
 	public static final DezonyEvcs dezony(AppManagerTestBundle t) {
 		return app(t, DezonyEvcs::new, "App.Evcs.Dezony");
 	}
@@ -509,6 +534,16 @@ public final class Apps {
 	 */
 	public static final MennekesEvcsReadOnly mennekesEvcsReadOnlyEvcs(AppManagerTestBundle t) {
 		return app(t, MennekesEvcsReadOnly::new, "App.Evcs.Mennekes.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link HeidelbergEvcsReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeidelbergEvcsReadOnly heidelbergEvcsReadOnlyEvcs(AppManagerTestBundle t) {
+		return app(t, HeidelbergEvcsReadOnly::new, "App.Evcs.Heidelberg.ReadOnly");
 	}
 
 	/**
@@ -907,9 +942,15 @@ public final class Apps {
 				t.componentUtil, t.appManagerUtil);
 	}
 
-	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor, String appId) {
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHostAndMeta<T> constructor,
+			String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
-				t.componentUtil, t.host);
+				t.componentUtil, t.host, t.meta);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithMeta<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.meta);
 	}
 
 	private static interface DefaultAppConstructor<A> {
@@ -926,10 +967,17 @@ public final class Apps {
 
 	}
 
-	private static interface DefaultAppConstructorWithHost<A> {
+	private static interface DefaultAppConstructorWithMeta<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
-				ComponentUtil componentUtil, Host host);
+				ComponentUtil componentUtil, Meta meta);
+
+	}
+
+	private static interface DefaultAppConstructorWithHostAndMeta<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Host host, Meta meta);
 
 	}
 

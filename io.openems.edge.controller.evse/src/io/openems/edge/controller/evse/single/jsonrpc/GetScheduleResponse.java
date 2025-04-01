@@ -1,29 +1,26 @@
 package io.openems.edge.controller.evse.single.jsonrpc;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.toJsonArray;
-import static io.openems.common.utils.StringUtils.toShortString;
+import static io.openems.edge.energy.api.EnergyUtils.toPower;
 
-import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import java.util.stream.IntStream;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.edge.controller.evse.single.EnergyScheduler.OptimizationContext;
-import io.openems.edge.energy.api.handler.DifferentModes.Period;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptimizationContext;
+import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
+import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.energy.api.handler.EshWithOnlyOneMode;
 import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.chargepoint.Mode.Actual;
 
 /**
  * Represents a JSON-RPC Response for 'getSchedule'.
@@ -36,15 +33,17 @@ import io.openems.edge.evse.api.chargepoint.Mode;
  *     'schedule': [{
  *      'timestamp':...,
  *      'price':...,
- *      'mode':...
+ *      'mode':...,
+ *      'grid':...,
+ *      'production':...,
+ *      'consumption':...,
+ *      'managedConsumption':...,
  *     }]
  *   }
  * }
  * </pre>
  */
 public class GetScheduleResponse extends JsonrpcResponseSuccess {
-
-	private static final Logger LOG = LoggerFactory.getLogger(GetScheduleResponse.class);
 
 	private final JsonObject result;
 
@@ -62,74 +61,55 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	 * Builds a {@link GetScheduleResponse} with last three hours data and current
 	 * Schedule.
 	 * 
-	 * @param requestId             the JSON-RPC request-id
-	 * @param energyScheduleHandler the {@link EnergyScheduleHandler}
+	 * @param requestId                   the JSON-RPC request-id
+	 * @param smartEnergyScheduleHandler  the {@link EshWithDifferentModes}
+	 * @param manualEnergyScheduleHandler the {@link EshWithOnlyOneMode}
 	 * @return the {@link GetScheduleResponse}
 	 */
-	public static GetScheduleResponse from(UUID requestId, EnergyScheduleHandler energyScheduleHandler) {
-		LOG.info("OPTIMIZER JSONRPC start");
-		if (energyScheduleHandler == null || energyScheduleHandler instanceof EnergyScheduleHandler.WithOnlyOneMode) {
-			return null;
-		}
-		@SuppressWarnings("unchecked")
-		var esh = (EshWithDifferentModes<Mode.Actual, OptimizationContext, Void>) energyScheduleHandler;
-		final var schedule = esh.getSchedule();
-		final JsonArray result;
-		if (schedule.isEmpty()) {
-			result = new JsonArray();
+	public static GetScheduleResponse from(UUID requestId,
+			EshWithDifferentModes<Actual, SmartOptimizationContext, ScheduleContext> smartEnergyScheduleHandler,
+			EshWithOnlyOneMode<ManualOptimizationContext, ScheduleContext> manualEnergyScheduleHandler) {
+		final Stream<JsonObject> future;
+		if (smartEnergyScheduleHandler != null) {
+			// TODO historic
+			future = toJsonObjectStream(smartEnergyScheduleHandler.getParentId(),
+					smartEnergyScheduleHandler.getSchedule(), (b, p) -> b //
+							.addProperty("mode", p.mode().getValue()));
+
+		} else if (manualEnergyScheduleHandler != null) {
+			future = toJsonObjectStream(manualEnergyScheduleHandler.getParentId(),
+					manualEnergyScheduleHandler.getSchedule(), (b, p) -> b //
+							.addProperty("mode", (p.coc().isReadyForCharging() //
+									? p.coc().mode() //
+									: Mode.Actual.ZERO).getValue()));
+
 		} else {
-			final var historic = Stream.<JsonObject>of(); // TODO
-			final var future = fromSchedule(schedule);
-			result = Stream.concat(historic, future) //
-					.collect(toJsonArray());
+			future = Stream.of();
 		}
-		LOG.info("OPTIMIZER JSONRPC finished. " + toShortString(result, 100));
+		var schedule = future.collect(JsonUtils.toJsonArray());
 
 		return new GetScheduleResponse(requestId, //
 				buildJsonObject() //
-						.add("schedule", result) //
+						.add("schedule", schedule) //
 						.build());
 	}
 
-	/**
-	 * Converts the Schedule to a {@link Stream} of {@link JsonObject}s suitable for
-	 * a {@link GetScheduleResponse}.
-	 * 
-	 * @param schedule the {@link EnergyScheduleHandler} schedule
-	 * @return {@link Stream} of {@link JsonObject}s
-	 */
-	protected static Stream<JsonObject> fromSchedule(
-			ImmutableSortedMap<ZonedDateTime, Period<Mode.Actual, OptimizationContext>> schedule) {
+	private static <PERIOD extends EnergyScheduleHandler.Period<?>> Stream<JsonObject> toJsonObjectStream(
+			String parentId, ImmutableSortedMap<ZonedDateTime, PERIOD> schedule,
+			BiConsumer<JsonUtils.JsonObjectBuilder, PERIOD> builder) {
 		return schedule.entrySet().stream() //
 				.map(e -> {
 					var p = e.getValue();
-
-					return buildJsonObject() //
+					var b = buildJsonObject() //
 							.addProperty("timestamp", e.getKey()) //
 							.addProperty("price", p.price()) //
-							.addProperty("mode", p.mode().getValue()) //
-							.build();
-				});
-	}
-
-	/**
-	 * Creates an empty default Schedule in case no Schedule is available.
-	 * 
-	 * @param clock       the {@link Clock}
-	 * @param defaultMode the default {@link Mode.Actual}
-	 * @return {@link Stream} of {@link JsonObject}s
-	 */
-	protected static Stream<JsonObject> empty(Clock clock, Mode.Actual defaultMode) {
-		final var now = ZonedDateTime.now(clock);
-		final var numberOfPeriods = 96;
-
-		return IntStream.range(0, numberOfPeriods) //
-				.mapToObj(i -> {
-					return buildJsonObject() //
-							.addProperty("timestamp", now.plusMinutes(i * 15)) //
-							.add("price", JsonNull.INSTANCE) //
-							.addProperty("state", defaultMode.getValue()) //
-							.build();
+							.addProperty("grid", toPower(p.energyFlow().getGrid())) //
+							.addProperty("production", toPower(p.energyFlow().getProd())) //
+							.addProperty("consumption", toPower(p.energyFlow().getCons())) //
+							.addProperty("managedConsumption", toPower(p.energyFlow().getManagedCons(parentId))) //
+					;
+					builder.accept(b, p);
+					return b.build();
 				});
 	}
 }

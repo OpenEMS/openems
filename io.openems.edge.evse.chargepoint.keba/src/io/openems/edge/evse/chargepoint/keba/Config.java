@@ -3,8 +3,9 @@ package io.openems.edge.evse.chargepoint.keba;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
-import io.openems.edge.evse.chargepoint.keba.enums.Phase;
+import io.openems.edge.evse.chargepoint.keba.enums.P30S10PhaseSwitching;
 
 @ObjectClassDefinition(name = "EVSE Charge-Point KEBA", //
 		description = "The KEBA KeContact P30 or P40 electric vehicle charging station")
@@ -25,11 +26,14 @@ import io.openems.edge.evse.chargepoint.keba.enums.Phase;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
-	@AttributeDefinition(name = "Phase(s)", description = "", required = true)
-	Phase phase() default Phase.FIXED_THREE;
+	@AttributeDefinition(name = "Hardware Wiring", description = "", required = true)
+	SingleThreePhase wiring() default SingleThreePhase.THREE_PHASE;
 
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
 	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
+
+	@AttributeDefinition(name = "For P30: Config for S10 phase switching", description = "Configuration for KEBA P30 with S10 phase switching device")
+	P30S10PhaseSwitching p30S10PhaseSwitching() default P30S10PhaseSwitching.NOT_AVAILABLE;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge")
 	String modbus_id() default "modbus0";

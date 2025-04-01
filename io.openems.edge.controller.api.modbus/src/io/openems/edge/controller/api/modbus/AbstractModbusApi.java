@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.modbus;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -51,6 +53,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 	public static final int UNIT_ID = 1;
 	public static final int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
+	private static final int PROCESS_IMAGE_RESET_TIME = 60;
 
 	/**
 	 * Holds the link between Modbus start address of a Component and the
@@ -62,6 +65,9 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	protected List<OpenemsComponent> invalidComponents = new CopyOnWriteArrayList<>();
 	protected final Logger log = LoggerFactory.getLogger(AbstractModbusApi.class);
 	protected final MyProcessImage processImage;
+
+	protected Instant lastModbusProcessImageErrorInstant = Instant.MIN;
+	protected Clock clock;
 
 	/**
 	 * Holds the link between Modbus address and ModbusRecord.
@@ -77,9 +83,10 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		this.processImage = new MyProcessImage(this);
 	}
 
-	protected void activate(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config)
+	protected void activate(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config, Clock clock)
 			throws OpenemsException {
 		this.config = config;
+		this.clock = clock;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
@@ -209,9 +216,9 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
-
 		this.updateCycleValues();
 		this.apiWorker.run();
+		this.resetProcessImageError(this.clock);
 	}
 
 	/**
@@ -476,6 +483,30 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	 */
 	public static String formatChannelName(WriteChannel<?> channel) {
 		return channel.getComponent().id() + "_" + channel.channelId().name();
+	}
+
+	/**
+	 * Sets the {@link #PROCESS_IMAGE_FAULT} channel to true and saves the instant
+	 * of its last occurrence.
+	 * 
+	 * @param clock the clock
+	 */
+	public void setProcessImageFault(Clock clock) {
+		this.lastModbusProcessImageErrorInstant = Instant.now(clock);
+		this._setProcessImageFault(true);
+	}
+
+	/**
+	 * Resets the PROCESS_IMAGE_FAULT channel to false if the last recorded error
+	 * instant is older than {@value #PROCESS_IMAGE_RESET_TIME} seconds.
+	 * 
+	 * @param clock the clock
+	 */
+	public void resetProcessImageError(Clock clock) {
+		this._setProcessImageFault(//
+				this.lastModbusProcessImageErrorInstant //
+						.plusSeconds(PROCESS_IMAGE_RESET_TIME) //
+						.isAfter(Instant.now(clock))); //
 	}
 
 }

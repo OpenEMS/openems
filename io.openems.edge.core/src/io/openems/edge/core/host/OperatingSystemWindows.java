@@ -14,7 +14,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 /**
  * OperatingSystem implementation for Windows.
@@ -32,7 +32,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 
 	@Override
 	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
-			SetNetworkConfigRequest request) throws OpenemsNamedException {
+			SetNetworkConfig.Request request) throws OpenemsNamedException {
 		throw new NotImplementedException("SetNetworkConfigRequest is not implemented for Windows");
 	}
 

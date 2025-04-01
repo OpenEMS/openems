@@ -38,6 +38,7 @@ import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
@@ -90,6 +91,9 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Reference
+	private ComponentManager componentManager;
+
 	@Override
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
@@ -120,7 +124,7 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
 		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections());
-		super.activate(context, this.cm, this.config);
+		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 		this.applyConfig(config);
 	}
 

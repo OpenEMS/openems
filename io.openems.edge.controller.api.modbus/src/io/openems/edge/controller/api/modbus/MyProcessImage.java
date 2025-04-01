@@ -40,11 +40,10 @@ public class MyProcessImage implements ProcessImage {
 			for (var i = 0; i < registers.length; i++) {
 				result[i] = registers[i];
 			}
-			this.parent._setProcessImageFault(false);
 			return result;
 
 		} catch (Exception e) {
-			this.parent._setProcessImageFault(true);
+			this.parent.setProcessImageFault(this.parent.clock);
 			e.printStackTrace();
 			throw new MyIllegalAddressException(this, e.getMessage());
 		}
@@ -90,11 +89,10 @@ public class MyProcessImage implements ProcessImage {
 				// increase i by word length
 				i += registers.length;
 			}
-			this.parent._setProcessImageFault(false);
 			return result;
 
 		} catch (Exception e) {
-			this.parent._setProcessImageFault(true);
+			this.parent.setProcessImageFault(this.parent.clock);
 			throw new MyIllegalAddressException(this, e.getMessage());
 		}
 	}
@@ -120,11 +118,10 @@ public class MyProcessImage implements ProcessImage {
 						"Record for Modbus address [" + ref + "] requires more than one Register.");
 			}
 
-			this.parent._setProcessImageFault(false);
 			return registers[0];
 
 		} catch (Exception e) {
-			this.parent._setProcessImageFault(true);
+			this.parent.setProcessImageFault(this.parent.clock);
 			throw new MyIllegalAddressException(this, e.getMessage());
 		}
 	}
@@ -169,21 +166,21 @@ public class MyProcessImage implements ProcessImage {
 	@Override
 	public synchronized InputRegister getInputRegister(int ref) {
 		this.parent.logWarn(this.log, "getInputRegister is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return new SimpleInputRegister(0);
 	}
 
 	@Override
 	public synchronized int getInputRegisterCount() {
 		this.parent.logWarn(this.log, "getInputRegisterCount is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return 0;
 	}
 
 	@Override
 	public synchronized DigitalOut[] getDigitalOutRange(int offset, int count) {
 		this.parent.logWarn(this.log, "getDigitalOutRange is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		var result = new DigitalOut[count];
 		for (var i = 0; i < count; i++) {
 			result[i] = new SimpleDigitalOut(false);
@@ -194,21 +191,21 @@ public class MyProcessImage implements ProcessImage {
 	@Override
 	public synchronized DigitalOut getDigitalOut(int ref) {
 		this.parent.logWarn(this.log, "getDigitalOut is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return new SimpleDigitalOut(false);
 	}
 
 	@Override
 	public synchronized int getDigitalOutCount() {
 		this.parent.logWarn(this.log, "getDigitalOutCount is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return 0;
 	}
 
 	@Override
 	public synchronized DigitalIn[] getDigitalInRange(int offset, int count) {
 		this.parent.logWarn(this.log, "getDigitalInRange is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		var result = new DigitalIn[count];
 		for (var i = 0; i < count; i++) {
 			result[i] = new SimpleDigitalIn(false);
@@ -219,28 +216,28 @@ public class MyProcessImage implements ProcessImage {
 	@Override
 	public synchronized DigitalIn getDigitalIn(int ref) {
 		this.parent.logWarn(this.log, "getDigitalInRange is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return new SimpleDigitalIn(false);
 	}
 
 	@Override
 	public synchronized int getDigitalInCount() {
 		this.parent.logWarn(this.log, "getDigitalInRange is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return 0;
 	}
 
 	@Override
 	public synchronized int getRegisterCount() {
 		this.parent.logWarn(this.log, "getRegisterCount is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return 0;
 	}
 
 	@Override
 	public synchronized File getFile(int ref) {
 		this.parent.logWarn(this.log, "getFile is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return null;
 	}
 
@@ -253,28 +250,28 @@ public class MyProcessImage implements ProcessImage {
 	@Override
 	public synchronized int getFileCount() {
 		this.parent.logWarn(this.log, "getFileByNumber is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return 0;
 	}
 
 	@Override
 	public synchronized FIFO getFIFO(int ref) {
 		this.parent.logWarn(this.log, "getFIFO is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return null;
 	}
 
 	@Override
 	public synchronized FIFO getFIFOByAddress(int ref) {
 		this.parent.logWarn(this.log, "getFIFOByAddress is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return null;
 	}
 
 	@Override
 	public synchronized int getFIFOCount() {
 		this.parent.logWarn(this.log, "getFIFOCount is not implemented");
-		this.parent._setProcessImageFault(true);
+		this.parent.setProcessImageFault(this.parent.clock);
 		return 0;
 	}
 

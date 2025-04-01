@@ -146,14 +146,16 @@ public final class Utils {
 	 * NOTE: heavy computation is ok here, because this method is called only at the
 	 * end with the best Schedule.
 	 * 
-	 * @param gsc   the {@link GlobalScheduleContext}
-	 * @param ef    the {@link EnergyFlow} for the state
-	 * @param coc   the {@link OptimizationContext}
-	 * @param state the initial state
+	 * @param id     an identifier, e.g. the Component-ID
+	 * @param period the {@link GlobalOptimizationContext.Period}
+	 * @param gsc    the {@link GlobalScheduleContext}
+	 * @param ef     the {@link EnergyFlow} for the state
+	 * @param coc    the {@link OptimizationContext}
+	 * @param state  the initial state
 	 * @return the new state
 	 */
-	public static StateMachine postprocessSimulatorState(GlobalScheduleContext gsc, EnergyFlow ef,
-			OptimizationContext coc, StateMachine state) {
+	public static StateMachine postprocessSimulatorState(String id, GlobalOptimizationContext.Period period,
+			GlobalScheduleContext gsc, EnergyFlow ef, OptimizationContext coc, StateMachine state) {
 		if (state == CHARGE_GRID) {
 			// CHARGE_GRID,...
 			if (ef.getGridToEss() <= 0) {

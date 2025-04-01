@@ -100,7 +100,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
         // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge.value;
+        const currentEdge: Edge = this.service.currentEdge();
         if (url === "/user" && currentEdge != null) {
             this.backUrl = "/device/" + currentEdge.id + "/live";
             return;
@@ -177,14 +177,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/live"], { replaceUrl: true });
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
 
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
             // this.router.navigate(["../history"], { relativeTo: this.route });
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/history"]);
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
             this.cdRef.detectChanges();
         }
     }

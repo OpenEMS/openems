@@ -1,8 +1,9 @@
 package io.openems.edge.evse.chargepoint.keba;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
-import io.openems.edge.evse.chargepoint.keba.enums.Phase;
+import io.openems.edge.evse.chargepoint.keba.enums.P30S10PhaseSwitching;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,8 +13,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean readOnly;
 		private boolean debugMode;
 		private String modbusId;
-		private Phase phase;
 		private PhaseRotation phaseRotation;
+		private SingleThreePhase wiring;
+		private P30S10PhaseSwitching p30S10PhaseSwitching;
 
 		private Builder() {
 		}
@@ -38,13 +40,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(Phase phase) {
-			this.phase = phase;
-			return this;
-		}
-		
 		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
 			this.phaseRotation = phaseRotation;
+			return this;
+		}
+
+		public Builder setWiring(SingleThreePhase wiring) {
+			this.wiring = wiring;
+			return this;
+		}
+
+		public Builder setP30S10PhaseSwitching(P30S10PhaseSwitching p30s10PhaseSwitching) {
+			this.p30S10PhaseSwitching = p30s10PhaseSwitching;
 			return this;
 		}
 
@@ -85,12 +92,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Phase phase() {
-		return this.builder.phase;
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 
 	@Override
-	public PhaseRotation phaseRotation() {
-		return this.builder.phaseRotation;
+	public SingleThreePhase wiring() {
+		return this.builder.wiring;
+	}
+
+	@Override
+	public P30S10PhaseSwitching p30S10PhaseSwitching() {
+		return this.builder.p30S10PhaseSwitching;
 	}
 }

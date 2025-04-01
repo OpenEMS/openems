@@ -1,8 +1,9 @@
 package io.openems.edge.evse.chargepoint.keba;
 
-import static io.openems.edge.evse.api.chargepoint.PhaseRotation.L1_L2_L3;
+import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
+import static io.openems.edge.evse.api.chargepoint.PhaseRotation.L2_L3_L1;
 import static io.openems.edge.evse.chargepoint.keba.EvseChargePointKebaImpl.CONVERT_FIRMWARE_VERSION;
-import static io.openems.edge.evse.chargepoint.keba.enums.Phase.FIXED_THREE;
+import static io.openems.edge.evse.chargepoint.keba.enums.P30S10PhaseSwitching.NOT_AVAILABLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -13,6 +14,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.evse.chargepoint.keba.enums.ProductTypeAndFeatures;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class EvseChargePointKebaImplTest {
 
@@ -27,28 +29,28 @@ public class EvseChargePointKebaImplTest {
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1006, // ERROR_CODE - TODO
 								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1008, // CURRENT_L1 - TODO
-								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1010, // CURRENT_L2 - TODO
-								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1012, // CURRENT_L3 - TODO
-								new int[] { 0x0000, 0x0000 }) //
+						.withRegisters(1008, // CURRENT_L1: 7_000
+								new int[] { 0x0000, 0x1B58 }) //
+						.withRegisters(1010, // CURRENT_L2: 8_000
+								new int[] { 0x0000, 0x1F40 }) //
+						.withRegisters(1012, // CURRENT_L3: 9_000
+								new int[] { 0x0000, 0x2328 }) //
 						.withRegisters(1014, // SERIAL_NUMBER - TODO
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1016, // Product Type and Features
 								new int[] { 0x0004, 0xCAFE }) //
 						.withRegisters(1018, // FIRMWARE
 								new int[] { 0x030A, 0x0D00 }) //
-						.withRegisters(1020, // ACTIVE_POWER - TODO
-								new int[] { 0x0000, 0x0000 }) //
+						.withRegisters(1020, // ACTIVE_POWER: 6_000_000
+								new int[] { 0x005B, 0x8D80 }) //
 						.withRegisters(1036, // ACTIVE_CONSUMPTION_ENERGY - TODO
 								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1040, // VOLTAGE_L1 - TODO
-								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1042, // VOLTAGE_L2 - TODO
-								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1044, // VOLTAGE_L3 - TODO
-								new int[] { 0x0000, 0x0000 }) //
+						.withRegisters(1040, // VOLTAGE_L1: 229
+								new int[] { 0x0000, 0x00E5 }) //
+						.withRegisters(1042, // VOLTAGE_L2: 230
+								new int[] { 0x0000, 0x00E6 }) //
+						.withRegisters(1044, // VOLTAGE_L3: 231
+								new int[] { 0x0000, 0x00E7 }) //
 						.withRegisters(1046, // POWER_FACTOR - TODO
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1100, // MAX_CHARGING_CURRENT - TODO
@@ -68,10 +70,11 @@ public class EvseChargePointKebaImplTest {
 				.activate(MyConfig.create() //
 						.setId("evseChargePoint0") //
 						.setModbusId("modbus0") //
-						.setPhase(FIXED_THREE) //
-						.setPhaseRotation(L1_L2_L3) //
+						.setWiring(THREE_PHASE) //
+						.setP30S10PhaseSwitching(NOT_AVAILABLE) //
+						.setPhaseRotation(L2_L3_L1) //
 						.build()) //
-				.next(new TestCase(), 10) //
+				.next(new TestCase(), 15) //
 				.next(new TestCase() //
 						.output(EvseChargePointKeba.ChannelId.FIRMWARE, "3.10.13") //
 						.output(EvseChargePointKeba.ChannelId.PTAF_PRODUCT_TYPE,
@@ -85,7 +88,20 @@ public class EvseChargePointKebaImplTest {
 						.output(EvseChargePointKeba.ChannelId.PTAF_ENERGY_METER,
 								ProductTypeAndFeatures.EnergyMeter.STANDARD) //
 						.output(EvseChargePointKeba.ChannelId.PTAF_AUTHORIZATION,
-								ProductTypeAndFeatures.Authorization.NO_RFID)) //
+								ProductTypeAndFeatures.Authorization.NO_RFID)
+						.output(ElectricityMeter.ChannelId.CURRENT, 24_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 9_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, 7_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, 8_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 230_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 231_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 229_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 230_000) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 6000) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 2_259) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1_742) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1_999) //
+				) //
 				.deactivate();
 	}
 

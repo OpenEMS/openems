@@ -1,9 +1,10 @@
 package io.openems.edge.energy.api.handler;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.google.common.base.MoreObjects.toStringHelper;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
-import java.time.ZonedDateTime;
-import java.util.Map.Entry;
+import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -11,8 +12,9 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
@@ -23,25 +25,38 @@ import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
  */
 public class DifferentModes {
 
-	public static final class Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+	public static final class Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> extends
+			AbstractEnergyScheduleHandler.Builder<Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
-		private String componentId;
 		private MODE defaultMode;
 		private BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction;
-		private Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
-		private Supplier<SCHEDULE_CONTEXT> cscSupplier;
-		private BiFunction<GlobalOptimizationContext, MODE[], ImmutableList<InitialPopulation<MODE>>> initialPopulationsFunction;
-		private Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
+		private InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider = InitialPopulationsProvider
+				.empty();
+		private Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = Simulator.doNothing();
 		private PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor = PostProcessor.doNothing();
 
 		/**
-		 * Sets the parent Component-ID for easier debugging.
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
 		 * 
-		 * @param componentId the parent Component-ID
-		 * @return myself
+		 * @param parent the parent {@link OpenemsComponent}
 		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setComponentId(String componentId) {
-			this.componentId = componentId;
+		protected Builder(OpenemsComponent parent) {
+			super(parent);
+		}
+
+		/**
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
+		 * 
+		 * @param parentFactoryPid the parent Factory-PID
+		 * @param parentId         the parent ID
+		 */
+		public Builder(String parentFactoryPid, String parentId) {
+			super(parentFactoryPid, parentId);
+		}
+
+		protected Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> self() {
 			return this;
 		}
 
@@ -53,30 +68,6 @@ public class DifferentModes {
 		 */
 		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setDefaultMode(MODE mode) {
 			this.defaultMode = mode;
-			return this;
-		}
-
-		/**
-		 * Sets a {@link Function} to create a ControllerOptimizationContext.
-		 * 
-		 * @param cocFunction the ControllerOptimizationContext function
-		 * @return myself
-		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setOptimizationContext(
-				Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction) {
-			this.cocFunction = cocFunction;
-			return this;
-		}
-
-		/**
-		 * Sets a {@link Supplier} to create a ControllerScheduleContext.
-		 * 
-		 * @param cscSupplier the ControllerScheduleContext supplier
-		 * @return myself
-		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
-				Supplier<SCHEDULE_CONTEXT> cscSupplier) {
-			this.cscSupplier = cscSupplier;
 			return this;
 		}
 
@@ -104,21 +95,22 @@ public class DifferentModes {
 		}
 
 		/**
-		 * Sets a {@link Function} to provide {@link InitialPopulation}s.
+		 * Sets a {@link InitialPopulationsProvider} to provide
+		 * {@link InitialPopulation}s.
 		 * 
-		 * @param initialPopulationsFunction the function
+		 * @param initialPopulationsProvider the {@link InitialPopulationsProvider}
 		 * @return myself
 		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setInitialPopulationsFunction(
-				BiFunction<GlobalOptimizationContext, MODE[], ImmutableList<InitialPopulation<MODE>>> initialPopulationsFunction) {
-			this.initialPopulationsFunction = initialPopulationsFunction;
+		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setInitialPopulationsProvider(
+				InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider) {
+			this.initialPopulationsProvider = initialPopulationsProvider;
 			return this;
 		}
 
 		/**
 		 * Sets a {@link Simulator} that simulates a Mode for one Period of a Schedule.
 		 * 
-		 * @param simulator a simulator
+		 * @param simulator a {@link Simulator}
 		 * @return myself
 		 */
 		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setSimulator(
@@ -146,32 +138,33 @@ public class DifferentModes {
 		 */
 		public EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> build() {
 			return new EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(//
-					this.componentId == null //
-							? "ESH.WithDifferentModes." + Integer.toHexString(this.hashCode()) // fallback
-							: this.componentId, //
+					this.parentFactoryPid, this.parentId, this.serializer, //
 					this.defaultMode, this.availableModesFunction, //
-					this.cocFunction == null //
-							? goc -> null // fallback
-							: this.cocFunction, //
-					this.cscSupplier == null //
-							? () -> null // fallback
-							: this.cscSupplier, //
-					this.initialPopulationsFunction == null //
-							? (goc, availableModes) -> ImmutableList.of() // fallback
-							: this.initialPopulationsFunction, //
-					this.simulator == null //
-							? (period, gsc, coc, csc, ef, mode) -> 0. // fallback
-							: this.simulator, //
+					this.cocFunction, //
+					this.cscFunction, //
+					this.initialPopulationsProvider, //
+					this.simulator, //
 					this.postProcessor);
 		}
 	}
 
-	public static record InitialPopulation<MODE>(ImmutableMap<ZonedDateTime, MODE> modes) {
+	public static record InitialPopulation<MODE>(MODE[] modes) {
 
 		/**
 		 * This class is only used internally to apply the InitialPopulation.
 		 */
-		public static record Transition(ImmutableMap<ZonedDateTime, Integer> modeIndexes) {
+		public static record Transition(int[] modeIndexes) implements Comparable<Transition> {
+			@Override
+			public final String toString() {
+				return toStringHelper("InitialPopulation") //
+						.addValue(Arrays.toString(this.modeIndexes)) //
+						.toString();
+			}
+
+			@Override
+			public int compareTo(Transition o) {
+				return Arrays.compare(this.modeIndexes, o.modeIndexes);
+			}
 		}
 
 		/**
@@ -181,13 +174,23 @@ public class DifferentModes {
 		 * @param modes  the Modes
 		 * @return a {@link InitialPopulation} record
 		 */
-		public static <MODE> InitialPopulation<MODE> of(ImmutableMap<ZonedDateTime, MODE> modes) {
+		public static <MODE> InitialPopulation<MODE> of(MODE[] modes) {
 			return new InitialPopulation<MODE>(modes);
 		}
 
 		protected Transition toTansition(ToIntFunction<MODE> toModeIndex) {
-			return new Transition(this.modes.entrySet().stream() //
-					.collect(toImmutableMap(Entry::getKey, e -> toModeIndex.applyAsInt(e.getValue()))));
+			return new Transition(stream(this.modes) //
+					.mapToInt(m -> toModeIndex.applyAsInt(m)) //
+					.toArray());
+		}
+
+		@Override
+		public final String toString() {
+			return toStringHelper("InitialPopulation") //
+					.addValue(stream(this.modes) //
+							.map(Object::toString) //
+							.collect(joining(","))) //
+					.toString();
 		}
 	}
 
@@ -201,7 +204,7 @@ public class DifferentModes {
 			/** Simulated EnergyFlow */
 			EnergyFlow energyFlow, //
 			/** the initial ESS energy in the beginning of the period in [Wh] */
-			int essInitialEnergy) {
+			int essInitialEnergy) implements EnergyScheduleHandler.Period<OPTIMIZATION_CONTEXT> {
 
 		/**
 		 * This class is only used internally to apply the Schedule.
@@ -229,21 +232,61 @@ public class DifferentModes {
 		}
 	}
 
+	public static interface InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> {
+
+		/**
+		 * Provide no initial population.
+		 * 
+		 * @param <MODE>                 the type of the Mode
+		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
+		 * @param <SCHEDULE_CONTEXT>     the type of the ControllerScheduleContext
+		 * @return empty provider
+		 */
+		public static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> empty() {
+			return (goc, coc, availableModes) -> ImmutableList.of();
+		}
+
+		/**
+		 * Provides initial populations.
+		 *
+		 * @param goc            the {@link GlobalOptimizationContext}
+		 * @param coc            the ControllerOptimizationContext
+		 * @param availableModes the available Modes
+		 * @return a list of {@link InitialPopulation}s
+		 */
+		public ImmutableList<InitialPopulation<MODE>> get(GlobalOptimizationContext goc, OPTIMIZATION_CONTEXT coc,
+				MODE[] availableModes);
+	}
+
 	public static interface Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+
+		/**
+		 * A 'do-nothing' {@link Simulator}.
+		 * 
+		 * @param <MODE>                 the type of the Mode
+		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
+		 * @param <SCHEDULE_CONTEXT>     the type of the ControllerScheduleContext
+		 * @return zero cost
+		 */
+		public static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> doNothing() {
+			return (id, period, gsc, coc, csc, ef, mode, fitness) -> doNothing();
+		}
 
 		/**
 		 * Simulates a Mode for one Period of a Schedule.
 		 *
-		 * @param period the {@link GlobalOptimizationContext.Period}
-		 * @param gsc    the {@link GlobalScheduleContext}
-		 * @param coc    the ControllerOptimizationContext
-		 * @param csc    the ControllerScheduleContext
-		 * @param ef     the {@link EnergyFlow.Model}
-		 * @param mode   the simulated Mode
-		 * @return additional cost to be considered by the cost function
+		 * @param parentComponentId the parent Component-ID
+		 * @param period            the {@link GlobalOptimizationContext.Period}
+		 * @param gsc               the {@link GlobalScheduleContext}
+		 * @param coc               the ControllerOptimizationContext
+		 * @param csc               the ControllerScheduleContext
+		 * @param ef                the {@link EnergyFlow.Model}
+		 * @param mode              the simulated Mode
+		 * @param fitness           the {@link Fitness} result
 		 */
-		public double simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-				OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef, MODE mode);
+		public void simulate(String parentComponentId, GlobalOptimizationContext.Period period,
+				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
+				MODE mode, Fitness fitness);
 	}
 
 	public static interface PostProcessor<MODE, OPTIMIZATION_CONTEXT> {
@@ -256,7 +299,7 @@ public class DifferentModes {
 		 * @return the same State
 		 */
 		public static <MODE, OPTIMIZATION_CONTEXT> PostProcessor<MODE, OPTIMIZATION_CONTEXT> doNothing() {
-			return (osc, energyFlow, context, state) -> state;
+			return (id, period, osc, energyFlow, context, state) -> state;
 		}
 
 		/**
@@ -267,13 +310,16 @@ public class DifferentModes {
 		 * NOTE: heavy computation is ok here, because this method is called only at the
 		 * end with the best Schedule.
 		 * 
-		 * @param gsc        the {@link GlobalScheduleContext}
-		 * @param energyFlow the {@link EnergyFlow}
-		 * @param coc        the ControllerOptimizationContext
-		 * @param mode       the initial Mode
+		 * @param parentComponentId the parent Component-ID
+		 * @param period            the {@link GlobalOptimizationContext.Period}
+		 * @param gsc               the {@link GlobalScheduleContext}
+		 * @param ef                the {@link EnergyFlow}
+		 * @param coc               the ControllerOptimizationContext
+		 * @param mode              the initial Mode
 		 * @return the new Mode
 		 */
-		public MODE postProcess(GlobalScheduleContext gsc, EnergyFlow energyFlow, OPTIMIZATION_CONTEXT coc, MODE mode);
+		public MODE postProcess(String parentComponentId, GlobalOptimizationContext.Period period,
+				GlobalScheduleContext gsc, EnergyFlow ef, OPTIMIZATION_CONTEXT coc, MODE mode);
 	}
 
 	private DifferentModes() {

@@ -157,6 +157,12 @@ export type ChartOptions = {
 
 export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     responsive: true,
+
+    // Important for point style on chart hover for line chart
+    interaction: {
+        mode: "index",  // Detect x-axis alignment
+        intersect: false,  // Allow hovering over line, not just points
+    },
     maintainAspectRatio: false,
     elements: {
         point: {
@@ -238,6 +244,11 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
                     year: "yyyy", // 2015,
                 },
             },
+        },
+    },
+    layout: {
+        padding: {
+            top: 35, // Increase the top padding to create room for the title
         },
     },
 });

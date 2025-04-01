@@ -23,7 +23,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		m.addConsumption(300);
+		m.addConsumption("ctrl0", 300);
 		applyBalancing(m);
 		var ef = m.solve();
 
@@ -53,7 +53,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		m.addConsumption(300);
+		m.addConsumption("ctrl0", 300);
 		applyBalancing(m);
 		var ef = m.solve();
 

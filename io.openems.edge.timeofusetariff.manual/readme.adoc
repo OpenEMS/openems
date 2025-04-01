@@ -1,0 +1,12 @@
+= Time-Of-Use Tariff Manual
+
+This bundle provides manually configurable time-of-use-tariffs.
+
+Implementations:
+
+== Octopus Go
+
+Calculates the quarterly prices for the next 36 hours based on the standard and low-price details from the user's contract. 
+For a detailed overview of the tariff structure, please refer to: https://octopusenergy.de/octopus-go
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.manual[Source Code icon:github[]]

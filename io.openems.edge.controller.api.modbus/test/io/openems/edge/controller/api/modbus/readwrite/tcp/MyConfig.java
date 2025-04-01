@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.modbus.readwrite.tcp;
 
+import java.time.Clock;
+
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 
@@ -13,6 +15,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String[] componentIds;
 		private int maxConcurrentConnections;
 		private int apiTimeout;
+		private Clock clock;
 		private String[] writeChannels = {};
 		private String[] readChannels = {};
 
@@ -31,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setClock(Clock clock) {
+			this.clock = clock;
 			return this;
 		}
 

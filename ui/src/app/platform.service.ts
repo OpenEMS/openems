@@ -11,7 +11,7 @@ import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
 import { GetSetupProtocolRequest } from "./shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "./shared/jsonrpc/response/base64PayloadResponse";
-import { PreviousRouteService } from "./shared/service/previousRouteService";
+import { RouteService } from "./shared/service/previousRouteService";
 import { Websocket } from "./shared/shared";
 import { ArrayUtils } from "./shared/utils/array/array.utils";
 
@@ -31,7 +31,7 @@ export class PlatFormService {
     private alertCtrl: AlertController,
     private translate: TranslateService,
     private deviceService: DeviceDetectorService,
-    private routeService: PreviousRouteService,
+    private routeService: RouteService,
     private toaster: ToastController,
   ) {
     PlatFormService.deviceInfo = this.deviceService.getDeviceInfo();

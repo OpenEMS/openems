@@ -6,6 +6,7 @@ import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Clock;
@@ -31,7 +32,6 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.oem.OpenemsEdgeOem.OAuthClientRegistration;
-import io.openems.common.timedata.DurationUnit;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -70,6 +70,8 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 			.withPath("/hems/v1/day-ahead-prices/limited");
 
 	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
+	private static final double RABOT_SURCHARGE = 1.5;
+	private static final int API_EXECUTE_HOUR = 16;
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffRabotChargeImpl.class);
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
@@ -217,7 +219,18 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 		@Override
 		public Delay onSuccessRunDelay(HttpResponse<String> result) {
-			return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofDays(1)) //
+
+			var now = ZonedDateTime.now(this.clock).truncatedTo(ChronoUnit.HOURS);
+			final ZonedDateTime nextRun;
+
+			if (now.getHour() < API_EXECUTE_HOUR) {
+				nextRun = now.withHour(API_EXECUTE_HOUR);
+			} else {
+				nextRun = now.plusDays(1).withHour(API_EXECUTE_HOUR);
+			}
+
+			return DelayTimeProviderChain.fixedDelay(Duration.between(now, nextRun)) //
+					.plusRandomDelay(10, MINUTES) // safer side not to execute exactly at 4.
 					.plusRandomDelay(60, SECONDS) //
 					.getDelay();
 		}
@@ -299,7 +312,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 			// Example: 12 Cent/kWh => 0.12 EUR/kWh * 1000 kWh/MWh = 120 EUR/MWh.
 			final var basePrice = getAsDouble(element, "priceInCentPerKwh") * 10;
 			final var additionalCosts = (priceComponent.taxAndFeeKwHPrice + priceComponent.gridFeeKwHPrice
-					+ priceComponent.gridFeeFixed) * 10;
+					+ RABOT_SURCHARGE) * 10;
 
 			final var marketPrice = basePrice + additionalCosts;
 

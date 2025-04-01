@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, effect, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { PlatFormService } from "src/app/platform.service";
@@ -38,13 +38,16 @@ export class HistoryComponent implements OnInit {
     public service: Service,
     public translate: TranslateService,
     private route: ActivatedRoute,
-  ) { }
+  ) {
 
-  ngOnInit() {
-    this.service.currentEdge.subscribe((edge) => {
+    effect(() => {
+      const edge = this.service.currentEdge();
       this.edge = edge;
       this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
     });
+  }
+
+  ngOnInit() {
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
       // for (let controllerId of

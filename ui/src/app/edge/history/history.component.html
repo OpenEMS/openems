@@ -62,10 +62,6 @@
           <delayedSellToGridWidget [componentId]="widget.componentId"></delayedSellToGridWidget>
         </ion-col>
 
-        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
-          <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </singlethresholdWidget>
-        </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'">
           <gridOptimizedChargeWidget [componentId]="widget.componentId">
           </gridOptimizedChargeWidget>
@@ -88,8 +84,8 @@
           </controller-io-heatingelement-widget>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
-          <heatpumpWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </heatpumpWidget>
+          <controller-io-heatpump-widget [componentId]="widget.componentId">
+          </controller-io-heatpump-widget>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.CHP.SoC'">
           <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">

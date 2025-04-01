@@ -47,27 +47,27 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.maxConcurrentConnections = maxConcurrentConnections;
 			return this;
 		}
-		
+
 		public Builder setBaudrate(int baudrate) {
 			this.baudrate = baudrate;
 			return this;
 		}
-		
+
 		public Builder setDatabits(int databits) {
 			this.databits = databits;
 			return this;
 		}
-		
+
 		public Builder setStopbit(Stopbit stopbit) {
 			this.stopbit = stopbit;
 			return this;
 		}
-		
+
 		public Builder setParity(Parity parity) {
 			this.parity = parity;
 			return this;
 		}
-		
+
 		public Builder setApiTimeout(int apiTimeout) {
 			this.apiTimeout = apiTimeout;
 			return this;
@@ -143,5 +143,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String Component_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), false, this.component_ids());
 	}
-	
+
 }

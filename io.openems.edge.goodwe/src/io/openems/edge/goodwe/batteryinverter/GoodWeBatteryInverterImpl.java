@@ -61,6 +61,7 @@ import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
+import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -235,10 +236,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 */
 	private void applyConfigIfNotSet(Config config, boolean onConfigUpdate) throws OpenemsNamedException {
 
-		// TODO: Set later. SELECT_WORK_MODE mapped after reading the dsp version
-		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
-		// 'Backup Mode' or (0x03) 'Economic Mode'.
+		// Default Work-Mode
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SELECT_WORK_MODE), AppModeIndex.SELF_USE);
+
+		// Disable internal Battery/SoC Protection
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.STOP_SOC_PROTECT), InternalSocProtection.DISABLE);
 
 		// country setting
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE), config.safetyCountry());

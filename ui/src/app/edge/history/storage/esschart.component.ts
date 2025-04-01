@@ -4,7 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
@@ -113,7 +113,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                             }
                         });
                     }).finally(async () => {
-                        this.datasets = datasets;
+                        this.datasets = datasets.map((el, i) => ({ ...el, ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(this.colors[i]) }));
                         this.loading = false;
                         this.stopSpinner();
                         await this.setOptions(this.options);

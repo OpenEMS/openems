@@ -35,6 +35,7 @@ import io.openems.edge.goodwe.common.enums.GoodWeGridMeterType;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridProtect;
 import io.openems.edge.goodwe.common.enums.GridWaveCheckLevel;
+import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.goodwe.common.enums.LedState;
 import io.openems.edge.goodwe.common.enums.LoadMode;
 import io.openems.edge.goodwe.common.enums.LoadRegulationIndex;
@@ -1293,7 +1294,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// Battery Control Data ARM
-		STOP_SOC_PROTECT(Doc.of(OpenemsType.INTEGER) //
+		STOP_SOC_PROTECT(Doc.of(InternalSocProtection.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		BMS_FLOAT_VOLT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //

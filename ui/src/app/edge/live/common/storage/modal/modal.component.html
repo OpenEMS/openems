@@ -117,7 +117,7 @@
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                 <ng-container
                                                     *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
-                                                    <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                    <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'">
                                                     </ion-toggle>
                                                 </ng-container>
                                             </td>
@@ -184,15 +184,17 @@
                                             Edge.Index.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
-                                            <ion-toggle formControlName="isRunning">
+                                            <ion-toggle mode="md" formControlName="isRunning">
                                             </ion-toggle>
                                         </td>
-
                                     </ion-item-divider>
                                 </tr>
+
                             </table>
                             <ng-container
                                 *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                <ng-container *ngTemplateOutlet="batteryReferencing">
+                                </ng-container>
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
@@ -401,7 +403,7 @@
                             </ng-container>
                         </table>
                         <!-- Info Text -->
-                        <ng-container *ngIf="service.currentEdge | async as edge">
+                        <ng-container *ngIf="service.currentEdge() as edge">
                             <ng-container *ngIf="edge.currentData | async as currentData">
                                 <ng-container *ngIf="currentData.summary.storage as sum">
                                     <ion-grid
@@ -513,7 +515,8 @@
                                                         <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                         <ng-container
                                                             *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
-                                                            <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                            <ion-toggle mode="md"
+                                                                [formControlName]="'isReserveSocEnabled'">
                                                             </ion-toggle>
                                                         </ng-container>
                                                     </td>
@@ -565,7 +568,7 @@
                                                     Edge.Index.RETROFITTING.OPTIMAL
                                                 </td>
                                                 <td style="width: 15%" class="align_right">
-                                                    <ion-toggle formControlName="isRunning">
+                                                    <ion-toggle mode="md" formControlName="isRunning">
                                                     </ion-toggle>
                                                 </td>
 
@@ -574,6 +577,8 @@
                                     </table>
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                        <ng-container *ngTemplateOutlet="batteryReferencing">
+                                        </ng-container>
                                         <ng-container
                                             *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                             <ng-container
@@ -747,7 +752,7 @@
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                 <ng-container
                                                     *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
-                                                    <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                    <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'">
                                                     </ion-toggle>
                                                 </ng-container>
                                             </td>
@@ -796,7 +801,7 @@
                                             Edge.Index.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
-                                            <ion-toggle formControlName="isRunning">
+                                            <ion-toggle mode="md" formControlName="isRunning">
                                             </ion-toggle>
                                         </td>
 
@@ -806,6 +811,8 @@
                             <ng-container
                                 *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
+                                    <ng-container *ngTemplateOutlet="batteryReferencing">
+                                    </ng-container>
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
                                         <ng-container
@@ -951,3 +958,26 @@
     </ion-fab>
 
 </ion-content>
+
+<ng-template #batteryReferencing>
+    <ng-container *ngIf="environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING">
+        <table class="full_width">
+            <tr>
+                <td class="ion-padding" translate>
+                    <span translate>
+                        Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.HEADER
+                    </span>
+                    <span translate>
+                        (<oe-help-link [link]="environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING"
+                            [label]="'Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.TO_INSTRUCTIONS' | translate"></oe-help-link>):
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="ion-padding" translate>
+                    Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.CONTENT
+                </td>
+            </tr>
+        </table>
+    </ng-container>
+</ng-template>

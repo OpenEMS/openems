@@ -218,11 +218,25 @@ public final class ComponentProps {
 				if (PropsUtil.isHome10Installed(app.getAppManagerUtil())) {
 					return new JsonPrimitive("modbus1");
 				}
-				if (PropsUtil.isHome20Or30Installed(app.getAppManagerUtil())) {
+
+				if (PropsUtil.isHome20Or30Installed(app.getAppManagerUtil())
+						|| PropsUtil.isHomeGen2Installed(app.getAppManagerUtil())) {
+					// external modbus interface
 					return new JsonPrimitive("modbus2");
 				}
 
+				if (PropsUtil.isCommercial92Installed(app.getAppManagerUtil())) {
+					// external modbus interface
+					return new JsonPrimitive("modbus3");
+				}
+
 				return oldDefaultValue.get(app, property, l, parameter);
+			});
+			def.wrapField((app, property, l, parameter, field) -> {
+				if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())
+						|| PropsUtil.isCommercial92Installed(app.getAppManagerUtil())) {
+					field.readonly(true);
+				}
 			});
 		});
 	}

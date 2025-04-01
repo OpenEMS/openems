@@ -27,6 +27,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
@@ -44,8 +45,6 @@ import io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -63,7 +62,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Deprecated
 	private final EnergyScheduleHandlerV1 energyScheduleHandlerV1;
-	private final EshWithDifferentModes<StateMachine, OptimizationContext, Void> energyScheduleHandler;
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.DELAYED_TIME);
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
@@ -104,6 +102,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Deprecated
 	private io.openems.edge.energy.api.EnergyScheduler energyScheduler;
 
+	private EshWithDifferentModes<StateMachine, OptimizationContext, Void> energyScheduleHandler;
 	private Config config = null;
 
 	public TimeOfUseTariffControllerImpl() {
@@ -118,17 +117,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
-
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.id(), //
-				() -> this.config.enabled() && this.config.mode() == Mode.AUTOMATIC //
-						? new EnergyScheduler.Config(this.config.controlMode()) //
-						: null);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> this.config.enabled() && this.config.mode() == Mode.AUTOMATIC //
+						? new EnergyScheduler.Config(this.config.controlMode()) //
+						: null);
 		this.applyConfig(config);
 	}
 
@@ -143,7 +140,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		this.config = config;
 
 		// update filter for 'ess'
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
+		}
 	}
 
 	@Override
@@ -151,6 +150,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	protected void deactivate() {
 		super.deactivate();
 	}
+
+	private final PidFilter pidFilter = new PidFilter();
 
 	@Override
 	public void run() throws OpenemsNamedException {
@@ -189,8 +190,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		// Apply ActivePower set-point
 		if (am.setPoint() != null) {
-			this.ess.setActivePowerLessOrEquals(this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess,
-					Phase.ALL, Pwr.ACTIVE, am.setPoint()));
+			ManagedSymmetricEss.setActivePowerEqualsWithPid(this.ess, am.setPoint(), this.pidFilter);
 		}
 	}
 

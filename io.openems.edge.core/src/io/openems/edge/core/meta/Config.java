@@ -18,4 +18,7 @@ import io.openems.common.types.CurrencyConfig;
 	@AttributeDefinition(name = "Is Ess Charge From Grid Allowed", description = "Charging the battery from grid is allowed.")
 	boolean isEssChargeFromGridAllowed() default false;
 
+	@AttributeDefinition(name = "Grid Connection Point Fuse Limit", description = "Maximum current allowed at the Grid Connection Point (GCP), i.e. the rating of the fuses [A]")
+	int gridConnectionPointFuseLimit() default 32;
+
 }

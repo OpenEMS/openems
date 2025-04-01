@@ -2,11 +2,11 @@ package io.openems.edge.energy.api.handler;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 
-import java.util.function.Function;
-
 import org.apache.logging.log4j.util.Supplier;
 
 import io.openems.common.function.TriConsumer;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
@@ -16,46 +16,34 @@ import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
  */
 public class OneMode {
 
-	public static final class Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+	public static final class Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> extends
+			AbstractEnergyScheduleHandler.Builder<Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
-		private String componentId;
-		private Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
-		private Supplier<SCHEDULE_CONTEXT> cscSupplier;
-		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
+		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = (id, period, gsc, coc, csc, ef,
+				fitness) -> doNothing();
 
 		/**
-		 * Sets the parent Component-ID for easier debugging.
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
 		 * 
-		 * @param componentId the parent Component-ID
-		 * @return myself
+		 * @param parent the parent {@link OpenemsComponent}
 		 */
-		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setComponentId(String componentId) {
-			this.componentId = componentId;
-			return this;
+		protected Builder(OpenemsComponent parent) {
+			super(parent);
 		}
 
 		/**
-		 * Sets a {@link Function} to create a ControllerOptimizationContext from a
-		 * {@link GlobalOptimizationContext}.
+		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
+		 * debugging.
 		 * 
-		 * @param cocFunction the ControllerOptimizationContext function
-		 * @return myself
+		 * @param parentFactoryPid the parent Factory-PID
+		 * @param parentId         the parent ID
 		 */
-		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setOptimizationContext(
-				Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction) {
-			this.cocFunction = cocFunction;
-			return this;
+		public Builder(String parentFactoryPid, String parentId) {
+			super(parentFactoryPid, parentId);
 		}
 
-		/**
-		 * Sets a {@link Supplier} to create a ControllerOptimizationContext.
-		 * 
-		 * @param cocSupplier the ControllerOptimizationContext supplier
-		 * @return myself
-		 */
-		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setOptimizationContext(
-				Supplier<OPTIMIZATION_CONTEXT> cocSupplier) {
-			this.cocFunction = gsc -> cocSupplier.get();
+		protected Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> self() {
 			return this;
 		}
 
@@ -67,7 +55,7 @@ public class OneMode {
 		 */
 		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
 				Supplier<SCHEDULE_CONTEXT> cscSupplier) {
-			this.cscSupplier = cscSupplier;
+			this.cscFunction = gsc -> cscSupplier.get();
 			return this;
 		}
 
@@ -84,14 +72,15 @@ public class OneMode {
 		}
 
 		/**
-		 * Sets a {@link Simulator} that simulates a Mode for one Period of a Schedule.
+		 * Sets a a simplified Simulator that simulates a Mode for one Period of a
+		 * Schedule.
 		 * 
 		 * @param simulator a simulator
 		 * @return myself
 		 */
 		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setSimulator(
 				TriConsumer<GlobalScheduleContext, OPTIMIZATION_CONTEXT, EnergyFlow.Model> simulator) {
-			this.simulator = (period, gsc, coc, csc, ef) -> simulator.accept(gsc, coc, ef);
+			this.simulator = (id, period, gsc, coc, csc, ef, fitness) -> simulator.accept(gsc, coc, ef);
 			return this;
 		}
 
@@ -102,18 +91,42 @@ public class OneMode {
 		 */
 		public EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> build() {
 			return new EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(//
-					this.componentId == null //
-							? "ESH.WithOnlyOneMode." + Integer.toHexString(this.hashCode()) // fallback
-							: this.componentId, //
-					this.cocFunction == null //
-							? goc -> null // fallback
-							: this.cocFunction, //
-					this.cscSupplier == null //
-							? () -> null // fallback
-							: this.cscSupplier, //
-					this.simulator == null //
-							? (period, gsc, coc, csc, ef) -> doNothing() // fallback
-							: this.simulator);
+					this.parentFactoryPid, this.parentId, this.serializer, //
+					this.cocFunction, //
+					this.cscFunction, //
+					this.simulator);
+		}
+	}
+
+	public static record Period<OPTIMIZATION_CONTEXT>(
+			/** Price [1/MWh] */
+			double price, //
+			/** ControllerOptimizationContext */
+			OPTIMIZATION_CONTEXT coc, //
+			/** Simulated EnergyFlow */
+			EnergyFlow energyFlow) implements EnergyScheduleHandler.Period<OPTIMIZATION_CONTEXT> {
+
+		/**
+		 * This class is only used internally to apply the Schedule.
+		 */
+		public static record Transition(double price, EnergyFlow energyFlow) {
+		}
+
+		/**
+		 * Builds a {@link EnergyScheduleHandler.OneMode.Period} from a
+		 * {@link EnergyScheduleHandler.OneMode.Period.Transition} record.
+		 * 
+		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
+		 * @param t                      the
+		 *                               {@link EnergyScheduleHandler.WithDifferentStates.Period.Transition}
+		 *                               record
+		 * @param coc                    the ControllerOptimizationContext used during
+		 *                               simulation
+		 * @return a {@link Period} record
+		 */
+		public static <OPTIMIZATION_CONTEXT> Period<OPTIMIZATION_CONTEXT> fromTransitionRecord(Period.Transition t,
+				OPTIMIZATION_CONTEXT coc) {
+			return new Period<>(t.price, coc, t.energyFlow);
 		}
 	}
 
@@ -122,14 +135,17 @@ public class OneMode {
 		/**
 		 * Simulates one Period of a Schedule.
 		 *
-		 * @param period the {@link GlobalSimulationsContext.Period}
-		 * @param gsc    the {@link GlobalScheduleContext}
-		 * @param coc    the ControllerOptimizationContext
-		 * @param csc    the ControllerScheduleContext
-		 * @param ef     the {@link EnergyFlow.Model}
+		 * @param parentComponentId the parent Component-ID
+		 * @param period            the {@link GlobalSimulationsContext.Period}
+		 * @param gsc               the {@link GlobalScheduleContext}
+		 * @param coc               the ControllerOptimizationContext
+		 * @param csc               the ControllerScheduleContext
+		 * @param ef                the {@link EnergyFlow.Model}
+		 * @param fitness           the {@link Fitness} result
 		 */
-		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-				OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef);
+		public void simulate(String parentComponentId, GlobalOptimizationContext.Period period,
+				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
+				Fitness fitness);
 	}
 
 	private OneMode() {
