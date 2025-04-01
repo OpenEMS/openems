@@ -1,4 +1,4 @@
-import { Directive, WritableSignal, effect, signal } from "@angular/core";
+import { Directive, WritableSignal, signal, effect } from "@angular/core";
 import { Router } from "@angular/router";
 import { RouteService } from "../../service/previousRouteService";
 import { Service } from "../../shared";

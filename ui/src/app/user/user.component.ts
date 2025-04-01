@@ -189,9 +189,9 @@ export class UserComponent implements OnInit {
     this.websocket.logout();
   }
 
-  public toggleDebugMode(event: CustomEvent) {
-    localStorage.setItem("DEBUGMODE", event.detail["checked"]);
-    this.environment.debugMode = event.detail["checked"];
+  public toggleDebugMode(event: Event) {
+    localStorage.setItem("DEBUGMODE", (event as CustomEvent).detail["checked"]);
+    this.environment.debugMode = (event as CustomEvent).detail["checked"];
   }
 
   public setLanguage(language: Language): void {

@@ -65,11 +65,13 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     public ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
-            this.service.getConfig().then(config => {
+            this.service.getConfig().then(async config => {
 
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
+
+                await this.updateComponent(config);
 
                 // If component is passed
                 let channelAddresses: ChannelAddress[] = [];
@@ -106,6 +108,11 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
             });
         });
     }
+
+    updateComponent(config: EdgeConfig) {
+        return;
+    }
+
     protected onIsInitialized() { }
 
     /**

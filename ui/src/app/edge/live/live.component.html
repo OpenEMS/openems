@@ -1,5 +1,5 @@
 <oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
-  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
+  <ion-refresher mode="ios" slot="fixed">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <ion-grid *ngIf="edge && edge.isOnline">
@@ -64,10 +64,6 @@
 
               <ion-col *ngSwitchCase="'Evcs.Cluster.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
                 <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'Evse.Controller.Single'" size="12" size-lg="6" class="ion-no-padding">
-                <oe-controller-evse-single [componentId]="widget.componentId"></oe-controller-evse-single>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">

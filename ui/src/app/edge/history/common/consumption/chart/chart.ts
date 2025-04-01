@@ -70,7 +70,7 @@ export class ChartComponent extends AbstractHistoryChart {
           converter: () => {
             return data["ConsumptionActivePower"] ?? null;
           },
-          color: ChartConstants.Colors.BLUE,
+          color: ChartConstants.Colors.YELLOW,
           stack: 0,
         });
 

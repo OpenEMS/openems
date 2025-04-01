@@ -31,7 +31,7 @@ export class ModalComponent extends AbstractModal {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
     }
 
-    async updateComponent(config: EdgeConfig) {
+    override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
             this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
                 this.component = config.getComponent(params.componentId);

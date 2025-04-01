@@ -1,24 +1,34 @@
-<ion-grid>
-    <ion-row class="ion-no-padding">
-        <ion-col size="12">
-
-            <ion-item class="ion-no-padding">
-                <ion-input placeholder="{{props.placeholder}}" [type]="props.type || 'text'" [formControl]="formControl"
-                    labelPlacement="start" style="text-align: right">
-                    <div style="text-align: left;">
-                        <ion-label [position]="props.labelPosition">
-                            <span>{{ props.label }}</span>
-                            <span *ngIf="props.required && props.hideRequiredMarker !== true">*</span>
-                            <span><br /><small> {{ props.description
-                                    }}</small></span>
-                        </ion-label>
-                    </div>
-                </ion-input>
+<ion-grid [ngClass]="{'disabled-field': formControl.disabled}">
+    <ion-row>
+        <ion-col size="12" size-md="6">
+            <ion-item lines="none">
+                <ion-label [position]="to.labelPosition" [ngStyle]="{
+                    'margin-left': props?.boxBorder ? '15%' : 'auto',
+                    'max-width': 'none'
+                }">
+                    <span>{{to.label}}</span>
+                    <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
+                    <span *ngIf="to.description"><br /><small>{{ to.description }}</small></span>
+                </ion-label>
             </ion-item>
+        </ion-col>
+        <ion-col size="12" size-md="6" class="text-center">
+            <div [ngClass]="{'input-box': props.boxBorder}">
+                <ion-item lines="none" class="ion-no-padding" [ngStyle]="{
+                    'border-bottom-color': formControl.invalid && formControl.touched 
+                    ? 'var(--highlight-color-invalid)' 
+                    : (formControl.valid ? 'var(--highlight-color-valid)' : (isFocused ? 'var(--highlight-color-focused)' : 'hidden')),
+                    'border-bottom-style': (formControl.invalid && formControl.touched) || formControl.valid || isFocused ? 'solid' : 'hidden'
+                }">
+                    <span *ngIf="to.prefix" [style.color]="'var(--ion-color-text)'">{{to.prefix}}</span>
+                    <ion-input [formControl]="formControl" (ionFocus)="setFocus(true)" (ionBlur)="setFocus(false)"
+                        [type]="props.type || 'text'" [formlyAttributes]="field" text-left></ion-input>
+                </ion-item>
+            </div>
         </ion-col>
     </ion-row>
     <ion-row class="ion-no-padding">
-        <ion-col offset-lg="5" offset-md="5" offset-sm="5" class="ion-no-padding">
+        <ion-col size="12" size-md="6" offset-md="6" class="ion-no-padding">
             <ion-item lines="none" *ngIf="showError">
                 <ion-label class="ion-text-wrap">
                     <ion-text color="danger">

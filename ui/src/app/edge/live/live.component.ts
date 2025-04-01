@@ -36,7 +36,6 @@ export class LiveComponent implements OnDestroy {
 
     effect(() => {
       const edge = this.service.currentEdge();
-
       this.edge = edge;
       this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
 
