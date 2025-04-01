@@ -204,7 +204,7 @@ public class DifferentModes {
 			/** Simulated EnergyFlow */
 			EnergyFlow energyFlow, //
 			/** the initial ESS energy in the beginning of the period in [Wh] */
-			int essInitialEnergy) {
+			int essInitialEnergy) implements EnergyScheduleHandler.Period<OPTIMIZATION_CONTEXT> {
 
 		/**
 		 * This class is only used internally to apply the Schedule.

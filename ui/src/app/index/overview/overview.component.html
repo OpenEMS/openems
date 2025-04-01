@@ -106,7 +106,7 @@
 
                 <!-- Add-Button for desktop devices -->
                 <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
-                    *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
+                    testId="ibn-button" *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
                     <ion-fab-button size="large">
                         <ion-icon name="add-outline"></ion-icon>
                     </ion-fab-button>
@@ -118,7 +118,7 @@
                 </ion-fab>
 
                 <!-- Add-Button for mobile devices -->
-                <ion-fab style="position: fixed;" horizontal="end" vertical="bottom"
+                <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" testId="ibn-button"
                     *ngIf="loggedInUserCanInstall && this.service.isSmartphoneResolution">
                     <ion-fab-button size="small">
                         <ion-icon name="add-outline"></ion-icon>

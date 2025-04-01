@@ -3,18 +3,22 @@ package io.openems.edge.app.integratedsystem;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -31,6 +35,7 @@ public class TestFeneconHome30 {
 	private AppManagerTestBundle appManagerTestBundle;
 
 	private OpenemsApp integratedSystemApp;
+	private SocomecMeter meterApp;
 
 	@Before
 	public void beforeEach() throws Exception {
@@ -42,7 +47,8 @@ public class TestFeneconHome30 {
 					Apps.socomecMeter(t), //
 					Apps.prepareBatteryExtension(t), //
 					Apps.techbaseCm3(t), //
-					Apps.techbaseCm4sGen2(t) //
+					Apps.techbaseCm4sGen2(t), //
+					this.meterApp = Apps.socomecMeter(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -63,7 +69,7 @@ public class TestFeneconHome30 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
@@ -103,7 +109,7 @@ public class TestFeneconHome30 {
 		for (int i = 2; i < 4; i++) {
 			try {
 				this.appManagerTestBundle.componentManger.getComponent("charger" + i);
-				assertTrue(false);
+				fail();
 			} catch (OpenemsNamedException e) {
 				// expected
 			}
@@ -268,7 +274,7 @@ public class TestFeneconHome30 {
 		assertEquals(4, response.instance().dependencies.size());
 
 		// make sure every dependency got installed
-		assertEquals(appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
@@ -297,6 +303,18 @@ public class TestFeneconHome30 {
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 		return homeInstance;
+	}
+
+	@Test
+	public void testGetMeterDefaultModbusIdValue() throws Exception {
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", fullSettings()));
+
+		final var modbusIdProperty = Arrays.stream(this.meterApp.getProperties()) //
+				.filter(t -> t.name.equals(SocomecMeter.Property.MODBUS_ID.name())) //
+				.findFirst().orElseThrow();
+
+		assertEquals("modbus2", modbusIdProperty.getDefaultValue(Language.DEFAULT).map(JsonElement::getAsString).get());
 	}
 
 	/**

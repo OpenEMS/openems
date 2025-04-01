@@ -38,10 +38,10 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
         }
 
         ion-button.pickdate-styles {
-            &active::part(native) {
-            transform: scale(0.98);
-            box-shadow: inset 0em 0.125em 0.25em rgba(0, 0, 0, 0.4);
-            opacity: 0.8;
+            :is(active::part(native)) {
+                transform: scale(0.98);
+                box-shadow: inset 0em 0.125em 0.25em rgba(0, 0, 0, 0.4);
+                opacity: 0.8;
             }}
         `],
 })

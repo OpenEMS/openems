@@ -9,9 +9,14 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
  *   "id": UUID,
  *   "result": {
  *     "schedule": [{
- *     	"timestamp": string,
- *      "price": number,
- *      "state": number,
+ *      'timestamp':...,
+ *      'price':...,
+ *      'state':...,
+ *      'grid':...,
+ *      'production':...,
+ *      'consumption':...,
+ *      'ess':...,
+ *      'soc':...,
  *     }]
  *   }
  * }
@@ -19,14 +24,17 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
  */
 export class GetScheduleResponse extends JsonrpcResponseSuccess {
 
-
     public constructor(
         public override readonly id: string,
         public override readonly result: {
             schedule: {
                 timestamp: string;
                 price: number;
-                state: number;
+                mode: number;
+                grid: number;
+                production: number;
+                consumption: number;
+                managedConsumption: number;
             }[]
         },
     ) {

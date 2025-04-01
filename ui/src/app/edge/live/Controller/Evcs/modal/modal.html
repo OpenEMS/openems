@@ -70,15 +70,6 @@
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
     <ng-container *ngIf="controller">
 
-      <ng-container *ngIf="edge.roleIsAtLeast('admin') && controller['properties']['smartMode'] === true">
-        <oe-modal-info-line [info]="'Edge.Index.Widgets.SCHEDULE.CHART_TITLE_ADMIN'| translate"></oe-modal-info-line>
-
-        <scheduleChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
-        </scheduleChart>
-
-        <oe-modal-horizontal-line></oe-modal-horizontal-line>
-      </ng-container>
-
       <!--Force Charge settings-->
       <ng-container *ngIf="formGroup.value.chargeMode === 'FORCE_CHARGE'">
         <ng-container>

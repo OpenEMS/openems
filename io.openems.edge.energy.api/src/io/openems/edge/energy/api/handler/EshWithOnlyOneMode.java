@@ -1,9 +1,13 @@
 package io.openems.edge.energy.api.handler;
 
+import java.time.ZonedDateTime;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonElement;
 
 import io.openems.edge.energy.api.handler.OneMode.Simulator;
@@ -16,6 +20,7 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 		implements EnergyScheduleHandler.WithOnlyOneMode {
 
 	private final Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
+	private final SortedMap<ZonedDateTime, OneMode.Period<OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
 	protected EshWithOnlyOneMode(//
 			String parentFactoryPid, String parentId, //
@@ -42,5 +47,26 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 
 	@Override
 	protected void buildToString(ToStringHelper toStringHelper) {
+	}
+
+	@Override
+	public void applySchedule(ImmutableSortedMap<ZonedDateTime, OneMode.Period.Transition> schedule) {
+		final var coc = this.coc;
+		synchronized (this.schedule) {
+			// Clear all entries
+			this.schedule.clear();
+
+			schedule.forEach((k, t) -> {
+				this.schedule.put(k, OneMode.Period.fromTransitionRecord(t, coc));
+			});
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ImmutableSortedMap<ZonedDateTime, OneMode.Period<OPTIMIZATION_CONTEXT>> getSchedule() {
+		synchronized (this.schedule) {
+			return ImmutableSortedMap.copyOfSorted(this.schedule);
+		}
 	}
 }

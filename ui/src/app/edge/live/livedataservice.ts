@@ -1,11 +1,11 @@
 // @ts-strict-ignore
 import { Directive, Inject, OnDestroy } from "@angular/core";
 import { RefresherCustomEvent } from "@ionic/angular";
-import { takeUntil } from "rxjs/operators";
+import { filter, take, takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { PlatFormService } from "src/app/platform.service";
 import { DataService } from "../../shared/components/shared/dataservice";
-import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
+import { ChannelAddress, CurrentData, Edge, Service, Websocket } from "../../shared/shared";
 
 @Directive()
 export class LiveDataService extends DataService implements OnDestroy {
@@ -63,5 +63,43 @@ export class LiveDataService extends DataService implements OnDestroy {
 
     public override refresh(ev: RefresherCustomEvent) {
         PlatFormService.handleRefresh();
+    }
+
+    /**
+     * Gets the first valid --non null/undefined-- value for passed channels and unsubscribes afterwards
+     *
+     * @param channelAddresses the channel addresses
+     * @returns the currentData for thes channelAddresses
+     */
+    public async subscribeAndGetFirstValidValueForChannels(channelAddresses: ChannelAddress[], componentId: string): Promise<CurrentData> {
+        this.getValues(channelAddresses, this.edge, componentId);
+        return new Promise<any>((res) => {
+            this.currentValue.pipe(filter(el => channelAddresses.every(channel => {
+                const component = el.allComponents[channel.toString()];
+                return component != null; // Ensure the component is not null or undefined
+            })), take(1)).subscribe((val) => {
+                this.unsubscribeFromChannels(channelAddresses);
+                const allComponents: {} = channelAddresses.reduce((arr, channel) => {
+                    arr[channel.toString()] = val.allComponents[channel.toString()];
+                    return arr;
+                }, {});
+                val.allComponents = allComponents;
+                res(val);
+            });
+        });
+    }
+
+    /**
+     * Gets the first valid --non null/undefined-- value for this channel
+     *
+     * @param channelAddress the channel address
+     * @returns a non null/undefined value
+     */
+    public async getFirstValidValueForChannel<T = any>(channelAddress: ChannelAddress): Promise<T> {
+        return new Promise<any>((res) => {
+            this.currentValue.pipe(filter(el => el.allComponents[channelAddress.toString()] != null), take(1)).subscribe((val) => {
+                res(val.allComponents[channelAddress.toString()]);
+            });
+        });
     }
 }

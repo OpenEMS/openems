@@ -595,11 +595,20 @@
       "netherlands": "Niederlande",
       "sweden": "Schweden",
       "switzerland": "Schweiz",
-      "czech": "Tschechische Republik"
+      "czech": "Tschechische Republik",
+      "GREECE": "Griechenland"
     },
     "yes": "Ja",
     "no": "Nein",
     "value": "Wert",
+    "STATE_MACHINE": {
+      "GO_STOPPED": "Stoppt...",
+      "GO_RUNNING": "Startet...",
+      "RUNNING": "Gestartet",
+      "STOPPED": "Gestoppt",
+      "UNDEFINED": "Unbekannt",
+      "ERROR": "Fehler"
+    },
     "SUM_STATE": "Systemzustand",
     "SYSTEM": "System",
     "RESTART": "Neu starten",
@@ -752,7 +761,8 @@
       "TITLE_COMMERCIAL": "Vorsicherung Netzanschlusspunkt / Zählervorsicherung",
       "TITLE_HOME": "Vorsicherung Hausanschlusszähler",
       "VALUE": "Wert [A]",
-      "METER_LABEL": "Netzanschlusspunkt Zählertyp"
+      "METER_LABEL": "Netzanschlusspunkt Zählertyp",
+      "METER": "Zähler"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "Standort",
@@ -779,7 +789,7 @@
       "BOTH_SELECTED_LABEL": "Beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt",
       "DEVICE_CONNECTION_CHECKED": "Das Stromspeichersystem ist an das Stromnetz angeschlossen",
       "ENERGY_FLOW_METER": {
-        "LABEL": "Installierter Netzzähler"
+        "LABEL": "Netz"
       }
     },
     "CONFIGURATION_SYSTEM": {
@@ -828,7 +838,8 @@
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
-      "NO_LIMITATION": "Kein Einspeisemanagement"
+      "NO_LIMITATION": "Kein Einspeisemanagement",
+      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -939,9 +950,14 @@
     "CONFIGURATION_ENERGY_FLOW_METER": {
       "TITLE": "Auswahl Energieflussrichtungszähler",
       "METER": {
-        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A (Standardlieferumfang)",
+        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A ({{type}})",
         "WITHOUT_CT": "Home 3-Phasensensor ohne Stromwandler (Optional)",
-        "LABEL": "Zähler"
+        "LABEL": "Zähler",
+        "INTEGRATED": "Integrierter Home 3-Phasensensor mit Stromwandler ({{type}})",
+        "TYPE": {
+          "STANDARD": "Standardlieferumfang",
+          "OPTIONAL": "Optional"
+        }
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },

@@ -41,7 +41,7 @@
         <tr>
           <td style="width:65%" translate>General.mode</td>
           <td *ngIf="component.properties['mode'] === 'MANUAL'" style="width: 35%" class="align_right" translate>
-            General.manual
+            General.manually
           </td>
           <td *ngIf="component.properties['mode'] === 'AUTOMATIC'" style="width: 35%" class="align_right" translate>
             General.automatic
@@ -61,7 +61,7 @@
       <ion-segment (ionChange)="updateControllerMode($event)" [value]="component.properties['mode']" scrollable="false">
         <ion-segment-button value="MANUAL">
           <ion-label translate>
-            General.manual
+            General.manually
           </ion-label>
           <ion-icon [color]="component.properties['mode'] === 'MANUAL'? 'success': 'normal'" style="width:40px"
             name="power-outline"></ion-icon>

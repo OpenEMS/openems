@@ -8,9 +8,9 @@
     /** Box edges shadow **/
     --ion-color-shadow: #47577a;
     /** Custom Colors **/
-    --ion-color-normal: #7692a4;
     --ion-color-normal: #7692a4; //normal / general icon color
     --ion-background-color: #fff;
+    --ion-background-color-rgb: 255, 255, 255;
 
     /** environmental **/
     --ion-color-environmental: #8abd46;
@@ -146,6 +146,7 @@
     --ion-background-percentagebar-color: #f4f4f4;
     --ion-background-color-card-header: #f4f4f4;
     --ion-background-color: #fff;
+    --ion-background-color-rgb: 255, 255, 255;
     --ion-background-percentagebar-color: #f4f4f4;
     --ion-color-background-menu: #fff;
 

@@ -378,7 +378,7 @@ export class Utils {
   public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
     return (value: any): string => {
       if (value === "MANUAL") {
-        return translate.instant("General.manual");
+        return translate.instant("General.manually");
       } else if (value === "OFF") {
         return translate.instant("General.off");
       } else if (value === "AUTOMATIC") {

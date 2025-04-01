@@ -45,4 +45,12 @@ export namespace StringUtils {
 
         return val.substring(startIndex, endIndex);
     }
+
+    export function splitBy(value: string | null, key: string): null | string[] {
+        if (isValidString(value)) {
+            return value.split("/");
+        }
+
+        return null;
+    }
 }

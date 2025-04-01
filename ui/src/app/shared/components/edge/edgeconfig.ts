@@ -1,5 +1,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChannelAddress, Widgets } from "../../shared";
+import { baseNavigationTree, NavigationId, NavigationTree } from "../navigation/shared";
+import { Name } from "../shared/name";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -20,6 +22,7 @@ export interface CategorizedFactories {
 
 export class EdgeConfig {
 
+    public readonly navigation: NavigationTree | null = null;
     /**
      * Component-ID -> Component.
      */
@@ -45,6 +48,8 @@ export class EdgeConfig {
             this.components = source.components;
             this.factories = source.factories;
         }
+
+        this.navigation = this.createNavigationTree(this.components, this.factories);
 
         // initialize Components
         for (const componentId in this.components) {
@@ -709,6 +714,31 @@ export class EdgeConfig {
     public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
         return component?.properties[property] ?? null;
     }
+
+    public createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory; }): NavigationTree {
+        const navigationTree: NavigationTree = NavigationTree.of(baseNavigationTree);
+        const baseMode: NavigationTree["mode"] = "label";
+
+        for (const [componentId, component] of Object.entries(components)) {
+            switch (component.factoryId) {
+                case "Evse.Controller.Single":
+                    navigationTree.setChild(NavigationId.LIVE,
+                        new NavigationTree(
+                            componentId, "evse/" + componentId, { name: "oe-evcs" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+                            navigationTree,));
+                    break;
+                case "Controller.IO.Heating.Room":
+                    navigationTree.setChild(NavigationId.LIVE,
+                        new NavigationTree(
+                            componentId, "io-heating-room/" + componentId, { name: "flame" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+                            navigationTree,));
+                    break;
+            }
+        }
+        return navigationTree;
+    }
+
+
 }
 
 export enum PersistencePriority {
