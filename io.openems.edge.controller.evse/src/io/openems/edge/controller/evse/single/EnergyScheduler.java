@@ -30,6 +30,7 @@ import io.openems.edge.controller.evse.single.EnergyScheduler.Config.SmartOptimi
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.energy.api.handler.EshWithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
@@ -51,8 +52,8 @@ public class EnergyScheduler {
 	 * @param cocSupplier supplier for {@link ManualOptimizationContext}
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EnergyScheduleHandler.WithOnlyOneMode buildManualEnergyScheduleHandler(OpenemsComponent parent,
-			Supplier<ManualOptimizationContext> cocSupplier) {
+	public static EshWithOnlyOneMode<ManualOptimizationContext, ScheduleContext> buildManualEnergyScheduleHandler(
+			OpenemsComponent parent, Supplier<ManualOptimizationContext> cocSupplier) {
 		return EnergyScheduleHandler.WithOnlyOneMode.<ManualOptimizationContext, ScheduleContext>create(parent) //
 				.setSerializer(() -> Config.toJson(cocSupplier.get())) //
 

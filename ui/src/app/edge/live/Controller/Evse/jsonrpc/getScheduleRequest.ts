@@ -1,7 +1,7 @@
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
 /**
- * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi
+ * Gets EVSE Schedule.
  *
  * <pre>
  * {

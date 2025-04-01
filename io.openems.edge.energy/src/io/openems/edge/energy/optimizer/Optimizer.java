@@ -1,5 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
+import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.jenetics.engine.Limits.byFixedGeneration;
 import static io.openems.common.utils.FunctionUtils.doNothing;
@@ -13,6 +14,8 @@ import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 
+import java.time.ZonedDateTime;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -32,6 +35,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.OneMode;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
 /**
@@ -251,8 +255,16 @@ public class Optimizer implements Runnable {
 		// Store result
 		this.simulationResult = simulationResult;
 
-		// Send Schedule to Controllers
+		// Send Schedule to EnergyScheduleHandlers.WithDifferentModes
 		simulationResult.schedules().forEach((esh, schedule) -> {
+			esh.applySchedule(schedule);
+		});
+		// Send Schedule to EnergyScheduleHandlers.WithOnlyOneMode
+		var schedule = simulationResult.periods().entrySet().stream() //
+				.collect(toImmutableSortedMap(ZonedDateTime::compareTo, //
+						Entry::getKey, //
+						e -> new OneMode.Period.Transition(e.getValue().period().price(), e.getValue().energyFlow())));
+		simulationResult.eshsWithOnlyOneMode().forEach(esh -> {
 			esh.applySchedule(schedule);
 		});
 	}

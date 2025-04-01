@@ -48,8 +48,6 @@ public class ControllerEvseSingleImplTest {
 						.setElectricVehicleId("electricVehicle0") //
 						.setSmartConfig("""
 								[{
-								  "@type": "Task",
-								  "uid": "00000000-0000-0000-0000-000000000000",
 								  "updated": "2020-01-01T00:00:00Z",
 								  "start": "2024-06-17T00:00:00",
 								  "recurrenceRules": [

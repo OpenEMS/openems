@@ -42,8 +42,8 @@ import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleResponse;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.energy.api.handler.EshWithOnlyOneMode;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
 import io.openems.edge.evse.api.chargepoint.Mode;
@@ -81,7 +81,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	private Config config;
 	private BiConsumer<Value<Status>, Value<Status>> onChargePointStatusChange = null;
 	private EshWithDifferentModes<Actual, SmartOptimizationContext, ScheduleContext> smartEnergyScheduleHandler = null;
-	private WithOnlyOneMode manualEnergyScheduleHandler = null;
+	private EshWithOnlyOneMode<ManualOptimizationContext, ScheduleContext> manualEnergyScheduleHandler = null;
 
 	public ControllerEvseSingleImpl() {
 		this(Clock.systemDefaultZone());
@@ -175,11 +175,11 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 		}
 
 		// Is Ready for Charging?
-		var readyForCharging = sessionLimitReached //
+		var isReadyForCharging = sessionLimitReached //
 				? false //
 				: chargePoint.isReadyForCharging();
 
-		return new Params(readyForCharging, actualMode, activePower, limits, chargePoint.profiles());
+		return new Params(isReadyForCharging, actualMode, activePower, limits, chargePoint.profiles());
 	}
 
 	@Override
@@ -234,11 +234,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		var esh = this.smartEnergyScheduleHandler;
-		if (esh == null) {
-			return;
-		}
 		builder.handleRequest(GetScheduleRequest.METHOD, //
-				call -> GetScheduleResponse.from(call.getRequest().getId(), esh));
+				call -> GetScheduleResponse.from(call.getRequest().getId(), //
+						this.smartEnergyScheduleHandler, this.manualEnergyScheduleHandler));
 	}
 }

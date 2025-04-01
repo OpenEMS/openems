@@ -10,7 +10,7 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
-import { Controller_Evcs } from "../Evcs";
+import { Controller_Evse_Single } from "../EvseSingle";
 import { GetScheduleRequest } from "../jsonrpc/getScheduleRequest";
 import { GetScheduleResponse } from "../jsonrpc/getScheduleResponse";
 
@@ -25,7 +25,6 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
 
-    protected evcsComponent: EdgeConfig.Component;
     private currencyLabel: Currency.Label; // Default
     private currencyUnit: Currency.Unit; // Default
 
@@ -43,8 +42,6 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
 
     public async ngOnChanges() {
         this.edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1)).subscribe(config => {
-            this.evcsComponent = config?.getComponentsByFactory("Controller.Evcs")
-                .find(element => "evcs.id" in element.properties && element.properties["evcs.id"] == this.component.id);
             const meta: EdgeConfig.Component = config?.getComponent("_meta");
             const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
             this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
@@ -68,20 +65,20 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
 
         this.edge.sendRequest(
             this.websocket,
-            new ComponentJsonApiRequest({ componentId: this.evcsComponent.id, payload: new GetScheduleRequest() }),
+            new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
             const schedule = result.schedule;
 
             // Extracting prices, states, timestamps from the schedule array
-            const { priceArray, stateArray, timestampArray } = {
+            const { priceArray, modeArray, timestampArray } = {
                 priceArray: schedule.map(entry => entry.price),
-                stateArray: schedule.map(entry => entry.state),
+                modeArray: schedule.map(entry => entry.mode),
                 timestampArray: schedule.map(entry => entry.timestamp),
             };
 
-            const scheduleChartData = Controller_Evcs.getScheduleChartData(schedule.length, priceArray,
-                stateArray, timestampArray, this.translate);
+            const scheduleChartData = Controller_Evse_Single.getScheduleChartData(schedule.length, priceArray,
+                modeArray, timestampArray, this.translate);
 
             this.colors = scheduleChartData.colors;
             this.labels = scheduleChartData.labels;

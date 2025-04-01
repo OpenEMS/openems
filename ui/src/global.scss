@@ -72,6 +72,10 @@ input:-webkit-autofill:focus {
 
 }
 
+.paragraph-space {
+    margin-top: 2rem;
+}
+
 .disabled {
     color: gray;
     pointer-events: none;
@@ -321,19 +325,6 @@ ion-item,
 ion-checkbox {
     .checkbox-icon {
         display: none;
-    }
-}
-
-#theme-switcher {
-    --transition: checkmark-color 5s ease-in-out;
-
-    :host {
-        --checkmark-color: red;
-    }
-
-    ion-checkbox::part('mark') {
-        --border-color: white;
-        --checkmark-color: red;
     }
 }
 
