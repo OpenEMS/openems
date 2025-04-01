@@ -101,7 +101,7 @@ export class FlatComponent extends AbstractFlatWidget {
     // Mode
     if (this.isChargingEnabled) {
       if (this.chargeMode == "FORCE_CHARGE") {
-        this.mode = this.translate.instant("General.manual");
+        this.mode = this.translate.instant("General.manually");
       } else if (this.chargeMode == "EXCESS_POWER") {
         this.mode = this.translate.instant("Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName");
       }
