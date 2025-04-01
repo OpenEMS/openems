@@ -38,7 +38,7 @@ import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.compon
 import { AppStateTracker } from "./ngrx-store/states";
 import { PipeModule } from "./pipe/pipe";
 import { Logger } from "./service/logger";
-import { PreviousRouteService } from "./service/previousRouteService";
+import { RouteService } from "./service/previousRouteService";
 import { Service } from "./service/service";
 import { Utils } from "./service/utils";
 import { Websocket } from "./shared";
@@ -156,7 +156,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     AppStateTracker,
     appRoutingProviders,
     Logger,
-    PreviousRouteService,
+    RouteService,
     Service,
     Utils,
     Websocket,

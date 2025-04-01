@@ -1,5 +1,4 @@
 <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
-
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
     { name: 'Aus', value: 'ZERO', icon: {color:'primary', name: 'close-circle-outline'}},
     { name: 'Minimal', value: 'MINIMUM', icon: {color:'primary', name: 'radio-button-off-outline'}},
@@ -17,32 +16,4 @@
         </powerChart>
 
     </ng-container>
-
-    <ion-modal #modal2 isOpen="true" [initialBreakpoint]="0.1" [breakpoints]="[0.04, 0.1, 0.9]" [backdropDismiss]="true"
-        [backdropBreakpoint]="0.1" *ngIf="showNewFooter">
-        <ng-template>
-            <ion-content class="ion-padding">
-                <ion-breadcrumbs>
-                    <ion-breadcrumb routerLink="/device/{{edge.id}}/live" (click)="hideFooter()">
-                        <ion-icon color="medium" name="home-outline"></ion-icon>
-                    </ion-breadcrumb>
-                    <ion-breadcrumb routerLinkActive="active" (click)="hideFooter()">
-                        <ion-note color="primary">
-                            {{label}}
-                        </ion-note>
-                    </ion-breadcrumb>
-                </ion-breadcrumbs>
-
-                <ion-list>
-                    <ion-list-header>
-                        <ion-label>Help</ion-label>
-                    </ion-list-header>
-                    <ion-item [detail]="true" lines="none">
-                        <ion-label>Ticket erstellen</ion-label>
-                    </ion-item>
-                </ion-list>
-
-            </ion-content>
-        </ng-template>
-    </ion-modal>
 </oe-modal>

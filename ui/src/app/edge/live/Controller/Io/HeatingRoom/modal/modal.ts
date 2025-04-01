@@ -6,7 +6,6 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { NavigationService } from "src/app/shared/components/navigation/navigation.component";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Component({
@@ -28,12 +27,11 @@ export class ModalComponent extends AbstractModal {
         @Inject(TranslateService) protected override translate: TranslateService,
         @Inject(FormBuilder) public override formBuilder: FormBuilder,
         public override ref: ChangeDetectorRef,
-        private navigationService: NavigationService,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
     }
 
-    override async updateComponent(config: EdgeConfig) {
+    async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
             this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
                 this.component = config.getComponent(params.componentId);

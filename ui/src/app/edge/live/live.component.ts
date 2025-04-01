@@ -1,5 +1,5 @@
 import { Component, effect, ElementRef, OnDestroy, ViewChild } from "@angular/core";
-import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -34,20 +34,6 @@ export class LiveComponent implements OnDestroy {
     private router: Router,
   ) {
 
-    router.events.subscribe(async event => {
-      if (event instanceof NavigationEnd) {
-        const url = event.urlAfterRedirects;
-        const topLevelSegment = url.split("/").pop();
-
-        const some = await this.service.getConfig();
-        const chips = some.widgets.list.filter(item => item.name == "Evse.Controller.Single" || item.name == "Controller.IO.Heating.Room");
-        if (topLevelSegment != "live") {
-          this.hideModal();
-        } else {
-          this.showNewFooter = chips?.length > 0;
-        }
-      }
-    });
     effect(() => {
       const edge = this.service.currentEdge();
 
@@ -62,30 +48,15 @@ export class LiveComponent implements OnDestroy {
     });
   }
 
-  async hideModal() {
-    this.showNewFooter = false;
-    if (this.modal) {
-      await this.modal.nativeElement.dismiss(); // Properly dismiss the modal
-      this.modal.nativeElement.remove(); // Remove from DOM safely
-    }
-  }
-
   public ionViewWillEnter() {
     if (this.widgets?.list) {
       this.showNewFooter = this.widgets?.list.filter(item => item.name == "Evse.Controller.Single" || item.name == "Controller.IO.Heating.Room")?.length > 0;
     }
   }
 
-  public ionViewDidLeave() {
-    this.hideModal();
-  }
-
-
   ionViewWillLeave() {
-    this.hideModal();
     this.ngOnDestroy();
   }
-
 
   public ngOnDestroy() {
     clearInterval(this.interval);

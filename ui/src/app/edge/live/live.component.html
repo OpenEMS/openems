@@ -167,42 +167,4 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-
-  <ng-container *ngIf="showNewFooter">
-    <ion-modal #modal [isOpen]="showNewFooter" [initialBreakpoint]="0.1" [breakpoints]="[0.04,0.1, 0.9]"
-      [backdropDismiss]="true" [backdropBreakpoint]="0.1" *ngIf="showNewFooter">
-      <ng-template>
-        <ion-content class="ion-padding">
-          <ion-breadcrumbs>
-            <ion-breadcrumb routerLink="/device/{{edge.id}}/">
-              <ion-icon color="primary" name="home-outline"></ion-icon>
-            </ion-breadcrumb>
-          </ion-breadcrumbs>
-
-          <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
-            <ion-chip (click)="routeTo('evse/' + widget.componentId)" *ngSwitchCase="'Evse.Controller.Single'">
-              <ion-icon name="oe-evcs" color="success"></ion-icon>
-              <ion-label>{{widget.alias}}</ion-label>
-            </ion-chip>
-
-            <ion-chip (click)="routeTo('io-heating-room/' + widget.componentId)"
-              *ngSwitchCase="'Controller.IO.Heating.Room'">
-              <ion-icon name="flame" color="success"></ion-icon>
-              <ion-label>{{widget.alias}}</ion-label>
-            </ion-chip>
-          </ng-container>
-
-          <ion-list>
-            <ion-list-header>
-              <ion-label>Help</ion-label>
-            </ion-list-header>
-            <ion-item [detail]="true" lines="none">
-              <ion-label>Ticket erstellen</ion-label>
-            </ion-item>
-          </ion-list>
-
-        </ion-content>
-      </ng-template>
-    </ion-modal>
-  </ng-container>
 </oe-refresh-view>
