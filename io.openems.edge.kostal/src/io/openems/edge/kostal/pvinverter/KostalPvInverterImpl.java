@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -26,7 +25,6 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -39,6 +37,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(
@@ -47,13 +46,12 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				"type=PRODUCTION", //
-				EventConstants.EVENT_TOPIC + "="
-						+ EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+				"type=PRODUCTION" //
 		})
 
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+//		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 		implements
@@ -70,6 +68,9 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 
 	@Reference
 	private ConfigurationAdmin cm;
+	
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -221,8 +222,9 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
-				// TODO do something here...
+				this.calculateProductionEnergy.update(this.getActivePower().get());
 				break;
 		}
 	}
+	
 }
