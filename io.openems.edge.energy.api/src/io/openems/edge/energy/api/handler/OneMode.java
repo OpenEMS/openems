@@ -98,6 +98,38 @@ public class OneMode {
 		}
 	}
 
+	public static record Period<OPTIMIZATION_CONTEXT>(
+			/** Price [1/MWh] */
+			double price, //
+			/** ControllerOptimizationContext */
+			OPTIMIZATION_CONTEXT coc, //
+			/** Simulated EnergyFlow */
+			EnergyFlow energyFlow) implements EnergyScheduleHandler.Period<OPTIMIZATION_CONTEXT> {
+
+		/**
+		 * This class is only used internally to apply the Schedule.
+		 */
+		public static record Transition(double price, EnergyFlow energyFlow) {
+		}
+
+		/**
+		 * Builds a {@link EnergyScheduleHandler.OneMode.Period} from a
+		 * {@link EnergyScheduleHandler.OneMode.Period.Transition} record.
+		 * 
+		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
+		 * @param t                      the
+		 *                               {@link EnergyScheduleHandler.WithDifferentStates.Period.Transition}
+		 *                               record
+		 * @param coc                    the ControllerOptimizationContext used during
+		 *                               simulation
+		 * @return a {@link Period} record
+		 */
+		public static <OPTIMIZATION_CONTEXT> Period<OPTIMIZATION_CONTEXT> fromTransitionRecord(Period.Transition t,
+				OPTIMIZATION_CONTEXT coc) {
+			return new Period<>(t.price, coc, t.energyFlow);
+		}
+	}
+
 	public static interface Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
 		/**

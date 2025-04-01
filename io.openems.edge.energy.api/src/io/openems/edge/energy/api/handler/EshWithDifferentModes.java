@@ -19,7 +19,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulationsProvider;
-import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.handler.DifferentModes.PostProcessor;
 import io.openems.edge.energy.api.handler.DifferentModes.Simulator;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -35,7 +34,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	private final InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider;
 	private final Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
 	private final PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor;
-	private final SortedMap<ZonedDateTime, Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
+	private final SortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
 	private MODE[] availableModes;
 
@@ -126,7 +125,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	}
 
 	@Override
-	public void applySchedule(ImmutableSortedMap<ZonedDateTime, Period.Transition> schedule) {
+	public void applySchedule(ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition> schedule) {
 		final var thisQuarter = roundDownToQuarter(this.getNow());
 		final var nextQuarter = thisQuarter.plusMinutes(15);
 		final var coc = this.coc;
@@ -144,17 +143,14 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 				return;
 			}
 			schedule.forEach((k, t) -> {
-				this.schedule.put(k, Period.fromTransitionRecord(t, this::getMode, coc));
+				this.schedule.put(k, DifferentModes.Period.fromTransitionRecord(t, this::getMode, coc));
 			});
 		}
 	}
 
-	/**
-	 * Gets a copy of the current Schedule.
-	 * 
-	 * @return the Schedule
-	 */
-	public ImmutableSortedMap<ZonedDateTime, Period<MODE, OPTIMIZATION_CONTEXT>> getSchedule() {
+	@SuppressWarnings("unchecked")
+	@Override
+	public ImmutableSortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> getSchedule() {
 		synchronized (this.schedule) {
 			return ImmutableSortedMap.copyOfSorted(this.schedule);
 		}
@@ -165,7 +161,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	 *
 	 * @return the record of the currently scheduled Period; possibly null
 	 */
-	public Period<MODE, OPTIMIZATION_CONTEXT> getCurrentPeriod() {
+	public DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT> getCurrentPeriod() {
 		synchronized (this.schedule) {
 			final var thisQuarter = roundDownToQuarter(this.getNow());
 			return this.schedule.get(thisQuarter);

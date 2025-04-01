@@ -55,6 +55,14 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 	 */
 	public <SCHEDULE_CONTEXT> SCHEDULE_CONTEXT createScheduleContext();
 
+	/**
+	 * Gets a copy of the current Schedule.
+	 * 
+	 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
+	 * @return the Schedule
+	 */
+	public <OPTIMIZATION_CONTEXT> ImmutableSortedMap<ZonedDateTime, ? extends Period<OPTIMIZATION_CONTEXT>> getSchedule();
+
 	public static class Fitness implements Comparable<Fitness> {
 
 		private int hardConstraintViolations = 0;
@@ -204,7 +212,7 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * <p>
 		 * This method is called by the {@link EnergyScheduler}.
 		 * 
-		 * @param schedule the new Schedule as Map of ZonedDateTime to Mode-Index
+		 * @param schedule the new Schedule as Map of ZonedDateTime to Period
 		 */
 		public void applySchedule(ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition> schedule);
 	}
@@ -236,5 +244,38 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 */
 		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
 				EnergyFlow.Model ef, Fitness fitness);
+
+		/**
+		 * Applies a new Schedule.
+		 * 
+		 * <p>
+		 * This method is called by the {@link EnergyScheduler}.
+		 * 
+		 * @param schedule the new Schedule as Map of ZonedDateTime to Period
+		 */
+		public void applySchedule(ImmutableSortedMap<ZonedDateTime, OneMode.Period.Transition> schedule);
+	}
+
+	public sealed interface Period<OPTIMIZATION_CONTEXT> permits DifferentModes.Period, OneMode.Period {
+		/**
+		 * Price [1/MWh].
+		 * 
+		 * @return the price per period
+		 */
+		public double price();
+
+		/**
+		 * Simulated {@link EnergyFlow}.
+		 * 
+		 * @return the EnergyFlow
+		 */
+		public EnergyFlow energyFlow();
+
+		/**
+		 * The ControllerOptimizationContext.
+		 * 
+		 * @return the ControllerOptimizationContext
+		 */
+		public OPTIMIZATION_CONTEXT coc();
 	}
 }

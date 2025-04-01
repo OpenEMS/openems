@@ -1,6 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,6 +12,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.jenetics.Genotype;
@@ -28,7 +30,8 @@ public record SimulationResult(//
 		ImmutableSortedMap<ZonedDateTime, Period> periods, //
 		ImmutableMap<//
 				? extends EnergyScheduleHandler.WithDifferentModes, //
-				ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition>> schedules) {
+				ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition>> schedules, //
+		ImmutableSet<? extends EnergyScheduleHandler.WithOnlyOneMode> eshsWithOnlyOneMode) {
 
 	/**
 	 * A Period in a {@link SimulationResult}. Duration of one period is always one
@@ -59,7 +62,7 @@ public record SimulationResult(//
 	 * An empty {@link SimulationResult}.
 	 */
 	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(new Fitness(), //
-			ImmutableSortedMap.of(), ImmutableMap.of());
+			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of());
 
 	/**
 	 * Re-Simulate a {@link Genotype} to create a {@link SimulationResult}.
@@ -85,7 +88,12 @@ public record SimulationResult(//
 						(a, b) -> ImmutableSortedMap.<ZonedDateTime, DifferentModes.Period.Transition>naturalOrder()
 								.putAll(a).putAll(b).build()));
 
-		return new SimulationResult(fitness, allPeriods.build(), schedules);
+		var eshsWithOnlyOneMode = goc.eshs().stream() //
+				.filter(EnergyScheduleHandler.WithOnlyOneMode.class::isInstance)
+				.map(EnergyScheduleHandler.WithOnlyOneMode.class::cast) //
+				.collect(toImmutableSet());
+
+		return new SimulationResult(fitness, allPeriods.build(), schedules, eshsWithOnlyOneMode);
 	}
 
 	/**

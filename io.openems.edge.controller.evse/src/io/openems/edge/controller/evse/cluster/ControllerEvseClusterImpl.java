@@ -149,7 +149,9 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 				var limit = params.limit();
 				var maxPower = limit.getMaxPower();
 				var minPower = limit.getMinPower();
-				var power = fitWithin(0, maxPower - minPower, remainingExcessPower);
+				var power = params.isReadyForCharging() //
+						? fitWithin(0, maxPower, remainingExcessPower) //
+						: 0;
 				remainingExcessPower -= power;
 				var rawCurrent = limit.calculateCurrent(power);
 				final int current;
@@ -161,9 +163,15 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 				} else {
 					current = rawCurrent;
 				}
-				logDebug.accept(input.ctrl.id() + " limit=" + limit + "; maxPower=" + maxPower + "; minPower="
-						+ minPower + "; power=" + power + "; remainingExcessPower=" + remainingExcessPower
-						+ "; rawCurrent=" + rawCurrent + "; current=" + current);
+				logDebug.accept(input.ctrl.id() + ": "//
+						+ "isReadyForCharging=" + params.isReadyForCharging() + "; " //
+						+ "limit=" + limit + "; " //
+						+ "maxPower=" + maxPower + "; " //
+						+ "minPower=" + minPower + "; " //
+						+ "power=" + power + "; " //
+						+ "remainingExcessPower=" + remainingExcessPower + "; " //
+						+ "rawCurrent=" + rawCurrent + "; " //
+						+ "current=" + current);
 				if (current == 0) {
 					yield ApplyCharge.ZERO;
 				} else {
@@ -213,7 +221,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	 */
 	protected static int calculateOverallFixedPower(ImmutableList<Params> params) {
 		return params.stream() //
-				.filter(p -> p.readyForCharging()) //
+				.filter(p -> p.isReadyForCharging()) //
 				.map(p -> switch (p.actualMode()) {
 				case FORCE -> p.limit().getMaxPower();
 				case MINIMUM -> p.limit().getMinPower();

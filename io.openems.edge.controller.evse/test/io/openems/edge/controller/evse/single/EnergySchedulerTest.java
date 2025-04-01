@@ -1,6 +1,7 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildManualEnergyScheduleHandler;
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildSmartEnergyScheduleHandler;
 import static java.time.DayOfWeek.FRIDAY;
@@ -17,16 +18,22 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.utils.UuidUtils;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
+import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
 import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
+import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleResponse;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.Coefficient;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
 import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.chargepoint.Mode.Actual;
 
 public class EnergySchedulerTest {
 
@@ -45,7 +52,7 @@ public class EnergySchedulerTest {
 	}
 
 	@Test
-	public void testMinimum() {
+	public void testMinimum() throws OpenemsNamedException {
 		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
 				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.MINIMUM, true, THREE_PHASE, //
 						1000, 5_000));
@@ -56,6 +63,10 @@ public class EnergySchedulerTest {
 		assertEquals(1035, t.simulatePeriod().ef().getManagedConsumption());
 		assertEquals(895, t.simulatePeriod().ef().getManagedConsumption());
 		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
+
+		var r = GetScheduleResponse.from(UuidUtils.getNilUuid(), null, esh);
+		var schedule = getAsJsonArray(r.getResult(), "schedule");
+		assertEquals(0, schedule.size());
 	}
 
 	@Test
@@ -119,10 +130,18 @@ public class EnergySchedulerTest {
 		assertEquals(0, (int) sr.fitness.getGridBuyCost());
 	}
 
+	@Test
+	public void testSmartResponse() throws OpenemsNamedException {
+		var esh = createSmartEsh();
+		var r = GetScheduleResponse.from(UuidUtils.getNilUuid(), esh, null);
+		var schedule = getAsJsonArray(r.getResult(), "schedule");
+		assertEquals(0, schedule.size());
+	}
+
 	private static record SmartResult(Fitness fitness) {
 	}
 
-	private static SmartResult testSmart(Mode.Actual mode) {
+	private static EshWithDifferentModes<Actual, SmartOptimizationContext, ScheduleContext> createSmartEsh() {
 		final var smartConfig = ImmutableList.of(//
 				JSCalendar.Task.<Payload>create() //
 						.setStart(LocalTime.of(7, 30)) //
@@ -139,8 +158,12 @@ public class EnergySchedulerTest {
 						.setPayload(new Payload(60_000)) //
 						.build());
 
-		var esh = buildSmartEnergyScheduleHandler(new DummyController("ctrl0"), //
+		return buildSmartEnergyScheduleHandler(new DummyController("ctrl0"), //
 				() -> new EnergyScheduler.Config.SmartOptimizationConfig(true, THREE_PHASE, smartConfig));
+	}
+
+	private static SmartResult testSmart(Mode.Actual mode) {
+		var esh = createSmartEsh();
 
 		var t = EnergyScheduleTester.from(esh);
 
