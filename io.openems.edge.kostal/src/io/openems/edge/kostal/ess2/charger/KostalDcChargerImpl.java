@@ -42,6 +42,7 @@ import io.openems.edge.kostal.common.AbstractSunSpecDcCharger;
 import io.openems.edge.kostal.ess2.KostalManagedEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(
@@ -64,6 +65,9 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
+			EssDcCharger.ChannelId.ACTUAL_ENERGY);
+	
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -107,10 +111,6 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			//.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_123, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_203, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_802, Priority.LOW) //
 			.build();
 
 	@Override
@@ -146,10 +146,10 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S113.DCW, DefaultSunSpecModel.S103.DCW);
 
-		this.mapFirstPointToChannel(//
-				EssDcCharger.ChannelId.ACTUAL_ENERGY, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S113.WH, DefaultSunSpecModel.S103.WH);
+//		this.mapFirstPointToChannel(//
+//				EssDcCharger.ChannelId.ACTUAL_ENERGY, //
+//				ElementToChannelConverter.DIRECT_1_TO_1, //
+//				DefaultSunSpecModel.S113.WH, DefaultSunSpecModel.S103.WH);
 
 	}
 
@@ -160,17 +160,6 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 	 * @throws OpenemsException on error
 	 */
 	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
-/*		//TODO hier stimmt was nicht, da DC discharge zum ESS gehört
-		protocol.addTask(//
-				new FC3ReadRegistersTask(582, Priority.HIGH, //
-						m(KostalDcCharger.ChannelId.DC_DISCHARGE_POWER,
-								new SignedWordElement(582))));
-
-		protocol.addTask(//
-				new FC3ReadRegistersTask(1066, Priority.HIGH, //
-						m(KostalDcCharger.ChannelId.POWER_DC,
-								new FloatDoublewordElement(1066)
-										.wordOrder(LSWMSW))));*/
 		protocol.addTask(//
 				new FC3ReadRegistersTask(1066, Priority.HIGH, //
 						m(EssDcCharger.ChannelId.ACTUAL_POWER,
@@ -178,35 +167,6 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 										.wordOrder(LSWMSW))));
 
 	}
-
-/*	*
-	 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
-	 * Batterie-Ladung/Entladung *-1.
-	 * 
-	 * <p> Actual power from inverter comes from house consumption + battery inverter +
-	 * power (*-1).
-	 *
-	 
-	public void _calculateAndSetActualPower() {
-
-		try {
-			int dcPower = this.getDcPower().get(); // Leistung Inverter
-			//int dcPowerScale = this.getDcPowerScale().get(); // Leistung Inverter
-			//double dcPowerValue = dcPower * Math.pow(10, dcPowerScale);
-			double dcPowerValue = dcPower;
-
-			int dcDischargePower = this.getDcDischargePower().get();
-			int pvDcProduction = (int) dcPowerValue + dcDischargePower;
-
-			if (pvDcProduction < 0) {
-				pvDcProduction = 0; // Negative Values are not allowed for PV production
-			}
-
-			this._setActualPower(pvDcProduction);
-		} catch (Exception e) {
-			return;
-		}
-	}*/
 
 	@Override
 	@Deactivate
@@ -222,7 +182,7 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			//this._calculateAndSetActualPower();
+			this.calculateActualEnergy.update(this.getActualPower().get());
 			break;
 		}
 	}
