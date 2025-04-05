@@ -1,5 +1,5 @@
-import { Component, effect, OnDestroy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Component, effect, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -13,11 +13,14 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 })
 export class LiveComponent implements OnDestroy {
 
+  @ViewChild("modal", { read: ElementRef }) public modal!: ElementRef;
+
   protected edge: Edge | null = null;
   protected config: EdgeConfig | null = null;
   protected widgets: Widgets | null = null;
   protected isModbusTcpWidgetAllowed: boolean = false;
   protected showRefreshDragDown: boolean = false;
+  protected showNewFooter: boolean = false;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private interval: ReturnType<typeof setInterval> | undefined;
@@ -28,11 +31,11 @@ export class LiveComponent implements OnDestroy {
     protected utils: Utils,
     protected websocket: Websocket,
     private dataService: DataService,
+    private router: Router,
   ) {
 
     effect(() => {
       const edge = this.service.currentEdge();
-
       this.edge = edge;
       this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
 
@@ -42,6 +45,16 @@ export class LiveComponent implements OnDestroy {
       });
       this.checkIfRefreshNeeded();
     });
+  }
+
+  public ionViewWillEnter() {
+    if (this.widgets?.list) {
+      this.showNewFooter = this.widgets?.list.filter(item => item.name == "Evse.Controller.Single" || item.name == "Controller.IO.Heating.Room")?.length > 0;
+    }
+  }
+
+  ionViewWillLeave() {
+    this.ngOnDestroy();
   }
 
   public ngOnDestroy() {

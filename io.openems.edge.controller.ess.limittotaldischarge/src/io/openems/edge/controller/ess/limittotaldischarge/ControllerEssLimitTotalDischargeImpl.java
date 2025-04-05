@@ -66,9 +66,9 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
-				() -> this.isEnabled() //
+				() -> new EnergyScheduler.Config(this.isEnabled() //
 						? this.minSoc //
-						: null);
+						: null));
 
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();

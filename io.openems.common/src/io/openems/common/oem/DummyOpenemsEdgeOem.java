@@ -77,6 +77,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.TimeOfUseTariff.Stromdao", "") //
 			.put("App.TimeOfUseTariff.Swisspower", "") //
 			.put("App.TimeOfUseTariff.Tibber", "") //
+			.put("App.Cloud.EnerixControl", "") //
+			.put("App.Cloud.Clever-PV", "") //
 			.put("App.Api.ModbusTcp.ReadOnly", "") //
 			.put("App.Api.ModbusTcp.ReadWrite", "") //
 			.put("App.Api.ModbusRtu.ReadOnly", "") //
@@ -89,6 +91,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Evcs.HardyBarth", "") //
 			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Keba", "") //
+			.put("App.Evcs.Heidelberg.ReadOnly", "") //
 			.put("App.Evcs.Mennekes.ReadOnly", "") //
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //

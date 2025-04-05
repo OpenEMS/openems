@@ -9,14 +9,16 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.gson.JsonElement;
 
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
-import io.openems.edge.energy.api.handler.DifferentModes.Period;
+import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulationsProvider;
 import io.openems.edge.energy.api.handler.DifferentModes.PostProcessor;
 import io.openems.edge.energy.api.handler.DifferentModes.Simulator;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -29,26 +31,27 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 
 	private final MODE defaultMode;
 	private final BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction;
-	private final BiFunction<GlobalOptimizationContext, MODE[], ImmutableList<InitialPopulation<MODE>>> initialPopulationsFunction;
+	private final InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider;
 	private final Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
 	private final PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor;
-	private final SortedMap<ZonedDateTime, Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
+	private final SortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
 	private MODE[] availableModes;
 
 	protected EshWithDifferentModes(//
-			String id, //
+			String parentFactoryPid, String parentId, //
+			Supplier<JsonElement> serializer, //
 			MODE defaultMode, //
 			BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
-			BiFunction<GlobalOptimizationContext, MODE[], ImmutableList<InitialPopulation<MODE>>> initialPopulationsFunction, //
+			InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider, //
 			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
 			PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor) {
-		super(id, cocFunction, cscFunction);
+		super(parentFactoryPid, parentId, serializer, cocFunction, cscFunction);
 		this.defaultMode = defaultMode;
 		this.availableModesFunction = availableModesFunction;
-		this.initialPopulationsFunction = initialPopulationsFunction;
+		this.initialPopulationsProvider = initialPopulationsProvider;
 		this.simulator = simulator;
 		this.postProcessor = postProcessor;
 	}
@@ -68,7 +71,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	 * @return a List of {@link InitialPopulation}s
 	 */
 	public ImmutableList<InitialPopulation.Transition> getInitialPopulation(GlobalOptimizationContext goc) {
-		return this.initialPopulationsFunction.apply(goc, this.availableModes).stream() //
+		return this.initialPopulationsProvider.get(goc, this.coc, this.availableModes).stream() //
 				.map(ip -> ip.toTansition(this::getModeIndex)) //
 				.collect(toImmutableList());
 	}
@@ -108,20 +111,21 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public double simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-			EnergyFlow.Model ef, int modeIndex) {
-		return this.simulator.simulate(period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef,
-				this.availableModes[modeIndex]);
+	public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
+			EnergyFlow.Model ef, int modeIndex, Fitness fitness) {
+		this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef,
+				this.availableModes[modeIndex], fitness);
 	}
 
 	@Override
 	public int postProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, EnergyFlow ef,
 			int modeIndex) {
-		return this.getModeIndex(this.postProcessor.postProcess(gsc, ef, this.coc, this.availableModes[modeIndex]));
+		return this.getModeIndex(this.postProcessor.postProcess(this.parentId, period, gsc, ef, this.coc,
+				this.availableModes[modeIndex]));
 	}
 
 	@Override
-	public void applySchedule(ImmutableSortedMap<ZonedDateTime, Period.Transition> schedule) {
+	public void applySchedule(ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition> schedule) {
 		final var thisQuarter = roundDownToQuarter(this.getNow());
 		final var nextQuarter = thisQuarter.plusMinutes(15);
 		final var coc = this.coc;
@@ -139,17 +143,14 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 				return;
 			}
 			schedule.forEach((k, t) -> {
-				this.schedule.put(k, Period.fromTransitionRecord(t, this::getMode, coc));
+				this.schedule.put(k, DifferentModes.Period.fromTransitionRecord(t, this::getMode, coc));
 			});
 		}
 	}
 
-	/**
-	 * Gets a copy of the current Schedule.
-	 * 
-	 * @return the Schedule
-	 */
-	public ImmutableSortedMap<ZonedDateTime, Period<MODE, OPTIMIZATION_CONTEXT>> getSchedule() {
+	@SuppressWarnings("unchecked")
+	@Override
+	public ImmutableSortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> getSchedule() {
 		synchronized (this.schedule) {
 			return ImmutableSortedMap.copyOfSorted(this.schedule);
 		}
@@ -160,7 +161,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	 *
 	 * @return the record of the currently scheduled Period; possibly null
 	 */
-	public Period<MODE, OPTIMIZATION_CONTEXT> getCurrentPeriod() {
+	public DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT> getCurrentPeriod() {
 		synchronized (this.schedule) {
 			final var thisQuarter = roundDownToQuarter(this.getNow());
 			return this.schedule.get(thisQuarter);

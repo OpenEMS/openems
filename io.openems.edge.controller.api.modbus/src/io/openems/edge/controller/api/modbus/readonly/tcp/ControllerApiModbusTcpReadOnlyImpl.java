@@ -25,6 +25,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
@@ -48,6 +49,9 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	private TcpConfig config;
 
@@ -74,7 +78,7 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
 		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections());
-		super.activate(context, this.cm, this.config);
+		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Modified

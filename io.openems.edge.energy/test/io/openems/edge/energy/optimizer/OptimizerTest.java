@@ -17,7 +17,7 @@ import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.test.DummyChannel;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.energy.EnergySchedulerImplTest;
-import io.openems.edge.energy.LogVerbosity;
+import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.optimizer.SimulatorTest.Esh2State;
@@ -36,7 +36,7 @@ public class OptimizerTest {
 		assertTrue(optimizer.debugLog().startsWith("ScheduledPeriods:96|SimulationCounter:"));
 
 		var sr = optimizer.getSimulationResult();
-		assertTrue(sr.cost() < 1100000);
+		assertTrue(sr.fitness().getGridBuyCost() < 1100000);
 		assertEquals(96, sr.periods().size());
 	}
 
@@ -54,7 +54,7 @@ public class OptimizerTest {
 		).get();
 		optimizer.applySimulationResult(simulationResult);
 
-		assertEquals(0., simulationResult.cost(), 0.001);
+		assertEquals(0., simulationResult.fitness().getGridBuyCost(), 0.001);
 		{
 			var schedule = ((EshWithDifferentModes<?, ?, ?>) simulator.goc.eshsWithDifferentModes().get(0))
 					.getSchedule();

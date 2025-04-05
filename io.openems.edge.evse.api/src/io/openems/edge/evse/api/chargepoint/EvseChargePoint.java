@@ -1,9 +1,17 @@
 package io.openems.edge.evse.api.chargepoint;
 
 import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -52,7 +60,38 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 		}
 	}
 
-	public record ChargeParams(Limit limit, ImmutableList<Profile> profiles) {
+	public record ChargeParams(boolean isReadyForCharging, Limit limit, ImmutableList<Profile> profiles) {
+
+		/**
+		 * Serialize.
+		 * 
+		 * @param cp the {@link ChargeParams}, possibly null
+		 * @return the {@link JsonElement}
+		 */
+		public static JsonElement toJson(ChargeParams cp) {
+			if (cp == null) {
+				return JsonNull.INSTANCE;
+			}
+			return buildJsonObject() //
+					.addProperty("isReadyForCharging", cp.isReadyForCharging) //
+					.add("limit", Limit.toJson(cp.limit)) //
+					.add("profiles", new JsonArray() /* TODO */) //
+					.build();
+		}
+
+		/**
+		 * Deserialize.
+		 * 
+		 * @param j a {@link JsonObject}
+		 * @return the {@link ChargeParams}
+		 * @throws OpenemsNamedException on error
+		 */
+		public static ChargeParams fromJson(JsonObject j) throws OpenemsNamedException {
+			return new ChargeParams(//
+					getAsBoolean(j, "isReadyForCharging"), //
+					Limit.fromJson(getAsJsonObject(j, "limit")), //
+					ImmutableList.of() /* TODO */);
+		}
 	}
 
 	/**
@@ -88,7 +127,7 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Status of the EVCS charging station. See {@link ChannelId#STATUS}.
+	 * Gets the Status of the Charge Point. See {@link ChannelId#STATUS}.
 	 *
 	 * @return the Channel {@link Value}
 	 */

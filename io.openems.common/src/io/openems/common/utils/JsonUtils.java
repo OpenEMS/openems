@@ -208,49 +208,61 @@ public final class JsonUtils {
 		}
 
 		/**
-		 * Add a boolean value to the {@link JsonObject}.
+		 * Add a Boolean value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, boolean value) {
+		public JsonObjectBuilder addProperty(String property, Boolean value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a double value to the {@link JsonObject}.
+		 * Add a Float value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, double value) {
+		public JsonObjectBuilder addProperty(String property, Float value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a int value to the {@link JsonObject}.
+		 * Add a Double value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, int value) {
+		public JsonObjectBuilder addProperty(String property, Double value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a long value to the {@link JsonObject}.
+		 * Add a Integer value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, long value) {
+		public JsonObjectBuilder addProperty(String property, Integer value) {
+			this.j.addProperty(property, value);
+			return this;
+		}
+
+		/**
+		 * Add a Long value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Long value) {
 			this.j.addProperty(property, value);
 			return this;
 		}

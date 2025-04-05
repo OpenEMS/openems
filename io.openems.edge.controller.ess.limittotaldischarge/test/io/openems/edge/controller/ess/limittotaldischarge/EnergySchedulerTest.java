@@ -22,8 +22,10 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void testMinSoc() {
-		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"), () -> 20 /* [%] */);
-		assertEquals("ctrl0", esh.getId());
+		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"),
+				() -> new EnergyScheduler.Config(20 /* [%] */));
+		assertEquals("", esh.getParentFactoryPid());
+		assertEquals("ctrl0", esh.getParentId());
 
 		var t = EnergyScheduleTester.from(esh);
 		assertEquals(600 /* discharge limited */,

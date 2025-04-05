@@ -27,6 +27,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
@@ -44,8 +45,6 @@ import io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -152,6 +151,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		super.deactivate();
 	}
 
+	private final PidFilter pidFilter = new PidFilter();
+
 	@Override
 	public void run() throws OpenemsNamedException {
 		var version = this.energyScheduler.getImplementationVersion();
@@ -189,8 +190,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		// Apply ActivePower set-point
 		if (am.setPoint() != null) {
-			this.ess.setActivePowerLessOrEquals(this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess,
-					Phase.ALL, Pwr.ACTIVE, am.setPoint()));
+			ManagedSymmetricEss.setActivePowerEqualsWithPid(this.ess, am.setPoint(), this.pidFilter);
 		}
 	}
 

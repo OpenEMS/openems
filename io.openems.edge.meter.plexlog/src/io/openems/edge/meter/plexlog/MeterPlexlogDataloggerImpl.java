@@ -1,5 +1,7 @@
 package io.openems.edge.meter.plexlog;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
+
 import java.util.function.BiConsumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -20,7 +22,6 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
@@ -39,6 +40,7 @@ public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 		implements ElectricityMeter, MeterPlexlogDatalogger, ModbusComponent, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
+	private boolean invert;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -57,6 +59,7 @@ public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
+		this.invert = config.invert();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -78,13 +81,24 @@ public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		final var modbusProtocol = new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(0, Priority.HIGH, //
-						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0)), //
-						new DummyRegisterElement(2, 7), //
-						this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_PRODUCTION, new SignedDoublewordElement(8)), //
-						this.m(MeterPlexlogDatalogger.ChannelId.PRODUCTION_EXPONENT, new SignedWordElement(10)), //
-						this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_CONSUMPTION, new SignedDoublewordElement(11)), //
-						this.m(MeterPlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(13)) //
+						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0),
+								INVERT_IF_TRUE(this.invert)) //
 				));
+		if (this.invert) {
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(8, Priority.HIGH,
+					this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_CONSUMPTION, new SignedDoublewordElement(8)), //
+					this.m(MeterPlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(10)), //
+					this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_PRODUCTION, new SignedDoublewordElement(11)), //
+					this.m(MeterPlexlogDatalogger.ChannelId.PRODUCTION_EXPONENT, new SignedWordElement(13)) //
+			));
+		} else {
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(8, Priority.HIGH,
+					this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_PRODUCTION, new SignedDoublewordElement(8)), //
+					this.m(MeterPlexlogDatalogger.ChannelId.PRODUCTION_EXPONENT, new SignedWordElement(10)), //
+					this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_CONSUMPTION, new SignedDoublewordElement(11)), //
+					this.m(MeterPlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(13)) //
+			));
+		}
 
 		this.getTotalProductionChannel().onSetNextValue(value -> {
 			doIfBothPresent(value, this.getProductionExponent(), this::calculateActiveProductionEnergy);

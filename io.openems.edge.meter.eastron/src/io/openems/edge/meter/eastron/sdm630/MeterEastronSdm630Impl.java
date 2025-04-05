@@ -1,6 +1,7 @@
 package io.openems.edge.meter.eastron.sdm630;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import java.nio.ByteOrder;
@@ -31,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -54,15 +56,17 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent implements MeterEastronSdm630,
 		ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	private CalculateEnergyFromPower calculateProductionEnergy;
+	private CalculateEnergyFromPower calculateConsumptionEnergy;
 
 	private MeterType meterType = MeterType.PRODUCTION;
+	private boolean invert;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager cma;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
@@ -88,6 +92,13 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
+		this.invert = config.invert();
+
+		this.calculateProductionEnergy = new CalculateEnergyFromPower(this,
+				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, this.cma.getClock());
+		this.calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, this.cma.getClock());
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -137,28 +148,28 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
 								new FloatDoublewordElement(30013 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
 								new FloatDoublewordElement(30015 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
 								new FloatDoublewordElement(30017 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30019 - offset, 30024 - offset),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1,
 								new FloatDoublewordElement(30025 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2,
 								new FloatDoublewordElement(30027 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3,
 								new FloatDoublewordElement(30029 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30031 - offset, 30048 - offset),
 						m(ElectricityMeter.ChannelId.CURRENT,
 								new FloatDoublewordElement(30049 - offset).wordOrder(WordOrder.MSWLSW)
@@ -168,12 +179,12 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 								new FloatDoublewordElement(30053 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30055 - offset, 30060 - offset),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 								new FloatDoublewordElement(30061 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30063 - offset, 30070 - offset),
 						m(ElectricityMeter.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(30071 - offset).wordOrder(WordOrder.MSWLSW)
@@ -214,7 +225,9 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
+			this.calculateEnergy();
+		}
 		}
 	}
 

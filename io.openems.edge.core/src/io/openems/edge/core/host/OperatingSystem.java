@@ -13,7 +13,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 public interface OperatingSystem {
 
@@ -34,7 +34,7 @@ public interface OperatingSystem {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
-			SetNetworkConfigRequest request) throws OpenemsNamedException;
+			SetNetworkConfig.Request request) throws OpenemsNamedException;
 
 	/**
 	 * Gets the USB configuration.

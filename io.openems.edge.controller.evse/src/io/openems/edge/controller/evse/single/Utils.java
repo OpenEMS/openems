@@ -1,5 +1,6 @@
 package io.openems.edge.controller.evse.single;
 
+import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -7,6 +8,12 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
+import com.google.common.collect.ImmutableList;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.jscalendar.JSCalendar.Task;
+import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
 import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
@@ -45,15 +52,6 @@ public final class Utils {
 		return targetDate.truncatedTo(ChronoUnit.DAYS).withHour(hour);
 	}
 
-	protected static boolean isReadyForCharging(EvseChargePoint chargePoint) {
-		return switch (chargePoint.getStatus()) {
-		case CHARGING, READY_FOR_CHARGING //
-			-> true;
-		case CHARGING_REJECTED, ERROR, NOT_READY_FOR_CHARGING, STARTING, UNDEFINED //
-			-> false;
-		};
-	}
-
 	protected static boolean getSessionLimitReached(Mode mode, Integer energy, int limit) {
 		if (mode == Mode.SMART) {
 			return false;
@@ -62,5 +60,15 @@ public final class Utils {
 			return true;
 		}
 		return false;
+	}
+
+	protected static ImmutableList<Task<Payload>> parseSmartConfig(String smartConfig) {
+		try {
+			return JSCalendar.Tasks.<Payload>fromJson(parseToJsonArray(smartConfig), Payload::fromJson);
+
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+			return ImmutableList.of();
+		}
 	}
 }

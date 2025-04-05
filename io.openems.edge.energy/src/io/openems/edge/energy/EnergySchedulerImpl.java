@@ -2,7 +2,6 @@ package io.openems.edge.energy;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.edge.energy.optimizer.Utils.sortByScheduler;
-import static java.util.stream.Collectors.joining;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
@@ -98,7 +97,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		if (esh != null) {
 			esh.removeOnRescheduleCallback();
 		}
-		this.triggerReschedule("EnergySchedulerImpl::removeSchedulable() " + schedulable.id());
 	}
 
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
@@ -143,10 +141,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.map(EnergySchedulable::getEnergyScheduleHandler) //
 							.filter(Objects::nonNull) //
 							.collect(toImmutableList());
-					System.out.println("OPTIMIZER EnergyScheduleHandlers: "
-							+ eshs.stream().map(e -> e.getId() + "(" + e.getClass().getSimpleName() + ")") //
-									.collect(joining(", ")));
-
 					return GlobalOptimizationContext.create() //
 							.setComponentManager(this.componentManager) //
 							.setRiskLevel(this.config.riskLevel()) //

@@ -47,7 +47,7 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 
 	@Reference
 	private ConfigurationAdmin cm;
-	
+
 	private RtuConfig config;
 
 	@Reference
@@ -79,7 +79,7 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), config.apiTimeout(), config.portName(), config.baudRate(), config.databits(),
 				config.stopbits(), config.parity(), config.maxConcurrentConnections());
-		super.activate(context, this.cm, this.config);
+		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Modified
