@@ -178,7 +178,7 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 		Map<ManagedSymmetricPvInverter, Integer> values = new HashMap<>();
 		var toBeDistributed = 0;
 		for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
-			int maxPower = pvInverter.getMaxApparentPower().getOrError();
+			int maxPower = pvInverter.getMaxActivePower().getOrError();
 			var power = averageActivePowerLimit;
 			if (maxPower < power) {
 				toBeDistributed += power - maxPower;
@@ -189,7 +189,7 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 
 		for (Entry<ManagedSymmetricPvInverter, Integer> entry : values.entrySet()) {
 			if (toBeDistributed > 0) {
-				int maxPower = entry.getKey().getMaxApparentPower().getOrError();
+				int maxPower = entry.getKey().getMaxActivePower().getOrError();
 				int power = entry.getValue();
 				if (maxPower > power) {
 					toBeDistributed -= maxPower - power;
