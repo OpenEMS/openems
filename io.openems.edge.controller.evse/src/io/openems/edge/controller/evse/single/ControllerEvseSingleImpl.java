@@ -45,11 +45,9 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.EshWithOnlyOneMode;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Mode.Actual;
 import io.openems.edge.evse.api.chargepoint.Profile;
-import io.openems.edge.evse.api.chargepoint.Status;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
 @Designate(ocd = Config.class, factory = true)
@@ -79,7 +77,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	private EvseElectricVehicle electricVehicle;
 
 	private Config config;
-	private BiConsumer<Value<Status>, Value<Status>> onChargePointStatusChange = null;
+	private BiConsumer<Value<Boolean>, Value<Boolean>> onChargePointIsReadyForChargingChange = null;
 	private EshWithDifferentModes<Actual, SmartOptimizationContext, ScheduleContext> smartEnergyScheduleHandler = null;
 	private EshWithOnlyOneMode<ManualOptimizationContext, ScheduleContext> manualEnergyScheduleHandler = null;
 
@@ -117,12 +115,13 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 			this.smartEnergyScheduleHandler = buildSmartEnergyScheduleHandler(this, //
 					() -> SmartOptimizationConfig.from(this.chargePoint.getChargeParams(),
 							this.electricVehicle.getChargeParams(), config.smartConfig()));
-			this.onChargePointStatusChange = (oldStatus, newStatus) -> {
-				// Trigger Reschedule on Status change
-				this.smartEnergyScheduleHandler.triggerReschedule(
-						"ControllerEvseSingle::onChargePointStatusChange from " + oldStatus + " to " + newStatus);
+			this.onChargePointIsReadyForChargingChange = (before, after) -> {
+				// Trigger Reschedule on change of IS_READY_FOR_CHARGING
+				this.smartEnergyScheduleHandler
+						.triggerReschedule("ControllerEvseSingle::onChargePointIsReadyForChargingChange from [" + before
+								+ "] to [" + after + "]");
 			};
-			this.chargePoint.getStatusChannel().onChange(this.onChargePointStatusChange);
+			this.chargePoint.getIsReadyForChargingChannel().onChange(this.onChargePointIsReadyForChargingChange);
 		}
 
 		case ZERO, MINIMUM, SURPLUS, FORCE -> {
@@ -139,8 +138,9 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		if (this.onChargePointStatusChange != null) {
-			this.chargePoint.getStatusChannel().removeOnChangeCallback(this.onChargePointStatusChange);
+		if (this.onChargePointIsReadyForChargingChange != null) {
+			this.chargePoint.getIsReadyForChargingChannel()
+					.removeOnChangeCallback(this.onChargePointIsReadyForChargingChange);
 		}
 		super.deactivate();
 	}
@@ -188,8 +188,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	}
 
 	@Override
-	public void apply(ApplyCharge applyCharge, ImmutableList<Profile.Command> profileCommands) {
-		this.chargePoint.apply(applyCharge, profileCommands);
+	public void apply(int current, ImmutableList<Profile.Command> profileCommands) {
+		this.chargePoint.apply(current, profileCommands);
 	}
 
 	@Override

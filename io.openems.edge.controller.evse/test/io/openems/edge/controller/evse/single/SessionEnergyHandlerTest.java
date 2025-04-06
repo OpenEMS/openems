@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.openems.edge.evse.api.chargepoint.Status;
 import io.openems.edge.evse.api.chargepoint.dummy.DummyEvseChargePoint;
 
 public class SessionEnergyHandlerTest {
@@ -17,31 +16,31 @@ public class SessionEnergyHandlerTest {
 		assertEquals(0, sut.onBeforeProcessImage(cp));
 
 		cp //
-				.withStatus(Status.NOT_READY_FOR_CHARGING) //
+				.withIsReadyForCharging(false) //
 				.withActiveProductionEnergy(1000);
 		sut.onAfterProcessImage(cp);
 		assertEquals(0, sut.onBeforeProcessImage(cp));
 
 		cp //
-				.withStatus(Status.NOT_READY_FOR_CHARGING) //
+				.withIsReadyForCharging(false) //
 				.withActiveProductionEnergy(2000);
 		sut.onAfterProcessImage(cp);
 		assertEquals(0, sut.onBeforeProcessImage(cp));
 
 		cp //
-				.withStatus(Status.CHARGING) //
+				.withIsReadyForCharging(true) //
 				.withActiveProductionEnergy(2000);
 		sut.onAfterProcessImage(cp);
 		assertEquals(0, sut.onBeforeProcessImage(cp));
 
 		cp //
-				.withStatus(Status.CHARGING) //
+				.withIsReadyForCharging(true) //
 				.withActiveProductionEnergy(3000);
 		sut.onAfterProcessImage(cp);
 		assertEquals(1000, sut.onBeforeProcessImage(cp));
 
 		cp //
-				.withStatus(Status.STARTING) //
+				.withIsReadyForCharging(false) //
 				.withActiveProductionEnergy(4000);
 		sut.onAfterProcessImage(cp);
 		assertEquals(0, sut.onBeforeProcessImage(cp));

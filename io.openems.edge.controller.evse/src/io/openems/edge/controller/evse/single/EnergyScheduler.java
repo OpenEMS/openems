@@ -7,6 +7,7 @@ import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.edge.controller.evse.single.Utils.mergeLimits;
 import static io.openems.edge.controller.evse.single.Utils.parseSmartConfig;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 
@@ -98,19 +99,21 @@ public class EnergyScheduler {
 
 				.setOptimizationContext(gsc -> {
 					var config = configSupplier.get();
+					final OneTask<Payload> ot;
 					if (config.smartConfig.isEmpty()) {
-						return null;
+						ot = null;
+					} else {
+						var firstTime = gsc.periods().getFirst().time();
+						var lastTime = gsc.periods().getLast().time();
+						System.out.println("OPTIMIZER cocFunction smartConfig=" + config.smartConfig + "; firstTime="
+								+ firstTime + "; lastTime=" + lastTime);
+						var ots = JSCalendar.Tasks.getOccurencesBetween(config.smartConfig, firstTime, lastTime);
+						ot = ots.isEmpty() //
+								? null //
+								: ots.getFirst();
 					}
-					var firstTime = gsc.periods().getFirst().time();
-					var lastTime = gsc.periods().getLast().time();
-					System.out.println("OPTIMIZER cocFunction smartConfig=" + config.smartConfig + "; firstTime="
-							+ firstTime + "; lastTime=" + lastTime);
-					var ots = JSCalendar.Tasks.getOccurencesBetween(config.smartConfig, firstTime, lastTime);
-					System.out.println("OPTIMIZER cocFunction ots=" + ots);
-					if (ots.isEmpty()) {
-						return null;
-					}
-					return SmartOptimizationContext.from(config, ots.getFirst());
+					System.out.println("OPTIMIZER cocFunction ot=" + ot);
+					return SmartOptimizationContext.from(config, ot);
 				})
 
 				.setScheduleContext(() -> new ScheduleContext(0 /* TODO */))
@@ -118,24 +121,22 @@ public class EnergyScheduler {
 				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness) -> {
 					final var periodInitialSessionEnergy = csc.sessionEnergy;
 					final int chargeEnergy;
-					if (coc == null) {
+
+					var durationLeft = coc.targetTime != null //
+							? Duration.between(period.time(), coc.targetTime) //
+							: null;
+					if (durationLeft != null && durationLeft.isNegative()) {
+						// TODO move this logic to EshCodec
+						chargeEnergy = 0; // Do not plan Charging after TargetTime
+						if (periodInitialSessionEnergy < coc.targetPayload.sessionEnergyMinimum) {
+							fitness.addHardConstraintViolation((int) durationLeft.toMinutes() / -15);
+						}
+
+					} else if (!coc.isReadyForCharging) {
 						chargeEnergy = 0;
 
 					} else {
-						var durationLeft = Duration.between(period.time(), coc.targetTime);
-						if (durationLeft.isNegative()) {
-							// TODO move this logic to EshCodec
-							chargeEnergy = 0; // Do not plan Charging after TargetTime
-							if (periodInitialSessionEnergy < coc.targetPayload.sessionEnergyMinimum) {
-								fitness.addHardConstraintViolation((int) durationLeft.toMinutes() / -15);
-							}
-
-						} else if (!coc.isReadyForCharging) {
-							chargeEnergy = 0;
-
-						} else {
-							chargeEnergy = calculateChargeEnergy(csc, ef, mode, coc.limit, null);
-						}
+						chargeEnergy = calculateChargeEnergy(csc, ef, mode, coc.limit, null);
 					}
 					applyChargeEnergy(id, csc, ef, chargeEnergy);
 				})
@@ -146,15 +147,16 @@ public class EnergyScheduler {
 				.build();
 	}
 
+	// TODO Energy Period length?
 	private static int calculateChargeEnergy(ScheduleContext csc, EnergyFlow.Model ef, Mode.Actual mode, Limit limit,
 			Integer sessionEnergyLimit) {
 		// Evaluate Charge-Energy per mode
-		var chargeEnergy = toEnergy(switch (mode) {
-		case FORCE -> limit.getMaxPower();
-		case MINIMUM -> limit.getMinPower();
-		case SURPLUS -> calculateSurplusPower(limit, ef.production, ef.unmanagedConsumption);
+		int chargeEnergy = switch (mode) {
+		case FORCE -> toEnergy(limit.getMaxPower());
+		case MINIMUM -> toEnergy(limit.getMinPower());
+		case SURPLUS -> calculateSurplusEnergy(limit, ef.production, ef.unmanagedConsumption);
 		case ZERO -> 0;
-		});
+		};
 
 		if (chargeEnergy <= 0) {
 			return 0;
@@ -175,15 +177,15 @@ public class EnergyScheduler {
 		}
 	}
 
-	private static int calculateSurplusPower(Limit limit, int production, int unmanagedConsumption) {
+	private static int calculateSurplusEnergy(Limit limit, int production, int unmanagedConsumption) {
 		// TODO consider Non-Interruptable SURPLUS
 		// fitWithin(limit.getMinPower(), limit.getMaxPower(), //
 		// ef.production - ef.unmanagedConsumption);
 		var surplus = production - unmanagedConsumption;
-		if (surplus < limit.getMinPower()) {
+		if (surplus < toEnergy(limit.getMinPower())) {
 			return 0; // Not sufficient surplus power
-		} else if (surplus > limit.getMaxPower()) {
-			return limit.getMaxPower();
+		} else if (surplus > toEnergy(limit.getMaxPower())) {
+			return toEnergy(limit.getMaxPower());
 		} else {
 			return surplus;
 		}
@@ -191,7 +193,7 @@ public class EnergyScheduler {
 
 	private static ImmutableList<InitialPopulation<Mode.Actual>> initialPopulationsProvider(
 			GlobalOptimizationContext goc, SmartOptimizationContext coc, Mode.Actual[] availableModes) {
-		if (coc == null) {
+		if (coc.targetTime == null || coc.targetPayload == null) {
 			return ImmutableList.of();
 		}
 
@@ -206,7 +208,7 @@ public class EnergyScheduler {
 				.map(i -> Mode.Actual.ZERO) //
 				.toArray(Mode.Actual[]::new);
 		for (var p : periodsBeforeTargetTime) {
-			remainingEnergy -= toEnergy(calculateSurplusPower(coc.limit, p.production(), p.consumption()));
+			remainingEnergy -= calculateSurplusEnergy(coc.limit, p.production(), p.consumption());
 			modes[p.index()] = Mode.Actual.SURPLUS;
 			if (remainingEnergy < 0) {
 				break;
@@ -220,7 +222,7 @@ public class EnergyScheduler {
 					.toList();
 			for (var p : sortedPeriods) {
 				remainingEnergy += /* Remove SURPLUS from before */
-						toEnergy(calculateSurplusPower(coc.limit, p.production(), p.consumption()))
+						calculateSurplusEnergy(coc.limit, p.production(), p.consumption())
 								/* Calculate FORCE energy */
 								- toEnergy(coc.limit().getMaxPower());
 				// TODO toEnergy consider quarter/hour minutes
@@ -282,7 +284,7 @@ public class EnergyScheduler {
 					limit = null;
 				} else {
 					isReadyForCharging = chargePoint.isReadyForCharging();
-					limit = Utils.mergeLimits(chargePoint, electricVehicle);
+					limit = mergeLimits(chargePoint, electricVehicle);
 				}
 				return new ManualOptimizationContext(mode, isReadyForCharging, limit, sessionEnergy,
 						sessionEnergyLimit);
@@ -306,7 +308,7 @@ public class EnergyScheduler {
 					limit = null;
 				} else {
 					isReadyForCharging = chargePoint.isReadyForCharging();
-					limit = Utils.mergeLimits(chargePoint, electricVehicle);
+					limit = mergeLimits(chargePoint, electricVehicle);
 				}
 				var smartConfig = parseSmartConfig(smartConfigString);
 				return new SmartOptimizationConfig(isReadyForCharging, limit, smartConfig);
@@ -397,9 +399,8 @@ public class EnergyScheduler {
 				} else {
 					throw new IllegalArgumentException("Unsupported class [" + clazz + "]");
 				}
-			} catch (
 
-			OpenemsNamedException e) {
+			} catch (OpenemsNamedException e) {
 				throw new IllegalArgumentException(e);
 			}
 		}
@@ -434,8 +435,9 @@ public class EnergyScheduler {
 			Payload targetPayload) {
 
 		protected static SmartOptimizationContext from(SmartOptimizationConfig config, OneTask<Payload> target) {
-			return new SmartOptimizationContext(config.isReadyForCharging, config.limit, target.start(),
-					target.payload());
+			return new SmartOptimizationContext(config.isReadyForCharging, config.limit, //
+					target != null ? target.start() : null, //
+					target != null ? target.payload() : null);
 		}
 	}
 

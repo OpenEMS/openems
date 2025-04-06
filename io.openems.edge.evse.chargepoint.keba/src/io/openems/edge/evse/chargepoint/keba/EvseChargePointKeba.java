@@ -13,10 +13,10 @@ import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Status;
+import io.openems.edge.evse.chargepoint.keba.enums.CableState;
+import io.openems.edge.evse.chargepoint.keba.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchSource;
 import io.openems.edge.evse.chargepoint.keba.enums.PhaseSwitchState;
-import io.openems.edge.evse.chargepoint.keba.enums.Plug;
 import io.openems.edge.evse.chargepoint.keba.enums.ProductTypeAndFeatures;
 import io.openems.edge.evse.chargepoint.keba.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.enums.SetUnlock;
@@ -25,7 +25,8 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public interface EvseChargePointKeba extends EvseChargePoint, ElectricityMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		PLUG(Doc.of(Plug.values())), //
+		CHARGING_STATE(Doc.of(ChargingState.values())), //
+		CABLE_STATE(Doc.of(CableState.values())), //
 		ERROR_CODE(Doc.of(INTEGER)), //
 		SERIAL_NUMBER(Doc.of(INTEGER)), //
 		FIRMWARE(Doc.of(STRING)), //
@@ -82,6 +83,24 @@ public interface EvseChargePointKeba extends EvseChargePoint, ElectricityMeter, 
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#CHARGING_STATE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<ChargingState> getChargingStateChannel() {
+		return this.channel(ChannelId.CHARGING_STATE);
+	}
+
+	/**
+	 * Gets the Status of the Charge Point. See {@link ChannelId#CHARGING_STATE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default ChargingState getChargingState() {
+		return this.getChargingStateChannel().value().asEnum();
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#PHASE_SWITCH_SOURCE}.
 	 *
 	 * @return the Channel
@@ -118,20 +137,20 @@ public interface EvseChargePointKeba extends EvseChargePoint, ElectricityMeter, 
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#PLUG}.
+	 * Gets the Channel for {@link ChannelId#CABLE_STATE}.
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<Status> getPlugChannel() {
-		return this.channel(ChannelId.PLUG);
+	public default Channel<CableState> getCableStateChannel() {
+		return this.channel(ChannelId.CABLE_STATE);
 	}
 
 	/**
-	 * Gets the Plug-Status of the Charge Point. See {@link ChannelId#STATUS}.
+	 * Gets the Cable-State of the Charge Point. See {@link ChannelId#CABLE_STATE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Plug getPlug() {
-		return this.getPlugChannel().value().asEnum();
+	public default CableState getCableState() {
+		return this.getCableStateChannel().value().asEnum();
 	}
 }
