@@ -120,6 +120,8 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 		final var voltage = new CalculateAverage();
 		final var current = new CalculateIntegerSum();
 		// SymmetricPvInverter
+		final var maxActivePower = new CalculateIntegerSum();
+		final var maxReactivePower = new CalculateIntegerSum();
 		final var maxApparentPower = new CalculateIntegerSum();
 		final var activePowerLimit = new CalculateIntegerSum();
 
@@ -133,6 +135,8 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 			voltage.addValue(pvInverter.getVoltageChannel());
 			current.addValue(pvInverter.getCurrentChannel());
 			// SymmetricPvInverter
+			maxActivePower.addValue(pvInverter.getMaxActivePowerChannel());
+			maxReactivePower.addValue(pvInverter.getMaxReactivePowerChannel());
 			maxApparentPower.addValue(pvInverter.getMaxApparentPowerChannel());
 			activePowerLimit.addValue(pvInverter.getActivePowerLimitChannel());
 		}
@@ -146,6 +150,8 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 		this.getVoltageChannel().setNextValue(voltage.calculate());
 		this._setCurrent(current.calculate());
 		// SymmetricPvInverter
+		this._setMaxActivePower(maxActivePower.calculate());
+		this._setMaxReactivePower(maxReactivePower.calculate());
 		this._setMaxApparentPower(maxApparentPower.calculate());
 		this._setActivePowerLimit(activePowerLimit.calculate());
 	}
