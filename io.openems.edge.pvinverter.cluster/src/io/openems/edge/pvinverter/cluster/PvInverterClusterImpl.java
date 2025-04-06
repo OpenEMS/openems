@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
@@ -32,6 +33,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -47,7 +49,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS //
 })
 public class PvInverterClusterImpl extends AbstractOpenemsComponent implements PvInverterCluster,
-		ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		ManagedSymmetricPvInverter, VirtualMeter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterClusterImpl.class);
 
@@ -213,5 +215,15 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
+	}
+
+	@Override
+	public boolean addToSum() {
+		return config.addToSum();
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return config.meterType();
 	}
 }
