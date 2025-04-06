@@ -205,6 +205,8 @@ public class Simulator {
 			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor) {
 		final var codec = EshCodec.of(this.goc, previousResult, isCurrentPeriodFixed);
 		if (codec == null) {
+			// TODO if there are ESHs we should return the fixed Schedule as
+			// SimulationResult
 			return EMPTY_SIMULATION_RESULT;
 		}
 

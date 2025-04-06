@@ -102,19 +102,16 @@ public class EnergySchedulerTest {
 						1000, 7_000));
 
 		var t = EnergyScheduleTester.from(esh);
-		for (var i = 0; i < 35; i++) {
+		for (var i = 0; i < 29; i++) {
 			assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
 		}
-		assertEquals(379, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(424, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(362, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(403, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(531, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(582, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(644, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(647, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(684, t.simulatePeriod().ef().getManagedConsumption());
-		assertEquals(1344, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(363, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(446, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(568, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(885, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(1114, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(1309, t.simulatePeriod().ef().getManagedConsumption());
+		assertEquals(1315, t.simulatePeriod().ef().getManagedConsumption());
 		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
 	}
 
