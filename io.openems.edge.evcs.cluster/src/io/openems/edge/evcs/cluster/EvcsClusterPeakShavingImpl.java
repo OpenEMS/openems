@@ -235,7 +235,13 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	private void updateChannels() {
 		Optional<Integer> maximumAllowedPowerToDistribute = this.getMaximumAllowedPowerToDistributeChannel().getNextWriteValueAndReset();
 		if (maximumAllowedPowerToDistribute.isPresent()) {
-			this._setMaximumAllowedPowerToDistribute(maximumAllowedPowerToDistribute.get());
+
+			// We have to treat values below 0 as no limit and set channel to null.
+			// null cannot be transported over an optional in this case, as null
+			// means no new value.
+
+			int value = maximumAllowedPowerToDistribute.get();
+			this._setMaximumAllowedPowerToDistribute(value < 0 ? null :value);
 		}
 	}
 
@@ -323,6 +329,11 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		if (unavailablePower > 0 && this.lastLimit != null) {
 			this.logInfoInDebugmode("Reducing last limit by " + unavailablePower + " W");
 			totalPowerLimit = this.lastLimit.intValue() - unavailablePower;
+		}
+
+		int maximumAllowedPowerToDistribute = getMaximumAllowedPowerToDistribute().orElse(-1);
+		if (maximumAllowedPowerToDistribute >= 0) {
+			totalPowerLimit = Math.min(totalPowerLimit, maximumAllowedPowerToDistribute);
 		}
 
 		this.lastLimit = Integer.valueOf(totalPowerLimit);
@@ -500,11 +511,6 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 						+ "]  -  Maximum of all three phases * 3 [" + gridPower + "]");
 
 		int maximumPowerToDistribute =  allowedChargePower > 0 ? allowedChargePower : 0;
-
-		int maximumAllowedPowerToDistribute = getMaximumAllowedPowerToDistribute().orElse(-1);
-		if (maximumAllowedPowerToDistribute >= 0) {
-			maximumPowerToDistribute = Math.min(maximumPowerToDistribute, maximumAllowedPowerToDistribute);
-		}
 
 		this.logInfoInDebugmode(this.log, "EVCS Charge maximum power to distribute: " + maximumPowerToDistribute);
 
