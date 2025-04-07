@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { differenceInSeconds } from "date-fns";
 import { environment } from "src/environments";
 import { Pagination } from "../service/pagination";
-import { PreviousRouteService } from "../service/previousRouteService";
+import { RouteService } from "../service/previousRouteService";
 import { Websocket } from "../shared";
 
 export enum States {
@@ -35,7 +35,7 @@ export class AppStateTracker {
         protected router: Router,
         protected pagination: Pagination,
         private websocket: Websocket,
-        private routeService: PreviousRouteService,
+        private routeService: RouteService,
     ) {
         if (!localStorage.getItem("AppState")) {
             console.log(`${AppStateTracker.LOG_PREFIX} Log deactivated`);
@@ -48,7 +48,7 @@ export class AppStateTracker {
         effect(() => {
             const state = this.websocket.state();
             this.startStateHandler(state);
-        }, { allowSignalWrites: true });
+        });
     }
 
     /**

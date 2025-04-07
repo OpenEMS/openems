@@ -6,13 +6,16 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
+import { Language } from "src/app/shared/type/language";
 
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
     selector: "storageSingleChart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class StorageSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -155,7 +158,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                         borderColor: "rgba(0,223,0,1)",
                                     });
                                 }
-                                if ("_sum/EssActivePowerL1" && "_sum/EssActivePowerL2" && "_sum/EssActivePowerL3" in result.data && this.showPhases == true) {
+                                if (ObjectUtils.hasKeys(result.data, ["_sum/EssActivePowerL1", "_sum/EssActivePowerL2", "_sum/EssActivePowerL3"]) && this.showPhases == true) {
                                     if (channelAddress.channelId == "EssActivePowerL1") {
                                         datasets.push({
                                             label: this.translate.instant("General.phase") + " " + "L1",
@@ -178,7 +181,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                 }
                             }
                         });
-                        this.datasets = datasets;
+                        this.datasets = datasets.map((el, i) => ({ ...el, ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(this.colors[i]) }));;
                     });
                 }).catch(reason => {
                     console.error(reason); // TODO error message
@@ -208,6 +211,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
     private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {
         const translate = this.translate;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
 
         options.scales[ChartAxis.LEFT].min = null;
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
@@ -227,7 +231,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                     label = translate.instant("General.DISCHARGE");
                 }
             }
-            return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
+            return label + ": " + formatNumber(value, locale, "1.0-2") + " kW";
         };
 
         // Data doesnt have all datapoints for period

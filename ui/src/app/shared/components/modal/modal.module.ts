@@ -7,6 +7,7 @@ import { TranslateModule } from "@ngx-translate/core";
 
 import { PipeModule } from "../../pipe/pipe";
 import { HelpButtonComponent } from "./help-button/help-button";
+import { HelpLinkComponent } from "./help-link/help-link";
 import { ModalComponent } from "./modal";
 import { ModalButtonsComponent } from "./modal-button/modal-button";
 import { ModalInfoLineComponent } from "./modal-info-line/modal-info-line";
@@ -36,6 +37,7 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
     ModalPhasesComponent,
     ModalValueLineComponent,
     HelpButtonComponent,
+    HelpLinkComponent,
   ],
   exports: [
     HelpButtonComponent,
@@ -48,6 +50,7 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
     ModalPhasesComponent,
     ModalValueLineComponent,
     HelpButtonComponent,
+    HelpLinkComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 

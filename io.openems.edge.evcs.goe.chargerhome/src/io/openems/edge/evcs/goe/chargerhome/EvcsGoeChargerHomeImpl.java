@@ -26,6 +26,7 @@ import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -182,12 +183,18 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
+	}
+
 	private Status convertGoeStatus(int status) {
 		return switch (status) {
 		case 1 -> Status.NOT_READY_FOR_CHARGING; // ready for charging, car unplugged
 		case 2 -> Status.CHARGING; // charging
 		case 3 -> Status.READY_FOR_CHARGING; // waiting for car
-		case 4 -> Status.CHARGING_FINISHED; // charging finished, car plugged
+		case 4 -> Status.CHARGING_REJECTED; // charging finished, car plugged
 		default -> Status.UNDEFINED;
 		};
 	}

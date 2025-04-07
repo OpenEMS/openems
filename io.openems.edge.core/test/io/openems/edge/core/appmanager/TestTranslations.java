@@ -47,6 +47,10 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.groupeE(t), true, JsonUtils.buildJsonObject() //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.octopusGo(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("STANDARD_PRICE", 27.6) //
+					.addProperty("LOW_PRICE", 14.8) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
 					.build()));
@@ -68,6 +72,12 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.techbaseCm4Max(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4s(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.enerixControl(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
+			this.apps.add(new TestTranslation(Apps.cleverPv(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //
@@ -83,6 +93,7 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.heidelbergEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.mennekesEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));

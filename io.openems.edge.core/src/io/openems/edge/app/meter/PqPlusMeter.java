@@ -123,6 +123,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 				.setRequired(true) //
 				.setAutoGenerateField(false) //
 				.setDefaultValue(6))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
 				SELECTED_MODBUS_ID, SELECTED_MODBUS_ID.def(), //
 				MODBUS_UNIT_ID, MODBUS_UNIT_ID.def(), INTEGRATION_TYPE)), //
@@ -174,6 +175,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 			final var type = this.getEnum(p, MeterType.class, Property.TYPE);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var integrationType = this.getEnum(p, ModbusType.class, Property.INTEGRATION_TYPE);
+			final var invert = this.getBoolean(p, Property.INVERT);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -202,6 +204,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
 									.addProperty("type", type) //
+									.addProperty("invert", invert)//
 									.build()) //
 			);
 

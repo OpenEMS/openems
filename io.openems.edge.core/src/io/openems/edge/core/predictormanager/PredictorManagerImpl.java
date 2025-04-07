@@ -119,8 +119,8 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 	private Prediction getPredictionSum(Sum.ChannelId channelId) {
 		return switch (channelId) {
 		case CONSUMPTION_ACTIVE_ENERGY, //
-				CONSUMPTION_ACTIVE_POWER_L1, CONSUMPTION_ACTIVE_POWER_L2, CONSUMPTION_ACTIVE_POWER_L3,
-				CONSUMPTION_MAX_ACTIVE_POWER, //
+				CONSUMPTION_ACTIVE_POWER, CONSUMPTION_ACTIVE_POWER_L1, CONSUMPTION_ACTIVE_POWER_L2,
+				CONSUMPTION_ACTIVE_POWER_L3, CONSUMPTION_MAX_ACTIVE_POWER, //
 
 				ESS_ACTIVE_CHARGE_ENERGY, ESS_ACTIVE_DISCHARGE_ENERGY, ESS_ACTIVE_POWER, ESS_ACTIVE_POWER_L1,
 				ESS_ACTIVE_POWER_L2, ESS_ACTIVE_POWER_L3, ESS_CAPACITY, ESS_DC_CHARGE_ENERGY, ESS_DC_DISCHARGE_ENERGY,
@@ -135,6 +135,11 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 				PRODUCTION_AC_ACTIVE_POWER_L2, PRODUCTION_AC_ACTIVE_POWER_L3, PRODUCTION_DC_ACTIVE_ENERGY,
 				PRODUCTION_MAX_ACTIVE_POWER, //
 
+				ESS_TO_CONSUMPTION_POWER, ESS_TO_CONSUMPTION_ENERGY, GRID_TO_CONSUMPTION_POWER,
+				GRID_TO_CONSUMPTION_ENERGY, GRID_TO_ESS_POWER, GRID_TO_ESS_ENERGY, ESS_TO_GRID_ENERGY,
+				PRODUCTION_TO_CONSUMPTION_POWER, PRODUCTION_TO_CONSUMPTION_ENERGY, PRODUCTION_TO_ESS_POWER,
+				PRODUCTION_TO_ESS_ENERGY, PRODUCTION_TO_GRID_POWER, PRODUCTION_TO_GRID_ENERGY,
+
 				HAS_IGNORED_COMPONENT_STATES ->
 			EMPTY_PREDICTION;
 
@@ -142,9 +147,6 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 			// Fallback for elder systems that only provide predictors for
 			// ConsumptionActivePower by default
 			this.getPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
-
-		// TODO
-		case CONSUMPTION_ACTIVE_POWER -> EMPTY_PREDICTION;
 
 		case PRODUCTION_DC_ACTUAL_POWER -> {
 			// Sum up "ActualPower" prediction of all EssDcChargers
@@ -162,26 +164,18 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 			// Sum up "ActivePower" prediction of all ElectricityMeter
 			List<ElectricityMeter> meters = this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class)
 					.stream() //
-					.filter(meter -> {
-						switch (meter.getMeterType()) {
-						case GRID:
-						case CONSUMPTION_METERED:
-						case MANAGED_CONSUMPTION_METERED:
-						case CONSUMPTION_NOT_METERED:
-							return false;
-						case PRODUCTION:
-						case PRODUCTION_AND_CONSUMPTION:
-							// Get only Production meters
-							return true;
-						}
-						// should never come here
-						return false;
-					}).toList();
+					.filter(meter -> switch (meter.getMeterType()) {
+					case GRID, CONSUMPTION_METERED, MANAGED_CONSUMPTION_METERED, CONSUMPTION_NOT_METERED //
+						-> false;
+					case PRODUCTION, PRODUCTION_AND_CONSUMPTION //
+						-> true; // Get only Production meters
+					}) //
+					.toList();
 			var predictions = new Prediction[meters.size()];
 			for (var i = 0; i < meters.size(); i++) {
 				var meter = meters.get(i);
-				predictions[i] = this
-						.getPrediction(new ChannelAddress(meter.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id()));
+				predictions[i] = this.getPrediction(//
+						new ChannelAddress(meter.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id()));
 			}
 			yield sum(predictions);
 		}

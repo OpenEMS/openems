@@ -18,7 +18,6 @@ import { OverviewComponent as DigitalOutputChartOverviewComponent } from "./edge
 import { OverviewComponent as HeatingelementChartOverviewComponent } from "./edge/history/Controller/Io/heatingelement/overview/overview";
 import { OverviewComponent as ModbusTcpApiOverviewComponent } from "./edge/history/Controller/ModbusTcpApi/overview/overview";
 import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
-import { HeatPumpChartOverviewComponent } from "./edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component";
 import { HistoryComponent as EdgeHistoryComponent } from "./edge/history/history.component";
 import { HistoryDataService } from "./edge/history/historydataservice";
 import { HistoryParentComponent } from "./edge/history/historyparent.component";
@@ -26,6 +25,8 @@ import { AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/peak
 import { SymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
 import { TimeslotPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
 import { StorageChartOverviewComponent } from "./edge/history/storage/storagechartoverview/storagechartoverview.component";
+import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/modal/modal";
+import { ModalComponent as IoHeatingRoomComponent } from "./edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { AlertingComponent as EdgeSettingsAlerting } from "./edge/settings/alerting/alerting.component";
@@ -76,7 +77,13 @@ export const routes: Routes = [
         path: "live", data: { navbarTitle: environment.uiTitle }, providers: [{
           useClass: LiveDataService,
           provide: DataService,
-        }], component: EdgeLiveComponent,
+        }], component: HistoryParentComponent,
+
+        children: [
+          { path: "", component: EdgeLiveComponent },
+          { path: "evse/:componentId", component: EvseSingleComponent },
+          { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
+        ],
       },
       {
         path: "history", providers: [{
@@ -89,7 +96,7 @@ export const routes: Routes = [
           { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
           { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
           { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
-          { path: ":componentId/heatpumpchart", component: HeatPumpChartOverviewComponent },
+          { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
           { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
           { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
           { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },

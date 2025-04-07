@@ -2,7 +2,7 @@
   <app-header></app-header>
   <ion-menu type="overlay" side="start" contentId="content">
     <ion-header>
-      <ion-toolbar style="--ion-background-color: var(--ion-color-toolbar-primary);">
+      <ion-toolbar style="--background: var(--ion-color-toolbar-primary);">
         <ion-buttons slot="start">
           <ion-menu-button [ngStyle]="{'color': 'var(--ion-menu-color)'}" autoHide="false"></ion-menu-button>
         </ion-buttons>
@@ -33,7 +33,7 @@
           </ng-container>
         </ng-container>
 
-        <nav *ngIf="(service.currentEdge | async) as edge">
+        <nav *ngIf="service.currentEdge() as edge">
           <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
             <ion-label translate>Menu.edgeSettings</ion-label>
           </ion-item>
@@ -77,5 +77,6 @@
     <ion-router-outlet id="content"></ion-router-outlet>
   </ion-content>
 
+  <oe-navigation></oe-navigation>
   <oe-footer *ngIf="isUserAllowedToSeeFooter && !isHistoryDetailView"></oe-footer>
 </ion-app>

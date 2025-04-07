@@ -10,6 +10,7 @@ import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
 @Component({
   selector: "energychart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -193,13 +194,13 @@ export class ChartComponent extends AbstractHistoryChart {
         },
 
         // Right Yaxis, only shown for line-chart
-        (chartType === "line" && {
+        ...(chartType === "line" ? [{
           unit: YAxisType.PERCENTAGE,
           customTitle: "%",
-          position: "right",
+          position: "right" as const,
           yAxisId: ChartAxis.RIGHT,
           displayGrid: false,
-        }),
+        }] : []),
       ],
       normalizeOutputData: true,
     };

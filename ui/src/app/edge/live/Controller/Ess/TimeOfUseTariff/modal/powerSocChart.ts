@@ -16,6 +16,7 @@ import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/g
 @Component({
     selector: "powerSocChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -105,7 +106,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE_GREY, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 0.2),
                 borderColor: ChartConstants.Colors.BLUE_GREY,
             });
 
@@ -117,7 +118,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.PURPLE, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.PURPLE, 0.2),
                 borderColor: ChartConstants.Colors.PURPLE,
             });
 
@@ -129,7 +130,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
                 borderColor: ChartConstants.Colors.BLUE,
             });
 
@@ -141,7 +142,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 order: 1,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.YELLOW, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
                 borderColor: ChartConstants.Colors.YELLOW,
             });
 
@@ -154,7 +155,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 unit: YAxisType.POWER,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.GREEN, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.GREEN, 0.2),
                 borderColor: ChartConstants.Colors.GREEN,
             });
 
@@ -167,7 +168,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 unit: YAxisType.POWER,
             });
             this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.2),
+                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.2),
                 borderColor: ChartConstants.Colors.RED,
             });
 
@@ -205,10 +206,9 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     private applyControllerSpecificOptions() {
         const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
         const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
-        const locale = this.service.translate.currentLang;
 
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, true);
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
 
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 

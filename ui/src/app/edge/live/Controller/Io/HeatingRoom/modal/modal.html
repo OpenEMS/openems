@@ -1,0 +1,65 @@
+<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+
+    <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
+    { name: ('General.off' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}},
+    { name: 'Low', value: 'MANUAL_LOW', icon: {color:'primary', name: 'caret-down-circle-outline'}},
+    { name: 'High', value: 'MANUAL_HIGH', icon: {color:'primary', name: 'caret-up-circle-outline'}},
+    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'timer-outline'}}]">
+    </oe-modal-buttons>
+
+    @if (formGroup.value.mode !== 'OFF') {
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    <oe-modal-line name="Power Consumption" [converter]="Utils.CONVERT_WATT_TO_KILOWATT"
+        [channelAddress]="component.id + '/ActivePower'"></oe-modal-line>
+    }
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <oe-modal-line name="Floor Actual" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+        [channelAddress]="component.id + '/FloorActual'"></oe-modal-line>
+
+    @if (formGroup.value.mode !== 'OFF') {
+    <oe-modal-line name="Floor Target" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+        [channelAddress]="component.id + '/FloorTarget'"></oe-modal-line>
+    }
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <oe-modal-line name="Ambient Actual" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+        [channelAddress]="component.id + '/AmbientActual'"></oe-modal-line>
+    @if (formGroup.value.mode !== 'OFF') {
+    <oe-modal-line name="Ambient Target" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+        [channelAddress]="component.id + '/AmbientTarget'"></oe-modal-line>
+    }
+
+    @if (formGroup.value.mode === 'AUTOMATIC') {
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <oe-modal-line [channelAddress]="component.id + '/_PropertySchedule'">
+    </oe-modal-line>
+    }
+
+    <ion-modal #modal2 isOpen="true" [initialBreakpoint]="0.1" [breakpoints]="[0.04, 0.1, 0.9]" [backdropDismiss]="true"
+        [backdropBreakpoint]="0.1" *ngIf="showNewFooter">
+        <ng-template>
+            <ion-content class="ion-padding">
+                <ion-breadcrumbs>
+                    <ion-breadcrumb routerLink="/device/{{edge.id}}/live" (click)="hideFooter()">
+                        <ion-icon color="medium" name="home-outline"></ion-icon>
+                    </ion-breadcrumb>
+                    <ion-breadcrumb routerLinkActive="active" (click)="hideFooter()">
+                        <ion-note color="primary">
+                            {{label}}
+                        </ion-note>
+                    </ion-breadcrumb>
+                </ion-breadcrumbs>
+
+                <ion-list>
+                    <ion-list-header>
+                        <ion-label>Lorem Ipsum</ion-label>
+                    </ion-list-header>
+                </ion-list>
+
+            </ion-content>
+        </ng-template>
+    </ion-modal>
+</oe-modal>

@@ -1,13 +1,15 @@
 package io.openems.edge.app.common.props;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.TranslationUtil.getTranslation;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import static io.openems.edge.core.appmanager.formly.enums.Validation.IP;
+import static io.openems.edge.core.host.NetworkConfiguration.PATTERN_INET4ADDRESS;
+import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.google.gson.JsonPrimitive;
 
@@ -21,7 +23,6 @@ import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
-import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Case;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
@@ -29,7 +30,6 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 import io.openems.edge.core.appmanager.formly.expression.Variable;
-import io.openems.edge.core.host.NetworkConfiguration;
 
 public final class CommunicationProps {
 
@@ -78,13 +78,16 @@ public final class CommunicationProps {
 				def -> def.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> {
 					try {
 						var ips = app.getHost().getSystemIPs();
-						final var exclusionPattern = ips.stream().map(ip -> ip.getHostAddress())//
-								.map(ip -> ip.replace(".", "\\.")) //
-								.collect(Collectors.joining("|"));
+						if (ips.isEmpty()) {
+							f.setValidation(IP);
+						} else {
+							final var exclusionPattern = ips.stream().map(ip -> ip.getHostAddress())//
+									.map(ip -> ip.replace(".", "\\.")) //
+									.collect(joining("|"));
 
-						final var regex = "^(?!.*(?:" + exclusionPattern + ")$)"
-								+ NetworkConfiguration.PATTERN_INET4ADDRESS;
-						f.setValidation(regex, TranslationUtil.getTranslation(param.bundle(), "communication.excludingIp"));
+							f.setValidation("^(?!.*(?:" + exclusionPattern + ")$)" + PATTERN_INET4ADDRESS,
+									getTranslation(param.bundle(), "communication.excludingIp"));
+						}
 					} catch (OpenemsNamedException e) {
 						f.setValidation(IP);
 					}
@@ -213,12 +216,12 @@ public final class CommunicationProps {
 											.notEqual(Exp.currentModelValue(modbusId))));
 
 					final var message = Exp.ifElse(filteredArray.length().equal(Exp.staticValue(1)), //
-							StringExpression.of(TranslationUtil.getTranslation(parameter.bundle(),
+							StringExpression.of(getTranslation(parameter.bundle(),
 									"communication.modbusUnitId.alreadTaken.singular",
 									filteredArray.join(", ").insideTranslation(), componentId)), //
-							StringExpression.of(TranslationUtil.getTranslation(parameter.bundle(),
-									"communication.modbusUnitId.alreadTaken.plural",
-									filteredArray.join(", ").insideTranslation(), componentId)));
+							StringExpression.of(
+									getTranslation(parameter.bundle(), "communication.modbusUnitId.alreadTaken.plural",
+											filteredArray.join(", ").insideTranslation(), componentId)));
 
 					field.setCustomValidation(componentId, expression, message, modbusUnitId);
 

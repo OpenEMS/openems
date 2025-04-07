@@ -3,7 +3,7 @@
   <ion-grid *ngIf="config">
 
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="4">
+      <ion-col size="12" size-md="6">
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
@@ -13,19 +13,20 @@
 
             <ion-list>
               <ion-item lines="none">
-                <ion-select [interfaceOptions]="{ cssClass: 'custom-theme-text custom-ion-popover' }"
-                  style="white-space: initial;width: 100%;" #selectedComponentId interface="alert"
-                  [placeholder]="'CHANNELS.Component'| translate" (ionChange)="onSelectedComponentChanged($event)">
-                  <ion-select-option style=" white-space: normal !important;"
+                <ion-select justify="space-between" style="white-space: initial;width: 100%;" #selectedComponentId
+                  interface="alert" labelPlacement="start" [label]="'CHANNELS.Component'| translate"
+                  (ionChange)="onSelectedComponentChanged($event)" class="ion-text-align-left">
+                  <ion-select-option style="white-space: normal !important;"
                     *ngFor="let entry of (config.components | keys)" [value]="entry.key">
                     {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
                 </ion-select>
               </ion-item>
               <ion-item lines="none">
                 <ngx-spinner [name]="selectedComponentId.value"
-                  [interfaceOptions]="{ cssClass: 'custom-theme-text custom-ion-popover' }"></ngx-spinner>
+                  class="custom-theme-text custom-ion-popover"></ngx-spinner>
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
-                  [disabled]="!selectedComponentId?.value" [placeholder]="'CHANNELS.CHANNEL'| translate">
+                  [disabled]="!selectedComponentId?.value" [label]="'CHANNELS.CHANNEL'| translate"
+                  justify="space-between">
                   <ng-container *ngIf="selectedComponentId?.value">
                     <ion-select-option
                       *ngFor="let entry of channelsPerComponent.get(selectedComponentId.value).channels | keyvalue"
@@ -132,7 +133,7 @@
                       <ion-label translate>CHANNELS.SET_VALUE</ion-label>
                       <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
                         <!-- show Toggle for boolean value  -->
-                        <ion-toggle #valueToggle></ion-toggle>
+                        <ion-toggle mode="md" #valueToggle></ion-toggle>
                         <ion-button (click)="setChannelValue(component.key, channel.key, valueToggle.checked)"
                           slot="end" color="light">
                           <ion-icon slot="icon-only" name="send-outline"></ion-icon>

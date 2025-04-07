@@ -20,7 +20,7 @@ import io.openems.common.utils.StringUtils;
  * @see <a href="https://www.jsonrpc.org/specification">JSON-RPC
  *      specification</a>
  */
-public abstract class JsonrpcMessage {
+public abstract sealed class JsonrpcMessage permits AbstractJsonrpcRequest, JsonrpcResponse {
 
 	public static final String JSONRPC_VERSION = "2.0";
 

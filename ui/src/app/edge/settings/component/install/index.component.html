@@ -1,6 +1,6 @@
 <ion-content>
   <ion-searchbar style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
-    (ionChange)="updateFilter($event.detail.value)"></ion-searchbar>
+    (ionInput)="updateFilter($event.detail.value)"></ion-searchbar>
   <ion-list>
     <ng-container *ngFor="let entry of list">
       <ion-item-group>

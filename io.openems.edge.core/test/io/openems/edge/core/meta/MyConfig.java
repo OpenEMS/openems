@@ -10,12 +10,24 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public static class Builder {
 
 		private CurrencyConfig currency;
+		private boolean isEssChargeFromGridAllowed;
+		private int gridConnectionPointFuseLimit;
 
 		private Builder() {
 		}
 
 		public Builder setCurrency(CurrencyConfig currency) {
 			this.currency = currency;
+			return this;
+		}
+
+		public Builder setIsEssChargeFromGridAllowed(boolean isEssChargeFromGridAllowed) {
+			this.isEssChargeFromGridAllowed = isEssChargeFromGridAllowed;
+			return this;
+		}
+
+		public Builder setGridConnectionPointFuseLimit(int gridConnectionPointFuseLimit) {
+			this.gridConnectionPointFuseLimit = gridConnectionPointFuseLimit;
 			return this;
 		}
 
@@ -43,6 +55,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public CurrencyConfig currency() {
 		return this.builder.currency;
+	}
+
+	@Override
+	public boolean isEssChargeFromGridAllowed() {
+		return this.builder.isEssChargeFromGridAllowed;
+	}
+
+	@Override
+	public int gridConnectionPointFuseLimit() {
+		return this.builder.gridConnectionPointFuseLimit;
 	}
 
 }

@@ -1,5 +1,5 @@
 <ion-header *ngIf="isHeaderAllowed">
-  <ion-toolbar style="--ion-background-color: var(--ion-color-toolbar-primary);" mode="md">
+  <ion-toolbar style="--background: var(--ion-color-toolbar-primary);" mode="md">
     <ion-buttons *ngIf="backUrl" slot="start">
       <ion-button [routerLink]="backUrl" replaceUrl="true">
         <ion-icon [ngStyle]="{'color': 'var(--ion-menu-color)'}" name="arrow-back-outline"></ion-icon>
@@ -9,25 +9,25 @@
       <ion-menu-button autoHide="false" class="custom-menu-button"></ion-menu-button>
     </ion-buttons>
     <!-- page title is shown if the current page isn't Live nor History -->
-    <ion-title *ngIf="currentPage !== 'IndexLive' && currentPage !== 'IndexHistory'" class="ion-hide-md-up"
-      slot="start">
+    <ion-title style="color: var(--ion-title-color);"
+      *ngIf="currentPage !== 'IndexLive' && currentPage !== 'IndexHistory'" class="ion-hide-md-up" slot="start">
       {{ service.currentPageTitle }}
     </ion-title>
     <!-- page title is hidden when 'smartphone resolution' is reached -->
     <ion-title class="ion-hide-md-down" slot="start" style="color: var(--ion-title-color);">
       {{ service.currentPageTitle }}
     </ion-title>
-    <ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="service.currentEdge() as edge">
       <ng-container *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory'">
         <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
           class="ion-justify-content-center">
           <ion-segment-button
-            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-color-primary)"
+            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-color-primary); min-width: fit-content"
             value="IndexLive">
             <ion-label style="color: var(--ion-color-header-contrast);" translate>General.LIVE</ion-label>
           </ion-segment-button>
           <ion-segment-button
-            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-text-color)"
+            style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-text-color);min-width: fit-content"
             value="IndexHistory">
             <ion-label style="color: var(--ion-color-header-contrast);" translate>General.HISTORY</ion-label>
           </ion-segment-button>
@@ -37,7 +37,7 @@
     <!-- this title tag is for spacing purpose only -->
     <ion-title class="ion-hide-md-down" slot="end">
     </ion-title>
-    <ng-container *ngIf="service.currentEdge | async as edge">
+    <ng-container *ngIf="service.currentEdge() as edge">
       <ion-buttons slot="end" class="ion-padding-end">
         <ng-container *ngIf="edge.currentData | async as currentData">
           <ng-container *ngIf="currentData.summary.system as sum">

@@ -5,7 +5,7 @@
     <ion-buttons slot="end">
       <oe-help-button key="CONTROLLER_IO_HEAT_PUMP_SG_READY"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
-        <ion-icon name="close-outline"></ion-icon>
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -67,7 +67,7 @@
             name="power-outline"></ion-icon>
         </ion-segment-button>
         <ion-segment-button value="AUTOMATIC">
-          <ion-label translate>
+          <ion-label style="color: var(--ion-color-text)" translate>
             General.automatic
           </ion-label>
           <ion-icon style="width:40px" name="sunny-outline"
@@ -84,24 +84,26 @@
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('FORCE_ON')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
+              <ion-toggle mode="md" style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('RECOMMENDATION')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
+              <ion-toggle mode="md" style="pointer-events: none"
+                [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('REGULAR')"
               lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.normalOperation</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'REGULAR'">
+              <ion-toggle mode="md" style="pointer-events: none" [checked]="formGroup.value.manualState === 'REGULAR'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('LOCK')" lines="none">
               <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
-              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'LOCK'"></ion-toggle>
+              <ion-toggle mode="md" style="pointer-events: none"
+                [checked]="formGroup.value.manualState === 'LOCK'"></ion-toggle>
             </ion-item>
           </ion-list>
         </ion-card-content>
@@ -115,7 +117,8 @@
             (click)="updateAutomaticEnableMode(formGroup.controls.automaticRecommendationCtrlEnabled.value !== true,'automaticRecommendationCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value === true"></ion-toggle>
+            <ion-toggle mode="md"
+              [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value === true"></ion-toggle>
           </ion-item>
 
           <table class="full_width">
@@ -127,9 +130,8 @@
                 <ion-item class="ion-no-padding" lines="inset">
                   <ion-input id="automaticRecommendationSurplusPower"
                     formControlName="automaticRecommendationSurplusPower" class="regularFont" type="number"
-                    style="text-align: end;">
+                    style="text-align: end;" label="&nbsp;W">
                   </ion-input>
-                  <ion-label class="regularFont">&nbsp;W</ion-label>
                 </ion-item>
               </td>
             </tr>
@@ -152,7 +154,8 @@
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom
             </ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value === true"></ion-toggle>
+            <ion-toggle mode="md"
+              [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value === true"></ion-toggle>
           </ion-item>
 
           <ng-container>
@@ -164,9 +167,8 @@
                 <td style="width: 35%" class="align_right">
                   <ion-item class="ion-no-padding" lines="inset">
                     <ion-input type="number" formControlName="automaticForceOnSurplusPower" class="regularFont"
-                      style="text-align: end;">
+                      style="text-align: end;" label="&nbsp;W">
                     </ion-input>
-                    <ion-label class="regularFont">&nbsp;W</ion-label>
                   </ion-item>
                 </td>
               </tr>
@@ -209,7 +211,7 @@
             (click)="updateAutomaticEnableMode(formGroup.controls.automaticLockCtrlEnabled.value !== true,'automaticLockCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
+            <ion-toggle mode="md" [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
           </ion-item>
           <ng-container>
             <table class="full_width">
@@ -220,9 +222,8 @@
                 <td style="width: 35%" class="align_right">
                   <ion-item class="ion-no-padding" lines="inset">
                     <ion-input type="number" formControlName="automaticLockGridBuyPower" class="regularFont"
-                      style="text-align: end;">
+                      style="text-align: end;" label="&nbsp;W">
                     </ion-input>
-                    <ion-label class="regularFont">&nbsp;W</ion-label>
                   </ion-item>
                 </td>
               </tr>
@@ -259,9 +260,8 @@
               <td style="width: 35%" class="align_right">
                 <ion-item lines="inset" class="ion-no-padding">
                   <ion-input formControlName="minimumSwitchingTime" class="regularFont" type="number"
-                    style="text-align: end;">
+                    style="text-align: end;" label="&nbsp;s" class="regularFont">
                   </ion-input>
-                  <ion-label class="regularFont">&nbsp;s</ion-label>
                 </ion-item>
               </td>
             </tr>

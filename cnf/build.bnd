@@ -40,9 +40,9 @@ buildpath: \
 	org.osgi.service.metatype;version='1.4.1',\
 	org.osgi.service.metatype.annotations;version='1.4.1',\
 	org.osgi.util.promise;version='1.2.0',\
-	com.google.guava;version='33.4.0.jre',\
+	com.google.guava;version='33.4.6.jre',\
 	com.google.guava.failureaccess;version='1.0.2',\
-	com.google.gson;version='2.11.0',\
+	com.google.gson;version='2.12.1',\
 
 testpath: \
 	slf4j.simple,\
@@ -65,6 +65,7 @@ testpath: \
 	Edge_Controller_PVinverter;member=${filter;${p};io\.openems\.edge\.controller\.pvinverter\..*},\
 	Edge_Ess;member=${filter;${p};io\.openems\.edge\.ess\..*},\
 	Edge_Evcs;member=${filter;${p};io\.openems\.edge\.evcs\..*|io\.openems\.wrapper\.eu\.chargetime\.ocpp},\
+	Edge_Evse;member=${filter;${p};io\.openems\.edge\.evse\..*|io\.openems\.edge\.controller\.evse},\
 	Edge_Multiple;member=${filter;${p};io\.openems\.edge\.fenecon\..*|io\.openems\.edge\.goodwe|io\.openems\.edge\.kostal\.piko|io\.openems\.edge\.tesla\..*|io\.openems\.edge\.solaredge|io\.openems\.edge\.bosch\..*|io\.openems\.edge\.katek\..*|io\.openems\.edge\.kaco\..*},\
 	Edge_IO;member=${filter;${p};io\.openems\.edge\.io\..*|io\.openems\.edge\.controller\.channelthreshold|io\.openems\.edge\.controller\.chp\..*|io\.openems\.edge\.controller\.highloadtimeslot},\
 	Edge_Meter;member=${filter;${p};io\.openems\.edge\.meter\..*},\

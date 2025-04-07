@@ -1,6 +1,6 @@
 package io.openems.edge.controller.io.analog;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 
 import java.time.temporal.ChronoUnit;
 

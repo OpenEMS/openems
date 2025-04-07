@@ -24,6 +24,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
             transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
+    standalone: false,
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 

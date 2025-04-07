@@ -9,6 +9,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
   selector: "sellToGridLimitChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class SellToGridLimitChartComponent extends AbstractHistoryChart {
 

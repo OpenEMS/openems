@@ -6,6 +6,7 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../shared/s
 @Component({
     selector: "consumptionWidget",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

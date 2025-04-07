@@ -6,6 +6,7 @@ import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 import { AdministrationComponent } from "../administration/administration.component";
@@ -14,6 +15,7 @@ import { PopoverComponent } from "../popover/popover";
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -201,6 +203,16 @@ export class ModalComponent extends AbstractModal {
   }
 
   /**
+   * Formats the pin value
+   *
+   * @param value the value
+   * @returns a formatted value
+   */
+  protected pinFormatter(value: number): string {
+    return Formatter.FORMAT_WATT(value);
+  }
+
+  /**
      * Updates the Min-Power of force charging
      *
      * @param event
@@ -298,7 +310,7 @@ enum ChargeState {
   ERROR,                    //Error
   AUTHORIZATION_REJECTED,   //Authorization rejected
   ENERGY_LIMIT_REACHED,     //Energy limit reached
-  CHARGING_FINISHED,         //Charging has finished
+  CHARGING_FINISHED,        //Charging has finished
 }
 
 enum ChargePlug {
@@ -307,5 +319,5 @@ enum ChargePlug {
   PLUGGED_ON_EVCS,                          //Plugged on EVCS
   PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
-  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
+  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7, //Plugged on EVCS and on EV and locked
 }

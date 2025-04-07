@@ -35,7 +35,7 @@ public class MessageTest {
 
 		assertTrue("msg10 should be greater than msg11", msg10.compareTo(msg11) > 0);
 		assertTrue("msg10 should be lower than msg20", msg10.compareTo(msg20) < 0);
-		
+
 		assertTrue("msg10 should be greater than null", msg10.compareTo(null) > 0);
 	}
 

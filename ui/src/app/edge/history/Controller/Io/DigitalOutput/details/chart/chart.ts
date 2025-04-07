@@ -10,6 +10,7 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/share
 @Component({
   selector: "detailChart",
   templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -155,9 +156,8 @@ export class ChartComponent extends AbstractHistoryChart {
       stack: 1,
     };
   }
+
   protected override getChartData(): HistoryUtils.ChartData {
     return ChartComponent.getChartData(this.config, this.chartType, this.route, this.translate);
   }
-
-
 }

@@ -1,5 +1,6 @@
 package io.openems.edge.core.componentmanager;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -12,7 +13,9 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -42,18 +45,19 @@ import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
@@ -154,6 +158,19 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		for (ComponentManagerWorker worker : this.workers) {
 			worker.deactivate();
 		}
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		Configuration config;
+		try {
+			config = this.getExistingConfigForId(componentId);
+		} catch (OpenemsNamedException e) {
+			return emptyMap();
+		}
+
+		return StreamUtils.dictionaryToStream(config.getProperties())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	@Override
@@ -316,42 +333,39 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					GetEdgeConfigRequest.from(t.getRequest()));
 		});
 
-		builder.handleRequest(CreateComponentConfigRequest.METHOD, endpoint -> {
+		builder.handleRequest(new CreateComponentConfig(), endpoint -> {
 			endpoint.setDescription("""
 					Handles a CreateComponentConfigRequest.
 					""") //
 					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
 							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
 		}, t -> {
-			this.handleCreateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
-					CreateComponentConfigRequest.from(t.getRequest()));
+			this.handleCreateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
 
-			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+			return EmptyObject.INSTANCE;
 		});
 
-		builder.handleRequest(UpdateComponentConfigRequest.METHOD, endpoint -> {
+		builder.handleRequest(new UpdateComponentConfig(), endpoint -> {
 			endpoint.setDescription("""
 					Handles a UpdateComponentConfigRequest.
 					""") //
 					.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
 		}, t -> {
-			this.handleUpdateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
-					UpdateComponentConfigRequest.from(t.getRequest()));
+			this.handleUpdateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
 
-			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+			return EmptyObject.INSTANCE;
 		});
 
-		builder.handleRequest(DeleteComponentConfigRequest.METHOD, endpoint -> {
+		builder.handleRequest(new DeleteComponentConfig(), endpoint -> {
 			endpoint.setDescription("""
 					Handles a DeleteComponentConfigRequest.
 					""") //
 					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
 							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
 		}, t -> {
-			this.handleDeleteComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
-					DeleteComponentConfigRequest.from(t.getRequest()));
+			this.handleDeleteComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
 
-			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
+			return EmptyObject.INSTANCE;
 		});
 
 		builder.handleRequest(ChannelExportXlsxRequest.METHOD, endpoint -> {
@@ -485,11 +499,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void handleCreateComponentConfigRequest(User user, CreateComponentConfigRequest request)
+	public void handleCreateComponentConfigRequest(User user, CreateComponentConfig.Request request)
 			throws OpenemsNamedException {
 		// Get Component-ID from Request
 		String componentId = null;
-		for (Property property : request.getProperties()) {
+		for (Property property : request.properties()) {
 			if (property.getName().equals("id")) {
 				componentId = JsonUtils.getAsString(property.getValue());
 			}
@@ -510,33 +524,33 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
 			}
 			try {
-				config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
+				config = this.cm.createFactoryConfiguration(request.factoryPid(), null);
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID ["
-						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+						+ request.factoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 
 		} else {
 			// Singleton?
 			try {
-				config = this.cm.getConfiguration(request.getFactoryPid(), null);
+				config = this.cm.getConfiguration(request.factoryPid(), null);
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw OpenemsError.GENERIC.exception("Unable to get Configurations for Factory-PID ["
-						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+						+ request.factoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 			if (config.getProperties() != null) {
 				throw new OpenemsException(
-						"A Singleton Component for PID [" + request.getFactoryPid() + "] is already existing!");
+						"A Singleton Component for PID [" + request.factoryPid() + "] is already existing!");
 			}
 		}
 
 		// Create map with configuration attributes
 		Dictionary<String, Object> properties = new Hashtable<>();
-		for (Property property : request.getProperties()) {
+		for (Property property : request.properties()) {
 			var value = JsonUtils.getAsBestType(property.getValue());
-			if (value instanceof Object[] && ((Object[]) value).length == 0) {
+			if (value instanceof Object[] os && os.length == 0) {
 				value = new String[0];
 			}
 			properties.put(property.getName(), value);
@@ -547,19 +561,19 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			this.applyConfiguration(user, config, properties);
 		} catch (IOException | IllegalArgumentException e) {
 			e.printStackTrace();
-			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.getFactoryPid(), e.getMessage());
+			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.factoryPid(), e.getMessage());
 		}
 	}
 
 	@Override
-	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfigRequest request)
+	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfig.Request request)
 			throws OpenemsNamedException {
-		var config = this.getExistingConfigForId(request.getComponentId());
+		var config = this.getExistingConfigForId(request.componentId());
 
 		// Create map with changed configuration attributes
 		var properties = config.getProperties();
 		if (properties == null) {
-			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(),
+			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.componentId(),
 					config.getPid() + ": Properties is 'null'");
 		}
 
@@ -571,7 +585,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			}
 		}
 
-		for (Property property : request.getProperties()) {
+		for (Property property : request.properties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
 				var jValue = property.getValue();
@@ -581,7 +595,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				} else {
 					// Add updated Property
 					var value = JsonUtils.getAsBestType(property.getValue());
-					if (value instanceof Object[] && ((Object[]) value).length == 0) {
+					if (value instanceof Object[] os && os.length == 0) {
 						value = new String[0];
 					}
 					properties.put(property.getName(), value);
@@ -594,20 +608,20 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			this.applyConfiguration(user, config, properties);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
+			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.componentId(), e.getMessage());
 		}
 	}
 
 	@Override
-	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfigRequest request)
+	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfig.Request request)
 			throws OpenemsNamedException {
-		var config = this.getExistingConfigForId(request.getComponentId());
+		var config = this.getExistingConfigForId(request.componentId());
 
 		try {
 			config.delete();
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw OpenemsError.EDGE_UNABLE_TO_DELETE_CONFIG.exception(request.getComponentId(), e.getMessage());
+			throw OpenemsError.EDGE_UNABLE_TO_DELETE_CONFIG.exception(request.componentId(), e.getMessage());
 		}
 	}
 

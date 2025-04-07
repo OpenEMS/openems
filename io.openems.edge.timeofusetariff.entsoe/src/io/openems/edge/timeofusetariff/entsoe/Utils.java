@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.XmlUtils.getXmlRootDocument;
 import static io.openems.common.utils.XmlUtils.stream;
 import static java.lang.Double.parseDouble;
@@ -11,7 +12,11 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -25,11 +30,15 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Streams;
 
 import io.openems.common.utils.XmlUtils;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class Utils {
+
+	private record TimeInterval(ZonedDateTime start, ZonedDateTime end) {
+	}
 
 	protected static final DateTimeFormatter FORMATTER_MINUTES = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mmX");
 
@@ -54,19 +63,32 @@ public class Utils {
 			return TimeOfUsePrices.EMPTY_PRICES;
 		}
 
-		final var duration = getDuration(allPrices, preferredResolution);
-		final var prices = ImmutableSortedMap.copyOf(allPrices.row(duration));
-		final var minTimestamp = prices.firstKey();
-		final var maxTimestamp = prices.lastKey().plus(duration);
+		final var globalTimeInterval = parseTimeInterval(root, "period.timeInterval");
+		final var durations = Streams // Sorted Durations. Starts with preferredResolution
+				.concat(Stream.of(getDuration(allPrices, preferredResolution)), allPrices.rowKeySet().stream().sorted()) //
+				.distinct() //
+				.toList();
 
 		var result = Stream //
-				.iterate(minTimestamp, //
-						t -> t.isBefore(maxTimestamp), //
+				.iterate(globalTimeInterval.start, //
+						t -> t.isBefore(globalTimeInterval.end), //
 						t -> t.plusMinutes(15)) //
 				.collect(ImmutableSortedMap.<ZonedDateTime, ZonedDateTime, Double>toImmutableSortedMap(//
 						Comparator.naturalOrder(), //
 						Function.identity(), //
-						t -> prices.floorEntry(t).getValue()));
+						t -> durations.stream() //
+								.map(duration -> {
+									var time = Stream.of(Resolution.values()) //
+											.filter(r -> r.duration.equals(duration)) //
+											.map(r -> switch (r) {
+											case HOURLY -> t.truncatedTo(ChronoUnit.HOURS);
+											case QUARTERLY -> roundDownToQuarter(t);
+											}) //
+											.findFirst().orElse(t); // should not happen
+									return allPrices.get(duration, time);
+								}) //
+								.filter(Objects::nonNull) //
+								.findFirst().orElse(null)));
 
 		return TimeOfUsePrices.from(result);
 	}
@@ -90,6 +112,32 @@ public class Utils {
 		return result.build();
 	}
 
+	protected static TimeInterval parseTimeInterval(Node node, String nodeName) {
+		return parseTimeInterval(stream(node) //
+				// <period.timeInterval>
+				.filter(n -> n.getNodeName() == nodeName) //
+				.flatMap(XmlUtils::stream) //
+				.toList());
+	}
+
+	private static TimeInterval parseTimeInterval(List<Node> nodes) {
+		var start = ZonedDateTime.parse(//
+				nodes.stream() //
+						// <start>2025-01-17T23:00Z</start>
+						.filter(n -> n.getNodeName() == "start") //
+						.map(XmlUtils::getContentAsString) //
+						.findFirst().get(),
+				FORMATTER_MINUTES).withZoneSameInstant(ZoneId.of("UTC"));
+		var end = ZonedDateTime.parse(//
+				nodes.stream() //
+						// <end>2025-01-18T23:00Z</end>
+						.filter(n -> n.getNodeName() == "end") //
+						.map(XmlUtils::getContentAsString) //
+						.findFirst().get(),
+				FORMATTER_MINUTES).withZoneSameInstant(ZoneId.of("UTC"));
+		return new TimeInterval(start, end);
+	}
+
 	protected static void parsePeriod(ImmutableTable.Builder<Duration, ZonedDateTime, Double> result, Node period,
 			double exchangeRate) throws Exception {
 		final var duration = Duration.parse(stream(period) //
@@ -97,17 +145,8 @@ public class Utils {
 				.filter(n -> n.getNodeName() == "resolution") //
 				.map(XmlUtils::getContentAsString) //
 				.findFirst().get() /* "PT15M" or "PT60M" */);
-		final var start = ZonedDateTime.parse(//
-				stream(period) //
-						// <timeInterval>
-						.filter(n -> n.getNodeName() == "timeInterval") //
-						.flatMap(XmlUtils::stream) //
-						// <start>
-						.filter(n -> n.getNodeName() == "start") //
-						.map(XmlUtils::getContentAsString) //
-						.findFirst().get(),
-				FORMATTER_MINUTES).withZoneSameInstant(ZoneId.of("UTC"));
-
+		final var timeInterval = parseTimeInterval(period, "timeInterval");
+		final var prices = new TreeMap<Integer, Double>();
 		stream(period) //
 				// <Point>
 				.filter(n -> n.getNodeName() == "Point") //
@@ -118,15 +157,25 @@ public class Utils {
 							.map(XmlUtils::getContentAsString) //
 							.map(s -> parseInt(s)) //
 							.findFirst().get();
-					final var timestamp = start.plusMinutes((position - 1) * duration.toMinutes());
 					final var price = stream(point) //
 							// <price.amount>
 							.filter(n -> n.getNodeName() == "price.amount") //
 							.map(XmlUtils::getContentAsString) //
 							.map(s -> parseDouble(s) * exchangeRate) //
 							.findFirst().get();
-					result.put(duration, timestamp, price);
+					prices.put(position, price);
 				});
+
+		// Fill missing positions using the last known price
+		Double price = null;
+		for (var pos = 1;; pos++) {
+			var timestamp = timeInterval.start.plusMinutes((pos - 1) * duration.toMinutes());
+			if (!timestamp.isBefore(timeInterval.end)) {
+				break;
+			}
+			price = prices.getOrDefault(pos, price);
+			result.put(duration, timestamp, price);
+		}
 	}
 
 	/**

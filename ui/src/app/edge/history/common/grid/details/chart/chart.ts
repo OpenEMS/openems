@@ -11,6 +11,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
   selector: "gridDetailsChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 

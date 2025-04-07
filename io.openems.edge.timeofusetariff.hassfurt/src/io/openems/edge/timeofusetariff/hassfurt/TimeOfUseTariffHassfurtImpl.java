@@ -184,10 +184,10 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = INTERNAL_ERROR;
-		if (error instanceof HttpError.ResponseError re) {
-			httpStatusCode = re.status.code();
-		}
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
 
 		this.channel(TimeOfUseTariffHassfurt.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 		this.log.error(error.getMessage(), error);

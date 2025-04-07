@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/
 @Component({
   selector: ComponentInstallComponent.SELECTOR,
   templateUrl: "./install.component.html",
+  standalone: false,
 })
 export class ComponentInstallComponent implements OnInit {
 
@@ -18,6 +19,7 @@ export class ComponentInstallComponent implements OnInit {
   public form = null;
   public model = null;
   public fields: FormlyFieldConfig[] | null = null;
+  public componentIcon: string | null = null;
 
   private factoryId: string | null = null;
 
@@ -33,6 +35,7 @@ export class ComponentInstallComponent implements OnInit {
     this.factoryId = this.route.snapshot.params["factoryId"];
     this.edge = await this.service.getCurrentEdge();
     const config = await this.service.getConfig();
+    this.componentIcon = config.getFactoryIcon(this.factory, this.service.translate);
 
     const [factory, properties] = await this.edge.getFactoryProperties(this.websocket, this.factoryId);
     this.factory = factory;

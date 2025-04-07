@@ -5,6 +5,7 @@ import { RegistrationModalComponent } from "./modal/modal.component";
 @Component({
   selector: "registration",
   templateUrl: "./registration.component.html",
+  standalone: false,
 })
 export class RegistrationComponent {
 

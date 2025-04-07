@@ -16,7 +16,7 @@ public interface TimedExecutor {
 
 		@Override
 		public int compareTo(TimedTask other) {
-			if (other == null  || other.executeAt == null) {
+			if (other == null || other.executeAt == null) {
 				return 1;
 			}
 			return this.executeAt.compareTo(other.executeAt);

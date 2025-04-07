@@ -3,14 +3,14 @@
         <ion-title>{{ title }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
+                <ion-icon name="close" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
 
 <div>
-    <ion-grid>
+    <ion-grid aria-hidden="false">
         <ion-row>
             <ion-col>
                 <formly-form [form]="form" [fields]="fields" [model]="myModel"></formly-form>

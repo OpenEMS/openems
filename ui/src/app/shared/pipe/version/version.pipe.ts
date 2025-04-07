@@ -4,6 +4,7 @@ import { Role } from "../../type/role";
 
 @Pipe({
     name: "version",
+    standalone: false,
 })
 export class VersionPipe implements PipeTransform {
 

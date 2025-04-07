@@ -5,6 +5,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 @Component({
     selector: "oe-modal-buttons",
     templateUrl: "./modal-button.html",
+    standalone: false,
 })
 export class ModalButtonsComponent extends AbstractModalLine {
 
@@ -14,9 +15,9 @@ export class ModalButtonsComponent extends AbstractModalLine {
 export type ButtonLabel = {
     /** Name of Label, displayed below the icon */
     name: string;
-    value: string;
+    value: string | number | boolean;
     /** Icons for Button, displayed above the corresponding name */
-    icons?: Icon;
+    icon?: Icon;
     callback?: () => void;
     style?: { [key: string]: string };
 };

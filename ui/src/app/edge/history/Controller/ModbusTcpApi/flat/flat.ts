@@ -6,6 +6,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
   selector: "modbusTcpApiWidget",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

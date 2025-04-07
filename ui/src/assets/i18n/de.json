@@ -1,6 +1,9 @@
 {
   "About": {
-    "build": "Dieser Build",
+    "DESCRIPTION": "Dieses Energiemanagementsystem wird auf Basis von OpenEMS als Open-Source-Software entwickelt. OpenEMS - das Open Source Energy Management System - ist eine modulare Plattform für Energiemanagement-Anwendungen. Es wurde von FENECON initiiert und wird mittlerweile von einer großen Zahl an Unternehmen, Universitäten und Instituten sowohl zur Forschung und Entwicklung verwendet, als auch für deren eigene Energiemanagementsysteme eingesetzt. Die Entwicklung wird in der OpenEMS Association e.V. koordiniert.",
+    "CONTACT": "Für Rückfragen und Anregungen zum Energiemanagement und unseren Produkten, wenden Sie sich bitte an unser Team unter <a href=\"mailto:service@fenecon.de\">service&#64;fenecon.de</a>. Für Fragen zu OpenEMS steht Ihnen das <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community-Forum</a> zur Verfügung.",
+    "BUILD": "Dieser Build",
+    "ENERGY_MANAGEMENT": "Energiemanagementsystem",
     "currentDevelopments": "Aktuelle Entwicklungen",
     "developed": "Diese Benutzeroberfläche wird als Open-Source-Software entwickelt.",
     "faq": "Häufig gestellte Fragen (FAQ)",
@@ -254,11 +257,23 @@
           },
           "OVERALL_SYSTEM": "Gesamtsystem"
         },
-        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller"
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
+          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
+        }
       },
       "RETROFITTING": {
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
         "OPTIMAL": "Kapazitätserweiterung",
+        "REFERENCING_OF_STORAGE": {
+          "HEADER": "Bitte beachten Sie vor einer Kapazitätserweiterung eine Referenzierung des Speichers durchzuführen",
+          "CONTENT": "Vor einer Kapazitätserweiterung muss eine Referenzierung des Speichers in den Tagen vor der Kapazitätserweiterung zwingend stattfinden. D.h., dass dieser vollständig entladen (SOC: 0 %) und anschließend vollständig beladen werden muss (SOC: 100 %).",
+          "TO_INSTRUCTIONS": "Link zur Anleitung"
+        },
         "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
         "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
@@ -323,21 +338,27 @@
       "Index": {
         "addComponents": "Komponenten installieren",
         "adjustComponents": "Komponenten konfigurieren",
+        "alerting": "Benachrichtigung",
         "bridge": "Verbindungen und Geräte",
+        "COMMENT": "Kommentar",
+        "CONFIGURATION": "Konfiguration",
         "controller": "Anwendungen",
         "dataStorage": "Datenspeicher",
         "executeSimulator": "Simulationen ausführen",
+        "GENERAL_DATA": "Allgemeine Daten",
         "liveLog": "Live Systemprotokoll",
         "log": "Log",
         "manualControl": "Manuelle Steuerung",
+        "ROLE": "Rolle",
         "renameComponents": "Komponenten umbenennen",
+        "SYSTEM": "System",
         "scheduler": "Anwendungsplaner",
         "simulator": "Simulator",
         "systemExecute": "System-Befehl ausführen",
         "systemProfile": "Anlagenprofil",
-        "alerting": "Benachrichtigung",
+        "PRODUCT_TYPE": "Produkt-Typ",
         "networkConfiguration": "Netzwerkkonfiguration",
-        "SYSTEM": "System"
+        "EXPORT_CHANNELS": "Export-Kanäle"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
@@ -463,9 +484,20 @@
     }
   },
   "General": {
+    "EDIT": "Bearbeiten",
+    "THEME_SELECTION": {
+      "TITLE": "Licht aus, Komfort an!",
+      "DESCRIPTION": "Ab sofort steht dir unser Monitoring im <b>Darkmode</b> zur Verfügung.<hr>Einfach umschalten und loslegen!"
+    },
+    "LIGHT": "Hell",
+    "DARK": "Dunkel",
+    "RESET": "Zurücksetzen",
+    "SAVE": "Speichern",
+    "SYSTEM_THEME": "System",
     "active": "Aktiv",
-    "actualPower": "E-Auto Beladung",
+    "actualPower": "E-Auto-Beladung",
     "ALL": "Alle",
+    "CURRENT_STATUS": "Aktueller Status",
     "apply": "Übernehmen",
     "autarchy": "Autarkie",
     "automatic": "Automatisch",
@@ -483,10 +515,12 @@
     "currentValue": "Aktueller Wert",
     "dateFormat": "dd.MM.yyyy",
     "digitalInputs": "Digitaleingänge",
+    "HEAT_PUMP": "Wärmepumpe",
     "numberOfComponents": "Anzahl der Komponenten",
     "directConsumption": "Direktverbrauch",
     "energyLimit": "Energielimit",
     "fault": "Fehler",
+    "FOR": "für",
     "grid": "Netz",
     "gridBuy": "Netzbezug",
     "gridBuyAdvanced": "Bezug",
@@ -523,6 +557,7 @@
     "selfConsumption": "Eigenverbrauch",
     "soc": "Ladezustand",
     "state": "Zustand",
+    "STATUS": "Status",
     "storageSystem": "Speichersystem",
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
@@ -560,11 +595,20 @@
       "netherlands": "Niederlande",
       "sweden": "Schweden",
       "switzerland": "Schweiz",
-      "czech": "Tschechische Republik"
+      "czech": "Tschechische Republik",
+      "GREECE": "Griechenland"
     },
     "yes": "Ja",
     "no": "Nein",
     "value": "Wert",
+    "STATE_MACHINE": {
+      "GO_STOPPED": "Stoppt...",
+      "GO_RUNNING": "Startet...",
+      "RUNNING": "Gestartet",
+      "STOPPED": "Gestoppt",
+      "UNDEFINED": "Unbekannt",
+      "ERROR": "Fehler"
+    },
     "SUM_STATE": "Systemzustand",
     "SYSTEM": "System",
     "RESTART": "Neu starten",
@@ -588,6 +632,41 @@
       "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
       "MORE_INFO": "mehr Infos",
       "EMS_OFFLINE": "{{edgeShortName}} ist offline"
+    },
+    "DEFAULT": {
+      "STEP_TEST_WIFI_CONNECTION": {
+        "HEADER": "Routerverbindung mit Laptop überprüfen",
+        "DESCRIPTION": "<p><b>a)</b> Stecken Sie das LAN-Kabel von der Home--{{edgeShortName}} Box („LAN“ Schnittstelle) ab und schließen Sie dieses an einem Laptop/PC an (Achtung: WLAN Adapter ausschalten). Wenn der Laptop/PC erfolgreich eine Internetverbindung aufbauen konnte, gehen Sie weiter zu Schritt 3, ansonsten weiter zu b.</p> <p><b>b)</b> Wenn der Laptop/PC keine Internetverbindung aufbaut, schließen Sie das Gerät bitte direkt per LAN-Kabel am Router an, um die Funktionalität des Routers sicherzustellen (also ohne zusätzliche Kabelstrecke und ohne weitere Netzwerkteilnehmer dazwischen).</p> <p> → Wenn die Funktionalität des Routers sichergestellt ist, leitet das LAN-Kabel, ein WLAN Repeater oder ein Powerline Adapter das Signal vermutlich nicht korrekt weiter. In diesem Fall finden Sie in den produktspezifischen Anleitungen des jeweiligen Herstellers weitere Informationen.</p>"
+      },
+      "STEP_FIREWALL": {
+        "HEADER": "Portfreigabe/Firewall prüfen",
+        "DESCRIPTION": "Einstellungen der Firewall können die Internetverbindung zum {{edgeShortName}}. begrenzen. Besonders bei Erstinbetriebnahmen ist dies häufig der Fall. Bitte überprüfen Sie mithilfe der <a href=\"https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal\" target=\"_blank\">Anleitung</a> die Ports und Dienste, die auf dem {{edgeShortName}} aktiv sind."
+      },
+      "STEP_SERVICE": {
+        "HEADER": "FENECON-Service",
+        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben, und das Online-Monitoring weiterhin keine Daten anzeigt, können Sie sich an unseren Service wenden: <br> Per Mail: <a href=\"mailto:service@fenecon.de\">service@fenecon.de</a> oder telefonisch unter: +49 9903 6280-0 (Mo. bis Do.: 08:00 bis 12:00 Uhr | 13:00 – 17:00 Uhr | Fr.: 08:00 bis 12:00 Uhr | 13:00 – 17:00 Uhr)"
+      },
+      "STEP_CONTACT_INSTALLER": {
+        "HEADER": "Installateur kontaktieren",
+        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben, und das Online-Monitoring weiterhin keine Daten anzeigt, bitten wir Sie, sich mit Ihrem <b>Installateur</b> in Verbindung zu setzen."
+      },
+      "STEP_EMS_RESTART": {
+        "HEADER": "{{edgeShortName}} neu starten und LAN-Stecker prüfen"
+      }
+    },
+    "HOME_10": {
+      "STEP_EMS_RESTART": {
+        "HEADER": "{{edgeShortName}} neu starten",
+        "DESCRIPTION": "Starten Sie das {{edgeShortName}} neu indem Sie an der obersten Box des Speicherturms an der Vorderseite den Taster für 10 Sekunden gedrückt halten. Warten Sie nun  <b>5-10 Minuten</b> ab (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker akkurat in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie nun das Browser-Fenster des Online-Monitorings: War diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des FENECON Online-Monitorings sollte wie gewohnt zu sehen sein."
+      }
+    },
+    "HOME_20_30": {
+      "STEP_EMS_RESTART": {
+        "DESCRIPTION": "An der obersten Box des Speicherturms befindet sich ein Kaltgerätestecker (schwarz-blau). Stecken Sie diesen aus und warten Sie 15 Sekunden ab; Stecken Sie den Kaltgerätestecker wieder ein, und warten Sie nun <b>5-10 Minuten</b> (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker akkurat in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie nun das Browser-Fenster des Online-Monitorings: war diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des {{edgeLongName}} Energiemanagementsystem Online-Monitorings wie gewohnt zu sehen sein."
+      }
+    },
+    "STEP_EMS_RESTART": {
+      "DESCRIPTION": "Im Anschlussbereich des FENECON Home Stromspeichersystems befindet sich ein blauer Steckverbinder. Dieser versorgt das {{edgeShortName}}. mit einer Hilfsversorgung. Ziehen Sie den Stecker heraus und stecken ihn nach 10 Sekunden wieder ein, um das {{edgeShortName}}. neu zu starten. Warten Sie anschließend einige Minuten und aktualisieren Sie das Browser-Fenster. Die Fehlermeldung sollte anschließend verschwunden sein und das Online-Monitoring wieder sichtbar. Falls dies nicht der Fall ist, gehen Sie weiter zu Schritt 2."
     }
   },
   "Index": {
@@ -645,8 +724,9 @@
       "FUNCTION_TEST": "Funktionstest",
       "GRID_METER": "Netzzähler",
       "GRID_OPTIMIZED_CHARGE": "Netzdienliche Beladung",
+      "TIME_OF_USE_TARIFF": "Dynamischer Stromtarif",
       "LEGEND": "Legende",
-      "NOT_YET_CONFIGURED": "noch nicht konfiguriert / ausgeführt",
+      "NOT_YET_CONFIGURED": "noch nicht konfiguriert/ausgeführt",
       "PARTIAL_CONFIGURATION": "Es konnten nicht alle Komponenten richtig konfiguriert werden.",
       "PRE_CONFIGURED": "vorkonfiguriert / Warnung",
       "PROGNOSIS": "Prognose",
@@ -681,7 +761,8 @@
       "TITLE_COMMERCIAL": "Vorsicherung Netzanschlusspunkt / Zählervorsicherung",
       "TITLE_HOME": "Vorsicherung Hausanschlusszähler",
       "VALUE": "Wert [A]",
-      "METER_LABEL": "Netzanschlusspunkt Zählertyp"
+      "METER_LABEL": "Netzanschlusspunkt Zählertyp",
+      "METER": "Zähler"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "Standort",
@@ -708,7 +789,7 @@
       "BOTH_SELECTED_LABEL": "Beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt",
       "DEVICE_CONNECTION_CHECKED": "Das Stromspeichersystem ist an das Stromnetz angeschlossen",
       "ENERGY_FLOW_METER": {
-        "LABEL": "Installierter Netzzähler"
+        "LABEL": "Netz"
       }
     },
     "CONFIGURATION_SYSTEM": {
@@ -757,7 +838,8 @@
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
-      "NO_LIMITATION": "Kein Einspeisemanagement"
+      "NO_LIMITATION": "Kein Einspeisemanagement",
+      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -868,9 +950,14 @@
     "CONFIGURATION_ENERGY_FLOW_METER": {
       "TITLE": "Auswahl Energieflussrichtungszähler",
       "METER": {
-        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A (Standardlieferumfang)",
+        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A ({{type}})",
         "WITHOUT_CT": "Home 3-Phasensensor ohne Stromwandler (Optional)",
-        "LABEL": "Zähler"
+        "LABEL": "Zähler",
+        "INTEGRATED": "Integrierter Home 3-Phasensensor mit Stromwandler ({{type}})",
+        "TYPE": {
+          "STANDARD": "Standardlieferumfang",
+          "OPTIONAL": "Optional"
+        }
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
@@ -912,6 +999,10 @@
     "overview": "Alle Systeme",
     "settings": "Einstellungen",
     "user": "Benutzer",
+    "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
+    "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
+    "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
+    "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
     "changelog": "Changelog",
     "otherUser": "Weitere Benutzer"
   },
@@ -967,8 +1058,30 @@
     "admin": "Administrator"
   },
   "SETTINGS": {
+    "CATEGORY": {
+      "TITLE": {
+        "METER": "Zähler",
+        "SIMULATORS": "Simulatoren",
+        "STORAGE_SYSTEMS": "Speichersysteme",
+        "EXTERNAL_INTERFACES": "Externe Schnittstellen",
+        "STORAGE_SYSTEM_CONTROL": "Speichersystem-Steuerung",
+        "CLOUD_INTERFACES": "Cloud-Schnittstellen",
+        "EV_CHARGING_STATION": "E-Auto-Ladestation",
+        "EV_CHARGING_STATION_CONTROL": "E-Auto-Ladestation-Steuerung",
+        "IOs": "I/Os",
+        "IO-CONTROL": "I/O-Steuerung",
+        "TEMPERATURE_SENSORS": "Temperatursensoren",
+        "DEVICE_INTERFACES": "Geräte-Schnittstellen",
+        "DEDICATED_CONTROLLERS": "Spezial-Controller",
+        "STANDARD_COMPONENTS": "Standard-Komponenten",
+        "OTHERS": "Weitere"
+      }
+    },
     "SYSTEM_UPDATE": {
       "INSTALLED_VERSION": "Installierte Version:",
+      "CREATE_COMPONENT": "Komponente anlegen",
+      "UPDATE_COMPONENT": "Aktualisiere Komponente",
+      "DELETE_COMPONENT": "Lösche Komponente",
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
       "NEW_VERSION_INSTALLING": "Neueste Version installieren",
       "NEW_VERSION": "Neueste Version:",
@@ -1032,5 +1145,10 @@
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "Ist erforderlich"
+    }
   }
 }

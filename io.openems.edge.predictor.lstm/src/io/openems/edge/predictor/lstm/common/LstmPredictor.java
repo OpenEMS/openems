@@ -76,7 +76,7 @@ public class LstmPredictor {
 		// normalize
 		var trendPrediction = new double[hyperParameters.getTrendPoint()];
 		var mean = DataStatistics.getMean(scaled);
-		var standerDev = DataStatistics.getStandardDeviation(scaled);
+		var stdDev = DataStatistics.getStandardDeviation(scaled);
 		preprocessing.setData(scaled);
 		var normData = to1DArrayList((double[]) preprocessing//
 				.normalize()//
@@ -100,7 +100,7 @@ public class LstmPredictor {
 			trendPrediction[i] = (predTemp);
 		}
 
-		preprocessing.setData(trendPrediction).setMean(mean).setStandardDeviation(standerDev);
+		preprocessing.setData(trendPrediction).setMean(mean).setStandardDeviation(stdDev);
 
 		return to1DArrayList((double[]) preprocessing//
 				.reverseNormalize()//

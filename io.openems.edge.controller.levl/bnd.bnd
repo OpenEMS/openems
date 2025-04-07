@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Edge Levl Flexibility Trading Controllers
+Bundle-Vendor: Levl Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 0.1.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.ess.generic,\
+	io.openems.edge.meter.api,\
+
+-testpath: \
+	${testpath}

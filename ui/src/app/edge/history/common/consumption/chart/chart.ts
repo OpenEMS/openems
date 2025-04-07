@@ -11,6 +11,7 @@ import { ChannelAddress, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 @Component({
   selector: "consumptionchart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -25,7 +26,7 @@ export class ChartComponent extends AbstractHistoryChart {
       .filter(component => !(
         component.factoryId == "Evcs.Cluster" ||
         component.factoryId == "Evcs.Cluster.PeakShaving" ||
-        component.factoryId == "Evcs.Cluster.SelfConsumption"));
+        component.factoryId == "Evcs.Cluster.SelfConsumption") && config.hasComponentNature("io.openems.edge.evcs.api.DeprecatedEvcs", component.id));
 
     // TODO Since 2024.11.0 EVCS implements EletricityMeter; use DeprecatedEvcs as filter
     evcsComponents.forEach(component => {
@@ -37,8 +38,14 @@ export class ChartComponent extends AbstractHistoryChart {
     });
 
     const consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component)
-        && !config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs"));
+      .filter(component => {
+        const natureIds = config.getNatureIdsByFactoryId(component.factoryId);
+        const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
+        const isDeprecatedEvcs = natureIds.includes("io.openems.edge.evcs.api.DeprecatedEvcs");
+
+        return component.isEnabled && config.isTypeConsumptionMetered(component) &&
+          (!isEvcs || (isEvcs && !isDeprecatedEvcs));
+      });
 
     consumptionMeters.forEach(meter => {
       inputChannel.push({
@@ -63,7 +70,7 @@ export class ChartComponent extends AbstractHistoryChart {
           converter: () => {
             return data["ConsumptionActivePower"] ?? null;
           },
-          color: ChartConstants.Colors.BLUE,
+          color: ChartConstants.Colors.YELLOW,
           stack: 0,
         });
 

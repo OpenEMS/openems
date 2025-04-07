@@ -2,9 +2,6 @@ package io.openems.edge.battery.fenecon.home;
 
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -26,7 +23,7 @@ public class TowersAndModulesTest {
 	private static final int CELLS = 14;
 
 	@Test
-	public void testChannelsCreatedDynamically() throws Exception {
+	public void testChannelsCreatedDynamicallyBasedOnRegister() throws Exception {
 		var battery = new BatteryFeneconHomeImpl();
 		var componentTest = new ComponentTest(battery) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -42,10 +39,8 @@ public class TowersAndModulesTest {
 
 		// initial home (1 tower, each tower 5 modules)
 		componentTest.next(new TestCase() //
+				.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 1) //
 				.input(NUMBER_OF_MODULES_PER_TOWER, MODULES) //
-				.input(TOWER_0_BMS_SOFTWARE_VERSION, 1) //
-				.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-				.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
 				.input(BATTERY_HARDWARE_TYPE, BatteryFeneconHomeHardwareType.BATTERY_52));
 		checkDynamicChannels(battery, TOWERS, MODULES, CELLS, BatteryFeneconHomeHardwareType.BATTERY_52);
 
@@ -56,7 +51,7 @@ public class TowersAndModulesTest {
 
 		// add new tower home (2 tower, each tower 6 modules)
 		componentTest.next(new TestCase() //
-				.input(TOWER_1_BMS_SOFTWARE_VERSION, 1));
+				.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 2));
 		checkDynamicChannels(battery, TOWERS + 1, MODULES + 1, CELLS, BatteryFeneconHomeHardwareType.BATTERY_52);
 	}
 
