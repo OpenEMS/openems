@@ -219,11 +219,11 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 
 	@Override
 	public boolean addToSum() {
-		return config.addToSum();
+		return this.config.addToSum();
 	}
 
 	@Override
 	public MeterType getMeterType() {
-		return config.meterType();
+		return this.config.meterType();
 	}
 }
