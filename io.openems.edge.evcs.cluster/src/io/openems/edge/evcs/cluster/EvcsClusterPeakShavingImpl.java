@@ -241,7 +241,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			// means no new value.
 
 			int value = maximumAllowedPowerToDistribute.get();
-			this._setMaximumAllowedPowerToDistribute(value < 0 ? null :value);
+			this._setMaximumAllowedPowerToDistribute(value < 0 ? null : value);
 		}
 	}
 
