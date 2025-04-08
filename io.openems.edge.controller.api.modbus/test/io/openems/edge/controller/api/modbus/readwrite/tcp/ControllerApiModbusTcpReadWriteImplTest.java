@@ -19,6 +19,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyCycle;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.controller.api.modbus.ModbusApi;
 import io.openems.edge.controller.test.ControllerTest;
 
@@ -39,6 +40,7 @@ public class ControllerApiModbusTcpReadWriteImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyCycle(1000)) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
+				.addReference("metaComponent", new DummyMeta("_meta")) //
 				.activate(MyConfig.create() //
 						.setId(CONTROLLER_ID) //
 						.setEnabled(true) // has to be enabled for resetting channel
