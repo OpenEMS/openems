@@ -52,6 +52,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
@@ -92,6 +93,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger) //
 				.activate(MyConfig.create() //
@@ -128,6 +130,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -162,6 +165,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -196,6 +200,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -240,6 +245,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger) //
@@ -275,6 +281,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -307,6 +314,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -339,6 +347,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -371,6 +380,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -403,6 +413,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(new DummyBattery("battery0")).activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -500,6 +511,7 @@ public class GoodWeBatteryInverterImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger1) //
 				.addComponent(charger2) //
@@ -751,8 +763,8 @@ public class GoodWeBatteryInverterImplTest {
 		var sut = new GoodWeBatteryInverterImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager",
-						new DummyComponentManager(createDummyClock()))
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus2") //
 						.withRegisters(35011, // Deprecated GoodWe type register
 								new int[] { 0x4757, 0x3135, 0x4b2d, 0x4554, 0x3230 })
@@ -806,8 +818,8 @@ public class GoodWeBatteryInverterImplTest {
 		var sut = new GoodWeBatteryInverterImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager",
-						new DummyComponentManager(createDummyClock()))
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus2") //
 						// Not part of the test
 						.withRegisters(35011, // Deprecated GoodWe type register

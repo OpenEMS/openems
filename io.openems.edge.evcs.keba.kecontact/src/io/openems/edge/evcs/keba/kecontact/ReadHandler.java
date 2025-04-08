@@ -26,6 +26,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.keba.common.R2Plug;
 
 /**
  * Handles replies to Report Queries sent by {@link ReadWorker}.
@@ -245,17 +246,18 @@ public class ReadHandler implements Consumer<String> {
 		}
 		}
 	}
-	
-	/** Calculates the Status based on the raw status and energylimit.
+
+	/**
+	 * Calculates the Status based on the raw status and energylimit.
 	 * 
 	 * @param r2State the r2 state
-	 * @param limit the set energy limit
-	 * @param energy the current energy session
+	 * @param limit   the set energy limit
+	 * @param energy  the current energy session
 	 * @return the mapped Status
 	 */
-	public static Status  getStatus(R2State r2State, Integer limit, Integer energy) {
+	public static Status getStatus(R2State r2State, Integer limit, Integer energy) {
 		if (limit != null && energy != null && energy >= limit && limit != 0) {
-			return  Status.ENERGY_LIMIT_REACHED;
+			return Status.ENERGY_LIMIT_REACHED;
 		}
 		return switch (r2State) {
 		case UNDEFINED -> Status.UNDEFINED;

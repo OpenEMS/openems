@@ -1,3 +1,4 @@
+import { TPartialBy } from "../../type/utility";
 import { Icon } from "../../type/widget";
 
 export enum NavigationId {
@@ -5,12 +6,15 @@ export enum NavigationId {
     HISTORY = "history",
 }
 
+type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "medium" | "light" | "dark" | "warning";
+type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
+
 export class NavigationTree {
 
     constructor(
         public id: NavigationId | string,
         public routerLink: string,
-        public icon: Pick<Icon, "name">,
+        public icon: PartialedIcon,
         public label: string,
         public mode: "icon" | "label",
         public children: NavigationTree[] | null,

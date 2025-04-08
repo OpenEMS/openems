@@ -529,9 +529,33 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return arr;
       }, []);
 
+      // Should avoid same datasets in multiple stacks and in legend to be always visible => can be hidden with single legend hide
+      const hasBeenChanged: Map<string, boolean> = new Map();
+
       legendItems.forEach(item => {
-        // original.call(this, event, legendItem1);
-        setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
+
+        /**
+         * Shows or hides datasets
+         *
+         * @info
+         *
+         * @param label the legendItem label
+         * @param chart the chart
+         * @param datasetIndex the dataset index
+         * @returns
+         */
+        function showOrHideLabel(label: string, chart: Chart.Chart, datasetIndex: number) {
+          if (hasBeenChanged.has(label)) {
+            return;
+          }
+
+          const isLabelHidden = !chart.isDatasetVisible(datasetIndex);
+          setLabelVisible(label, isLabelHidden);
+          hasBeenChanged.set(label, isLabelHidden);
+        }
+
+        showOrHideLabel(item.label, chart, legendItem.datasetIndex);
+
         const meta = chart.getDatasetMeta(item.index);
         const currentDisplayValue = displayValues.find(el => el.name == legendItem.text.split(":")[0]);
 

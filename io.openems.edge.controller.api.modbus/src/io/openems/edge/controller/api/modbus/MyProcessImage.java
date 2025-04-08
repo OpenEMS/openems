@@ -44,8 +44,8 @@ public class MyProcessImage implements ProcessImage {
 
 		} catch (Exception e) {
 			this.parent.setProcessImageFault(this.parent.clock);
-			e.printStackTrace();
-			throw new MyIllegalAddressException(this, e.getMessage());
+			throw MyIllegalAddressException.fromWithLog(this::logWarn, //
+					"getInputRegisterRange(" + offset + ", " + count + ") failed: " + e.getMessage());
 		}
 	}
 
@@ -61,7 +61,9 @@ public class MyProcessImage implements ProcessImage {
 			 */
 			var length = count * 2;
 			if (length < 0 || length + 2 > 255) {
-				throw new MyIllegalAddressException(this, "Invalid length: " + length + "; max. 126 registers allowed");
+				throw MyIllegalAddressException.fromWithLog(this::logWarn, //
+						"getRegisterRange(" + offset + ", " + count + ") failed: " //
+								+ "Invalid length: " + length + "; max. 126 registers allowed");
 			}
 
 			var records = this.parent.records.subMap(offset, offset + count);
@@ -79,8 +81,9 @@ public class MyProcessImage implements ProcessImage {
 
 				// make sure this Record fits
 				if (result.length < i + registers.length) {
-					throw new MyIllegalAddressException(this,
-							"Record for Modbus address [" + ref + "] does not fit in Result.");
+					throw MyIllegalAddressException.fromWithLog(this::logWarn, //
+							"getRegisterRange(" + offset + ", " + count + ") failed: " //
+									+ "Record for Modbus address [" + ref + "] does not fit in Result.");
 				}
 				for (var j = 0; j < registers.length; j++) {
 					result[i + j] = registers[j];
@@ -93,7 +96,8 @@ public class MyProcessImage implements ProcessImage {
 
 		} catch (Exception e) {
 			this.parent.setProcessImageFault(this.parent.clock);
-			throw new MyIllegalAddressException(this, e.getMessage());
+			throw MyIllegalAddressException.fromWithLog(this::logWarn, //
+					"getRegisterRange(" + offset + ", " + count + ") failed: " + e.getMessage());
 		}
 	}
 
@@ -106,7 +110,9 @@ public class MyProcessImage implements ProcessImage {
 
 			// make sure the ModbusRecord is available
 			if (record == null) {
-				throw new MyIllegalAddressException(this, "Record for Modbus address [" + ref + "] is not available.");
+				throw MyIllegalAddressException.fromWithLog(this::logWarn, //
+						"getRegister(" + ref + ") failed: " //
+								+ "Record for Modbus address [" + ref + "] is not available");
 			}
 
 			// Get Registers from Record
@@ -114,15 +120,17 @@ public class MyProcessImage implements ProcessImage {
 
 			// make sure this Record requires only one Register/Word
 			if (registers.length > 1) {
-				throw new MyIllegalAddressException(this,
-						"Record for Modbus address [" + ref + "] requires more than one Register.");
+				throw MyIllegalAddressException.fromWithLog(this::logWarn, //
+						"getRegister(" + ref + ") failed: " //
+								+ "Record for Modbus address [" + ref + "] requires more than one Register");
 			}
 
 			return registers[0];
 
 		} catch (Exception e) {
 			this.parent.setProcessImageFault(this.parent.clock);
-			throw new MyIllegalAddressException(this, e.getMessage());
+			throw MyIllegalAddressException.fromWithLog(this::logWarn, //
+					"getRegister(" + ref + ") failed: " + e.getMessage());
 		}
 	}
 
@@ -275,4 +283,7 @@ public class MyProcessImage implements ProcessImage {
 		return 0;
 	}
 
+	private void logWarn(String message) {
+		this.parent.logWarn(this.log, message);
+	}
 }

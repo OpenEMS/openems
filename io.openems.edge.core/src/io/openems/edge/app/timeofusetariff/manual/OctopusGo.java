@@ -1,7 +1,5 @@
 package io.openems.edge.app.timeofusetariff.manual;
 
-import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 
@@ -21,10 +19,10 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.types.CurrencyConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.timeofusetariff.TimeOfUseProps;
 import io.openems.edge.app.timeofusetariff.manual.OctopusGo.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -41,7 +39,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -77,23 +74,9 @@ public class OctopusGo extends AbstractOpenemsAppWithProps<OctopusGo, Property, 
 		// Properties
 		ALIAS(CommonProps.alias()), //
 
-		STANDARD_PRICE(AppDef.copyOfGeneric(defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".standardPrice.label") //
-				.setTranslatedDescriptionWithAppPrefix(".standardPrice.description") //
-				.setRequired(true)//
-				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
-					field.setInputType(NUMBER); //
-					field.setUnit(CurrencyConfig.EUR.getUnderPart() + " /kWh");
-				}))), //
+		STANDARD_PRICE(TimeOfUseProps.price(".standardPrice")), //
 
-		LOW_PRICE(AppDef.copyOfGeneric(defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".lowPrice.label") //
-				.setTranslatedDescriptionWithAppPrefix(".lowPrice.description") //
-				.setRequired(true)//
-				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
-					field.setInputType(NUMBER); //
-					field.setUnit(CurrencyConfig.EUR.getUnderPart() + " /kWh");
-				}))); //
+		LOW_PRICE(TimeOfUseProps.price(".lowPrice")); //
 
 		private final AppDef<? super OctopusGo, ? super Property, ? super Type.Parameter.BundleParameter> def;
 

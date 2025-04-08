@@ -1,16 +1,15 @@
-package io.openems.edge.core.componentmanager.jsonrpc;
+package io.openems.common.jsonrpc.request;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
 import java.util.List;
 
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord;
+import io.openems.common.jsonrpc.request.GetStateChannelsOfComponent.Request;
+import io.openems.common.jsonrpc.request.GetStateChannelsOfComponent.Response;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
-import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
-import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent.Request;
-import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent.Response;
 
 public class GetStateChannelsOfComponent implements EndpointRequestType<Request, Response> {
 

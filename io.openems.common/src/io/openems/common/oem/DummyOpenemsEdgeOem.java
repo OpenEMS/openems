@@ -64,6 +64,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Home10.Gen2", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
+			.put("App.FENECON.Commercial.92.ClusterMaster", "") //
+			.put("App.FENECON.Commercial.92.ClusterSlave", "") //
 			.put("App.FENECON.Industrial.L.ILK710", "https://fenecon.de/fenecon-industrial-l/") //
 			.put("App.FENECON.Industrial.S.ISK010", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
@@ -73,6 +75,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.TimeOfUseTariff.GroupeE", "") //
 			.put("App.TimeOfUseTariff.Hassfurt", "") //
 			.put("App.TimeOfUseTariff.OctopusGo", "") //
+			.put("App.TimeOfUseTariff.OctopusHeat", "") //
 			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.TimeOfUseTariff.Stromdao", "") //
 			.put("App.TimeOfUseTariff.Swisspower", "") //
@@ -91,10 +94,12 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Evcs.HardyBarth", "") //
 			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Keba", "") //
+			.put("App.Evcs.Keba.ReadOnly", "") //
 			.put("App.Evcs.Heidelberg.ReadOnly", "") //
 			.put("App.Evcs.Mennekes.ReadOnly", "") //
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //
+			.put("App.Hardware.IoGpio", "") //
 			.put("App.Hardware.KMtronic8Channel", "") //
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //

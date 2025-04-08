@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.keba.kecontact;
+package io.openems.edge.evcs.keba.common;
 
 import io.openems.common.types.OptionsEnum;
 
