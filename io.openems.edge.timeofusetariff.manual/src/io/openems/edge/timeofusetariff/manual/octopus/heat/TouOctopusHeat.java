@@ -1,10 +1,10 @@
-package io.openems.edge.timeofusetariff.manual.octopus.go;
+package io.openems.edge.timeofusetariff.manual.octopus.heat;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface TouOctopusGo extends OpenemsComponent {
+public interface TouOctopusHeat extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		INVALID_PRICE(Doc.of(Level.WARNING) //

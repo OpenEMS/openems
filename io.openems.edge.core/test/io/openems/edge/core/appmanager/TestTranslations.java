@@ -53,6 +53,11 @@ public class TestTranslations {
 					.addProperty("STANDARD_PRICE", 27.6) //
 					.addProperty("LOW_PRICE", 14.8) //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.octopusHeat(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HIGH_PRICE", 34.6) //
+					.addProperty("STANDARD_PRICE", 27.6) //
+					.addProperty("LOW_PRICE", 14.8) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
 					.build()));

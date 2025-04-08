@@ -91,6 +91,7 @@ import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Swisspower;
 import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.app.timeofusetariff.manual.OctopusGo;
+import io.openems.edge.app.timeofusetariff.manual.OctopusHeat;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.meta.Meta;
@@ -228,6 +229,16 @@ public final class Apps {
 	 */
 	public static final OctopusGo octopusGo(AppManagerTestBundle t) {
 		return app(t, OctopusGo::new, "App.TimeOfUseTariff.OctopusGo");
+	}
+
+	/**
+	 * Test method for creating a {@link OctopusHeat}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final OctopusHeat octopusHeat(AppManagerTestBundle t) {
+		return app(t, OctopusHeat::new, "App.TimeOfUseTariff.OctopusHeat");
 	}
 
 	/**

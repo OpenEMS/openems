@@ -23,7 +23,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.TimeOfUseProps;
-import io.openems.edge.app.timeofusetariff.manual.OctopusGo.Property;
+import io.openems.edge.app.timeofusetariff.manual.OctopusHeat.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -42,17 +42,18 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
- * Describes a App for Octopus Go.
+ * Describes a App for Octopus Heat.
  *
  * <pre>
   {
-    "appId":"App.TimeOfUseTariff.OctopusGo",
+    "appId":"App.TimeOfUseTariff.OctopusHeat",
     "alias":"Octopus Go",
     "instanceId": UUID,
     "image": base64,
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
+    	"HIGH_PRICE": {}highPrice,
     	"STANDARD_PRICE": {standardPrice},
     	"LOW_PRICE": {lowPrice}
     },
@@ -62,11 +63,11 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@Component(name = "App.TimeOfUseTariff.OctopusGo")
-public class OctopusGo extends AbstractOpenemsAppWithProps<OctopusGo, Property, Type.Parameter.BundleParameter>
+@Component(name = "App.TimeOfUseTariff.OctopusHeat")
+public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Property, Type.Parameter.BundleParameter>
 		implements OpenemsApp {
 
-	public static enum Property implements Type<Property, OctopusGo, Type.Parameter.BundleParameter>, Nameable {
+	public static enum Property implements Type<Property, OctopusHeat, Type.Parameter.BundleParameter>, Nameable {
 		// Component-IDs
 		CTRL_ESS_TIME_OF_USE_TARIFF_ID(AppDef.componentId("ctrlEssTimeOfUseTariff0")), //
 		TIME_OF_USE_TARIFF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
@@ -74,13 +75,15 @@ public class OctopusGo extends AbstractOpenemsAppWithProps<OctopusGo, Property, 
 		// Properties
 		ALIAS(CommonProps.alias()), //
 
+		HIGH_PRICE(TimeOfUseProps.price(".highPrice")), //
+
 		STANDARD_PRICE(TimeOfUseProps.price(".standardPrice")), //
 
 		LOW_PRICE(TimeOfUseProps.price(".lowPrice")); //
 
-		private final AppDef<? super OctopusGo, ? super Property, ? super Type.Parameter.BundleParameter> def;
+		private final AppDef<? super OctopusHeat, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
-		private Property(AppDef<? super OctopusGo, ? super Property, ? super Type.Parameter.BundleParameter> def) {
+		private Property(AppDef<? super OctopusHeat, ? super Property, ? super Type.Parameter.BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -90,18 +93,18 @@ public class OctopusGo extends AbstractOpenemsAppWithProps<OctopusGo, Property, 
 		}
 
 		@Override
-		public AppDef<? super OctopusGo, ? super Property, ? super Type.Parameter.BundleParameter> def() {
+		public AppDef<? super OctopusHeat, ? super Property, ? super Type.Parameter.BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<OctopusGo>, Type.Parameter.BundleParameter> getParamter() {
+		public Function<GetParameterValues<OctopusHeat>, Type.Parameter.BundleParameter> getParamter() {
 			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 	}
 
 	@Activate
-	public OctopusGo(@Reference ComponentManager componentManager, ComponentContext context,
+	public OctopusHeat(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
 	}
@@ -114,6 +117,7 @@ public class OctopusGo extends AbstractOpenemsAppWithProps<OctopusGo, Property, 
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 
+			final var highPrice = this.getDouble(p, Property.HIGH_PRICE);
 			final var standardPrice = this.getDouble(p, Property.STANDARD_PRICE);
 			final var lowPrice = this.getDouble(p, Property.LOW_PRICE);
 
@@ -124,6 +128,7 @@ public class OctopusGo extends AbstractOpenemsAppWithProps<OctopusGo, Property, 
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.OctopusGo",
 							JsonUtils.buildJsonObject() //
+									.addProperty("highPrice", highPrice) //
 									.addProperty("standardPrice", standardPrice) //
 									.addProperty("lowPrice", lowPrice) //
 									.build())//
@@ -167,7 +172,7 @@ public class OctopusGo extends AbstractOpenemsAppWithProps<OctopusGo, Property, 
 	}
 
 	@Override
-	protected OctopusGo getApp() {
+	protected OctopusHeat getApp() {
 		return this;
 	}
 
