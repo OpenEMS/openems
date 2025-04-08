@@ -83,7 +83,7 @@ public class InterfaceConfiguration {
 	 * Adds an ip to the list with using
 	 * {@link Inet4AddressWithSubnetmask#fromString(String, String)}.
 	 * 
-	 * @param label the label of the ip
+	 * @param label the label with a length of 1..15 characters
 	 * @param ip    the {@link Inet4AddressWithSubnetmask} to add
 	 * @return this
 	 * @throws OpenemsException if
@@ -91,6 +91,9 @@ public class InterfaceConfiguration {
 	 *                          throws an error
 	 */
 	public InterfaceConfiguration addIp(String label, String ip) throws OpenemsException {
+		if (label.length() > 15) {
+			throw new IllegalArgumentException("label length must be in 1..15");
+		}
 		this.ips.add(Inet4AddressWithSubnetmask.fromString(label, ip));
 		return this;
 	}

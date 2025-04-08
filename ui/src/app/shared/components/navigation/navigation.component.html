@@ -1,13 +1,13 @@
-<ion-modal #modal trigger="open-modal" [isOpen]="true" [initialBreakpoint]="0.1" [breakpoints]="[0.04, 0.1, 0.9]"
-    showBackdrop="false" [backdropDismiss]="false" [backdropBreakpoint]="0.1" focusTrap="false" *ngIf="isAllowed">
+<ion-modal #modal trigger="open-modal" [isOpen]="true" [initialBreakpoint]="initialBreakPoint"
+    [breakpoints]="[0.04, 0.1, 0.2, 0.9]" showBackdrop="false" [backdropDismiss]="false"
+    [backdropBreakpoint]="initialBreakPoint" focusTrap="false" *ngIf="hasNavigationNodes">
     <ng-template>
         <ion-content class="ion-padding">
             <ion-breadcrumbs>
-                @for(parent of parents; track $index){
-                <ion-breadcrumb routerLinkActive="active" (click)="navigationService.navigateTo(parent)">
+                @for(parent of parents; track parent.id; let isLast = $last){
+                <ion-breadcrumb routerLinkActive="active" (click)="navigateTo(parent, !isLast)">
                     <ion-text *ngIf="parent.mode === 'label'"
-                        [color]="currentlyActive ? 'primary':'medium'">{{parent?.icon?.name ??
-                        'help-outline'}}</ion-text>
+                        [color]="last ? 'primary': 'medium'">{{parent.label}}</ion-text>
                     <ion-icon *ngIf="parent.mode === 'icon'" [name]="'home-outline'"
                         [color]="currentlyActive ? 'primary':'medium'"></ion-icon>
                 </ion-breadcrumb>
@@ -15,7 +15,7 @@
             </ion-breadcrumbs>
 
             @for(child of children; track $index){
-            <ion-chip (click)="navigationService.navigateTo(child)">
+            <ion-chip (click)="navigateTo(child,true);" style="background: var(--ion-color-toolbar-primary);">
                 <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'"
                     [size]="child.icon?.size ?? 'small'"></ion-icon>
                 <ion-label>{{child.label}}</ion-label>

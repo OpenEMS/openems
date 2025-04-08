@@ -151,6 +151,39 @@ public final class FunctionUtils {
 		};
 	}
 
+	/**
+	 * Applies the {@link Consumer} to the object and returns it.
+	 * 
+	 * <p>
+	 * Can be used to better group initialization of objects e. g.
+	 * 
+	 * <pre>
+	 * var data = apply(new HashMap&lt;String, String&gt;(), t -> {
+	 * 	t.put("key", "value");
+	 * });
+	 * </pre>
+	 * 
+	 * or to inline creation of objects
+	 * 
+	 * <pre>
+	 * var data = List.of(//
+	 * 		apply(new HashMap&lt;String, String&gt;(), t -> t.put("key", "value")), //
+	 * 		apply(new HashMap&lt;String, String&gt;(), t -> t.put("key2", "value2")) //
+	 * );
+	 * </pre>
+	 * 
+	 * </p>
+	 * 
+	 * @param <T>           they type of the object
+	 * @param object        the object to execute additional code on
+	 * @param applyToObject the {@link Consumer} to execute on the object
+	 * @return the same object
+	 */
+	public static <T> T apply(T object, Consumer<T> applyToObject) {
+		applyToObject.accept(object);
+		return object;
+	}
+
 	private FunctionUtils() {
 	}
 

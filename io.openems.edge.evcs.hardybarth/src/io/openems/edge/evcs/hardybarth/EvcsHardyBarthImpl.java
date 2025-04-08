@@ -278,25 +278,42 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	 * @return boolean if the target was set
 	 * @throws OpenemsNamedException on error
 	 */
-	private boolean setTarget(int current) {
-		CompletableFuture<HttpResponse<JsonElement>> resultPause = null;
-		if (current > 0) {
-			// Send stop pause request
-			resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(0));
-		} else {
-			resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(1));
-			this.debugLog("Setting HardyBarth " + this.alias() + " to pause");
-		}
+	private boolean setTarget(int current) throws OpenemsNamedException {
+		var resultPause = this.pauseChargeIfNeeded(current);
 
 		// Send charge power limit
 		final var resultLimit = this.httpBridge.requestJson(
 				this.createEndpoint(PUT, "/api/secc", "{\"" + "grid_current_limit" + "\":\"" + current + "\"}"));
 		try {
-			return resultLimit.get().status().equals(HttpStatus.OK) && resultPause.get().status().equals(HttpStatus.OK);
+			return resultLimit.get().status().equals(HttpStatus.OK) && resultPause;
 		} catch (InterruptedException | ExecutionException e) {
 			this.log.error("Unable to set EVCS Target");
 			return false;
 		}
+	}
+
+	private boolean pauseChargeIfNeeded(int current) throws OpenemsNamedException {
+		final var softwareVersion = this.getSoftwareVersion();
+		if (softwareVersion == null || softwareVersion.startsWith("1.")) {
+			CompletableFuture<HttpResponse<JsonElement>> resultPause = null;
+			if (current > 0) {
+				// Send stop pause request
+				resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(0));
+			} else {
+				// Send pause charging request
+				resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(1));
+				this.debugLog("Setting HardyBarth " + this.alias() + " to pause");
+			}
+			try {
+				return resultPause.get().status().equals(HttpStatus.OK);
+			} catch (InterruptedException | ExecutionException e) {
+				this.log.error("Unable to pause charge process");
+				return false;
+			}
+		} else {
+			return true;
+		}
+
 	}
 
 	@Override

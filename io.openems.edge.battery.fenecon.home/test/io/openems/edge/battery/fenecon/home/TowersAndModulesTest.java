@@ -15,6 +15,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummySerialNumberStorage;
 
 public class TowersAndModulesTest {
 
@@ -29,6 +30,7 @@ public class TowersAndModulesTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
 						.setModbusId("modbus0") //

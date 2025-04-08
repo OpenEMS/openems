@@ -271,7 +271,7 @@ export class ModalComponent extends AbstractModal {
       if (state == null) {
         return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
       }
-    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && this.chargePower.value > 450) {
       return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
     }
     switch (state) {
