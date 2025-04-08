@@ -56,12 +56,12 @@
               <ion-row *ngIf="latestSetupProtocolData" class="ion-align-items-center"
                 style="color: var(--ion-color-white)">
                 <ion-col size-md="4" size-xs="6">
-                  <ion-label translate>
+                  <ion-label style="color:var(--ion-color-card-content)" translate>
                     PROFILE.SYSTEM_PROTOCOL.LABEL
                   </ion-label>
                 </ion-col>
                 <ion-col size-md="4" size-xs="6" class="ion-text-align-end ion-text-md-center">
-                  <ion-label>
+                  <ion-label style="color:var(--ion-color-card-content)">
                     {{latestSetupProtocolData.createDate | date:'dd.MM.YYYY HH:mm'}}
                   </ion-label>
                 </ion-col>
