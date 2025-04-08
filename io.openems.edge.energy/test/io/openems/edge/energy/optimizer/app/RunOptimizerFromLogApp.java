@@ -13,7 +13,7 @@ import static io.openems.edge.energy.optimizer.app.AppUtils.simulateFromLog;
  * 
  * <p>
  * <code>
- * journalctl -lu openems --since="20 minutes ago" | grep OPTIMIZER
+ * journalctl -lu openems --since="20 minutes ago" | grep OPTIMIZER | sed 's/.*OPTIMIZER/OPTIMIZER/'
  * </code>
  */
 public class RunOptimizerFromLogApp {
