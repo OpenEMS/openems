@@ -26,6 +26,7 @@ import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.DezonyEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -34,6 +35,7 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.HostSupplier;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -69,7 +71,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
  */
 @Component(name = "App.Evcs.Dezony")
 public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier {
 
 	public enum Property implements Type<Property, DezonyEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -113,16 +115,20 @@ public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property
 	}
 
 	private final Host host;
+	private final Meta meta;
 
 	@Activate
-	public DezonyEvcs(@Reference ComponentManager componentManager, //
+	public DezonyEvcs(//
+			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
 			@Reference ComponentUtil componentUtil, //
-			@Reference Host host //
+			@Reference Host host, //
+			@Reference Meta meta //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
 		this.host = host;
+		this.meta = meta;
 	}
 
 	@Override
@@ -200,6 +206,11 @@ public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property
 	@Override
 	public Host getHost() {
 		return this.host;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
 	}
 
 }

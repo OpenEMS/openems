@@ -6,6 +6,9 @@ import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
 public class EnergyUtils {
 
@@ -24,7 +27,7 @@ public class EnergyUtils {
 	}
 
 	/**
-	 * Finds the first valley in an array of doubles, e.g. prices.
+	 * Finds the last index of the first valley in an array of doubles, e.g. prices.
 	 * 
 	 * @param fromIndex start searching from this index
 	 * @param values    the values array
@@ -70,6 +73,27 @@ public class EnergyUtils {
 	}
 
 	/**
+	 * Finds indexes of valleys in an array of doubles, e.g. prices.
+	 * 
+	 * @param values the values array
+	 * @return a list of valleys
+	 */
+	public static int[] findValleyIndexes(double[] values) {
+		final var result = ImmutableSet.<Integer>builder();
+		int valley = 0;
+		int peak = 0;
+		while (true) {
+			valley = findFirstValleyIndex(peak, values);
+			peak = findFirstPeakIndex(valley, values);
+			if (peak == valley) {
+				break;
+			}
+			result.add(valley);
+		}
+		return result.build().stream().mapToInt(Integer::intValue).toArray();
+	}
+
+	/**
 	 * Converts power [W] to energy [Wh/15 min].
 	 * 
 	 * @param power the power value
@@ -91,16 +115,16 @@ public class EnergyUtils {
 
 	/**
 	 * From a list of {@link EnergyScheduleHandler}s, filters only the ones of type
-	 * {@link EnergyScheduleHandler.WithDifferentStates}.
+	 * {@link EnergyScheduleHandler.WithDifferentModes}.
 	 * 
 	 * @param eshs list of {@link EnergyScheduleHandler}s
-	 * @return new stream of {@link EnergyScheduleHandler.WithDifferentStates}s
+	 * @return new stream of {@link EnergyScheduleHandler.WithDifferentModes}s
 	 */
-	public static Stream<EnergyScheduleHandler.WithDifferentStates<?, ?>> filterEshsWithDifferentStates(
+	public static Stream<EnergyScheduleHandler.WithDifferentModes> filterEshsWithDifferentModes(
 			ImmutableList<EnergyScheduleHandler> eshs) {
 		return eshs.stream() //
-				.filter(EnergyScheduleHandler.WithDifferentStates.class::isInstance) //
-				.<EnergyScheduleHandler.WithDifferentStates<?, ?>>map(
-						EnergyScheduleHandler.WithDifferentStates.class::cast);
+				.filter(EnergyScheduleHandler.WithDifferentModes.class::isInstance) //
+				.map(EnergyScheduleHandler.WithDifferentModes.class::cast);
+		// TODO only ESHs with actually more than one Mode
 	}
 }

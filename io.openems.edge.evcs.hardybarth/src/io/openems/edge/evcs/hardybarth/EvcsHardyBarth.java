@@ -13,8 +13,10 @@ import java.util.function.Function;
 
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.component.OpenemsComponent;
 
-public interface EvcsHardyBarth {
+public interface EvcsHardyBarth extends OpenemsComponent {
 
 	public static final float SCALE_FACTOR_MINUS_1 = 0.1F;
 
@@ -213,5 +215,18 @@ public interface EvcsHardyBarth {
 		public String[] getJsonPaths() {
 			return this.jsonPaths;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RAW_DEVICE_SOFTWARE_VERSION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StringReadChannel getSoftwareVersionChannel() {
+		return this.channel(ChannelId.RAW_DEVICE_SOFTWARE_VERSION);
+	}
+
+	public default String getSoftwareVersion() {
+		return this.getSoftwareVersionChannel().value().get();
 	}
 }

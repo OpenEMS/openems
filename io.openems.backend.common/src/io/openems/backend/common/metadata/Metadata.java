@@ -194,8 +194,8 @@ public interface Metadata {
 		var states = new HashMap<Level, HashMultimap<String, Channel>>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
 			var detail = entry.getValue().getDetail();
-			if (detail instanceof ChannelDetailState) {
-				var level = ((ChannelDetailState) detail).getLevel();
+			if (detail instanceof ChannelDetailState cds) {
+				var level = cds.getLevel();
 				var channelsByComponent = states.get(level);
 				if (channelsByComponent == null) {
 					channelsByComponent = HashMultimap.create();

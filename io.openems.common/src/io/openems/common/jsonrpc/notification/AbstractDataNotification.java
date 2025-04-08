@@ -26,8 +26,8 @@ import io.openems.common.utils.JsonUtils;
  * }
  * </pre>
  */
-// TODO change to sealed class
-public abstract class AbstractDataNotification extends JsonrpcNotification {
+public abstract sealed class AbstractDataNotification extends JsonrpcNotification
+		permits TimestampedDataNotification, AggregatedDataNotification, ResendDataNotification {
 
 	private final TreeBasedTable<Long, String, JsonElement> data;
 

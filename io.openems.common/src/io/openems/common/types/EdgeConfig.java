@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -103,6 +104,19 @@ public class EdgeConfig {
 				public PersistencePriority getPersistencePriority() {
 					return this.persistencePriority;
 				}
+
+				@Override
+				public boolean equals(Object o) {
+					if (!(o instanceof ChannelDetailOpenemsType that)) {
+						return false;
+					}
+					return this.persistencePriority == that.persistencePriority;
+				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hashCode(this.persistencePriority);
+				}
 			}
 
 			/**
@@ -147,6 +161,20 @@ public class EdgeConfig {
 				public PersistencePriority getPersistencePriority() {
 					return this.persistencePriority;
 				}
+
+				@Override
+				public boolean equals(Object o) {
+					if (!(o instanceof ChannelDetailEnum that)) {
+						return false;
+					}
+					return Objects.equals(this.options, that.options)
+							&& this.persistencePriority == that.persistencePriority;
+				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hash(this.options, this.persistencePriority);
+				}
 			}
 
 			/**
@@ -186,6 +214,19 @@ public class EdgeConfig {
 				@Override
 				public PersistencePriority getPersistencePriority() {
 					return this.persistencePriority;
+				}
+
+				@Override
+				public boolean equals(Object o) {
+					if (!(o instanceof ChannelDetailState that)) {
+						return false;
+					}
+					return this.level == that.level && this.persistencePriority == that.persistencePriority;
+				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hash(this.level, this.persistencePriority);
 				}
 			}
 
@@ -339,6 +380,21 @@ public class EdgeConfig {
 						.addProperty("category", this.detail.getCategory().name()) //
 						.addProperty("persistencePriority", this.detail.getPersistencePriority()) //
 						.build();
+			}
+
+			@Override
+			public boolean equals(Object o) {
+				if (!(o instanceof Channel channel)) {
+					return false;
+				}
+				return Objects.equals(this.id, channel.id) && this.type == channel.type
+						&& this.accessMode == channel.accessMode && Objects.equals(this.text, channel.text)
+						&& this.unit == channel.unit && Objects.equals(this.detail, channel.detail);
+			}
+
+			@Override
+			public int hashCode() {
+				return Objects.hash(this.id, this.type, this.accessMode, this.text, this.unit, this.detail);
 			}
 		}
 
@@ -696,37 +752,20 @@ public class EdgeConfig {
 					description = "";
 				}
 
-				final OpenemsType type;
-				switch (ad.getType()) {
-				case AttributeDefinition.LONG:
-					type = OpenemsType.LONG;
-					break;
-				case AttributeDefinition.INTEGER:
-					type = OpenemsType.INTEGER;
-					break;
-				case AttributeDefinition.SHORT:
-				case AttributeDefinition.BYTE:
-					type = OpenemsType.SHORT;
-					break;
-				case AttributeDefinition.DOUBLE:
-					type = OpenemsType.DOUBLE;
-					break;
-				case AttributeDefinition.FLOAT:
-					type = OpenemsType.FLOAT;
-					break;
-				case AttributeDefinition.BOOLEAN:
-					type = OpenemsType.BOOLEAN;
-					break;
-				case AttributeDefinition.STRING:
-				case AttributeDefinition.CHARACTER:
-				case AttributeDefinition.PASSWORD:
-					type = OpenemsType.STRING;
-					break;
-				default:
+				final OpenemsType type = switch (ad.getType()) {
+				case AttributeDefinition.LONG -> OpenemsType.LONG;
+				case AttributeDefinition.INTEGER -> OpenemsType.INTEGER;
+				case AttributeDefinition.SHORT, AttributeDefinition.BYTE -> OpenemsType.SHORT;
+				case AttributeDefinition.DOUBLE -> OpenemsType.DOUBLE;
+				case AttributeDefinition.FLOAT -> OpenemsType.FLOAT;
+				case AttributeDefinition.BOOLEAN -> OpenemsType.BOOLEAN;
+				case AttributeDefinition.STRING, AttributeDefinition.CHARACTER, AttributeDefinition.PASSWORD ->
+					OpenemsType.STRING;
+				default -> {
 					EdgeConfig.LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
-					type = OpenemsType.STRING;
+					yield OpenemsType.STRING;
 				}
-
+				};
 				var defaultValues = ad.getDefaultValue();
 				JsonElement defaultValue;
 				if (defaultValues == null) {
@@ -769,15 +808,13 @@ public class EdgeConfig {
 
 				var id = ad.getID();
 				var name = ad.getName();
-				final boolean isRequired;
-				switch (id) {
-				case "alias":
-					// Set alias as not-required. If no alias is given it falls back to id.
-					isRequired = false;
-					break;
-				default:
-					isRequired = ad.getCardinality() == 0;
-				}
+				var isRequired = switch (id) {
+				case "alias" -> //
+					// Set alias as not-required. If no alias is given it falls back to id
+					false;
+				default //
+					-> ad.getCardinality() == 0;
+				};
 				return new Property(id, name, description, type, isRequired, isPassword, defaultValue, schema);
 			}
 

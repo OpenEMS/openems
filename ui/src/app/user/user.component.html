@@ -44,7 +44,7 @@
               </ion-label>
             </ion-item>
             <ion-item lines="none">
-              <ion-button (click)="doLogout()" slot="end" size="default" style="padding-top: 0.8em">
+              <ion-button (click)="doLogout()" slot="end" style="padding-top: 0.8em">
                 <ion-label translate>Menu.logout</ion-label>
                 <ion-icon name="log-out-outline"></ion-icon>
               </ion-button>
@@ -60,7 +60,7 @@
         </ion-card>
 
         <!-- Show and Edit UserInformation -->
-        <ion-card>
+        <ion-card *ngIf="isAllowedToSeeUserDetails">
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
@@ -81,11 +81,12 @@
             <ion-item lines="none">
               <ion-button style="padding-top: 0.3em" slot="start" (click)="enableAndDisableEditMode()"
                 [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
-                <ion-label>{{isEditModeDisabled ?'bearbeiten':'zurücksetzen'}}</ion-label>
+                <ion-label>{{isEditModeDisabled ? ('General.EDIT' | translate) :('General.RESET' |
+                  translate)}}</ion-label>
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
-                <ion-label translate>General.save</ion-label>
+                <ion-label translate>General.SAVE</ion-label>
                 <ion-icon name="save-outline" slot="end"></ion-icon>
               </ion-button>
             </ion-item>
@@ -94,10 +95,10 @@
         </ion-card>
 
         <ion-card *ngIf="companyInformationFields.length > 0">
-          <ion-item lines="full" color="light"
-            [label]="('Register.Form.contactDetails' | translate) + ' (' + ('Register.Form.company' | translate) + ')'">
+          <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
+              {{'Register.Form.contactDetails' | translate}} ({{'Register.Form.company' | translate}})
             </ion-label>
           </ion-item>
           <ion-card-content>
@@ -113,20 +114,19 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="code-slash-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
-              {{ environment.edgeShortName }} - {{ environment.edgeLongName }}
+              {{ environment.edgeShortName }} - {{ environment.edgeLongName }} {{"About.ENERGY_MANAGEMENT" | translate}}
             </ion-label>
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <p class="ion-padding" translate>About.developed</p>
+            <p class="ion-padding" [innerHTML]="'About.DESCRIPTION' | translate"></p>
             <ul>
               <li>
                 <a class="ion-link" target="_blank" href="https://openems.io" translate>About.openEMS</a>
               </li>
             </ul>
-            <p class="ion-padding" translate>About.build</p>
             <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
-              <p class="ion-padding" translate>About.build</p>
+              <p class="ion-padding" translate>About.BUILD</p>
               <ul>
                 <li>
                   <a class="ion-link" routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role
@@ -134,9 +134,7 @@
                 </li>
               </ul>
             </div>
-            <p class="ion-padding">
-              <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
-            </p>
+            <p class="ion-padding" [innerHTML]="'About.CONTACT' | translate"></p>
           </ion-card-content>
         </ion-card>
         <ion-card>
@@ -154,17 +152,15 @@
                 </ion-select-option>
               </ion-select>
             </ion-item>
+            <ion-item id="theme-switcher" lines="none" class="page-content">
+              <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="userTheme" interface="popover"
+                [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" label="Theme">
+                <ion-select-option *ngFor="let theme of themes" [value]="theme.value">
+                  {{ theme.key }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
             <ng-container *ngIf="isAtLeastAdmin">
-              <div class="page-content">
-                <ion-item id="theme-switcher" lines="none">
-                  <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="currentTheme"
-                    interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" label="Theme">
-                    <ion-select-option *ngFor="let theme of themes" [value]="theme.value">
-                      {{ theme.key }}
-                    </ion-select-option>
-                  </ion-select>
-                </ion-item>
-              </div>
               <ion-item lines="none">
                 <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">Debug-Mode
                 </ion-checkbox>

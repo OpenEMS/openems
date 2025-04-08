@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -98,14 +99,15 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					.thenByFactoryId("Controller.Ess.Limiter14a") //
 					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
-					.thenByFactoryId("Controller.Ess.FixStateOfCharge")//
+					.thenByFactoryId("Controller.Ess.FixStateOfCharge") //
 					.thenByFactoryId("Controller.Ess.EmergencyCapacityReserve") //
 					.thenBy(new SchedulerOrderDefinition() //
 							.filterByFactoryId("Controller.Api.ModbusTcp.ReadWrite") //
 							.thenByCreatedAppId("App.Ess.GeneratingPlantController") //
 							.rest()) //
-					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") // 
+					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") //
 					.thenByFactoryId("Controller.Api.Rest.ReadWrite") //
+					.thenByFactoryId("Controller.Clever-PV") //
 					.thenByFactoryId("Controller.Ess.GridOptimizedCharge") //
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
 					.thenByFactoryId("Controller.Evcs") //
@@ -135,7 +137,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 
 		private static final int[] EMPTY_INT_ARRAY = new int[0];
 
-		private static sealed class PositionReturnType {
+		private abstract static sealed class PositionReturnType {
 
 			public static final PositionReturnType right(int... index) {
 				return new Right(index);
@@ -155,19 +157,14 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 				public Right(int[] index) {
 					this.index = index;
 				}
-
 			}
 
 			private static final class Remove extends PositionReturnType {
-
 				public static final Remove INSTANCE = new Remove();
-
 			}
 
 			private static final class Next extends PositionReturnType {
-
 				public static final Next INSTANCE = new Next();
-
 			}
 
 		}
@@ -315,19 +312,20 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			while (iterator.hasNext()) {
 				final var index = iterator.nextIndex();
 				final var predicate = iterator.next();
-				final var result = predicate.apply(o);
+				final PositionReturnType result = predicate.apply(o);
 
-				if (result instanceof PositionReturnType.Next) {
-					continue;
-				}
-				if (result instanceof PositionReturnType.Remove) {
+				switch (result) {
+				case PositionReturnType.Next next -> doNothing();
+
+				case PositionReturnType.Remove remove -> {
 					return EMPTY_INT_ARRAY;
 				}
-				if (result instanceof PositionReturnType.Right right) {
+				case PositionReturnType.Right right -> {
 					final var array = new int[right.index.length + 1];
 					array[0] = index;
 					System.arraycopy(right.index, 0, array, 1, right.index.length);
 					return array;
+				}
 				}
 			}
 			return EMPTY_INT_ARRAY;

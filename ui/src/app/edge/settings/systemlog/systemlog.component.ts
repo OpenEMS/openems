@@ -157,8 +157,8 @@ export class SystemLogComponent implements OnInit, OnDestroy {
   }
 
   protected toggleCondensedOutput(event: CustomEvent) {
-    this.service.currentEdge.pipe(filter(edge => !!edge), take(1))
-      .subscribe(edge =>
+    this.service.getCurrentEdge()
+      .then(edge =>
         edge.updateComponentConfig(this.websocket, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
           name: "condensedOutput", value: event.detail["checked"],
         }]).then(() => {

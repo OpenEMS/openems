@@ -1,10 +1,14 @@
 package io.openems.edge.controller.api.modbus;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,7 +24,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractWorker;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -38,10 +41,10 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
+import io.openems.edge.controller.api.common.ApiWorker.WriteHandler;
 import io.openems.edge.controller.api.common.Status;
 import io.openems.edge.controller.api.common.WriteObject;
 import io.openems.edge.controller.api.common.WritePojo;
-import io.openems.edge.controller.api.common.ApiWorker.WriteHandler;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolExportXlsxResponse;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolRequest;
@@ -52,6 +55,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 	public static final int UNIT_ID = 1;
 	public static final int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
+	private static final int PROCESS_IMAGE_RESET_TIME = 60;
 
 	/**
 	 * Holds the link between Modbus start address of a Component and the
@@ -63,6 +67,9 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	protected List<OpenemsComponent> invalidComponents = new CopyOnWriteArrayList<>();
 	protected final Logger log = LoggerFactory.getLogger(AbstractModbusApi.class);
 	protected final MyProcessImage processImage;
+
+	protected Instant lastModbusProcessImageErrorInstant = Instant.MIN;
+	protected Clock clock;
 
 	/**
 	 * Holds the link between Modbus address and ModbusRecord.
@@ -78,9 +85,10 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		this.processImage = new MyProcessImage(this);
 	}
 
-	protected void activate(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config)
+	protected void activate(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config, Clock clock)
 			throws OpenemsException {
 		this.config = config;
+		this.clock = clock;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
@@ -93,11 +101,14 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		}
 
 		this.startApiWorker.activate(config.id());
+		this.updateComponents();
 
 	}
 
-	protected void modified(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config)
+	protected void modified(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config, Clock clock)
 			throws OpenemsException {
+		this.config = config;
+		this.clock = clock;
 		super.modified(context, config.id(), config.alias(), config.enabled());
 
 		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
@@ -117,6 +128,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		}
 
 		this.startApiWorker.modified(config.id());
+		this.updateComponents();
 
 	}
 
@@ -157,9 +169,9 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 		private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
-		protected com.ghgande.j2mod.modbus.slave.ModbusSlave slave = null;
+		private com.ghgande.j2mod.modbus.slave.ModbusSlave slave = null;
 
-		protected AbstractModbusConfig currentConfig = null;
+		private AbstractModbusConfig currentConfig = null;
 
 		@Override
 		protected void forever() throws ModbusException {
@@ -210,9 +222,9 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
-
 		this.updateCycleValues();
 		this.apiWorker.run();
+		this.resetProcessImageError(this.clock);
 	}
 
 	/**
@@ -223,27 +235,32 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		var config = this.config;
 
 		if (config == null) {
+			this.resetModbusTable();
 			return;
 		}
-		if (config.componentIds().length > this._components.size()) {
-			if (this.getComponentNoModbusApiFaultChannel().getNextValue().get() != true) {
-				this._setComponentMissingFault(true); // Either this or that fault
-			}
-			return;
-		}
-		this._setComponentMissingFault(false);
+		final var expectedIds = List.of(config.componentIds());
+		final Set<String> availableIds = this._components.stream() //
+				.map(OpenemsComponent::id) //
+				.collect(Collectors.toSet()); //
 
-		this.initializeModbusRecords(this.config.metaComponent(), this.config.componentIds());
+		if (!availableIds.containsAll(expectedIds)) {
+			this.resetModbusTable();
+			this._setComponentMissingFault(true);
+			return;
+		}
+
+		this._setComponentMissingFault(false);
+		this.initializeModbusRecords(config.metaComponent(), config.componentIds());
 	}
 
 	protected synchronized void addComponent(OpenemsComponent component) {
-		if (!(component instanceof ModbusSlave)) {
+		if (!(component instanceof ModbusSlave ms)) {
 			this.logError(this.log, "Component [" + component.id() + "] does not implement ModbusSlave");
 			this.invalidComponents.add(component);
 			this._setComponentNoModbusApiFault(true);
 			return;
 		}
-		this._components.add((ModbusSlave) component);
+		this._components.add(ms);
 		this.updateComponents();
 	}
 
@@ -266,10 +283,10 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	protected void updateCycleValues() {
 		this.records.values() //
 				.stream() //
-				.filter(r -> r instanceof ModbusRecordCycleValue) //
-				.map(r -> (ModbusRecordCycleValue<OpenemsComponent>) r) //
+				.filter(ModbusRecordCycleValue.class::isInstance) //
+				.map(ModbusRecordCycleValue.class::cast) //
 				.forEach(r -> {
-					OpenemsComponent component = this.getPossiblyDisabledComponent(r.getComponentId());
+					var component = this.getPossiblyDisabledComponent(r.getComponentId());
 					if (component != null && component.isEnabled()) {
 						r.updateValue(component);
 					} else {
@@ -311,7 +328,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		if (componentId == null) {
 			return null;
 		}
-		if (componentId == Meta.SINGLETON_COMPONENT_ID) {
+		if (componentId.equals(Meta.SINGLETON_COMPONENT_ID)) {
 			return this.config.metaComponent();
 		}
 		return this._components.stream() //
@@ -326,22 +343,21 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	 * @param address   the address
 	 * @param record    the record
 	 * @param component the OpenEMS Component
+	 *
 	 * @return the next address after this record
 	 */
 	private int addRecordToProcessImage(int address, ModbusRecord record, OpenemsComponent component) {
 		record.setComponentId(component.id());
 
 		// Handle writes to the Channel; limited to ModbusRecordChannels
-		if (record instanceof ModbusRecordChannel) {
-			var r = (ModbusRecordChannel) record;
+		if (record instanceof ModbusRecordChannel r) {
 			r.onWriteValue(value -> {
-				Channel<?> readChannel = component.channel(r.getChannelId());
-				if (!(readChannel instanceof WriteChannel)) {
+				var readChannel = component.channel(r.getChannelId());
+				if (!(readChannel instanceof WriteChannel wc)) {
 					this.logWarn(this.log, "Unable to write to Read-Only-Channel [" + readChannel.address() + "]");
 					return;
 				}
-				WriteChannel<?> channel = (WriteChannel<?>) readChannel;
-				this.apiWorker.addValue(channel, new WritePojo(value));
+				this.apiWorker.addValue(wc, new WritePojo(value));
 			});
 		}
 
@@ -356,9 +372,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	 * @param componentIds  the configured Component-IDs.
 	 */
 	private void initializeModbusRecords(Meta metaComponent, String[] componentIds) {
-		this.records.clear();
-		// Add generic header
-		this.records.put(0, new ModbusRecordUint16Hash(0, "OpenEMS"));
+		this.resetModbusTable();
 		var nextAddress = 1;
 
 		// add Meta-Component
@@ -383,6 +397,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	 *
 	 * @param startAddress the start-address
 	 * @param component    the {@link Meta} component
+	 *
 	 * @return the next start-address
 	 */
 	private int addMetaComponentToProcessImage(int startAddress, Meta component) {
@@ -406,6 +421,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	 *
 	 * @param startAddress the start-address
 	 * @param component    the OpenEMS Component
+	 *
 	 * @return the next start-address
 	 */
 	private int addComponentToProcessImage(int startAddress, ModbusSlave component) {
@@ -434,7 +450,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 				this.addRecordToProcessImage(nextNatureAddress + 2 + record.getOffset(), record, component);
 			}
 
-			nextNatureAddress = nextNatureAddress += natureTable.getLength();
+			nextNatureAddress += natureTable.getLength();
 		}
 
 		// calculate next address after this component
@@ -457,7 +473,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 	private JsonrpcEndpointGuard componentMissingGuard() {
 		return call -> {
-			if (this.getComponentMissingFault().get() == true) {
+			if (this.getComponentMissingFault().get()) {
 				throw new OpenemsException(this.getComponentMissingFaultChannel().channelDoc().getText());
 			}
 		};
@@ -465,7 +481,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 	private JsonrpcEndpointGuard componentNoModbusApiGuard() {
 		return call -> {
-			if (this.getComponentNoModbusApiFault().get() == true) {
+			if (this.getComponentNoModbusApiFault().get()) {
 				throw new OpenemsException(this.getComponentNoModbusApiFaultChannel().channelDoc().getText());
 			}
 		};
@@ -473,12 +489,47 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 	/**
 	 * Format a given channelAddress to a ChannelId.
-	 * 
+	 *
 	 * @param channel WriteChannel
+	 *
 	 * @return component_channelId as String
 	 */
 	public static String formatChannelName(WriteChannel<?> channel) {
 		return channel.getComponent().id() + "_" + channel.channelId().name();
+	}
+
+	/**
+	 * Sets the {@link #PROCESS_IMAGE_FAULT} channel to true and saves the instant
+	 * of its last occurrence.
+	 *
+	 * @param clock the clock
+	 */
+	public void setProcessImageFault(Clock clock) {
+		this.lastModbusProcessImageErrorInstant = Instant.now(clock);
+		this._setProcessImageFault(true);
+	}
+
+	/**
+	 * Resets the PROCESS_IMAGE_FAULT channel to false if the last recorded error
+	 * instant is older than {@value #PROCESS_IMAGE_RESET_TIME} seconds.
+	 *
+	 * @param clock the clock
+	 */
+	public void resetProcessImageError(Clock clock) {
+		this._setProcessImageFault(//
+				this.lastModbusProcessImageErrorInstant //
+						.plusSeconds(PROCESS_IMAGE_RESET_TIME) //
+						.isAfter(Instant.now(clock))); //
+	}
+
+	public TreeMap<Integer, ModbusRecord> getRecords() {
+		return this.records;
+	}
+
+	private void resetModbusTable() {
+		this.records.clear();
+		// Add generic header
+		this.records.put(0, new ModbusRecordUint16Hash(0, "OpenEMS"));
 	}
 
 }

@@ -24,13 +24,12 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StreamUtils;
@@ -179,34 +178,32 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 			return new GetEdgeConfigResponse(call.getRequest().getId(), this.getEdgeConfig());
 		});
 
-		builder.handleRequest(CreateComponentConfigRequest.METHOD, call -> {
-			final var request = CreateComponentConfigRequest.from(call.getRequest());
-			this.handleCreateComponentConfigRequest(call.get(EdgeKeys.USER_KEY), request);
+		builder.handleRequest(new CreateComponentConfig(), endpoint -> {
 
-			return new GenericJsonrpcResponseSuccess(request.getId());
+		}, call -> {
+			this.handleCreateComponentConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest());
+			return EmptyObject.INSTANCE;
 		});
 
-		builder.handleRequest(UpdateComponentConfigRequest.METHOD, call -> {
-			final var request = UpdateComponentConfigRequest.from(call.getRequest());
-			this.handleUpdateComponentConfigRequest(call.get(EdgeKeys.USER_KEY), request);
-
-			return new GenericJsonrpcResponseSuccess(request.getId());
+		builder.handleRequest(new UpdateComponentConfig(), call -> {
+			this.handleUpdateComponentConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest());
+			return EmptyObject.INSTANCE;
 		});
 	}
 
 	@Override
-	public void handleCreateComponentConfigRequest(User user, CreateComponentConfigRequest request)
+	public void handleCreateComponentConfigRequest(User user, CreateComponentConfig.Request request)
 			throws OpenemsNamedException {
 		if (this.configurationAdmin == null) {
 			throw new OpenemsException("Can not create Component Config. ConfigurationAdmin is null!");
 		}
 		try {
-			var config = this.configurationAdmin.createFactoryConfiguration(request.getFactoryPid(), null);
+			var config = this.configurationAdmin.createFactoryConfiguration(request.factoryPid(), null);
 
 			// set properties
-			for (Property property : request.getProperties()) {
+			for (var property : request.properties()) {
 				var value = JsonUtils.getAsBestType(property.getValue());
-				if (value instanceof Object[] && ((Object[]) value).length == 0) {
+				if (value instanceof Object[] os && os.length == 0) {
 					value = new String[0];
 				}
 				config.getProperties().put(property.getName(), value);
@@ -219,7 +216,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 	}
 
 	@Override
-	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfigRequest request)
+	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfig.Request request)
 			throws OpenemsNamedException {
 		if (this.configurationAdmin == null) {
 			throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
@@ -230,11 +227,11 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 				if (props == null) {
 					continue;
 				}
-				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+				if (props.get("id") == null || !props.get("id").equals(request.componentId())) {
 					continue;
 				}
 				var properties = new Hashtable<String, JsonElement>();
-				for (var property : request.getProperties()) {
+				for (var property : request.properties()) {
 					properties.put(property.getName(), property.getValue());
 				}
 				configuration.update(properties);
@@ -245,7 +242,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 	}
 
 	@Override
-	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfigRequest request)
+	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfig.Request request)
 			throws OpenemsNamedException {
 		if (this.configurationAdmin == null) {
 			throw new OpenemsException("Can not delete Component Config. ConfigurationAdmin is null!");
@@ -257,7 +254,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 				if (props == null) {
 					continue;
 				}
-				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+				if (props.get("id") == null || !props.get("id").equals(request.componentId())) {
 					continue;
 				}
 				configuration.delete();

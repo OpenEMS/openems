@@ -20,6 +20,9 @@ updates:
       pax-logging:
         patterns:
           - "org.ops4j.pax.logging:*"
+      guava:
+        patterns:
+          - "com.google.guava:*"
 
   - package-ecosystem: npm
     directory: "/ui"
@@ -37,6 +40,8 @@ updates:
       capacitor:
         patterns:
           - "@capacitor/*"
+          - "@capacitor-community/*"
+          - "capacitor-*"
       ionic-native:
         patterns:
           - "@ionic-native/*"

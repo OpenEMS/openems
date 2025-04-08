@@ -5,14 +5,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -24,15 +30,18 @@ public class TestFeneconHome20 {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
+	private SocomecMeter meterApp;
+
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			return Apps.of(t, //
-					Apps::feneconHome20, //
-					Apps::gridOptimizedCharge, //
-					Apps::selfConsumptionOptimization, //
-					Apps::socomecMeter, //
-					Apps::prepareBatteryExtension //
+			return List.of(//
+					Apps.feneconHome20(t), //
+					Apps.gridOptimizedCharge(t), //
+					Apps.selfConsumptionOptimization(t), //
+					Apps.socomecMeter(t), //
+					Apps.prepareBatteryExtension(t), //
+					this.meterApp = Apps.socomecMeter(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -53,30 +62,18 @@ public class TestFeneconHome20 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home.20":
-				expectedDependencies = 4;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			case "App.Meter.Socomec":
-				expectedDependencies = 0;
-				break;
-			case "App.Ess.PrepareBatteryExtension":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
+			var expectedDependencies = switch (instance.appId) {
+			case "App.FENECON.Home.20" -> 4;
+			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
+			case "App.Meter.Socomec" -> 0;
+			case "App.Ess.PrepareBatteryExtension" -> 0;
+			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
 				continue;
 			}
@@ -146,6 +143,17 @@ public class TestFeneconHome20 {
 				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
 	}
 
+	@Test
+	public void testGetMeterDefaultModbusIdValue() throws Exception {
+		this.createFullHome();
+
+		final var modbusIdProperty = Arrays.stream(this.meterApp.getProperties()) //
+				.filter(t -> t.name.equals(SocomecMeter.Property.MODBUS_ID.name())) //
+				.findFirst().orElseThrow();
+
+		assertEquals("modbus2", modbusIdProperty.getDefaultValue(Language.DEFAULT).map(JsonElement::getAsString).get());
+	}
+
 	private final OpenemsAppInstance createFullHome() throws Exception {
 		var fullConfig = fullSettings();
 
@@ -153,30 +161,18 @@ public class TestFeneconHome20 {
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home.20":
-				expectedDependencies = 4;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			case "App.Meter.Socomec":
-				expectedDependencies = 0;
-				break;
-			case "App.Ess.PrepareBatteryExtension":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
+			var expectedDependencies = switch (instance.appId) {
+			case "App.FENECON.Home.20" -> 4;
+			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
+			case "App.Meter.Socomec" -> 0;
+			case "App.Ess.PrepareBatteryExtension" -> 0;
+			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
 				continue;
 			}
@@ -210,6 +206,28 @@ public class TestFeneconHome20 {
 				.addProperty("HAS_EMERGENCY_RESERVE", true) //
 				.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
 				.addProperty("EMERGENCY_RESERVE_SOC", 15) //
+				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
+				.build();
+	}
+
+	/**
+	 * Gets a {@link JsonObject} with the minimum settings for a
+	 * {@link FeneconHome}.
+	 * 
+	 * @return the settings object
+	 */
+	public static final JsonObject minSettings() {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("SAFETY_COUNTRY", "GERMANY") //
+				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("MAX_FEED_IN_POWER", 1000) //
+				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+				.addProperty("HAS_AC_METER", false) //
+				.addProperty("HAS_PV_1", false) //
+				.addProperty("HAS_PV_2", false) //
+				.addProperty("HAS_PV_3", false) //
+				.addProperty("HAS_PV_4", false) //
+				.addProperty("HAS_EMERGENCY_RESERVE", false) //
 				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
 				.build();
 	}

@@ -271,17 +271,12 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 */
 	@Override
 	public int numberOfWiperSettings(byte[] state) {
-		switch (state[0] & 0x30) {
-
-		case 0x00:
-			return 32;
-		case 0x10:
-			return 64;
-		case 0x20:
-			return 128;
-		default:
-			return 256;
-		}
+		return switch (state[0] & 0x30) {
+		case 0x00 -> 32;
+		case 0x10 -> 64;
+		case 0x20 -> 128;
+		default -> 256;
+		};
 	}
 
 	/**
@@ -293,17 +288,12 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 */
 	@Override
 	public int potentiometerResistance(byte[] state) {
-		switch (state[0] & 0xc0) {
-
-		case 0x00:
-			return 5;
-		case 0x40:
-			return 10;
-		case 0x80:
-			return 50;
-		default:
-			return 100;
-		}
+		return switch (state[0] & 0xc0) {
+		case 0x00 -> 5;
+		case 0x40 -> 10;
+		case 0x80 -> 50;
+		default -> 100;
+		};
 	}
 
 	/**
