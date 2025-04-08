@@ -35,6 +35,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.Context;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine;
@@ -65,6 +66,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.serialnumber.SerialNumberStorage;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -107,6 +109,9 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	private Config config;
 	private BatteryProtection batteryProtection;
+
+	@Reference
+	private SerialNumberStorage serialNumberStorage;
 
 	public BatteryFeneconHomeImpl() {
 		super(//
@@ -389,17 +394,28 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 * @param channelIdSuffix     e.g. "STATUS_ALARM"
 	 * @param openemsType         specified type e.g. "INTEGER"
 	 * @param additionalDocConfig the additional doc configuration
+	 * @param channelConsumer     the additional configuration on the created
+	 *                            channel
 	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
 	 */
 	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType,
-			Consumer<OpenemsTypeDoc<?>> additionalDocConfig) {
+			Consumer<OpenemsTypeDoc<?>> additionalDocConfig, Consumer<Channel<?>> channelConsumer) {
 		final var doc = Doc.of(openemsType);
 		if (additionalDocConfig != null) {
 			additionalDocConfig.accept(doc);
 		}
 		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, doc);
-		this.addChannel(channelId);
+		final var channel = this.addChannel(channelId);
+
+		channelConsumer.accept(channel);
+
 		return channelId;
+	}
+
+	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType,
+			Consumer<OpenemsTypeDoc<?>> additionalDocConfig) {
+		return this.generateTowerChannel(tower, channelIdSuffix, openemsType, additionalDocConfig,
+				FunctionUtils::doNothing);
 	}
 
 	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType) {
@@ -458,6 +474,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 * Recalculate the number of towers and modules. Unfortunately the battery may
 	 * report too small wrong values in the beginning, so we need to recalculate on
 	 * every change.
+	 * </p>
 	 * 
 	 * <p>
 	 * As an alternative, these channels may also be introduced in a record, and the
@@ -737,7 +754,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER),
 										new UnsignedDoublewordElement(towerOffset + 49)),
 								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING,
-										doc -> doc.persistencePriority(PersistencePriority.HIGH)),
+										doc -> doc.persistencePriority(PersistencePriority.HIGH),
+										channel -> this.serialNumberStorage.createAndAddOnChangeListener(channel)),
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter(value -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
@@ -823,7 +841,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 							"TOWER_" + tower + "_MODULE_" + module + "_SERIAL_NUMBER", //
 							Doc.of(OpenemsType.STRING)//
 									.persistencePriority(PersistencePriority.HIGH));
-					this.addChannel(channelId);
+					final var channel = this.addChannel(channelId);
+					this.serialNumberStorage.createAndAddOnChangeListener(channel);
 
 					this.getModbusProtocol().addTasks(//
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 2, Priority.LOW, ameVolt),
@@ -965,6 +984,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 *
 	 * <p>
 	 * "%03d" creates string number with leading zeros
+	 * </p>
 	 * 
 	 * @param tower  number to use
 	 * @param module number to use
@@ -1004,6 +1024,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 *
 	 * <p>
 	 * "%03d" creates string number with leading zeros
+	 * </p>
 	 *
 	 * @param num    number of the Cell
 	 * @param module number of the Module
