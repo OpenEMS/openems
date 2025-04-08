@@ -4,6 +4,7 @@ import { differenceInDays, endOfMonth, endOfYear, format, getDay, getMonth, getY
 
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Service } from "../shared";
+import { TRange } from "../type/utility";
 import { StringUtils } from "../utils/string/string.utils";
 
 export namespace DefaultTypes {
@@ -250,19 +251,7 @@ export namespace DefaultTypes {
   }
 }
 
-/** Generic Type for a key-value pair */
-export type TKeyValue<T> = {
-  key: string,
-  value: T
-};
-/**  */
-export type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
-
-export type Range<N extends number, Acc extends number[] = []> = Acc["length"] extends N
-  ? Acc[number]
-  : Range<N, [...Acc, Acc["length"]]>;
-
-export type RGBValue = Range<256>; // 0 to 255
+export type RGBValue = TRange<256>; // 0 to 255
 
 export class RGBColor<T extends RGBValue = RGBValue> {
   private static INVALID_RGB_VALUES_ERROR = "All values need to be valid";

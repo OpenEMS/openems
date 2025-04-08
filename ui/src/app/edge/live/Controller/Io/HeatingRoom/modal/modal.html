@@ -37,29 +37,4 @@
     <oe-modal-line [channelAddress]="component.id + '/_PropertySchedule'">
     </oe-modal-line>
     }
-
-    <ion-modal #modal2 isOpen="true" [initialBreakpoint]="0.1" [breakpoints]="[0.04, 0.1, 0.9]" [backdropDismiss]="true"
-        [backdropBreakpoint]="0.1" *ngIf="showNewFooter">
-        <ng-template>
-            <ion-content class="ion-padding">
-                <ion-breadcrumbs>
-                    <ion-breadcrumb routerLink="/device/{{edge.id}}/live" (click)="hideFooter()">
-                        <ion-icon color="medium" name="home-outline"></ion-icon>
-                    </ion-breadcrumb>
-                    <ion-breadcrumb routerLinkActive="active" (click)="hideFooter()">
-                        <ion-note color="primary">
-                            {{label}}
-                        </ion-note>
-                    </ion-breadcrumb>
-                </ion-breadcrumbs>
-
-                <ion-list>
-                    <ion-list-header>
-                        <ion-label>Lorem Ipsum</ion-label>
-                    </ion-list-header>
-                </ion-list>
-
-            </ion-content>
-        </ng-template>
-    </ion-modal>
 </oe-modal>
