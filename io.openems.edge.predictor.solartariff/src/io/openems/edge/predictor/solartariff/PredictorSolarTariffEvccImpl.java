@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -126,9 +127,12 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 					ZonedDateTime utcDateTime = zonedDateTime
 							.withZoneSameInstant(ZoneId.of("UTC"));
 
-					JsonElement price = js.get(i).getAsJsonObject()
-							.get("price");
-					Integer power = price.getAsInt();
+					JsonObject jsonObject = js.get(i).getAsJsonObject();
+
+					Integer power = jsonObject.has("value")
+						    ? jsonObject.get("value").getAsInt()
+						    : (jsonObject.has("price") ? jsonObject.get("price").getAsInt() : null);
+					
 					log.debug("SolarForecast prediction: " + utcDateTime + " "
 							+ power + " Wh");
 
