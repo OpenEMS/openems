@@ -31,29 +31,19 @@ updates:
     open-pull-requests-limit: 10
     target-branch: develop
     groups:
-      angular:
+      openems-ui:
         patterns:
           - "@angular/*"
           - "@angular-devkit/*"
           - "@angular-eslint/*"
           - "@schematics/angular"
-      capacitor:
-        patterns:
           - "@capacitor/*"
           - "@capacitor-community/*"
           - "capacitor-*"
-      ionic-native:
-        patterns:
           - "@ionic-native/*"
-      ngx-formly:
-        patterns:
           - "@ngx-formly/*"
-      karma:
-        patterns:
           - "karma-*"
           - "karma"
-      eslint:
-        patterns:
           - "@stylistic/eslint-plugin"
           - "@typescript-eslint/*"
           - "eslint-*"
