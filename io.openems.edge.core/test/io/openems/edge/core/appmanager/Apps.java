@@ -39,6 +39,7 @@ import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
@@ -538,6 +539,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link KebaEvcsReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KebaEvcsReadOnly kebaEvcsReadonly(AppManagerTestBundle t) {
+		return app(t, KebaEvcsReadOnly::new, "App.Evcs.Keba.ReadOnly");
+	}
+
+	/**
 	 * Test method for creating a {@link MennekesEvcsReadOnly}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -959,6 +970,11 @@ public final class Apps {
 				t.componentUtil, t.host, t.meta);
 	}
 
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.host);
+	}
+
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithMeta<T> constructor, String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.meta);
@@ -982,6 +998,13 @@ public final class Apps {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil, Meta meta);
+
+	}
+
+	private static interface DefaultAppConstructorWithHost<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Host host);
 
 	}
 
