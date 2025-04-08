@@ -44,5 +44,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Guest: salt", description = "salt for User 'guest'", type = AttributeType.PASSWORD)
 	String guestSalt() default "dXNlcg==";
 
+	@AttributeDefinition(name = "Additional Users", description = "Additional User config as json e. g. \"[{\"id\":\"guest\", \"name\":\"Guest\", \"language\": \"EN\", \"role\":\"GUEST\", \"password\": \"\", \"salt\": \"\"}]\"", type = AttributeType.PASSWORD)
+	String users();
+
 	String webconsole_configurationFactory_nameHint() default "Core User";
 }
