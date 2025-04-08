@@ -53,15 +53,14 @@
           <ion-card-content class="ion-padding ion-font-size-larger">
             <ion-grid class="ion-padding">
 
-              <ion-row *ngIf="latestSetupProtocolData" class="ion-align-items-center"
-                style="color: var(--ion-color-white)">
+              <ion-row *ngIf="latestSetupProtocolData" class="ion-align-items-center">
                 <ion-col size-md="4" size-xs="6">
-                  <ion-label style="color:var(--ion-color-card-content)" translate>
+                  <ion-label style="color:var(--ion-color-label)" translate>
                     PROFILE.SYSTEM_PROTOCOL.LABEL
                   </ion-label>
                 </ion-col>
                 <ion-col size-md="4" size-xs="6" class="ion-text-align-end ion-text-md-center">
-                  <ion-label style="color:var(--ion-color-card-content)">
+                  <ion-label style="color:var(--ion-color-label)">
                     {{latestSetupProtocolData.createDate | date:'dd.MM.YYYY HH:mm'}}
                   </ion-label>
                 </ion-col>
