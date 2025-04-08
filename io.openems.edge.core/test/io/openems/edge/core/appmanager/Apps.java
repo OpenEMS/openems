@@ -413,7 +413,7 @@ public final class Apps {
 	public static final AppEnerixControl enerixControl(AppManagerTestBundle t) {
 		return app(t, AppEnerixControl::new, "App.Cloud.EnerixControl");
 	}
-	
+
 	/**
 	 * Test method for creating a {@link AppCleverPv}.
 	 * 
