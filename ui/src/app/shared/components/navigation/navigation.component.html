@@ -1,6 +1,6 @@
 <ion-modal #modal trigger="open-modal" [isOpen]="true" [initialBreakpoint]="initialBreakPoint"
-    [breakpoints]="[0.04, 0.1, 0.2, 0.9]" showBackdrop="false" [backdropDismiss]="false" [backdropBreakpoint]="0.1"
-    focusTrap="false" *ngIf="hasNavigationNodes">
+    [breakpoints]="[0.04, 0.1, 0.2, 0.9]" showBackdrop="false" [backdropDismiss]="false"
+    [backdropBreakpoint]="initialBreakPoint" focusTrap="false" *ngIf="hasNavigationNodes">
     <ng-template>
         <ion-content class="ion-padding">
             <ion-breadcrumbs>
