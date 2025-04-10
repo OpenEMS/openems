@@ -120,8 +120,8 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 				.toList();
 
 		var mainData = this.getSlicedArrayList(result, NUM_OF_DATA_PER_DAY);
-		var lastSimilarDays = this.getLastSimilarDays(mainData); // oEMS
-		var nextOneDayPredictions = this.getAveragePrediction(lastSimilarDays); // oEMS
+		var lastSimilarDays = this.getLastSimilarDays(mainData);
+		var nextOneDayPredictions = this.getAveragePrediction(lastSimilarDays);
 		return Prediction.from(this.sum, channelAddress, now, nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
 
@@ -179,7 +179,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 		List<List<Integer>> days = new ArrayList<>();
 		// get correct index
 		for (var i = 0; i < mainData.size(); i++) {
-			if (this.isMember(i)) { // oEMS
+			if (this.isMember(i)) {
 				indexes.add(i);
 			}
 		}
