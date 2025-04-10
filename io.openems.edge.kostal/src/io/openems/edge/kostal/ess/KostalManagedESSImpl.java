@@ -1,6 +1,7 @@
 package io.openems.edge.kostal.ess;
 
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -307,7 +308,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 										.wordOrder(LSWMSW)),
 						m(KostalManagedESS.ChannelId.BATTERY_VOLTAGE,
 								new FloatDoublewordElement(216)
-										.wordOrder(LSWMSW))),
+										.wordOrder(LSWMSW), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(531, Priority.LOW,
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
 								new UnsignedWordElement(531))),

@@ -1,6 +1,7 @@
 package io.openems.edge.kostal.pvinverter;
 
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -125,30 +126,30 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(152, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(152)
-										.wordOrder(LSWMSW)), //
+										.wordOrder(LSWMSW), SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.CURRENT_L1,
 								new FloatDoublewordElement(154)
-										.wordOrder(LSWMSW)), //
+										.wordOrder(LSWMSW), SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
 								new FloatDoublewordElement(156)
 										.wordOrder(LSWMSW)),
 						// new DummyRegisterElement(156, 157), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
 								new FloatDoublewordElement(158)
-										.wordOrder(LSWMSW)), //
+										.wordOrder(LSWMSW), SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.CURRENT_L2,
 								new FloatDoublewordElement(160)
-										.wordOrder(LSWMSW)), // //
+										.wordOrder(LSWMSW), SCALE_FACTOR_3), // //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
 								new FloatDoublewordElement(162)
 										.wordOrder(LSWMSW)),
 						// new DummyRegisterElement(162, 163), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
 								new FloatDoublewordElement(164)
-										.wordOrder(LSWMSW)), //
+										.wordOrder(LSWMSW), SCALE_FACTOR_3 ), //
 						m(ElectricityMeter.ChannelId.CURRENT_L3,
 								new FloatDoublewordElement(166)
-										.wordOrder(LSWMSW)),
+										.wordOrder(LSWMSW), SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
 								new FloatDoublewordElement(168)
 										.wordOrder(LSWMSW))), //
@@ -156,7 +157,7 @@ public class KostalPvInverterImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(170, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
 								new FloatDoublewordElement(170)
-										.wordOrder(LSWMSW))), //
+										.wordOrder(LSWMSW), SCALE_FACTOR_3)), //
 
 //				new FC3ReadRegistersTask(320, Priority.HIGH, //
 //						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
