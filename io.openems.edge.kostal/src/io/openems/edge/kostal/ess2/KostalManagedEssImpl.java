@@ -1,6 +1,7 @@
 package io.openems.edge.kostal.ess2;
 
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import java.time.Duration;
 import java.time.Instant;
