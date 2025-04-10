@@ -47,13 +47,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	private final Logger log = LoggerFactory.getLogger(PredictorSimilardayModelImpl.class);
 
 	public static final int NUM_OF_DAYS_OF_WEEK = 7;
-	public static final int PREDCTION_FOR_ONE_DAY = 0;
-	public static final int PREDCTION_FOR_TWO_DAY = 1;
-	public static final int PREDCTION_FOR_THREE_DAY = 2;
-	public static final int PREDCTION_FOR_FOUR_DAY = 3;
-	public static final int PREDCTION_FOR_FIVE_DAY = 4;
-	public static final int PREDCTION_FOR_SIX_DAY = 5;
-	public static final int PREDCTION_FOR_SEVEN_DAY = 6;
+	public static final int NUM_OF_DATA_PER_DAY = 96;
 
 	@Reference
 	private Sum sum;
@@ -125,18 +119,9 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 				// get as Array
 				.toList();
 
-		// Num of Data per day
-		// TODO change this variable based on the resolution which is 900 in query
-		var numOfDataPerDay = 96;
-
-		var mainData = getSlicedArrayList(result, numOfDataPerDay);
-
-		// Getting the indexes of the last four similar days
-		var lastFourSimilarDays = getCorrectIndexes(mainData, NUM_OF_DAYS_OF_WEEK, PREDCTION_FOR_ONE_DAY);
-
-		// Getting the average predictions
-		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
-
+		var mainData = this.getSlicedArrayList(result, NUM_OF_DATA_PER_DAY);
+		var lastSimilarDays = this.getLastSimilarDays(mainData); // oEMS
+		var nextOneDayPredictions = this.getAveragePrediction(lastSimilarDays); // oEMS
 		return Prediction.from(this.sum, channelAddress, now, nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
 
@@ -148,9 +133,12 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	 * @param n       number of data per day.
 	 * @return 2dimension array list
 	 */
-	private static List<List<Integer>> getSlicedArrayList(List<Integer> arrlist, int n) {
+	private List<List<Integer>> getSlicedArrayList(List<Integer> arrlist, int n) {
 		List<List<Integer>> twoDimensionalArrayList = new ArrayList<>();
 		for (var i = 0; i < arrlist.size(); i = i + n) {
+			if ((i + 4 == arrlist.size()) || (i + n - 4 == arrlist.size())) { // winter/summer time clock switch
+				break;
+			}
 			twoDimensionalArrayList.add(arrlist.subList(i, i + n));
 		}
 		return twoDimensionalArrayList;
@@ -163,7 +151,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	 * @param twoDimensionalArrayList The actual data.
 	 * @return Average values of the last four days.
 	 */
-	private static List<Integer> getAverage(List<List<Integer>> twoDimensionalArrayList) {
+	private List<Integer> getAveragePrediction(List<List<Integer>> twoDimensionalArrayList) {
 		List<Integer> averageList = new ArrayList<>();
 		var rows = twoDimensionalArrayList.size();
 		var cols = twoDimensionalArrayList.get(0).size();
@@ -183,21 +171,19 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	/**
 	 * Data manipulation, to get the proper indexes.
 	 *
-	 * @param mainData      all data points.
-	 * @param numDaysOfWeek total number of days of week.
-	 * @param whichDay      current actual day.
+	 * @param mainData all data points.
 	 * @return proper indexed days.
 	 */
-	private static List<List<Integer>> getCorrectIndexes(List<List<Integer>> mainData, int numDaysOfWeek,
-			int whichDay) {
+	private List<List<Integer>> getLastSimilarDays(List<List<Integer>> mainData) {
 		List<Integer> indexes = new ArrayList<>();
 		List<List<Integer>> days = new ArrayList<>();
+		// get correct index
 		for (var i = 0; i < mainData.size(); i++) {
-			if (isMember(whichDay, numDaysOfWeek, i)) {
+			if (this.isMember(i)) { // oEMS
 				indexes.add(i);
 			}
 		}
-
+		// get appropriate data for index
 		for (Integer i : indexes) {
 			days.add(mainData.get(i));
 		}
@@ -209,16 +195,11 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	/**
 	 * Check if the day belongs to correct day.
 	 *
-	 * @param whichDay      current actual day.
-	 * @param numDaysOfWeek total number of days of week.
-	 * @param nthTerm       nthterm
+	 * @param arrayIndex the index to check.
 	 * @return boolean value to represent is value member of correct day
 	 */
-	private static boolean isMember(int whichDay, int numDaysOfWeek, int nthTerm) {
-		if (numDaysOfWeek == 0) {
-			return nthTerm == whichDay;
-		}
-		return (nthTerm - whichDay) % numDaysOfWeek == 0 && (nthTerm - whichDay) / numDaysOfWeek >= 0;
+	private boolean isMember(int arrayIndex) {
+		return arrayIndex % NUM_OF_DAYS_OF_WEEK == 0;
 
 	}
 
