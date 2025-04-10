@@ -22,12 +22,31 @@ public class PredictorSimilardayModelImplTest {
 
 	@Test
 	public void test() throws Exception {
+		this.runPredictionTest(Data.data, Data.predictedData);
+	}
 
+	@Test
+	public void testTimeChangeoverWinterToSummerTime() throws Exception {
+		// due to time changeover the db array may have 4 entries less
+		var values = new Integer[Data.data.length - 4];
+		System.arraycopy(Data.data, 0, values, 0, values.length);
+		var predictedValues = Data.predictedData;
+		this.runPredictionTest(values, predictedValues);
+	}
+
+	@Test
+	public void testTimeChangeoverSummerToWinterTime() throws Exception {
+		// due to time changeover the db array may have 4 entries more
+		var values = new Integer[Data.data.length + 4];
+		System.arraycopy(Data.data, 0, values, 0, values.length - 4);
+		System.arraycopy(Data.data, 0, values, values.length - 4, 4);
+		var predictedValues = Data.predictedData;
+		this.runPredictionTest(values, predictedValues);
+	}
+
+	private void runPredictionTest(Integer[] values, Integer[] predictedValues) throws Exception {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-
-		var values = Data.data;
-		var predictedValues = Data.predictedData;
 
 		var timedata = new DummyTimedata("timedata0");
 		var start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));

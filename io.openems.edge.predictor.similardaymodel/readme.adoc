@@ -11,5 +11,6 @@ The Similarday-Model Predictor predicts same values as on same day in the previo
 
 This predictor is mainly used for predicting the Consumption power and energy. And the Accuracy of the model is scientifically verified within https://openems.io/research/emsig/[EMSIG project^].
 
+**Note:** This predictor adds one hour offset for (n) weeks during time changeover (summertime -> wintertime and wintertime -> summertime). 
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.similardaymodel[Source Code icon:github[]]
