@@ -13,6 +13,37 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
     selector: "pickdate",
     templateUrl: "./pickdate.component.html",
     standalone: false,
+    styles: [`
+        ion-button.pickdate-styles {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        ion-button.pickdate-styles::part(native) {
+            background: var(--ion-color-toolbar-primary);
+            color: var(--ion-menu-color);
+            box-shadow: 0em 0.3em 0.3em var(--ion-color-primary-rgba);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            text-transform: uppercase;
+            border-radius: 0.5em;
+        }
+
+        ion-button.pickdate-styles:hover::part(native) {
+            transition: background-color 0.1s ease-in-out;
+            box-shadow: none;
+        }
+
+        ion-button.pickdate-styles {
+            :is(active::part(native)) {
+                transform: scale(0.98);
+                box-shadow: inset 0em 0.125em 0.25em rgba(0, 0, 0, 0.4);
+                opacity: 0.8;
+            }}
+        `],
 })
 export class PickDateComponent implements OnInit, OnDestroy {
 

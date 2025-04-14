@@ -266,4 +266,9 @@ public class EssGenericOffGridImpl
 	public int getCycleTime() {
 		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
+
+	@Override
+	public void clearEssTimeoutFailure() {
+		
+	}
 }

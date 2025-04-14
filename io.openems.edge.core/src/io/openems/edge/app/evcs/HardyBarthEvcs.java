@@ -35,6 +35,7 @@ import io.openems.edge.app.evcs.HardyBarthEvcs.PropertyParent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -44,6 +45,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -91,7 +93,7 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 @Component(name = "App.Evcs.HardyBarth")
 public class HardyBarthEvcs
 		extends AbstractOpenemsAppWithProps<HardyBarthEvcs, PropertyParent, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier {
 
 	public interface PropertyParent extends Nameable, Type<PropertyParent, HardyBarthEvcs, Parameter.BundleParameter> {
 
@@ -293,12 +295,20 @@ public class HardyBarthEvcs
 	}
 
 	private final Host host;
+	private final Meta meta;
 
 	@Activate
-	public HardyBarthEvcs(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil, @Reference Host host) {
+	public HardyBarthEvcs(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Host host, //
+			@Reference Meta meta //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
 		this.host = host;
+		this.meta = meta;
 	}
 
 	@Override
@@ -412,6 +422,11 @@ public class HardyBarthEvcs
 	@Override
 	public Host getHost() {
 		return this.host;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
 	}
 
 }

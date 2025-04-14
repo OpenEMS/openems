@@ -55,14 +55,6 @@ input:-webkit-autofill:focus {
     margin-top: 0.1em;
 }
 
-.custom-ion-popover {
-
-    white-space: inherit;
-
-    // Overwrites default width of popover
-    --min-width: min-content;
-}
-
 .footer-color {
     background-color: var(--ion-color-toolbar-secondary) !important;
 }
@@ -78,6 +70,10 @@ input:-webkit-autofill:focus {
         display: none;
     }
 
+}
+
+.paragraph-space {
+    margin-top: 2rem;
 }
 
 .disabled {
@@ -160,7 +156,6 @@ formly-field-ion-radio {
 
 .custom-ion-popover {
 
-    --border-width: 0;
     --background: var(--ion-background-color);
 
     // Floating label
@@ -186,6 +181,10 @@ formly-field-ion-radio {
     .item-radio-checked {
         --background: var(--ion-color-primary-tint);
         --background-opacity: 0.9;
+    }
+
+    ion-list {
+        min-width: fit-content;
     }
 }
 
@@ -329,19 +328,6 @@ ion-checkbox {
     }
 }
 
-#theme-switcher {
-    --transition: checkmark-color 5s ease-in-out;
-
-    :host {
-        --checkmark-color: red;
-    }
-
-    ion-checkbox::part('mark') {
-        --border-color: white;
-        --checkmark-color: red;
-    }
-}
-
 #toast-container {
     font-family: $font-family;
 }
@@ -400,6 +386,20 @@ formly-input-section {
 }
 
 :root {
+
+    ion-text {
+        small {
+            color: var(--ion-card-content-color);
+        }
+    }
+
+    ion-card {
+
+        ion-card-title,
+        ion-card-subtitle {
+            color: var(--ion-text-color);
+        }
+    }
 
     --ion-color-primary-item: shade($primary-color, #000);
 
@@ -468,8 +468,24 @@ formly-input-section {
     }
 
     ion-toggle {
-        --background-checked: var(--ion-color-toggle-background);
-        --background: #9C9C9C;
+        --track-background: var(--ion-color-toggle-background);
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --track-background-checked: var(--ion-color-primary);
+        --handle-background-checked: var(--ion-color-white);
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
+        padding: 0.8em;
+        padding-right: 0.2em;
+        padding-left: 0.2em;
+        overflow: visible;
+        scale: 0.95;
+    }
+
+    ion-toggle::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
+    }
+
+    ion-toggle.toggle-checked::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-active) !important;
     }
 
     ion-spinner {
@@ -477,6 +493,14 @@ formly-input-section {
         left: 25%;
         width: 50%;
         color: var(--ion-color-primary);
+    }
+
+    // Ensure content is fitting inside tooltip
+    ion-range::part(pin) {
+        width: max-content !important;
+        white-space: nowrap;
+        padding: 0.5em;
+        text-align: center;
     }
 }
 

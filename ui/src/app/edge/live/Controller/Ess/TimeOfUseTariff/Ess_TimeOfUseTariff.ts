@@ -146,15 +146,15 @@ export namespace Controller_Ess_TimeOfUseTariff {
 
         datasets.push({
             type: "line",
-            label: translate.instant("General.gridBuy"),
+            label: translate.instant("General.gridBuyAdvanced"),
             data: gridBuy.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
             hidden: true,
             yAxisID: ChartAxis.RIGHT_2,
             order: 2,
         });
         colors.push({
-            backgroundColor: ChartConstants.Colors.BLUE_GREY,
-            borderColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.BLUE_GREY, 1),
+            backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, ChartConstants.Colors.LEGEND_LABEL_BG_OPACITY),
+            borderColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 1),
         });
 
         const scheduleChartData: Controller_Ess_TimeOfUseTariff.ScheduleChartData = {

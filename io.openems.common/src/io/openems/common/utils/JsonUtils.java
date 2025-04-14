@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import static io.openems.common.utils.EnumUtils.toEnum;
 
 import java.net.Inet4Address;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -207,49 +208,61 @@ public final class JsonUtils {
 		}
 
 		/**
-		 * Add a boolean value to the {@link JsonObject}.
+		 * Add a Boolean value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, boolean value) {
+		public JsonObjectBuilder addProperty(String property, Boolean value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a double value to the {@link JsonObject}.
+		 * Add a Float value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, double value) {
+		public JsonObjectBuilder addProperty(String property, Float value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a int value to the {@link JsonObject}.
+		 * Add a Double value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, int value) {
+		public JsonObjectBuilder addProperty(String property, Double value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a long value to the {@link JsonObject}.
+		 * Add a Integer value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, long value) {
+		public JsonObjectBuilder addProperty(String property, Integer value) {
+			this.j.addProperty(property, value);
+			return this;
+		}
+
+		/**
+		 * Add a Long value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Long value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
@@ -291,6 +304,23 @@ public final class JsonUtils {
 		public JsonObjectBuilder addProperty(String property, ZonedDateTime value) {
 			if (value != null) {
 				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_INSTANT));
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link Instant} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Instant value) {
+			if (value != null) {
+				this.j.addProperty(property, DateTimeFormatter.ISO_INSTANT.format(value));
 			}
 			return this;
 		}

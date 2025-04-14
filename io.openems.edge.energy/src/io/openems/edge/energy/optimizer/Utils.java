@@ -16,11 +16,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 
 import io.jenetics.util.RandomRegistry;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.scheduler.api.Scheduler;
 
 public final class Utils {
@@ -80,41 +78,41 @@ public final class Utils {
 	 * This will possibly run forever and call the callbacks multiple times before
 	 * returning.
 	 * 
-	 * @param simulator   a callback for a {@link GlobalSimulationsContext};
-	 *                    possibly null
-	 * @param gscSupplier a {@link Supplier} for {@link GlobalSimulationsContext}
+	 * @param gocSupplier a {@link Supplier} for {@link GlobalOptimizationContext}
+	 * @param simulator   a callback for a {@link Simulator}; possibly null
 	 * @param error       a callback for a error string
 	 * @throws InterruptedException on interrupted sleep
 	 */
-	public static synchronized void createSimulator(
-			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, Consumer<Simulator> simulator,
-			Consumer<Supplier<String>> error) throws InterruptedException {
-		final GlobalSimulationsContext gsc;
+	public static synchronized void createSimulator(Supplier<GlobalOptimizationContext> gocSupplier,
+			Consumer<Simulator> simulator, Consumer<Supplier<String>> error) throws InterruptedException {
+		GlobalOptimizationContext goc;
 		try {
-			// Create GlobalSimulationsContext -> this might fail a few times during
+			// Create GlobalOptimizationContext -> this might fail a few times during
 			// initialization of OpenEMS
-			gsc = gscSupplier.get();
+			goc = gocSupplier.get();
 
-		} catch (OpenemsException | IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
+			goc = null;
+			e.printStackTrace();
+		}
+
+		if (goc == null) {
 			simulator.accept(null);
-			error.accept(() -> "Unable to create GlobalSimulationsContext. " + e.getClass().getSimpleName() + ": "
-					+ e.getMessage());
-			Thread.sleep(10 * 1000);
+			error.accept(() -> "Unable to create GlobalOptimizationContext");
+			Thread.sleep(60 * 1000);
 			return;
 		}
 
 		// Are there any schedulable ESHs?
-		if (gsc.eshsWithDifferentStates().size() > 0) {
-			simulator.accept(new Simulator(gsc));
+		if (goc.eshsWithDifferentModes().size() > 0) {
+			simulator.accept(new Simulator(goc));
 			return;
 		}
 
 		// None. Freeze till interrupt
 		simulator.accept(null);
-		error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> freeze till interrupt");
-		while (true) {
-			Thread.sleep(5 * 60 * 1000);
-		}
+		error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> sleep 15 minutes");
+		Thread.sleep(15 * 60 * 1000);
 	}
 
 	/**
@@ -171,7 +169,7 @@ public final class Utils {
 	 */
 	public static void logSimulationResult(Simulator simulator, SimulationResult simulationResult) {
 		final var prefix = "OPTIMIZER ";
-		System.out.println(simulator.toLogString(prefix));
+		System.out.println(prefix + simulator.toJson().toString());
 		System.out.println(simulationResult.toLogString(prefix));
 	}
 

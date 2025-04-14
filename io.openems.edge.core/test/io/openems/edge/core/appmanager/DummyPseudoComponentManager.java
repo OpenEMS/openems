@@ -29,9 +29,10 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.ActualEdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
@@ -155,13 +156,13 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleCreateComponentConfigRequest(//
 			final User user, //
-			final CreateComponentConfigRequest request //
+			final CreateComponentConfig.Request request //
 	) throws OpenemsNamedException {
 
 		final var component = componentOf(//
 				request.getComponentId(), //
-				request.getFactoryPid(), //
-				request.getProperties() //
+				request.factoryPid(), //
+				request.properties() //
 		);
 
 		this.components.add(component);
@@ -170,17 +171,17 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleUpdateComponentConfigRequest(//
 			final User user, //
-			final UpdateComponentConfigRequest request //
+			final UpdateComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		final var foundComponent = this.getPossiblyDisabledComponent(request.getComponentId());
+		final var foundComponent = this.getPossiblyDisabledComponent(request.componentId());
 
 		if (foundComponent instanceof DummyOpenemsComponent) {
 			final var component = componentOf(//
-					request.getComponentId(), //
+					request.componentId(), //
 					foundComponent.serviceFactoryPid(), //
-					request.getProperties() //
+					request.properties() //
 			);
-			this.components.removeIf(t -> t.id().equals(request.getComponentId()));
+			this.components.removeIf(t -> t.id().equals(request.componentId()));
 			this.components.add(component);
 		}
 		if (this.configurationAdmin == null) {
@@ -192,11 +193,11 @@ public class DummyPseudoComponentManager implements ComponentManager {
 				if (props == null) {
 					continue;
 				}
-				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+				if (props.get("id") == null || !props.get("id").equals(request.componentId())) {
 					continue;
 				}
 				var properties = new Hashtable<String, JsonElement>();
-				for (var property : request.getProperties()) {
+				for (var property : request.properties()) {
 					properties.put(property.getName(), property.getValue());
 				}
 				configuration.update(properties);
@@ -209,9 +210,9 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleDeleteComponentConfigRequest(//
 			final User user, //
-			final DeleteComponentConfigRequest request //
+			final DeleteComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		this.components.removeIf(t -> t.id().equals(request.getComponentId()));
+		this.components.removeIf(t -> t.id().equals(request.componentId()));
 	}
 
 	/**

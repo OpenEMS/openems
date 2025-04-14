@@ -1,10 +1,13 @@
+import { TranslateService } from "@ngx-translate/core";
 import { ChannelAddress, Widgets } from "../../shared";
+import { baseNavigationTree, NavigationId, NavigationTree } from "../navigation/shared";
+import { Name } from "../shared/name";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
     category: {
         title: string,
-        icon: string
+        icon: string,
     },
     components: EdgeConfig.Component[]
 }
@@ -19,6 +22,7 @@ export interface CategorizedFactories {
 
 export class EdgeConfig {
 
+    public readonly navigation: NavigationTree | null = null;
     /**
      * Component-ID -> Component.
      */
@@ -44,6 +48,8 @@ export class EdgeConfig {
             this.components = source.components;
             this.factories = source.factories;
         }
+
+        this.navigation = this.createNavigationTree(this.components, this.factories);
 
         // initialize Components
         for (const componentId in this.components) {
@@ -103,16 +109,16 @@ export class EdgeConfig {
     /**
      * Lists all available Factories, grouped by category.
      */
-    public static listAvailableFactories(factories: { [id: string]: EdgeConfig.Factory }): CategorizedFactories[] {
+    public static listAvailableFactories(factories: { [id: string]: EdgeConfig.Factory }, translate: TranslateService): CategorizedFactories[] {
         const allFactories: CategorizedFactories[] = [
             {
-                category: { title: "Simulatoren", icon: "flask-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.SIMULATORS"), icon: "flask-outline" },
                 factories: Object.entries(factories)
                     .filter(([factory]) => factory.startsWith("Simulator."))
                     .map(e => e[1]),
             },
             {
-                category: { title: "Zähler", icon: "speedometer-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.METER"), icon: "speedometer-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.ElectricityMeter", "io.openems.edge.evcs.api.Evcs"),
@@ -120,7 +126,7 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: "Speichersysteme", icon: "battery-charging-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.STORAGE_SYSTEMS"), icon: "battery-charging-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.ess.api.SymmetricEss"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.battery.api.Battery"),
@@ -128,7 +134,7 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: "Speichersystem-Steuerung", icon: "options-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.STORAGE_SYSTEM_CONTROL"), icon: "options-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIdsPattern(factories, [
                         /Controller\.Asymmetric.*/,
@@ -138,45 +144,50 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: "E-Auto-Ladestation", icon: "car-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.EV_CHARGING_STATION"), icon: "car-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evcs.api.Evcs"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evse.api.chargepoint.EvseChargePoint"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle"),
                 ].flat(2),
             },
             {
-                category: { title: "E-Auto-Ladestation-Steuerung", icon: "options-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.EV_CHARGING_STATION_CONTROL"), icon: "options-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Evcs",
+                        "Evse.Controller.Single",
+                        "Evse.Controller.Cluster",
                     ]),
                 ].flat(2),
             },
             {
-                category: { title: "I/Os", icon: "log-in-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IOs"), icon: "log-in-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalOutput"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalInput"),
                 ].flat(2),
             },
             {
-                category: { title: "I/O-Steuerung", icon: "options-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IO-CONTROL"), icon: "options-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.IO.ChannelSingleThreshold",
                         "Controller.Io.FixDigitalOutput",
                         "Controller.IO.HeatingElement",
+                        "Controller.IO.Heating.Room",
                         "Controller.Io.HeatPump.SgReady",
                     ]),
                 ].flat(2),
             },
             {
-                category: { title: "Temperatursensoren", icon: "thermometer-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.TEMPERATURE_SENSORS"), icon: "thermometer-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.thermometer.api.Thermometer"),
                 ].flat(2),
             },
             {
-                category: { title: "Externe Schnittstellen", icon: "megaphone-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.EXTERNAL_INTERFACES"), icon: "megaphone-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Api.Websocket",
@@ -192,18 +203,19 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: "Cloud-Schnittstellen", icon: "cloud-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.CLOUD_INTERFACES"), icon: "cloud-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIdsPattern(factories, [
                         /TimeOfUseTariff\.*/,
                     ]),
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Api.Backend",
+                        "Controller.Clever-PV",
                     ]),
                 ].flat(2),
             },
             {
-                category: { title: "Geräte-Schnittstellen", icon: "swap-horizontal-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.DEVICE_INTERFACES"), icon: "swap-horizontal-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Bridge.Mbus",
@@ -215,7 +227,7 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: "Standard-Komponenten", icon: "resize-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.STANDARD_COMPONENTS"), icon: "resize-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.Debug.Log",
@@ -227,13 +239,13 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: "Spezial-Controller", icon: "repeat-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.DEDICATED_CONTROLLERS"), icon: "repeat-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.controller.api.Controller"),
                 ].flat(2),
             },
             {
-                category: { title: "Weitere", icon: "radio-button-off-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.OTHERS"), icon: "radio-button-off-outline" },
                 factories: Object.values(factories),
             },
         ];
@@ -553,6 +565,9 @@ export class EdgeConfig {
         if (natures.includes("io.openems.edge.evcs.api.Evcs") && !natures.includes("io.openems.edge.evcs.api.MetaEvcs")) {
             return true;
         }
+        if (natures.includes("io.openems.edge.evse.api.chargepoint.EvseChargePoint")) {
+            return true;
+        }
         return false;
     }
 
@@ -581,17 +596,17 @@ export class EdgeConfig {
         return false;
     }
 
-    public listAvailableFactories(): CategorizedFactories[] {
-        return EdgeConfig.listAvailableFactories(this.factories);
+    public listAvailableFactories(translate: TranslateService): CategorizedFactories[] {
+        return EdgeConfig.listAvailableFactories(this.factories, translate);
     }
 
     /**
      * Returns the corresponding icon for a given factory
      */
-    public getFactoryIcon(factory: EdgeConfig.Factory): string {
+    public getFactoryIcon(factory: EdgeConfig.Factory, translate: TranslateService): string {
         // default icon, if no icons are found
         let result = "stats-chart-outline";
-        this.listAvailableFactories().forEach(availableFactories => {
+        this.listAvailableFactories(translate).forEach(availableFactories => {
             availableFactories.factories.forEach(availableFactory => {
                 if (factory == availableFactory) {
                     result = availableFactories.category.icon;
@@ -604,9 +619,9 @@ export class EdgeConfig {
     /**
      * Lists all active Components, grouped by category.
      */
-    public listActiveComponents(ignoreComponentIds: string[] = []): CategorizedComponents[] {
+    public listActiveComponents(ignoreComponentIds: string[] = [], translate: TranslateService): CategorizedComponents[] {
         const allComponents = [];
-        const factories = this.listAvailableFactories();
+        const factories = this.listAvailableFactories(translate);
         for (const entry of factories) {
             const components: EdgeConfig.Component[] = [];
             for (const factory of entry.factories) {
@@ -618,7 +633,7 @@ export class EdgeConfig {
             });
         }
         const result: CategorizedComponents[] = [];
-        allComponents.forEach(item => {
+        allComponents.forEach((item: CategorizedComponents) => {
             const components =
                 item.components
                     // remove Components from list that have already been listed before
@@ -631,6 +646,7 @@ export class EdgeConfig {
                 components.forEach(component => {
                     ignoreComponentIds.push(component.id);
                 });
+                // item.category.title = translate.instant()
                 result.push({ category: item.category, components: components });
             }
         });
@@ -689,7 +705,7 @@ export class EdgeConfig {
     }
 
     /**
-     * Safely gets a property from a component if it exists, else returns null.
+     * Safely gets a property from a component, if it exists, else returns null.
      *
      * @param component The component from which to retrieve the property.
      * @param property The property name to retrieve.
@@ -698,6 +714,31 @@ export class EdgeConfig {
     public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
         return component?.properties[property] ?? null;
     }
+
+    public createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory; }): NavigationTree {
+        const navigationTree: NavigationTree = NavigationTree.of(baseNavigationTree);
+        const baseMode: NavigationTree["mode"] = "label";
+
+        for (const [componentId, component] of Object.entries(components)) {
+            switch (component.factoryId) {
+                case "Evse.Controller.Single":
+                    navigationTree.setChild(NavigationId.LIVE,
+                        new NavigationTree(
+                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+                            navigationTree,));
+                    break;
+                case "Controller.IO.Heating.Room":
+                    navigationTree.setChild(NavigationId.LIVE,
+                        new NavigationTree(
+                            componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+                            navigationTree,));
+                    break;
+            }
+        }
+        return navigationTree;
+    }
+
+
 }
 
 export enum PersistencePriority {

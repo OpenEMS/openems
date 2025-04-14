@@ -70,15 +70,6 @@
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
     <ng-container *ngIf="controller">
 
-      <ng-container *ngIf="edge.roleIsAtLeast('admin') && controller['properties']['smartMode'] === true">
-        <oe-modal-info-line [info]="'Edge.Index.Widgets.SCHEDULE.CHART_TITLE_ADMIN'| translate"></oe-modal-info-line>
-
-        <scheduleChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
-        </scheduleChart>
-
-        <oe-modal-horizontal-line></oe-modal-horizontal-line>
-      </ng-container>
-
       <!--Force Charge settings-->
       <ng-container *ngIf="formGroup.value.chargeMode === 'FORCE_CHARGE'">
         <ng-container>
@@ -88,11 +79,12 @@
           </oe-modal-line>
 
           <!-- this section has to be change later -->
-          <table class="full_width" *ngIf="numberOfPhases && formGroup.value.forceChargeMinPower">
+          <table class="full_width"
+            *ngIf="minChargePower && maxChargePower && numberOfPhases && formGroup.value.forceChargeMinPower">
             <tr>
               <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller, numberOfPhases)"
                 min="{{ formatNumber(minChargePower) }}" max="{{ formatNumber(maxChargePower) }}" color="dark"
-                pin="true" style="padding-top: 8px;" step="100" debounce="500"
+                pin="true" style="padding-top: 8px;" step="100" debounce="500" [pinFormatter]="pinFormatter"
                 value="{{controller.properties['forceChargeMinPower'] * numberOfPhases}}">
                 <ion-label slot="start">
                   {{ formatNumber(minChargePower) |

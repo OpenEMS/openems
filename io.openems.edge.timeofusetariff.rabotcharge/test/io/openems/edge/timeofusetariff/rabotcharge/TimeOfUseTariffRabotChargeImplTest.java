@@ -164,7 +164,7 @@ public class TimeOfUseTariffRabotChargeImplTest {
 		assertFalse(prices.isEmpty());
 
 		// To check if a value is present in map.
-		assertEquals(214.2929, prices.getFirst(), 0.001);
+		assertEquals(164.666, prices.getFirst(), 0.001);
 	}
 
 	@Test
