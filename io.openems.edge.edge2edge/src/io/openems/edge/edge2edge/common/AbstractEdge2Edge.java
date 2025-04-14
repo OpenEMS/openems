@@ -346,7 +346,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param address the address of the {@link AbstractModbusElement}
 	 * @return the {@link AbstractModbusElement}
 	 */
-	private static ModbusElement generateModbusElement(ModbusType type, int address) {
+	protected static ModbusElement generateModbusElement(ModbusType type, int address) {
 		return switch (type) {
 		case ENUM16, UINT16 -> new UnsignedWordElement(address);
 		case UINT32 -> new UnsignedDoublewordElement(address);
