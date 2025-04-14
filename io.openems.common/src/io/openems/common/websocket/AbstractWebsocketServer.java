@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Predicate;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -186,6 +187,23 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 */
 	public void broadcastMessage(JsonrpcMessage message) {
 		for (var ws : this.getConnections()) {
+			this.sendMessage(ws, message);
+		}
+	}
+
+	/**
+	 * Broadcasts a {@link JsonrpcMessage} to all connected WebSockets matching a
+	 * condition.
+	 *
+	 * @param message the {@link JsonrpcMessage}
+	 * @param matcher the matching condition to send the message to
+	 */
+	public void broadcastMessage(JsonrpcMessage message, Predicate<T> matcher) {
+		for (var ws : this.getConnections()) {
+			T wsData = ws.getAttachment();
+			if (!matcher.test(wsData)) {
+				continue;
+			}
 			this.sendMessage(ws, message);
 		}
 	}

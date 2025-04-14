@@ -71,7 +71,7 @@ export class ModalComponent {
         }
 
         if (this.edge) {
-            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
+            this.edge.updateAppConfig(this.websocket, this.component.id, updateComponentArray)
                 .then(() => {
                     this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 }).catch(reason => {

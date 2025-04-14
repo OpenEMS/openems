@@ -24,17 +24,15 @@
             <td style="width: 30%" class="align_right" *ngIf="control.type === 'INPUT'" [formGroup]="formGroup">
                 <ion-item>
                     <ion-input class="regularFont" type="number" style="text-align: right;"
-                        [formControlName]="controlName">
+                        [formControlName]="controlName" label-placement="floating" label="&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;">
                     </ion-input>
-                    <ion-label class="regularFont">&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;
-                    </ion-label>
                 </ion-item>
             </td>
 
             <!-- 'TOGGLE' Line, provides toggle option -->
             <td *ngIf="control.type === 'TOGGLE'" [formGroup]="formGroup"
                 [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''" class="align_right">
-                <ion-toggle [formControlName]="controlName">
+                <ion-toggle mode="md" [formControlName]="controlName">
                 </ion-toggle>
             </td>
 

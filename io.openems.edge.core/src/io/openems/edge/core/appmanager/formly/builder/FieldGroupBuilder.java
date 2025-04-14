@@ -45,7 +45,7 @@ public final class FieldGroupBuilder extends FormlyBuilder<FieldGroupBuilder> {
 	public JsonObject build() {
 		final var object = super.build();
 		final var templateOptions = object.get("templateOptions").getAsJsonObject();
-		templateOptions.remove("required");
+
 		JsonUtils.getAsOptionalJsonObject(object, "expressionProperties") //
 				.map(t -> t.remove("templateOptions.required"));
 

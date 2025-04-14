@@ -4,12 +4,18 @@ import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
@@ -21,15 +27,17 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestFeneconHome10Gen2 {
 	private AppManagerTestBundle appManagerTestBundle;
+	private SocomecMeter meterApp;
 
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			return Apps.of(t, //
-					Apps::feneconHome10Gen2, //
-					Apps::gridOptimizedCharge, //
-					Apps::selfConsumptionOptimization, //
-					Apps::prepareBatteryExtension //
+			return List.of(//
+					Apps.feneconHome10Gen2(t), //
+					Apps.gridOptimizedCharge(t), //
+					Apps.selfConsumptionOptimization(t), //
+					Apps.prepareBatteryExtension(t), //
+					this.meterApp = Apps.socomecMeter(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -39,17 +47,17 @@ public class TestFeneconHome10Gen2 {
 
 	@Test
 	public void testCreate() throws Exception {
-		this.createFullHome(this.appManagerTestBundle, DummyUser.DUMMY_ADMIN);
+		createFullHome(this.appManagerTestBundle, DummyUser.DUMMY_ADMIN);
 	}
 
-	private final OpenemsAppInstance createFullHome(AppManagerTestBundle appManagerTestBundle, User user)
+	private static OpenemsAppInstance createFullHome(AppManagerTestBundle appManagerTestBundle, User user)
 			throws Exception {
 		var fullConfig = fullSettings();
 
 		appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
 				new AddAppInstance.Request("App.FENECON.Home10.Gen2", "key", "alias", fullConfig));
 
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
+		assertEquals(4, appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
@@ -76,12 +84,12 @@ public class TestFeneconHome10Gen2 {
 	@Test
 	public final void testCreateAndUpdateFullHome() throws Exception {
 		var fullSettings = fullSettings();
-		var homeInstance = this.createFullHome(this.appManagerTestBundle, DummyUser.DUMMY_ADMIN);
+		var homeInstance = createFullHome(this.appManagerTestBundle, DummyUser.DUMMY_ADMIN);
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
+		assertEquals(4, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
 			case "App.FENECON.Home10.Gen2" -> 3;
@@ -96,6 +104,17 @@ public class TestFeneconHome10Gen2 {
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}
 
+	}
+
+	@Test
+	public void testGetMeterDefaultModbusIdValue() throws Exception {
+		createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
+
+		final var modbusIdProperty = Arrays.stream(this.meterApp.getProperties()) //
+				.filter(t -> t.name.equals(SocomecMeter.Property.MODBUS_ID.name())) //
+				.findFirst().orElseThrow();
+
+		assertEquals("modbus2", modbusIdProperty.getDefaultValue(Language.DEFAULT).map(JsonElement::getAsString).get());
 	}
 
 	/**
@@ -122,4 +141,21 @@ public class TestFeneconHome10Gen2 {
 				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
 				.build();
 	}
+
+	/**
+	 * Gets a {@link JsonObject} with the minimum settings for a
+	 * {@link FeneconHome10}.
+	 * 
+	 * @return the settings object
+	 */
+	public static final JsonObject minSettings() {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("SAFETY_COUNTRY", "GERMANY") //
+				.addProperty("MAX_FEED_IN_POWER", 1000) //
+				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+				.addProperty("HAS_EMERGENCY_RESERVE", false) //
+				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
+				.build();
+	}
+
 }

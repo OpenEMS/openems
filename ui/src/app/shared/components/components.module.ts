@@ -25,14 +25,14 @@ import { NotificationComponent } from "./shared/notification/notification";
         BrowserModule,
         IonicModule,
         PipeModule,
-        ReactiveFormsModule,
-        RouterModule,
         TranslateModule,
         HistoryDataErrorModule,
         FooterNavigationModule,
         ChartModule,
         PickdateModule,
         ModalModule,
+        ReactiveFormsModule,
+        RouterModule,
     ],
     declarations: [
 

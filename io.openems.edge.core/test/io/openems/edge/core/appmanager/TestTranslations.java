@@ -21,6 +21,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome15;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
+import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class TestTranslations {
 
@@ -28,12 +29,13 @@ public class TestTranslations {
 
 	}
 
+	private AppManagerTestBundle testBundle;
 	private List<TestTranslation> apps;
 
 	@Before
 	public void beforeEach() throws Exception {
 		this.apps = new ArrayList<>();
-		new AppManagerTestBundle(null, null, t -> {
+		this.testBundle = new AppManagerTestBundle(null, null, t -> {
 			this.apps.add(new TestTranslation(Apps.feneconHome10(t), true, TestFeneconHome10.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome20(t), true, TestFeneconHome20.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
@@ -46,6 +48,15 @@ public class TestTranslations {
 					.addProperty("BIDDING_ZONE", "GERMANY") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.groupeE(t), true, JsonUtils.buildJsonObject() //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.octopusGo(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("STANDARD_PRICE", 27.6) //
+					.addProperty("LOW_PRICE", 14.8) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.octopusHeat(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HIGH_PRICE", 34.6) //
+					.addProperty("STANDARD_PRICE", 27.6) //
+					.addProperty("LOW_PRICE", 14.8) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
@@ -68,6 +79,12 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.techbaseCm4Max(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4s(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.enerixControl(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
+			this.apps.add(new TestTranslation(Apps.cleverPv(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //
@@ -83,12 +100,16 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.kebaEvcsReadonly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.heidelbergEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.mennekesEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.kmtronic8Channel(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.ioGpio(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatPump(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
 					.addProperty("OUTPUT_CHANNEL_2", "io0/Relay2") //
@@ -172,7 +193,7 @@ public class TestTranslations {
 					.addProperty("INPUT_CHANNEL_ADDRESS", "io0/Relay1") //
 					.build()));
 			return this.apps.stream().map(TestTranslation::app).toList();
-		});
+		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}
 
 	@Test
@@ -200,6 +221,9 @@ public class TestTranslations {
 
 	private void testTranslations(Language l) throws Exception {
 		final var debugTranslator = TranslationUtil.enableDebugMode();
+
+		this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.OpenemsHardware.CM4S.Gen2", "key", "", new JsonObject()));
 
 		for (var entry : this.apps) {
 			final var app = entry.app();

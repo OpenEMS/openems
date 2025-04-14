@@ -24,6 +24,7 @@ import static java.time.LocalDate.EPOCH;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.util.Arrays.stream;
 
@@ -35,8 +36,9 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -67,8 +69,12 @@ public class JSCalendar<PAYLOAD> {
 
 	private static final String PROPERTY_PAYLOAD = "openems.io:payload";
 
-	public static record Task<PAYLOAD>(UUID uid, ZonedDateTime updated, LocalDateTime start, Duration duration,
-			ImmutableList<RecurrenceRule> recurrenceRules, PAYLOAD payload) {
+	/**
+	 * Helper utilities to handle lists of {@link Task}s.
+	 */
+	public static class Tasks {
+		private Tasks() {
+		}
 
 		/**
 		 * Parse a List of {@link Task}s from a String representing a {@link JsonArray}
@@ -107,7 +113,7 @@ public class JSCalendar<PAYLOAD> {
 			return stream(json) //
 					.map(j -> {
 						try {
-							return fromJson(getAsJsonObject(j), payloadParser);
+							return Task.fromJson(getAsJsonObject(j), payloadParser);
 						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
 							throw new NoSuchElementException(e.getMessage());
@@ -115,6 +121,70 @@ public class JSCalendar<PAYLOAD> {
 					}) //
 					.collect(toImmutableList());
 		}
+
+		/**
+		 * Convert to a {@link JsonArray}.
+		 * 
+		 * @param <PAYLOAD>        the type of the Payload
+		 * @param tasks            a List of {@link Task}s
+		 * @param payloadConverter a converter for a Payload
+		 * @return a {@link JsonArray}
+		 */
+		public static <PAYLOAD> JsonArray toJsonArray(ImmutableList<Task<PAYLOAD>> tasks,
+				Function<PAYLOAD, JsonObject> payloadConverter) {
+			return tasks.stream() //
+					.map(t -> t.toJson(payloadConverter)) //
+					.collect(JsonUtils.toJsonArray());
+		}
+
+		public static record OneTask<PAYLOAD>(ZonedDateTime start, Duration duration, PAYLOAD payload) {
+		}
+
+		/**
+		 * Gets the next occurence of the {@link Task} (including duration) at or after
+		 * a date.
+		 * 
+		 * @param <PAYLOAD> the type of the Payload
+		 * @param tasks     a List of {@link Task}s
+		 * @param from      the from timestamp
+		 * @return a {@link ZonedDateTime}
+		 */
+		public static <PAYLOAD> Optional<OneTask<PAYLOAD>> getNextOccurence(ImmutableList<Task<PAYLOAD>> tasks,
+				ZonedDateTime from) {
+			return tasks.stream() //
+					.map(task -> {
+						var start = task.getNextOccurence(from);
+						return start == null //
+								? null //
+								: new OneTask<PAYLOAD>(start, task.duration, task.payload);
+					}) //
+					.filter(Objects::nonNull) //
+					.sorted((ot0, ot1) -> ot0.start().compareTo(ot1.start())) //
+					.findFirst();
+		}
+
+		/**
+		 * Gets the occurences of the {@link Task}s (including currently active task)
+		 * between two dates.
+		 * 
+		 * @param <PAYLOAD> the type of the Payload
+		 * @param tasks     a List of {@link Task}s
+		 * @param from      the from timestamp
+		 * @param to        the to timestamp
+		 * @return a list of {@link OneTask}s
+		 */
+		public static <PAYLOAD> ImmutableList<OneTask<PAYLOAD>> getOccurencesBetween(ImmutableList<Task<PAYLOAD>> tasks,
+				ZonedDateTime from, ZonedDateTime to) {
+			return tasks.stream() //
+					.flatMap(t -> t.getOccurencesBetween(from, to).stream() //
+							.map(s -> new OneTask<PAYLOAD>(s, t.duration, t.payload))) //
+					.sorted((ot0, ot1) -> ot0.start().compareTo(ot1.start())) //
+					.collect(toImmutableList());
+		}
+	}
+
+	public static record Task<PAYLOAD>(UUID uid, ZonedDateTime updated, LocalDateTime start, Duration duration,
+			ImmutableList<RecurrenceRule> recurrenceRules, PAYLOAD payload) {
 
 		/**
 		 * Parse a {@link Task} from a {@link JsonObject}.
@@ -302,7 +372,7 @@ public class JSCalendar<PAYLOAD> {
 			if (!this.recurrenceRules.isEmpty()) {
 				j.add("recurrenceRules", this.recurrenceRules.stream() //
 						.map(RecurrenceRule::toJson) //
-						.collect(toJsonArray()));
+						.collect(JsonUtils.toJsonArray()));
 			}
 			if (this.payload != null) {
 				j.add(PROPERTY_PAYLOAD, payloadConverter.apply(this.payload));
@@ -311,21 +381,48 @@ public class JSCalendar<PAYLOAD> {
 		}
 
 		/**
-		 * Gets the next occurence of the {@link Task} (including duration) at or after
-		 * a date.
+		 * Gets the next occurence of the {@link Task} (including currently active task)
+		 * at or after a date.
 		 * 
 		 * @param from the from timestamp
 		 * @return a {@link ZonedDateTime}
 		 */
 		public ZonedDateTime getNextOccurence(ZonedDateTime from) {
-			var f = this.duration == null //
+			final var f = this.duration == null //
 					? from //
 					: from.minus(this.duration); // query active tasks
-			var start = this.start.atZone(from.getZone());
 			return this.recurrenceRules.stream() //
-					.map(rr -> rr.getNextOccurence(f.isBefore(start) ? start : f, start)) //
+					.map(rr -> rr.getNextOccurence(this.start, f)) //
 					.min((o1, o2) -> o1.toInstant().compareTo(o2.toInstant())) //
 					.orElse(null);
+		}
+
+		/**
+		 * Gets the occurences of the {@link Task} (including currently active task)
+		 * between two dates.
+		 * 
+		 * @param from the from timestamp
+		 * @param to   the to timestamp
+		 * @return a {@link ZonedDateTime}
+		 */
+		public ImmutableList<ZonedDateTime> getOccurencesBetween(ZonedDateTime from, ZonedDateTime to) {
+			var result = ImmutableList.<ZonedDateTime>builder();
+			for (var rr : this.recurrenceRules) {
+				var nextFrom = this.duration == null //
+						? from //
+						: from.minus(this.duration); // query active tasks;
+				while (true) {
+					var start = rr.getNextOccurence(this.start, nextFrom);
+					if (start.isAfter(to)) {
+						break;
+					}
+					result.add(start);
+					nextFrom = this.duration == null //
+							? start.plusNanos(1) //
+							: start.plus(this.duration).plusNanos(1);
+				}
+			}
+			return result.build();
 		}
 	}
 
@@ -413,32 +510,41 @@ public class JSCalendar<PAYLOAD> {
 		/**
 		 * Gets the next occurence of the {@link RecurrenceRule} at or after a date.
 		 * 
-		 * @param from  the from date
-		 * @param start the start timestamp of the {@link Task}
+		 * @param taskStart the start timestamp of the {@link Task}
+		 * @param from      the from date
 		 * @return a {@link ZonedDateTime}
 		 */
-		public ZonedDateTime getNextOccurence(ZonedDateTime from, ZonedDateTime start) {
-			final var startTime = start.toLocalTime();
+		public ZonedDateTime getNextOccurence(LocalDateTime taskStart, ZonedDateTime from) {
+			final var taskStartZoned = taskStart.atZone(from.getZone());
+			from = from.isBefore(taskStartZoned) //
+					? taskStartZoned //
+					: from;
 
 			return switch (this.frequency) {
 			case DAILY -> {
-				var resultDay = from.truncatedTo(ChronoUnit.DAYS);
-				if (from.toLocalTime().isAfter(startTime)) {
-					resultDay = from.plusDays(1);
+				if (from.toLocalTime().isAfter(taskStart.toLocalTime())) {
+					from = from.plusDays(1);
 				}
-				yield resultDay.with(NANO_OF_DAY, startTime.toNanoOfDay());
+				yield from. //
+						truncatedTo(DAYS) //
+						.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
+
 			}
 			case WEEKLY -> {
 				if (!this.byDay.isEmpty()) {
-					var nextByDay = this.byDay.ceiling(from.toLocalTime().isAfter(startTime) //
-							? from.getDayOfWeek().plus(1) // next day
-							: from.getDayOfWeek()); // same day
-					if (nextByDay == null) {
-						nextByDay = this.byDay.first();
+					if (from.toLocalTime().isAfter(taskStart.toLocalTime())) {
+						from = from.plusDays(1); // tomorrow
 					}
-					yield from //
-							.with(nextOrSame(nextByDay)) //
-							.with(NANO_OF_DAY, startTime.toNanoOfDay());
+					from = from.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
+					var nextByDay = this.byDay.ceiling(from.getDayOfWeek());
+					if (nextByDay != null) {
+						yield from.with(nextOrSame(nextByDay)); // next weekday in list
+					}
+					nextByDay = this.byDay.first();
+					if (from.getDayOfWeek() == nextByDay) {
+						yield from.plusWeeks(1); // same day next week
+					}
+					yield from.with(nextOrSame(this.byDay.first())); // first day in list
 				}
 				// TODO: If frequency is weekly and there is no byDay property, add a byDay
 				// property with the sole value being the day of the week of the initial

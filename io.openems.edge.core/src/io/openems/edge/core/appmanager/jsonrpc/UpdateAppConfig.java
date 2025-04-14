@@ -4,13 +4,12 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObj
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
-import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig.Request;
-import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig.Response;
 
 /**
  * Updates an {@link OpenemsAppInstance}.
@@ -44,7 +43,7 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig.Response;
  * }
  * </pre>
  */
-public class UpdateAppConfig implements EndpointRequestType<Request, Response> {
+public class UpdateAppConfig implements EndpointRequestType<Request, EmptyObject> {
 
 	@Override
 	public String getMethod() {
@@ -57,8 +56,8 @@ public class UpdateAppConfig implements EndpointRequestType<Request, Response> {
 	}
 
 	@Override
-	public JsonSerializer<Response> getResponseSerializer() {
-		return Response.serializer();
+	public JsonSerializer<EmptyObject> getResponseSerializer() {
+		return EmptyObject.serializer();
 	}
 
 	public record Request(//
@@ -80,21 +79,6 @@ public class UpdateAppConfig implements EndpointRequestType<Request, Response> {
 							.addProperty("componentId", obj.componentId()) //
 							.add("properties", obj.properties()) //
 							.build());
-		}
-
-	}
-
-	public record Response(//
-	
-	) {
-
-		/**
-		 * Returns a {@link JsonSerializer} for a {@link UpdateAppInstance.Response}.
-		 * 
-		 * @return the created {@link JsonSerializer}
-		 */
-		public static JsonSerializer<UpdateAppConfig.Response> serializer() {
-			return JsonSerializerUtil.emptyObjectSerializer(Response::new);
 		}
 
 	}

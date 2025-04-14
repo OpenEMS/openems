@@ -5,6 +5,9 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
+import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.keba.common.R2Plug;
+
 public class ReadHandlerTest {
 
 	@Test
@@ -35,5 +38,11 @@ public class ReadHandlerTest {
 
 		sut.updatePlug(R2Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED);
 		assertEquals(20, sut.updateFromReport3(20).intValue());
+	}
+
+	@Test
+	public void testGetStatus() {
+		assertEquals(Status.READY_FOR_CHARGING, //
+				ReadHandler.getStatus(R2State.READY, 0, 0));
 	}
 }

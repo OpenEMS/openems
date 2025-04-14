@@ -48,6 +48,8 @@ import io.openems.common.function.ThrowingFunction;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -568,6 +570,12 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 		final var openemsApp = this.findAppByIdOrError(request.appId());
 
+		if (user != null) {
+			if (!openemsApp.getAppPermissions().canInstall().contains(user.getRole())) {
+				throw new OpenemsException("User Role can't install!");
+			}
+		}
+
 		return this.lockModifyingApps(() -> {
 			// initial check if the app can even be installed
 			final var language = user == null ? Language.DEFAULT : user.getLanguage();
@@ -774,12 +782,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	/**
 	 * Handles a {@link GetApps.Request}.
 	 *
-	 * @param user    the User
-	 * @param request the {@link GetApps.Request}
+	 * @param user the User
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private GetApps.Response handleGetAppsRequest(User user, GetApps.Request request) throws OpenemsNamedException {
+	private GetApps.Response handleGetAppsRequest(User user) throws OpenemsNamedException {
 		return GetApps.Response.newInstance(this.availableApps, this.instantiatedApps, user.getRole(),
 				user.getLanguage(), this.validator);
 	}
@@ -791,11 +798,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 					Gets all available apps on the current edge.
 					""".stripIndent());
 
-			endpoint.applyRequestBuilder(request -> {
-				request.addExample(new GetApps.Request());
-			});
-
-		}, call -> this.handleGetAppsRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+		}, call -> this.handleGetAppsRequest(call.get(EdgeKeys.USER_KEY)));
 
 		builder.handleRequest(new GetApp(), endpoint -> {
 			endpoint.setDescription("""
@@ -912,7 +915,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
 
-		}, call -> this.handleUpdateAppConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
+		}, call -> {
+			this.handleUpdateAppConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest());
+			return EmptyObject.INSTANCE;
+		});
 	}
 
 	/**
@@ -939,17 +945,16 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 *
 	 * @param user    the User
 	 * @param request the {@link UpdateAppConfigRequest} Request
-	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public UpdateAppConfig.Response handleUpdateAppConfigRequest(User user, UpdateAppConfig.Request request)
-			throws OpenemsNamedException {
+	public void handleUpdateAppConfigRequest(User user, UpdateAppConfig.Request request) throws OpenemsNamedException {
 
 		final var appInstance = this.findInstanceByComponentId(request.componentId());
 
 		// update Component the old fashioned way if no app exists for the component
 		if (appInstance == null) {
-			return this.updateComponentDirectly(user, request);
+			this.updateComponentDirectly(user, request);
+			return;
 		}
 		final var app = this.findAppByIdOrError(appInstance.appId);
 
@@ -970,19 +975,16 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		// handleUpdateAppInstanceRequest Method
 		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, requestProperties);
 		this.handleUpdateAppInstanceRequest(user, req);
-		return new UpdateAppConfig.Response();
 	}
 
-	private UpdateAppConfig.Response updateComponentDirectly(User user, UpdateAppConfig.Request from)
-			throws OpenemsNamedException {
+	private void updateComponentDirectly(User user, UpdateAppConfig.Request from) throws OpenemsNamedException {
 		final var properties = from.properties();
 		final var componentUpdateProps = new ArrayList<UpdateComponentConfigRequest.Property>();
 		for (var key : properties.keySet()) {
 			componentUpdateProps.add(new UpdateComponentConfigRequest.Property(key, properties.get(key)));
 		}
-		final var updateRequest = new UpdateComponentConfigRequest(from.componentId(), componentUpdateProps);
+		final var updateRequest = new UpdateComponentConfig.Request(from.componentId(), componentUpdateProps);
 		this.componentManager.handleUpdateComponentConfigRequest(user, updateRequest);
-		return new UpdateAppConfig.Response();
 	}
 
 	/**
@@ -1009,15 +1011,19 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			}
 			final var notAllowedProperties = props.keySet().stream()//
 					.filter(key -> {
-						if (restOfProps.has(key)) {
-
-							return (!props.get(key).getAsString().equals(restOfProps.get(key).getAsString()));
-						}
-						return false;
-					}).filter(key -> {
 						final var canEdit = app.assertCanEdit(key, user);
 						return !canEdit;
-					}).collect(Collectors.joining(", "));
+					}) //
+					.filter(key -> {
+						final var element = restOfProps.get(key);
+						if (element == null) {
+							return false;
+						}
+
+						// TODO special handling for arrays
+						return (!props.get(key).getAsString().equals(restOfProps.get(key).getAsString()));
+					}) //
+					.collect(Collectors.joining(", "));
 			if (notAllowedProperties.length() > 0) {
 				throw new OpenemsException("User is not allowed to edit " + notAllowedProperties + "!");
 			}
@@ -1076,7 +1082,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		var p = new Property("apps", this.getJsonAppsString(apps));
 		// user can be null using internal method
 		this.componentManager.handleUpdateComponentConfigRequest(user,
-				new UpdateComponentConfigRequest(SINGLETON_COMPONENT_ID, Arrays.asList(p)));
+				new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, Arrays.asList(p)));
 	}
 
 	private static void sortApps(List<OpenemsAppInstance> apps) {

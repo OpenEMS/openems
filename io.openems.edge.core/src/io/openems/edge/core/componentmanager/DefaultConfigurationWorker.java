@@ -15,10 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
+import io.openems.common.utils.DictionaryUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -92,8 +93,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		/*
 		 * Create Default Logging configuration
 		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		"org.ops4j.pax.logging".equals(c.pid) && c.properties.get("log4j2.rootLogger.level") != null)) {
+		if (existingConfigs.stream().noneMatch(c -> "org.ops4j.pax.logging".equals(c.pid) //
+				&& !DictionaryUtils.containsAnyKey(c.properties, "log4j2.rootLogger.level"))) {
 			// Adding Configuration manually, because this is not a OpenEMS Configuration
 			try {
 				var log4j = new Hashtable<String, Object>();
@@ -178,7 +179,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
 							.collect(Collectors.joining(", ")));
 			this.parent.handleCreateComponentConfigRequest(null /* no user */,
-					new CreateComponentConfigRequest(factoryPid, properties));
+					new CreateComponentConfig.Request(factoryPid, properties));
 		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log,
 					"Unable to create Component configuration for Factory [" + factoryPid + "]: " + e.getMessage());
@@ -204,7 +205,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 							.collect(Collectors.joining(", ")));
 
 			this.parent.handleUpdateComponentConfigRequest(null /* no user */,
-					new UpdateComponentConfigRequest(componentId, properties));
+					new UpdateComponentConfig.Request(componentId, properties));
 		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log,
 					"Unable to update Component configuration for Component [" + componentId + "]: " + e.getMessage());
@@ -225,7 +226,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 			this.parent.logInfo(this.log, "Deleting Component [" + componentId + "]");
 
 			this.parent.handleDeleteComponentConfigRequest(null /* no user */,
-					new DeleteComponentConfigRequest(componentId));
+					new DeleteComponentConfig.Request(componentId));
 		} catch (OpenemsNamedException e) {
 			this.parent.logError(this.log, "Unable to delete Component [" + componentId + "]: " + e.getMessage());
 			e.printStackTrace();

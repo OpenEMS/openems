@@ -80,8 +80,6 @@ public final class CommonProps {
 									.build());
 						});
 						fields.add(JsonFormlyUtil.buildCheckboxFromNameable(property) //
-								.isRequired(true) //
-								.requireTrue(l) //
 								.setLabel(TranslationUtil.getTranslation(parameter.bundle, "acceptCondition.label")) //
 								.build());
 						field.setFieldGroup(fields.build());

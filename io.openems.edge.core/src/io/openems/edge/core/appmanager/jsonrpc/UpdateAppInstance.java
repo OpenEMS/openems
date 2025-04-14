@@ -9,10 +9,10 @@ import java.util.UUID;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonElementPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance.Response;
@@ -80,7 +80,7 @@ public class UpdateAppInstance implements EndpointRequestType<Request, Response>
 		public static JsonSerializer<UpdateAppInstance.Request> serializer() {
 			return jsonObjectSerializer(UpdateAppInstance.Request.class, //
 					json -> new UpdateAppInstance.Request(//
-							json.getStringPath("instanceId").getAsUuid(), //
+							json.getUuid("instanceId"), //
 							json.getString("alias"), //
 							json.getJsonObject("properties")), //
 					obj -> JsonUtils.buildJsonObject() //
@@ -105,7 +105,7 @@ public class UpdateAppInstance implements EndpointRequestType<Request, Response>
 		public static JsonSerializer<UpdateAppInstance.Response> serializer() {
 			return jsonObjectSerializer(UpdateAppInstance.Response.class, //
 					json -> new UpdateAppInstance.Response(//
-							json.getElement("instance", OpenemsAppInstance.serializer()), //
+							json.getObject("instance", OpenemsAppInstance.serializer()), //
 							json.getList("warnings", JsonElementPath::getAsString)), //
 					obj -> JsonUtils.buildJsonObject() //
 							.add("instance", OpenemsAppInstance.serializer().serialize(obj.instance())) //

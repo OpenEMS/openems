@@ -8,9 +8,28 @@
 :source-highlighter: highlight.js
 :icons: font
 
-This quick 'Getting Started' guide should help you setup a complete development environment. Once finished you will have a working instance of OpenEMS Edge, with simulated energy storage and photovoltaic system, as well as an OpenEMS UI for monitoring the simulator inside your web browser. Finally OpenEMS Backend is added to simulate a cloud backend that connects UI and Edge.
+There are three ways to get started with OpenEMS. 
+You can either setup your development environment and compile OpenEMS Edge from source, you can use pre-built https://github.com/OpenEMS/openems/releases[Release] packages, or you can use the https://github.com/OpenEMS/openems/tree/main/tools/docker/[Docker] images.
+How to use the Docker images is described in the README linked above.
+For the other two ways, keep reading.
+Either way, once finished you will have a working instance of OpenEMS Edge, with simulated energy storage and photovoltaic system, as well as an OpenEMS UI for monitoring the simulator inside your web browser. 
+Finally OpenEMS Backend is added to simulate a cloud backend that connects UI and Edge.
+If you chose to setup the development environment, skip the first section and go to <<download-the-source-code>>.
 
-== Download the source code
+== Running the pre-built OpenEMS Edge
+
+. Go to the https://github.com/OpenEMS/openems/releases/[OpenEMS' release Page] on GitHub and download the latest `openems-edge.jar`.
+. Open up your Terminal and go to the directory you downloaded the packages to.
+. Start OpenEMS Edge with the following command `java -jar openems-edge.jar`
+
+NOTE: Make sure the right java Version (21.0) is installed and active on your system. 
+On most systems `java -version` in your CLI will show the active version.
+On how to change the active version, refer to your system documentation.
+
+. If you see the following warning in your terminal: *There are no schedulers configured!* OpenEMS Edge runs perfectly. :-)
+. Now you can continue with <<starting-a-simulation>>
+
+== Download the source code [[download-the-source-code]]
 
 . Download any https://git-scm.com[git client icon:external-link[]] and install it. Our recommendation is https://www.sourcetreeapp.com/[Sourcetree by Atlassian icon:external-link[]]
 
@@ -74,7 +93,7 @@ Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd W
 
 // TODO add Setup of Checkstyle
 
-== Run OpenEMS Edge and start Simulator
+== Run OpenEMS Edge from Eclipse IDE
 
 . Run OpenEMS Edge
 .. In Eclipse IDE open the project btn:[io.openems.edge.application] and double click on btn:[EdgeApp.bndrun].
@@ -95,26 +114,27 @@ The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For n
 .OpenEMS Edge initial log output
 image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
 
-. Configure and start the Simulator
-.. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]]
+== Starting a simulation [[starting-a-simulation]]
+
+. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]]
 +
 Login with username *admin* and password *admin*.
 +
 .Apache Felix Web Console Configuration
 image::apache-felix-console-configuration.png[Apache Felix Web Console Configuration]
 
-.. Configure a Scheduler
+. Configure a Scheduler
 +
 NOTE: The Scheduler is responsible for executing the control algorithms (Controllers) in order and defines the OpenEMS Edge application cycle
 
-... Click on _**Scheduler All Alphabetically**_
+.. Click on _**Scheduler All Alphabetically**_
 +
 .Configuration of All Alphabetically Scheduler
 image::config-scheduler-all-alphabetically.png[Configuration of All Alphabetically Scheduler]
 
-... Accept the default values and click btn:[Save]
+.. Accept the default values and click btn:[Save]
 
-... You created your first instance of an OpenEMS Component with ID "scheduler0". The log shows:
+.. You created your first instance of an OpenEMS Component with ID "scheduler0". The log shows:
 +
 ```
 INFO  [onent.AbstractOpenemsComponent] [scheduler0] Activate Scheduler.AllAlphabetically
@@ -124,7 +144,7 @@ Add any other OpenEMS Components in the same way.
 +
 NOTE: Once everything is setup you can configure Components more easily via OpenEMS UI using the "Install components" feature in the Settings.
 
-.. Configure debug outputs on the console: _**Controller Debug Log**_. The default values can be accepted without changes.
+. Configure debug outputs on the console: _**Controller Debug Log**_. The default values can be accepted without changes.
 +
 .Configuration of Controller Debug Log
 image::config-controller-debug-log.png[Configuration of Controller Debug Log]
@@ -143,7 +163,7 @@ INFO  [ntroller.debuglog.DebugLogImpl] [ctrlDebugLog0] _sum[State:Ok]
 +
 NOTE: It is 'once per second', because the Cycle-Time is defined as "1000 ms" by default. Adjust the setting in the _**Core Cycle (Core.Cycle)**_ component to change this.
 
-.. Configure a simulated standard-load-profile datasource using _**Simulator DataSource: CSV Predefined**_. Select `H0_HOUSEHOLD_SUMMER_WEEKDAY_STANDARD_LOAD_PROFILE` as the `Source`.
+. Configure a simulated standard-load-profile datasource using _**Simulator DataSource: CSV Predefined**_. Select `H0_HOUSEHOLD_SUMMER_WEEKDAY_STANDARD_LOAD_PROFILE` as the `Source`.
 +
 .Configuration of Simulator DataSource: CSV Predefined as standard load profile datasource
 image::config-simulator-datasource-standard-load-profile.png[Configuration of Simulator DataSource: CSV Predefined as standard load profile datasource]
@@ -156,7 +176,7 @@ INFO  [onent.AbstractOpenemsComponent] [datasource0] Activate Simulator.Datasour
 +
 NOTE: The data source was configured with the OpenEMS Component ID `datasource0` which will be used in the next step as the `Datasource-ID` reference.
 
-.. Configure a simulated grid meter: _**Simulator GridMeter Acting**_. Configure the `Datasource-ID 'datasource0'` to refer to the data source configured above.
+. Configure a simulated grid meter: _**Simulator GridMeter Acting**_. Configure the `Datasource-ID 'datasource0'` to refer to the data source configured above.
 +
 .Configuration of Simulator GridMeter Acting
 image::config-simulator-grid-meter-acting.png[Configuration of Simulator GridMeter Acting]
@@ -174,7 +194,7 @@ NOTE: This setup causes the simulated grid-meter to take the standardized load-p
 +
 NOTE: 'Acting' in the name 'Simulator GridMeter Acting' refers to the fact, that this meter actively provides data - in opposite to a 'Reacting' simulated device that is reacting on other components: for example the 'Simulator.EssSymmetric.Reacting' configured below.
 
-.. Configure a simulated reacting energy storage system: _**Simulator EssSymmetric Reacting**_. The default values can be accepted without changes.
+. Configure a simulated reacting energy storage system: _**Simulator EssSymmetric Reacting**_. The default values can be accepted without changes.
 +
 .Configuration of Simulator EssSymmetric Reacting
 image::config-simulator-esssymmetric-reacting.png[Configuration of Simulator EssSymmetric Reacting]
@@ -189,7 +209,7 @@ INFO  [ntroller.debuglog.DebugLogImpl] [ctrlDebugLog0] _sum[State:Ok Ess SoC:50 
 +
 NOTE: The debug log now shows data for the battery, but the charge/discharge power stays at "0 W" and the state of charge stays at "50 %" as configured. Next step is to configure a control algorithm that tells the battery to charge or discharge depending on the power measured by the simulated grid meter.
 
-.. Configure the self-consumption optimization algorithm: _**Controller Ess Balancing**_. Configure the `Ess-ID` `'ess0'` and `Grid-Meter-ID` `'meter0'` to refer to the components configured above.
+. Configure the self-consumption optimization algorithm: _**Controller Ess Balancing**_. Configure the `Ess-ID` `'ess0'` and `Grid-Meter-ID` `'meter0'` to refer to the components configured above.
 +
 .Configuration of Controller Ess Balancing
 image::config-controller-ess-balancing.png[Configuration of Controller Ess Balancing]
@@ -204,7 +224,7 @@ INFO  [ntroller.debuglog.DebugLogImpl] [ctrlDebugLog0] _sum[State:Ok Ess SoC:50 
 +
 NOTE: Values will differ slightly for you, but note how the Controller now tells the battery to discharge (`Ess SoC:49 %|L:593 W`), trying to balance the Grid power to "0 W" (`Grid L:15 W`):
 
-.. Configure the websocket Api Controller: _**Controller Api Websocket**_. The default values can be accepted without changes.
+. Configure the websocket Api Controller: _**Controller Api Websocket**_. The default values can be accepted without changes.
 +
 .Configuration of Controller Api Websocket
 image::config-controller-api-websocket.png[Configuration of Controller Api Websocket]

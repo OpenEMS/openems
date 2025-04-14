@@ -14,6 +14,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
@@ -83,7 +84,7 @@ public class TestScheduler {
 
 	public void setSchedulerIds(User user, String... ids) throws OpenemsNamedException {
 		this.componentManager.handleUpdateComponentConfigRequest(user,
-				new UpdateComponentConfigRequest("scheduler0", List.of(//
+				new UpdateComponentConfig.Request("scheduler0", List.of(//
 						new UpdateComponentConfigRequest.Property("controllers.ids", Arrays.stream(ids) //
 								.map(JsonPrimitive::new) //
 								.collect(toJsonArray())) //

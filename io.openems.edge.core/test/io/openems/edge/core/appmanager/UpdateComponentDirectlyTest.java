@@ -10,8 +10,8 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -34,7 +34,7 @@ public class UpdateComponentDirectlyTest {
 		final var testTest = List.of(new UpdateComponentConfigRequest.Property("id", "evcs1"),
 				new UpdateComponentConfigRequest.Property("debugMode", false));
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Evcs.Keba.KeContact", testTest));
+				new CreateComponentConfig.Request("Evcs.Keba.KeContact", testTest));
 		this.appManagerTestBundle.sut.handleUpdateAppConfigRequest(DUMMY_ADMIN,
 				new UpdateAppConfig.Request("evcs1", JsonUtils.buildJsonObject().addProperty("debugMode", true)//
 						.build()));
