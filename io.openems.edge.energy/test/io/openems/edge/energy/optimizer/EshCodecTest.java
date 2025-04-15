@@ -1,5 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.openems.edge.energy.optimizer.InitialPopulationUtilsTest.DUMMY_PREVIOUS_RESULT;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
 import static java.util.stream.Collectors.joining;
@@ -14,8 +15,8 @@ public class EshCodecTest {
 	@Test
 	public void test() {
 		final var simulator = DUMMY_SIMULATOR;
-		final var gsc = simulator.gsc;
-		final var codec = EshCodec.of(gsc, EMPTY_SIMULATION_RESULT, false);
+		final var goc = simulator.goc;
+		final var codec = EshCodec.of(goc, EMPTY_SIMULATION_RESULT, false);
 
 		var gt = codec.encoding().newInstance();
 
@@ -44,8 +45,8 @@ public class EshCodecTest {
 	@Test
 	public void testNulls() {
 		final var simulator = DUMMY_SIMULATOR;
-		final var gsc = simulator.gsc;
-		final var codec = EshCodec.of(gsc, InitialPopulationTest.PREVIOUS_RESULT, true);
+		final var goc = simulator.goc;
+		final var codec = EshCodec.of(goc, DUMMY_PREVIOUS_RESULT, true);
 		assertNull(codec.encode(new int[0][0]));
 		assertNull(codec.encode(new int[1][0]));
 		var oneone = codec.encode(new int[1][1]);
@@ -59,8 +60,8 @@ public class EshCodecTest {
 	@Test
 	public void testPreviousResult() {
 		final var simulator = DUMMY_SIMULATOR;
-		final var gsc = simulator.gsc;
-		final var codec = EshCodec.of(gsc, InitialPopulationTest.PREVIOUS_RESULT, true);
+		final var goc = simulator.goc;
+		final var codec = EshCodec.of(goc, DUMMY_PREVIOUS_RESULT, true);
 
 		var gt = codec.encoding().newInstance();
 		var decoded = codec.decode(gt);

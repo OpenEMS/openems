@@ -29,6 +29,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -52,13 +53,13 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class MeterCamillebauerAplusImpl extends AbstractOpenemsModbusComponent implements MeterCamillebauerAplus,
 		ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-
+	private CalculateEnergyFromPower calculateProductionEnergy;
+	private CalculateEnergyFromPower calculateConsumptionEnergy;
 	@Reference
 	private ConfigurationAdmin cm;
+	
+	@Reference
+	private ComponentManager cma;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
@@ -85,6 +86,10 @@ public class MeterCamillebauerAplusImpl extends AbstractOpenemsModbusComponent i
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		this.metertype = this.config.type();
+		this.calculateProductionEnergy = new CalculateEnergyFromPower(this,
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, this.cma.getClock());
+		this.calculateConsumptionEnergy  = new CalculateEnergyFromPower(this,
+				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, this.cma.getClock());
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;

@@ -7,7 +7,6 @@ import { SavePassword } from "capacitor-ios-autofill-save-password";
 import { CookieService } from "ngx-cookie-service";
 import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { UserComponent } from "src/app/user/user.component";
 import { environment } from "src/environments";
 
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
@@ -21,10 +20,12 @@ import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 import { LogoutRequest } from "../jsonrpc/request/logoutRequest";
 import { RegisterUserRequest } from "../jsonrpc/request/registerUserRequest";
 import { AuthenticateResponse } from "../jsonrpc/response/authenticateResponse";
+import { User } from "../jsonrpc/shared";
 import { States } from "../ngrx-store/states";
 import { Language } from "../type/language";
 import { Pagination } from "./pagination";
 import { Service } from "./service";
+import { UserService } from "./user.service";
 import { WebsocketInterface } from "./websocketInterface";
 import { WsData } from "./wsdata";
 
@@ -44,7 +45,7 @@ export class Websocket implements WebsocketInterface {
     | "failed" // connection failed
     = "initial";
 
-  public state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
+  public readonly state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
 
   private readonly wsdata = new WsData();
 
@@ -56,6 +57,7 @@ export class Websocket implements WebsocketInterface {
     private cookieService: CookieService,
     private router: Router,
     private pagination: Pagination,
+    private userService: UserService,
   ) {
     service.websocket = this;
 
@@ -93,10 +95,7 @@ export class Websocket implements WebsocketInterface {
 
         // received login token -> save in cookie
         this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
-
-        this.service.currentUser.set(authenticateResponse.user);
-        UserComponent.applyUserSettings(authenticateResponse.user);
-
+        this.userService.currentUser.set(User.from(authenticateResponse.user));
         // Metadata
         this.service.metadata.next({
           user: authenticateResponse.user,

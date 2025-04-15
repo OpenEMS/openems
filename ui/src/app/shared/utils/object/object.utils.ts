@@ -11,4 +11,8 @@ export class ObjectUtils {
     public static hasKeys<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
         return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
     }
+
+    public static findObjectWithProperty<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
+        return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
+    }
 }

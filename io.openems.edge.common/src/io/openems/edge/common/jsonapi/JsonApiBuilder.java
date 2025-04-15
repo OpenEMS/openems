@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -24,6 +25,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.FunctionUtils;
 
@@ -103,6 +105,23 @@ public class JsonApiBuilder {
 		return this.rpc(endpointType.getMethod(), defBuilder, call -> {
 			call.setResponse(handler.apply(call));
 		}, endpointType.getRequestSerializer(), endpointType.getResponseSerializer());
+	}
+
+	/**
+	 * Adds a rpc request handler to the current builder.
+	 * 
+	 * @param <REQUEST>    the type of the request
+	 * @param <RESPONSE>   the type of the response
+	 * @param endpointType the {@link EndpointRequestType} of the handled rpc
+	 *                     request
+	 * @param handler      the handler of the request
+	 * @return this
+	 */
+	public <REQUEST, RESPONSE> JsonApiBuilder handleRequest(//
+			final EndpointRequestType<REQUEST, RESPONSE> endpointType, //
+			final ThrowingFunction<Call<REQUEST, RESPONSE>, RESPONSE, Exception> handler //
+	) {
+		return this.handleRequest(endpointType, FunctionUtils::doNothing, handler);
 	}
 
 	/**
@@ -278,6 +297,8 @@ public class JsonApiBuilder {
 	/**
 	 * Delegates the handled request to another endpoint.
 	 * 
+	 * @param <REQUEST>      the type of the request
+	 * @param <RESPONSE>     the type of the response
 	 * @param method         the method of the handled rpc request
 	 * @param defBuilder     the builder for the {@link EndpointDefinitionBuilder}
 	 * @param handler        the handler of the request which returns the delegated
@@ -288,15 +309,15 @@ public class JsonApiBuilder {
 	 * @param subroutes      the subroutes which can be reached with this handler
 	 * @return this
 	 */
-	public JsonApiBuilder delegate(//
+	public <REQUEST, RESPONSE> JsonApiBuilder delegate(//
 			final String method, //
-			final Consumer<EndpointDefinitionBuilder<JsonrpcRequest, JsonrpcResponse>> defBuilder, //
+			final Consumer<EndpointDefinitionBuilder<REQUEST, RESPONSE>> defBuilder, //
 			final ThrowingFunction<Call<JsonrpcRequest, JsonrpcResponse>, JsonrpcRequest, Exception> handler, //
 			final Function<JsonApiBuilder, JsonApiBuilder> builder, //
 			final Function<JsonrpcResponse, JsonrpcResponse> responseMapper, //
 			final Supplier<List<Subrequest>> subroutes //
 	) {
-		final var endpointDef = new EndpointDefinitionBuilder<JsonrpcRequest, JsonrpcResponse>();
+		final var endpointDef = new EndpointDefinitionBuilder<REQUEST, RESPONSE>();
 		defBuilder.accept(endpointDef);
 		this.addEndpoint(new JsonApiEndpoint(method, (b, t) -> {
 			try {
@@ -309,6 +330,26 @@ public class JsonApiBuilder {
 				this.handleException(t, e);
 			}
 		}, endpointDef, subroutes));
+		return this;
+	}
+
+	/**
+	 * Delegates the handled request to another endpoint.
+	 * 
+	 * @param <REQUEST>  the type of the request
+	 * @param <RESPONSE> the type of the response
+	 * @param method     the method name
+	 * @param handler    the request handler
+	 * @param subroutes  a supplier to get the subrequest
+	 * @return this
+	 */
+	public <REQUEST, RESPONSE> JsonApiBuilder delegate(//
+			final String method, //
+			final BiConsumer<JsonApiBuilder, Call<JsonrpcRequest, JsonrpcResponse>> handler, //
+			final Supplier<List<Subrequest>> subroutes //
+	) {
+		final var endpointDef = new EndpointDefinitionBuilder<REQUEST, RESPONSE>();
+		this.addEndpoint(new JsonApiEndpoint(method, handler, endpointDef, subroutes));
 		return this;
 	}
 
@@ -395,6 +436,60 @@ public class JsonApiBuilder {
 			final ThrowingFunction<Call<JsonrpcRequest, JsonrpcResponse>, JsonrpcRequest, Exception> handler //
 	) {
 		return this.delegate(method, FunctionUtils::doNothing, handler, Function.identity());
+	}
+
+	/**
+	 * Delegates the handled request to another endpoint.
+	 * 
+	 * @param <REQUEST>      the type of the request
+	 * @param <RESPONSE>     the type of the response
+	 * @param requestType    the {@link EndpointRequestType} of the handled rpc
+	 *                       request
+	 * @param defBuilder     the builder for the {@link EndpointDefinitionBuilder}
+	 * @param handler        the handler of the request which returns the delegated
+	 *                       request
+	 * @param builder        the path to the builder which handles the delegated
+	 *                       request
+	 * @param responseMapper the mapper of the response
+	 * @param subroutes      the subroutes which can be reached with this handler
+	 * @return this
+	 */
+	public <REQUEST, RESPONSE> JsonApiBuilder delegate(//
+			final EndpointRequestType<REQUEST, RESPONSE> requestType, //
+			final Consumer<EndpointDefinitionBuilder<REQUEST, RESPONSE>> defBuilder, //
+			final ThrowingFunction<Call<JsonrpcRequest, JsonrpcResponse>, JsonrpcRequest, Exception> handler, //
+			final Function<JsonApiBuilder, JsonApiBuilder> builder, //
+			final Function<JsonrpcResponse, JsonrpcResponse> responseMapper, //
+			final Supplier<List<Subrequest>> subroutes //
+	) {
+		return this.<REQUEST, RESPONSE>delegate(requestType.getMethod(), t -> {
+			t.setRequestSerializer(requestType.getRequestSerializer());
+			t.setResponseSerializer(requestType.getResponseSerializer());
+			defBuilder.accept(t);
+		}, handler, builder, responseMapper, subroutes);
+	}
+
+	/**
+	 * Delegates the handled request to another endpoint.
+	 * 
+	 * @param <REQUEST>   the type of the request
+	 * @param <RESPONSE>  the type of the response
+	 * @param requestType the {@link EndpointRequestType} of the handled rpc request
+	 * @param defBuilder  the builder for the {@link EndpointDefinitionBuilder}
+	 * @param handler     the handler of the request which returns the delegated
+	 *                    request
+	 * @return this
+	 */
+	public <REQUEST, RESPONSE> JsonApiBuilder delegate(//
+			final EndpointRequestType<REQUEST, RESPONSE> requestType, //
+			final Consumer<EndpointDefinitionBuilder<JsonrpcRequest, JsonrpcResponse>> defBuilder, //
+			final ThrowingFunction<Call<REQUEST, RESPONSE>, JsonrpcRequest, Exception> handler //
+	) {
+		return this.delegate(requestType, FunctionUtils::doNothing, t -> {
+			return handler
+					.apply(t.mapRequest(requestType.getRequestSerializer().deserialize(t.getRequest().getParams()))
+							.mapResponse());
+		}, Function.identity(), Function.identity(), null);
 	}
 
 	private void addEndpoint(JsonApiEndpoint endpoint) {
@@ -526,7 +621,7 @@ public class JsonApiBuilder {
 	}
 
 	private JsonrpcResponseError handleException(Call<JsonrpcRequest, JsonrpcResponse> call, Throwable t) {
-		if (this.isDebug()) {
+		if (this.isDebug() || true) {
 			this.log.error(t.getMessage(), t);
 		}
 

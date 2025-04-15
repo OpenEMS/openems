@@ -15,7 +15,7 @@ public abstract class AbstractModbusTcpApi extends AbstractModbusApi
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	public class TcpConfig extends AbstractModbusConfig {
+	public static final class TcpConfig extends AbstractModbusConfig {
 		private final int port;
 
 		public TcpConfig(String id, String alias, boolean enabled, Meta metaComponent, String[] componentIds,

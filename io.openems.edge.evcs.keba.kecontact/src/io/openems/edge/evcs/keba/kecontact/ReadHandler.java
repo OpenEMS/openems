@@ -4,7 +4,10 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
-import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
+import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Status.CHARGING;
 import static java.lang.Math.round;
@@ -22,8 +25,8 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.PhaseRotation.RotatedPhases;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.keba.common.R2Plug;
 
 /**
  * Handles replies to Report Queries sent by {@link ReadWorker}.
@@ -120,17 +123,7 @@ public class ReadHandler implements Consumer<String> {
 				 */
 				var limit = keba.getSetEnergyLimit().get();
 				var energy = keba.getEnergySession().get();
-				if (limit != null && energy != null && energy >= limit) {
-					yield Status.ENERGY_LIMIT_REACHED;
-				}
-				yield switch (r2State) {
-				case UNDEFINED -> Status.UNDEFINED;
-				case STARTUP -> Status.STARTING;
-				case NOT_READY -> Status.NOT_READY_FOR_CHARGING;
-				case INTERRUPTED, READY -> Status.READY_FOR_CHARGING;
-				case CHARGING -> Status.CHARGING;
-				case ERROR -> Status.ERROR;
-				};
+				yield getStatus(r2State, limit, energy);
 			}
 			};
 
@@ -176,23 +169,13 @@ public class ReadHandler implements Consumer<String> {
 					.map(p -> p / 1000) // convert [mW] to [W]
 					.orElse(null);
 			keba._setActivePower(activePower);
-
-			// Round power per phase and apply rotated phases
 			var appp = ActivePowerPerPhase.from(activePower, //
 					voltageL1, currentL1, voltageL2, currentL2, voltageL3, currentL3);
-			var rp = RotatedPhases.from(keba.config.phaseRotation(), //
-					voltageL1, currentL1, appp.activePowerL1, //
-					voltageL2, currentL2, appp.activePowerL2, //
-					voltageL3, currentL3, appp.activePowerL3);
-			keba._setVoltageL1(rp.voltageL1());
-			keba._setVoltageL2(rp.voltageL2());
-			keba._setVoltageL3(rp.voltageL3());
-			keba._setCurrentL1(rp.currentL1());
-			keba._setCurrentL2(rp.currentL2());
-			keba._setCurrentL3(rp.currentL3());
-			keba._setActivePowerL1(rp.activePowerL1());
-			keba._setActivePowerL2(rp.activePowerL2());
-			keba._setActivePowerL3(rp.activePowerL3());
+
+			// Round power per phase and apply rotated phases
+			setPhaseRotatedVoltageChannels(keba, voltageL1, voltageL2, voltageL3);
+			setPhaseRotatedCurrentChannels(keba, currentL1, currentL2, currentL3);
+			setPhaseRotatedActivePowerChannels(keba, appp.activePowerL1, appp.activePowerL2, appp.activePowerL3);
 
 			// Energy
 			keba._setActiveProductionEnergy(//
@@ -208,7 +191,7 @@ public class ReadHandler implements Consumer<String> {
 			// TODO use COS_PHI to calculate ReactivePower
 			this.setInt(EvcsKebaKeContact.ChannelId.COS_PHI, j, "PF");
 
-			final var phases = evaluatePhaseCount(appp.activePowerL1, appp.activePowerL2, appp.activePowerL3);
+			final var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
 			keba._setPhases(phases);
 			if (phases != null) {
 				keba.logInfoInDebugmode(this.log, "Used phases: " + phases);
@@ -262,6 +245,28 @@ public class ReadHandler implements Consumer<String> {
 			}
 		}
 		}
+	}
+
+	/**
+	 * Calculates the Status based on the raw status and energylimit.
+	 * 
+	 * @param r2State the r2 state
+	 * @param limit   the set energy limit
+	 * @param energy  the current energy session
+	 * @return the mapped Status
+	 */
+	public static Status getStatus(R2State r2State, Integer limit, Integer energy) {
+		if (limit != null && energy != null && energy >= limit && limit != 0) {
+			return Status.ENERGY_LIMIT_REACHED;
+		}
+		return switch (r2State) {
+		case UNDEFINED -> Status.UNDEFINED;
+		case STARTUP -> Status.STARTING;
+		case NOT_READY -> Status.NOT_READY_FOR_CHARGING;
+		case INTERRUPTED, READY -> Status.READY_FOR_CHARGING;
+		case CHARGING -> Status.CHARGING;
+		case ERROR -> Status.ERROR;
+		};
 	}
 
 	public record ActivePowerPerPhase(Integer activePowerL1, Integer activePowerL2, Integer activePowerL3) {

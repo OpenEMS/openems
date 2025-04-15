@@ -1,12 +1,13 @@
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { ChangeDetectorRef, Component, effect } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
-import { ChronoUnit, Resolution, calculateResolution } from "src/app/edge/history/shared";
+import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, Currency, EdgeConfig } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils";
+import { ChannelAddress, Currency, EdgeConfig, Logger, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 
 @Component({
@@ -16,9 +17,32 @@ import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-    @Input({ required: true }) public override component!: EdgeConfig.Component;
-
+    private currencyUnit: Currency.Unit | null = null;
     private currencyLabel: Currency.Label; // Default
+
+    constructor(
+        private websocket: Websocket,
+        public override service: Service,
+        public override cdRef: ChangeDetectorRef,
+        protected override translate: TranslateService,
+        protected override route: ActivatedRoute,
+        protected override logger: Logger,
+    ) {
+        super(service, cdRef, translate, route, logger);
+        effect(() => {
+            const edge = this.service.currentEdge();
+
+            if (!edge) {
+                return;
+            }
+
+            edge.getFirstValidConfig(this.websocket).then(config => {
+                const meta: EdgeConfig.Component = config?.getComponent("_meta");
+                const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+                this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
+            });
+        });
+    }
 
     protected override getChartData(): HistoryUtils.ChartData {
         // Assigning the component to be able to use the id.
@@ -86,7 +110,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     order: 1,
                 },
                 {
-                    name: this.translate.instant("General.gridBuy"),
+                    name: this.translate.instant("General.gridBuyAdvanced"),
                     converter: () => data["GridBuy"],
                     color: ChartConstants.Colors.BLUE_GREY,
                     yAxisId: ChartAxis.RIGHT_2,
@@ -99,6 +123,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 },
                 ];
             },
+
             tooltip: {
                 formatNumber: "1.1-4",
             },
@@ -143,6 +168,10 @@ export class ChartComponent extends AbstractHistoryChart {
                 this.labels = displayValues.labels;
                 this.setChartLabel();
 
+                this.chartObject.yAxes.forEach((element) => {
+                    this.options = AbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, this.chartType, this.datasets, true, this.chartObject.tooltip.formatNumber,);
+                });
+
                 this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
                 this.options.scales.x.ticks["source"] = "auto";
                 this.options.scales.x.grid = { offset: false };
@@ -165,7 +194,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.currencyLabel);
                 };
 
-                this.options.scales[ChartAxis.LEFT]["title"].text = this.currencyLabel;
+                this.options.scales[ChartAxis.LEFT]["title"].text = this.currencyUnit;
                 this.datasets = this.datasets.map((el) => {
                     const opacity = el.type === "line" ? 0.2 : 0.5;
 
@@ -174,16 +203,6 @@ export class ChartComponent extends AbstractHistoryChart {
                     return el;
                 });
 
-                const chartObject = this.chartObject;
-                this.options.scales[ChartAxis.LEFT].ticks.callback =
-                    function (value, index, ticks) {
-                        if (index == (ticks.length - 1)) {
-                            const upperMostTick = chartObject.yAxes.find(el => el.unit === YAxisType.CURRENCY).customTitle;
-                            AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
-                            return upperMostTick;
-                        }
-                        return value;
-                    };
                 this.options.scales.x["offset"] = false;
                 this.options["animation"] = false;
             });

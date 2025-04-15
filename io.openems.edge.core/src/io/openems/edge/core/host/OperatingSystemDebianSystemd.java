@@ -53,6 +53,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.host.NetworkInterface.IpMasqueradeSetting;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
@@ -62,7 +63,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoWrapper;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Route;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 /**
  * OperatingSystem implementation for Debian with systemd.
@@ -128,10 +129,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	@Override
 	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
-			SetNetworkConfigRequest request) throws OpenemsNamedException {
+			SetNetworkConfig.Request request) throws OpenemsNamedException {
 		var isChanged = false;
-		var networkInterfaces = request.getNetworkInterface();
-		for (NetworkInterface<?> networkInterface : networkInterfaces) {
+		for (NetworkInterface<?> networkInterface : request.networkInterfaces()) {
 			NetworkInterface<?> iface = oldNetworkConfiguration.getInterfaces().get(networkInterface.getName());
 			if (iface == null) {
 				throw new OpenemsException("No network interface with name [" + networkInterface.getName() + "]");
@@ -149,7 +149,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		// write configuration files
 		IOException writeException = null;
 		for (Entry<String, NetworkInterface<?>> entry : oldNetworkConfiguration.getInterfaces().entrySet()) {
-			if (!networkInterfaces.stream().anyMatch(i -> i.getName().equals(entry.getKey()))) {
+			if (!request.networkInterfaces().stream().anyMatch(i -> i.getName().equals(entry.getKey()))) {
 				continue;
 			}
 			NetworkInterface<?> iface = entry.getValue();
@@ -234,6 +234,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
 			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
+		}
+		if (iface.getIpv4Forwarding().isSetAndNotNull()) {
+			result.add("IPv4Forwarding=" + (iface.getIpv4Forwarding().getValue() ? "yes" : "no"));
+		}
+		if (iface.getIpMasquerade().isSetAndNotNull()) {
+			result.add("IPMasquerade=" + iface.getIpMasquerade().getValue().settingValue);
 		}
 
 		var metric = DEFAULT_METRIC;
@@ -434,6 +440,10 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
 	private static final Pattern NETWORK_DNS = Pattern //
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+	private static final Pattern NETWORK_IPV4_FORWARDING = Pattern //
+			.compile("^IPv4Forwarding=(\\w+)$");
+	private static final Pattern NETWORK_IP_MASQUERADE = Pattern //
+			.compile("^IPMasquerade=(\\w+)$");
 	private static final Pattern GATEWAY_METRIC = Pattern //
 			.compile("^Metric=([0-9]+)$");
 	private static final Pattern ROUTE_METRIC = Pattern //
@@ -469,6 +479,10 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
 				ConfigurationProperty.asNotSet());
 		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithSubnetmask>>>(//
+				ConfigurationProperty.asNotSet());
+		final var ipv4Forwarding = new AtomicReference<ConfigurationProperty<Boolean>>(//
+				ConfigurationProperty.asNotSet());
+		final var ipMasquerade = new AtomicReference<ConfigurationProperty<IpMasqueradeSetting>>(//
 				ConfigurationProperty.asNotSet());
 
 		// holds the latest found address
@@ -533,6 +547,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					addressDetails.add(Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property));
 					addresses.set(ConfigurationProperty.of(addressDetails));
 				});
+				onMatchString(NETWORK_IPV4_FORWARDING, line, property -> {
+					ipv4Forwarding.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
+				});
+				onMatchString(NETWORK_IP_MASQUERADE, line, property -> {
+					ipMasquerade.set(ConfigurationProperty.of(IpMasqueradeSetting.findBySettingValue(property)));
+				});
 			}
 			case ADDRESS -> {
 				onMatchString(NETWORK_ADDRESS, line, property -> {
@@ -582,7 +602,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 		return new NetworkInterface<>(name.get(), //
 				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), metric.get(),
-				attachment);
+				ipv4Forwarding.get(), ipMasquerade.get(), attachment);
 	}
 
 	@Override

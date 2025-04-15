@@ -34,6 +34,16 @@ addIcons({
 export class EdgePermission {
 
   /**
+  * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
+  *
+  * @param edge the edge
+  * @returns true, if user is at least {@link Role.OWNER}
+  */
+  public static isUserAllowedToSetupProtocolDownload(edge: Edge): boolean {
+    return Role.isAtLeast(edge.role, Role.OWNER);
+  }
+
+  /**
    * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
    * and if histroyPeriods exist, it gets the correspondent periods accordingly
    *

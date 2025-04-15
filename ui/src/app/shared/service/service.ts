@@ -1,12 +1,12 @@
 // @ts-strict-ignore
 import { registerLocaleData } from "@angular/common";
-import { Injectable, WritableSignal, signal } from "@angular/core";
+import { effect, Injectable, Injector, runInInjectionContext, signal, untracked, WritableSignal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
-import { filter, first, take } from "rxjs/operators";
+import { take } from "rxjs/operators";
 import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
 import { Edge } from "../components/edge/edge";
@@ -69,7 +69,8 @@ export class Service extends AbstractService {
   /**
    * Holds the currently selected Edge.
    */
-  public readonly currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
+  // public readonly currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
+  public readonly currentEdge: WritableSignal<Edge> = signal(null);
 
   /**
    * Holds references of Edge-IDs (=key) to Edge objects (=value)
@@ -77,8 +78,6 @@ export class Service extends AbstractService {
   public readonly metadata: BehaviorSubject<{
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
-
-  public currentUser: WritableSignal<User | null> = signal(null);
 
   /**
    * Holds the current Activated Route
@@ -89,14 +88,18 @@ export class Service extends AbstractService {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
+  private injector;
 
   constructor(
     private router: Router,
-    private spinner: NgxSpinnerService,
+    public spinner: NgxSpinnerService,
     private toaster: ToastController,
     public translate: TranslateService,
+    private _injector: Injector,
   ) {
+
     super();
+    this.injector = _injector;
     // add language
     translate.addLangs(Language.ALL.map(l => l.key));
     // this language will be used as a fallback when a translation isn't found in the current language
@@ -173,15 +176,22 @@ export class Service extends AbstractService {
   }
 
   public getCurrentEdge(): Promise<Edge> {
-    // TODO maybe timeout
     return new Promise<Edge>((resolve) => {
-      this.currentEdge.pipe(
-        filter(edge => edge != null),
-        first(),
-      ).toPromise().then(resolve);
-      if (this.currentEdge.value) {
-        resolve(this.currentEdge.value);
-      }
+      let isResolved = false; // Flag to ensure the Promise resolves only once
+
+      // Use runInInjectionContext to provide the injector context
+      const dispose = runInInjectionContext(this.injector, () => {
+        return untracked(() => {
+          return effect(() => {
+            const edge = this.currentEdge();
+            if (edge != null && !isResolved) {
+              isResolved = true; // Mark as resolved
+              resolve(edge); // Resolve the Promise with the non-null value
+              dispose.destroy();
+            }
+          });
+        });
+      });
     });
   }
 
@@ -196,9 +206,8 @@ export class Service extends AbstractService {
   }
 
   public onLogout() {
-    this.currentEdge.next(null);
+    this.currentEdge.set(null);
     this.metadata.next(null);
-    this.currentUser.set(null);
     this.websocket.state.set(States.NOT_AUTHENTICATED);
     this.router.navigate(["/login"]);
   }
@@ -360,7 +369,7 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve, reject) => {
       const existingEdge = this.metadata.value?.edges[edgeId];
       if (existingEdge) {
-        this.currentEdge.next(existingEdge);
+        this.currentEdge.set(existingEdge);
         resolve(existingEdge);
         return;
       }
@@ -377,7 +386,7 @@ export class Service extends AbstractService {
           edgeData.lastmessage,
           edgeData.sumState,
           DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
-        this.currentEdge.next(currentEdge);
+        this.currentEdge.set(currentEdge);
         value.edges[edgeData.id] = currentEdge;
         this.metadata.next(value);
         resolve(currentEdge);

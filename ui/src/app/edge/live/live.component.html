@@ -1,5 +1,5 @@
 <oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
-  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
+  <ion-refresher mode="ios" slot="fixed">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <ion-grid *ngIf="edge && edge.isOnline">
@@ -96,10 +96,6 @@
                 <Controller_Io_HeatingElement [componentId]="widget.componentId"></Controller_Io_HeatingElement>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.IO.Heating.Room'" size="12" size-lg="6" class="ion-no-padding">
-                <oe-controller-io-heating-room [componentId]="widget.componentId"></oe-controller-io-heating-room>
-              </ion-col>
-
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_Heatpump [componentId]="widget.componentId"></Controller_Io_Heatpump>
               </ion-col>
@@ -167,5 +163,4 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-
 </oe-refresh-view>

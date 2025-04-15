@@ -41,6 +41,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.serialnumber.SerialNumberStorage;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
@@ -61,6 +62,7 @@ import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
+import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -101,6 +103,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Reference
 	private Sum sum;
+
+	@Reference
+	private SerialNumberStorage serialNumberStorage;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -143,6 +148,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.serialNumberStorage.createAndAddOnChangeListener(this.channel(GoodWe.ChannelId.SERIAL_NUMBER));
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -226,6 +233,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 * Feed In Power Setting consist of: Installed inverter country, feeding method:
 	 * whether according to the power factor or power and frequency. In addition, it
 	 * consist backup power availability.
+	 * </p>
 	 *
 	 * @param config         Configuration parameters.
 	 * @param onConfigUpdate true when called on activate()/modified(), i.e. not in
@@ -235,10 +243,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 */
 	private void applyConfigIfNotSet(Config config, boolean onConfigUpdate) throws OpenemsNamedException {
 
-		// TODO: Set later. SELECT_WORK_MODE mapped after reading the dsp version
-		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
-		// 'Backup Mode' or (0x03) 'Economic Mode'.
+		// Default Work-Mode
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SELECT_WORK_MODE), AppModeIndex.SELF_USE);
+
+		// Disable internal Battery/SoC Protection
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.STOP_SOC_PROTECT), InternalSocProtection.DISABLE);
 
 		// country setting
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE), config.safetyCountry());

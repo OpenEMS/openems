@@ -1,13 +1,14 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { CategorizedFactories } from "src/app/shared/components/edge/edgeconfig";
+import { TranslateService } from "@ngx-translate/core";
+import { CategorizedComponents, CategorizedFactories } from "src/app/shared/components/edge/edgeconfig";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../../shared/shared";
 
 interface MyCategorizedFactories extends CategorizedFactories {
   isClicked?: boolean,
-  filteredFactories?: EdgeConfig.Factory[]
+  filteredFactories?: EdgeConfig.Factory[],
 }
 
 @Component({
@@ -19,12 +20,14 @@ export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentInstall";
 
+  public components: CategorizedComponents[] | null = null;
   public list: MyCategorizedFactories[];
   public showAllFactories = false;
 
   private edge: Edge;
 
   constructor(
+    private translate: TranslateService,
     private service: Service,
     private websocket: Websocket,
   ) {
@@ -73,11 +76,11 @@ export class IndexComponent implements OnInit {
         factory.id = factoryId;
       }
 
-      return EdgeConfig.listAvailableFactories(response.result.factories);
+      return EdgeConfig.listAvailableFactories(response.result.factories, this.translate);
     }
 
     const config = await this.service.getConfig();
-    return config.listAvailableFactories();
+    return config.listAvailableFactories(this.translate);
   }
 }
 

@@ -410,7 +410,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 					this.infraredRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
 		}
 
-		this.schedule = JSCalendar.Task.fromStringOrEmpty(config.schedule(), j -> j);
+		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(config.schedule(), j -> j);
 		this.updateHighPeriod();
 	}
 

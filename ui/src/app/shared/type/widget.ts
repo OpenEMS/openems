@@ -22,6 +22,8 @@ export enum WidgetNature {
 }
 
 export enum WidgetFactory {
+    "Evse.Controller.Single",
+    "Evse.Controller.Cluster",
     "Controller.Api.ModbusTcp.ReadWrite",
     "Controller.Asymmetric.PeakShaving",
     "Controller.ChannelThreshold",
@@ -56,6 +58,7 @@ export type ImageIcon = {
 export class Widget {
     public name: WidgetNature | WidgetFactory | string;
     public componentId: string;
+    public alias: string;
 }
 
 export class Widgets {
@@ -125,15 +128,17 @@ export class Widgets {
                 if (nature === "io.openems.edge.io.api.DigitalInput" && list.some(e => e.name === "io.openems.edge.io.api.DigitalInput")) {
                     continue;
                 }
-                if (config.getComponent(componentId).isEnabled) {
-                    list.push({ name: nature, componentId: componentId });
+                const component = config.getComponent(componentId);
+                if (component.isEnabled) {
+                    list.push({ name: nature, componentId: componentId, alias: component.alias });
                 }
             }
         }
         for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
             for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
-                if (config.getComponent(componentId).isEnabled) {
-                    list.push({ name: factory, componentId: componentId });
+                const component = config.getComponent(componentId);
+                if (component.isEnabled) {
+                    list.push({ name: factory, componentId: componentId, alias: component.alias });
                 }
             }
         }

@@ -14,8 +14,10 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
@@ -38,7 +40,6 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
-import io.openems.edge.core.appmanager.OpenemsAppStatus;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
@@ -48,6 +49,7 @@ import io.openems.edge.core.appmanager.flag.Flag;
 import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 @Component(name = "App.Core.Meta")
 public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Parameter.BundleParameter>
@@ -69,7 +71,8 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setPopupInput(property, DisplayType.BOOLEAN);
 					field.setFieldGroup(JsonUtils.buildJsonArray() //
 							.add(JsonFormlyUtil.buildText() //
-									.setText(TranslationUtil.getTranslation(bundle, "App.Core.Meta.gridCharge.description"))
+									.setText(TranslationUtil.getTranslation(bundle,
+											"App.Core.Meta.gridCharge.description"))
 									.build())
 							.add(JsonFormlyUtil.buildCheckboxFromNameable(property) //
 									.setLabel(TranslationUtil.getTranslation(bundle, "App.Core.Meta.gridCharge.label")) //
@@ -77,9 +80,18 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.build());
 				}) //
 				.bidirectional("_meta", "isEssChargeFromGridAllowed", ComponentManagerSupplier::getComponentManager))), //
+		GRID_CONNECTION_POINT_FUSE_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".gridConnectionPointFuseLimit.label")
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.NUMBER);
+					field.onlyPositiveNumbers();
+					field.setUnit(Unit.AMPERE, l);
+				}) //
+				.bidirectional("_meta", "gridConnectionPointFuseLimit",
+						ComponentManagerSupplier::getComponentManager))), //
 		;
 
-		private AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
 
 		private Property(AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
@@ -117,6 +129,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 			final var currency = this.getEnum(p, CurrencyConfig.class, Property.CURRENCY);
 			final var isEssChargeFromGridAllowed = this.getBoolean(p, Property.IS_ESS_CHARGE_FROM_GRID_ALLOWED);
+			final var gridConnectionPointFuseLimit = this.getInt(p, Property.GRID_CONNECTION_POINT_FUSE_LIMIT);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -124,6 +137,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					JsonUtils.buildJsonObject() //
 							.addProperty("currency", currency) //
 							.addProperty("isEssChargeFromGridAllowed", isEssChargeFromGridAllowed) //
+							.addProperty("gridConnectionPointFuseLimit", gridConnectionPointFuseLimit) //
 							.build()));
 
 			return AppConfiguration.create() //
@@ -162,15 +176,13 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanDelete(Role.ADMIN) // TODO theoretically not even admin
+				.setCanSee(Role.ADMIN) //
 				.build();
 	}
 
 	@Override
 	public Flag[] flags() {
-		final var flags = new ArrayList<>();
-		if (this.getStatus() == OpenemsAppStatus.BETA) {
-			flags.add(Flags.SHOW_AFTER_KEY_REDEEM);
-		}
+		final var flags = Lists.newArrayList(super.flags());
 		flags.add(Flags.ALWAYS_INSTALLED);
 		return flags.toArray(Flag[]::new);
 	}

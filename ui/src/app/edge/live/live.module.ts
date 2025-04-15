@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { EdgeOfflineModule } from "src/app/shared/components/edge/offline/offline.module";
+import { ModalModule } from "src/app/shared/components/modal/modal.module";
 import { PullToRefreshComponent } from "src/app/shared/components/pull-to-refresh/pull-to-refresh";
 import { SharedModule } from "./../../shared/shared.module";
 import { Common_Autarchy } from "./common/autarchy/Common_Autarchy";
@@ -19,10 +20,10 @@ import { Controller_Ess_GridOptimizedCharge } from "./Controller/Ess/GridOptimiz
 import { Controller_Ess_TimeOfUseTariff } from "./Controller/Ess/TimeOfUseTariff/Ess_TimeOfUseTariff";
 import { AdministrationComponent } from "./Controller/Evcs/administration/administration.component";
 import { Controller_Evcs } from "./Controller/Evcs/Evcs";
+import { Controller_Evse_Single } from "./Controller/Evse/EvseSingle";
 import { Controller_Io_ChannelSingleThresholdComponent } from "./Controller/Io/ChannelSingleThreshold/Io_ChannelSingleThreshold";
 import { Controller_Io_ChannelSingleThresholdModalComponent } from "./Controller/Io/ChannelSingleThreshold/modal/modal.component";
-import { Controller_Io_FixDigitalOutputComponent } from "./Controller/Io/FixDigitalOutput/Io_FixDigitalOutput";
-import { Controller_Io_FixDigitalOutputModalComponent } from "./Controller/Io/FixDigitalOutput/modal/modal.component";
+import { ControllerIoFixDigitalOutput } from "./Controller/Io/FixDigitalOutput/fix-digital-output.module";
 import { Controller_Io_HeatingElement } from "./Controller/Io/HeatingElement/Io_HeatingElement";
 import { Controller_Io_HeatingRoom } from "./Controller/Io/HeatingRoom/Io_HeatingRoom";
 import { Controller_Io_HeatpumpComponent } from "./Controller/Io/Heatpump/Io_Heatpump";
@@ -59,10 +60,13 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Controller_Ess_GridOptimizedCharge,
     Controller_Ess_TimeOfUseTariff,
     Controller_Evcs,
+    Controller_Evse_Single,
     Controller_Io_HeatingElement,
     Controller_Io_HeatingRoom,
+    ControllerIoFixDigitalOutput,
     EdgeOfflineModule,
     EnergymonitorModule,
+    ModalModule,
     SharedModule,
     PullToRefreshComponent,
   ],
@@ -75,8 +79,6 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Controller_ChpSocModalComponent,
     Controller_Io_ChannelSingleThresholdComponent,
     Controller_Io_ChannelSingleThresholdModalComponent,
-    Controller_Io_FixDigitalOutputComponent,
-    Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatpumpComponent,
     Controller_Io_HeatpumpModalComponent,
     Controller_Symmetric_PeakShavingComponent,

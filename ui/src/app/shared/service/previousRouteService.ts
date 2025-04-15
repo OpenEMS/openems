@@ -1,19 +1,19 @@
-import { Injectable } from "@angular/core";
+import { Injectable, signal, WritableSignal } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 
 @Injectable()
-export class PreviousRouteService {
+export class RouteService {
 
-    private previousUrl: string;
-    private currentUrl: string;
+    public currentUrl: WritableSignal<string | null> = signal(null);
+
+    private previousUrl: string | null = null;
 
     constructor(private router: Router) {
-        this.currentUrl = this.router.url;
-        this.previousUrl = this.currentUrl;
+        this.previousUrl = this.currentUrl();
         router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
-                this.previousUrl = this.currentUrl;
-                this.currentUrl = event.url;
+                this.previousUrl = this.currentUrl();
+                this.currentUrl.set(event.urlAfterRedirects);
             }
         });
     }
@@ -34,6 +34,6 @@ export class PreviousRouteService {
      * @returns the current url
      */
     public getCurrentUrl() {
-        return this.currentUrl;
+        return this.currentUrl();
     }
 }

@@ -1,7 +1,9 @@
 package io.openems.edge.energy.optimizer;
 
+import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.jenetics.engine.Limits.byFixedGeneration;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
@@ -12,6 +14,8 @@ import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.lang.Thread.sleep;
 import static java.time.Duration.ofSeconds;
 
+import java.time.ZonedDateTime;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -27,13 +31,12 @@ import org.slf4j.LoggerFactory;
 
 import io.jenetics.IntegerGene;
 import io.jenetics.engine.EvolutionResult;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingSupplier;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.energy.LogVerbosity;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
+import io.openems.edge.energy.api.LogVerbosity;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.OneMode;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
@@ -45,7 +48,7 @@ public class Optimizer implements Runnable {
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	private final Supplier<LogVerbosity> logVerbosity;
-	private final ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier;
+	private final Supplier<GlobalOptimizationContext> gocSupplier;
 	private final Channel<Integer> simulationsPerQuarterChannel;
 	private final AtomicBoolean rescheduleCurrentPeriod = new AtomicBoolean(false);
 
@@ -53,11 +56,10 @@ public class Optimizer implements Runnable {
 	private SimulationResult simulationResult = EMPTY_SIMULATION_RESULT;
 	private ScheduledFuture<?> future;
 
-	public Optimizer(Supplier<LogVerbosity> logVerbosity,
-			ThrowingSupplier<GlobalSimulationsContext, OpenemsException> gscSupplier, //
+	public Optimizer(Supplier<LogVerbosity> logVerbosity, Supplier<GlobalOptimizationContext> gocSupplier, //
 			Channel<Integer> simulationsPerQuarterChannel) {
 		this.logVerbosity = logVerbosity;
-		this.gscSupplier = gscSupplier;
+		this.gocSupplier = gocSupplier;
 		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
 	}
@@ -125,7 +127,10 @@ public class Optimizer implements Runnable {
 				simulationResult = this.runRegularOptimization();
 			}
 
-		} catch (InterruptedException | ExecutionException | IllegalArgumentException e) {
+		} catch (InterruptedException e) {
+			this.traceLog(() -> "Optimizer::run() " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			Thread.currentThread().interrupt(); // reset interrupt status
+		} catch (ExecutionException | IllegalArgumentException e) {
 			this.traceLog(() -> "Optimizer::run() " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 
@@ -141,9 +146,9 @@ public class Optimizer implements Runnable {
 	 */
 	private Simulator updateSimulator() throws InterruptedException {
 		try {
-			// Create the Simulator with GlobalSimulationsContext
+			// Create the Simulator with GlobalOptimizationContext
 			this.traceLog(() -> "updateSimulator()...");
-			createSimulator(this.gscSupplier, //
+			createSimulator(this.gocSupplier, //
 					simulator -> this.simulator = simulator, //
 					error -> {
 						this.traceLog(error);
@@ -153,7 +158,7 @@ public class Optimizer implements Runnable {
 			if (simulator == null) {
 				this.traceLog(() -> "Simulator is null");
 			} else {
-				this.traceLog(() -> "Simulator is " + simulator.toLogString(""));
+				this.traceLog(() -> "Simulator is " + simulator.toJson().toString());
 			}
 			return simulator;
 		} catch (Exception e) {
@@ -205,7 +210,6 @@ public class Optimizer implements Runnable {
 			return EMPTY_SIMULATION_RESULT;
 		}
 
-		this.traceLog(() -> "Run Simulation");
 		return this.runSimulation(simulator, //
 				true, // current period should not get adjusted
 				byExecutionTime(ofSeconds(calculateExecutionLimitSeconds()))) // Limit by execution time
@@ -213,7 +217,7 @@ public class Optimizer implements Runnable {
 	}
 
 	protected CompletableFuture<SimulationResult> runSimulation(Simulator simulator, boolean isCurrentPeriodFixed,
-			Predicate<? super EvolutionResult<IntegerGene, Double>> executionLimit) {
+			Predicate<? super EvolutionResult<IntegerGene, Fitness>> executionLimit) {
 		this.traceLog(() -> "Run next Simulation");
 		return CompletableFuture.supplyAsync(() -> {
 			this.traceLog(() -> "Executing async Simulation");
@@ -251,15 +255,23 @@ public class Optimizer implements Runnable {
 		// Store result
 		this.simulationResult = simulationResult;
 
-		// Send Schedule to Controllers
+		// Send Schedule to EnergyScheduleHandlers.WithDifferentModes
 		simulationResult.schedules().forEach((esh, schedule) -> {
+			esh.applySchedule(schedule);
+		});
+		// Send Schedule to EnergyScheduleHandlers.WithOnlyOneMode
+		var schedule = simulationResult.periods().entrySet().stream() //
+				.collect(toImmutableSortedMap(ZonedDateTime::compareTo, //
+						Entry::getKey, //
+						e -> new OneMode.Period.Transition(e.getValue().period().price(), e.getValue().energyFlow())));
+		simulationResult.eshsWithOnlyOneMode().forEach(esh -> {
 			esh.applySchedule(schedule);
 		});
 	}
 
 	private void traceLog(Supplier<String> message) {
 		switch (this.logVerbosity.get()) {
-		case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+		case NONE, DEBUG_LOG -> doNothing();
 		case TRACE -> this.log.info("OPTIMIZER " + message.get());
 		}
 	}
