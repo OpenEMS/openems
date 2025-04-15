@@ -1,5 +1,17 @@
 package io.openems.edge.battery.pylontech.powercubem2;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -7,12 +19,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -25,6 +33,11 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.protection.BatteryProtection;
+import io.openems.edge.battery.pylontech.powercubem2.statemachine.Context;
+import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine;
+import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -33,8 +46,8 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Channel;
@@ -43,28 +56,20 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.battery.pylontech.powercubem2.statemachine.Context;
-import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine;
-import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine.State;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Battery.Pylontech", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-})
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
 public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusComponent implements ModbusComponent,
 		OpenemsComponent, Battery, EventHandler, ModbusSlave, StartStoppable, PylontechPowercubeM2Battery {
 
@@ -74,7 +79,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 				ModbusComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				BatteryProtection.ChannelId.values(), 
+				BatteryProtection.ChannelId.values(), //
 				PylontechPowercubeM2Battery.ChannelId.values() //
 		);
 	}
@@ -94,7 +99,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -115,7 +120,6 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 				.applyBatteryProtectionDefinition(new PylontechPowercubeM2BatteryProtectionDefinition(),
 						this.componentManager) //
 				.build();
-
 	}
 
 	@Deactivate
@@ -157,7 +161,6 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 			versionString = "V" + mainVersionNumber + "." + minorVersionNumber;
 		}
 		return versionString;
-
 	}
 
 	protected void handleVersionNumber(Integer value) {
@@ -177,9 +180,9 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 							this.handleVersionNumber(value);
 						}),
 						m(PylontechPowercubeM2Battery.ChannelId.PYLONTECH_INTERNAL_VERSION_NUMBER,
-								new UnsignedWordElement(0x100B), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x100B), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.SYSTEM_NUMBER_OF_PARALLEL_PILES,
-								new UnsignedWordElement(0x100C), ElementToChannelConverter.DIRECT_1_TO_1)),
+								new UnsignedWordElement(0x100C), DIRECT_1_TO_1)),
 
 				// 3.4 System information
 				new FC3ReadRegistersTask(0x1100, Priority.LOW,
@@ -230,26 +233,21 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 								.bit(13, PylontechPowercubeM2Battery.ChannelId.MODULE_LOW_VOLTAGE_WARNING)
 								.bit(14, PylontechPowercubeM2Battery.ChannelId.MODULE_HIGH_VOLTAGE_WARNING))),
 				new FC3ReadRegistersTask(0x1103, Priority.LOW, //
-						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1103),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(Battery.ChannelId.CURRENT, new SignedDoublewordElement(0x1104),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-																					
+						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1103), SCALE_FACTOR_MINUS_1),
+						m(Battery.ChannelId.CURRENT, new SignedDoublewordElement(0x1104), SCALE_FACTOR_MINUS_2),
+
 						m(PylontechPowercubeM2Battery.ChannelId.SYSTEM_TEMPERATURE, new SignedWordElement(0x1106), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1107),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								SCALE_FACTOR_MINUS_1),
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1107), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.CYCLE_TIMES, new UnsignedWordElement(0x1108),
-								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x1109),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								DIRECT_1_TO_1),
+						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x1109), SCALE_FACTOR_MINUS_1),
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new SignedDoublewordElement(0x110A),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x110C),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new SignedDoublewordElement(0x110D),
-								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_2,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT)),
+								chain(SCALE_FACTOR_MINUS_2, KEEP_NEGATIVE_AND_INVERT)),
 						m(new BitsWordElement(0x110F, this)
 								.bit(0, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_CIRCUIT_ACTIVE)
 								.bit(1, PylontechPowercubeM2Battery.ChannelId.CHARGE_CIRCUIT_ACTIVE)
@@ -258,60 +256,55 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 								.bit(4, PylontechPowercubeM2Battery.ChannelId.HEATING_FILM_ACTIVE)
 								.bit(5, PylontechPowercubeM2Battery.ChannelId.CURRENT_LIMITING_MODULE_ACTIVE)
 								.bit(6, PylontechPowercubeM2Battery.ChannelId.FAN_ACTIVE)),
-						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(0x1110),
-								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(0x1111),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(0x1110), DIRECT_1_TO_1),
+						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(0x1111), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MAX_VOLTAGE_CELL_NUMBER,
-								new UnsignedWordElement(0x1112), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x1112), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MIN_VOLTAGE_CELL_NUMBER,
-								new UnsignedWordElement(0x1113), ElementToChannelConverter.DIRECT_1_TO_1),
-						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(0x1114),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(0x1115),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								new UnsignedWordElement(0x1113), DIRECT_1_TO_1),
+						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(0x1114), SCALE_FACTOR_MINUS_1),
+						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(0x1115), SCALE_FACTOR_MINUS_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MAX_TEMPERATURE_CELL_NUMBER,
-								new UnsignedWordElement(0x1116), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x1116), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MIN_TEMPERATURE_CELL_NUMBER,
-								new UnsignedWordElement(0x1117), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x1117), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MAX_MODULE_VOLTAGE, new UnsignedWordElement(0x1118),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(PylontechPowercubeM2Battery.ChannelId.MIN_MODULE_VOLTAGE, new UnsignedWordElement(0x1119),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(PylontechPowercubeM2Battery.ChannelId.MAX_VOLTAGE_MODULE_NUMBER,
-								new UnsignedWordElement(0x111A), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x111A), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MIN_VOLTAGE_MODULE_NUMBER,
-								new UnsignedWordElement(0x111B), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x111B), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MAX_MODULE_TEMPERATURE, new SignedWordElement(0x111C),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MIN_MODULE_TEMPERATURE, new SignedWordElement(0x111D),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MAX_TEMPERATURE_MODULE_NUMBER,
-								new UnsignedWordElement(0x111E), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x111E), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.MIN_TEMPERATURE_MODULE_NUMBER,
-								new UnsignedWordElement(0x111F), ElementToChannelConverter.DIRECT_1_TO_1),
-						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x1120),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x111F), DIRECT_1_TO_1),
+						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x1120), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.REMAINING_CAPACITY,
-								new UnsignedDoublewordElement(0x1121), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedDoublewordElement(0x1121), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.CHARGE_CAPACITY, new UnsignedDoublewordElement(0x1123),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.DISCHARGE_CAPACITY,
-								new UnsignedDoublewordElement(0x1125), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedDoublewordElement(0x1125), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.DAILY_ACCUMULATED_CHARGE_CAPACITY,
-								new UnsignedDoublewordElement(0x1127), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedDoublewordElement(0x1127), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.DAILY_ACCUMULATED_DISCHARGE_CAPACITY,
-								new UnsignedDoublewordElement(0x1129), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedDoublewordElement(0x1129), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.HISTORICAL_ACCUMULATED_CHARGE_CAPACITY,
-								new UnsignedDoublewordElement(0x112B), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedDoublewordElement(0x112B), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.HISTORICAL_ACCUMULATED_DISCHARGE_CAPACITY,
-								new UnsignedDoublewordElement(0x112D), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedDoublewordElement(0x112D), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.REQUEST_FORCE_CHARGE_MARK,
-								new UnsignedWordElement(0x112F), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x112F), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.REQUEST_BALANCE_CHARGE_MARK,
-								new UnsignedWordElement(0x1130), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x1130), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.NUMBER_OF_PILES_IN_PARALLEL,
-								new UnsignedWordElement(0x1131), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x1131), DIRECT_1_TO_1),
 						m(new BitsWordElement(0x1132, this)
 								.bit(0, PylontechPowercubeM2Battery.ChannelId.VOLTAGE_SENSOR_ERROR)
 								.bit(1, PylontechPowercubeM2Battery.ChannelId.TEMPERATURE_SENSOR_ERROR)
@@ -329,18 +322,18 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 								.bit(13, PylontechPowercubeM2Battery.ChannelId.EMERGENCY_STOP_FAILURE))),
 				new FC3ReadRegistersTask(0x1136, Priority.LOW, //
 						m(PylontechPowercubeM2Battery.ChannelId.NUMBER_OF_MODULES_IN_SERIES_PER_PILE,
-								new UnsignedWordElement(0x1136), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x1136), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.NUMBER_OF_CELLS_IN_SERIES_PER_PILE,
-								new UnsignedWordElement(0x1137), ElementToChannelConverter.DIRECT_1_TO_1),
+								new UnsignedWordElement(0x1137), DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.CHARGE_FORBIDDEN_MARK, new UnsignedWordElement(0x1138),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.DISCHARGE_FORBIDDEN_MARK,
-								new UnsignedWordElement(0x1139), ElementToChannelConverter.DIRECT_1_TO_1)),
+								new UnsignedWordElement(0x1139), DIRECT_1_TO_1)),
 				new FC3ReadRegistersTask(0x1148, Priority.LOW, //
 						m(PylontechPowercubeM2Battery.ChannelId.INSULATION_RESISTANCE, new UnsignedWordElement(0x1148),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(PylontechPowercubeM2Battery.ChannelId.INSULATION_RESISTANCE_ERROR_LEVEL,
-								new UnsignedWordElement(0x1149), ElementToChannelConverter.DIRECT_1_TO_1)),
+								new UnsignedWordElement(0x1149), DIRECT_1_TO_1)),
 
 				// Write sleep/wake register
 				new FC6WriteRegisterTask(0x1090,
@@ -349,9 +342,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 		// 3.5 Remote adjust information
 
 		// 3.6 Single Battery Pile information
-
 		);
-
 	}
 
 	@Override
@@ -374,15 +365,14 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	@Override
 	public StartStop getStartStopTarget() {
 		return switch (this.config.startStop()) {
-		    case AUTO -> this.startStopTarget.get(); // read StartStop-Channel
-		    case START -> StartStop.START;          // force START
-		    case STOP -> StartStop.STOP;            // force STOP
-		    default -> {
-		        assert false : "Unexpected startStop value";
-		        yield StartStop.UNDEFINED;          // can never happen
-		    }
-	};
-
+		case AUTO -> this.startStopTarget.get(); // read StartStop-Channel
+		case START -> StartStop.START; // force START
+		case STOP -> StartStop.STOP; // force STOP
+		default -> {
+			assert false : "Unexpected startStop value";
+			yield StartStop.UNDEFINED; // can never happen
+		}
+		};
 	}
 
 	@Override
@@ -456,9 +446,10 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 					m(new UnsignedWordElement(pileOffset + 0x0000)).build().onUpdateCallback(value -> {
 						this.handleStatusRegister(value,
 								this.generatePileChannel(pileFinal, "STATUS", Doc.of(Status.values())));
-					})),
-					new FC3ReadRegistersTask(
-							pileOffset + 0x0000, Priority.LOW, m(new BitsWordElement(pileOffset + 0x0000, this) // Get status from first 3 bits
+					})), new FC3ReadRegistersTask(
+							// Get status from first 3 bits
+							pileOffset + 0x0000, Priority.LOW,
+							m(new BitsWordElement(pileOffset + 0x0000, this)
 									.bit(3, this.generatePileChannel(pile, "SYSTEM_ERROR_PROTECTION", Level.FAULT))
 									.bit(4, this.generatePileChannel(pile, "CURRENT_PROTECTION", Level.FAULT))
 									.bit(5, this.generatePileChannel(pile, "VOLTAGE_PROTECTION", Level.FAULT))
@@ -531,32 +522,30 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 											Level.WARNING))),
 							m(this.generatePileChannel(pile, "TOTAL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0003), // [V]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "CURRENT", OpenemsType.INTEGER), 
+									SCALE_FACTOR_MINUS_1),
+							m(this.generatePileChannel(pile, "CURRENT", OpenemsType.INTEGER),
 									new SignedDoublewordElement(pileOffset + 0x0004), // [A]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+									SCALE_FACTOR_MINUS_2),
 							m(this.generatePileChannel(pile, "TEMPERATURE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0006), // [oC]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+									SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "SOC", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0007), // [%]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+									SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "CYCLE_TIME", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0008), // Unsure of unit
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "MAX_CHARGE_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0009), // [V}
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+									SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "MAX_CHARGE_CURRENT", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x000A), // [A]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+									SCALE_FACTOR_MINUS_2),
 							m(this.generatePileChannel(pile, "MAX_DISCHARGE_VOLTAGE", OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x000C),
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+									new UnsignedWordElement(pileOffset + 0x000C), SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "MAX_DISCHARGE_CURRENT", OpenemsType.INTEGER),
 									new SignedDoublewordElement(pileOffset + 0x000D),
-									ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_2,
-											ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT)),
+									chain(SCALE_FACTOR_MINUS_2, KEEP_NEGATIVE_AND_INVERT)),
 							m(new BitsWordElement(pileOffset + 0x000F, this)
 									.bit(0, this.generatePileChannel(pile, "DISCHARGE_CIRCUIT_ACTIVE",
 											OpenemsType.BOOLEAN))
@@ -576,86 +565,75 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 									new UnsignedWordElement(pileOffset + 0x0011),
 									ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_CELL_VOLTAGE", OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x0012),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_CELL_VOLTAGE", OpenemsType.INTEGER), 
-									new UnsignedWordElement(pileOffset + 0x0013),
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									new UnsignedWordElement(pileOffset + 0x0012), DIRECT_1_TO_1),
+							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_CELL_VOLTAGE", OpenemsType.INTEGER),
+									new UnsignedWordElement(pileOffset + 0x0013), DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "MAX_CELL_TEMPERATURE", OpenemsType.INTEGER),
 									new SignedWordElement(pileOffset + 0x0014), // [oC]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+									SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "MIN_CELL_TEMPERATURE", OpenemsType.INTEGER),
 									new SignedWordElement(pileOffset + 0x0015), // [oC]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+									SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_CELL_TEMPERATURE",
-									OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x0016), //
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedWordElement(pileOffset + 0x0016), //
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_CELL_TEMPERATURE",
-									OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x0017), //
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedWordElement(pileOffset + 0x0017), //
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "MAX_MODULE_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0018), // [V]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+									SCALE_FACTOR_MINUS_2),
 							m(this.generatePileChannel(pile, "MIN_MODULE_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0019), // [V]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+									SCALE_FACTOR_MINUS_2),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_MODULE_VOLTAGE",
-									OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x001A), //
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedWordElement(pileOffset + 0x001A), //
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_MODULE_VOLTAGE",
-									OpenemsType.INTEGER), 
-									new UnsignedWordElement(pileOffset + 0x001B), //
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedWordElement(pileOffset + 0x001B), //
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "MAX_MODULE_TEMPERATURE", OpenemsType.INTEGER),
 									new SignedWordElement(pileOffset + 0x001C), // [oC]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-							m(this.generatePileChannel(pile, "MIN_MODULE_TEMPERATURE", OpenemsType.INTEGER), 
+									SCALE_FACTOR_MINUS_1),
+							m(this.generatePileChannel(pile, "MIN_MODULE_TEMPERATURE", OpenemsType.INTEGER),
 									new SignedWordElement(pileOffset + 0x001D), // [oC]
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+									SCALE_FACTOR_MINUS_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_MODULE_TEMPERATURE",
-									OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x001E), //
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedWordElement(pileOffset + 0x001E), //
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_MODULE_TEMPERATURE",
-									OpenemsType.INTEGER),
-									new UnsignedWordElement(pileOffset + 0x001F), //
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedWordElement(pileOffset + 0x001F), //
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SOH", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0020), // [%]
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "REMAINING_CAPACITY", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0021), // [Wh]
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(this.generatePileChannel(pile, "CHARGE_CAPACITY", OpenemsType.INTEGER), 
+									DIRECT_1_TO_1),
+							m(this.generatePileChannel(pile, "CHARGE_CAPACITY", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0023), // [Wh]
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "DISCHARGE_CAPACITY", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0025), // [Wh]
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "DAILY_ACCUMULATED_CHARGE_CAPACITY", OpenemsType.INTEGER),
 									new UnsignedDoublewordElement(pileOffset + 0x0027), // [Wh]
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "DAILY_ACCUMULATED_DISCHARGE_CAPACITY",
-									OpenemsType.INTEGER),
-									new UnsignedDoublewordElement(pileOffset + 0x0029), // [Wh]
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedDoublewordElement(pileOffset + 0x0029), // [Wh]
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "HISTORICAL_ACCUMULATED_CHARGE_CAPACITY",
-									OpenemsType.INTEGER),
-									new UnsignedDoublewordElement(pileOffset + 0x002B), // [Wh]
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedDoublewordElement(pileOffset + 0x002B), // [Wh]
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "HISTORICAL_ACCUMULATED_DISCHARGE_CAPACITY",
-									OpenemsType.INTEGER), 
-									new UnsignedDoublewordElement(pileOffset + 0x002D), // [Wh]
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									OpenemsType.INTEGER), new UnsignedDoublewordElement(pileOffset + 0x002D), // [Wh]
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "REQUEST_FORCE_CHARGE_MARK", OpenemsType.BOOLEAN),
 									new UnsignedWordElement(pileOffset + 0x002F), // Yes/no
-									ElementToChannelConverter.DIRECT_1_TO_1),
+									DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "REQUEST_BALANCE_CHARGE_MARK", OpenemsType.BOOLEAN),
 									new UnsignedWordElement(pileOffset + 0x0030), // Yes / No
-									ElementToChannelConverter.DIRECT_1_TO_1)),
+									DIRECT_1_TO_1)),
 					new FC3ReadRegistersTask((pileOffset + 0x0032), Priority.LOW, //
 							m(new BitsWordElement(pileOffset + 0x0032, this)
 									.bit(0, this.generatePileChannel(pile, "VOLTAGE_SENSOR_ERROR", OpenemsType.BOOLEAN))
@@ -733,10 +711,9 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	private int getOffsetForPile(int pileNumber) {
 
 		if (pileNumber < 1 || pileNumber > 32) {
-		    return -1;
+			return -1;
 		}
 		return 0x0D00 + pileNumber * 0x0700;
-
 	}
 
 	@Override
@@ -745,12 +722,10 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.batteryProtection.apply();
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.handleStateMachine();
-			break;
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+			-> this.batteryProtection.apply();
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+			-> this.handleStateMachine();
 		}
 	}
 
@@ -762,7 +737,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 		this.channel(PylontechPowercubeM2Battery.ChannelId.STATE_MACHINE)
 				.setNextValue(this.stateMachine.getCurrentState());
 
-		// Initialise start-stop channel
+		// Initialize start-stop channel
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context

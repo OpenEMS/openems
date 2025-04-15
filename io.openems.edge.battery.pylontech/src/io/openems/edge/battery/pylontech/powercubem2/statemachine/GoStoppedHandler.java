@@ -8,7 +8,6 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	private static enum BatteryGotoSleepState {
 		WAIT_FOR_SLEEP, FINISHED;
-
 	}
 
 	private BatteryGotoSleepState state = BatteryGotoSleepState.WAIT_FOR_SLEEP;
@@ -20,19 +19,18 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		
-		return switch(this.state) {
-			case WAIT_FOR_SLEEP -> {
-				if (!context.isBatteryAwake()) {
-	                this.state = BatteryGotoSleepState.FINISHED;
-	                yield State.GO_STOPPED; // Final state after finishing sleep
-	            } else {
-	                context.setBatteryWakeSleep(false); // Put it to sleep
-	                yield State.GO_STOPPED; // Keep processing
-	            }
+		return switch (this.state) {
+		case WAIT_FOR_SLEEP -> {
+			if (!context.isBatteryAwake()) {
+				this.state = BatteryGotoSleepState.FINISHED;
+				yield State.GO_STOPPED; // Final state after finishing sleep
+			} else {
+				context.setBatteryWakeSleep(false); // Put it to sleep
+				yield State.GO_STOPPED; // Keep processing
 			}
-			case FINISHED -> State.STOPPED;
-			default -> State.GO_STOPPED;
+		}
+		case FINISHED -> State.STOPPED;
+		default -> State.GO_STOPPED;
 		};
 
 	}

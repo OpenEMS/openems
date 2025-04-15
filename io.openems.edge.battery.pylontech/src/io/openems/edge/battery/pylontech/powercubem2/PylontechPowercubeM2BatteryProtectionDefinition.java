@@ -8,8 +8,7 @@ import io.openems.edge.common.linecharacteristic.PolyLine;
 public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryProtectionDefinition {
 
 	/*
-	 * Most values not defined. Those that are defined come from Pylontech engineer
-	 * 
+	 * Most values not defined. Those that are defined come from Pylontech engineer.
 	 */
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {
@@ -53,7 +52,10 @@ public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryP
 
 	@Override
 	public Double getMaxIncreaseAmperePerSecond() {
-		return 20.0; // [A] per second // This is not provided by Pylontech. May be unnecessary to provide this value as BMS takes care.
+		// [A] per second
+		// This is not provided by Pylontech. May be unnecessary to
+		// provide this value as BMS takes care.
+		return 20.0;
 	}
 
 	@Override

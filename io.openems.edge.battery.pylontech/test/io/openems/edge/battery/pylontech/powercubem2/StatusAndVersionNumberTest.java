@@ -1,13 +1,13 @@
 package io.openems.edge.battery.pylontech.powercubem2;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import org.junit.Test;
+
 /**
- * Test to check that the battery component is correctly calculating the battery version number from registers
- * and correctly reading the status bit.
+ * Test to check that the battery component is correctly calculating the battery
+ * version number from registers and correctly reading the status bit.
  */
 public class StatusAndVersionNumberTest {
 
@@ -46,7 +46,8 @@ public class StatusAndVersionNumberTest {
 		assertEquals(Status.DISCHARGE, battery.getStatusFromRegisterValue(0b0111010));
 		assertEquals(Status.IDLE, battery.getStatusFromRegisterValue(0b0111011));
 
-		// Check that sending a reserved value, with additional OOB bits, leads to undefined
+		// Check that sending a reserved value, with additional OOB bits, leads to
+		// undefined
 		assertEquals(Status.UNDEFINED, battery.getStatusFromRegisterValue(0b0111100));
 		assertEquals(Status.UNDEFINED, battery.getStatusFromRegisterValue(0b0111101));
 

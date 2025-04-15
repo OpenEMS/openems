@@ -11,20 +11,20 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 		var battery = context.getParent();
 
 		return switch (battery.getStartStopTarget()) {
-	        case UNDEFINED -> State.UNDEFINED; // Stuck in undefined state
-	        case START -> {
-	            if (battery.hasFaults()) {
-	                yield State.ERROR; // Faults exist - handle errors
-	            } else {
-	                yield State.GO_RUNNING; // No faults, start the battery
-	            }
-	        }
-	        case STOP -> State.GO_STOPPED; // Target state is stop -> stop it
-	        default -> {
-	            assert false : "Unexpected StartStopTarget state"; // Should never happen
-	            yield State.UNDEFINED; // Fallback
-	        }
-	    };
+		case UNDEFINED -> State.UNDEFINED; // Stuck in undefined state
+		case START -> {
+			if (battery.hasFaults()) {
+				yield State.ERROR; // Faults exist - handle errors
+			} else {
+				yield State.GO_RUNNING; // No faults, start the battery
+			}
+		}
+		case STOP -> State.GO_STOPPED; // Target state is stop -> stop it
+		default -> {
+			assert false : "Unexpected StartStopTarget state"; // Should never happen
+			yield State.UNDEFINED; // Fallback
+		}
+		};
 	}
 
 }

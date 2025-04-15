@@ -5,6 +5,7 @@ import io.openems.edge.common.statemachine.AbstractStateMachine;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
+
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
 		UNDEFINED(-1), //
 
@@ -50,14 +51,13 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
-		
 		return switch (state) {
-			case UNDEFINED -> new UndefinedHandler();
-			case GO_RUNNING -> new GoRunningHandler();
-			case RUNNING -> new RunningHandler();
-			case GO_STOPPED -> new GoStoppedHandler();
-			case STOPPED -> new StoppedHandler();
-			case ERROR -> new ErrorHandler();
+		case UNDEFINED -> new UndefinedHandler();
+		case GO_RUNNING -> new GoRunningHandler();
+		case RUNNING -> new RunningHandler();
+		case GO_STOPPED -> new GoStoppedHandler();
+		case STOPPED -> new StoppedHandler();
+		case ERROR -> new ErrorHandler();
 		};
 	}
 }
