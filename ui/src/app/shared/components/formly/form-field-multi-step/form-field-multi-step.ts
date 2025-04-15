@@ -8,8 +8,6 @@ import { FieldType } from "@ngx-formly/core";
 })
 export class FormlyFieldMultiStepComponent extends FieldType implements OnInit {
 
-    public currentStep: number = 0;
-
     protected get steps() {
         return this.props.steps || [];
     }
@@ -21,41 +19,6 @@ export class FormlyFieldMultiStepComponent extends FieldType implements OnInit {
         if (!Array.isArray(stepArray)) {
             this.formControl.setValue(Array(this.steps.length).fill(false));
         }
-
-        // Listen to status changes to reset steps if disabled
-        this.formControl.statusChanges.subscribe(status => {
-            if (status === "DISABLED") {
-                this.resetSteps();
-            }
-        });
-
-        // Determine the current step based on the array of steps
-        const lastFalseIndex = stepArray.lastIndexOf(false);
-        const lastTrueIndex = stepArray.lastIndexOf(true);
-
-        if (lastFalseIndex === -1) {
-            // All steps are true, show the final step
-            this.currentStep = this.steps.length - 1;
-        } else if (lastTrueIndex === -1) {
-            // No true steps, show the first step
-            this.currentStep = 0;
-        } else {
-            // Show the last true step
-            this.currentStep = lastTrueIndex;
-        }
-    }
-
-
-    protected nextStep() {
-        if (this.currentStep < this.steps.length - 1) {
-            this.currentStep++;
-        }
-    }
-
-    protected prevStep() {
-        if (this.currentStep > 0) {
-            this.currentStep--;
-        }
     }
 
     protected onCheckboxChange(event: any, index: number) {
@@ -64,8 +27,23 @@ export class FormlyFieldMultiStepComponent extends FieldType implements OnInit {
         this.formControl.setValue(updatedValue);
     }
 
-    private resetSteps() {
-        this.formControl.setValue(Array(this.steps.length).fill(false));
-        this.currentStep = 0;
+
+    /**
+     * Returns the show/hide value based on the properties.
+     *
+     * @returns boolean value representing "show" or "hide".
+     */
+    protected showContent(index: number) {
+        return (!this.field.props?.disabled && !this.formControl.value[index]);
     }
+
+    /**
+     * Returns true/false value based on the step array values.
+     *
+     * @returns boolean value representing all values are true or not.
+     */
+    protected isAllTrue() {
+        return this.formControl.value.lastIndexOf(false) === -1 ? true : false;
+    }
+
 }

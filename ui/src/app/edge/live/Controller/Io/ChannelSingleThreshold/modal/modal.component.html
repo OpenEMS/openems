@@ -5,13 +5,13 @@
     <ion-buttons slot="end">
       <oe-help-button key="CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
-        <ion-icon name="close-outline"></ion-icon>
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ng-container *ngIf="service.currentEdge | async as edge">
+<ng-container *ngIf="service.currentEdge() as edge">
   <ng-container *ngIf="edge.currentData | async as currentData">
     <ng-container *ngIf="currentData.summary as sum">
       <ion-content>

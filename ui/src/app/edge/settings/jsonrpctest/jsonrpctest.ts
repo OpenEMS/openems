@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
+import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Websocket } from "src/app/shared/shared";
 import { environment } from "src/environments";
 
@@ -22,6 +23,7 @@ export class JsonrpcTestComponent implements OnInit {
     private route: ActivatedRoute,
     private service: Service,
     private websocket: Websocket,
+    private userService: UserService,
   ) {
 
   }
@@ -104,7 +106,7 @@ export class JsonrpcTestComponent implements OnInit {
 
 }
 
-function createDummyRequest(endpointType?: EndpointType) {
+function createDummyRequest(endpointType?: ElementDefinition) {
   if (!endpointType) {
     return undefined;
   }
@@ -128,11 +130,11 @@ type EndpointResponse = {
   tags: Tag[],
   guards: Guard[],
   request: {
-    json: EndpointType,
+    json: ElementDefinition,
     examples: RequestExample[]
   },
   response: {
-    json: EndpointType,
+    json: ElementDefinition,
     examples: RequestExample[]
   },
   parent: { method: string, request: { base: any, pathToSubrequest: string[] } }[],
@@ -152,15 +154,10 @@ type RequestExample = {
   value: {}
 };
 
-type EndpointType =
-  {
-    type: "object",
-    properties: { [key: string]: EndpointType }
-  }
-  | {
-    type: "string",
-    constraints: string[]
-  };
+type ElementDefinition =
+  { type: "object", optional: boolean, properties: { [key: string]: ElementDefinition } }
+  | { type: "array", optional: boolean, elementType: ElementDefinition }
+  | { type: "string" | "boolean" | "number", optional: boolean };
 
 type Endpoint = {
   method: string,
@@ -168,12 +165,12 @@ type Endpoint = {
   tags: Tag[],
   guards: Guard[],
   request: {
-    json: EndpointType,
+    json: ElementDefinition,
     examples: RequestExample[],
     selectedExample?: string,
   },
   response: {
-    json: EndpointType,
+    json: ElementDefinition,
     examples: RequestExample[],
   },
   parent: { method: string, request: { base: any, pathToSubrequest: string[] } }[],

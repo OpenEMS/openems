@@ -129,6 +129,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     } else {
                         remainingSteps = targetIndex - currIndex;
                     }
+
                     if (remainingSteps > 0) {
 
                         // Calculate how much percentage is needed in every time step (5 min)
@@ -199,8 +200,13 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             this.datasets = datasets;
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
+
+            // Overwrite default options
             this.unit = YAxisType.PERCENTAGE;
             this.formatNumber = "1.0-0";
+            this.chartAxis = ChartAxis.RIGHT;
+            this.position = "right";
+
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
 
@@ -229,7 +235,18 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     }
 
     private applyControllerSpecificOptions() {
-        this.options.scales[ChartAxis.LEFT]["position"] = "right";
+        this.options.scales[ChartAxis.LEFT] = {
+            position: "left",
+            display: false,
+        };
+
+        /** Overwrite default yAxisId */
+        this.datasets = this.datasets
+            .map(el => {
+                el["yAxisID"] = ChartAxis.RIGHT;
+                return el;
+            });
+
         this.options.scales.x.ticks.callback = function (value, index, values) {
             const date = new Date(value);
 

@@ -1,8 +1,8 @@
 package io.openems.edge.evcs.keba.kecontact;
 
 import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
-import static io.openems.edge.evcs.api.Status.CHARGING_REJECTED;
-import static io.openems.edge.evcs.keba.kecontact.Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED;
+import static io.openems.edge.evcs.keba.common.R2Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED;
+import static io.openems.edge.evcs.keba.kecontact.R2State.INTERRUPTED;
 
 import org.junit.Test;
 
@@ -42,10 +42,10 @@ public class EvcsKebaKeContactImplTest {
 
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> rh.accept(REPORT_2)) //
-						.output(EvcsKebaKeContact.ChannelId.STATUS_KEBA, CHARGING_REJECTED) //
+						.output(EvcsKebaKeContact.ChannelId.R2_STATE, INTERRUPTED) //
 						.output(EvcsKebaKeContact.ChannelId.ERROR_1, 0) //
 						.output(EvcsKebaKeContact.ChannelId.ERROR_2, 0) //
-						.output(EvcsKebaKeContact.ChannelId.PLUG, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) //
+						.output(EvcsKebaKeContact.ChannelId.R2_PLUG, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) //
 						.output(EvcsKebaKeContact.ChannelId.ENABLE_SYS, false) //
 						.output(EvcsKebaKeContact.ChannelId.ENABLE_USER, false) //
 						.output(EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, 1_000) //

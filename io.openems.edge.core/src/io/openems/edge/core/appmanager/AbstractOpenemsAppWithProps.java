@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -111,6 +112,21 @@ public abstract class AbstractOpenemsAppWithProps<//
 		return this.getInt(map, property, PROPERTY::def);
 	}
 
+	protected double getDouble(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsDouble(this.getValueOrDefault(map, Language.DEFAULT, property, mapper));
+	}
+
+	protected double getDouble(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getDouble(map, property, PROPERTY::def);
+	}
+
 	protected <E extends Enum<E>> E getEnum(//
 			final Map<PROPERTY, JsonElement> map, //
 			final Class<E> enumType, //
@@ -126,6 +142,16 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final PROPERTY property //
 	) throws OpenemsNamedException {
 		return this.getEnum(map, enumType, property, PROPERTY::def);
+	}
+
+	@Override
+	public final String mapPropName(String prop, String componentId, OpenemsAppInstance instance) {
+		return Stream.of(this.propertyValues()).map(p -> p.def().getBidirectionalPropertyName()).filter(t -> {
+			if (t == null) {
+				return false;
+			}
+			return t.equals(prop);
+		}).findFirst().orElseGet(() -> super.mapPropName(prop, componentId, instance));
 	}
 
 	protected boolean getBoolean(//
@@ -267,6 +293,15 @@ public abstract class AbstractOpenemsAppWithProps<//
 			return this.object;
 		}
 
+	}
+
+	@Override
+	public final boolean assertCanEdit(String propName, User user) {
+		final var prop = Stream.of(this.propertyValues())//
+				.filter(property -> property.name().equals(propName))//
+				.findFirst().orElseThrow(() -> new RuntimeException("Property " + propName + " does not exist"));
+		return prop.def().getIsAllowedToEdit().test(this.getApp(), prop, user.getLanguage(),
+				this.singletonParameter(user.getLanguage()).get(), user);
 	}
 
 	protected abstract APP getApp();

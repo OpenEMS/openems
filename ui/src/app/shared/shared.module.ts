@@ -17,9 +17,12 @@ import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/for
 import { FormlyWrapperDefaultValueWithCasesComponent } from "./components/formly/form-field-default-cases.wrapper";
 import { FormlyFieldMultiStepComponent } from "./components/formly/form-field-multi-step/form-field-multi-step";
 import { FormlyWrapperFormFieldComponent } from "./components/formly/form-field.wrapper";
+import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox-with-button/formly-checkbox-with-button";
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
-import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formlyfieldmodal";
+import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldRadioWithImageComponent } from "./components/formly/formly-field-radio-with-image/formly-field-radio-with-image";
+import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
+import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
@@ -36,7 +39,7 @@ import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.compon
 import { AppStateTracker } from "./ngrx-store/states";
 import { PipeModule } from "./pipe/pipe";
 import { Logger } from "./service/logger";
-import { PreviousRouteService } from "./service/previousRouteService";
+import { RouteService } from "./service/previousRouteService";
 import { Service } from "./service/service";
 import { Utils } from "./service/utils";
 import { Websocket } from "./shared";
@@ -59,6 +62,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 
 @NgModule({
   imports: [
+    BaseChartDirective,
     BrowserAnimationsModule,
     CommonModule,
     ComponentsModule,
@@ -79,6 +83,9 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "input", component: InputTypeComponent },
         { name: "repeat", component: RepeatTypeComponent },
         { name: "multi-step", component: FormlyFieldMultiStepComponent },
+        { name: "select", component: FormlySelectComponent },
+        { name: "checkbox-button", component: CheckboxButtonTypeComponent },
+        { name: "radio", component: FormlyRadioTypeComponent },
       ],
       validators: [
         { name: "ip", validation: IpValidator },
@@ -121,6 +128,9 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PanelWrapperComponent,
     PercentageBarComponent,
     RepeatTypeComponent,
+    FormlySelectComponent,
+    CheckboxButtonTypeComponent,
+    FormlyRadioTypeComponent,
   ],
   exports: [
     AppHeaderComponent,
@@ -149,7 +159,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     AppStateTracker,
     appRoutingProviders,
     Logger,
-    PreviousRouteService,
+    RouteService,
     Service,
     Utils,
     Websocket,

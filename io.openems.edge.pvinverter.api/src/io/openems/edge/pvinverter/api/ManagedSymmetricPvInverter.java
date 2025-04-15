@@ -32,6 +32,34 @@ public interface ManagedSymmetricPvInverter extends ElectricityMeter, OpenemsCom
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
+		MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+		/**
+		 * Holds the maximum possible apparent power. This value is defined by the
+		 * inverter limitations.
+		 *
+		 * <ul>
+		 * <li>Interface: SymmetricPvInverter
+		 * <li>Type: Integer
+		 * <li>Unit: VA
+		 * <li>Range: zero or positive value
+		 * </ul>
+		 */
+		MAX_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //
+		/**
+		 * Holds the maximum possible apparent power. This value is defined by the
+		 * inverter limitations.
+		 *
+		 * <ul>
+		 * <li>Interface: SymmetricPvInverter
+		 * <li>Type: Integer
+		 * <li>Unit: VA
+		 * <li>Range: zero or positive value
+		 * </ul>
+		 */
 		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
@@ -75,6 +103,84 @@ public interface ManagedSymmetricPvInverter extends ElectricityMeter, OpenemsCom
 	@Override
 	default MeterType getMeterType() {
 		return MeterType.PRODUCTION;
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxActivePowerChannel() {
+		return this.channel(ChannelId.MAX_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Maximum Active Power in [WATT], range "&gt;= 0". See
+	 * {@link ChannelId#MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxActivePower() {
+		return this.getMaxActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxActivePower(Integer value) {
+		this.getMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxActivePower(int value) {
+		this.getMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_REACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxReactivePowerChannel() {
+		return this.channel(ChannelId.MAX_REACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Maximum Reactive Power in [VAR], range "&gt;= 0". See
+	 * {@link ChannelId#MAX_REACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxReactivePower() {
+		return this.getMaxReactivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_REACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxReactivePower(Integer value) {
+		this.getMaxReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_REACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxReactivePower(int value) {
+		this.getMaxReactivePowerChannel().setNextValue(value);
 	}
 
 	/**

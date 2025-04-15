@@ -91,9 +91,8 @@ public final class EdgeEventConstants {
 	 *
 	 * <p>
 	 * Called when the {@link EdgeConfig} was updated, e.g. because configuration
-	 * properties changed or Channels changed. The EdgeConfig object is sent with
-	 * the event - see {@value #TOPIC_CONFIG_UPDATE_KEY}. The event is executed
-	 * synchronously.
+	 * properties changed. The EdgeConfig object is sent with the event - see
+	 * {@value #TOPIC_CONFIG_UPDATE_KEY}. The event is executed synchronously.
 	 */
 	public static final String TOPIC_CONFIG_UPDATE = TOPIC_CONFIG + "UPDATE";
 
@@ -101,4 +100,18 @@ public final class EdgeEventConstants {
 	 * The key of the {@link EdgeConfig} object in the event attachments map.
 	 */
 	public static final String TOPIC_CONFIG_UPDATE_KEY = "TOPIC_CONFIG_UPDATE_KEY";
+
+	/**
+	 * Base for CHANNEL events.
+	 */
+	public static final String TOPIC_CHANNEL = "io/openems/edge/channel/";
+
+	/**
+	 * Channel UPDATE event.
+	 *
+	 * <p>
+	 * Called when any channel was created removed or updated. The event is executed
+	 * synchronously.
+	 */
+	public static final String TOPIC_CHANNEL_UPDATE = TOPIC_CHANNEL + "UPDATE";
 }

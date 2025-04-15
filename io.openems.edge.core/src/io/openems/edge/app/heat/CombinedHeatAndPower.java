@@ -208,7 +208,8 @@ public class CombinedHeatAndPower
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(false)));
+				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(false),
+						CheckRelayCountFilters.deviceHardware()));
 	}
 
 	@Override

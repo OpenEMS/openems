@@ -107,6 +107,56 @@ public class EvcsHardyBarthImplTest {
 				);
 	}
 
+	@Test
+	public void testHandleUndefinedCheck() throws Exception {
+		final var phaseRotation = L2_L3_L1;
+		var sut = new EvcsHardyBarthImpl();
+		var ru = sut.readUtils;
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", ofDummyBridge()) //
+				.activate(MyConfig.create() //
+						.setId("evcs0") //
+						.setIp("192.168.8.101") //
+						.setMaxHwCurrent(32_000) //
+						.setMinHwCurrent(6_000) //
+						.setPhaseRotation(phaseRotation) //
+						.build())
+
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> ru
+								.handleGetApiCallResponse(new HttpResponse<String>(OK, API_RESPONSE), phaseRotation)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 3192) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1044) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1075) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1073) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 14_770) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 4_770) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, 5_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, 5_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 216_156) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 218_868) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 215_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 214_600) //
+				)
+				// Values are not overwritten when empty/null response from api
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> ru.handleGetApiCallResponse(
+								new HttpResponse<String>(OK, EMPTY_API_RESPONSE), phaseRotation)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 3192) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1044) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1075) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1073) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 14_770) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 4_770) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, 5_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, 5_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 216_156) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 218_868) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 215_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 214_600) //
+				);
+	}
+
 	private static final String API_RESPONSE = """
 			{
 			   "device":{
@@ -275,4 +325,174 @@ public class EvcsHardyBarthImplTest {
 			   }
 			}
 			""";
+
+	private static final String EMPTY_API_RESPONSE = """
+			{
+			   "device":{
+			      "product":null,
+			      "modelname":null,
+			      "hardware_version":null,
+			      "software_version":null,
+			      "vcs_version":null,
+			      "hostname":null,
+			      "mac_address":null,
+			      "serial":null,
+			      "uuid":null,
+			      "internal_id":null
+			   },
+			   "secc":{
+			      "port0":{
+			         "ci":{
+			            "evse":{
+			               "basic":{
+			                  "grid_current_limit":{
+			                     "actual":null
+			                  },
+			                  "phase_count":null,
+			                  "physical_current_limit":null,
+			                  "offered_current_limit":null
+			               },
+			               "phase":{
+			                  "actual":null
+			               }
+			            },
+			            "charge":{
+			               "cp":{
+			                  "status":null
+			               },
+			               "plug":{
+			                  "status":null
+			               },
+			               "contactor":{
+			                  "status":null
+			               },
+			               "pwm":{
+			                  "status":null
+			               }
+			            }
+			         },
+			         "salia":{
+			            "chargemode":null,
+			            "thermal":null,
+			            "mem":null,
+			            "uptime":null,
+			            "load":null,
+			            "chargedata":null,
+			            "authmode":null,
+			            "firmwarestate":null,
+			            "firmwareprogress":null,
+			            "heartbeat":null,
+			            "pausecharging":null
+			         },
+			         "session":{
+			            "authorization_status":null
+			         },
+			         "contactor":{
+			            "state":{
+			               "hlc_target":null,
+			               "actual":null,
+			               "target":null
+			            },
+			            "error":null
+			         },
+			         "metering":{
+			            "meter":{
+			               "serialnumber":null,
+			               "type":null,
+			               "available":null
+			            },
+			            "eichrecht_protocol":null,
+			            "power":{
+			               "active":{
+			                  "ac":{
+			                     "l1":{
+			                        "actual":null
+			                     },
+			                     "l2":{
+			                        "actual":null
+			                     },
+			                     "l3":{
+			                        "actual":null
+			                     }
+			                  }
+			               },
+			               "active_total":{
+			                  "actual":null
+			               }
+			            },
+			            "current":{
+			               "ac":{
+			                  "l1":{
+			                     "actual":null
+			                  },
+			                  "l2":{
+			                     "actual":null
+			                  },
+			                  "l3":{
+			                     "actual":null
+			                  }
+			               }
+			            },
+			            "energy":{
+			               "active_total":{
+			                  "actual":null
+			               },
+			               "active_export":{
+			                  "actual":null
+			               },
+			               "active_import":{
+			                  "actual":null
+			               }
+			            }
+			         },
+			         "emergency_shutdown":null,
+			         "rcd":{
+			            "feedback":{
+			               "available":null
+			            },
+			            "state":{
+			               "actual":null
+			            },
+			            "recloser":{
+			               "available":null
+			            }
+			         },
+			         "plug_lock":{
+			            "state":{
+			               "actual":null,
+			               "target":null
+			            },
+			            "error":null
+			         },
+			         "availability":{
+			            "actual":null
+			         },
+			         "cp":{
+			            "pwm_state":{
+			               "actual":null
+			            },
+			            "state":null,
+			            "duty_cycle":null
+			         },
+			         "rfid":{
+			            "available":null,
+			            "authorizereq":null
+			         },
+			         "diode_present":null,
+			         "cable_current_limit":null,
+			         "ready_for_slac":null,
+			         "ev_present":null,
+			         "ventilation":{
+			            "state":{
+			               "actual":null
+			            },
+			            "available":null
+			         },
+			         "charging":null,
+			         "grid_current_limit":null
+			      }
+			   }
+			}
+			""";
+
 }

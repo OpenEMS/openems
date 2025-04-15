@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.scheduler.api.test.DummyScheduler;
 
@@ -48,7 +49,8 @@ public class UtilsTest {
 		final var scheduler = new DummyScheduler("scheduler0") //
 				.setControllers("d", "f", null, "b");
 		final var list = Stream.of("a", "b", "c", "d", "e") //
-				.<EnergySchedulable>map(id -> new DummyEnergySchedulable(id, null)) //
+				.<EnergySchedulable>map(
+						id -> new DummyEnergySchedulable<EnergyScheduleHandler>("Controller.Dummy", id, (cmp) -> null)) //
 				.toList();
 
 		var result = sortByScheduler(scheduler, list).stream() //

@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -217,7 +218,9 @@ public final class UrlBuilder {
 			if (!this.path.startsWith("/")) {
 				url.append("/");
 			}
-			url.append(this.path);
+			url.append(Arrays.stream(this.path.split("/")) //
+					.map(UrlBuilder::encode) //
+					.collect(joining("/")));
 		}
 
 		if (!this.queryParams.isEmpty()) {

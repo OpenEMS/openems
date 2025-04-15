@@ -1,6 +1,10 @@
 package io.openems.common.jsonrpc.request;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +19,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.serialization.JsonElementPath;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -50,12 +56,58 @@ public class GetEdgesRequest extends JsonrpcRequest {
 		private final SearchParams searchParams;
 		private final String query;
 
+		/**
+		 * Returns a {@link JsonSerializer} for a
+		 * {@link GetEdgesRequest.PaginationOptions.SearchParams}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<GetEdgesRequest.PaginationOptions> serializer() {
+			return jsonObjectSerializer(GetEdgesRequest.PaginationOptions.class, //
+					json -> new GetEdgesRequest.PaginationOptions(//
+							json.getInt("page"), //
+							json.getOptionalInt("limit").orElse(DEFAULT_LIMIT), //
+							json.getString("query"), //
+							json.getObject("searchParams", SearchParams.serializer())), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("page", obj.page) //
+							.addProperty("limit", obj.limit) //
+							.addProperty("query", obj.query) //
+							.add("searchParams", SearchParams.serializer().serialize(obj.searchParams)) //
+							.build());
+		}
+
 		public record SearchParams(//
 				List<String> productTypes, //
 				List<Level> sumStates, //
 				boolean searchIsOnline, //
 				boolean isOnline //
 		) {
+			/**
+			 * Returns a {@link JsonSerializer} for a
+			 * {@link GetEdgesRequest.PaginationOptions.SearchParams}.
+			 * 
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<GetEdgesRequest.PaginationOptions.SearchParams> serializer() {
+				return jsonObjectSerializer(GetEdgesRequest.PaginationOptions.SearchParams.class, json -> {
+					final var isOnline = json.getBooleanPathNullable("isOnline");
+					return new GetEdgesRequest.PaginationOptions.SearchParams(//
+							json.getList("producttype", JsonElementPath::getAsString), //
+							json.getJsonArrayPath("sumState").collect(mapping(t -> t.getAsEnum(Level.class), toList())), //
+							isOnline.isPresent(), //
+							isOnline.getOrDefault(false));
+				}, obj -> JsonUtils.buildJsonObject() //
+						.add("producttype", obj.productTypes().stream() //
+								.map(JsonPrimitive::new) //
+								.collect(toJsonArray()))
+						.add("sumState", obj.sumStates().stream() //
+								.map(Level::name) //
+								.map(JsonPrimitive::new) //
+								.collect(toJsonArray()))
+						.onlyIf(obj.searchIsOnline(), t -> t.addProperty("isOnline", obj.isOnline())) //
+						.build());
+			}
 
 			/**
 			 * Creates a {@link SearchParams} from a {@link JsonObject}.
@@ -119,7 +171,7 @@ public class GetEdgesRequest extends JsonrpcRequest {
 			return new PaginationOptions(page, limit, query, searchParams);
 		}
 
-		private PaginationOptions(int page, int limit, String query, SearchParams searchParams) {
+		public PaginationOptions(int page, int limit, String query, SearchParams searchParams) {
 			this.page = page;
 			this.limit = limit;
 			this.query = query;

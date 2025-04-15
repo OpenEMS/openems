@@ -5,7 +5,7 @@
         </ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline"></ion-icon>
+                <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -16,7 +16,7 @@
             <ion-label translate>
                 Edge.Index.Widgets.EVCS.Administration.renaultZoe
             </ion-label>
-            <ion-toggle [checked]="isCheckedZoe" (ionChange)="updateZoeMode($event)">
+            <ion-toggle mode="md" [checked]="isCheckedZoe" (ionChange)="updateZoeMode($event)">
             </ion-toggle>
         </ion-item>
     </ion-card-content>

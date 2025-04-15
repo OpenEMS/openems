@@ -30,7 +30,7 @@
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\
-	bnd.identity;id='org.apache.felix.http.jetty',\
+	bnd.identity;id='org.apache.felix.http.jetty12',\
 	bnd.identity;id='org.apache.felix.http.servlet-api',\
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
@@ -67,6 +67,7 @@
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
 	bnd.identity;id='io.openems.edge.controller.channelthreshold',\
 	bnd.identity;id='io.openems.edge.controller.chp.soc',\
+	bnd.identity;id='io.openems.edge.controller.cleverpv',\
 	bnd.identity;id='io.openems.edge.controller.debug.detailedlog',\
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
@@ -91,6 +92,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.timeofusetariff',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
+	bnd.identity;id='io.openems.edge.controller.evse',\
 	bnd.identity;id='io.openems.edge.controller.generic.jsonlogic',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
@@ -100,6 +102,7 @@
 	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
+	bnd.identity;id='io.openems.edge.controller.levl',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
@@ -125,6 +128,7 @@
 	bnd.identity;id='io.openems.edge.evcs.dezony',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
+	bnd.identity;id='io.openems.edge.evcs.heidelberg',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.evcs.mennekes',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
@@ -134,6 +138,8 @@
 	bnd.identity;id='io.openems.edge.evcs.spelsberg',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
+	bnd.identity;id='io.openems.edge.evse.chargepoint.keba',\
+	bnd.identity;id='io.openems.edge.evse.electricvehicle.generic',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
@@ -155,7 +161,7 @@
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
 	bnd.identity;id='io.openems.edge.meter.bgetech',\
 	bnd.identity;id='io.openems.edge.meter.camillebauer.aplus',\
-	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
+	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.eastron',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
@@ -195,23 +201,24 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.groupe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.hassfurt',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.manual',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-	
+
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
-	bcpkix;version='[1.79.0,1.79.1)',\
-	bcprov;version='[1.79.0,1.79.1)',\
-	bcutil;version='[1.79.0,1.79.1)',\
+	bcpkix;version='[1.80.0,1.80.1)',\
+	bcprov;version='[1.80.0,1.80.1)',\
+	bcutil;version='[1.80.0,1.80.1)',\
 	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
 	com.fazecast.jSerialComm;version='[2.10.4,2.10.5)',\
 	com.ghgande.j2mod;version='[3.2.1,3.2.2)',\
-	com.google.gson;version='[2.11.0,2.11.1)',\
-	com.google.guava;version='[33.4.0,33.4.1)',\
-	com.google.guava.failureaccess;version='[1.0.2,1.0.3)',\
-	com.squareup.okio;version='[3.10.0,3.10.1)',\
-	com.sun.jna;version='[5.16.0,5.16.1)',\
+	com.google.gson;version='[2.13.0,2.13.1)',\
+	com.google.guava;version='[33.4.8,33.4.9)',\
+	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
+	com.squareup.okio;version='[3.11.0,3.11.1)',\
+	com.sun.jna;version='[5.17.0,5.17.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
@@ -245,6 +252,7 @@
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.chp.soc;version=snapshot,\
+	io.openems.edge.controller.cleverpv;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
@@ -269,6 +277,7 @@
 	io.openems.edge.controller.ess.timeofusetariff;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
+	io.openems.edge.controller.evse;version=snapshot,\
 	io.openems.edge.controller.generic.jsonlogic;version=snapshot,\
 	io.openems.edge.controller.highloadtimeslot;version=snapshot,\
 	io.openems.edge.controller.io.alarm;version=snapshot,\
@@ -278,6 +287,7 @@
 	io.openems.edge.controller.io.heating.room;version=snapshot,\
 	io.openems.edge.controller.io.heatingelement;version=snapshot,\
 	io.openems.edge.controller.io.heatpump.sgready;version=snapshot,\
+	io.openems.edge.controller.levl;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\
@@ -306,6 +316,7 @@
 	io.openems.edge.evcs.dezony;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
+	io.openems.edge.evcs.heidelberg;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.evcs.mennekes;version=snapshot,\
 	io.openems.edge.evcs.ocpp.abl;version=snapshot,\
@@ -315,6 +326,9 @@
 	io.openems.edge.evcs.spelsberg;version=snapshot,\
 	io.openems.edge.evcs.webasto.next;version=snapshot,\
 	io.openems.edge.evcs.webasto.unite;version=snapshot,\
+	io.openems.edge.evse.api;version=snapshot,\
+	io.openems.edge.evse.chargepoint.keba;version=snapshot,\
+	io.openems.edge.evse.electricvehicle.generic;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
@@ -338,7 +352,7 @@
 	io.openems.edge.meter.bcontrol.em300;version=snapshot,\
 	io.openems.edge.meter.bgetech;version=snapshot,\
 	io.openems.edge.meter.camillebauer.aplus;version=snapshot,\
-	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
+	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.eastron;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
@@ -384,6 +398,7 @@
 	io.openems.edge.timeofusetariff.entsoe;version=snapshot,\
 	io.openems.edge.timeofusetariff.groupe;version=snapshot,\
 	io.openems.edge.timeofusetariff.hassfurt;version=snapshot,\
+	io.openems.edge.timeofusetariff.manual;version=snapshot,\
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
 	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
@@ -418,25 +433,25 @@
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty;version='[5.1.26,5.1.27)',\
+	org.apache.felix.http.jetty12;version='[1.0.26,1.0.27)',\
 	org.apache.felix.http.servlet-api;version='[3.0.0,3.0.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.12,2.2.13)',\
-	org.apache.felix.webconsole;version='[5.0.8,5.0.9)',\
+	org.apache.felix.webconsole;version='[5.0.10,5.0.11)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.eclipse.jetty.client;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.http;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.1.0,2.1.1)',\
-	org.jsoup;version='[1.18.3,1.18.4)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.1.20,2.1.21)',\
+	org.jsoup;version='[1.19.1,1.19.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.2.7,2.2.8)',\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.7,2.2.8)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.3.0,2.3.1)',\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.0,2.3.1)',\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\

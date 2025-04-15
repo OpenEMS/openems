@@ -1,9 +1,13 @@
 package io.openems.edge.evcs.keba.kecontact;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
-import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCount;
+import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
+import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Status.CHARGING;
 import static java.lang.Math.round;
@@ -21,8 +25,8 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.PhaseRotation.RotatedPhases;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.keba.common.R2Plug;
 
 /**
  * Handles replies to Report Queries sent by {@link ReadWorker}.
@@ -31,6 +35,7 @@ public class ReadHandler implements Consumer<String> {
 
 	private final Logger log = LoggerFactory.getLogger(ReadHandler.class);
 	private final EvcsKebaKeContactImpl parent;
+	private final EnergySessionHandler energySessionHandler = new EnergySessionHandler();
 
 	private boolean receiveReport1 = false;
 	private boolean receiveReport2 = false;
@@ -98,45 +103,35 @@ public class ReadHandler implements Consumer<String> {
 		 */
 		case "2" -> {
 			this.receiveReport2 = true;
-			this.setInt(EvcsKebaKeContact.ChannelId.STATUS_KEBA, j, "State");
+
+			// Parse Status and Plug immediately
+			this.setInt(EvcsKebaKeContact.ChannelId.R2_STATE, j, "State");
+			final R2State r2State = keba.channel(EvcsKebaKeContact.ChannelId.R2_STATE).getNextValue().asEnum();
+			final R2Plug r2Plug = this.setPlug(j);
 
 			// Value "setenergy" not used, because it is reset by the currtime 0 1 command
 
 			// Set Evcs status
-			Channel<Status> stateChannel = keba.channel(EvcsKebaKeContact.ChannelId.STATUS_KEBA);
-			Channel<Plug> plugChannel = keba.channel(EvcsKebaKeContact.ChannelId.PLUG);
+			var status = switch (r2Plug) {
+			case PLUGGED_ON_EVCS, PLUGGED_ON_EVCS_AND_LOCKED, PLUGGED_ON_EVCS_AND_ON_EV, UNDEFINED, UNPLUGGED //
+				-> Status.NOT_READY_FOR_CHARGING;
 
-			Plug plug = plugChannel.value().asEnum();
-			Status status = stateChannel.value().asEnum();
-			if (plug.equals(Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED)) {
-
-				// Charging is rejected (by the Software) if the plug is connected but the EVCS
-				// still not ready for charging.
-				if (status.equals(Status.NOT_READY_FOR_CHARGING)) {
-					status = Status.CHARGING_REJECTED;
-				}
-
+			case PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED -> {
 				/*
 				 * Check if the maximum energy limit is reached, informs the user and sets the
 				 * status
 				 */
-				int limit = keba.getSetEnergyLimit().orElse(0);
-				int energy = keba.getEnergySession().orElse(0);
-				if (energy >= limit && limit != 0) {
-					status = Status.ENERGY_LIMIT_REACHED;
-				}
-			} else {
-				// Plug not fully connected
-				status = Status.NOT_READY_FOR_CHARGING;
+				var limit = keba.getSetEnergyLimit().get();
+				var energy = keba.getEnergySession().get();
+				yield getStatus(r2State, limit, energy);
 			}
+			};
 
 			keba._setStatus(status);
-			var errorState = status == Status.ERROR == true;
-			keba.channel(EvcsKebaKeContact.ChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(errorState);
+			keba.channel(EvcsKebaKeContact.ChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(status == Status.ERROR);
 
 			this.setInt(EvcsKebaKeContact.ChannelId.ERROR_1, j, "Error1");
 			this.setInt(EvcsKebaKeContact.ChannelId.ERROR_2, j, "Error2");
-			this.setInt(EvcsKebaKeContact.ChannelId.PLUG, j, "Plug");
 			this.setBoolean(EvcsKebaKeContact.ChannelId.ENABLE_SYS, j, "Enable sys");
 			this.setBoolean(EvcsKebaKeContact.ChannelId.ENABLE_USER, j, "Enable user");
 			this.setInt(EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, j, "Max curr %");
@@ -174,23 +169,13 @@ public class ReadHandler implements Consumer<String> {
 					.map(p -> p / 1000) // convert [mW] to [W]
 					.orElse(null);
 			keba._setActivePower(activePower);
-
-			// Round power per phase and apply rotated phases
 			var appp = ActivePowerPerPhase.from(activePower, //
 					voltageL1, currentL1, voltageL2, currentL2, voltageL3, currentL3);
-			var rp = RotatedPhases.from(keba.config.phaseRotation(), //
-					voltageL1, currentL1, appp.activePowerL1, //
-					voltageL2, currentL2, appp.activePowerL2, //
-					voltageL3, currentL3, appp.activePowerL3);
-			keba._setVoltageL1(rp.voltageL1());
-			keba._setVoltageL2(rp.voltageL2());
-			keba._setVoltageL3(rp.voltageL3());
-			keba._setCurrentL1(rp.currentL1());
-			keba._setCurrentL2(rp.currentL2());
-			keba._setCurrentL3(rp.currentL3());
-			keba._setActivePowerL1(rp.activePowerL1());
-			keba._setActivePowerL2(rp.activePowerL2());
-			keba._setActivePowerL3(rp.activePowerL3());
+
+			// Round power per phase and apply rotated phases
+			setPhaseRotatedVoltageChannels(keba, voltageL1, voltageL2, voltageL3);
+			setPhaseRotatedCurrentChannels(keba, currentL1, currentL2, currentL3);
+			setPhaseRotatedActivePowerChannels(keba, appp.activePowerL1, appp.activePowerL2, appp.activePowerL3);
 
 			// Energy
 			keba._setActiveProductionEnergy(//
@@ -198,14 +183,15 @@ public class ReadHandler implements Consumer<String> {
 							.map(e -> round(e * 0.1F)) //
 							.orElse(null));
 			keba._setEnergySession(//
-					getAsOptionalInt(j, "E pres") //
-							.map(e -> round(e * 0.1F)) //
-							.orElse(null));
+					this.energySessionHandler.updateFromReport3(//
+							getAsOptionalInt(j, "E pres") //
+									.map(e -> round(e * 0.1F)) //
+									.orElse(null)));
 
 			// TODO use COS_PHI to calculate ReactivePower
 			this.setInt(EvcsKebaKeContact.ChannelId.COS_PHI, j, "PF");
 
-			final var phases = evaluatePhaseCount(appp.activePowerL1, appp.activePowerL2, appp.activePowerL3);
+			final var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
 			keba._setPhases(phases);
 			if (phases != null) {
 				keba.logInfoInDebugmode(this.log, "Used phases: " + phases);
@@ -240,10 +226,10 @@ public class ReadHandler implements Consumer<String> {
 		 */
 		default -> {
 			if (j.has("State")) {
-				this.setInt(EvcsKebaKeContact.ChannelId.STATUS_KEBA, j, "State");
+				this.setInt(EvcsKebaKeContact.ChannelId.R2_STATE, j, "State");
 			}
 			if (j.has("Plug")) {
-				this.setInt(EvcsKebaKeContact.ChannelId.PLUG, j, "Plug");
+				this.setPlug(j);
 			}
 			if (j.has("Input")) {
 				this.setBoolean(EvcsKebaKeContact.ChannelId.INPUT, j, "Input");
@@ -259,6 +245,28 @@ public class ReadHandler implements Consumer<String> {
 			}
 		}
 		}
+	}
+
+	/**
+	 * Calculates the Status based on the raw status and energylimit.
+	 * 
+	 * @param r2State the r2 state
+	 * @param limit   the set energy limit
+	 * @param energy  the current energy session
+	 * @return the mapped Status
+	 */
+	public static Status getStatus(R2State r2State, Integer limit, Integer energy) {
+		if (limit != null && energy != null && energy >= limit && limit != 0) {
+			return Status.ENERGY_LIMIT_REACHED;
+		}
+		return switch (r2State) {
+		case UNDEFINED -> Status.UNDEFINED;
+		case STARTUP -> Status.STARTING;
+		case NOT_READY -> Status.NOT_READY_FOR_CHARGING;
+		case INTERRUPTED, READY -> Status.READY_FOR_CHARGING;
+		case CHARGING -> Status.CHARGING;
+		case ERROR -> Status.ERROR;
+		};
 	}
 
 	public record ActivePowerPerPhase(Integer activePowerL1, Integer activePowerL2, Integer activePowerL3) {
@@ -384,6 +392,14 @@ public class ReadHandler implements Consumer<String> {
 		this.set(channelId, getAsOptionalString(jMessage, name).orElse(null));
 	}
 
+	private R2Plug setPlug(JsonObject jMessage) {
+		final var channelId = EvcsKebaKeContact.ChannelId.R2_PLUG;
+		this.setInt(channelId, jMessage, "Plug");
+		final R2Plug r2Plug = this.parent.channel(channelId).getNextValue().asEnum();
+		this.energySessionHandler.updatePlug(r2Plug);
+		return r2Plug;
+	}
+
 	private void setInt(ChannelId channelId, JsonObject jMessage, String name) {
 		this.set(channelId, getAsOptionalInt(jMessage, name).orElse(null));
 	}
@@ -422,5 +438,37 @@ public class ReadHandler implements Consumer<String> {
 			break;
 		}
 		return result;
+	}
+
+	protected static class EnergySessionHandler {
+		private R2Plug r2Plug = R2Plug.UNDEFINED;
+		private Integer ePresOnUnplugged = null;
+
+		protected synchronized void updatePlug(R2Plug r2Plug) {
+			this.r2Plug = r2Plug;
+		}
+
+		public synchronized Integer updateFromReport3(Integer ePres) {
+			switch (this.r2Plug) {
+			case UNPLUGGED, // no cable
+					PLUGGED_ON_EVCS, PLUGGED_ON_EVCS_AND_LOCKED // not plugged on EV
+				-> this.ePresOnUnplugged = ePres > 0 ? ePres : null;
+			case UNDEFINED, // unsure
+					PLUGGED_ON_EVCS_AND_ON_EV, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED // plugged on EV
+				-> doNothing();
+			}
+			if (this.ePresOnUnplugged == null) {
+				return ePres;
+			}
+			if (ePres == null) {
+				return null;
+			}
+			if (this.ePresOnUnplugged <= ePres) {
+				return null;
+			}
+			// reset
+			this.ePresOnUnplugged = null;
+			return ePres;
+		}
 	}
 }

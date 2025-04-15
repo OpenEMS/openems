@@ -27,7 +27,7 @@ public class DummyPower implements Power {
 	 * filter.
 	 */
 	public DummyPower() {
-		this(Integer.MAX_VALUE, new DisabledPidFilter());
+		this(Integer.MAX_VALUE, DisabledPidFilter.INSTANCE);
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class DummyPower implements Power {
 	 * @param maxApparentPower the MaxApparentPower
 	 */
 	public DummyPower(int maxApparentPower) {
-		this(maxApparentPower, new DisabledPidFilter());
+		this(maxApparentPower, DisabledPidFilter.INSTANCE);
 	}
 
 	public DummyPower(int maxApparentPower, PidFilter pidFilter) {
@@ -107,7 +107,7 @@ public class DummyPower implements Power {
 	@Override
 	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
 		var result = this.maxApparentPower;
-		for (ManagedSymmetricEss e : this.esss) {
+		for (var e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(), e.getAllowedDischargePower().get());
 		}
 		return result;
@@ -116,7 +116,7 @@ public class DummyPower implements Power {
 	@Override
 	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
 		var result = this.maxApparentPower;
-		for (ManagedSymmetricEss e : this.esss) {
+		for (var e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(),
 					TypeUtils.multiply(e.getAllowedChargePower().get(), -1));
 		}
@@ -135,11 +135,6 @@ public class DummyPower implements Power {
 
 	@Override
 	public boolean isPidEnabled() {
-		if (this.pidFilter instanceof DisabledPidFilter) {
-			return false;
-		}
-
-		return true;
+		return !(this.pidFilter instanceof DisabledPidFilter);
 	}
-
 }
