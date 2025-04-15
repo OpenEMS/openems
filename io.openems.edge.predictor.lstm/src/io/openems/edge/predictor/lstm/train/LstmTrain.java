@@ -93,14 +93,13 @@ public class LstmTrain implements Runnable {
 		// Get the validationDate
 		var validationDate = this.getDate(validateMap);
 
-		/**
-		 * TODO Read an save model.adapt method ReadAndSaveModels.adapt(hyperParameters,
-		 * validateBatchData, validateBatchDate);
-		 */
-		new TrainAndValidateBatch(//
-				constantScaling(removeNegatives(trainingData), 1), trainingDate, //
-				constantScaling(removeNegatives(validationData), 1), validationDate, //
-				hyperParameters);
+		// --- Adapt the model based on validation data before training ---
+		// We use the preprocessed validation data for adaptation.
+		ReadAndSaveModels.adapt(hyperParameters, constantScaling(removeNegatives(validationData), 1), validationDate);
+
+		// Perform training and validation in batch
+		new TrainAndValidateBatch(constantScaling(removeNegatives(trainingData), 1), trainingDate,
+				constantScaling(removeNegatives(validationData), 1), validationDate, hyperParameters);
 
 		this.parent._setLastTrainedTime(hyperParameters.getLastTrainedDate().toInstant().toEpochMilli());
 		this.parent._setModelError(Collections.min(hyperParameters.getRmsErrorSeasonality()));
