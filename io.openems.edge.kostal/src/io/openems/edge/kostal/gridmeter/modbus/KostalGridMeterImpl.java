@@ -195,7 +195,7 @@ public class KostalGridMeterImpl extends AbstractOpenemsModbusComponent
 			// Not available
 			this.calculateProductionEnergy.update(null);
 			this.calculateConsumptionEnergy.update(null);
-		} else if (activePower > 0) {
+		} else if (activePower < 0) {
 			this.calculateProductionEnergy.update(activePower);
 			this.calculateConsumptionEnergy.update(0);
 		} else {
