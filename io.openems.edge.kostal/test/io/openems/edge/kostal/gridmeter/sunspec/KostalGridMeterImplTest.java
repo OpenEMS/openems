@@ -1,8 +1,9 @@
-package io.openems.edge.kostal.gridmeter;
+package io.openems.edge.kostal.gridmeter.sunspec;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+
 import org.junit.Test;
 
 public class KostalGridMeterImplTest {

@@ -23,6 +23,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private MeterType type;
 		public int minsoc;
 		public int watchdog;
+		public boolean debugMode;
 
 		private Builder() {
 		}
@@ -82,6 +83,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setDebugMode(boolean debugMode) {
+			this.debugMode = debugMode;
+			return this;
+		}
+		
 		// public Builder setControllerTarget(String controller_target) {
 		// this.controller_target = controller_target;
 		// return this;
@@ -162,6 +168,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String ctrl_target() {
 		return this.builder.ctrl_target;
+	}
+
+	@Override
+	public boolean debugMode() {
+		return this.builder.debugMode;
 	}
 
 	// @Override

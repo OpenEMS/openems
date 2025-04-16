@@ -1,4 +1,4 @@
-package io.openems.edge.kostal.gridmeter;
+package io.openems.edge.kostal.gridmeter.sunspec;
 
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Doc;

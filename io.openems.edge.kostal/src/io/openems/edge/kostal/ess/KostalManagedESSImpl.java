@@ -185,9 +185,11 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 		// evaluate controller on smart control mode
 		if (this.controlMode == ControlMode.SMART && this.ctrl != null) {
-			System.out.println("Evaluating control mode");
+			if (config.debugMode())
+				System.out.println("Evaluating control mode");
 			mode = ctrl.getStateMachine().getValue();
-			System.out.println("evaluated to: " + mode);
+			if (config.debugMode())
+				System.out.println("evaluated to: " + mode);
 		}
 
 		// Read-only mode -> switch to max. self consumption automatic
@@ -197,26 +199,35 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			if (this.mode >= 0 && this.controlMode == ControlMode.SMART
 					&& mode == StateMachine.BALANCING.getValue()) {
 				// TODO remove syso
-				System.out.println("skipped - balancing mode");
-				System.out.println("Controller: " + ctrl);
+				if (config.debugMode()) {
+					System.out.println("skipped - balancing mode");
+					System.out.println("Controller: " + ctrl);
+				}
 				return;
 			} else {
 				if (this.mode >= 0 && this.controlMode == ControlMode.SMART) {
 					// TODO remove syso
-					System.out.println("smart - no balancing mode");
-					System.out.println("Controller: " + ctrl);
+					if (config.debugMode()) {
+						System.out.println("smart - no balancing mode");
+						System.out.println("Controller: " + ctrl);
+					}
 				} else {
 					if (this.controlMode == ControlMode.SMART) {
 						// TODO remove syso
-						System.out.println("smart - with errors - skipping");
-						System.out.println("Controller: " + ctrl);
-						System.out.println("ControlMode: " + mode);
+						if (config.debugMode()) {
+							System.out
+									.println("smart - with errors - skipping");
+							System.out.println("Controller: " + ctrl);
+							System.out.println("ControlMode: " + mode);
+						}
 						return;
 					} else {
 						// no smart mode
 						// TODO remove syso
-						System.out.println("configured ControlMode: "
-								+ config.controlMode());
+						if (config.debugMode()) {
+							System.out.println("configured ControlMode: "
+									+ config.controlMode());
+						}
 					}
 				}
 			}
@@ -228,7 +239,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 							.getSeconds() < WATCHDOG_SECONDS) {
 				// no need to apply to new set-point
 				// TODO remove syso
-				System.out.println("skipped - wait for expiring watchdog");
+				if (config.debugMode())
+					System.out.println("skipped - wait for expiring watchdog");
 				return;
 			}
 
@@ -248,7 +260,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				this.lastApplyPower = Instant.now();
 
 				// TODO remove...
-				System.out.println("--> activePowerWanted: " + activePower);
+				if (config.debugMode())
+					System.out.println("--> activePowerWanted: " + activePower);
 			}
 		} else {
 			lastSetPower = null;
@@ -308,7 +321,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 										.wordOrder(LSWMSW)),
 						m(KostalManagedESS.ChannelId.BATTERY_VOLTAGE,
 								new FloatDoublewordElement(216)
-										.wordOrder(LSWMSW), SCALE_FACTOR_3)),
+										.wordOrder(LSWMSW),
+								SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(531, Priority.LOW,
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
 								new UnsignedWordElement(531))),
@@ -405,14 +419,18 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
-				System.out.print("== update values before process image ==");
+				if (config.debugMode())
+					System.out
+							.print("== update values before process image ==");
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
-				System.out.print("== update values after process image ==");
+				if (config.debugMode())
+					System.out.print("== update values after process image ==");
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
-				System.out.print(
-						"== update values topic cycle before controllers ==");
+				if (config.debugMode())
+					System.out.print(
+							"== update values topic cycle before controllers ==");
 				this.setLimits();
 				break;
 		}
@@ -450,7 +468,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		} catch (NullPointerException e) {
 			// Handle potential null values gracefully
 		}
-		System.out.println("--> set limits: " + maxDischargePower + " / "
-				+ maxChargePower);
+		if (config.debugMode()) {
+			System.out.println("--> set limits: " + maxDischargePower + " / "
+					+ maxChargePower);
+		}
 	}
 }

@@ -19,7 +19,6 @@ import io.openems.edge.kostal.enums.EnergyManagerMode;
 import io.openems.edge.kostal.enums.FuseState;
 import io.openems.edge.kostal.enums.InverterState;
 import io.openems.edge.kostal.enums.SensorType;
-import io.openems.edge.kostal.ess2.KostalManagedEss.ChannelId;
 
 public interface KostalManagedESS
 		extends

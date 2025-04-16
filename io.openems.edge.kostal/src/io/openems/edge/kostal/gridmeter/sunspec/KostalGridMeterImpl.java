@@ -1,4 +1,4 @@
-package io.openems.edge.kostal.gridmeter;
+package io.openems.edge.kostal.gridmeter.sunspec;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
@@ -64,6 +64,7 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_120, Priority.HIGH) //
 			.put(DefaultSunSpecModel.S_203, Priority.HIGH) //
+			//.put(DefaultSunSpecModel.S_213, Priority.HIGH) //
 			.build();
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -140,14 +141,14 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 				S204.V_A_RPH_C, S203.V_A_RPH_C, S202.V_A_RPH_C, S201.V_A_RPH_C);
 		this.mapFirstPointToChannel(
 				//
-				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 				SCALE_FACTOR_3, //
 				S204.TOT_WH_EXP, S203.TOT_WH_EXP, S202.TOT_WH_EXP,
 				S201.TOT_WH_EXP);
 		this.mapFirstPointToChannel(
 				//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
-				SCALE_FACTOR_3, //
+				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				SCALE_FACTOR_3,
 				S204.TOT_WH_IMP, S203.TOT_WH_IMP, S202.TOT_WH_IMP,
 				S201.TOT_WH_IMP);
 		

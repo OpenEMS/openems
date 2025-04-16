@@ -162,8 +162,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			this._setMaxChargePower(HW_ALLOWED_CHARGE_POWER * -1);
 
 			if (isManaged()) {
-				System.out
-						.println("--> initially setting charge power to zero");
+				if (config.debugMode())
+					System.out.println(
+							"--> initially setting charge power to zero");
 				try {
 					// initialize
 					this.applyPower(0, 0);
@@ -206,7 +207,8 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 		// evaluate controller on smart control mode
 		if (this.controlMode == ControlMode.SMART && this.ctrl != null) {
-			System.out.println("Evaluating control mode");
+			if (config.debugMode())
+				System.out.println("Evaluating control mode");
 			mode = ctrl.getStateMachine().getValue();
 			System.out.println("evaluated to: " + mode);
 		}
@@ -218,26 +220,35 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			if (this.mode >= 0 && this.controlMode == ControlMode.SMART
 					&& mode == StateMachine.BALANCING.getValue()) {
 				// TODO remove syso
-				System.out.println("skipped - balancing mode");
-				System.out.println("Controller: " + ctrl);
+				if (config.debugMode()) {
+					System.out.println("skipped - balancing mode");
+					System.out.println("Controller: " + ctrl);
+				}
 				return;
 			} else {
 				if (this.mode >= 0 && this.controlMode == ControlMode.SMART) {
 					// TODO remove syso
-					System.out.println("smart - no balancing mode");
-					System.out.println("Controller: " + ctrl);
+					if (config.debugMode()) {
+						System.out.println("smart - no balancing mode");
+						System.out.println("Controller: " + ctrl);
+					}
 				} else {
 					if (this.controlMode == ControlMode.SMART) {
 						// TODO remove syso
-						System.out.println("smart - with errors - skipping");
-						System.out.println("Controller: " + ctrl);
-						System.out.println("ControlMode: " + mode);
+						if (config.debugMode()) {
+							System.out
+									.println("smart - with errors - skipping");
+							System.out.println("Controller: " + ctrl);
+							System.out.println("ControlMode: " + mode);
+						}
 						return;
 					} else {
 						// no smart mode
 						// TODO remove syso
-						System.out.println("configured ControlMode: "
-								+ config.controlMode());
+						if (config.debugMode()) {
+							System.out.println("configured ControlMode: "
+									+ config.controlMode());
+						}
 					}
 				}
 			}
@@ -249,7 +260,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 							.getSeconds() < WATCHDOG_SECONDS) {
 				// no need to apply to new set-point
 				// TODO remove syso
-				System.out.println("skipped - wait for expiring watchdog");
+				if (config.debugMode()) {
+					System.out.println("skipped - wait for expiring watchdog");
+				}
 				return;
 			}
 
@@ -272,7 +285,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 						// TODO testing - realization depends on controller
 						// order
 						// (by scheduler)
-						System.out.println("old value: " + powerValue);
+						if (config.debugMode()) {
+							System.out.println("old value: " + powerValue);
+						}
 
 					} catch (NullPointerException e) {
 						e.printStackTrace();
@@ -290,8 +305,10 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				this.lastApplyPower = Instant.now();
 
 				// TODO remove...
-				System.out
-						.println("--> activePowerWanted: " + activePowerWanted);
+				if (config.debugMode()) {
+					System.out.println(
+							"--> activePowerWanted: " + activePowerWanted);
+				}
 			}
 		} else {
 			lastSetPower = null;
@@ -488,13 +505,17 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE :
-				System.out
-						.print("== update values topic cycle execute write ==");
+				if (config.debugMode()) {
+					System.out.print(
+							"== update values topic cycle execute write ==");
+				}
 				// this._setMyActivePower();
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
-				System.out.print(
-						"== update values topic cycle before controllers ==");
+				if (config.debugMode()) {
+					System.out.print(
+							"== update values topic cycle before controllers ==");
+				}
 				this.setLimits();
 				break;
 		}
@@ -520,8 +541,11 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		} catch (NullPointerException e) {
 			// e.printStackTrace();
 		}
-		System.out.println("--> set limits: " + maxDischargePower + " / "
-				+ maxChargePower);
+		if (config.debugMode()) {
+			// TODO remove syso
+			System.out.println("--> set limits: " + maxDischargePower + " / "
+					+ maxChargePower);
+		}
 	}
 
 	@Override
