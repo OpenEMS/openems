@@ -1,11 +1,11 @@
-package io.openems.edge.kostal.gridmeter.sunspec;
+package io.openems.edge.kostal.gridmeter.modbus;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(
   name = "Meter KSEM-Inverter", //
-  description = "Implements the Kostal Smart Energy Meter via inverter (sunspec model 203)."
+  description = "Implements the Kostal Smart Energy Meter (modbus)."
 )
 @interface Config {
   @AttributeDefinition(
@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     description = "Is this Component enabled?"
   )
   boolean enabled() default true;
-
+  
   @AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
   String modbus_id() default "modbus0";
 
@@ -34,6 +34,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     description = "The Unit-ID of the Modbus device. "
   )
   int modbusUnitId() default 71;
+  
+//  @AttributeDefinition(name = "word-wrap", description = "using word-wrap conversion")
+//  boolean wordwrap() default true;
 
   @AttributeDefinition(
     name = "Modbus target filter",

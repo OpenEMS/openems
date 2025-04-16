@@ -22,6 +22,7 @@ public class KostalManagedESSImplTest {
 	          //.setInverter_id("pvInverter0")
 	          .setCtrlId("ctrlEssTimeOfUseTariff1")
 	          .setModbusUnitId(71) //
+	          .setDebugMode(true)
 	          .build()
 	      ); //
 	  }

@@ -1,9 +1,9 @@
-package io.openems.edge.kostal.gridmeter.sunspec;
+package io.openems.edge.kostal.gridmeter.modbus;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.kostal.gridmeter.sunspec.Config;
+import io.openems.edge.kostal.gridmeter.modbus.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
