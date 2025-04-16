@@ -116,6 +116,17 @@ public abstract class AbstractWorker {
 	protected abstract int getCycleTime();
 
 	/**
+	 * Returns the minimum sleep time between two cycles. This avoids tasks
+	 * to run immediately after each other, eg. forces a break between two
+	 * modbus reads.
+	 *
+	 * @return sleep time in ms
+	 */
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	/**
 	 * Allows the next execution of the forever() method.
 	 */
 	public void triggerNextRun() {
@@ -133,15 +144,25 @@ public abstract class AbstractWorker {
 					 * Wait for next cycle
 					 */
 					var cycleTime = AbstractWorker.this.getCycleTime();
+					var minSleepTime = AbstractWorker.this.getMinSleepTime();
+
 					if (cycleTime == AbstractWorker.DO_NOT_WAIT) {
-						// no wait
+
+						// no wait, only minSleepTime
+						if (minSleepTime > 0) {
+							AbstractWorker.this.cycleMutex.awaitOrTimeout(minSleepTime, TimeUnit.MILLISECONDS);
+						}
+
 					} else if (cycleTime > 0) {
-						// wait remaining cycleTime
-						var sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
+
+						// wait remaining cycleTime, at least minSleepTime
+						var sleep = Math.max(minSleepTime, cycleTime - (System.currentTimeMillis() - cycleStart));
+
 						if (sleep > 0) {
 							AbstractWorker.this.cycleMutex.awaitOrTimeout(sleep, TimeUnit.MILLISECONDS);
 						}
 					} else { // < 0 (ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN)
+
 						// wait till next run is triggered
 						AbstractWorker.this.cycleMutex.await();
 					}

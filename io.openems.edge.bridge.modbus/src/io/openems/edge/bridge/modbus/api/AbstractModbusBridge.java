@@ -92,6 +92,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	}
 
 	private void applyConfig(Config config) {
+		this.worker.setCycleTime(config.cycleTime);
+		this.worker.setMinSleepTime(config.minSleepTime);
 		this.config = config;
 	}
 

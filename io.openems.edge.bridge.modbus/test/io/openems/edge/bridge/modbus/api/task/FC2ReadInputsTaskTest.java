@@ -33,7 +33,7 @@ public class FC2ReadInputsTaskTest {
 		response.setDiscreteStatus(0, true);
 		response.setDiscreteStatus(1, false);
 
-		assertEquals("FC2ReadCoils [device0;unitid=1;priority=HIGH;ref=10/0xa;length=2;response=10]",
+		assertEquals("FC2ReadInputsTask [device0;unitid=1;priority=HIGH;ref=10/0xa;length=2;response=10]",
 				task.toLogMessage(LogVerbosity.READS_AND_WRITES_VERBOSE, request, response));
 
 		var discretes = response.getDiscretes();
