@@ -41,5 +41,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
   )
   String Modbus_target() default "(enabled=true)";
 
-  String webconsole_configurationFactory_nameHint() default "Meter KSEM-Inverter [{id}]";
+  String webconsole_configurationFactory_nameHint() default "Meter Kostal Smart Energy Meter (KSEM) via Inverter [{id}]";
 }
