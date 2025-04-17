@@ -141,13 +141,13 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 				S204.V_A_RPH_C, S203.V_A_RPH_C, S202.V_A_RPH_C, S201.V_A_RPH_C);
 		this.mapFirstPointToChannel(
 				//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 				SCALE_FACTOR_3, //
 				S204.TOT_WH_EXP, S203.TOT_WH_EXP, S202.TOT_WH_EXP,
 				S201.TOT_WH_EXP);
 		this.mapFirstPointToChannel(
 				//
-				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 				SCALE_FACTOR_3,
 				S204.TOT_WH_IMP, S203.TOT_WH_IMP, S202.TOT_WH_IMP,
 				S201.TOT_WH_IMP);
