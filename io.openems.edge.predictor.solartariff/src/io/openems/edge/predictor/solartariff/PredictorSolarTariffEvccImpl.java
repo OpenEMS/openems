@@ -103,7 +103,7 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 				js = this.solarForecastAPI.getSolarForecast();
 				this.prevHour = currentHour;
 				this.executed = true;
-			} else if (currentHour.isAfter(this.prevHour)) {
+			} else if (this.prevHour != null && currentHour.isAfter(this.prevHour)) {
 				js = this.solarForecastAPI.getSolarForecast();
 				this.prevHour = currentHour;
 			} else {
@@ -145,8 +145,6 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 				this.channel(PredictorSolarTariffEvcc.ChannelId.PREDICT)
 						.setNextValue(hourlySolarData.firstEntry().getValue());
 
-			} else {
-				log.warn("Failed to fetch solar forecast data.");
 			}
 
 			if (hourlySolarData != null && !hourlySolarData.isEmpty()) {
