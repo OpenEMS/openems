@@ -88,7 +88,6 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	private Config config;
 
 	private Instant lastApplyPower = Instant.MIN;
-	private int cycleCounter = 60;
 	private Integer lastSetPower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -194,6 +193,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 		// Read-only mode -> switch to max. self consumption automatic
 		if (isManaged()) {
+			// ACTIVE_LIMIT(0, "Active limit"), //
+			// AVOID_LOW_CHARGING(8, "Avoid charging with low power for more efficiency"); //
 
 			// handle smart mode
 			if (this.mode >= 0 && this.controlMode == ControlMode.SMART
@@ -232,9 +233,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				}
 			}
 
-			// allow minimum writes if values does not change (zero)
+			// allow minimum writes if values not set (zero or null)
 			Instant now = Instant.now();
-			if (this.lastSetPower != null
+			if (this.lastSetPower != null && (activePower == 0)
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
 				// no need to apply to new set-point
@@ -244,12 +245,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				return;
 			}
 
-			// TODO check usage of cycleCounter... useless..?
-			this.cycleCounter++;
-			if ((this.cycleCounter >= 10) || (activePower != lastSetPower)
+			if ((activePower != lastSetPower)
 					|| Duration.between(this.lastApplyPower, now)
 							.getSeconds() >= WATCHDOG_SECONDS) {
-				this.cycleCounter = 0;
 
 				// Kostal is fine by writing one register with signed value
 				IntegerWriteChannel setActivePowerChannel = this

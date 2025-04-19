@@ -96,7 +96,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	private Config config;
 	private static int WATCHDOG_SECONDS = 30;
 
-	private int cycleCounter = 60;
 	private Integer lastSetPower;
 	private Instant lastApplyPower = Instant.MIN;
 
@@ -253,9 +252,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				}
 			}
 
-			// allow minimum writes if values does not change (zero)
+			// allow minimum writes if values is initial (null or zero)
 			Instant now = Instant.now();
-			if (this.lastSetPower != null
+			if (this.lastSetPower != null && activePowerWanted == 0
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
 				// no need to apply to new set-point
@@ -266,12 +265,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				return;
 			}
 
-			// TODO check usage of cycleCounter... useless..?
-			this.cycleCounter++;
-			if ((this.cycleCounter >= 10) || (activePowerWanted != lastSetPower)
+			if ((activePowerWanted != lastSetPower)
 					|| Duration.between(this.lastApplyPower, now)
 							.getSeconds() >= WATCHDOG_SECONDS) {
-				this.cycleCounter = 0;
 
 				if (config.debugMode()) {
 					try {
