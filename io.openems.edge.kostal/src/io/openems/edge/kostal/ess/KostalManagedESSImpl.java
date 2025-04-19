@@ -86,7 +86,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	private Config config;
 
 	private Instant lastApplyPower = Instant.MIN;
-	private Integer lastSetPower;
+	private Integer lastSetPower = 0;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timeData;
@@ -193,9 +193,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			if (this.lastSetPower != null
 					&& this.controlMode == ControlMode.SMART
 					&& lastSetPower == activePower
-					&& ((activePower == this.getMaxChargePower().get())
-							|| (activePower == this.getMaxDischargePower()
-									.get()))
+					&& (activePower == this.getMaxChargePower().get()
+							|| Math.abs(activePower) == this
+									.getMaxDischargePower().get())
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
 
@@ -207,7 +207,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			}
 
 			// write to channel if necessary (expired/changed)
-			if ((activePower != lastSetPower)
+			if (lastSetPower == null || activePower != lastSetPower
 					|| Duration.between(this.lastApplyPower, now)
 							.getSeconds() >= WATCHDOG_SECONDS) {
 
