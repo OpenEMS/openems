@@ -93,8 +93,8 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	private Config config;
 	private static int WATCHDOG_SECONDS = 30;
 
-	private Integer lastSetPower;
 	private Instant lastApplyPower = Instant.MIN;
+	private Integer lastSetPower = 0;
 
 	private ControlMode controlMode;
 	private int minsoc = 5;
@@ -217,9 +217,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			if (this.lastSetPower != null
 					&& this.controlMode == ControlMode.SMART
 					&& lastSetPower == activePowerWanted
-					&& ((activePowerWanted == this.getMaxChargePower().get())
-							|| (activePowerWanted == this.getMaxDischargePower()
-									.get()))
+					&& (activePowerWanted == this.getMaxChargePower().get()
+							|| Math.abs(activePowerWanted) == this
+									.getMaxDischargePower().get())
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
 
@@ -231,7 +231,7 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			}
 
 			// write to channel if necessary (expired/changed)
-			if ((activePowerWanted != lastSetPower)
+			if (lastSetPower == null || activePowerWanted != lastSetPower
 					|| Duration.between(this.lastApplyPower, now)
 							.getSeconds() >= WATCHDOG_SECONDS) {
 
