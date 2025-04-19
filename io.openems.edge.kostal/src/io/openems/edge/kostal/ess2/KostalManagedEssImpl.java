@@ -1,7 +1,6 @@
 package io.openems.edge.kostal.ess2;
 
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -49,8 +48,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -88,21 +85,16 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 	private final List<KostalDcCharger> chargers = new ArrayList<>();
 
-	// Hardware-Limits
+	// Hardware-Limits (safe)
 	protected static final int HW_MAX_APPARENT_POWER = 5000;
-	protected static final int HW_ALLOWED_CHARGE_POWER = -2500;
-	protected static final int HW_ALLOWED_DISCHARGE_POWER = 2500;
+	protected static final int HW_ALLOWED_CHARGE_POWER = -0;
+	protected static final int HW_ALLOWED_DISCHARGE_POWER = 0;
 
 	private Config config;
 	private static int WATCHDOG_SECONDS = 30;
 
 	private Integer lastSetPower;
 	private Instant lastApplyPower = Instant.MIN;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile TimeOfUseTariffController ctrl;
-
-	private int mode = -1;
 
 	private ControlMode controlMode;
 	private int minsoc = 5;
@@ -204,67 +196,41 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		// Using separate channel for the demanded charge/discharge power
 		this._setChargePowerWanted(activePowerWanted);
 
-		// evaluate controller on smart control mode
-		if (this.controlMode == ControlMode.SMART && this.ctrl != null) {
-			if (config.debugMode())
-				System.out.println("Evaluating control mode");
-			mode = ctrl.getStateMachine().getValue();
-			System.out.println("evaluated to: " + mode);
-		}
-
-		// Read-only mode -> switch to max. self consumption automatic
-		if (isManaged()) {
-
-			// handle smart mode
-			if (this.mode >= 0 && this.controlMode == ControlMode.SMART
-					&& mode == StateMachine.BALANCING.getValue()) {
-				// TODO remove syso
-				if (config.debugMode()) {
-					System.out.println("skipped - balancing mode");
-					System.out.println("Controller: " + ctrl);
-				}
-				return;
-			} else {
-				if (this.mode >= 0 && this.controlMode == ControlMode.SMART) {
-					// TODO remove syso
-					if (config.debugMode()) {
-						System.out.println("smart - no balancing mode");
-						System.out.println("Controller: " + ctrl);
-					}
-				} else {
-					if (this.controlMode == ControlMode.SMART) {
-						// TODO remove syso
-						if (config.debugMode()) {
-							System.out
-									.println("smart - with errors - skipping");
-							System.out.println("Controller: " + ctrl);
-							System.out.println("ControlMode: " + mode);
-						}
-						return;
-					} else {
-						// no smart mode
-						// TODO remove syso
-						if (config.debugMode()) {
-							System.out.println("configured ControlMode: "
-									+ config.controlMode());
-						}
-					}
-				}
-			}
-
-			// allow minimum writes if values is initial (null or zero)
+		// managed or internal mode -> switch to max. self consumption automatic
+		// (no writes to channel)
+		if (isManaged() && this.controlMode != ControlMode.INTERNAL) {
+			// allow minimum writes if values not set (zero or null)
 			Instant now = Instant.now();
 			if (this.lastSetPower != null && activePowerWanted == 0
+					&& lastSetPower == 0
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
+
 				// no need to apply to new set-point
-				// TODO remove syso
-				if (config.debugMode()) {
-					System.out.println("skipped - wait for expiring watchdog");
-				}
+				if (config.debugMode())
+					System.out.println(
+							"skipped - wait for expiring watchdog (zero)");
 				return;
 			}
 
+			// allow minimum writes if values are maximized (smart control)
+			if (this.lastSetPower != null
+					&& this.controlMode == ControlMode.SMART
+					&& lastSetPower == activePowerWanted
+					&& ((activePowerWanted == this.getMaxChargePower().get())
+							|| (activePowerWanted == this.getMaxDischargePower()
+									.get()))
+					&& Duration.between(this.lastApplyPower, now)
+							.getSeconds() < WATCHDOG_SECONDS) {
+
+				// no need to apply to new set-point
+				if (config.debugMode())
+					System.out.println(
+							"skipped - wait for expiring watchdog (maximum)");
+				return;
+			}
+
+			// write to channel if necessary (expired/changed)
 			if ((activePowerWanted != lastSetPower)
 					|| Duration.between(this.lastApplyPower, now)
 							.getSeconds() >= WATCHDOG_SECONDS) {
@@ -278,9 +244,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 						int powerValue = setActivePowerEqualsChannel.value()
 								.get();
 
-						// TODO testing - realization depends on controller
-						// order
-						// (by scheduler)
 						if (config.debugMode()) {
 							System.out.println("old value: " + powerValue);
 						}
@@ -300,7 +263,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				lastSetPower = activePowerWanted;
 				this.lastApplyPower = Instant.now();
 
-				// TODO remove...
 				if (config.debugMode()) {
 					System.out.println(
 							"--> activePowerWanted: " + activePowerWanted);
@@ -538,7 +500,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			// e.printStackTrace();
 		}
 		if (config.debugMode()) {
-			// TODO remove syso
 			System.out.println("--> set limits: " + maxDischargePower + " / "
 					+ maxChargePower);
 		}
@@ -568,8 +529,8 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 	@Override
 	public boolean isManaged() {
-		return (this.config.enabled() && !this.config.readOnlyMode()
-				&& this.controlMode != ControlMode.INTERNAL);
+		// && this.controlMode != ControlMode.INTERNAL
+		return (this.config.enabled() && !this.config.readOnlyMode());
 	}
 
 	@Override

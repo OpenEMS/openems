@@ -1,7 +1,7 @@
 package io.openems.edge.kostal.ess;
 
-import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -39,8 +39,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -91,11 +89,6 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	private Integer lastSetPower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile TimeOfUseTariffController ctrl;
-
-	private int mode = -1;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timeData;
 
 	private ControlMode controlMode;
@@ -141,17 +134,17 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		this.minsoc = config.minsoc();
 		WATCHDOG_SECONDS = config.watchdog();
 
-		// Initialize PV inverter reference filter
-		try {
-			if (OpenemsComponent.updateReferenceFilter(this.cm,
-					this.servicePid(), "ctrl", config.ctrl_id())) {
-				return;
-			}
-		} catch (Exception e) {
-			this.ctrl = null;
-			this.mode = -1;
-			// Ignore exception for failed reference
-		}
+		// // Initialize controller reference filter
+		// try {
+		// if (OpenemsComponent.updateReferenceFilter(this.cm,
+		// this.servicePid(), "ctrl", config.ctrl_id())) {
+		// return;
+		// }
+		// } catch (Exception e) {
+		// this.ctrl = null;
+		// this.mode = -1;
+		// // Ignore exception for failed reference
+		// }
 	}
 
 	/**
@@ -161,8 +154,6 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		ctrl = null;
-		mode = -1;
 	}
 
 	/**
@@ -179,72 +170,43 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	public void applyPower(int activePower, int reactivePower)
 			throws OpenemsNamedException {
 		// Using separate channel for the demanded charge/discharge power
-		// Using separate channel for the demanded charge/discharge power
 		this._setChargePowerWanted(activePower);
 
-		// evaluate controller on smart control mode
-		if (this.controlMode == ControlMode.SMART && this.ctrl != null) {
-			if (config.debugMode())
-				System.out.println("Evaluating control mode");
-			mode = ctrl.getStateMachine().getValue();
-			if (config.debugMode())
-				System.out.println("evaluated to: " + mode);
-		}
-
-		// Read-only mode -> switch to max. self consumption automatic
-		if (isManaged()) {
-			// ACTIVE_LIMIT(0, "Active limit"), //
-			// AVOID_LOW_CHARGING(8, "Avoid charging with low power for more efficiency"); //
-
-			// handle smart mode
-			if (this.mode >= 0 && this.controlMode == ControlMode.SMART
-					&& mode == StateMachine.BALANCING.getValue()) {
-				// TODO remove syso
-				if (config.debugMode()) {
-					System.out.println("skipped - balancing mode");
-					System.out.println("Controller: " + ctrl);
-				}
-				return;
-			} else {
-				if (this.mode >= 0 && this.controlMode == ControlMode.SMART) {
-					// TODO remove syso
-					if (config.debugMode()) {
-						System.out.println("smart - no balancing mode");
-						System.out.println("Controller: " + ctrl);
-					}
-				} else {
-					if (this.controlMode == ControlMode.SMART) {
-						// TODO remove syso
-						if (config.debugMode()) {
-							System.out
-									.println("smart - with errors - skipping");
-							System.out.println("Controller: " + ctrl);
-							System.out.println("ControlMode: " + mode);
-						}
-						return;
-					} else {
-						// no smart mode
-						// TODO remove syso
-						if (config.debugMode()) {
-							System.out.println("configured ControlMode: "
-									+ config.controlMode());
-						}
-					}
-				}
-			}
-
+		// managed or internal mode -> switch to max. self consumption automatic
+		// (no writes to channel)
+		if (isManaged() && this.controlMode != ControlMode.INTERNAL) {
 			// allow minimum writes if values not set (zero or null)
 			Instant now = Instant.now();
-			if (this.lastSetPower != null && (activePower == 0)
+			if (this.lastSetPower != null && activePower == 0
+					&& lastSetPower == activePower
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
+
 				// no need to apply to new set-point
-				// TODO remove syso
 				if (config.debugMode())
-					System.out.println("skipped - wait for expiring watchdog");
+					System.out.println(
+							"skipped - wait for expiring watchdog (zero)");
 				return;
 			}
 
+			// allow minimum writes if values are maximized (smart control)
+			if (this.lastSetPower != null
+					&& this.controlMode == ControlMode.SMART
+					&& lastSetPower == activePower
+					&& ((activePower == this.getMaxChargePower().get())
+							|| (activePower == this.getMaxDischargePower()
+									.get()))
+					&& Duration.between(this.lastApplyPower, now)
+							.getSeconds() < WATCHDOG_SECONDS) {
+
+				// no need to apply to new set-point
+				if (config.debugMode())
+					System.out.println(
+							"skipped - wait for expiring watchdog (maximum)");
+				return;
+			}
+
+			// write to channel if necessary (expired/changed)
 			if ((activePower != lastSetPower)
 					|| Duration.between(this.lastApplyPower, now)
 							.getSeconds() >= WATCHDOG_SECONDS) {
@@ -257,7 +219,6 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				lastSetPower = activePower;
 				this.lastApplyPower = Instant.now();
 
-				// TODO remove...
 				if (config.debugMode())
 					System.out.println("--> activePowerWanted: " + activePower);
 			}
@@ -441,8 +402,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	 */
 	@Override
 	public boolean isManaged() {
-		return (this.config.enabled() && !this.config.readOnlyMode()
-				&& this.controlMode != ControlMode.INTERNAL);
+		// && this.controlMode != ControlMode.INTERNAL
+		return (this.config.enabled() && !this.config.readOnlyMode());
 	}
 
 	/**
