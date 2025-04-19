@@ -91,6 +91,7 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	protected static final int HW_ALLOWED_DISCHARGE_POWER = 0;
 
 	private Config config;
+	private static final Integer diff = 20;
 	private static int WATCHDOG_SECONDS = 30;
 
 	private Instant lastApplyPower = Instant.MIN;
@@ -203,6 +204,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			Instant now = Instant.now();
 			if (this.lastSetPower != null && activePowerWanted == 0
 					&& lastSetPower == 0
+					// TODO testing - allows little differences
+					&& (lastSetPower - diff >= activePowerWanted
+							&& lastSetPower + diff <= activePowerWanted)
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
 
@@ -217,6 +221,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			if (this.lastSetPower != null
 					&& this.controlMode == ControlMode.SMART
 					&& lastSetPower == activePowerWanted
+					// TODO testing - allows little differences
+					&& (lastSetPower - diff >= activePowerWanted
+							&& lastSetPower + diff <= activePowerWanted)
 					&& (activePowerWanted == this.getMaxChargePower().get()
 							|| Math.abs(activePowerWanted) == this
 									.getMaxDischargePower().get())
