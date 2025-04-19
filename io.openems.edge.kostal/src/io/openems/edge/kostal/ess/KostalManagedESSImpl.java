@@ -62,6 +62,8 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			EventHandler,
 			OpenemsComponent {
 
+	private static final Integer diff = 20;
+
 	private static int WATCHDOG_SECONDS = 30;
 
 	@Reference
@@ -179,6 +181,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			Instant now = Instant.now();
 			if (this.lastSetPower != null && activePower == 0
 					&& lastSetPower == activePower
+					// TODO testing - allows moderate differences
+					&& (lastSetPower - diff >= activePower
+							&& lastSetPower + diff <= activePower)
 					&& Duration.between(this.lastApplyPower, now)
 							.getSeconds() < WATCHDOG_SECONDS) {
 
@@ -193,6 +198,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			if (this.lastSetPower != null
 					&& this.controlMode == ControlMode.SMART
 					&& lastSetPower == activePower
+					// TODO testing - allows little differences
+					&& (lastSetPower - diff >= activePower
+							&& lastSetPower + diff <= activePower)
 					&& (activePower == this.getMaxChargePower().get()
 							|| Math.abs(activePower) == this
 									.getMaxDischargePower().get())
