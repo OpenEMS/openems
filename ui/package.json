@@ -31,7 +31,7 @@
     "capacitor-blob-writer": "^1.1.19",
     "capacitor-ios-autofill-save-password": "^5.0.0",
     "capacitor-secure-storage-plugin": "^0.11.0",
-    "chart.js": "^4.4.8",
+    "chart.js": "^4.4.9",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-annotation": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.2.0",
