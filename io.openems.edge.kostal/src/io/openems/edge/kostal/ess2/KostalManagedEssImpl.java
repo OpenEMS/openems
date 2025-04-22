@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -58,6 +59,7 @@ import io.openems.edge.kostal.ess2.charger.KostalDcCharger;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -66,6 +68,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
@@ -102,6 +105,15 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 	@Reference
 	private Power power;
+
+	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(
+			this, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(
+			this, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(
+			this, HybridEss.ChannelId.DC_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(
+			this, HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap
 			.<SunSpecModel, Priority>builder()
@@ -302,11 +314,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
 								new UnsignedWordElement(531)))); //
 
-		// protocol.addTask(//
-		// new FC3ReadRegistersTask(582, Priority.HIGH, //
-		// m(SymmetricEss.ChannelId.ACTIVE_POWER,
-		// new SignedWordElement(582))));
-
 		// TODO double check - enable widget charge/discharge power?
 		protocol.addTask(//
 				new FC3ReadRegistersTask(582, Priority.HIGH, //
@@ -328,24 +335,10 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 						new FloatDoublewordElement(1034).wordOrder(LSWMSW)))); //
 
 		protocol.addTask(//
-				new FC3ReadRegistersTask(1046, Priority.LOW,
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
-								new FloatDoublewordElement(1046)
-										.wordOrder(LSWMSW)), //
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
-								new FloatDoublewordElement(1048)
-										.wordOrder(LSWMSW)))); //
-
-		protocol.addTask(//
 				new FC16WriteRegistersTask(1034, //
 						m(KostalManagedEss.ChannelId.SET_ACTIVE_POWER,
 								new FloatDoublewordElement(1034)
 										.wordOrder(LSWMSW)) //
-				// protocol.addTask(//
-				// new FC16WriteRegistersTask(1034, //
-				// m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS,
-				// new FloatDoublewordElement(1034)
-				// .wordOrder(LSWMSW)) //
 				));
 	}
 
@@ -446,14 +439,17 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 					+ "|ChargePower "
 					+ this.channel(KostalManagedEss.ChannelId.CHARGE_POWER)
 							.value().asString() //
+					+ "|SurplusPower:" + getSurplusPower() //
 					+ "|" + this.getGridModeChannel().value().asOptionString() //
-			// + "|Feed-In:" //
-			// + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value()
-			// .asStringWithoutUnit() //
 			;
 		} else {
 			return "SoC:" + this.getSoc().asString() + "|L:"
-					+ this.getActivePower().asString();
+					+ this.getActivePower().asString() //
+					+ "|ChargePower "
+					+ this.channel(KostalManagedEss.ChannelId.CHARGE_POWER)
+							.value().asString() //
+					+ "|SurplusPower:" + getSurplusPower() //
+			;
 		}
 
 	}
@@ -482,6 +478,9 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 							"== update values topic cycle before controllers ==");
 				}
 				this.setLimits();
+				break;
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
+				this.calculateEnergy();
 				break;
 		}
 	}
@@ -540,11 +539,53 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		return (this.config.enabled() && !this.config.readOnlyMode());
 	}
 
+	private int calculatePvProduction() {
+		ListIterator<KostalDcCharger> i = chargers.listIterator();
+		int pvPower = 0;
+		while (i.hasNext()) {
+			KostalDcCharger c = i.next();
+			Integer power = c.getActualPower().get();
+			if (power != null) {
+				pvPower += power;
+			}
+		}
+		return pvPower;
+	}
+
 	@Override
 	public Integer getSurplusPower() {
-		// return this.surplusFeedInHandler.run(this.chargers, this.config,
-		// this.componentManager);
+		int surplusPower = calculatePvProduction()
+				- Math.abs(this.getAllowedChargePower().get());
+		if (surplusPower > 0) {
+			return surplusPower;
+		}
 		return null;
+	}
+
+	private void calculateEnergy() {
+		// Calculate AC Energy
+		var activePower = this.getActivePowerChannel().getNextValue().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateAcChargeEnergy.update(null);
+			this.calculateAcDischargeEnergy.update(null);
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null);
+		} else {
+			if (activePower > 0) {
+				// Discharge
+				this.calculateAcChargeEnergy.update(0);
+				this.calculateAcDischargeEnergy.update(activePower);
+				this.calculateDcChargeEnergy.update(0);
+				this.calculateDcDischargeEnergy.update(activePower);
+			} else {
+				// Charge
+				this.calculateAcChargeEnergy.update(activePower * -1);
+				this.calculateAcDischargeEnergy.update(0);
+				this.calculateDcChargeEnergy.update(activePower * -1);
+				this.calculateDcDischargeEnergy.update(0);
+			}
+		}
 	}
 
 }
