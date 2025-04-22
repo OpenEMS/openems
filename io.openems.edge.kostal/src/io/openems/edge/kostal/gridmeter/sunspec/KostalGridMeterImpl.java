@@ -16,6 +16,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
@@ -38,6 +40,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(
@@ -50,6 +53,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		})
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class KostalGridMeterImpl extends AbstractSunSpecMeter
 		implements
@@ -57,6 +61,7 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 			ElectricityMeter,
 			ModbusComponent,
 			OpenemsComponent,
+			EventHandler,
 			TimedataProvider {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap
@@ -83,6 +88,11 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+//	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(
+//			this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+//	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(
+//			this, ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	
 	public KostalGridMeterImpl() {
 		super(
 				//
@@ -140,13 +150,13 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 				DIRECT_1_TO_1, //
 				S204.V_A_RPH_C, S203.V_A_RPH_C, S202.V_A_RPH_C, S201.V_A_RPH_C);
 		this.mapFirstPointToChannel(
-				//
+				//TODO or calculated?
 				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 				SCALE_FACTOR_3, //
 				S204.TOT_WH_EXP, S203.TOT_WH_EXP, S202.TOT_WH_EXP,
 				S201.TOT_WH_EXP);
 		this.mapFirstPointToChannel(
-				//
+				//TODO or calculated?
 				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 				SCALE_FACTOR_3,
 				S204.TOT_WH_IMP, S203.TOT_WH_IMP, S202.TOT_WH_IMP,
@@ -174,6 +184,35 @@ public class KostalGridMeterImpl extends AbstractSunSpecMeter
 		this.config = config;
 	}
 
+//	/**
+//	 * Calculate the Energy values from ActivePower.
+//	 */
+//	private void calculateEnergy() {
+//		// Calculate Energy
+//		var activePower = this.getActivePower().get();
+//		if (activePower == null) {
+//			// Not available
+//			this.calculateProductionEnergy.update(null);
+//			this.calculateConsumptionEnergy.update(null);
+//		} else if (activePower > 0) {
+//			this.calculateProductionEnergy.update(activePower);
+//			this.calculateConsumptionEnergy.update(0);
+//		} else {
+//			this.calculateProductionEnergy.update(0);
+//			this.calculateConsumptionEnergy.update(activePower * -1);
+//		}
+//	}
+	
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
+				//TODO clarify usage - modbus register or calculated
+				//this.calculateEnergy();
+				break;
+		}
+	}
+	
 	@Override
 	@Deactivate
 	protected void deactivate() {

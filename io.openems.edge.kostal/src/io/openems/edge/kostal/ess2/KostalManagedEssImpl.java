@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -40,8 +41,10 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -125,6 +128,28 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			// .put(DefaultSunSpecModel.S_203, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_802, Priority.LOW) //
 			.build();
+
+	/**
+	 * Adds a Copy-Listener. It listens on setNextValue() and copies the value
+	 * to the target channel.
+	 * 
+	 * @param <T>
+	 *            the Channel type
+	 * @param sourceChannel
+	 *            the source Channel
+	 * @param targetChannelId
+	 *            the target ChannelId
+	 */
+	private <T> void addCopyListener(Channel<T> sourceChannel,
+			io.openems.edge.common.channel.ChannelId targetChannelId) {
+		Consumer<Value<T>> callback = (value) -> {
+			Channel<T> targetChannel = this.channel(targetChannelId);
+			targetChannel.setNextValue(value);
+		};
+		sourceChannel.onSetNextValue(callback);
+		callback.accept(sourceChannel.getNextValue());
+	}
+
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -342,23 +367,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				));
 	}
 
-	// /**
-	// * Actual power from inverter comes from house consumption + battery
-	// * inverter power (*-1). Aktuelle Erzeugung durch den Hybrid-WR ist der
-	// * aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
-	// *
-	// */
-	// public void _setInverterActivePower() {
-	//
-	// int acPower = this.getAcPower().orElse(0);
-	// // int acPowerScale = this.getAcPowerScale().orElse(0);
-	// // double value = acPower * Math.pow(10, acPowerScale);
-	// double value = acPower;
-	//
-	// this._setActivePower((int) value);
-	//
-	// }
-
 	@Override
 	protected void onSunSpecInitializationCompleted() {
 		// TODO Add mappings for registers from S1 and S103
@@ -411,6 +419,16 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S103.DCW);
 		// TODO check, what's correct (DCW is DC side, W is AC side - Inverter)
+		this.mapFirstPointToChannel(//
+				KostalManagedEss.ChannelId.POWER_AC, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S103.W);
+
+		this.addCopyListener(//
+				this.getSunSpecChannel(DefaultSunSpecModel.S103.DCW).get(), //
+				KostalManagedEss.ChannelId.POWER_DC //
+		);
+
 		// DefaultSunSpecModel.S103.W/S103.DCW);
 
 		// this.setLimits();
@@ -481,6 +499,8 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
 				this.calculateEnergy();
+				// TODO testing
+				this.calculateAcEnergy();
 				break;
 		}
 	}
@@ -562,26 +582,40 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		return null;
 	}
 
-	private void calculateEnergy() {
+	private void calculateAcEnergy() {
 		// Calculate AC Energy
-		var activePower = this.getActivePowerChannel().getNextValue().get();
-		if (activePower == null) {
+		var activeAcPower = this.getAcPowerChannel().getNextValue().get();
+		if (activeAcPower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
 			this.calculateAcDischargeEnergy.update(null);
+		} else {
+			if (activeAcPower > 0) {
+				// Discharge
+				this.calculateAcChargeEnergy.update(0);
+				this.calculateAcDischargeEnergy.update(activeAcPower);
+			} else {
+				// Charge
+				this.calculateAcChargeEnergy.update(activeAcPower * -1);
+				this.calculateAcDischargeEnergy.update(0);
+			}
+		}
+	}
+
+	private void calculateEnergy() {
+		// Calculate DC Energy
+		var activePower = this.getActivePowerChannel().getNextValue().get();
+		if (activePower == null) {
+			// Not available
 			this.calculateDcChargeEnergy.update(null);
 			this.calculateDcDischargeEnergy.update(null);
 		} else {
 			if (activePower > 0) {
 				// Discharge
-				this.calculateAcChargeEnergy.update(0);
-				this.calculateAcDischargeEnergy.update(activePower);
 				this.calculateDcChargeEnergy.update(0);
 				this.calculateDcDischargeEnergy.update(activePower);
 			} else {
 				// Charge
-				this.calculateAcChargeEnergy.update(activePower * -1);
-				this.calculateAcDischargeEnergy.update(0);
 				this.calculateDcChargeEnergy.update(activePower * -1);
 				this.calculateDcDischargeEnergy.update(0);
 			}
