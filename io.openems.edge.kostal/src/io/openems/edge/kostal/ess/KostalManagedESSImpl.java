@@ -47,6 +47,7 @@ import io.openems.edge.kostal.enums.ControlMode;
 import io.openems.edge.kostal.ess2.KostalManagedEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Ess.Kostal.Plenticore", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -95,6 +96,12 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 
 	private ControlMode controlMode;
 	private int minsoc = 5;
+
+	// is DC power for consistency
+	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(
+			this, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(
+			this, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	/**
 	 * Constructor for KostalManagedESSImpl. Initializes the component with
@@ -307,13 +314,13 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 						m(KostalManagedESS.ChannelId.MAX_DISCHARGE_POWER,
 								new FloatDoublewordElement(1040)
 										.wordOrder(LSWMSW))),
-				new FC3ReadRegistersTask(1046, Priority.LOW,
-						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
-								new FloatDoublewordElement(1046)
-										.wordOrder(LSWMSW)),
-						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
-								new FloatDoublewordElement(1048)
-										.wordOrder(LSWMSW))),
+				// new FC3ReadRegistersTask(1046, Priority.LOW,
+				// m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY,
+				// new FloatDoublewordElement(1046)
+				// .wordOrder(LSWMSW)),
+				// m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY,
+				// new FloatDoublewordElement(1048)
+				// .wordOrder(LSWMSW))),
 				new FC16WriteRegistersTask(1034, m(
 						KostalManagedESS.ChannelId.SET_ACTIVE_POWER,
 						new FloatDoublewordElement(1034).wordOrder(LSWMSW))));
@@ -389,6 +396,7 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 				if (config.debugMode())
 					System.out
 							.print("== update values before process image ==");
+				this.calculateEnergy();
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
 				if (config.debugMode())
@@ -440,4 +448,25 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 					+ maxChargePower);
 		}
 	}
+
+	private void calculateEnergy() {
+		// Calculate AC Energy
+		var activePower = this.getActivePowerChannel().getNextValue().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateAcChargeEnergy.update(null);
+			this.calculateAcDischargeEnergy.update(null);
+		} else {
+			if (activePower > 0) {
+				// Discharge
+				this.calculateAcChargeEnergy.update(0);
+				this.calculateAcDischargeEnergy.update(activePower);
+			} else {
+				// Charge
+				this.calculateAcChargeEnergy.update(activePower * -1);
+				this.calculateAcDischargeEnergy.update(0);
+			}
+		}
+	}
+
 }

@@ -1,7 +1,6 @@
 package io.openems.edge.kostal.ess2.charger;
 
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 
 import java.util.Map;
 
@@ -58,17 +57,24 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 
-public class KostalDcChargerImpl extends AbstractSunSpecDcCharger implements KostalDcCharger, EssDcCharger,
-ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
+public class KostalDcChargerImpl extends AbstractSunSpecDcCharger
+		implements
+			KostalDcCharger,
+			EssDcCharger,
+			ModbusComponent,
+			OpenemsComponent,
+			EventHandler,
+			TimedataProvider,
+			ModbusSlave {
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
-			EssDcCharger.ChannelId.ACTUAL_ENERGY);
-	
+	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(
+			this, EssDcCharger.ChannelId.ACTUAL_ENERGY);
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -94,23 +100,32 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 	private KostalManagedEss ess;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
-				"Modbus", this.ess.getModbusBridgeId(), READ_FROM_MODBUS_BLOCK)) {
+	void activate(ComponentContext context, Config config)
+			throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(),
+				config.enabled(), this.ess.getUnitId(), this.cm, "Modbus",
+				this.ess.getModbusBridgeId(), READ_FROM_MODBUS_BLOCK)) {
 			return;
 		}
 
-		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
+		try {
+			// update filter for 'Ess'
+			if (OpenemsComponent.updateReferenceFilter(this.cm,
+					this.servicePid(), "ess", config.ess_id())) {
+				return;
+			}
 
-		this.ess.addCharger(this);
+			this.ess.addCharger(this);
+		} catch (Exception e) {
+			// TODO proper error handling
+			e.printStackTrace();
+		}
 	}
 
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap
+			.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_103, Priority.LOW) //
+			// .put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
 			.build();
 
@@ -134,7 +149,7 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 		this.mapFirstPointToChannel(//
 				EssDcCharger.ChannelId.VOLTAGE, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S113.DCV,DefaultSunSpecModel.S103.DCV);
+				DefaultSunSpecModel.S113.DCV, DefaultSunSpecModel.S103.DCV);
 
 		this.mapFirstPointToChannel(//
 				EssDcCharger.ChannelId.CURRENT, //
@@ -147,20 +162,23 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S113.DCW, DefaultSunSpecModel.S103.DCW);
 
-//		this.mapFirstPointToChannel(//
-//				EssDcCharger.ChannelId.ACTUAL_ENERGY, //
-//				ElementToChannelConverter.DIRECT_1_TO_1, //
-//				DefaultSunSpecModel.S113.WH, DefaultSunSpecModel.S103.WH);
+		// this.mapFirstPointToChannel(//
+		// EssDcCharger.ChannelId.ACTUAL_ENERGY, //
+		// ElementToChannelConverter.DIRECT_1_TO_1, //
+		// DefaultSunSpecModel.S113.WH, DefaultSunSpecModel.S103.WH);
 
 	}
 
 	/**
 	 * Adds static modbus tasks.
 	 * 
-	 * @param protocol the {@link ModbusProtocol}
-	 * @throws OpenemsException on error
+	 * @param protocol
+	 *            the {@link ModbusProtocol}
+	 * @throws OpenemsException
+	 *             on error
 	 */
-	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
+	private void addStaticModbusTasks(ModbusProtocol protocol)
+			throws OpenemsException {
 		protocol.addTask(//
 				new FC3ReadRegistersTask(1066, Priority.HIGH, //
 						m(EssDcCharger.ChannelId.ACTUAL_POWER,
@@ -182,9 +200,9 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateActualEnergy.update(this.getActualPower().get());
-			break;
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
+				this.calculateActualEnergy.update(this.getActualPower().get());
+				break;
 		}
 	}
 
@@ -198,7 +216,8 @@ ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(KostalDcCharger.class, accessMode, 100) //
+				ModbusSlaveNatureTable
+						.of(KostalDcCharger.class, accessMode, 100) //
 						.build());
 	}
 }
