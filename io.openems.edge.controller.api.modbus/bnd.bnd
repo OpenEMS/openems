@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
@@ -13,6 +12,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api.common,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.timedata.api,\
+	io.openems.j2mod,\
 	io.openems.wrapper.fastexcel,\
 
 -testpath: \

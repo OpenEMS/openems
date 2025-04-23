@@ -5,7 +5,6 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.j2mod,\
 	io.openems.common,\
 	io.openems.edge.battery.api,\
 	io.openems.edge.bridge.modbus,\
@@ -13,6 +12,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.io.api,\
+	io.openems.j2mod,\
 
 -testpath: \
 	${testpath}
