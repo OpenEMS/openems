@@ -99,5 +99,4 @@ public class RestHandlerTest {
 		assertEquals("Ess[\\/]Soc", parts.get(3));
 	}
 
-
 }

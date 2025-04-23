@@ -25,7 +25,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.distributionStrategy = distributionStrategy;
 			return this;
 		}
-		
+
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
 			return this;

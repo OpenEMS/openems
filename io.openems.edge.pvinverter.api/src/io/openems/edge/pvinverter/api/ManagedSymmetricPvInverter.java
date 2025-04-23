@@ -125,8 +125,8 @@ public interface ManagedSymmetricPvInverter extends ElectricityMeter, OpenemsCom
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAX_ACTIVE_POWER} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTIVE_POWER}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */
@@ -135,8 +135,8 @@ public interface ManagedSymmetricPvInverter extends ElectricityMeter, OpenemsCom
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAX_ACTIVE_POWER} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTIVE_POWER}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */

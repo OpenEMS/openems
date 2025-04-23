@@ -28,7 +28,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.maxCurrentThreePhase = maxCurrentThreePhase;
 			return this;
 		}
-		
+
 		public Builder setCanInterrupt(boolean canInterrupt) {
 			this.canInterrupt = canInterrupt;
 			return this;
