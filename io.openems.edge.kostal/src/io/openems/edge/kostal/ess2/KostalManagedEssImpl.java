@@ -346,6 +346,11 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 								new SignedWordElement(582))));
 
 		protocol.addTask(//
+				new FC3ReadRegistersTask(1034, Priority.LOW, m(
+						KostalManagedEss.ChannelId.CHARGE_POWER,
+						new FloatDoublewordElement(1034).wordOrder(LSWMSW)))); //
+
+		protocol.addTask(//
 				new FC3ReadRegistersTask(1038, Priority.HIGH, //
 						m(KostalManagedEss.ChannelId.MAX_CHARGE_POWER,
 								new FloatDoublewordElement(1038)
@@ -353,11 +358,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 						m(KostalManagedEss.ChannelId.MAX_DISCHARGE_POWER,
 								new FloatDoublewordElement(1040)
 										.wordOrder(LSWMSW)))); //
-
-		protocol.addTask(//
-				new FC3ReadRegistersTask(1034, Priority.LOW, m(
-						KostalManagedEss.ChannelId.CHARGE_POWER,
-						new FloatDoublewordElement(1034).wordOrder(LSWMSW)))); //
 
 		protocol.addTask(//
 				new FC16WriteRegistersTask(1034, //
@@ -584,7 +584,8 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 	private void calculateAcEnergy() {
 		// Calculate AC Energy
-		var activeAcPower = this.getAcPowerChannel().getNextValue().get();
+		var activeAcPower = // this.getAcPowerChannel().getNextValue().get();
+				this.getDcDischargePowerChannel().getNextValue().get();
 		if (activeAcPower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
@@ -604,12 +605,16 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 
 	private void calculateEnergy() {
 		// Calculate DC Energy
-		var activePower = this.getActivePowerChannel().getNextValue().get();
+		var activePower = // this.getActivePowerChannel().getNextValue().get();
+				this.getDcDischargePowerChannel().getNextValue().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateDcChargeEnergy.update(null);
 			this.calculateDcDischargeEnergy.update(null);
 		} else {
+			if (config.debugMode())
+				System.out.println(
+						"valid active power for calculation of energy");
 			if (activePower > 0) {
 				// Discharge
 				this.calculateDcChargeEnergy.update(0);
