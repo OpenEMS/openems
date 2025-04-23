@@ -7,7 +7,6 @@ import io.openems.edge.meter.test.InvertTest;
 
 /**
  * Class for generating the values needed for a {@link InvertTest}.
- * 
  */
 public class TestValuesGenerationUtil {
 
@@ -107,7 +106,7 @@ public class TestValuesGenerationUtil {
 		registerValues.put("ACTIVE_PRODUCTION_ENERGY",
 				new ValueDecimalAndHex(activePowers[3], floatToHexWords(activePowers[3] * energyScale)));
 
-		registerValues.put("ACTIVE_CONSUMPTION_ENERGY",
+		registerValues.put("ACTIVE_CONSUMPTION_ENERGY", //
 				new ValueDecimalAndHex(0f, floatToHexWords(0f * energyScale)));
 
 		// Print the map content
