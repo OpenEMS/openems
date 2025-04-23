@@ -34,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -123,7 +124,7 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			// .put(DefaultSunSpecModel.S_113, Priority.LOW) //
-			// .put(DefaultSunSpecModel.S_120, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
 			// .put(DefaultSunSpecModel.S_123, Priority.LOW) //
 			// .put(DefaultSunSpecModel.S_203, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_802, Priority.LOW) //
@@ -337,21 +338,17 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 		protocol.addTask(//
 				new FC3ReadRegistersTask(531, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
-								new UnsignedWordElement(531)))); //
-
-		// TODO double check - enable widget charge/discharge power?
-		protocol.addTask(//
-				new FC3ReadRegistersTask(582, Priority.HIGH, //
+								new UnsignedWordElement(531)), //
+						new DummyRegisterElement(532, 581), //
+						// TODO double check - enable widget charge/discharge
+						// power?
 						m(HybridEss.ChannelId.DC_DISCHARGE_POWER,
-								new SignedWordElement(582))));
-
-		protocol.addTask(//
-				new FC3ReadRegistersTask(1034, Priority.LOW, m(
-						KostalManagedEss.ChannelId.CHARGE_POWER,
-						new FloatDoublewordElement(1034).wordOrder(LSWMSW)))); //
-
-		protocol.addTask(//
-				new FC3ReadRegistersTask(1038, Priority.HIGH, //
+								new SignedWordElement(582)),
+						new DummyRegisterElement(583, 1033), //
+						m(KostalManagedEss.ChannelId.CHARGE_POWER,
+								new FloatDoublewordElement(1034)
+										.wordOrder(LSWMSW)), //
+						new DummyRegisterElement(1036, 1037), //
 						m(KostalManagedEss.ChannelId.MAX_CHARGE_POWER,
 								new FloatDoublewordElement(1038)
 										.wordOrder(LSWMSW)), //
