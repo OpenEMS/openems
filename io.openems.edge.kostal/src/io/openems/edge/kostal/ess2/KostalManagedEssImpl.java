@@ -498,6 +498,10 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 				this.setLimits();
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
+				if (config.debugMode()) {
+					System.out.print(
+							"== update values topic cycle before process image ==");
+				}
 				this.calculateEnergy();
 				// TODO testing
 				this.calculateAcEnergy();
