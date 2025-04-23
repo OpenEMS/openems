@@ -51,8 +51,12 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Ess.Kostal.Plenticore", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-@EventTopics({EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE,
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+})
+
 public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 		implements
 			KostalManagedESS,
@@ -391,22 +395,29 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 	 */
 	@Override
 	public void handleEvent(Event event) {
+		// super.handleEvent(event);
+
 		switch (event.getTopic()) {
-			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
-				if (config.debugMode())
-					System.out
-							.print("== update values before process image ==");
-				this.calculateEnergy();
-				break;
-			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE :
-				if (config.debugMode())
-					System.out.print("== update values after process image ==");
+			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE :
+				if (config.debugMode()) {
+					System.out.print(
+							"== update values topic cycle execute write ==");
+				}
+				// this._setMyActivePower();
 				break;
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
-				if (config.debugMode())
+				if (config.debugMode()) {
 					System.out.print(
 							"== update values topic cycle before controllers ==");
+				}
 				this.setLimits();
+				break;
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
+				if (config.debugMode()) {
+					System.out.print(
+							"== update values topic cycle before process image ==");
+				}				
+				this.calculateEnergy();
 				break;
 		}
 	}
@@ -457,6 +468,9 @@ public class KostalManagedESSImpl extends AbstractOpenemsModbusComponent
 			this.calculateAcChargeEnergy.update(null);
 			this.calculateAcDischargeEnergy.update(null);
 		} else {
+			if (config.debugMode())
+				System.out.println(
+						"valid active power for calculation of energy");
 			if (activePower > 0) {
 				// Discharge
 				this.calculateAcChargeEnergy.update(0);
