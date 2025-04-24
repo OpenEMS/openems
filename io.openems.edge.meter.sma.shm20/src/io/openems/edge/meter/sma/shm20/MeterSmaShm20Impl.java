@@ -97,10 +97,14 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(31255), SCALE_FACTOR_1),
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257), SCALE_FACTOR_1)),
 				new FC3ReadRegistersTask(31271, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(31271), INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(31273), INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(31275), INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(31277), INVERT_IF_TRUE(this.invert))),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(31271),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(31273),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(31275),
+								INVERT_IF_TRUE(this.invert)),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(31277),
+								INVERT_IF_TRUE(this.invert))),
 				// Current
 				new FC3ReadRegistersTask(31435, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(31435)),

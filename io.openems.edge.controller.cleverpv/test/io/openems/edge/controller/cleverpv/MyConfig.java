@@ -22,7 +22,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.url = url;
 			return this;
 		}
-		
+
 		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
 			this.logVerbosity = logVerbosity;
 			return this;

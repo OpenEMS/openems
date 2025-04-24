@@ -36,7 +36,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.logVerbosity = logVerbosity;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}

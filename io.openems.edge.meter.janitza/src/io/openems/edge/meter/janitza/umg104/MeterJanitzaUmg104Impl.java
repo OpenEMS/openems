@@ -142,8 +142,7 @@ public class MeterJanitzaUmg104Impl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_3),
 						new DummyRegisterElement(1451, 1460),
 						m(MeterJanitzaUmg104.ChannelId.INTERNAL_TEMPERATURE, new FloatDoublewordElement(1461), //
-								SCALE_FACTOR_3)
-				));
+								SCALE_FACTOR_3)));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(9851, Priority.LOW, //
