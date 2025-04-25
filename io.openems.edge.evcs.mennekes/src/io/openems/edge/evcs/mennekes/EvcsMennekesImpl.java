@@ -217,7 +217,7 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(131, Priority.LOW,
 						m(EvcsMennekes.ChannelId.SAFE_CURRENT, new UnsignedWordElement(131))),
 				new FC3ReadRegistersTask(200, Priority.HIGH,
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(200))),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(200))),
 				new FC3ReadRegistersTask(206, Priority.HIGH, //
 						m(new UnsignedDoublewordElement(206)).build() //
 								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L1)), //

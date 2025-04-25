@@ -81,7 +81,7 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
 				() -> this.config.enabled() && this.config.isReserveSocEnabled() //
-						? this.config.reserveSoc() //
+						? new EnergyScheduler.Config(this.config.reserveSoc()) //
 						: null);
 		this.updateConfig(config);
 	}

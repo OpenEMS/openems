@@ -103,7 +103,6 @@ export class UserComponent implements OnInit {
   }
 
   public applyChanges() {
-
     const params: SetUserInformationRequest["params"] = {
       user: {
         lastname: this.form.model.lastname,
@@ -129,41 +128,33 @@ export class UserComponent implements OnInit {
   }
 
   public enableAndDisableEditMode(): void {
-    if (this.isEditModeDisabled == false) {
-      this.getUserInformation().then((userInformation) => {
-        this.form = {
-          formGroup: new FormGroup({}),
-          model: userInformation,
-        };
-      });
+    if (!this.isEditModeDisabled) {
+      this.updateUserInformation();
     }
-
     this.enableAndDisableFormFields();
   }
 
-  public enableAndDisableFormFields(): boolean {
+  public getEditButtonText(): string {
+    return this.isEditModeDisabled ? "General.EDIT" : "General.RESET";
+  }
 
+  public enableAndDisableFormFields(): boolean {
     this.userInformationFields = this.userInformationFields.map(field => {
       field.props.disabled = !field.props.disabled;
       return field;
     });
-
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
   public getUserInformation(): Promise<UserInformation | CompanyUserInformation> {
-
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.websocket.status == "online") {
+        if (this.websocket.status === "online") {
           this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
             const user = response.result.user;
-
             resolve({
               lastname: user.lastname,
               firstname: user.firstname,
-
-              // Show company if available
               email: user.email,
               phone: user.phone,
               street: user.address.street,
@@ -198,9 +189,9 @@ export class UserComponent implements OnInit {
     this.websocket.logout();
   }
 
-  public toggleDebugMode(event: CustomEvent) {
-    localStorage.setItem("DEBUGMODE", event.detail["checked"]);
-    this.environment.debugMode = event.detail["checked"];
+  public toggleDebugMode(event: Event) {
+    localStorage.setItem("DEBUGMODE", (event as CustomEvent).detail["checked"]);
+    this.environment.debugMode = (event as CustomEvent).detail["checked"];
   }
 
   public setLanguage(language: Language): void {

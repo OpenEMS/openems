@@ -450,11 +450,13 @@ export namespace OeFormlyViewTester {
 /** Exclude properties that dont need to be tested  */
 function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: HistoryUtils.ChartData): Chart.ChartOptions {
   options.scales["x"]["ticks"] = ObjectUtils.excludeProperties(options.scales["x"]["ticks"] as Chart.RadialTickOptions, ["color"]);
+  delete options.layout;
   chartData.yAxes.filter(axis => axis.unit != null).forEach(axis => {
     // Remove custom scale calculations from unittest, seperate unittest existing
     options.scales[axis.yAxisId] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId], ["min", "max"]) as Chart.ScaleOptionsByType<"radialLinear" | keyof Chart.CartesianScaleTypeRegistry>;
     options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
     options.scales[axis.yAxisId]["title"] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId]["title"] as Chart.RadialTickOptions, ["color"]);
+
   });
   return options;
 }

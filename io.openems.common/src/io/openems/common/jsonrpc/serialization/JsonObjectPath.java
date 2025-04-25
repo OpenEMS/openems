@@ -87,6 +87,16 @@ public interface JsonObjectPath extends JsonPath {
 	}
 
 	/**
+	 * Gets the null-able object associated with the member name from this object.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link JsonObjectPathNullable} of the member value
+	 */
+	public default JsonObjectPathNullable getNullableJsonObjectPath(String member) {
+		return this.getNullableJsonElementPath(member).getAsJsonObjectPathNullable();
+	}
+
+	/**
 	 * Collects the current object entries into a result object with the provided
 	 * {@link Collector}.
 	 * 

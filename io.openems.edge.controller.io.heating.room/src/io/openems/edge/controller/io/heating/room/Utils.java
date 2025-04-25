@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
 
 public class Utils {
@@ -17,13 +18,8 @@ public class Utils {
 	}
 
 	protected static HighPeriod getNextHighPeriod(ZonedDateTime now, ImmutableList<Task<JsonObject>> schedule) {
-		return schedule.stream() //
-				.map(task -> {
-					var next = task.getNextOccurence(now);
-					return new HighPeriod(next.toInstant(), next.plus(task.duration()).toInstant());
-				}) //
-				.sorted((t0, t1) -> t0.from.compareTo(t1.from)) //
-				.findFirst() //
+		return JSCalendar.Tasks.getNextOccurence(schedule, now) //
+				.map(ot -> new HighPeriod(ot.start().toInstant(), ot.start().plus(ot.duration()).toInstant())) //
 				.orElse(null);
 	}
 }

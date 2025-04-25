@@ -7,6 +7,7 @@ import { isBefore } from "date-fns";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { environment, Environment } from "src/environments";
 
 @Component({
     selector: "storage-modal",
@@ -31,6 +32,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     protected config: EdgeConfig;
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected chargerComponents!: EdgeConfig.Component[];
+    protected readonly environment: Environment = environment;
 
     constructor(
         public service: Service,
@@ -174,7 +176,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
     }
 
-    applyChanges() {
+    async applyChanges() {
         if (this.edge == null) {
             return;
         }
@@ -239,12 +241,19 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                 });
             });
 
-            this.edge.updateComponentConfig(this.websocket, controllerId, properties).then(() => {
+            try {
+                if (controllerId === "_meta") {
+                    await this.edge.updateAppConfig(this.websocket, controllerId, properties);
+                } else {
+                    await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
+                }
                 this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 this.formGroup.markAsPristine();
-            }).catch(reason => {
+
+            } catch (reason) {
                 this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
-            });
+            }
+
         }
     }
 

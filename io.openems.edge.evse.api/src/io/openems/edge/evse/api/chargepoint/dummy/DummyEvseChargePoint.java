@@ -27,7 +27,7 @@ public class DummyEvseChargePoint extends AbstractDummyEvseChargePoint<DummyEvse
 	}
 
 	@Override
-	public void apply(ApplyCharge applyCharge, ImmutableList<Command> profileCommands) {
+	public void apply(int current, ImmutableList<Command> profileCommands) {
 		// TODO Auto-generated method stub
 	}
 }

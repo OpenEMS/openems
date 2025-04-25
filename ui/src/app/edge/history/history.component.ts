@@ -42,11 +42,6 @@ export class HistoryComponent implements OnInit {
 
     effect(() => {
       const edge = this.service.currentEdge();
-
-      if (!this.edge) {
-        return;
-      }
-
       this.edge = edge;
       this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
     });

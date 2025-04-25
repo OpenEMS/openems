@@ -1,11 +1,11 @@
 package io.openems.edge.evse.chargepoint.keba;
 
-import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.type.TypeUtils.getAsType;
 import static io.openems.edge.evse.api.SingleThreePhase.SINGLE_PHASE;
 import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
@@ -53,15 +53,14 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile;
-import io.openems.edge.evse.api.chargepoint.Status;
+import io.openems.edge.evse.chargepoint.keba.enums.CableState;
+import io.openems.edge.evse.chargepoint.keba.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.enums.ProductTypeAndFeatures;
 import io.openems.edge.evse.chargepoint.keba.enums.SetEnable;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -76,7 +75,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 })
 public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent implements EvseChargePointKeba,
 		EvseChargePoint, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusComponent {
@@ -157,20 +156,9 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 		// for firmware version 5.14.
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1000, Priority.LOW, //
-						m(EvseChargePoint.ChannelId.STATUS, new UnsignedDoublewordElement(1000),
-								new ElementToChannelConverter(t -> {
-									return switch (TypeUtils.<Integer>getAsType(INTEGER, t)) {
-									case 0 -> Status.STARTING;
-									case 1 -> Status.NOT_READY_FOR_CHARGING;
-									case 2 -> Status.READY_FOR_CHARGING;
-									case 3 -> Status.CHARGING;
-									case 4 -> Status.ERROR;
-									case 5 -> Status.CHARGING_REJECTED;
-									case null, default -> Status.UNDEFINED;
-									};
-								}))), //
+						m(EvseChargePointKeba.ChannelId.CHARGING_STATE, new UnsignedDoublewordElement(1000))), //
 				new FC3ReadRegistersTask(1004, Priority.LOW, //
-						m(EvseChargePointKeba.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
+						m(EvseChargePointKeba.ChannelId.CABLE_STATE, new UnsignedDoublewordElement(1004))),
 				new FC3ReadRegistersTask(1006, Priority.LOW, //
 						m(EvseChargePointKeba.ChannelId.ERROR_CODE, new UnsignedDoublewordElement(1006))),
 				new FC3ReadRegistersTask(1008, Priority.LOW, //
@@ -258,7 +246,7 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 		};
 
 		var profiles = ImmutableList.<Profile>builder();
-		return new ChargeParams(limit, profiles.build());
+		return new ChargeParams(this.getIsReadyForCharging(), limit, profiles.build());
 	}
 
 	private SingleThreePhase getWiring() {
@@ -298,7 +286,7 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 	}
 
 	@Override
-	public void apply(ApplyCharge applyCharge, ImmutableList<Profile.Command> profileCommands) {
+	public void apply(int current, ImmutableList<Profile.Command> profileCommands) {
 		// TODO this apply method should use a StateMachine. Consider having the
 		// StateMachine inside EVSE Single-Controller
 
@@ -307,31 +295,29 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 		// final var p = EvseChargePointKebaImpl.this;
 		final var now = Instant.now();
 
-		this.handleApplyCharge(now, applyCharge);
+		this.handleApplyCharge(now, current);
 	}
 
-	private Tuple<Instant, ApplyCharge> previousApplyCharge = null;
+	private Tuple<Instant, Integer> previousCurrent = null;
 
-	private void handleApplyCharge(Instant now, ApplyCharge ac) {
-		if (this.previousApplyCharge != null && Duration.between(this.previousApplyCharge.a(), now).getSeconds() < 5) {
+	private void handleApplyCharge(Instant now, int current) {
+		if (this.previousCurrent != null && Duration.between(this.previousCurrent.a(), now).getSeconds() < 5) {
 			return;
 		}
-		this.previousApplyCharge = Tuple.of(now, ac);
+		this.previousCurrent = Tuple.of(now, current);
 
-		this.logDebug("Apply " + ac);
+		this.logDebug("Apply " + current);
 		try {
 			var setEnable = this.<EnumWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_ENABLE);
-			switch (ac) {
-			case ApplyCharge.SetCurrent sc -> {
+			if (current == 0) {
+				setEnable.setNextWriteValue(SetEnable.DISABLE);
+			} else {
 				setEnable.setNextWriteValue(SetEnable.ENABLE);
 				var setChargingCurrent = this
 						.<IntegerWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_CHARGING_CURRENT);
-				setChargingCurrent.setNextWriteValue(sc.current());
+				setChargingCurrent.setNextWriteValue(current);
 			}
-			case ApplyCharge.Zero z -> {
-				setEnable.setNextWriteValue(SetEnable.DISABLE);
-			}
-			}
+
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
@@ -381,12 +367,30 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.calculateEnergyL1.update(this.getActivePowerL1Channel().getNextValue().get());
 			this.calculateEnergyL2.update(this.getActivePowerL2Channel().getNextValue().get());
 			this.calculateEnergyL3.update(this.getActivePowerL3Channel().getNextValue().get());
+			setValue(this, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING,
+					evaluateIsReadyForCharging(this.getCableStateChannel().getNextValue().asEnum(),
+							this.getChargingStateChannel().getNextValue().asEnum()));
 			break;
 		}
+	}
+
+	protected static boolean evaluateIsReadyForCharging(CableState cableState, ChargingState chargingState) {
+		return switch (cableState) {
+		case PLUGGED_AND_LOCKED, PLUGGED_EV_NOT_LOCKED //
+			-> switch (chargingState) {
+			case CHARGING, INTERRUPTED, NOT_READY_FOR_CHARGING, READY_FOR_CHARGING //
+				-> true;
+			case ERROR, STARTING, UNDEFINED //
+				-> false;
+			};
+
+		case PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED, UNDEFINED, UNPLUGGED //
+			-> false;
+		};
 	}
 
 	/**

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { filter, take, takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
@@ -81,6 +81,36 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
+    }
+
+    /**
+     * Gets the first valid --non null/undefined-- value for this channel
+     *
+     * @param channelAddress the channel address
+     * @returns a non null/undefined value
+     */
+    protected async getFirstValidValueForChannel<T = any>(channelAddress: ChannelAddress): Promise<T> {
+        return new Promise<any>((res) => {
+            this.dataService.currentValue.pipe(filter(el => el.allComponents[channelAddress.toString()] != null), take(1)).subscribe((val) => {
+                res(val.allComponents[channelAddress.toString()]);
+            });
+        });
+    }
+
+    /**
+     * Gets the first valid --non null/undefined-- value for this channel and unsubscribes afterwards
+     *
+     * @param channelAddress the channel address
+     * @returns a non null/undefined value
+     */
+    protected async subscribeAndGetFirstValidValueForChannel(channelAddress: ChannelAddress): Promise<any> {
+        this.dataService.getValues([channelAddress], this.edge, this.componentId);
+        return new Promise<any>((res) => {
+            this.dataService.currentValue.pipe(filter(el => el.allComponents[channelAddress.toString()] != null), take(1)).subscribe((val) => {
+                this.dataService.unsubscribeFromChannels([channelAddress]);
+                res(val.allComponents[channelAddress.toString()]);
+            });
+        });
     }
 
     /**

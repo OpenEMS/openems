@@ -26,7 +26,7 @@ import { Role } from "../../type/role";
       }
 
       :is(ion-item) {
-        --min-height: initial !important;
+
         font-size: inherit;
       }
     }

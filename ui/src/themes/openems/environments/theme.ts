@@ -11,6 +11,7 @@ export const theme = {
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     links: {
         COMMON_STORAGE: null,
+        COMMON_STORAGE_MODAL_BATTERY_REFERENCING: null,
         FORGET_PASSWORD: "#",
         EVCS_HARDY_BARTH: "io.openems.edge.evcs.hardybarth/readme.adoc",
         EVCS_KEBA_KECONTACT: "io.openems.edge.evcs.keba.kecontact/readme.adoc",
@@ -34,6 +35,11 @@ export const theme = {
         SETTINGS_NETWORK_CONFIGURATION: null,
         EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc",
 
+        SYSTEM: {
+            INDUSTRIAL_S: "#",
+            INDUSTRIAL_L: "#",
+        },
+
         WARRANTY: {
             HOME: {
                 EN: "#",
@@ -56,14 +62,25 @@ export const theme = {
         },
 
         MANUALS: {
-            HOME: {
-                HOME_10: "#",
-                HOME_20_30: "#",
+            SYSTEM: {
+                HOME: {
+                    HOME_10: "#",
+                    HOME_20_30: "#",
+                    HOME_GEN_2: "#",
+                },
+                COMMERCIAL: {
+                    COMMERCIAL_30: "#",
+                    COMMERCIAL_50: "#",
+                    COMMERCIAL: "#",
+                },
             },
-            COMMERCIAL: {
-                COMMERCIAL_30: "#",
-                COMMERCIAL_50: "#",
+
+            RUNDSTEUER: {
+                HOME: "#",
+                HOME_GEN_2: "#",
             },
+
+            AVU: "#",
         },
         APP_CENTER: {
             APP_IMAGE: (language: string, appId: string): string | null => {
@@ -73,6 +90,12 @@ export const theme = {
         APP: {
             ANDROID: null,
             IOS: null,
+        },
+        ENERGY_JOURNEY: {
+            HOME_10: {
+                DE: "#",
+                EN: "#",
+            },
         },
     },
     PRODUCT_TYPES: () => null,

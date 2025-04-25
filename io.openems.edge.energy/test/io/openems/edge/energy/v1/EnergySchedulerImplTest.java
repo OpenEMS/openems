@@ -2,7 +2,7 @@ package io.openems.edge.energy.v1;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
-import static io.openems.edge.energy.LogVerbosity.DEBUG_LOG;
+import static io.openems.edge.energy.api.LogVerbosity.DEBUG_LOG;
 import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
 import static io.openems.edge.energy.api.Version.V1_ESS_ONLY;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;

@@ -14,7 +14,7 @@ public class UtilsTest {
 
 	@Test
 	public void test() {
-		var schedule = JSCalendar.Task.fromStringOrEmpty("""
+		var schedule = JSCalendar.Tasks.fromStringOrEmpty("""
 				[
 				   {
 				      "@type":"Task",

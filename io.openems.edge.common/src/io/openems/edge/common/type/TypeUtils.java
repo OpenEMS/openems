@@ -826,7 +826,7 @@ public class TypeUtils {
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}
-	
+
 	/**
 	 * Fits a value within a lower and upper boundary.
 	 *

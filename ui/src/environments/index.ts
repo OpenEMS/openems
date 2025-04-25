@@ -68,15 +68,27 @@ export interface Environment {
         },
 
         readonly MANUALS: {
-            readonly HOME: {
-                readonly HOME_10: string,
-                readonly HOME_20_30: string,
+            readonly SYSTEM: {
+                readonly HOME: {
+                    readonly HOME_10: string,
+                    readonly HOME_20_30: string,
+                    readonly HOME_GEN_2: string,
+                },
+                readonly COMMERCIAL: {
+                    readonly COMMERCIAL_30: string,
+                    readonly COMMERCIAL_50: string,
+                    readonly COMMERCIAL: string,
+                },
             },
-            readonly COMMERCIAL: {
-                readonly COMMERCIAL_30: string,
-                readonly COMMERCIAL_50: string,
+
+            readonly RUNDSTEUER: {
+                readonly HOME: string,
+                readonly HOME_GEN_2: string,
             },
+
+            readonly AVU: string,
         },
+
         APP_CENTER: {
             /**
              * Gets the image url of an OpenemsApp.
@@ -93,7 +105,13 @@ export interface Environment {
         APP: {
             ANDROID: string | null,
             IOS: string | null,
-        }
+        },
+        readonly ENERGY_JOURNEY: {
+            readonly HOME_10: {
+                readonly DE: string,
+                readonly EN: string,
+            }
+        },
     },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null
 }

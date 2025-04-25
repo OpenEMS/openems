@@ -13,8 +13,9 @@
             <ion-item color="light">
               <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
               <ion-label>
-                <span>Systemupdate</span>
-                <span *ngIf="environment.backend === 'OpenEMS Backend'"> für {{ edge.id }}</span>
+                <span>{{ 'Edge.Index.SYSTEMUPDATE'| translate}}</span>
+                <span *ngIf="environment.backend === 'OpenEMS Backend'"> {{ 'General.FOR' | translate }}
+                  {{ edge.id }}</span>
               </ion-label>
             </ion-item>
             <ion-card-content>

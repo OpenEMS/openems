@@ -16,7 +16,7 @@ public abstract class AbstractModbusRtuApi extends AbstractModbusApi
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	public static class RtuConfig extends AbstractModbusConfig {
+	public static final class RtuConfig extends AbstractModbusConfig {
 		private final String portName;
 		private final int baudRate;
 		private final int databits;

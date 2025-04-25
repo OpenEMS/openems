@@ -1,5 +1,6 @@
 package io.openems.common.types;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import com.google.gson.JsonElement;
@@ -99,6 +100,24 @@ public class ConfigurationProperty<T> {
 
 	public boolean isSetAndNotNull() {
 		return this.isSet() && !this.isNull();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.isSet, this.value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ConfigurationProperty other)) {
+			return false;
+		}
+		return this.isSet == other.isSet //
+				&& Objects.equals(this.value, other.value);
 	}
 
 }

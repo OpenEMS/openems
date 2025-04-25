@@ -2,6 +2,7 @@ package io.openems.edge.energy.optimizer.app;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.SimulatorTest;
@@ -38,7 +39,7 @@ public class EnergyPerformanceTestApp {
 				new int[] { 1 }, //
 		};
 
-		Simulator.simulatePeriod(gsc, ImmutableMap.of(), schedule, 0, null);
+		Simulator.simulatePeriod(gsc, ImmutableMap.of(), schedule, 0, new Fitness(), null);
 	}
 
 }

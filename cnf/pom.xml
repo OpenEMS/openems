@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
-			<groupId>com.ghgande</groupId>
+			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
 			<version>3.2.1</version>
 		</dependency>
@@ -33,17 +33,17 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.12.1</version>
+			<version>2.13.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.4.0-jre</version>
+			<version>33.4.8-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
@@ -61,7 +61,7 @@
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.10.2</version>
+			<version>3.11.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -97,7 +97,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>6.2.1</version>
+			<version>6.3.0</version>
 		</dependency>
 		<!-- de -->
 		<dependency>
@@ -177,7 +177,7 @@
 			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
 			<groupId>io.jenetics</groupId>
 			<artifactId>jenetics</artifactId>
-			<version>8.1.0</version>
+			<version>8.2.0</version>
 		</dependency>
 		<!-- javax -->
 		<dependency>
@@ -231,7 +231,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.0.24</version>
+			<version>1.0.26</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -296,12 +296,12 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.18.4</version>
+			<version>0.19.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
-			<version>0.18.4</version>
+			<version>0.19.0</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -337,12 +337,12 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.1.10</version>
+			<version>2.1.20</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
-			<version>1.10.1</version>
+			<version>1.10.2</version>
 		</dependency>
 		<dependency>
 			<!-- HTML processing -->
@@ -403,12 +403,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.2.8</version>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.2.8</version>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>

@@ -11,7 +11,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ng-container *ngIf="service.currentEdge | async as edge">
+<ng-container *ngIf="service.currentEdge() as edge">
   <ng-container *ngIf="edge.currentData | async as currentData">
     <ng-container *ngIf="currentData.summary as sum">
       <ion-content>

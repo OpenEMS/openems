@@ -310,7 +310,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     return dataset;
   }
 
-  public static getYAxisType(title: YAxisType, translate: TranslateService, chartType: "bar" | "line", customTitle?: string): string {
+  public static getYAxisTitle(title: YAxisType, translate: TranslateService, chartType: "bar" | "line", customTitle?: string): string {
     switch (title) {
       case YAxisType.RELAY:
         if (chartType === "line") {
@@ -330,6 +330,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         } else {
           return "kW";
         }
+      case YAxisType.POWER:
+        return "kW";
+      case YAxisType.HEAT_PUMP:
+        return translate.instant("General.state");
       case YAxisType.VOLTAGE:
         return "V";
       case YAxisType.CURRENT:
@@ -337,7 +341,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisType.NONE:
         return "";
       default:
-        return "kW";
+        return "";
     }
   }
 
@@ -367,8 +371,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultXAxisOptions(chartOptionsType, service, labels)));
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
 
-    chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber,);
+    chartObject.yAxes.filter(el => el satisfies HistoryUtils.yAxes).forEach((element) => {
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -446,7 +450,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
         const currentDisplayValue = displayValues.find(el => el.name == chartLegendLabelItem.text.split(":")[0]);
 
-        if (currentDisplayValue.custom) {
+        if (currentDisplayValue?.custom) {
           const show = !chartLegendLabelItem.hidden;
           // Hide plugin features on label generate
           chart.options = AbstractHistoryChart.activateOrDeactivatePlugin(currentDisplayValue, options, chartType, show);
@@ -525,9 +529,33 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return arr;
       }, []);
 
+      // Should avoid same datasets in multiple stacks and in legend to be always visible => can be hidden with single legend hide
+      const hasBeenChanged: Map<string, boolean> = new Map();
+
       legendItems.forEach(item => {
-        // original.call(this, event, legendItem1);
-        setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
+
+        /**
+         * Shows or hides datasets
+         *
+         * @info
+         *
+         * @param label the legendItem label
+         * @param chart the chart
+         * @param datasetIndex the dataset index
+         * @returns
+         */
+        function showOrHideLabel(label: string, chart: Chart.Chart, datasetIndex: number) {
+          if (hasBeenChanged.has(label)) {
+            return;
+          }
+
+          const isLabelHidden = !chart.isDatasetVisible(datasetIndex);
+          setLabelVisible(label, isLabelHidden);
+          hasBeenChanged.set(label, isLabelHidden);
+        }
+
+        showOrHideLabel(item.label, chart, legendItem.datasetIndex);
+
         const meta = chart.getDatasetMeta(item.index);
         const currentDisplayValue = displayValues.find(el => el.name == legendItem.text.split(":")[0]);
 
@@ -575,6 +603,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"]): Chart.ChartOptions {
     const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType, formatNumber);
+
     switch (element.unit) {
       case YAxisType.RELAY:
         options.scales[element.yAxisId] = {
@@ -615,7 +644,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           ticks: {
             ...baseConfig.ticks,
             callback: function (value, index, values) {
-
               if (typeof value === "number") {
                 return TimeUtils.formatSecondsToDuration(value, locale);
               }
@@ -670,6 +698,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         break;
       case YAxisType.POWER:
       case YAxisType.ENERGY:
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          max: ((baseConfig?.max && baseConfig?.min) && baseConfig?.max === baseConfig?.min) ? baseConfig.max + 1 : baseConfig.max,
+        };
+        break;
       case YAxisType.REACTIVE:
       case YAxisType.NONE:
         options.scales[element.yAxisId] = baseConfig;
@@ -930,7 +963,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.config = config;
 
       }).then(() => {
-
         this.chartObject = this.getChartData();
         this.loadChart();
       });
@@ -939,6 +971,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.options = AbstractHistoryChart.removePlugins(this.options);
+  }
+
+  ionViewWillLeave() {
+    this.ngOnDestroy();
   }
 
   protected getChartHeight(): number {
@@ -959,6 +995,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   protected async loadChart() {
     this.labels = [];
     this.errorResponse = null;
+
     const unit: ChronoUnit.Type = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
     // Show Barchart if resolution is days or months
     if (ChronoUnit.isAtLeast(unit, ChronoUnit.Type.DAYS)) {
@@ -1210,6 +1247,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.legendOptions = displayValues.legendOptions;
         this.labels = displayValues.labels;
         this.channelData = displayValues.channelData;
+
         this.beforeSetChartLabel();
         this.setChartLabel();
         resolve();
