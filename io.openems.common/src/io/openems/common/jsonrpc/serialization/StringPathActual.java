@@ -45,7 +45,8 @@ public final class StringPathActual {
 			this.parser = Objects.requireNonNull(parser);
 			this.element = element;
 
-			this.parsedValue = this.element == null ? () -> null
+			this.parsedValue = this.element == null //
+					? () -> null //
 					: lazySingleton(() -> this.parser.apply(this.element));
 		}
 

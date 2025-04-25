@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
-			<groupId>com.ghgande</groupId>
+			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
 			<version>3.2.1</version>
 		</dependency>
@@ -296,12 +296,12 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.18.4</version>
+			<version>0.19.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
-			<version>0.18.4</version>
+			<version>0.19.0</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->

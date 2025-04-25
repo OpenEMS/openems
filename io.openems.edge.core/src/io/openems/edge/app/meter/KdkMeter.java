@@ -131,7 +131,7 @@ public class KdkMeter extends AbstractOpenemsAppWithProps<KdkMeter, Property, Pa
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var modbusId = this.getString(p, Property.MODBUS_ID);
 			final var invert = this.getBoolean(p, Property.INVERT);
-			
+
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(meterId, alias, "Meter.KDK.2PUCT", //
 							JsonUtils.buildJsonObject() //

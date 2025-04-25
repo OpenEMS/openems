@@ -211,15 +211,15 @@ public class EssGenericManagedSymmetricImpl extends
 			this._setTimeoutStartBatteryInverter(false);
 			this._setTimeoutStopBattery(false);
 			this._setTimeoutStopBatteryInverter(false);
-			
+
 			if (this.battery instanceof BatteryTimeoutFailure b) {
 				b.clearBatteryTimeoutFailure();
 			}
-			
+
 			if (this.batteryInverter instanceof BatteryInverterTimeoutFailure bi) {
 				bi.clearBatteryInverterTimeoutFailure();
 			}
-			
+
 			this.stateMachine.forceNextState(UNDEFINED);
 		} catch (Exception e) {
 			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());

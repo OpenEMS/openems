@@ -110,7 +110,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 				.setDefaultValue("")//
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> { //
 					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("METER_ID"))); //
-				}))),//
+				}))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		;
 
@@ -163,7 +163,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 			final var serialNumber = this.getString(p, Property.SERIAL_NUMBER);
 			final var fullSerialNumber = this.getString(p, Property.FULL_SERIAL_NUMBER);
 			final var invert = this.getBoolean(p, Property.INVERT);
-			
+
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, "Meter.Discovergy", //
 							JsonUtils.buildJsonObject() //
