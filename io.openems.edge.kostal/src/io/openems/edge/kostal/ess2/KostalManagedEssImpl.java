@@ -329,31 +329,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	 */
 	private void addStaticModbusTasks(ModbusProtocol protocol)
 			throws OpenemsException {
-
-		// TODO check if required - overwriting sunspec model?
-		// protocol.addTask(//
-		// new FC3ReadRegistersTask(530, Priority.LOW, //
-		// new DummyRegisterElement(530),
-		// m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
-		// new UnsignedWordElement(531)), //
-		// new DummyRegisterElement(532, 581), //
-		// // TODO double check - enable widget charge/discharge
-		// // power?
-		// m(HybridEss.ChannelId.DC_DISCHARGE_POWER,
-		// new SignedWordElement(582)),
-		// new DummyRegisterElement(583, 1033), //
-		// m(KostalManagedEss.ChannelId.CHARGE_POWER,
-		// new FloatDoublewordElement(1034)
-		// .wordOrder(LSWMSW)), //
-		// new DummyRegisterElement(1036, 1037), //
-		// m(KostalManagedEss.ChannelId.MAX_CHARGE_POWER,
-		// new FloatDoublewordElement(1038)
-		// .wordOrder(LSWMSW)), //
-		// m(KostalManagedEss.ChannelId.MAX_DISCHARGE_POWER,
-		// new FloatDoublewordElement(1040)
-		// .wordOrder(LSWMSW))
-		// )); //
-		
 		protocol.addTask(//
 				new FC3ReadRegistersTask(531, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
