@@ -330,15 +330,15 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	private void addStaticModbusTasks(ModbusProtocol protocol)
 			throws OpenemsException {
 		protocol.addTask(//
-				new FC3ReadRegistersTask(531, Priority.LOW, //
+				new FC3ReadRegistersTask(531, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
 								new UnsignedWordElement(531))));
 		protocol.addTask(//
-				new FC3ReadRegistersTask(582, Priority.LOW, //
+				new FC3ReadRegistersTask(582, Priority.HIGH, //
 						m(HybridEss.ChannelId.DC_DISCHARGE_POWER,
 								new SignedWordElement(582))));
 		protocol.addTask(//
-				new FC3ReadRegistersTask(1034, Priority.LOW, //
+				new FC3ReadRegistersTask(1034, Priority.HIGH, //
 						m(KostalManagedEss.ChannelId.CHARGE_POWER,
 								new FloatDoublewordElement(1034)
 										.wordOrder(LSWMSW)), //
