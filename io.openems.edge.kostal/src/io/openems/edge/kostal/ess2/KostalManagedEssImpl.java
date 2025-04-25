@@ -110,10 +110,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 	@Reference
 	private Power power;
 
-	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(
-			this, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(
-			this, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(
 			this, HybridEss.ChannelId.DC_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(
@@ -500,8 +496,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 							"== update values topic cycle before process image ==");
 				}
 				this.calculateEnergy();
-				// TODO testing
-				this.calculateAcEnergy();
 				break;
 		}
 	}
@@ -581,27 +575,6 @@ public class KostalManagedEssImpl extends AbstractSunSpecEss
 			return surplusPower;
 		}
 		return null;
-	}
-
-	private void calculateAcEnergy() {
-		// Calculate AC Energy
-		var activeAcPower = // this.getAcPowerChannel().getNextValue().get();
-				this.getDcDischargePowerChannel().getNextValue().get();
-		if (activeAcPower == null) {
-			// Not available
-			this.calculateAcChargeEnergy.update(null);
-			this.calculateAcDischargeEnergy.update(null);
-		} else {
-			if (activeAcPower > 0) {
-				// Discharge
-				this.calculateAcChargeEnergy.update(0);
-				this.calculateAcDischargeEnergy.update(activeAcPower);
-			} else {
-				// Charge
-				this.calculateAcChargeEnergy.update(activeAcPower * -1);
-				this.calculateAcDischargeEnergy.update(0);
-			}
-		}
 	}
 
 	private void calculateEnergy() {
