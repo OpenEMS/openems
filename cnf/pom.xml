@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.13.0</version>
+			<version>2.13.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -231,13 +231,13 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.0.26</version>
+			<version>1.0.28</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.servlet-api</artifactId>
-			<version>3.0.0</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Inventory -->
