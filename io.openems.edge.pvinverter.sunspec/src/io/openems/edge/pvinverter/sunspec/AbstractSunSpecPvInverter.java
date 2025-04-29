@@ -291,13 +291,11 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		}
 
 		// max power
-		this.mapFirstPointToChannel(
-				ManagedSymmetricPvInverter.ChannelId.MAX_ACTIVE_POWER, //
+		this.mapFirstPointToChannel(ManagedSymmetricPvInverter.ChannelId.MAX_ACTIVE_POWER, //
 				DIRECT_1_TO_1, //
 				S702.W_MAX_RTG, S120.W_RTG);
 
-		this.mapFirstPointToChannel(
-				ManagedSymmetricPvInverter.ChannelId.MAX_REACTIVE_POWER, //
+		this.mapFirstPointToChannel(ManagedSymmetricPvInverter.ChannelId.MAX_REACTIVE_POWER, //
 				DIRECT_1_TO_1, //
 				S702.VAR_MAX_INJ_RTG, S120.V_AR_RTG_Q1);
 

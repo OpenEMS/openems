@@ -44,7 +44,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.smartConfig = smartConfig;
 			return this;
 		}
-		
+
 		public Builder setManualEnergySessionLimit(int manualEnergySessionLimit) {
 			this.manualEnergySessionLimit = manualEnergySessionLimit;
 			return this;

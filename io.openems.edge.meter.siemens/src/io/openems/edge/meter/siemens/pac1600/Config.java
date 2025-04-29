@@ -27,7 +27,7 @@ import io.openems.common.types.MeterType;
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
-	
+
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power and current values. i.e. They are multiplied with -1.")
 	boolean invert() default false;
 
