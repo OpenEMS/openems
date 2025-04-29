@@ -237,7 +237,7 @@
 			<!-- Apache Felix Servlet API -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.servlet-api</artifactId>
-			<version>3.0.0</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Inventory -->
