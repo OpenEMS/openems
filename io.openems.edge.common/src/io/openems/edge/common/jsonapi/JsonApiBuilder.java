@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -329,6 +330,26 @@ public class JsonApiBuilder {
 				this.handleException(t, e);
 			}
 		}, endpointDef, subroutes));
+		return this;
+	}
+
+	/**
+	 * Delegates the handled request to another endpoint.
+	 * 
+	 * @param <REQUEST>  the type of the request
+	 * @param <RESPONSE> the type of the response
+	 * @param method     the method name
+	 * @param handler    the request handler
+	 * @param subroutes  a supplier to get the subrequest
+	 * @return this
+	 */
+	public <REQUEST, RESPONSE> JsonApiBuilder delegate(//
+			final String method, //
+			final BiConsumer<JsonApiBuilder, Call<JsonrpcRequest, JsonrpcResponse>> handler, //
+			final Supplier<List<Subrequest>> subroutes //
+	) {
+		final var endpointDef = new EndpointDefinitionBuilder<REQUEST, RESPONSE>();
+		this.addEndpoint(new JsonApiEndpoint(method, handler, endpointDef, subroutes));
 		return this;
 	}
 

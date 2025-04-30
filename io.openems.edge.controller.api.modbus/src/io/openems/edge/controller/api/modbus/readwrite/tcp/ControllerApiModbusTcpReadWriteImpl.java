@@ -76,9 +76,7 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 
 	private List<String> writeChannels;
 
-	private List<OpenemsComponent> components = new ArrayList<>();
-
-	private TcpConfig config;
+	private volatile TcpConfig config;
 
 	private boolean isActive = false;
 
@@ -86,7 +84,7 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	private volatile Timedata timedata = null;
 
 	@Reference
-	private Meta metaComponent = null;
+	private Meta metaComponent;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -95,19 +93,14 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	private ComponentManager componentManager;
 
 	@Override
-	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE //
-	)
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addComponent(OpenemsComponent component) {
 		super.addComponent(component);
-		this.components.add(component);
 	}
 
+	@Override
 	protected void removeComponent(OpenemsComponent component) {
 		super.removeComponent(component);
-		this.components.remove(component);
 	}
 
 	public ControllerApiModbusTcpReadWriteImpl() {
@@ -132,7 +125,7 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusTcpApi
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), config.apiTimeout(), config.port(), config.maxConcurrentConnections());
-		super.modified(context, this.cm, this.config);
+		super.modified(context, this.cm, this.config, this.componentManager.getClock());
 		this.applyConfig(config);
 	}
 

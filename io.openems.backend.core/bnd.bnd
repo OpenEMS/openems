@@ -7,7 +7,7 @@ Bundle-Description: Supportive services that are used throughout OpenEMS Backend
 -buildpath: \
 	${buildpath},\
 	io.openems.backend.common,\
-	io.openems.common
+	io.openems.common,\
 
 -testpath: \
 	${testpath}

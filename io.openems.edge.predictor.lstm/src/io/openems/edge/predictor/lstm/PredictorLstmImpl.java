@@ -137,26 +137,14 @@ public class PredictorLstmImpl extends AbstractPredictor
 		var dayPlus1SeasonalityFuture = CompletableFuture
 				.supplyAsync(() -> this.predictSeasonality(channelAddress, now.plusDays(1), hyperParameters));
 
-		// var combinePrerequisites = CompletableFuture.allOf(seasonalityFuture,
-		// trendFuture);
-
 		try {
-			// TODO combinePrerequisites.get();
 
-			// Current day prediction
-			var currentDayPredicted = combine(trendFuture.get(), seasonalityFuture.get());
-
-			// Next Day prediction
-			var plus1DaySeasonalityPrediction = dayPlus1SeasonalityFuture.get();
-
-			// Concat current and Nextday
+			CompletableFuture.allOf(seasonalityFuture, trendFuture, dayPlus1SeasonalityFuture).join();
+			var currentDayPredicted = combine(trendFuture.join(), seasonalityFuture.join());
+			var plus1DaySeasonalityPrediction = dayPlus1SeasonalityFuture.join();
 			var actualPredicted = concatenateList(currentDayPredicted, plus1DaySeasonalityPrediction);
-
 			var baseTimeOfPrediction = now.withMinute(getMinute(now, hyperParameters)).withSecond(0).withNano(0);
-
-			return Prediction.from(this.sum, channelAddress, //
-					baseTimeOfPrediction, //
-					averageInChunks(actualPredicted));
+			return Prediction.from(this.sum, channelAddress, baseTimeOfPrediction, averageInChunks(actualPredicted));
 
 		} catch (Exception e) {
 			throw new RuntimeException("Error in getting prediction execution", e);

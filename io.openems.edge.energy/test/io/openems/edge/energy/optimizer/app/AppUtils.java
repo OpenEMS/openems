@@ -15,6 +15,7 @@ import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.common.type.RegexUtils.applyPatternOrError;
 import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentModes;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
+import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.time.Duration.ofSeconds;
 
 import java.time.Duration;
@@ -22,6 +23,7 @@ import java.time.ZoneId;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
@@ -34,7 +36,6 @@ import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
-import io.openems.edge.energy.optimizer.Utils;
 
 public final class AppUtils {
 
@@ -59,7 +60,7 @@ public final class AppUtils {
 				stream -> stream //
 						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))));
 
-		Utils.logSimulationResult(simulator, simulationResult);
+		logSimulationResult(simulator, simulationResult);
 	}
 
 	private static GlobalOptimizationContext parseJson(JsonObject goc)
@@ -147,4 +148,13 @@ public final class AppUtils {
 			+ "\\s+(?<price>-?\\d+)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
+
+	protected static JsonElement period(String time, double production, double consumption, double price) {
+		return buildJsonObject() //
+				.addProperty("time", time) //
+				.addProperty("production", production) //
+				.addProperty("consumption", consumption) //
+				.addProperty("price", price) //
+				.build();
+	}
 }

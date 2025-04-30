@@ -70,6 +70,7 @@ import { UserModule } from "./user/user.module";
     PlatFormService,
     AppStateTracker,
     UserService,
+    NavigationService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeService,

@@ -11,6 +11,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiModbusTcpReadOnlyImplTest {
@@ -21,6 +22,7 @@ public class ControllerApiModbusTcpReadOnlyImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerApiModbusTcpReadOnlyImpl()) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
+				.addReference("metaComponent", new DummyMeta("_meta")) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //

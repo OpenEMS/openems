@@ -125,7 +125,7 @@ EOT
 					else
 						(
 							head -n $start "${D}/bnd.bnd"; # before 'buildpath'
-							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | LC_COLLATE=C sort; # the 'buildpath'
+							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | LC_COLLATE=C sort | sed '/\\$/!s/$/,\\/'; # the 'buildpath'
 							tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
 						) > "${D}/bnd.bnd.new"
 						if [ $? -eq 0 ]; then

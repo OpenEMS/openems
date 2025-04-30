@@ -1,12 +1,11 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, ElementRef, Inject, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { NavigationService } from "src/app/shared/components/navigation/navigation.service";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils";
 
@@ -16,7 +15,6 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
-    @ViewChild("modal2", { read: ElementRef }) public modal!: ElementRef;
 
     protected showNewFooter: boolean = true;
     protected label: string | null = null;
@@ -29,7 +27,6 @@ export class ModalComponent extends AbstractModal {
         @Inject(TranslateService) protected override translate: TranslateService,
         @Inject(FormBuilder) public override formBuilder: FormBuilder,
         public override ref: ChangeDetectorRef,
-        private navigationService: NavigationService,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
     }

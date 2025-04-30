@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -103,6 +104,19 @@ public class EdgeConfig {
 				public PersistencePriority getPersistencePriority() {
 					return this.persistencePriority;
 				}
+
+				@Override
+				public boolean equals(Object o) {
+					if (!(o instanceof ChannelDetailOpenemsType that)) {
+						return false;
+					}
+					return this.persistencePriority == that.persistencePriority;
+				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hashCode(this.persistencePriority);
+				}
 			}
 
 			/**
@@ -147,6 +161,20 @@ public class EdgeConfig {
 				public PersistencePriority getPersistencePriority() {
 					return this.persistencePriority;
 				}
+
+				@Override
+				public boolean equals(Object o) {
+					if (!(o instanceof ChannelDetailEnum that)) {
+						return false;
+					}
+					return Objects.equals(this.options, that.options)
+							&& this.persistencePriority == that.persistencePriority;
+				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hash(this.options, this.persistencePriority);
+				}
 			}
 
 			/**
@@ -186,6 +214,19 @@ public class EdgeConfig {
 				@Override
 				public PersistencePriority getPersistencePriority() {
 					return this.persistencePriority;
+				}
+
+				@Override
+				public boolean equals(Object o) {
+					if (!(o instanceof ChannelDetailState that)) {
+						return false;
+					}
+					return this.level == that.level && this.persistencePriority == that.persistencePriority;
+				}
+
+				@Override
+				public int hashCode() {
+					return Objects.hash(this.level, this.persistencePriority);
 				}
 			}
 
@@ -339,6 +380,21 @@ public class EdgeConfig {
 						.addProperty("category", this.detail.getCategory().name()) //
 						.addProperty("persistencePriority", this.detail.getPersistencePriority()) //
 						.build();
+			}
+
+			@Override
+			public boolean equals(Object o) {
+				if (!(o instanceof Channel channel)) {
+					return false;
+				}
+				return Objects.equals(this.id, channel.id) && this.type == channel.type
+						&& this.accessMode == channel.accessMode && Objects.equals(this.text, channel.text)
+						&& this.unit == channel.unit && Objects.equals(this.detail, channel.detail);
+			}
+
+			@Override
+			public int hashCode() {
+				return Objects.hash(this.id, this.type, this.accessMode, this.text, this.unit, this.detail);
 			}
 		}
 

@@ -30,7 +30,7 @@ import io.openems.common.types.MeterType;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.PRODUCTION;
-	
+
 	@AttributeDefinition(name = "Invert measurement", description = "Inverts power and current, swaps production and consumption energy")
 	boolean invert() default false;
 

@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.Unit;
@@ -39,7 +40,6 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
-import io.openems.edge.core.appmanager.OpenemsAppStatus;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
@@ -85,11 +85,13 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.NUMBER);
 					field.onlyPositiveNumbers();
-					field.setUnit(Unit.WATT, l);
-				}).bidirectional("_meta", "gridConnectionPointFuseLimit", ComponentManagerSupplier::getComponentManager))), //
+					field.setUnit(Unit.AMPERE, l);
+				}) //
+				.bidirectional("_meta", "gridConnectionPointFuseLimit",
+						ComponentManagerSupplier::getComponentManager))), //
 		;
 
-		private AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
 
 		private Property(AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
@@ -174,15 +176,13 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanDelete(Role.ADMIN) // TODO theoretically not even admin
+				.setCanSee(Role.ADMIN) //
 				.build();
 	}
 
 	@Override
 	public Flag[] flags() {
-		final var flags = new ArrayList<>();
-		if (this.getStatus() == OpenemsAppStatus.BETA) {
-			flags.add(Flags.SHOW_AFTER_KEY_REDEEM);
-		}
+		final var flags = Lists.newArrayList(super.flags());
 		flags.add(Flags.ALWAYS_INSTALLED);
 		return flags.toArray(Flag[]::new);
 	}

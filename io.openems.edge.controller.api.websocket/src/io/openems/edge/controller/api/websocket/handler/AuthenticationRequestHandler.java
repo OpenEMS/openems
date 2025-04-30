@@ -19,8 +19,10 @@ import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.edge.common.jsonapi.CreateAccountFromSetupKey;
 import io.openems.edge.common.jsonapi.EdgeGuards;
 import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.JsonApi;
@@ -64,6 +66,18 @@ public class AuthenticationRequestHandler implements JsonApi {
 			this.sessionTokens.remove(wsData.getSessionToken(), call.get(EdgeKeys.USER_KEY));
 			wsData.logout();
 			return new GenericJsonrpcResponseSuccess(call.getRequest().getId());
+		});
+
+		builder.handleRequest(new CreateAccountFromSetupKey(), endpoint -> {
+			endpoint.setDescription("""
+					Creates a new account if the provided setup key is the setup key of this edge.
+					""");
+		}, call -> {
+			final var request = call.getRequest();
+
+			this.userService.registerAdminUser(request.setupKey(), request.username(), request.password());
+
+			return EmptyObject.INSTANCE;
 		});
 	}
 

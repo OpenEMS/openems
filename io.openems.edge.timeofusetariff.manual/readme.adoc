@@ -9,4 +9,9 @@ Implementations:
 Calculates the quarterly prices for the next 36 hours based on the standard and low-price details from the user's contract. 
 For a detailed overview of the tariff structure, please refer to: https://octopusenergy.de/octopus-go
 
+== Octopus Heat
+
+Calculates the quarterly prices for the next 36 hours based on the high, standard and low-price details from the user's contract. 
+For a detailed overview of the tariff structure, please refer to: https://octopusenergy.de/octopus-heat
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.manual[Source Code icon:github[]]

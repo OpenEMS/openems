@@ -724,13 +724,13 @@ export class EdgeConfig {
                 case "Evse.Controller.Single":
                     navigationTree.setChild(NavigationId.LIVE,
                         new NavigationTree(
-                            componentId, "evse/" + componentId, { name: "oe-evcs" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
                             navigationTree,));
                     break;
                 case "Controller.IO.Heating.Room":
                     navigationTree.setChild(NavigationId.LIVE,
                         new NavigationTree(
-                            componentId, "io-heating-room/" + componentId, { name: "flame" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+                            componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
                             navigationTree,));
                     break;
             }
