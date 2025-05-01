@@ -154,6 +154,21 @@ formly-field-ion-radio {
     border-color: white;
 }
 
+//* Color of arrow down *//
+ion-select::part(icon) {
+    color: var(--ion-color-primary) !important;
+}
+
+.ion-select-border-color-primary {
+    --border-color: var(--ion-color-primary);
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+        border-color: var(--ion-color-primary) !important;
+    }
+}
+
 .custom-ion-popover {
 
     --background: var(--ion-background-color);
