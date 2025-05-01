@@ -12,7 +12,7 @@
                 <oe-modal-line *ngIf="meterId" [name]="'Leistung'" [converter]="Converter.POWER_IN_WATT"
                     [channelAddress]="meterId + '/ActivePower'">
                 </oe-modal-line>
-                <oe-modal-line [name]="'Energie seit Ladebeginn'" [converter]="Converter.TO_KILO_WATT_HOURS"
+                <oe-modal-line [name]="'Energie seit Ladebeginn'" [converter]="Converter.TO_WATT_HOURS"
                     [channelAddress]="component.id + '/SessionEnergy'">
                 </oe-modal-line>
             </ion-col>

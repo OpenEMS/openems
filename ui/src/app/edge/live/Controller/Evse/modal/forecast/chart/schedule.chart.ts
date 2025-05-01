@@ -6,6 +6,7 @@ import { filter, take } from "rxjs/operators";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { calculateResolution } from "src/app/edge/history/shared";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
@@ -138,7 +139,7 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
             const label = item.dataset.label;
             const value = item.dataset.data[item.dataIndex];
 
-            return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.currencyLabel);
+            return label + ": " + Formatter.FORMAT_CURRENCY_PER_KWH(value, this.currencyLabel);
         };
 
         this.datasets = this.datasets.map((el) => {
