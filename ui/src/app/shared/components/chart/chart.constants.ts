@@ -59,6 +59,12 @@ export namespace ChartConstants {
       };
     };
 
+    /**
+     * Places the yAxis above the chart
+     *
+     * @param id the chart axis id
+     * @returns plugin applied features
+     */
     public static readonly YAXIS_TITLE_POSITION = (id: ChartAxis) => {
       return ({
         id: id,
