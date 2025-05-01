@@ -716,7 +716,7 @@ export class EdgeConfig {
     }
 
     public createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory; }): NavigationTree {
-        const navigationTree: NavigationTree = NavigationTree.of(baseNavigationTree);
+        const navigationTree: NavigationTree = baseNavigationTree;
         const baseMode: NavigationTree["mode"] = "label";
 
         for (const [componentId, component] of Object.entries(components)) {
@@ -724,8 +724,8 @@ export class EdgeConfig {
                 case "Evse.Controller.Single":
                     navigationTree.setChild(NavigationId.LIVE,
                         new NavigationTree(
-                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
-                            navigationTree,));
+                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+                        ], navigationTree));
                     break;
                 case "Controller.IO.Heating.Room":
                     navigationTree.setChild(NavigationId.LIVE,

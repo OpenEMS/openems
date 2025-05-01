@@ -41,7 +41,6 @@ export class NavigationComponent {
      * @returns
      */
     public async navigateTo(node: NavigationTree, shouldNavigate: boolean): Promise<void> {
-
         // Skip navigation for last breadcrumb
         if (!shouldNavigate) {
             return;

@@ -21,10 +21,6 @@ export class NavigationTree {
         public parent: NavigationTree | null,
     ) { }
 
-    public static of(navigationTree: NavigationTree) {
-        return new NavigationTree(navigationTree.id, navigationTree.routerLink, navigationTree.icon, navigationTree.label, navigationTree.mode, navigationTree.children, navigationTree.parent);
-    }
-
     public getChildren(): NavigationTree[] | null {
         return this.children?.filter(el => el != null) ?? null;
     }
@@ -41,14 +37,32 @@ export class NavigationTree {
             navigationParents.push(root);
         }
 
-        return navigationParents;
+        return navigationParents.reverse();
     }
 
-    public setChild(parentNavigationId: NavigationId, childNavigationTree: NavigationTree) {
+    /**
+     * Sets the child for a given parent navigation id
+     *
+     * @info set parent to null for nested children
+     *
+     * @param parentNavigationId the parent navigation id
+     * @param childNavigationTree the child navigation tree
+     */
+    public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
         this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
+
+        function setParentRecursive(node: NavigationTree, parent: NavigationTree | null): void {
+            node.parent = parent;
+
+            if (node.children) {
+                node.children.forEach(child => setParentRecursive(child, node));
+            }
+        }
+
+        setParentRecursive(this, null);
     }
 
-    public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId, newNavigation: NavigationTree): NavigationTree | null {
+    public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId | string, newNavigation: NavigationTree): NavigationTree | null {
 
         if (!tree) {
             return null;

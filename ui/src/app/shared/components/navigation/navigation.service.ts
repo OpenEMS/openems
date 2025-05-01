@@ -1,4 +1,4 @@
-import { Directive, WritableSignal, signal, effect } from "@angular/core";
+import { Directive, WritableSignal, effect, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { RouteService } from "../../service/previousRouteService";
 import { Service } from "../../shared";
@@ -68,11 +68,12 @@ export class NavigationService {
      * @returns the shortened array, split by given key
      */
     private getPrevRoute(arr: string[], key: string): string[] {
-        const startIndex: number | null = arr.findIndex(el => el == key) ?? null;
+        const keySegments = key.split("/");
+        const startIndex: number | null = arr.findIndex(el => el == key.split("/")[0]) ?? null;
         if (startIndex == null) {
             return arr;
         }
-        return arr.slice(0, startIndex + 1);
+        return arr.slice(0, startIndex + keySegments.length);
     }
 
     /**
