@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.jsonrpc.request.GetChannelsOfComponent;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -55,8 +56,8 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference
-	private Power power;
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY, policy = ReferencePolicy.DYNAMIC)
+	private volatile Power power;
 
 	private Config config;
 	private final ChannelSubscriber channelSubscriber = new ChannelSubscriber();
@@ -214,7 +215,11 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 
 	@Override
 	public Power getPower() {
-		return this.power;
+		final var power = this.power;
+		if (power == null) {
+			throw new OpenemsRuntimeException("Ess.Power is not yet available");
+		}
+		return power;
 	}
 
 	@Override
