@@ -242,11 +242,8 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             });
 
             try {
-                if (controllerId === "_meta") {
-                    await this.edge.updateAppConfig(this.websocket, controllerId, properties);
-                } else {
-                    await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
-                }
+                // todo: updateAppConfig for once fixed
+                await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
                 this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 this.formGroup.markAsPristine();
 
