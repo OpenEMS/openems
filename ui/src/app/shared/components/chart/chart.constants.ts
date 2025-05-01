@@ -59,6 +59,12 @@ export namespace ChartConstants {
       };
     };
 
+    /**
+     * Places the yAxis above the chart
+     *
+     * @param id the chart axis id
+     * @returns plugin applied features
+     */
     public static readonly YAXIS_TITLE_POSITION = (id: ChartAxis) => {
       return ({
         id: id,
@@ -210,6 +216,7 @@ export namespace ChartConstants {
 
   export class NumberFormat {
     public static NO_DECIMALS: string = "1.0-0";
+    public static ZERO_TO_TWO: string = "1.0-2";
   }
 
   /**
@@ -317,10 +324,14 @@ export namespace ChartConstants {
         }
 
         const min = Math.floor(Math.min(...[arr.min, currMin].filter(el => el != null))) ?? null;
-        const max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
+        let max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
 
         if (max === null || min === null) {
           return arr;
+        }
+
+        if (max === min) {
+          max += 1;
         }
 
         arr = {

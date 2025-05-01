@@ -1,5 +1,6 @@
 package io.openems.edge.controller.evse.single;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
@@ -18,7 +19,8 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ACTUAL_MODE(Doc.of(Mode.Actual.values())), //
 		SESSION_ENERGY(Doc.of(INTEGER) //
-				.unit(WATT_HOURS)), //
+				.unit(WATT_HOURS) //
+				.persistencePriority(HIGH)), //
 		SESSION_LIMIT_REACHED(Doc.of(Level.INFO) //
 				.text("Session Limit reached")) //
 		;

@@ -1,15 +1,16 @@
 package io.openems.edge.energy.api.simulation;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentModes;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
-import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
+import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.HOUR;
+import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
 import static java.lang.Math.abs;
 import static java.util.Arrays.stream;
 
@@ -24,9 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.sum.Sum;
@@ -66,12 +68,13 @@ public record GlobalOptimizationContext(//
 	 * 
 	 * @return the {@link JsonObject}
 	 */
-	public JsonObject toJson() {
+	public static JsonElement toJson(GlobalOptimizationContext goc) {
 		return buildJsonObject() //
-				.addProperty("startTime", this.startTime) //
-				.add("grid", this.grid.toJson()) //
-				.add("ess", this.ess.toJson()) //
-				.add("eshs", this.eshs.stream() //
+				.addProperty("riskLevel", goc.riskLevel) //
+				.addProperty("startTime", goc.startTime) //
+				.add("grid", Grid.serializer().serialize(goc.grid)) //
+				.add("ess", Ess.serializer().serialize(goc.ess)) //
+				.add("eshs", goc.eshs.stream() //
 						.map(EnergyScheduleHandler::toJson) //
 						.collect(toJsonArray())) //
 				.build();
@@ -82,74 +85,101 @@ public record GlobalOptimizationContext(//
 			int currentEnergy, //
 			/** ESS Total Energy (Capacity) [Wh] */
 			int totalEnergy, //
-			/** ESS Max Charge Energy [Wh] */
-			int maxChargeEnergy, //
-			/** ESS Max Discharge Energy [Wh] */
-			int maxDischargeEnergy) {
+			/** ESS Max Charge Power [W] */
+			int maxChargePower, //
+			/** ESS Max Discharge Power [W] */
+			int maxDischargePower) {
 
 		/**
-		 * Serialize.
+		 * Returns a {@link JsonSerializer} for a {@link Ess}.
 		 * 
-		 * @return the {@link JsonObject}
+		 * @return the created {@link JsonSerializer}
 		 */
-		public JsonObject toJson() {
-			return buildJsonObject() //
-					.addProperty("currentEnergy", this.currentEnergy) //
-					.addProperty("totalEnergy", this.totalEnergy) //
-					.addProperty("maxChargeEnergy", this.maxChargeEnergy) //
-					.addProperty("maxDischargeEnergy", this.maxDischargeEnergy) //
-					.build();
-		}
-
-		/**
-		 * Deserialize.
-		 * 
-		 * @param j a {@link JsonObject}
-		 * @return the {@link Ess}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Ess fromJson(JsonObject j) throws OpenemsNamedException {
-			return new Ess(//
-					getAsInt(j, "currentEnergy"), //
-					getAsInt(j, "totalEnergy"), //
-					getAsInt(j, "maxChargeEnergy"), //
-					getAsInt(j, "maxDischargeEnergy"));
+		public static JsonSerializer<Ess> serializer() {
+			return jsonObjectSerializer(Ess.class, json -> {
+				return new Ess(//
+						json.getInt("currentEnergy"), //
+						json.getInt("totalEnergy"), //
+						json.getInt("maxChargePower"), //
+						json.getInt("maxDischargePower"));
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("currentEnergy", obj.currentEnergy) //
+						.addProperty("totalEnergy", obj.totalEnergy) //
+						.addProperty("maxChargePower", obj.maxChargePower) //
+						.addProperty("maxDischargePower", obj.maxDischargePower) //
+						.build();
+			});
 		}
 	}
 
 	public static record Grid(//
-			/** Max Buy-From-Grid Energy [Wh] */
-			int maxBuy, //
-			/** Max Sell-To-Grid Energy [Wh] */
-			int maxSell) {
+			/** Max Buy-From-Grid Power [W] */
+			int maxBuyPower, //
+			/** Max Sell-To-Grid Power [W] */
+			int maxSellPower) {
 
 		/**
-		 * Serialize.
+		 * Returns a {@link JsonSerializer} for a {@link Grid}.
 		 * 
-		 * @return the {@link JsonObject}
+		 * @return the created {@link JsonSerializer}
 		 */
-		public JsonObject toJson() {
-			return buildJsonObject() //
-					.addProperty("maxBuy", this.maxBuy) //
-					.addProperty("maxSell", this.maxSell) //
-					.build();
+		public static JsonSerializer<Grid> serializer() {
+			return jsonObjectSerializer(Grid.class, json -> {
+				return new Grid(//
+						json.getInt("maxBuyPower"), //
+						json.getInt("maxSellPower"));
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("maxBuyPower", obj.maxBuyPower) //
+						.addProperty("maxSellPower", obj.maxSellPower) //
+						.build();
+			});
+		}
+	}
+
+	public static enum PeriodDuration {
+		/** Period of duration 15 minutes. */
+		QUARTER,
+		/** Period of duration 1 hour. */
+		HOUR;
+
+		/**
+		 * Converts power [W] to energy [Wh], considering the duration of the Period.
+		 * 
+		 * @param power the power value
+		 * @return the energy value
+		 */
+		public int convertPowerToEnergy(int power) {
+			return switch (this) {
+			case QUARTER -> power / 4;
+			case HOUR -> power;
+			};
 		}
 
 		/**
-		 * Deserialize.
+		 * Converts energy [Wh] to power [W], considering the duration of the Period.
 		 * 
-		 * @param j a {@link JsonObject}
-		 * @return the {@link Grid}
-		 * @throws OpenemsNamedException on error
+		 * @param energy the energy value
+		 * @return the power value
 		 */
-		public static Grid fromJson(JsonObject j) throws OpenemsNamedException {
-			return new Grid(//
-					getAsInt(j, "maxBuy"), //
-					getAsInt(j, "maxSell"));
+		public int convertEnergyToPower(int energy) {
+			return switch (this) {
+			case QUARTER -> energy * 4;
+			case HOUR -> energy;
+			};
 		}
 	}
 
 	public static sealed interface Period {
+
+		/**
+		 * The Duration of the Period.
+		 * 
+		 * @return the PeriodDuration
+		 */
+		public PeriodDuration duration();
+
 		/**
 		 * Index of the Period.
 		 * 
@@ -192,6 +222,11 @@ public record GlobalOptimizationContext(//
 				int consumption, //
 				double price //
 		) implements Period {
+
+			@Override
+			public PeriodDuration duration() {
+				return QUARTER;
+			}
 		}
 
 		public static record Hour(//
@@ -203,6 +238,11 @@ public record GlobalOptimizationContext(//
 				/** Raw Periods, representing one QUARTER. */
 				ImmutableList<Period.Quarter> quarterPeriods //
 		) implements Period {
+
+			@Override
+			public PeriodDuration duration() {
+				return HOUR;
+			}
 		}
 	}
 
@@ -353,7 +393,8 @@ public record GlobalOptimizationContext(//
 					return null;
 				}
 				final var production = productions.getAtOrElse(time, 0);
-				return new Period.Quarter(i, time, toEnergy(production), toEnergy(consumption), price);
+				return new Period.Quarter(i, time, //
+						QUARTER.convertPowerToEnergy(production), QUARTER.convertPowerToEnergy(consumption), price);
 			};
 			final IntFunction<Period.Hour> toHourPeriod = (j) -> {
 				final var i = periodLengthHourFromIndex + j * 4;
@@ -380,9 +421,9 @@ public record GlobalOptimizationContext(//
 						.mapToObj(toQuarterPeriod) //
 						.filter(Objects::nonNull) //
 						.collect(toImmutableList());
-				// TODO toEnergy per Hour?
 				return new Period.Hour(periodLengthHourFromIndex + j, rangeStart, //
-						toEnergy(production), toEnergy(stream(consumption).sum()), //
+						QUARTER.convertPowerToEnergy(production), // ok, because 'sum'
+						QUARTER.convertPowerToEnergy(stream(consumption).sum()), //
 						price, quarterPeriods);
 			};
 
@@ -413,8 +454,7 @@ public record GlobalOptimizationContext(//
 				var maxChargePower = TypeUtils.min(-1000 /* at least 1000 W */, //
 						this.sum.getEssMinDischargePower().get());
 
-				ess = new Ess(essInitialEnergy, essCapacity, toEnergy(abs(maxChargePower)),
-						toEnergy(maxDischargePower));
+				ess = new Ess(essInitialEnergy, essCapacity, abs(maxChargePower), maxDischargePower);
 			}
 			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 

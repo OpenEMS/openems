@@ -799,7 +799,8 @@
       "MAX": "Please enter a value less than {{ max }}.",
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
-      "POSITIVE_INTEGER": "Only positive integer numbers are allowed."
+      "POSITIVE_INTEGER": "Only positive integer numbers are allowed.",
+      "INVALID_ZIPCODE": "Invalid zip code format"
     },
     "FORWARD": "continue",
     "LOAD": "load",
@@ -913,7 +914,10 @@
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
       "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Grid connection point",
-      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number."
+      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number.",
+      "BATTERY_TOWER_CLUSTER": "Battery {{ batteryNumber }} Tower {{towerNumber}}",
+      "INVALID_SERIALNUMBER_KEY": "Please check the {{ key }} serialnumber in {{ header }}",
+      "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",

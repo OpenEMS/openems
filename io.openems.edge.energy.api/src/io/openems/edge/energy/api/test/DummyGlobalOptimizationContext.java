@@ -36,8 +36,8 @@ public class DummyGlobalOptimizationContext {
 		return new GlobalOptimizationContext(//
 				CLOCK, RiskLevel.MEDIUM, TIME, //
 				eshs, filterEshsWithDifferentModes(eshs).collect(toImmutableList()), //
-				new GlobalOptimizationContext.Grid(4000, 20000), //
-				new GlobalOptimizationContext.Ess(5000, 22000, 4000, 4000), //
+				new GlobalOptimizationContext.Grid(16000, 20000), //
+				new GlobalOptimizationContext.Ess(5000, 22000, 16000, 16000), //
 				ImmutableList.of(//
 						new Period.Quarter(0, time(0, 0), 0, 106, 293.70), //
 						new Period.Quarter(1, time(0, 15), 0, 86, 293.70), //

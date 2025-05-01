@@ -263,7 +263,10 @@ public class Optimizer implements Runnable {
 		var schedule = simulationResult.periods().entrySet().stream() //
 				.collect(toImmutableSortedMap(ZonedDateTime::compareTo, //
 						Entry::getKey, //
-						e -> new OneMode.Period.Transition(e.getValue().period().price(), e.getValue().energyFlow())));
+						e -> new OneMode.Period.Transition(//
+								e.getValue().period().duration(), //
+								e.getValue().period().price(), //
+								e.getValue().energyFlow())));
 		simulationResult.eshsWithOnlyOneMode().forEach(esh -> {
 			esh.applySchedule(schedule);
 		});

@@ -806,7 +806,8 @@
       "MAX": "Bitte geben Sie einen Wert kleiner als {{ max }} ein.",
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
-      "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt."
+      "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt.",
+      "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat"
     },
     "FORWARD": "weiter",
     "LOAD": "laden...",
@@ -921,7 +922,10 @@
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
       "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Netztrennstelle",
-      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein."
+      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein.",
+      "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
+      "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
+      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",

@@ -24,10 +24,9 @@ public interface JsonObjectPathNullable extends JsonPath {
 	public boolean isPresent();
 
 	/**
-	 * Gets the boolean value of the current path.
+	 * Gets the {@link JsonObject} value of the current path.
 	 * 
 	 * @return the value; or null if not present
 	 */
 	public JsonObject getOrNull();
-
 }
