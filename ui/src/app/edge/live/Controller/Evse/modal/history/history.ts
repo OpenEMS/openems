@@ -1,26 +1,43 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, ViewEncapsulation } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { NavigationComponent } from "src/app/shared/components/navigation/navigation.component";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import { ControllerEvseSingleShared } from "../shared/shared";
+import { ControllerEvseSingleShared } from "../../shared/shared";
 
 @Component({
-    selector: "oe-controller-evse-single-modal",
-    templateUrl: "./modal.html",
+    selector: "oe-controller-evse-history",
+    templateUrl: "./history.html",
     standalone: false,
+    styles: [
+        `
+        .ion-justify-with-space-between{
+            ion-row > ion-col:nth-child(2){
+                text-align: right;
+            }
+        }
+
+       form {
+            align-content: center !important;
+        }
+        `,
+    ],
+    encapsulation: ViewEncapsulation.None,
 })
 export class ModalComponent extends AbstractModal {
 
     protected showNewFooter: boolean = true;
     protected label: string | null = null;
     protected meterId: string | null = null;
+    protected navigationModalHeader: number = null;
 
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
@@ -30,8 +47,10 @@ export class ModalComponent extends AbstractModal {
         @Inject(TranslateService) protected override translate: TranslateService,
         @Inject(FormBuilder) public override formBuilder: FormBuilder,
         public override ref: ChangeDetectorRef,
+        protected navigationService: NavigationService,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
+        this.navigationModalHeader = this.navigationService.position == "bottom" ? NavigationComponent.INITIAL_BREAKPOINT * 100 + 5 : 0;
     }
 
     override async updateComponent(config: EdgeConfig) {

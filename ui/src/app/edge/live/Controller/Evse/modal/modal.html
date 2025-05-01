@@ -1,19 +1,31 @@
-<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
-    <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
+<oe-navigation-view [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
+    *ngIf="isInitialized">
+    <ion-grid class="ion-padding ion-margin-right">
+        <ion-row class="ion-justify-content-center ion-align-items-center ion-padding">
+            <ion-col size-md="3" size-xs="9">
+                <img src="assets/img/evse/keba.png">
+            </ion-col>
+            <ion-col size-md="6" size-xs="9">
+                <oe-modal-line [name]="'Modus'" [converter]="CONVERT_TO_MODE"
+                    [channelAddress]="component.id + '/_PropertyMode'">
+                </oe-modal-line>
+                <oe-modal-line *ngIf="meterId" [name]="'Leistung'" [converter]="Converter.POWER_IN_WATT"
+                    [channelAddress]="meterId + '/ActivePower'">
+                </oe-modal-line>
+                <oe-modal-line [name]="'Energie seit Ladebeginn'" [converter]="Converter.TO_KILO_WATT_HOURS"
+                    [channelAddress]="component.id + '/SessionEnergy'">
+                </oe-modal-line>
+            </ion-col>
+            <ion-col size-md="3" size-xs="0">
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+
+    <oe-modal-buttons class="ion-font-size-x-small" [formGroup]="formGroup" controlName="mode" [component]="component"
+        [buttons]="[
     { name: 'Aus', value: 'ZERO', icon: {color:'primary', name: 'close-circle-outline'}},
     { name: 'Minimal', value: 'MINIMUM', icon: {color:'primary', name: 'radio-button-off-outline'}},
     { name: 'PV', value: 'SURPLUS', icon: {color:'primary', name: 'sunny-outline'}},
     { name: 'Schnell', value: 'FORCE', icon: {color:'primary', name: 'radio-button-on-outline'}}]">
     </oe-modal-buttons>
-
-    <ng-container *ngIf="edge.roleIsAtLeast('admin')">
-        <oe-modal-info-line [info]="'Edge.Index.Widgets.SCHEDULE.CHART_TITLE_ADMIN'| translate"></oe-modal-info-line>
-
-        <scheduleChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
-        </scheduleChart>
-        <oe-modal-horizontal-line></oe-modal-horizontal-line>
-        <powerChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
-        </powerChart>
-
-    </ng-container>
-</oe-modal>
+</oe-navigation-view>

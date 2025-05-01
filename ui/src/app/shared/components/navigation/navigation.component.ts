@@ -1,6 +1,6 @@
 import { Component, effect, ViewChild } from "@angular/core";
 import { IonModal } from "@ionic/angular/common";
-import { NavigationService } from "./navigation.service";
+import { NavigationService } from "./service/navigation.service";
 import { NavigationTree } from "./shared";
 
 @Component({
@@ -9,30 +9,28 @@ import { NavigationTree } from "./shared";
     standalone: false,
 })
 export class NavigationComponent {
+    public static INITIAL_BREAKPOINT: number = 0.2;
+
     @ViewChild("modal") private modal: IonModal | null = null;
 
-    protected initialBreakPoint: number = 0.2;
+    protected initialBreakPoint: number = NavigationComponent.INITIAL_BREAKPOINT;
     protected children: (NavigationTree | null)[] = [];
     protected parents: (NavigationTree | null)[] = [];
-    protected hasNavigationNodes: boolean = true;
+    protected isVisible: boolean = true;
 
     constructor(
         public navigationService: NavigationService,
     ) {
         effect(() => {
             const currentNode = navigationService.currentNode();
-            this.children = currentNode?.getChildren() ?? [];
 
-            const parents: (NavigationTree | null)[] = [...currentNode?.getParents() ?? []];
-            if (parents.length >= 1) {
-                parents.push(currentNode);
+            if (!currentNode) {
+                this.navigationService.position = null;
             }
 
-            this.parents = parents;
-            this.hasNavigationNodes = this.children.length > 0 || this.parents.length > 0;
+            this.isVisible = this.navigationService.position === "bottom";
         });
     }
-
 
     /**
      * Navigates to passed link

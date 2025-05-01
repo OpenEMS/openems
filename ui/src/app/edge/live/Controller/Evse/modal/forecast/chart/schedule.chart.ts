@@ -10,13 +10,13 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
-import { Controller_Evse_Single } from "../EvseSingle";
-import { GetScheduleRequest } from "../jsonrpc/getScheduleRequest";
-import { GetScheduleResponse } from "../jsonrpc/getScheduleResponse";
+import { GetScheduleRequest } from "../../../jsonrpc/getScheduleRequest";
+import { GetScheduleResponse } from "../../../jsonrpc/getScheduleResponse";
+import { ControllerEvseSingleShared } from "../../../shared/shared";
 
 @Component({
     selector: "scheduleChart",
-    templateUrl: "../../../../history/abstracthistorychart.html",
+    templateUrl: "../../../../../../history/abstracthistorychart.html",
     standalone: false,
 })
 export class ScheduleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
@@ -77,7 +77,7 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
                 timestampArray: schedule.map(entry => entry.timestamp),
             };
 
-            const scheduleChartData = Controller_Evse_Single.getScheduleChartData(schedule.length, priceArray,
+            const scheduleChartData = ControllerEvseSingleShared.getScheduleChartData(schedule.length, priceArray,
                 modeArray, timestampArray, this.translate);
 
             this.colors = scheduleChartData.colors;

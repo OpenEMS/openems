@@ -22,7 +22,7 @@ import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
 import { RegistrationModule } from "./registration/registration.module";
 import { NavigationComponent } from "./shared/components/navigation/navigation.component";
-import { NavigationService } from "./shared/components/navigation/navigation.service";
+import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { StatusSingleComponent } from "./shared/components/status/single/status.component";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AppStateTracker } from "./shared/ngrx-store/states";

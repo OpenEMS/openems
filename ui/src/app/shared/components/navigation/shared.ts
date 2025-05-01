@@ -17,7 +17,7 @@ export class NavigationTree {
         public icon: PartialedIcon,
         public label: string,
         public mode: "icon" | "label",
-        public children: NavigationTree[] | null,
+        public children: NavigationTree[],
         public parent: NavigationTree | null,
     ) { }
 
@@ -102,4 +102,5 @@ export type NavigationNode = {
     mode: "icon" | "label",
 };
 
-export const baseNavigationTree: NavigationTree = new NavigationTree(NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [], null);
+
+export const baseNavigationTree: ConstructorParameters<typeof NavigationTree> = [NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [], null];
