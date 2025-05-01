@@ -149,7 +149,6 @@ public class EnergyScheduler {
 							.build();
 				});
 			}
-
 		}
 
 		/**

@@ -3,10 +3,10 @@ package io.openems.edge.controller.evse.single.jsonrpc;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.energy.api.EnergyUtils.toPower;
 
 import java.time.ZonedDateTime;
 import java.util.function.BiFunction;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
@@ -137,13 +137,14 @@ public class GetSchedule implements EndpointRequestType<EmptyObject, Response> {
 			return schedule.entrySet().stream() //
 					.map(e -> {
 						var p = e.getValue();
+						final IntUnaryOperator convertEnergyToPower = i -> p.duration().convertEnergyToPower(i);
 						var managedCons = p.energyFlow().getManagedCons(parentId);
 						return new Response.Period(e.getKey(), p.price(), //
 								modeFunction.apply(p, managedCons).getValue(), //
-								toPower(p.energyFlow().getGrid()), //
-								toPower(p.energyFlow().getProd()), //
-								toPower(p.energyFlow().getCons()), //
-								toPower(managedCons));
+								convertEnergyToPower.applyAsInt(p.energyFlow().getGrid()), //
+								convertEnergyToPower.applyAsInt(p.energyFlow().getProd()), //
+								convertEnergyToPower.applyAsInt(p.energyFlow().getCons()), //
+								convertEnergyToPower.applyAsInt(managedCons));
 					});
 		}
 

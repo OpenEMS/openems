@@ -30,12 +30,13 @@ public class EnergyScheduler {
 
 				.setOptimizationContext(() -> cocSupplier.get()) //
 
-				.setSimulator((gsc, coc, ef) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
 					if (coc != null) {
+						var energy = period.duration().convertPowerToEnergy(coc.power);
 						switch (coc.relationship) {
-						case EQUALS -> ef.setEss(coc.energy);
-						case GREATER_OR_EQUALS -> ef.setEssMaxCharge(-coc.energy);
-						case LESS_OR_EQUALS -> ef.setEssMaxDischarge(coc.energy);
+						case EQUALS -> ef.setEss(energy);
+						case GREATER_OR_EQUALS -> ef.setEssMaxCharge(-energy);
+						case LESS_OR_EQUALS -> ef.setEssMaxDischarge(energy);
 						}
 					}
 				}) //
@@ -43,7 +44,7 @@ public class EnergyScheduler {
 				.build();
 	}
 
-	public static record OptimizationContext(int energy, Relationship relationship) {
+	public static record OptimizationContext(int power, Relationship relationship) {
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link OptimizationContext}.
@@ -53,11 +54,11 @@ public class EnergyScheduler {
 		public static JsonSerializer<OptimizationContext> serializer() {
 			return jsonObjectSerializer(OptimizationContext.class, json -> {
 				return new OptimizationContext(//
-						json.getInt("energy"), //
+						json.getInt("power"), //
 						json.getEnum("relationship", Relationship.class));
 			}, obj -> {
 				return buildJsonObject() //
-						.addProperty("energy", obj.energy()) //
+						.addProperty("power", obj.power()) //
 						.addProperty("relationship", obj.relationship()) //
 						.build();
 			});

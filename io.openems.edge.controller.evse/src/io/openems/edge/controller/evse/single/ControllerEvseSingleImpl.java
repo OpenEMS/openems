@@ -9,6 +9,7 @@ import static io.openems.edge.controller.evse.single.Utils.getSessionLimitReache
 import static io.openems.edge.controller.evse.single.Utils.mergeLimits;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.function.BiConsumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -17,6 +18,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -38,6 +40,8 @@ import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptim
 import io.openems.edge.controller.evse.single.EnergyScheduler.Config.SmartOptimizationConfig;
 import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
 import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
+import io.openems.edge.controller.evse.single.Types.History;
+import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.controller.evse.single.jsonrpc.GetSchedule;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -64,6 +68,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvseSingleImpl.class);
 	private final SessionEnergyHandler sessionEnergyHandler = new SessionEnergyHandler();
+	private final History history = new History();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -95,6 +100,16 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.applyConfig(config);
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, config.id(), config.alias(), config.enabled());
+		this.applyConfig(config);
+	}
+
+	private synchronized void applyConfig(Config config) {
 		this.config = config;
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chargePoint",
@@ -111,37 +126,50 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 		switch (config.mode()) {
 		case SMART -> {
+			this.manualEnergyScheduleHandler = null;
 			this.smartEnergyScheduleHandler = buildSmartEnergyScheduleHandler(this, //
-					() -> SmartOptimizationConfig.from(this.chargePoint.getChargeParams(),
-							this.electricVehicle.getChargeParams(), config.smartConfig()));
-			this.onChargePointIsReadyForChargingChange = (before, after) -> {
-				// Trigger Reschedule on change of IS_READY_FOR_CHARGING
-				this.smartEnergyScheduleHandler
-						.triggerReschedule("ControllerEvseSingle::onChargePointIsReadyForChargingChange from [" + before
-								+ "] to [" + after + "]");
-			};
-			this.chargePoint.getIsReadyForChargingChannel().onChange(this.onChargePointIsReadyForChargingChange);
+					() -> SmartOptimizationConfig.from(//
+							this.chargePoint.getChargeParams(), this.electricVehicle.getChargeParams(), //
+							this.history.getAppearsToBeFullyCharged(), //
+							config.smartConfig()));
 		}
 
 		case ZERO, MINIMUM, SURPLUS, FORCE -> {
+			this.smartEnergyScheduleHandler = null;
 			this.manualEnergyScheduleHandler = buildManualEnergyScheduleHandler(this, //
-					() -> ManualOptimizationContext.from(config.mode().actual, this.chargePoint.getChargeParams(),
-							this.electricVehicle.getChargeParams(), this.getSessionEnergy().orElse(0),
+					() -> ManualOptimizationContext.from(//
+							config.mode().actual, //
+							this.chargePoint.getChargeParams(), this.electricVehicle.getChargeParams(), //
+							this.history.getAppearsToBeFullyCharged(), //
+							this.getSessionEnergy().orElse(0), //
 							config.manualEnergySessionLimit() > 0 //
 									? config.manualEnergySessionLimit() //
 									: 30_000 /* fallback */));
 		}
 		}
+
+		// Listen on changes to 'isReadyForCharging'
+		this.chargePoint.getIsReadyForChargingChannel().onChange(this::onChargePointIsReadyForChargingChange);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		if (this.onChargePointIsReadyForChargingChange != null) {
-			this.chargePoint.getIsReadyForChargingChannel()
-					.removeOnChangeCallback(this.onChargePointIsReadyForChargingChange);
-		}
+		this.chargePoint.getIsReadyForChargingChannel()
+				.removeOnChangeCallback(this.onChargePointIsReadyForChargingChange);
 		super.deactivate();
+	}
+
+	private synchronized void onChargePointIsReadyForChargingChange(Value<Boolean> before, Value<Boolean> after) {
+		if (this.smartEnergyScheduleHandler != null) {
+			// Trigger Reschedule on change of IS_READY_FOR_CHARGING
+			this.smartEnergyScheduleHandler
+					.triggerReschedule("ControllerEvseSingle::onChargePointIsReadyForChargingChange from [" + before
+							+ "] to [" + after + "]");
+		}
+
+		// Set AppearsToBeFullyCharged false
+		this.history.unsetAppearsToBeFullyCharged();
 	}
 
 	@Override
@@ -173,8 +201,6 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 						: actualMode);
 
 		var limits = mergeLimits(chargePoint, electricVehicle);
-		this.logDebug("ActualMode:" + actualMode + "|ChargeParams:" + limits);
-
 		if (limits == null) {
 			return null;
 		}
@@ -184,7 +210,11 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 				? false //
 				: chargePoint.isReadyForCharging();
 
-		return new Params(isReadyForCharging, actualMode, activePower, limits, chargePoint.profiles());
+		var hysteresis = Hysteresis.from(this.history);
+		var appearsToBeFullyCharged = this.history.getAppearsToBeFullyCharged();
+
+		return new Params(isReadyForCharging, actualMode, activePower, limits, hysteresis, appearsToBeFullyCharged,
+				chargePoint.profiles());
 	}
 
 	@Override
@@ -195,6 +225,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	@Override
 	public void apply(int current, ImmutableList<Profile.Command> profileCommands) {
 		this.chargePoint.apply(current, profileCommands);
+
+		this.history.addEntry(Instant.now(), this.chargePoint.getActivePower().get(), current);
 	}
 
 	@Override

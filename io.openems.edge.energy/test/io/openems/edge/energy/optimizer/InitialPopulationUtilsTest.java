@@ -1,6 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateFromPreviousSchedule;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.getScheduleFromPreviousResult;
@@ -80,6 +81,6 @@ public class InitialPopulationUtilsTest {
 	}
 
 	protected static Transition mode(int mode) {
-		return new Transition(mode, 0., null, 0);
+		return new Transition(QUARTER, mode, 0., null, 0);
 	}
 }

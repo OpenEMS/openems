@@ -2,14 +2,9 @@ package io.openems.edge.energy.optimizer.app;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.jenetics.engine.Limits.byExecutionTime;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsDouble;
-import static io.openems.common.utils.JsonUtils.getAsInt;
-import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsString;
-import static io.openems.common.utils.JsonUtils.getAsZonedDateTime;
-import static io.openems.common.utils.JsonUtils.getOptionalSubElement;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.common.type.RegexUtils.applyPatternOrError;
@@ -24,16 +19,17 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 
@@ -49,7 +45,7 @@ public final class AppUtils {
 
 	protected static void simulateFromJson(JsonObject json, long executionLimitSeconds)
 			throws IllegalArgumentException, OpenemsNamedException {
-		simulate(parseJson(json), executionLimitSeconds);
+		simulate(globalOptimizationContextSerializer().deserialize(json), executionLimitSeconds);
 	}
 
 	private static void simulate(GlobalOptimizationContext gsc, long executionLimitSeconds) {
@@ -63,51 +59,50 @@ public final class AppUtils {
 		logSimulationResult(simulator, simulationResult);
 	}
 
-	private static GlobalOptimizationContext parseJson(JsonObject goc)
-			throws IllegalArgumentException, OpenemsNamedException {
-		final var startDateTime = getAsZonedDateTime(goc, "startTime");
-		final var clock = new TimeLeapClock(startDateTime.toInstant(), ZoneId.of("UTC"));
-		final var grid = GlobalOptimizationContext.Grid.fromJson(getAsJsonObject(goc, "grid"));
-		final var ess = GlobalOptimizationContext.Ess.fromJson(getAsJsonObject(goc, "ess"));
+	/**
+	 * Returns a {@link JsonSerializer} for a {@link Ess}.
+	 * 
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<GlobalOptimizationContext> globalOptimizationContextSerializer() {
+		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
+			final var startTime = json.getZonedDateTime("startTime");
+			final var clock = new TimeLeapClock(startTime.toInstant(), ZoneId.of("UTC"));
+			final var controllers = json.getJsonArrayPath("eshs").getAsImmutableList(e -> {
+				var j = e.getAsJsonObjectPath();
+				var parentFactoryPid = j.getString("factoryPid");
+				var parentId = j.getString("id");
+				var source = j.getNullableJsonObjectPath("source").getOrNull();
+				return EnergySchedulerTestUtils.createFromJson(parentFactoryPid, parentId, source);
+			});
 
-		final var controllers = JsonUtils.stream(getAsJsonArray(goc, "eshs")) //
-				.map(j -> {
-					try {
-						var parentFactoryPid = getAsString(j, "factoryPid");
-						var parentId = getAsString(j, "id");
-						var source = getOptionalSubElement(j, "source").orElse(JsonNull.INSTANCE);
-						return EnergySchedulerTestUtils.createFromJson(parentFactoryPid, parentId, source);
-					} catch (OpenemsNamedException e) {
-						throw new IllegalArgumentException(e);
-					}
-				}) //
-				.collect(toImmutableList());
+			var nextTime = new AtomicReference<>(startTime);
+			final var periods = json.getJsonArrayPath("periods").getAsImmutableList(e -> {
+				var j = e.getAsJsonObjectPath();
+				var time = nextTime.get();
+				var index = (int) Duration.between(startTime, time).toMinutes() / 15;
+				nextTime.set(time.plusMinutes(15));
+				return (GlobalOptimizationContext.Period) new GlobalOptimizationContext.Period.Quarter(index, time, //
+						j.getInt("production"), j.getInt("consumption"), j.getDouble("price"));
+			});
 
-		var nextTime = new AtomicReference<>(startDateTime);
-		final var periods = JsonUtils.stream(JsonUtils.getAsJsonArray(goc, "periods")) //
-				.map(p -> {
-					try {
-						var time = nextTime.get();
-						var index = (int) Duration.between(startDateTime, time).toMinutes() / 15;
-						nextTime.set(time.plusMinutes(15));
-						return (GlobalOptimizationContext.Period) new GlobalOptimizationContext.Period.Quarter(index,
-								time, //
-								getAsInt(p, "production"), //
-								getAsInt(p, "consumption"), //
-								getAsDouble(p, "price"));
-					} catch (OpenemsNamedException e) {
-						throw new IllegalArgumentException(e);
-					}
-				}) //
-				.collect(toImmutableList());
+			final var eshs = controllers.stream() //
+					.map(EnergySchedulable::getEnergyScheduleHandler) //
+					.collect(toImmutableList());
+			var eshsWithDifferentModes = filterEshsWithDifferentModes(eshs) //
+					.collect(toImmutableList());
 
-		var eshs = controllers.stream() //
-				.map(EnergySchedulable::getEnergyScheduleHandler) //
-				.collect(toImmutableList());
+			return new GlobalOptimizationContext(//
+					clock, //
+					json.getEnum("riskLevel", RiskLevel.class), //
+					startTime, //
+					eshs, //
+					eshsWithDifferentModes, //
+					json.getObject("grid", Grid.serializer()), //
+					json.getObject("ess", Ess.serializer()), //
+					periods); //
 
-		return new GlobalOptimizationContext(clock, RiskLevel.MEDIUM, startDateTime, //
-				eshs, filterEshsWithDifferentModes(eshs).collect(toImmutableList()), //
-				grid, ess, periods);
+		}, GlobalOptimizationContext::toJson);
 	}
 
 	/**

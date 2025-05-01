@@ -5,7 +5,6 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSer
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.controller.evse.single.Utils.mergeLimits;
 import static io.openems.edge.controller.evse.single.Utils.parseSmartConfig;
-import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -28,6 +27,7 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.EshWithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
@@ -56,9 +56,9 @@ public class EnergyScheduler {
 				.setScheduleContext(coc -> coc == null ? null : new ScheduleContext(coc.sessionEnergy)) //
 
 				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
-					var chargeEnergy = coc == null || !coc.isReadyForCharging //
+					var chargeEnergy = coc == null || !coc.isReadyForCharging || coc.appearsToBeFullyCharged //
 							? 0 //
-							: calculateChargeEnergy(csc, ef, coc.mode, coc.limit, coc.sessionEnergyLimit);
+							: calculateChargeEnergy(period, csc, ef, coc.mode, coc.limit, coc.sessionEnergyLimit);
 					applyChargeEnergy(id, csc, ef, chargeEnergy);
 				}) //
 
@@ -83,7 +83,7 @@ public class EnergyScheduler {
 				.setSerializer(Config.serializer(), () -> configSupplier.get()) //
 
 				.setDefaultMode(Mode.Actual.SURPLUS) //
-				.setAvailableModes((goc, coc) -> coc != null && coc.isReadyForCharging //
+				.setAvailableModes((goc, coc) -> coc != null && coc.isReadyForCharging && !coc.appearsToBeFullyCharged //
 						// TODO MINIMUM instead of ZERO if interrupt is not allowed
 						? new Mode.Actual[] { Mode.Actual.ZERO, Mode.Actual.SURPLUS, Mode.Actual.FORCE } //
 						: new Mode.Actual[] { Mode.Actual.ZERO } // No choice
@@ -130,7 +130,7 @@ public class EnergyScheduler {
 						chargeEnergy = 0;
 
 					} else {
-						chargeEnergy = calculateChargeEnergy(csc, ef, mode, coc.limit, null);
+						chargeEnergy = calculateChargeEnergy(period, csc, ef, mode, coc.limit, null);
 					}
 					applyChargeEnergy(id, csc, ef, chargeEnergy);
 				})
@@ -141,14 +141,13 @@ public class EnergyScheduler {
 				.build();
 	}
 
-	// TODO Energy Period length?
-	private static int calculateChargeEnergy(ScheduleContext csc, EnergyFlow.Model ef, Mode.Actual mode, Limit limit,
-			Integer sessionEnergyLimit) {
+	private static int calculateChargeEnergy(Period period, ScheduleContext csc, EnergyFlow.Model ef, Mode.Actual mode,
+			Limit limit, Integer sessionEnergyLimit) {
 		// Evaluate Charge-Energy per mode
 		int chargeEnergy = switch (mode) {
-		case FORCE -> toEnergy(limit.getMaxPower());
-		case MINIMUM -> toEnergy(limit.getMinPower());
-		case SURPLUS -> calculateSurplusEnergy(limit, ef.production, ef.unmanagedConsumption);
+		case FORCE -> period.duration().convertPowerToEnergy(limit.getMaxPower());
+		case MINIMUM -> period.duration().convertPowerToEnergy(limit.getMinPower());
+		case SURPLUS -> calculateSurplusEnergy(period, limit, ef.production, ef.unmanagedConsumption);
 		case ZERO -> 0;
 		};
 
@@ -164,22 +163,26 @@ public class EnergyScheduler {
 		return chargeEnergy;
 	}
 
-	private static void applyChargeEnergy(String id, ScheduleContext csc, EnergyFlow.Model ef, int chargeEnergy) {
-		ef.addConsumption(id, chargeEnergy);
+	private static void applyChargeEnergy(String id, ScheduleContext csc, EnergyFlow.Model ef, int targetChargeEnergy) {
+		var actualChargeEnergy = ef.addConsumption(id, targetChargeEnergy);
 		if (csc != null) {
-			csc.applyCharge(chargeEnergy);
+			csc.applyCharge(actualChargeEnergy);
 		}
 	}
 
-	private static int calculateSurplusEnergy(Limit limit, int production, int unmanagedConsumption) {
+	private static int calculateSurplusEnergy(Period period, Limit limit, int production, int consumption) {
 		// TODO consider Non-Interruptable SURPLUS
-		// fitWithin(limit.getMinPower(), limit.getMaxPower(), //
-		// ef.production - ef.unmanagedConsumption);
-		var surplus = production - unmanagedConsumption;
-		if (surplus < toEnergy(limit.getMinPower())) {
+		// TODO this would have to be calculated by EVSE-Cluster to handle distribution
+		// correctly; current calculation causes more consumption per period than will
+		// be applied in reality
+		var surplus = production - consumption;
+		if (surplus < period.duration().convertPowerToEnergy(limit.getMinPower())) {
 			return 0; // Not sufficient surplus power
-		} else if (surplus > toEnergy(limit.getMaxPower())) {
-			return toEnergy(limit.getMaxPower());
+		}
+
+		var maxEnergy = period.duration().convertPowerToEnergy(limit.getMaxPower());
+		if (surplus > maxEnergy) {
+			return maxEnergy;
 		} else {
 			return surplus;
 		}
@@ -201,9 +204,9 @@ public class EnergyScheduler {
 		var modes = goc.periods().stream() //
 				.map(i -> Mode.Actual.ZERO) //
 				.toArray(Mode.Actual[]::new);
-		for (var p : periodsBeforeTargetTime) {
-			remainingEnergy -= calculateSurplusEnergy(coc.limit, p.production(), p.consumption());
-			modes[p.index()] = Mode.Actual.SURPLUS;
+		for (var period : periodsBeforeTargetTime) {
+			remainingEnergy = calculateSurplusEnergy(period, coc.limit, period.production(), period.consumption());
+			modes[period.index()] = Mode.Actual.SURPLUS;
 			if (remainingEnergy < 0) {
 				break;
 			}
@@ -214,13 +217,12 @@ public class EnergyScheduler {
 			var sortedPeriods = periodsBeforeTargetTime.stream() //
 					.sorted((p0, p1) -> Double.compare(p0.price(), p1.price())) //
 					.toList();
-			for (var p : sortedPeriods) {
+			for (var period : sortedPeriods) {
 				remainingEnergy += /* Remove SURPLUS from before */
-						calculateSurplusEnergy(coc.limit, p.production(), p.consumption())
+						calculateSurplusEnergy(period, coc.limit, period.production(), period.consumption())
 								/* Calculate FORCE energy */
-								- toEnergy(coc.limit().getMaxPower());
-				// TODO toEnergy consider quarter/hour minutes
-				modes[p.index()] = Mode.Actual.FORCE;
+								- period.duration().convertPowerToEnergy(coc.limit().getMaxPower());
+				modes[period.index()] = Mode.Actual.FORCE;
 				if (remainingEnergy < 0) {
 					break;
 				}
@@ -256,18 +258,13 @@ public class EnergyScheduler {
 		if (cons == 0) {
 			return Mode.Actual.ZERO;
 		}
-		// TODO consider the other way around. Postprocess MINIMUM to SURPLUS
-		if (mode == Mode.Actual.SURPLUS //
-				&& cons == toEnergy(coc.limit().getMinPower())) {
-			return Mode.Actual.MINIMUM;
-		}
 		return mode;
 	}
 
 	public static sealed interface Config {
 
 		public static record ManualOptimizationContext(Mode.Actual mode, boolean isReadyForCharging, Limit limit,
-				int sessionEnergy, int sessionEnergyLimit) implements Config {
+				boolean appearsToBeFullyCharged, int sessionEnergy, int sessionEnergyLimit) implements Config {
 
 			/**
 			 * Returns a {@link JsonSerializer} for a {@link ManualOptimizationContext}.
@@ -280,6 +277,7 @@ public class EnergyScheduler {
 							json.getEnum("mode", Mode.Actual.class), //
 							json.getBoolean("isReadyForCharging"), //
 							json.getObject("limit", Limit.serializer()), //
+							json.getBoolean("appearsToBeFullyCharged"), //
 							json.getInt("sessionEnergy"), //
 							json.getInt("sessionEnergyLimit") //
 					);
@@ -293,7 +291,8 @@ public class EnergyScheduler {
 			}
 
 			protected static ManualOptimizationContext from(Mode.Actual mode, EvseChargePoint.ChargeParams chargePoint,
-					EvseElectricVehicle.ChargeParams electricVehicle, int sessionEnergy, int sessionEnergyLimit) {
+					EvseElectricVehicle.ChargeParams electricVehicle, boolean appearsToBeFullyCharged,
+					int sessionEnergy, int sessionEnergyLimit) {
 				final boolean isReadyForCharging;
 				final Limit limit;
 				if (chargePoint == null || electricVehicle == null) {
@@ -303,18 +302,13 @@ public class EnergyScheduler {
 					isReadyForCharging = chargePoint.isReadyForCharging();
 					limit = mergeLimits(chargePoint, electricVehicle);
 				}
-				return new ManualOptimizationContext(mode, isReadyForCharging, limit, sessionEnergy,
-						sessionEnergyLimit);
-			}
-
-			@Override
-			public final EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent) {
-				return buildManualEnergyScheduleHandler(parent, () -> this);
+				return new ManualOptimizationContext(mode, isReadyForCharging, limit, appearsToBeFullyCharged,
+						sessionEnergy, sessionEnergyLimit);
 			}
 		}
 
 		public static record SmartOptimizationConfig(boolean isReadyForCharging, Limit limit,
-				ImmutableList<Task<Payload>> smartConfig) implements Config {
+				boolean appearsToBeFullyCharged, ImmutableList<Task<Payload>> smartConfig) implements Config {
 
 			/**
 			 * Returns a {@link JsonSerializer} for a {@link SmartOptimizationConfig}.
@@ -326,6 +320,7 @@ public class EnergyScheduler {
 					return new SmartOptimizationConfig(//
 							json.getBoolean("isReadyForCharging"), //
 							json.getObject("limit", Limit.serializer()), //
+							json.getBoolean("appearsToBeFullyCharged"), //
 							json.getImmutableList("smartConfig", JSCalendar.Task.serializer(Payload.serializer())) //
 					);
 				}, obj -> {
@@ -340,7 +335,8 @@ public class EnergyScheduler {
 			}
 
 			protected static SmartOptimizationConfig from(EvseChargePoint.ChargeParams chargePoint,
-					EvseElectricVehicle.ChargeParams electricVehicle, String smartConfigString) {
+					EvseElectricVehicle.ChargeParams electricVehicle, boolean appearsToBeFullyCharged,
+					String smartConfigString) {
 				final boolean isReadyForCharging;
 				final Limit limit;
 				if (chargePoint == null || electricVehicle == null) {
@@ -351,13 +347,7 @@ public class EnergyScheduler {
 					limit = mergeLimits(chargePoint, electricVehicle);
 				}
 				var smartConfig = parseSmartConfig(smartConfigString);
-				return new SmartOptimizationConfig(isReadyForCharging, limit, smartConfig);
-			}
-
-			@Override
-			public final EshWithDifferentModes<Mode.Actual, SmartOptimizationContext, ScheduleContext> buildEnergyScheduleHandler(
-					OpenemsComponent parent) {
-				return buildSmartEnergyScheduleHandler(parent, () -> this);
+				return new SmartOptimizationConfig(isReadyForCharging, limit, appearsToBeFullyCharged, smartConfig);
 			}
 		}
 
@@ -374,14 +364,6 @@ public class EnergyScheduler {
 		 * @return {@link Limit}
 		 */
 		public Limit limit();
-
-		/**
-		 * Factory for {@link EnergyScheduleHandler}.
-		 * 
-		 * @param parent the parent {@link OpenemsComponent}
-		 * @return EnergyScheduleHandler.WithOnlyOneMode
-		 */
-		public EnergyScheduleHandler buildEnergyScheduleHandler(OpenemsComponent parent);
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link Config}.
@@ -430,11 +412,11 @@ public class EnergyScheduler {
 		}
 	}
 
-	public static record SmartOptimizationContext(boolean isReadyForCharging, Limit limit, ZonedDateTime targetTime,
-			Payload targetPayload) {
+	public static record SmartOptimizationContext(boolean isReadyForCharging, Limit limit,
+			boolean appearsToBeFullyCharged, ZonedDateTime targetTime, Payload targetPayload) {
 
 		protected static SmartOptimizationContext from(SmartOptimizationConfig config, OneTask<Payload> target) {
-			return new SmartOptimizationContext(config.isReadyForCharging, config.limit, //
+			return new SmartOptimizationContext(config.isReadyForCharging, config.limit, config.appearsToBeFullyCharged, //
 					target != null ? target.start() : null, //
 					target != null ? target.payload() : null);
 		}
@@ -450,5 +432,21 @@ public class EnergyScheduler {
 		protected void applyCharge(int chargeEnergy) {
 			this.sessionEnergy += chargeEnergy;
 		}
+	}
+
+	/**
+	 * Factory for {@link EnergyScheduleHandler}.
+	 * 
+	 * @param parent         the parent {@link OpenemsComponent}
+	 * @param configSupplier a {@link Supplier} for {@link Config}
+	 * @return EnergyScheduleHandler
+	 */
+	public static EnergyScheduleHandler buildEnergyScheduleHandler(OpenemsComponent parent,
+			Supplier<? extends Config> configSupplier) {
+		var config = configSupplier.get();
+		return switch (config) {
+		case ManualOptimizationContext moc -> buildManualEnergyScheduleHandler(parent, () -> moc);
+		case SmartOptimizationConfig soc -> buildSmartEnergyScheduleHandler(parent, () -> soc);
+		};
 	}
 }

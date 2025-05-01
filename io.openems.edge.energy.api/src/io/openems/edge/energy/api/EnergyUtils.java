@@ -1,8 +1,5 @@
 package io.openems.edge.energy.api;
 
-import static io.openems.edge.common.type.TypeUtils.multiply;
-import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
-
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
@@ -91,26 +88,6 @@ public class EnergyUtils {
 			result.add(valley);
 		}
 		return result.build().stream().mapToInt(Integer::intValue).toArray();
-	}
-
-	/**
-	 * Converts power [W] to energy [Wh/15 min].
-	 * 
-	 * @param power the power value
-	 * @return the energy value
-	 */
-	public static int toEnergy(int power) {
-		return power / PERIODS_PER_HOUR;
-	}
-
-	/**
-	 * Converts energy [Wh/15 min] to power [W].
-	 * 
-	 * @param energy the energy value
-	 * @return the power value
-	 */
-	public static Integer toPower(Integer energy) {
-		return multiply(energy, PERIODS_PER_HOUR);
 	}
 
 	/**

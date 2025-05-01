@@ -39,7 +39,7 @@ public class EnergyScheduler {
 							: null; //
 				})
 
-				.setSimulator((gsc, coc, ef) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
 					if (coc != null) {
 						ef.setEssMaxDischarge(max(0, gsc.ess.getInitialEnergy() - coc.minEnergy));
 					}

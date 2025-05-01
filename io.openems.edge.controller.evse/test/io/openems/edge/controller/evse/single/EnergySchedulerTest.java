@@ -53,7 +53,8 @@ public class EnergySchedulerTest {
 	@Test
 	public void testMinimum() throws OpenemsNamedException {
 		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
-				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.MINIMUM, true, THREE_PHASE, //
+				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.MINIMUM, true, THREE_PHASE,
+						false /* appearsToBeFullyCharged */, //
 						1000, 5_000));
 
 		var t = EnergyScheduleTester.from(esh);
@@ -70,8 +71,9 @@ public class EnergySchedulerTest {
 	@Test
 	public void testForce() {
 		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
-				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.FORCE, true, THREE_PHASE, //
-						1000, 20_000));
+				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.FORCE, true, THREE_PHASE,
+						false /* appearsToBeFullyCharged */, //
+						1000, 20000));
 
 		var t = EnergyScheduleTester.from(esh);
 		assertEquals(5520, t.simulatePeriod().ef().getManagedConsumption());
@@ -84,7 +86,8 @@ public class EnergySchedulerTest {
 	@Test
 	public void testZero() {
 		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
-				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.ZERO, true, THREE_PHASE, //
+				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.ZERO, true, THREE_PHASE,
+						false /* appearsToBeFullyCharged */, //
 						1000, 20_000));
 
 		var t = EnergyScheduleTester.from(esh);
@@ -96,7 +99,8 @@ public class EnergySchedulerTest {
 	@Test
 	public void testSurplus() {
 		var esh = buildManualEnergyScheduleHandler(new DummyController("ctrl0"), //
-				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.SURPLUS, true, SINGLE_PHASE, //
+				() -> new EnergyScheduler.Config.ManualOptimizationContext(Mode.Actual.SURPLUS, true, SINGLE_PHASE,
+						false /* appearsToBeFullyCharged */, //
 						1000, 7_000));
 
 		var t = EnergyScheduleTester.from(esh);
@@ -153,7 +157,9 @@ public class EnergySchedulerTest {
 						.build());
 
 		return buildSmartEnergyScheduleHandler(new DummyController("ctrl0"), //
-				() -> new EnergyScheduler.Config.SmartOptimizationConfig(true, THREE_PHASE, smartConfig));
+				() -> new EnergyScheduler.Config.SmartOptimizationConfig(true, THREE_PHASE, //
+						false /* appearsToBeFullyCharged */, //
+						smartConfig));
 	}
 
 	private static SmartResult testSmart(Mode.Actual mode) {
