@@ -73,7 +73,7 @@ jobs:
             org.opencontainers.image.title=OpenEMS ${{ matrix.image }}
             org.opencontainers.image.vendor=OpenEMS <openems.io>
           tags: |
-            type=semver,pattern={{version}}
+            type=semver,pattern={{raw}}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
             type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 

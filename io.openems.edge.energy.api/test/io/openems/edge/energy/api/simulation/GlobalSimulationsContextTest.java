@@ -69,8 +69,8 @@ public class GlobalSimulationsContextTest {
 				.setTimeOfUseTariff(prices) //
 				.build();
 
-		assertEquals(1000 /* -4000 W */, goc.ess().maxChargeEnergy());
-		assertEquals(1250 /* 5000 W */, goc.ess().maxDischargeEnergy());
+		assertEquals(4000 /* -W */, goc.ess().maxChargePower());
+		assertEquals(5000 /* W */, goc.ess().maxDischargePower());
 		assertEquals(28, goc.periods().size());
 		var p0 = goc.periods().get(0);
 		assertEquals(2000 /* Wh */, p0.production());

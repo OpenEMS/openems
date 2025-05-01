@@ -37,7 +37,9 @@ public class EssGenericManagedSymmetricImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0")) //
-				.addReference("battery", new DummyBattery("battery0")) //
+				.addReference("battery", new DummyBattery("battery0")//
+						.withChargeMaxVoltage(4000)//
+						.withDischargeMinVoltage(3200)) //
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setStartStopConfig(StartStopConfig.START) //

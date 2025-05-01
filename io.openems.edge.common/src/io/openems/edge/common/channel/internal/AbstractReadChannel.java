@@ -3,8 +3,10 @@ package io.openems.edge.common.channel.internal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -31,9 +33,9 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final OpenemsType type;
 	private final ChannelId channelId;
 	private final D channelDoc;
-	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
-	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
-	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
+	private final Set<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArraySet<>();
+	private final Set<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArraySet<>();
+	private final Set<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArraySet<>();
 	private final TreeMap<LocalDateTime, Value<T>> pastValues = new TreeMap<>();
 
 	/**

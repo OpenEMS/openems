@@ -139,8 +139,8 @@ public class UtilsV1Test {
 				.setEssTotalEnergy(22000) //
 				.setEssMinSocEnergy(2_000) //
 				.setEssMaxSocEnergy(20_000) //
-				.seMaxBuyFromGrid(toEnergy(24_000)) //
-				.seMaxBuyFromGrid(0) //
+				.setMaxBuyFromGrid(toEnergy(24_000)) //
+				.setMaxBuyFromGrid(0) //
 				.setStates(new StateMachine[0]);
 
 		// No periods are available

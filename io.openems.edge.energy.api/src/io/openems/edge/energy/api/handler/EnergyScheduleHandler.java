@@ -15,6 +15,7 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithDifferentMod
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOnlyOneMode {
@@ -67,6 +68,7 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 
 		private int hardConstraintViolations = 0;
 		private double gridBuyCost = 0.;
+		private double gridSellRevenue = 0.;
 
 		/**
 		 * Gets the number of Hard-Constraint-Violations.
@@ -111,17 +113,29 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 			this.gridBuyCost += cost;
 		}
 
+		/**
+		 * Add Grid-Sell revenue.
+		 * 
+		 * @param revenue the revenue
+		 */
+		public void addGridSellRevenue(double revenue) {
+			this.gridSellRevenue += revenue;
+		}
+
 		@Override
 		public int compareTo(Fitness o) {
-			// 1st priority: hard constraints
+			// 1st priority: hard constraints (lower is better)
 			if (this.hardConstraintViolations != o.hardConstraintViolations) {
 				return Integer.compare(this.hardConstraintViolations, o.hardConstraintViolations);
 			}
 
-			// 2nd priority: grid buy cost
-			return Double.compare(this.gridBuyCost, o.gridBuyCost);
+			// 2nd priority: grid buy cost (lower is better)
+			if (this.gridBuyCost != o.gridBuyCost) {
+				return Double.compare(this.gridBuyCost, o.gridBuyCost);
+			}
 
-			// Future: add 3rd priority grid sell cost
+			// 3nd priority: grid sell revenue (higher is better)
+			return Double.compare(o.gridSellRevenue, this.gridSellRevenue);
 		}
 
 		@Override
@@ -129,6 +143,7 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 			return toStringHelper(Fitness.class) //
 					.add("hardConstraintViolations", this.hardConstraintViolations) //
 					.add("gridBuyCost", this.gridBuyCost) //
+					.add("gridSellRevenue", this.gridSellRevenue) //
 					.toString();
 		}
 	}
@@ -257,6 +272,14 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 	}
 
 	public sealed interface Period<OPTIMIZATION_CONTEXT> permits DifferentModes.Period, OneMode.Period {
+
+		/**
+		 * Duration of the Period.
+		 * 
+		 * @return the {@link PeriodDuration}
+		 */
+		public PeriodDuration duration();
+
 		/**
 		 * Price [1/MWh].
 		 * 

@@ -17,6 +17,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 /**
@@ -195,6 +196,8 @@ public class DifferentModes {
 	}
 
 	public static record Period<MODE, OPTIMIZATION_CONTEXT>(
+			/** Duration of the Period */
+			PeriodDuration duration,
 			/** MODE of the Period */
 			MODE mode,
 			/** Price [1/MWh] */
@@ -209,7 +212,8 @@ public class DifferentModes {
 		/**
 		 * This class is only used internally to apply the Schedule.
 		 */
-		public static record Transition(int modeIndex, double price, EnergyFlow energyFlow, int essInitialEnergy) {
+		public static record Transition(PeriodDuration duration, int modeIndex, double price, EnergyFlow energyFlow,
+				int essInitialEnergy) {
 		}
 
 		/**
@@ -228,7 +232,7 @@ public class DifferentModes {
 		 */
 		public static <MODE, OPTIMIZATION_CONTEXT> Period<MODE, OPTIMIZATION_CONTEXT> fromTransitionRecord(
 				Period.Transition t, IntFunction<MODE> getMode, OPTIMIZATION_CONTEXT coc) {
-			return new Period<>(getMode.apply(t.modeIndex), t.price, coc, t.energyFlow, t.essInitialEnergy);
+			return new Period<>(t.duration, getMode.apply(t.modeIndex), t.price, coc, t.energyFlow, t.essInitialEnergy);
 		}
 	}
 

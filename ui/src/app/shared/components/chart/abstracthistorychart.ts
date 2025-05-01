@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { v4 as uuidv4 } from "uuid";
 
 import { calculateResolution, ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible } from "src/app/edge/history/shared";
@@ -31,7 +32,9 @@ import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
 import { ChartTypes } from "./chart.types";
 
+
 Chart.Chart.register(annotationPlugin);
+Chart.Chart.register(ChartDataLabels);
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 

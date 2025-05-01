@@ -10,12 +10,12 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
-import { GetScheduleRequest } from "../jsonrpc/getScheduleRequest";
-import { GetScheduleResponse } from "../jsonrpc/getScheduleResponse";
+import { GetScheduleRequest } from "../../../jsonrpc/getScheduleRequest";
+import { GetScheduleResponse } from "../../../jsonrpc/getScheduleResponse";
 
 @Component({
     selector: "powerChart",
-    templateUrl: "../../../../history/abstracthistorychart.html",
+    templateUrl: "../../../../../../history/abstracthistorychart.html",
     standalone: false,
 })
 export class SchedulePowerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {

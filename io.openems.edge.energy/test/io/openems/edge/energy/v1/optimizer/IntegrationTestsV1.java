@@ -80,7 +80,7 @@ public class IntegrationTestsV1 {
 				.setEssInitialEnergy(essInitialEnergy) //
 				.setEssMaxChargeEnergy(sd.essMaxChargeEnergy()) //
 				.setEssMaxDischargeEnergy(sd.essMaxDischargeEnergy()) //
-				.seMaxBuyFromGrid(sd.maxBuyFromGrid()) //
+				.setMaxBuyFromGrid(sd.maxBuyFromGrid()) //
 				.setProductions(sds.stream().mapToInt(ScheduleData::production).toArray()) //
 				.setConsumptions(sds.stream().mapToInt(ScheduleData::consumption).toArray()) //
 				.setPrices(sds.stream().mapToDouble(ScheduleData::price).toArray()) //
