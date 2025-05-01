@@ -84,32 +84,33 @@ public class EnergySchedulerTestUtils {
 				(parent) -> switch (controller) {
 
 				case ESS_EMERGENCY_CAPACITY_RESERVE -> io.openems.edge.controller.ess.emergencycapacityreserve. //
-						EnergyScheduler.buildEnergyScheduleHandler(parent,
+						EnergyScheduler.buildEnergyScheduleHandler(parent, //
 								() -> io.openems.edge.controller.ess.emergencycapacityreserve. //
-										EnergyScheduler.Config.fromJson(source));
+										EnergyScheduler.Config.serializer().deserialize(source));
 
 				case ESS_LIMIT_TOTAL_DISCHARGE -> io.openems.edge.controller.ess.limittotaldischarge. //
 						EnergyScheduler.buildEnergyScheduleHandler(parent, //
 								() -> io.openems.edge.controller.ess.limittotaldischarge. //
-										EnergyScheduler.Config.fromJson(source));
+										EnergyScheduler.Config.serializer().deserialize(source));
 
 				case ESS_FIX_ACTIVE_POWER -> io.openems.edge.controller.ess.fixactivepower. //
 						EnergyScheduler.buildEnergyScheduleHandler(parent, //
 								() -> io.openems.edge.controller.ess.fixactivepower. //
-										EnergyScheduler.OptimizationContext.fromJson(source));
+										EnergyScheduler.OptimizationContext.serializer().deserialize(source));
 
 				case ESS_GRID_OPTIMIZED_CHARGE -> io.openems.edge.controller.ess.gridoptimizedcharge. //
 						EnergyScheduler.buildEnergyScheduleHandler(parent, //
 								() -> io.openems.edge.controller.ess.gridoptimizedcharge. //
-										EnergyScheduler.Config.fromJson(source));
+										EnergyScheduler.Config.serializer().deserialize(source));
 
 				case ESS_TIME_OF_USE_TARIFF -> io.openems.edge.controller.ess.timeofusetariff. //
 						EnergyScheduler.buildEnergyScheduleHandler(parent, //
 								() -> io.openems.edge.controller.ess.timeofusetariff. //
-										EnergyScheduler.Config.fromJson(source));
+										EnergyScheduler.Config.serializer().deserialize(source));
 
 				case EVSE_SINGLE -> io.openems.edge.controller.evse.single. //
-						EnergyScheduler.Config.fromJson(source).buildEnergyScheduleHandler(parent);
+						EnergyScheduler.Config.serializer().deserialize(source) //
+						.buildEnergyScheduleHandler(parent);
 				});
 	}
 

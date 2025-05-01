@@ -1,17 +1,9 @@
 package io.openems.common.jscalendar;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSortedSet.toImmutableSortedSet;
-import static io.openems.common.utils.JsonUtils.getAsEnum;
-import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
-import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsOptionalString;
-import static io.openems.common.utils.JsonUtils.getAsOptionalUUID;
-import static io.openems.common.utils.JsonUtils.getAsOptionalZonedDateTime;
-import static io.openems.common.utils.JsonUtils.getAsString;
-import static io.openems.common.utils.JsonUtils.parseToJsonArray;
-import static io.openems.common.utils.JsonUtils.stream;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
@@ -36,24 +28,22 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingFunction;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.exceptions.OpenemsRuntimeException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
+import io.openems.common.jsonrpc.serialization.StringParser;
 
 /**
  * Implementation of RFC 8984 "JSCalendar: A JSON Representation of Calendar
@@ -69,6 +59,11 @@ public class JSCalendar<PAYLOAD> {
 
 	private static final String PROPERTY_PAYLOAD = "openems.io:payload";
 
+	public static final JsonSerializer<Void> VOID_SERIALIZER = jsonObjectSerializer(//
+			Void.class, //
+			json -> null, //
+			obj -> null);
+
 	/**
 	 * Helper utilities to handle lists of {@link Task}s.
 	 */
@@ -77,21 +72,34 @@ public class JSCalendar<PAYLOAD> {
 		}
 
 		/**
+		 * Returns a {@link JsonSerializer} for {@link Task}s.
+		 * 
+		 * @param <PAYLOAD>         the type of the Payload
+		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static <PAYLOAD> JsonSerializer<ImmutableList<Task<PAYLOAD>>> serializer(
+				JsonSerializer<PAYLOAD> payloadSerializer) {
+			return Task.serializer(payloadSerializer).toImmutableListSerializer();
+		}
+
+		/**
 		 * Parse a List of {@link Task}s from a String representing a {@link JsonArray}
 		 * - includes checks for null and empty.
 		 * 
-		 * @param <PAYLOAD>     the type of the Payload
-		 * @param string        the {@link JsonArray} string
-		 * @param payloadParser a parser for a Payload
+		 * @param <PAYLOAD>         the type of the Payload
+		 * @param string            the {@link JsonArray} string
+		 * @param payloadSerializer a {@link JsonSerializer} for a Payload
 		 * @return the List of {@link Task}s
 		 */
 		public static <PAYLOAD> ImmutableList<Task<PAYLOAD>> fromStringOrEmpty(String string,
-				ThrowingFunction<JsonObject, PAYLOAD, OpenemsNamedException> payloadParser) {
+				JsonSerializer<PAYLOAD> payloadSerializer) {
 			if (string == null || string.isBlank()) {
 				return ImmutableList.of();
 			}
 			try {
-				return fromJson(parseToJsonArray(string), payloadParser);
+				return Tasks.serializer(payloadSerializer) //
+						.deserialize(string);
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 				return ImmutableList.of();
@@ -99,42 +107,14 @@ public class JSCalendar<PAYLOAD> {
 		}
 
 		/**
-		 * Parse a List of {@link Task}s from a {@link JsonArray}.
+		 * Parse a List of {@link Task}s without Payload from a String representing a
+		 * {@link JsonArray} - includes checks for null and empty.
 		 * 
-		 * @param <PAYLOAD>     the type of the Payload
-		 * @param json          the {@link JsonArray}
-		 * @param payloadParser a parser for a Payload
+		 * @param string the {@link JsonArray} string
 		 * @return the List of {@link Task}s
-		 * @throws OpenemsNamedException on error
 		 */
-		public static <PAYLOAD> ImmutableList<Task<PAYLOAD>> fromJson(JsonArray json,
-				ThrowingFunction<JsonObject, PAYLOAD, OpenemsNamedException> payloadParser)
-				throws OpenemsNamedException {
-			return stream(json) //
-					.map(j -> {
-						try {
-							return Task.fromJson(getAsJsonObject(j), payloadParser);
-						} catch (OpenemsNamedException e) {
-							e.printStackTrace();
-							throw new NoSuchElementException(e.getMessage());
-						}
-					}) //
-					.collect(toImmutableList());
-		}
-
-		/**
-		 * Convert to a {@link JsonArray}.
-		 * 
-		 * @param <PAYLOAD>        the type of the Payload
-		 * @param tasks            a List of {@link Task}s
-		 * @param payloadConverter a converter for a Payload
-		 * @return a {@link JsonArray}
-		 */
-		public static <PAYLOAD> JsonArray toJsonArray(ImmutableList<Task<PAYLOAD>> tasks,
-				Function<PAYLOAD, JsonObject> payloadConverter) {
-			return tasks.stream() //
-					.map(t -> t.toJson(payloadConverter)) //
-					.collect(JsonUtils.toJsonArray());
+		public static ImmutableList<Task<Void>> fromStringOrEmpty(String string) {
+			return fromStringOrEmpty(string, VOID_SERIALIZER);
 		}
 
 		public static record OneTask<PAYLOAD>(ZonedDateTime start, Duration duration, PAYLOAD payload) {
@@ -187,54 +167,65 @@ public class JSCalendar<PAYLOAD> {
 			ImmutableList<RecurrenceRule> recurrenceRules, PAYLOAD payload) {
 
 		/**
-		 * Parse a {@link Task} from a {@link JsonObject}.
+		 * Returns a {@link JsonSerializer} for a {@link Task} without payload.
 		 * 
-		 * @param <PAYLOAD>     the type of the Payload
-		 * @param json          the {@link JsonObject}
-		 * @param payloadParser a parser for a Payload
-		 * @return the {@link Task}
-		 * @throws OpenemsNamedException on error
+		 * @return the created {@link JsonSerializer}
 		 */
-		public static <PAYLOAD> Task<PAYLOAD> fromJson(JsonObject json, Function<JsonObject, PAYLOAD> payloadParser)
-				throws OpenemsNamedException {
-			return fromJson(json, new ThrowingFunction<JsonObject, PAYLOAD, OpenemsNamedException>() {
-
-				@Override
-				public PAYLOAD apply(JsonObject json) throws OpenemsNamedException {
-					return payloadParser.apply(json);
-				}
-			});
+		public static JsonSerializer<Task<Void>> serializer() {
+			return serializer(VOID_SERIALIZER);
 		}
 
 		/**
-		 * Parse a {@link Task} from a {@link JsonObject}.
+		 * Returns a {@link JsonSerializer} for a {@link Task}.
 		 * 
-		 * @param <PAYLOAD>     the type of the Payload
-		 * @param json          the {@link JsonObject}
-		 * @param payloadParser a parser for a Payload
-		 * @return the {@link Task}
-		 * @throws OpenemsNamedException on error
+		 * @param <PAYLOAD>         the type of the Payload
+		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
+		 * @return the created {@link JsonSerializer}
 		 */
-		public static <PAYLOAD> Task<PAYLOAD> fromJson(JsonObject json,
-				ThrowingFunction<JsonObject, PAYLOAD, OpenemsNamedException> payloadParser)
-				throws OpenemsNamedException {
-			var type = getAsString(json, "@type");
-			if (!type.equalsIgnoreCase("Task")) {
-				throw new OpenemsException("This is not a 'Task': " + type);
-			}
-			var b = Task.<PAYLOAD>create() //
-					.setUid(getAsOptionalUUID(json, "uid").orElse(null)) //
-					.setUpdated(getAsOptionalZonedDateTime(json, "updated").orElse(null)) //
-					.setStart(getAsString(json, "start")) //
-					.setDuration(getAsOptionalString(json, "duration").orElse(null)); //
-			getAsOptionalJsonArray(json, "recurrenceRules") //
-					.ifPresent(j -> stream(j) //
-							.forEach(r -> b.addRecurrenceRule(r)));
-			var rawPayload = getAsOptionalJsonObject(json, PROPERTY_PAYLOAD);
-			b.setPayload(rawPayload.isPresent() //
-					? payloadParser.apply(rawPayload.get()) //
-					: null);
-			return b.build();
+		public static <PAYLOAD> JsonSerializer<Task<PAYLOAD>> serializer(JsonSerializer<PAYLOAD> payloadSerializer) {
+			return JsonSerializerUtil.<Task<PAYLOAD>>jsonObjectSerializer(json -> {
+				var type = json.getString("@type");
+				if (!type.equalsIgnoreCase("Task")) {
+					throw new IllegalArgumentException("This is not a 'Task': " + type);
+				}
+
+				var b = Task.<PAYLOAD>create() //
+						.setUid(json.getUuidOrNull("uid")) //
+						.setUpdated(json.getZonedDateTimeOrNull("updated")) //
+						.setStart(json.getString("start")) //
+						.setDuration(json.getStringOrNull("duration")); //
+
+				json.getNullableJsonArrayPath("recurrenceRules")
+						.mapIfPresent(t -> t.getAsList(RecurrenceRule.serializer()))
+						.forEach(rr -> b.addRecurrenceRule(rr));
+
+				var payload = json.getObjectOrNull(PROPERTY_PAYLOAD, payloadSerializer);
+				if (payload != null) {
+					b.setPayload(payload);
+				}
+
+				return b.build();
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("@type", "Task") //
+						.onlyIf(obj.uid != null, //
+								j -> j.addProperty("uid", obj.uid.toString())) //
+						.onlyIf(obj.updated != null, //
+								j -> j.addProperty("updated", obj.updated.format(ISO_INSTANT))) //
+						.onlyIf(obj.start != null, //
+								j -> j.addProperty("start", LocalDate.from(obj.start).equals(EPOCH) //
+										? obj.start.format(DateTimeFormatter.ISO_LOCAL_TIME) //
+										: obj.start.format(ISO_LOCAL_DATE_TIME))) //
+						.onlyIf(obj.duration != null, //
+								j -> j.addProperty("duration", obj.duration.toString())) //
+						.onlyIf(!obj.recurrenceRules.isEmpty(), //
+								j -> j.add("recurrenceRules", obj.recurrenceRules.stream() //
+										.map(RecurrenceRule.serializer()::serialize) //
+										.collect(toJsonArray()))) //
+						.onlyIf(obj.payload != null, //
+								j -> j.add(PROPERTY_PAYLOAD, payloadSerializer.serialize(obj.payload))) //
+						.build();
+			});
 		}
 
 		public static class Builder<PAYLOAD> {
@@ -242,7 +233,7 @@ public class JSCalendar<PAYLOAD> {
 			private ZonedDateTime updated = null;
 			private LocalDateTime start = null;
 			private Duration duration = null;
-			private ImmutableList.Builder<RecurrenceRule> recurrenceRules = ImmutableList.builder();
+			private final ImmutableList.Builder<RecurrenceRule> recurrenceRules = ImmutableList.builder();
 			private PAYLOAD payload = null;
 
 			protected Builder() {
@@ -298,21 +289,6 @@ public class JSCalendar<PAYLOAD> {
 			/**
 			 * Adds a {@link RecurrenceRule}.
 			 * 
-			 * @param json the {@link RecurrenceRule} as {@link JsonObject}
-			 * @return myself
-			 */
-			public Builder<PAYLOAD> addRecurrenceRule(JsonElement json) throws NoSuchElementException {
-				try {
-					return this.addRecurrenceRule(RecurrenceRule.fromJson(json));
-				} catch (OpenemsNamedException e) {
-					e.printStackTrace();
-					throw new NoSuchElementException(e.getMessage());
-				}
-			}
-
-			/**
-			 * Adds a {@link RecurrenceRule}.
-			 * 
 			 * @param consumer a RecurrenceRule Builder
 			 * @return myself
 			 */
@@ -342,42 +318,6 @@ public class JSCalendar<PAYLOAD> {
 		 */
 		public static <PAYLOAD> Builder<PAYLOAD> create() {
 			return new Builder<PAYLOAD>();
-		}
-
-		/**
-		 * Convert to {@link JsonObject}.
-		 * 
-		 * @param payloadConverter a converter for a Payload
-		 * @return a {@link JsonObject}
-		 */
-		public JsonObject toJson(Function<PAYLOAD, JsonObject> payloadConverter) {
-			var j = JsonUtils.buildJsonObject() //
-					.addProperty("@type", "Task");
-			if (this.uid != null) {
-				j.addProperty("uid", this.uid.toString());
-			}
-			if (this.updated != null) {
-				j.addProperty("updated", this.updated.format(ISO_INSTANT));
-			}
-			if (this.start != null) {
-				if (LocalDate.from(this.start).equals(EPOCH)) {
-					j.addProperty("start", this.start.format(DateTimeFormatter.ISO_LOCAL_TIME));
-				} else {
-					j.addProperty("start", this.start.format(ISO_LOCAL_DATE_TIME));
-				}
-			}
-			if (this.duration != null) {
-				j.addProperty("duration", this.duration.toString());
-			}
-			if (!this.recurrenceRules.isEmpty()) {
-				j.add("recurrenceRules", this.recurrenceRules.stream() //
-						.map(RecurrenceRule::toJson) //
-						.collect(JsonUtils.toJsonArray()));
-			}
-			if (this.payload != null) {
-				j.add(PROPERTY_PAYLOAD, payloadConverter.apply(this.payload));
-			}
-			return j.build();
 		}
 
 		/**
@@ -445,29 +385,50 @@ public class JSCalendar<PAYLOAD> {
 	public record RecurrenceRule(RecurrenceFrequency frequency, ImmutableSortedSet<DayOfWeek> byDay) {
 
 		/**
-		 * Parse a {@link RecurrenceRule} from a {@link JsonObject}.
+		 * Returns a {@link JsonSerializer} for a {@link RecurrenceRule}.
 		 * 
-		 * @param json the {@link JsonObject}
-		 * @return the {@link RecurrenceRule}
-		 * @throws OpenemsNamedException on error
+		 * @return the created {@link JsonSerializer}
 		 */
-		public static RecurrenceRule fromJson(JsonElement json) throws OpenemsNamedException, NoSuchElementException {
-			var frequency = getAsEnum(RecurrenceFrequency.class, json, "frequency");
-			var byDay = getAsOptionalJsonArray(json, "byDay") //
-					.map(arr -> stream(arr) //
-							.map(j -> switch (getAsOptionalString(j).orElseThrow()) {
-							case "mo" -> MONDAY;
-							case "tu" -> TUESDAY;
-							case "we" -> WEDNESDAY;
-							case "th" -> THURSDAY;
-							case "fr" -> FRIDAY;
-							case "sa" -> SATURDAY;
-							case "su" -> SUNDAY;
-							default -> throw new NoSuchElementException("");
-							}) //
-							.collect(toImmutableSortedSet(Ordering.natural()))) //
-					.orElse(ImmutableSortedSet.of());
-			return new RecurrenceRule(frequency, byDay);
+		public static JsonSerializer<RecurrenceRule> serializer() {
+			return jsonObjectSerializer(RecurrenceRule.class, json -> {
+				return new RecurrenceRule(//
+						json.getEnum("frequency", RecurrenceFrequency.class), //
+						json.getNullableJsonArrayPath("byDay") //
+								.mapToOptional(t -> t.getAsImmutableSortedSet(//
+										dayOfWeekSerializer()::deserializePath, Ordering.natural()))
+								.orElse(ImmutableSortedSet.of()));
+			}, obj -> {
+				return buildJsonObject() //
+						.addPropertyIfNotNull("frequency", obj.frequency().name().toLowerCase()) //
+						.onlyIf(!obj.byDay.isEmpty(),
+								j -> j.add("byDay", dayOfWeekSerializer().toSetSerializer().serialize(obj.byDay)))
+						.build();
+			});
+		}
+
+		private static JsonSerializer<DayOfWeek> dayOfWeekSerializer() {
+			return jsonSerializer(DayOfWeek.class, json -> {
+				return json.getAsStringParsed(string -> switch (string) {
+				case "mo" -> MONDAY;
+				case "tu" -> TUESDAY;
+				case "we" -> WEDNESDAY;
+				case "th" -> THURSDAY;
+				case "fr" -> FRIDAY;
+				case "sa" -> SATURDAY;
+				case "su" -> SUNDAY;
+				default -> throw new OpenemsRuntimeException("Unable to parse value '" + string + "' to DayOfWeek");
+				}, () -> new StringParser.ExampleValues<>("mo", MONDAY));
+			}, obj -> {
+				return new JsonPrimitive(switch (obj) {
+				case MONDAY -> "mo";
+				case TUESDAY -> "tu";
+				case WEDNESDAY -> "we";
+				case THURSDAY -> "th";
+				case FRIDAY -> "fr";
+				case SATURDAY -> "sa";
+				case SUNDAY -> "su";
+				});
+			});
 		}
 
 		public static class Builder {
@@ -555,33 +516,5 @@ public class JSCalendar<PAYLOAD> {
 			case YEARLY -> null; // not implemented
 			};
 		}
-
-		/**
-		 * Convert to {@link JsonObject}.
-		 * 
-		 * @return a {@link JsonObject}
-		 */
-		public JsonObject toJson() {
-			var j = JsonUtils.buildJsonObject();
-			if (this.frequency != null) {
-				j.addProperty("frequency", this.frequency.name);
-			}
-			if (!this.byDay.isEmpty()) {
-				j.add("byDay", this.byDay.stream() //
-						.map(d -> switch (d) {
-						case MONDAY -> "mo";
-						case TUESDAY -> "tu";
-						case WEDNESDAY -> "we";
-						case THURSDAY -> "th";
-						case FRIDAY -> "fr";
-						case SATURDAY -> "sa";
-						case SUNDAY -> "su";
-						}) //
-						.map(JsonUtils::toJson) //
-						.collect(toJsonArray()));
-			}
-			return j.build();
-		}
 	}
-
 }

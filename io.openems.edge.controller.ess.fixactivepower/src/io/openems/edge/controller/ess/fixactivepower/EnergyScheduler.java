@@ -1,15 +1,11 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsEnum;
-import static io.openems.common.utils.JsonUtils.getAsInt;
 
 import java.util.function.Supplier;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.power.api.Relationship;
@@ -30,7 +26,7 @@ public class EnergyScheduler {
 	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<OptimizationContext> cocSupplier) {
 		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
-				.setSerializer(() -> OptimizationContext.toJson(cocSupplier.get())) //
+				.setSerializer(OptimizationContext.serializer(), cocSupplier) //
 
 				.setOptimizationContext(() -> cocSupplier.get()) //
 
@@ -50,39 +46,21 @@ public class EnergyScheduler {
 	public static record OptimizationContext(int energy, Relationship relationship) {
 
 		/**
-		 * Serialize.
+		 * Returns a {@link JsonSerializer} for a {@link OptimizationContext}.
 		 * 
-		 * @param coc the {@link OptimizationContext}, possibly null
-		 * @return the {@link JsonElement}
+		 * @return the created {@link JsonSerializer}
 		 */
-		private static JsonElement toJson(OptimizationContext coc) {
-			if (coc == null) {
-				return JsonNull.INSTANCE;
-			}
-			return buildJsonObject() //
-					.addProperty("energy", coc.energy()) //
-					.addProperty("relationship", coc.relationship()) //
-					.build();
-		}
-
-		/**
-		 * Deserialize.
-		 * 
-		 * @param j a {@link JsonElement}
-		 * @return the {@link OptimizationContext}
-		 */
-		public static OptimizationContext fromJson(JsonElement j) {
-			if (j.isJsonNull()) {
-				return null;
-			}
-			try {
+		public static JsonSerializer<OptimizationContext> serializer() {
+			return jsonObjectSerializer(OptimizationContext.class, json -> {
 				return new OptimizationContext(//
-						getAsInt(j, "energy"), //
-						getAsEnum(Relationship.class, j, "relationship"));
-			} catch (OpenemsNamedException e) {
-				throw new IllegalArgumentException(e);
-			}
+						json.getInt("energy"), //
+						json.getEnum("relationship", Relationship.class));
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("energy", obj.energy()) //
+						.addProperty("relationship", obj.relationship()) //
+						.build();
+			});
 		}
 	}
-
 }

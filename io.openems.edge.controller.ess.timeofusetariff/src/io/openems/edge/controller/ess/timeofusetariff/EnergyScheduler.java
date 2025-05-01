@@ -1,7 +1,7 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsEnum;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeEnergyInChargeGrid;
 import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
@@ -22,10 +22,8 @@ import java.util.Arrays;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -53,7 +51,7 @@ public class EnergyScheduler {
 	public static EshWithDifferentModes<StateMachine, OptimizationContext, Void> buildEnergyScheduleHandler(
 			OpenemsComponent parent, Supplier<Config> configSupplier) {
 		return EnergyScheduleHandler.WithDifferentModes.<StateMachine, OptimizationContext, Void>create(parent) //
-				.setSerializer(() -> Config.toJson(configSupplier.get())) //
+				.setSerializer(Config.serializer(), configSupplier) //
 
 				.setDefaultMode(StateMachine.BALANCING) //
 				.setAvailableModes(() -> {
@@ -164,38 +162,20 @@ public class EnergyScheduler {
 	public static record Config(ControlMode controlMode) {
 
 		/**
-		 * Serialize.
+		 * Returns a {@link JsonSerializer} for a {@link Config}.
 		 * 
-		 * @param config the {@link Config}, possibly null
-		 * @return the {@link JsonElement}
+		 * @return the created {@link JsonSerializer}
 		 */
-		private static JsonElement toJson(Config config) {
-			if (config == null) {
-				return JsonNull.INSTANCE;
-			}
-			return buildJsonObject() //
-					.addProperty("controlMode", config.controlMode()) //
-					.build();
-		}
-
-		/**
-		 * Deserialize.
-		 * 
-		 * @param j a {@link JsonElement}
-		 * @return the {@link Config}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Config fromJson(JsonElement j) {
-			if (j.isJsonNull()) {
-				return new Config(null);
-			}
-			try {
+		public static JsonSerializer<Config> serializer() {
+			return jsonObjectSerializer(Config.class, json -> {
 				return new Config(//
-						getAsEnum(ControlMode.class, j, "controlMode"));
-			} catch (OpenemsNamedException e) {
-				throw new IllegalArgumentException(e);
-			}
+						json.getEnum("controlMode", ControlMode.class) //
+				);
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("controlMode", obj.controlMode) //
+						.build();
+			});
 		}
 	}
-
 }

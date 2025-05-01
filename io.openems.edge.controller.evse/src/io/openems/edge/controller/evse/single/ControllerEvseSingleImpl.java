@@ -38,8 +38,7 @@ import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptim
 import io.openems.edge.controller.evse.single.EnergyScheduler.Config.SmartOptimizationConfig;
 import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
 import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
-import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleRequest;
-import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleResponse;
+import io.openems.edge.controller.evse.single.jsonrpc.GetSchedule;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
@@ -162,11 +161,17 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 		case SMART //
 			-> this.getSmartModeActual(Mode.Actual.ZERO);
 		};
-		setValue(this, ControllerEvseSingle.ChannelId.ACTUAL_MODE, actualMode);
 
-		var chargePoint = this.chargePoint.getChargeParams();
-		var activePower = this.chargePoint.getActivePower().get();
-		var electricVehicle = this.electricVehicle.getChargeParams();
+		final var chargePoint = this.chargePoint.getChargeParams();
+		final var activePower = this.chargePoint.getActivePower().get();
+		final var electricVehicle = this.electricVehicle.getChargeParams();
+
+		// Set ACTUAL_MODE Channel. Always ZERO if there is no ActivePower
+		setValue(this, ControllerEvseSingle.ChannelId.ACTUAL_MODE, //
+				activePower != null && activePower == 0 //
+						? Mode.Actual.ZERO //
+						: actualMode);
+
 		var limits = mergeLimits(chargePoint, electricVehicle);
 		this.logDebug("ActualMode:" + actualMode + "|ChargeParams:" + limits);
 
@@ -234,8 +239,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(GetScheduleRequest.METHOD, //
-				call -> GetScheduleResponse.from(call.getRequest().getId(), //
-						this.smartEnergyScheduleHandler, this.manualEnergyScheduleHandler));
+		builder.handleRequest(new GetSchedule(), call -> {
+			return GetSchedule.Response.create(this.smartEnergyScheduleHandler, this.manualEnergyScheduleHandler);
+		});
 	}
 }

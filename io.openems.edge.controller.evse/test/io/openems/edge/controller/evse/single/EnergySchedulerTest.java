@@ -1,7 +1,6 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
-import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildManualEnergyScheduleHandler;
 import static io.openems.edge.controller.evse.single.EnergyScheduler.buildSmartEnergyScheduleHandler;
 import static java.time.DayOfWeek.FRIDAY;
@@ -11,6 +10,7 @@ import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.time.LocalTime;
 
@@ -20,11 +20,10 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
-import io.openems.common.utils.UuidUtils;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
 import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
 import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
-import io.openems.edge.controller.evse.single.jsonrpc.GetScheduleResponse;
+import io.openems.edge.controller.evse.single.jsonrpc.GetSchedule;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
@@ -64,9 +63,8 @@ public class EnergySchedulerTest {
 		assertEquals(895, t.simulatePeriod().ef().getManagedConsumption());
 		assertEquals(0, t.simulatePeriod().ef().getManagedConsumption());
 
-		var r = GetScheduleResponse.from(UuidUtils.getNilUuid(), null, esh);
-		var schedule = getAsJsonArray(r.getResult(), "schedule");
-		assertEquals(0, schedule.size());
+		var r = GetSchedule.Response.create(null, esh);
+		assertTrue(r.schedule().isEmpty());
 	}
 
 	@Test
@@ -130,9 +128,8 @@ public class EnergySchedulerTest {
 	@Test
 	public void testSmartResponse() throws OpenemsNamedException {
 		var esh = createSmartEsh();
-		var r = GetScheduleResponse.from(UuidUtils.getNilUuid(), esh, null);
-		var schedule = getAsJsonArray(r.getResult(), "schedule");
-		assertEquals(0, schedule.size());
+		var r = GetSchedule.Response.create(esh, null);
+		assertTrue(r.schedule().isEmpty());
 	}
 
 	private static record SmartResult(Fitness fitness) {

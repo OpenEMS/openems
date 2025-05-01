@@ -1,6 +1,5 @@
 package io.openems.edge.controller.evse.single;
 
-import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -10,7 +9,6 @@ import java.time.temporal.ChronoUnit;
 
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
@@ -64,9 +62,10 @@ public final class Utils {
 
 	protected static ImmutableList<Task<Payload>> parseSmartConfig(String smartConfig) {
 		try {
-			return JSCalendar.Tasks.<Payload>fromJson(parseToJsonArray(smartConfig), Payload::fromJson);
+			return JSCalendar.Tasks.serializer(Payload.serializer()) //
+					.deserialize(smartConfig);
 
-		} catch (OpenemsNamedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return ImmutableList.of();
 		}

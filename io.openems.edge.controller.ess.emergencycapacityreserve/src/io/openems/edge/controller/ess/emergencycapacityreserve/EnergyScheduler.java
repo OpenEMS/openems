@@ -1,16 +1,13 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static java.lang.Math.max;
 
 import java.util.function.Supplier;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
@@ -30,7 +27,7 @@ public class EnergyScheduler {
 	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<Config> configSupplier) {
 		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
-				.setSerializer(() -> Config.toJson(configSupplier.get())) //
+				.setSerializer(Config.serializer(), configSupplier) //
 
 				.setOptimizationContext(gsc -> {
 					var config = configSupplier.get();
@@ -51,40 +48,23 @@ public class EnergyScheduler {
 	private static record OptimizationContext(int minEnergy) {
 	}
 
-	public static record Config(int minSoc) {
+	public static record Config(Integer minSoc) {
 
 		/**
-		 * Serialize.
+		 * Returns a {@link JsonSerializer} for a {@link Config}.
 		 * 
-		 * @param config the {@link Config}, possibly null
-		 * @return the {@link JsonElement}
+		 * @return the created {@link JsonSerializer}
 		 */
-		private static JsonElement toJson(Config config) {
-			if (config == null) {
-				return JsonNull.INSTANCE;
-			}
-			return buildJsonObject() //
-					.addProperty("minSoc", config.minSoc()) //
-					.build();
-		}
-
-		/**
-		 * Deserialize.
-		 * 
-		 * @param j a {@link JsonElement}
-		 * @return the {@link Config}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Config fromJson(JsonElement j) {
-			if (j.isJsonNull()) {
-				return null;
-			}
-			try {
+		public static JsonSerializer<Config> serializer() {
+			return jsonObjectSerializer(Config.class, json -> {
 				return new Config(//
-						getAsInt(j, "minSoc"));
-			} catch (OpenemsNamedException e) {
-				throw new IllegalArgumentException(e);
-			}
+						json.getOptionalInt("minSoc").orElse(null) //
+				);
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("minSoc", obj.minSoc) //
+						.build();
+			});
 		}
 	}
 }

@@ -1,12 +1,8 @@
 package io.openems.edge.controller.evse.single;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsBoolean;
-import static io.openems.common.utils.JsonUtils.getAsEnum;
-import static io.openems.common.utils.JsonUtils.getAsInt;
-import static io.openems.common.utils.JsonUtils.getAsJsonArray;
-import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.edge.controller.evse.single.Utils.mergeLimits;
 import static io.openems.edge.controller.evse.single.Utils.parseSmartConfig;
 import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
@@ -16,15 +12,13 @@ import java.time.ZonedDateTime;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
-import io.openems.common.jscalendar.JSCalendar.Tasks;
 import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptimizationContext;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Config.SmartOptimizationConfig;
@@ -56,7 +50,7 @@ public class EnergyScheduler {
 	public static EshWithOnlyOneMode<ManualOptimizationContext, ScheduleContext> buildManualEnergyScheduleHandler(
 			OpenemsComponent parent, Supplier<ManualOptimizationContext> cocSupplier) {
 		return EnergyScheduleHandler.WithOnlyOneMode.<ManualOptimizationContext, ScheduleContext>create(parent) //
-				.setSerializer(() -> Config.toJson(cocSupplier.get())) //
+				.setSerializer(Config.serializer(), () -> cocSupplier.get()) //
 
 				.setOptimizationContext(gsc -> cocSupplier.get())
 				.setScheduleContext(coc -> coc == null ? null : new ScheduleContext(coc.sessionEnergy)) //
@@ -86,7 +80,7 @@ public class EnergyScheduler {
 			OpenemsComponent parent, Supplier<SmartOptimizationConfig> configSupplier) {
 		return EnergyScheduleHandler.WithDifferentModes.<Mode.Actual, SmartOptimizationContext, ScheduleContext>create(
 				parent) //
-				.setSerializer(() -> Config.toJson(configSupplier.get())) //
+				.setSerializer(Config.serializer(), () -> configSupplier.get()) //
 
 				.setDefaultMode(Mode.Actual.SURPLUS) //
 				.setAvailableModes((goc, coc) -> coc != null && coc.isReadyForCharging //
@@ -275,6 +269,29 @@ public class EnergyScheduler {
 		public static record ManualOptimizationContext(Mode.Actual mode, boolean isReadyForCharging, Limit limit,
 				int sessionEnergy, int sessionEnergyLimit) implements Config {
 
+			/**
+			 * Returns a {@link JsonSerializer} for a {@link ManualOptimizationContext}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<ManualOptimizationContext> serializer() {
+				return jsonObjectSerializer(json -> {
+					return new ManualOptimizationContext(//
+							json.getEnum("mode", Mode.Actual.class), //
+							json.getBoolean("isReadyForCharging"), //
+							json.getObject("limit", Limit.serializer()), //
+							json.getInt("sessionEnergy"), //
+							json.getInt("sessionEnergyLimit") //
+					);
+				}, obj -> {
+					return buildJsonObject() //
+							.addProperty("class", obj.getClass().getSimpleName()) //
+							.addProperty("isReadyForCharging", obj.isReadyForCharging()) //
+							.add("limit", Limit.serializer().serialize(obj.limit())) //
+							.build();
+				});
+			}
+
 			protected static ManualOptimizationContext from(Mode.Actual mode, EvseChargePoint.ChargeParams chargePoint,
 					EvseElectricVehicle.ChargeParams electricVehicle, int sessionEnergy, int sessionEnergyLimit) {
 				final boolean isReadyForCharging;
@@ -298,6 +315,29 @@ public class EnergyScheduler {
 
 		public static record SmartOptimizationConfig(boolean isReadyForCharging, Limit limit,
 				ImmutableList<Task<Payload>> smartConfig) implements Config {
+
+			/**
+			 * Returns a {@link JsonSerializer} for a {@link SmartOptimizationConfig}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<SmartOptimizationConfig> serializer() {
+				return jsonObjectSerializer(json -> {
+					return new SmartOptimizationConfig(//
+							json.getBoolean("isReadyForCharging"), //
+							json.getObject("limit", Limit.serializer()), //
+							json.getImmutableList("smartConfig", JSCalendar.Task.serializer(Payload.serializer())) //
+					);
+				}, obj -> {
+					return buildJsonObject() //
+							.addProperty("class", obj.getClass().getSimpleName()) //
+							.addProperty("isReadyForCharging", obj.isReadyForCharging()) //
+							.add("limit", Limit.serializer().serialize(obj.limit())) //
+							.add("smartConfig", JSCalendar.Tasks.serializer(Payload.serializer()) //
+									.serialize(obj.smartConfig()))
+							.build();
+				});
+			}
 
 			protected static SmartOptimizationConfig from(EvseChargePoint.ChargeParams chargePoint,
 					EvseElectricVehicle.ChargeParams electricVehicle, String smartConfigString) {
@@ -344,90 +384,49 @@ public class EnergyScheduler {
 		public EnergyScheduleHandler buildEnergyScheduleHandler(OpenemsComponent parent);
 
 		/**
-		 * Serialize.
+		 * Returns a {@link JsonSerializer} for a {@link Config}.
 		 * 
-		 * @param config the {@link Config}, possibly null
-		 * @return the {@link JsonElement}
+		 * @return the created {@link JsonSerializer}
 		 */
-		private static JsonElement toJson(Config config) {
-			if (config == null) {
-				return JsonNull.INSTANCE;
-			}
-			var b = buildJsonObject() //
-					.addProperty("class", config.getClass().getSimpleName()) //
-					.addProperty("isReadyForCharging", config.isReadyForCharging()) //
-					.add("limit", Limit.toJson(config.limit()));
-			switch (config) {
-			case ManualOptimizationContext coc -> b //
-					.addProperty("mode", coc.mode) //
-					.addProperty("sessionEnergy", coc.sessionEnergy) //
-					.addProperty("sessionEnergyLimit", coc.sessionEnergyLimit);
-			case SmartOptimizationConfig coc -> b //
-					.add("smartConfig", Tasks.toJsonArray(coc.smartConfig, Payload::toJson));
-			}
-			return b.build();
-		}
+		public static JsonSerializer<Config> serializer() {
+			final var polymorphicSerializer = PolymorphicSerializer.<Config>create() //
+					.add(ManualOptimizationContext.class, ManualOptimizationContext.serializer(),
+							ManualOptimizationContext.class.getSimpleName()) //
+					.add(SmartOptimizationConfig.class, SmartOptimizationConfig.serializer(),
+							SmartOptimizationConfig.class.getSimpleName()) //
+					.build();
 
-		/**
-		 * Deserialize.
-		 * 
-		 * @param j a {@link JsonElement}
-		 * @return the {@link Config}
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Config fromJson(JsonElement j) {
-			if (j.isJsonNull()) {
-				return null;
-			}
-			try {
-				var clazz = getAsString(j, "class");
-				var isReadyForCharging = getAsBoolean(j, "isReadyForCharging");
-				var limit = Limit.fromJson(getAsJsonObject(j, "limit"));
-
-				if (clazz.equals(ManualOptimizationContext.class.getSimpleName())) {
-					return new ManualOptimizationContext(//
-							getAsEnum(Mode.Actual.class, j, "mode"), //
-							isReadyForCharging, limit, //
-							getAsInt(j, "sessionEnergy"), //
-							getAsInt(j, "sessionEnergyLimit"));
-
-				} else if (clazz.equals(SmartOptimizationConfig.class.getSimpleName())) {
-					return new SmartOptimizationConfig(//
-							isReadyForCharging, limit, //
-							JSCalendar.Tasks.fromJson(getAsJsonArray(j, "smartConfig"), Payload::fromJson));
-
-				} else {
-					throw new IllegalArgumentException("Unsupported class [" + clazz + "]");
+			return jsonSerializer(Config.class, json -> {
+				return json.polymorphic(polymorphicSerializer, t -> t.getAsJsonObjectPath().getStringPath("class"));
+			}, obj -> {
+				if (obj == null) {
+					return JsonNull.INSTANCE;
 				}
 
-			} catch (OpenemsNamedException e) {
-				throw new IllegalArgumentException(e);
-			}
+				return polymorphicSerializer.serialize(obj);
+			});
 		}
 	}
 
 	public static record Payload(int sessionEnergyMinimum) {
-		/**
-		 * Parses one {@link JsonObject} to a {@link Payload} object.
-		 * 
-		 * @param j the {@link JsonObject}
-		 * @return the {@link Payload} object
-		 * @throws OpenemsNamedException on error
-		 */
-		public static Payload fromJson(JsonObject j) throws OpenemsNamedException {
-			return new Payload(//
-					getAsInt(j, "sessionEnergyMinimum"));
-		}
 
 		/**
-		 * Convert to {@link JsonObject}.
+		 * Returns a {@link JsonSerializer} for a {@link Payload}.
 		 * 
-		 * @return a {@link JsonObject}
+		 * @return the created {@link JsonSerializer}
 		 */
-		public JsonObject toJson() {
-			return buildJsonObject() //
-					.addProperty("sessionEnergyMinimum", this.sessionEnergyMinimum) //
-					.build();
+		public static JsonSerializer<Payload> serializer() {
+			return jsonObjectSerializer(Payload.class, json -> {
+				return new Payload(//
+						json.getInt("sessionEnergyMinimum") //
+				);
+			}, obj -> {
+				return obj == null //
+						? JsonNull.INSTANCE //
+						: buildJsonObject() //
+								.addProperty("sessionEnergyMinimum", obj.sessionEnergyMinimum) //
+								.build();
+			});
 		}
 	}
 
