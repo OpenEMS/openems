@@ -17,7 +17,7 @@ ARG JAVA_VERSION
 RUN apk update && apk upgrade
 
 RUN apk add --no-cache \
-    openjdk${JAVA_VERSION}-jre
+    openjdk${JAVA_VERSION}-jre rsync dos2unix
 
 ### Build edge container
 FROM base_container
@@ -26,6 +26,9 @@ COPY --from=build_edge /opt/ /opt/openems/
 COPY tools/docker/edge/root/ /
 
 RUN find /etc/s6-overlay/s6-rc.d -type f -name 'run' -exec chmod +x {} \;
+
+RUN find /etc/s6-overlay -type f -print0 | xargs -0 dos2unix && \
+    find /var/lib/openems-default-config -type f -print0 | xargs -0 dos2unix
 
 VOLUME /var/opt/openems/config
 VOLUME /var/opt/openems/data
