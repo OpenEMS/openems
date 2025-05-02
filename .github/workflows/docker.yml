@@ -1,6 +1,7 @@
 name: Build OpenEMS Docker Image
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - develop
