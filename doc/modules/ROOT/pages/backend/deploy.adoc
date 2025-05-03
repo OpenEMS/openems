@@ -166,4 +166,4 @@ or read its logs with:
 docker logs openems_backend
 ----
 
-NOTE: If you want to run the backand with an InfluxDB instance as well, see: https://github.com/OpenEMS/openems/tree/develop/tools/docker/backend.
+NOTE: If you want to run the backend with an InfluxDB instance as well, see: https://github.com/OpenEMS/openems/tree/develop/tools/docker/backend.
