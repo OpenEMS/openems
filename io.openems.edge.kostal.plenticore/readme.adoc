@@ -1,0 +1,7 @@
+= Kostal Plenticore implementations
+
+Implements:
+* hybrid inverter with battery control and PV production
+* KSEM device
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kostal[Source Code icon:github[]]
