@@ -9,21 +9,21 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.battery.api,\
 	io.openems.edge.batteryinverter.api,\
 	io.openems.edge.batteryinverter.sunspec,\
-	io.openems.edge.common,\
 	io.openems.edge.bridge.modbus,\
-	io.openems.edge.meter.api,\
-	io.openems.edge.timedata.api,\
-	io.openems.edge.pvinverter.api,\
-	io.openems.edge.meter.sunspec,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.bridge.modbus,\
-	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.generic,\
 	io.openems.edge.meter.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.meter.sunspec,\
 	io.openems.edge.meter.sunspec,\
 	io.openems.edge.pvinverter.api,\
+	io.openems.edge.pvinverter.api,\
 	io.openems.edge.pvinverter.sunspec,\
+	io.openems.edge.timedata.api,\
 	io.openems.edge.timedata.api,\
 	io.openems.j2mod
 -testpath: \
