@@ -4,7 +4,6 @@ import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.kostal.plenticore.pvinverter.Config;
-import io.openems.edge.pvinverter.sunspec.Phase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
