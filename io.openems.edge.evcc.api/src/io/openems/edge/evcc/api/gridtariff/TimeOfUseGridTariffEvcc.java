@@ -12,14 +12,9 @@ public interface TimeOfUseGridTariffEvcc extends TimeOfUseTariff, OpenemsCompone
 		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER) //
 				.text("The HTTP status code")), //
 		STATUS_TIMEOUT(Doc.of(Level.WARNING) //
-				.text("Unable to update prices from Tibber: timout while reading from server")), //
-		STATUS_AUTHENTICATION_FAILED(Doc.of(Level.WARNING) //
-				.text("Unable to update prices from Tibber: access token authentication failed")), //
+				.text("Unable to update prices: timout while reading from server")), //
 		STATUS_SERVER_ERROR(Doc.of(Level.WARNING) //
-				.text("Unable to update prices from Tibber: unexpected server error")), //
-		FILTER_IS_REQUIRED(Doc.of(Level.WARNING) //
-				.text("Found multiple 'Homes'. Please configure either an ID (format UUID) "
-						+ "or 'appNickname' for unambiguous identification")) //
+				.text("Unable to update prices: unexpected server error")), //
 		;
 
 		private final Doc doc;

@@ -3,10 +3,6 @@ package io.openems.edge.evcc.api.gridtariff;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 
 import java.time.ZonedDateTime;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,7 +12,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -26,59 +23,77 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-        name = "TimeOfUseTariff.Grid.Evcc", //
-        immediate = true, //
-        configurationPolicy = ConfigurationPolicy.REQUIRE //
+		name = "TimeOfUseTariff.Grid.Evcc", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+
 public class TimeOfUseGridTariffEvccImpl extends AbstractOpenemsComponent
-        implements TimeOfUseTariff, OpenemsComponent, TimeOfUseGridTariffEvcc {
+		implements
+			TimeOfUseTariff,
+			OpenemsComponent,
+			TimeOfUseGridTariffEvcc {
 
-    //private final Logger log = LoggerFactory.getLogger(TimeOfUseGridTariffEvccImpl.class);
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
-    private String apiUrl = "http://localhost:7070/api/tariff/grid";
+	@Reference
+	private ComponentManager componentManager;
 
-    @Reference
-    private ComponentManager componentManager;
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
 
-    @Reference
-    private Meta meta;
+	@Reference
+	private Meta meta;
 
-    private TimeOfUseGridTariffEvccApi apiClient;
+	private TimeOfUseGridTariffEvccApi apiClient;
 
-    public TimeOfUseGridTariffEvccImpl() {
-        super(OpenemsComponent.ChannelId.values(), TimeOfUseGridTariffEvcc.ChannelId.values());
-    }
+	private BridgeHttp httpBridge;
 
-    @Activate
-    private void activate(ComponentContext context, Config config) {
-        super.activate(context, config.id(), config.alias(), config.enabled());
+	public TimeOfUseGridTariffEvccImpl() {
+		super(OpenemsComponent.ChannelId.values(),
+				TimeOfUseGridTariffEvcc.ChannelId.values());
+	}
 
-        if (!config.enabled()) {
-            return;
-        }
+	@Activate
+	private void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
 
-        this.apiUrl = config.apiUrl();
-        this.apiClient = new TimeOfUseGridTariffEvccApi(this.apiUrl);
-        this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
-    }
+		if (!config.enabled()) {
+			return;
+		}
 
-    @Deactivate
-    protected void deactivate() {
-        super.deactivate();
-        ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
-    }
+		this.httpBridge = this.httpBridgeFactory.get();
 
-    protected final Runnable task = () -> {
-        this.prices.set(this.apiClient.fetchPrices());
-    };
+		this.apiClient = new TimeOfUseGridTariffEvccApi(config.apiUrl(),
+				this.httpBridge);
+	}
 
-    public TimeOfUsePrices getPrices() {
-        return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
-    }
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+		this.httpBridgeFactory.unget(this.httpBridge);
+	}
 
-    @Override
-    public String debugLog() {
-        return generateDebugLog(this, this.meta.getCurrency());
-    }
+	/**
+	 * Retrieves the current time-of-use prices.
+	 *
+	 * <p>
+	 * This method checks if the API client is available. If so, it fetches the
+	 * prices from the API client and returns a TimeOfUsePrices instance with
+	 * the current timestamp. If the API client is not available, it returns an
+	 * empty TimeOfUsePrices object.
+	 *
+	 * @return the current time-of-use prices or an empty instance if the API
+	 *         client is unavailable.
+	 */
+	public TimeOfUsePrices getPrices() {
+		if (this.apiClient != null) {
+			return TimeOfUsePrices.from(ZonedDateTime.now(),
+					this.apiClient.getPrices());
+		}
+		return TimeOfUsePrices.EMPTY_PRICES;
+	}
+
+	@Override
+	public String debugLog() {
+		return generateDebugLog(this, this.meta.getCurrency());
+	}
 }

@@ -1,6 +1,7 @@
 package io.openems.edge.evcc.api.gridtariff;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evcc.api.gridtariff.Config;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 @SuppressWarnings("all")
@@ -8,7 +9,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String[] channelAddresses;
 		private String apiUrl;
 		private LogVerbosity logVerbosity;
 

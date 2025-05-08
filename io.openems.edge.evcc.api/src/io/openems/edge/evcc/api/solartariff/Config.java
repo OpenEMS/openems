@@ -18,14 +18,13 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 	@AttributeDefinition(name = "URL", description = "URL for solar tariff api from evcc; defaults to localhost API-URL")
 	String url() default "http://localhost:7070/api/tariff/solar";
-	
+
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Channel-Addresses", description = "List of Channel-Addresses this Predictor is used for, e.g. '*/ActivePower', '*/ActualPower'")
 	String[] channelAddresses() default { //
-			"_sum/ProductionActivePower"
-		};
+			"_sum/ProductionActivePower"};
 
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
