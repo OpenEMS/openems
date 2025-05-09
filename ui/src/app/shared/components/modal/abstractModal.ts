@@ -54,8 +54,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
-        this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.edge.unsubscribeFromChannels(this.websocket, this.getChannelAddresses());
         this.subscription.unsubscribe();
 
         // Unsubscribe from CurrentData subject

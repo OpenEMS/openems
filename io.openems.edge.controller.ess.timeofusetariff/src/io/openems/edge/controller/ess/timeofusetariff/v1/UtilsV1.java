@@ -111,6 +111,7 @@ public final class UtilsV1 {
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;
+		case DISCHARGE_GRID -> null; // NOT IMPLEMENTED
 		};
 
 		return new ApplyMode(actualState, setPoint);

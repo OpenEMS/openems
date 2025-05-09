@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -1439,6 +1441,35 @@ public final class JsonUtils {
 			}
 			if (jP.isNumber()) {
 				var n = jP.getAsNumber();
+
+				var value = switch (n) {
+				case Double d -> d;
+				case Float f -> f;
+				case Integer i -> i;
+				case Long l -> l;
+				default -> null;
+				};
+				
+				if (value != null) {
+					return value;
+				}
+
+				final var l = Longs.tryParse(n.toString());
+				if (l != null) {
+					if (l > Integer.MAX_VALUE || l < Integer.MIN_VALUE) {
+						return l;
+					}
+					return n.intValue();
+				}
+
+				final var d = Doubles.tryParse(n.toString());
+				if (d != null) {
+					if (d > Float.MAX_VALUE || d < Float.MIN_VALUE) {
+						return d;
+					}
+					return d.floatValue();
+				}
+
 				return n.intValue();
 			}
 			return j.getAsString();

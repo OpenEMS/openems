@@ -7,7 +7,7 @@ import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
   templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",

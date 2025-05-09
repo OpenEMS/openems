@@ -21,7 +21,7 @@ RUN patch src/index.html < index.patch && \
 FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base
 
 RUN apk add --update --no-cache \
-    nginx openssl
+    nginx openssl bash dos2unix
 	
 ### Build ui container
 FROM ui_base
@@ -32,9 +32,12 @@ COPY tools/docker/ui/root/ /
 
 RUN find /etc/s6-overlay/s6-rc.d -type f -name 'run' -exec chmod +x {} \;
 
+RUN find /etc/s6-overlay -type f -print0 | xargs -0 dos2unix && \
+    find /etc/nginx -type f -print0 | xargs -0 dos2unix
+
 VOLUME /etc/nginx
 VOLUME /var/log/nginx
 
-ENV UI_WEBSOCKET ws://localhost:8080
+ENV UI_WEBSOCKET="ws://localhost:8085"
 
 EXPOSE 80 443

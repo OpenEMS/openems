@@ -1,9 +1,15 @@
 // @ts-strict-ignore
 import { DummyConfig } from "../components/edge/edgeconfig.spec";
+import { TestingUtils } from "../components/shared/testing/utils.spec";
 import { Currency, EdgeConfig } from "../shared";
 import { HistoryUtils, Utils } from "./utils";
 
 describe("Utils", () => {
+
+  beforeEach(async () => {
+    // Used to load translations globally for CONVERT_PRICE_TO_CENT_PER_KWH, not recommended to implement locale statically
+    await TestingUtils.sharedSetup();
+  });
 
   it("#subtractSafely", () => {
     expect(Utils.subtractSafely(null, null)).toEqual(null);

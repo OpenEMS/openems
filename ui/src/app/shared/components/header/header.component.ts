@@ -6,7 +6,9 @@ import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
+import { RouteService } from "../../service/previousRouteService";
 import { Edge, Service, Websocket } from "../../shared";
+import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
 
@@ -35,8 +37,10 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public menu: MenuController,
         public modalCtrl: ModalController,
         public router: Router,
+        public routeService: RouteService,
         public service: Service,
         public websocket: Websocket,
+        protected navigationService: NavigationService,
     ) { }
 
     @Input() public set customBackUrl(url: string | null) {

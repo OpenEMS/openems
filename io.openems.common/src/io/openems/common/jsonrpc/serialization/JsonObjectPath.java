@@ -4,8 +4,10 @@ import static java.util.stream.Collectors.mapping;
 
 import java.lang.reflect.Array;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,6 +18,8 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Collector;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -261,6 +265,30 @@ public interface JsonObjectPath extends JsonPath {
 	 * @param member the name of the member
 	 * @return the {@link StringPathNullable} of the member value
 	 */
+	public default StringPathNullable<LocalTime> getNullableStringPathLocalTime(String member) {
+		return this.getNullableJsonElementPath(member).getAsStringPathNullableLocalTime();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPathNullable}.
+	 * 
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the {@link StringPathNullable} of the member value
+	 */
+	public default StringPathNullable<LocalTime> getNullableStringPathLocalTime(String member,
+			DateTimeFormatter formatter) {
+		return this.getNullableJsonElementPath(member).getAsStringPathNullableLocalTime(formatter);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPathNullable}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link StringPathNullable} of the member value
+	 */
 	public default StringPathNullable<SemanticVersion> getNullableStringPathSemanticVersion(String member) {
 		return this.getNullableJsonElementPath(member).getAsStringPathNullableSemanticVersion();
 	}
@@ -395,6 +423,29 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default StringPath<LocalDate> getStringPathLocalDate(String member) {
 		return this.getJsonElementPath(member).getAsStringPathLocalDate();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPath} of type {@link LocalTime}.
+	 * 
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} to use to parse the string
+	 * @return the {@link StringPath} of type {@link LocalTime} of the member value
+	 */
+	public default StringPath<LocalTime> getStringPathLocalTime(String member, DateTimeFormatter formatter) {
+		return this.getJsonElementPath(member).getAsStringPathLocalTime(formatter);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPath} of type {@link LocalTime}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link StringPath} of type {@link LocalTime} of the member value
+	 */
+	public default StringPath<LocalTime> getStringPathLocalTime(String member) {
+		return this.getJsonElementPath(member).getAsStringPathLocalTime();
 	}
 
 	/**
@@ -695,6 +746,75 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default Optional<LocalDate> getOptionalLocalDate(String member, DateTimeFormatter formatter) {
 		return this.getNullableStringPathLocalDate(member, formatter).getOptional();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link LocalTime}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link LocalTime} of the member value
+	 */
+	public default LocalTime getLocalTime(String member) {
+		return this.getStringPathLocalTime(member).get();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link LocalTime}.
+	 * 
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} to use to parse the string
+	 * @return the {@link LocalTime} of the member value
+	 */
+	public default LocalTime getLocalTime(String member, DateTimeFormatter formatter) {
+		return this.getStringPathLocalTime(member, formatter).get();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link LocalTime} or null if not present.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link LocalTime} of the member value or null if not present
+	 */
+	public default LocalTime getLocalTimeOrNull(String member) {
+		return this.getNullableStringPathLocalTime(member).getOrNull();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link LocalTime} or null if not present.
+	 * 
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the {@link LocalTime} of the member value or null if not present
+	 */
+	public default LocalTime getLocalTimeOrNull(String member, DateTimeFormatter formatter) {
+		return this.getNullableStringPathLocalTime(member, formatter).getOrNull();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of type {@link LocalTime}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link Optional} of type {@link LocalTime} of the member value
+	 */
+	public default Optional<LocalTime> getOptionalLocalTime(String member) {
+		return this.getNullableStringPathLocalTime(member).getOptional();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of type {@link LocalTime}.
+	 * 
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the {@link Optional} of type {@link LocalTime} of the member value
+	 */
+	public default Optional<LocalTime> getOptionalLocalTime(String member, DateTimeFormatter formatter) {
+		return this.getNullableStringPathLocalTime(member, formatter).getOptional();
 	}
 
 	/**
@@ -1062,6 +1182,32 @@ public interface JsonObjectPath extends JsonPath {
 
 	/**
 	 * Gets the element associated with the member name from this object as a
+	 * {@link ImmutableList}.
+	 * 
+	 * @param <T>    the type of the elements in the list
+	 * @param member the name of the member
+	 * @param mapper the mapper to deserialize the elements
+	 * @return the {@link ImmutableList} of the member value
+	 */
+	public default <T> ImmutableList<T> getImmutableList(String member, Function<JsonElementPath, T> mapper) {
+		return this.getJsonArrayPath(member).getAsImmutableList(mapper);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link ImmutableList}.
+	 * 
+	 * @param <T>        the type of the elements in the list
+	 * @param member     the name of the member
+	 * @param serializer the {@link JsonSerializer} to deserialize the elements
+	 * @return the {@link ImmutableList} of the member value
+	 */
+	public default <T> ImmutableList<T> getImmutableList(String member, JsonSerializer<T> serializer) {
+		return this.getJsonArrayPath(member).getAsImmutableList(serializer);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
 	 * {@link Optional} of {@link List}.
 	 * 
 	 * @param <T>    the type of the elements in the list
@@ -1086,6 +1232,36 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default <T> Optional<List<T>> getOptionalList(String member, JsonSerializer<T> serializer) {
 		return this.getNullableJsonArrayPath(member).getAsOptionalList(serializer);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of {@link ImmutableList}.
+	 *
+	 * @param <T>    the type of the elements in the list
+	 * @param member the name of the member
+	 * @param mapper the mapper to deserialize the elements
+	 * @return the {@link Optional} of {@link ImmutableList} of the member value or
+	 *         {@link Optional#empty()} if not present
+	 */
+	public default <T> Optional<ImmutableList<T>> getOptionalImmutableList(String member,
+			Function<JsonElementPath, T> mapper) {
+		return this.getNullableJsonArrayPath(member).getAsOptionalImmutableList(mapper);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of {@link ImmutableList}.
+	 *
+	 * @param <T>        the type of the elements in the list
+	 * @param member     the name of the member
+	 * @param serializer the {@link JsonSerializer} to deserialize the elements
+	 * @return the {@link Optional} of {@link ImmutableList} of the member value or
+	 *         {@link Optional#empty()} if not present
+	 */
+	public default <T> Optional<ImmutableList<T>> getOptionalImmutableList(String member,
+			JsonSerializer<T> serializer) {
+		return this.getNullableJsonArrayPath(member).getAsOptionalImmutableList(serializer);
 	}
 
 	/**
@@ -1181,6 +1357,36 @@ public interface JsonObjectPath extends JsonPath {
 
 	/**
 	 * Gets the element associated with the member name from this object as a
+	 * {@link ImmutableSortedSet}.
+	 *
+	 * @param <T>        the type of the elements in the set
+	 * @param member     the name of the member
+	 * @param mapper     the mapper to deserialize the elements
+	 * @param comparator the {@link Comparator} for the {@link ImmutableSortedSet}
+	 * @return the {@link ImmutableSortedSet} of the member value
+	 */
+	public default <T> Set<T> getImmutableSortedSet(String member, Function<JsonElementPath, T> mapper,
+			Comparator<? super T> comparator) {
+		return this.getJsonArrayPath(member).getAsImmutableSortedSet(mapper, comparator);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link ImmutableSortedSet}.
+	 *
+	 * @param <T>        the type of the elements in the set
+	 * @param member     the name of the member
+	 * @param serializer the {@link JsonSerializer} to deserialize the elements
+	 * @param comparator the {@link Comparator} for the {@link ImmutableSortedSet}
+	 * @return the {@link ImmutableSortedSet} of the member value
+	 */
+	public default <T> Set<T> getImmutableSortedSet(String member, JsonSerializer<T> serializer,
+			Comparator<? super T> comparator) {
+		return this.getJsonArrayPath(member).getAsImmutableSortedSet(serializer, comparator);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
 	 * {@link Optional} of {@link Set}.
 	 * 
 	 * @param <T>    the type of the elements in the set
@@ -1205,6 +1411,38 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default <T> Optional<Set<T>> getOptionalSet(String member, JsonSerializer<T> serializer) {
 		return this.getNullableJsonArrayPath(member).getAsOptionalSet(serializer);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of {@link ImmutableSortedSet}.
+	 *
+	 * @param <T>        the type of the elements in the set
+	 * @param member     the name of the member
+	 * @param mapper     the mapper to deserialize the elements
+	 * @param comparator the {@link Comparator} for the {@link ImmutableSortedSet}
+	 * @return the {@link Optional} of {@link Set} of the member value or
+	 *         {@link Optional#empty()} if not present
+	 */
+	public default <T> Optional<ImmutableSortedSet<T>> getOptionalImmutableSortedSet(String member,
+			Function<JsonElementPath, T> mapper, Comparator<? super T> comparator) {
+		return this.getNullableJsonArrayPath(member).getAsOptionalImmutableSortedSet(mapper, comparator);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of {@link ImmutableSortedSet}.
+	 *
+	 * @param <T>        the type of the elements in the set
+	 * @param member     the name of the member
+	 * @param serializer the {@link JsonSerializer} to deserialize the elements
+	 * @param comparator the {@link Comparator} for the {@link ImmutableSortedSet}
+	 * @return the {@link Optional} of {@link Set} of the member value or
+	 *         {@link Optional#empty()} if not present
+	 */
+	public default <T> Optional<ImmutableSortedSet<T>> getOptionalImmutableSortedSet(String member,
+			JsonSerializer<T> serializer, Comparator<? super T> comparator) {
+		return this.getNullableJsonArrayPath(member).getAsOptionalImmutableSortedSet(serializer, comparator);
 	}
 
 	/**

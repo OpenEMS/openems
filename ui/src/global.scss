@@ -154,6 +154,21 @@ formly-field-ion-radio {
     border-color: white;
 }
 
+//* Color of arrow down *//
+ion-select::part(icon) {
+    color: var(--ion-color-primary) !important;
+}
+
+.ion-select-border-color-primary {
+    --border-color: var(--ion-color-primary);
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+        border-color: var(--ion-color-primary) !important;
+    }
+}
+
 .custom-ion-popover {
 
     --background: var(--ion-background-color);
@@ -470,8 +485,8 @@ formly-input-section {
     ion-toggle {
         --track-background: var(--ion-color-toggle-background);
         --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --handle-background-checked: white;
         --track-background-checked: var(--ion-color-primary);
-        --handle-background-checked: var(--ion-color-white);
         --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
         padding: 0.8em;
         padding-right: 0.2em;
@@ -501,6 +516,10 @@ formly-input-section {
         white-space: nowrap;
         padding: 0.5em;
         text-align: center;
+    }
+
+    ion-buttons {
+        color: var(--ion-color-toggle-background) !important;
     }
 }
 
