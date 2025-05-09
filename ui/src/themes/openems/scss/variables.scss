@@ -122,6 +122,6 @@ $font-family: var(--ion-font-family);
   --ion-background-color: linear-gradient(to top left, #121212, #111111); // Background color of the whole application.
   --ion-text-color: #c5c5c5;
   --ion-item-background: #212121; // Background color for the widgets in the Live tap.
-  --ion-title-color: var(--ion-color-white);
+  --ion-title-color: var(--ion-color-toggle-background);
   --ion-color-toggle-checked-border: #e8ae6a;
 }

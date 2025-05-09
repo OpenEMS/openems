@@ -11,6 +11,8 @@ import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from "../app-routing.module";
+import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/formly/formly-current-user-alerting";
+import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
@@ -78,6 +80,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "panel", component: PanelWrapperComponent },
         { name: "formly-field-modal", component: FormlyFieldModalComponent },
         { name: "formly-field-checkbox-with-image", component: FormlyFieldCheckboxWithImageComponent },
+        { name: "formly-current-user-alerting", component: FormlyCurrentUserAlertingComponent },
+        { name: "formly-other-users-alerting", component: FormlyOtherUsersAlertingComponent },
       ],
       types: [
         { name: "input", component: InputTypeComponent },

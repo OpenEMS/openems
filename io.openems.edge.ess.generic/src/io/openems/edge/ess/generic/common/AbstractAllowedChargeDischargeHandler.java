@@ -14,6 +14,7 @@ import java.util.function.BiFunction;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.protection.BatteryVoltageProtection;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ClockProvider;
@@ -43,7 +44,6 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	public static final float MAX_INCREASE_PERCENTAGE = 0.05F;
 
 	public static final int VOLTAGE_CONTROL_FILTER_TIME_CONSTANT = 10; // [seconds]
-	public static final int VOLTAGE_CONTROL_OFFSET = 4; // [V]
 
 	protected final ESS parent;
 
@@ -84,10 +84,9 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 		var dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue().get();
 
 		final var voltRegulationChargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
-				this.pt1FilterChargeMaxCurrentVoltLimit, TypeUtils::min, TypeUtils::subtract, TypeUtils::subtract,
-				true);
+				this.pt1FilterChargeMaxCurrentVoltLimit, TypeUtils::min, TypeUtils::subtract, true);
 		final var voltRegulationDischargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
-				this.pt1FilterDischargeMaxCurrentVoltLimit, TypeUtils::max, TypeUtils::sum, TypeUtils::sum, false);
+				this.pt1FilterDischargeMaxCurrentVoltLimit, TypeUtils::max, TypeUtils::sum, false);
 
 		if (this.parent instanceof EssProtection ess) {
 			ess._setEpChargeMaxCurrent(voltRegulationChargeMaxCurrent);
@@ -249,6 +248,8 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 			Value<Integer> chargeMaxVoltage, //
 			Value<Integer> dischargeMinVoltage, //
 			Value<Integer> innerResistance, //
+			Value<Integer> bvpChargeBms, //
+			Value<Integer> bvpDischargeBms, //
 			Value<Integer> inverterDcMinVoltage, //
 			Value<Integer> inverterDcMaxVoltage) {
 		public RegulationValues(Battery battery, SymmetricBatteryInverter inverter) {
@@ -259,6 +260,8 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 					battery.getChargeMaxVoltage(), //
 					battery.getDischargeMinVoltage(), //
 					battery.getInnerResistance(), //
+					battery instanceof BatteryVoltageProtection b ? b.getBvpChargeBms() : null, //
+					battery instanceof BatteryVoltageProtection b ? b.getBvpDischargeBms() : null, //
 					inverter.getDcMinVoltage(), //
 					inverter.getDcMaxVoltage());
 		}
@@ -277,23 +280,20 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 
 	private static Integer calculateMaxCurrent(Battery battery, SymmetricBatteryInverter inverter, int cycleTime,
 			Pt1filter pt1Filter, BiFunction<Integer, Integer, Integer> dcLimit,
-			BiFunction<Integer, Integer, Integer> voltageOffset, BiFunction<Double, Double, Double> typeUtilsMethod,
-			boolean invert) {
+			BiFunction<Double, Double, Double> typeUtilsMethod, boolean invert) {
 		var regulationValues = new RegulationValues(battery, inverter);
 		if (!areRegulationValuesDefined(regulationValues)) {
 			return null;
 		}
 
 		final var batteryLimit = invert//
-				? regulationValues.chargeMaxVoltage.get()
-				: regulationValues.dischargeMinVoltage.get();
+				? TypeUtils.min(regulationValues.chargeMaxVoltage.get(), regulationValues.bvpChargeBms.get())
+				: TypeUtils.max(regulationValues.dischargeMinVoltage.get(), regulationValues.bvpDischargeBms.get());
 		final var inverterLimit = invert //
 				? regulationValues.inverterDcMaxVoltage.get()
 				: regulationValues.inverterDcMinVoltage.get();
 		final var limitVoltage = dcLimit.apply(//
-				voltageOffset.apply(//
-						batteryLimit, //
-						VOLTAGE_CONTROL_OFFSET),
+				batteryLimit, //
 				inverterLimit);
 
 		var subtractLimit = subtract(regulationValues.voltage.get(), limitVoltage);

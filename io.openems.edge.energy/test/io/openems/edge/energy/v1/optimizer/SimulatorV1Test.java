@@ -3,12 +3,12 @@ package io.openems.edge.energy.v1.optimizer;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1.getBestSchedule;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1.simulate;
 import static io.openems.edge.energy.v1.optimizer.TestDataV1.CONSUMPTION_888_20231106;
 import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRICES_888_20231106;
 import static io.openems.edge.energy.v1.optimizer.TestDataV1.PRODUCTION_888_20231106;
+import static io.openems.edge.energy.v1.optimizer.TestDataV1.TO_ENERGY;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateArray;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
 import static java.util.Arrays.stream;
@@ -56,7 +56,7 @@ public class SimulatorV1Test {
 				.setEssInitialEnergy(essInitial) //
 				.setEssMaxChargeEnergy(3000 /* [Wh/15 Minutes] */) //
 				.setEssMaxDischargeEnergy(3000 /* [Wh/15 Minutes] */) //
-				.seMaxBuyFromGrid(4000 /* [Wh/15 Minutes] */) //
+				.setMaxBuyFromGrid(4000 /* [Wh/15 Minutes] */) //
 				.setProductions(new int[] { production }) //
 				.setConsumptions(new int[] { consumption }) //
 				.setPrices(new double[] { price }) //
@@ -151,11 +151,11 @@ public class SimulatorV1Test {
 				.setEssMinSocEnergy(0) //
 				.setEssMaxSocEnergy(22000) //
 				.setEssInitialEnergy((int) (22000 * 0.1)) //
-				.setEssMaxChargeEnergy(toEnergy(10000)) //
-				.setEssMaxDischargeEnergy(toEnergy(10000)) //
-				.seMaxBuyFromGrid(toEnergy(24_000)) //
-				.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+				.setEssMaxChargeEnergy(TO_ENERGY.applyAsInt(10000)) //
+				.setEssMaxDischargeEnergy(TO_ENERGY.applyAsInt(10000)) //
+				.setMaxBuyFromGrid(TO_ENERGY.applyAsInt(24000)) //
+				.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(TO_ENERGY).toArray()) //
+				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(TO_ENERGY).toArray()) //
 				.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
 				.setStates(ControlMode.CHARGE_CONSUMPTION.modes) //
 				.setExistingSchedule(UtilsV1Test.prepareExistingSchedule(TIME, existingSchedule)) //
@@ -180,11 +180,11 @@ public class SimulatorV1Test {
 				.setEssTotalEnergy(22000) //
 				.setEssMinSocEnergy(0) //
 				.setEssMaxSocEnergy(22000) //
-				.setEssMaxChargeEnergy(toEnergy(10000)) //
-				.setEssMaxDischargeEnergy(toEnergy(10000)) //
-				.seMaxBuyFromGrid(toEnergy(24_000)) //
-				.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+				.setEssMaxChargeEnergy(TO_ENERGY.applyAsInt(10000)) //
+				.setEssMaxDischargeEnergy(TO_ENERGY.applyAsInt(10000)) //
+				.setMaxBuyFromGrid(TO_ENERGY.applyAsInt(24000)) //
+				.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(TO_ENERGY).toArray()) //
+				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(TO_ENERGY).toArray()) //
 				.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
 				.setStates(states) //
 				.build();

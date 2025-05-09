@@ -52,7 +52,7 @@
     }
 
     .ion-color-white {
-        --ion-color-base: var(--ion-color-white);
+        --ion-color-base: var(--ion-color-toggle-background);
     }
 
     .ion-color-background {
@@ -131,10 +131,9 @@
     --ion-color-toolbar-primary: var(--ion-color-primary);
     --ion-color-toolbar-segment: #fff;
     --ion-menu-color: #ebf4ff;
-    --ion-segment-button-color: var(--ion-color-white);
+    --ion-segment-button-color: var(--ion-color-toggle-background);
     --ion-title-color: white;
     --ion-segment-button-color: #fff;
-    --ion-color-white: #000;
 
     /** chart **/
     --ion-color-chart-primary: #444444;
@@ -162,6 +161,7 @@
     --ion-color-toggle-unchecked-handle: #efefef;
     --ion-color-toggle-unchecked-track: #9c9c9c;
     --ion-color-toggle-active: var(--ion-color-toggle-checked-border);
+
     --ion-color-label: var(--ion-text-color);
 }
 
@@ -226,7 +226,6 @@
     --ion-color-toggle-unchecked-handle: #efefef;
     --ion-color-toggle-unchecked-track: #9c9c9c;
     --ion-color-toggle-active: var(--ion-color-toggle-checked-border);
-    --ion-color-white: white;
 
     --ion-color-background-menu: #1d2c42;
 
@@ -262,7 +261,6 @@
     --ion-color-grey-primary: rgba(128, 128, 128, 1);
     --ion-color-grey-rgba: rgba(128, 128, 128, 0.05); // semi-transparent //
     --ion-background-percentagebar-color: #384352;
-    --ion-color-white: #fff;
 
     /** Card **/
     --ion-card-content: #cccccc;

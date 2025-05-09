@@ -24,11 +24,11 @@
             <ion-title class="ion-text-start ion-padding-left" style="color: var(--ion-title-color);"
                 translate>General.storageSystem
             </ion-title>
-            <ion-buttons style="color: var(--ion-color-white);" slot="start">
+            <ion-buttons style="color: var(--ion-color-toggle-background);" slot="start">
                 <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
                     [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
             </ion-buttons>
-            <ion-buttons style="color: var(--ion-color-white);" slot="end">
+            <ion-buttons style="color: var(--ion-color-toggle-background);" slot="end">
                 <ion-button routerLink="/device/{{edge.id}}/history">
                     <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
                 </ion-button>

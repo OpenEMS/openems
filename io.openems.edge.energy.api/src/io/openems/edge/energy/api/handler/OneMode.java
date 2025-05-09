@@ -4,11 +4,11 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 
 import org.apache.logging.log4j.util.Supplier;
 
-import io.openems.common.function.TriConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 /**
@@ -72,19 +72,6 @@ public class OneMode {
 		}
 
 		/**
-		 * Sets a a simplified Simulator that simulates a Mode for one Period of a
-		 * Schedule.
-		 * 
-		 * @param simulator a simulator
-		 * @return myself
-		 */
-		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setSimulator(
-				TriConsumer<GlobalScheduleContext, OPTIMIZATION_CONTEXT, EnergyFlow.Model> simulator) {
-			this.simulator = (id, period, gsc, coc, csc, ef, fitness) -> simulator.accept(gsc, coc, ef);
-			return this;
-		}
-
-		/**
 		 * Builds the {@link EnergyScheduleHandler.WithOnlyOneMode} instance.
 		 *
 		 * @return a {@link EnergyScheduleHandler.WithOnlyOneMode}
@@ -99,6 +86,8 @@ public class OneMode {
 	}
 
 	public static record Period<OPTIMIZATION_CONTEXT>(
+			/** Duration of the Period */
+			PeriodDuration duration,
 			/** Price [1/MWh] */
 			double price, //
 			/** ControllerOptimizationContext */
@@ -109,7 +98,7 @@ public class OneMode {
 		/**
 		 * This class is only used internally to apply the Schedule.
 		 */
-		public static record Transition(double price, EnergyFlow energyFlow) {
+		public static record Transition(PeriodDuration duration, double price, EnergyFlow energyFlow) {
 		}
 
 		/**
@@ -126,7 +115,7 @@ public class OneMode {
 		 */
 		public static <OPTIMIZATION_CONTEXT> Period<OPTIMIZATION_CONTEXT> fromTransitionRecord(Period.Transition t,
 				OPTIMIZATION_CONTEXT coc) {
-			return new Period<>(t.price, coc, t.energyFlow);
+			return new Period<>(t.duration, t.price, coc, t.energyFlow);
 		}
 	}
 

@@ -306,7 +306,6 @@ public class EvseChargePointKebaImpl extends AbstractOpenemsModbusComponent impl
 		}
 		this.previousCurrent = Tuple.of(now, current);
 
-		this.logDebug("Apply " + current);
 		try {
 			var setEnable = this.<EnumWriteChannel>channel(EvseChargePointKeba.ChannelId.SET_ENABLE);
 			if (current == 0) {

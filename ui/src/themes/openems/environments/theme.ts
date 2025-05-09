@@ -71,7 +71,8 @@ export const theme = {
                 COMMERCIAL: {
                     COMMERCIAL_30: "#",
                     COMMERCIAL_50: "#",
-                    COMMERCIAL: "#",
+                    COMMERCIAL_92: "#",
+                    COMMERCIAL_92_CLUSTER: "#",
                 },
             },
 

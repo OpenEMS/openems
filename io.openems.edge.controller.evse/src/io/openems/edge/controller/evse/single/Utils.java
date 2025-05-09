@@ -1,16 +1,10 @@
 package io.openems.edge.controller.evse.single;
 
-import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
@@ -44,14 +38,6 @@ public final class Utils {
 				.orElse(null);
 	}
 
-	protected static ZonedDateTime getTargetDateTime(ZonedDateTime startTime, int hour) {
-		var localTime = startTime.withZoneSameInstant(Clock.systemDefaultZone().getZone());
-		var targetDate = localTime.getHour() > hour //
-				? startTime.plusDays(1) //
-				: startTime;
-		return targetDate.truncatedTo(ChronoUnit.DAYS).withHour(hour);
-	}
-
 	protected static boolean getSessionLimitReached(Mode mode, Integer energy, int limit) {
 		if (mode == Mode.SMART) {
 			return false;
@@ -64,9 +50,10 @@ public final class Utils {
 
 	protected static ImmutableList<Task<Payload>> parseSmartConfig(String smartConfig) {
 		try {
-			return JSCalendar.Tasks.<Payload>fromJson(parseToJsonArray(smartConfig), Payload::fromJson);
+			return JSCalendar.Tasks.serializer(Payload.serializer()) //
+					.deserialize(smartConfig);
 
-		} catch (OpenemsNamedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return ImmutableList.of();
 		}
