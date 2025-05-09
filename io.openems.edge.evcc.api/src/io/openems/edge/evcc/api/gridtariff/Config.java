@@ -6,8 +6,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 @ObjectClassDefinition(//
-		name = "Time-Of-Use Grid Tariff evcc-API", //
-		description = "implements Time-Of-Use Grid Tariff by evcc-API")
+		name = "Time-Of-Use Grid Tariff (evcc-API)", //
+		description = "Provides time-of-use grid tariff data using the evcc-API.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

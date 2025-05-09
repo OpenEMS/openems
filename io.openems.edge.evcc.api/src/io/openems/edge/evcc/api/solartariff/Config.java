@@ -6,8 +6,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 @ObjectClassDefinition(//
-		name = "Predictor SolarTariff evcc-API", //
-		description = "Implements SolarTariff by evcc-API predictor")
+		name = "Predictor Solar Production (evcc-API)", //
+		description = "Provides solar production predictions using the evcc-API.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
