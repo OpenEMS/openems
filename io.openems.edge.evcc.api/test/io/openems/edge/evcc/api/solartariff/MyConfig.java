@@ -22,11 +22,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setChannelAddresses(String... channelAddresses) {
-			this.channelAddresses = channelAddresses;
-			return this;
-		}
-
 		public Builder setUrl(String url) {
 			this.url = url;
 			return this;
@@ -66,10 +61,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public LogVerbosity logVerbosity() {
 		return this.builder.logVerbosity;
-	}
-
-	@Override
-	public String[] channelAddresses() {
-		return this.builder.channelAddresses;
 	}
 }

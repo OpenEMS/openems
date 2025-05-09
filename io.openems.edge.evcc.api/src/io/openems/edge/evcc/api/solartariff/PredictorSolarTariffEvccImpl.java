@@ -36,6 +36,8 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 
 	private final Logger log = LoggerFactory
 			.getLogger(PredictorSolarTariffEvccImpl.class);
+	
+	private final String[] channelAdresses = {"_sum/ProductionActivePower"};
 
 	@Reference
 	private ComponentManager componentManager;
@@ -57,7 +59,7 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 	private void activate(ComponentContext context, Config config)
 			throws Exception {
 		super.activate(context, config.id(), config.alias(), config.enabled(),
-				config.channelAddresses(), config.logVerbosity());
+				this.channelAdresses, config.logVerbosity());
 
 		if (!config.enabled()) {
 			return;
@@ -65,7 +67,7 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 
 		this.httpBridge = this.httpBridgeFactory.get();
 
-		// Fetch latest weather forecast data periodically
+		// Fetch latest solar energy forecast periodically
 		this.solarForecastApi = new PredictorSolarTariffEvccApi(config.url(),
 				this.httpBridge, this.componentManager.getClock());
 	}

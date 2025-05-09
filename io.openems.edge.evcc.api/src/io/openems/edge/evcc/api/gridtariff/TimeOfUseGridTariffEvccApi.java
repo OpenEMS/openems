@@ -3,7 +3,6 @@ package io.openems.edge.evcc.api.gridtariff;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -11,11 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.openems.common.timedata.DurationUnit;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.HttpError;
@@ -30,7 +27,6 @@ public class TimeOfUseGridTariffEvccApi {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(TimeOfUseGridTariffEvccApi.class);
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 	private BridgeHttp httpBridge;
 	private String apiUrl;
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(
@@ -93,58 +89,59 @@ public class TimeOfUseGridTariffEvccApi {
 		log.error("HTTP Error: {}", error.getMessage());
 	}
 
-	/**
-	 * Returns the current grid tariff prices.
-	 *
-	 * @return TimeOfUsePrices grid prices.
-	 */
-	public TimeOfUsePrices getPrices() {
-		return this.prices.get();
-	}
-
 	private TimeOfUsePrices parsePrices(String jsonData) {
 		try {
-			var jsonObject = JsonParser.parseString(jsonData).getAsJsonObject();
-			var resultObject = jsonObject.getAsJsonObject("result");
-			var ratesArray = resultObject.getAsJsonArray("rates");
 			var result = ImmutableSortedMap
 					.<ZonedDateTime, Double>naturalOrder();
+			var resultObject = JsonUtils.parseToJsonObject(jsonData)
+					.getAsJsonObject("result");
+			var dataArray = JsonUtils.getAsJsonArray(resultObject, "rates");
+			long duration = -1;
+			
+			for (var element : dataArray) {
+				var optionalPrice = JsonUtils.getAsOptionalDouble(element,
+						"price");
+				var optionalValue = JsonUtils.getAsOptionalDouble(element,
+						"value");
 
-			for (JsonElement rateElement : ratesArray) {
-				if (rateElement.isJsonObject()) {
-					JsonObject rateObject = rateElement.getAsJsonObject();
-					String startString = rateObject.get("start").getAsString();
-					String endString = rateObject.get("end").getAsString();
-					double value = rateObject.has("price")
-							? rateObject.get("price").getAsDouble() * 1000
-							: rateObject.get("value").getAsDouble() * 1000;
+				if (optionalPrice.isEmpty() && optionalValue.isEmpty()) {
+					log.error(
+							"Missing 'price' or 'value' field in JSON data: {}",
+							element);
+					return TimeOfUsePrices.EMPTY_PRICES;
+				}
 
-					ZonedDateTime startsAt = ZonedDateTime.parse(startString,
-							DATE_FORMATTER);
-					ZonedDateTime endsAt = ZonedDateTime.parse(endString,
-							DATE_FORMATTER);
-					long duration = Duration.between(startsAt, endsAt)
-							.toMinutes();
+				double value = optionalPrice
+						.orElseGet(() -> optionalValue.get()) * 1000;
 
-					switch ((int) duration) {
-						case 60 :
-							for (int i = 0; i < 4; i++) {
-								ZonedDateTime quarterStart = startsAt
-										.plusMinutes(i * 15);
-								result.put(quarterStart, value);
-							}
-							break;
-						case 15 :
-							result.put(startsAt, value);
-							break;
-						default :
-							throw new IllegalArgumentException(
-									"Unexpected duration for rate: " + duration
-											+ " minutes");
-					}
-				} else {
-					log.error("Rate element is not a JsonObject: {}",
-							rateElement);
+				String startString = JsonUtils.getAsString(element, "start");
+				ZonedDateTime startTime = ZonedDateTime.parse(startString);
+
+				if (duration < 0) {
+					String endString = JsonUtils.getAsString(element, "end");
+					ZonedDateTime endTime = ZonedDateTime.parse(endString);
+
+					duration = Duration.between(startTime, endTime).toMinutes();
+				}
+
+				switch ((int) duration) {
+					case 60 :
+						result.put(startTime, value);
+						result.put(startTime.plusMinutes(15), value);
+						result.put(startTime.plusMinutes(30), value);
+						result.put(startTime.plusMinutes(45), value);
+						break;
+					case 30 :
+						result.put(startTime, value);
+						result.put(startTime.plusMinutes(15), value);
+						break;
+					case 15 :
+						result.put(startTime, value);
+						break;
+					default :
+						log.error("Unexpected duration for rate: {} minutes",
+								duration);
+						return TimeOfUsePrices.EMPTY_PRICES;
 				}
 			}
 
@@ -156,22 +153,32 @@ public class TimeOfUseGridTariffEvccApi {
 	}
 
 	/**
+	 * Returns the current grid tariff prices.
+	 *
+	 * @return the TimeOfUsePrices object containing tariff information.
+	 */
+	public TimeOfUsePrices getPrices() {
+		return this.prices.get();
+	}
+
+	/**
 	 * Sets the HTTP bridge for handling network communication.
 	 *
 	 * @param httpBridge
-	 *            the HTTP bridge to be used
+	 *            the HTTP bridge to be used.
 	 */
 	public void setHttpBridge(BridgeHttp httpBridge) {
 		this.httpBridge = httpBridge;
 	}
 
 	/**
-	 * Sets the API URL for network requests.
+	 * Sets the API URL for retrieving grid tariff data.
 	 *
 	 * @param apiUrl
-	 *            the API URL to be used
+	 *            the API endpoint URL.
 	 */
 	public void setApiUrl(String apiUrl) {
 		this.apiUrl = apiUrl;
 	}
+
 }

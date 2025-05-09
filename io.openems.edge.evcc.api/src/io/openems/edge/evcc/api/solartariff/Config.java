@@ -22,10 +22,6 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Channel-Addresses", description = "List of Channel-Addresses this Predictor is used for, e.g. '*/ActivePower', '*/ActualPower'")
-	String[] channelAddresses() default { //
-			"_sum/ProductionActivePower"};
-
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 

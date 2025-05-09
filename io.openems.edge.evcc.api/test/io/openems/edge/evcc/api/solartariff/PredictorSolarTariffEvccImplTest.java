@@ -13,7 +13,6 @@ public class PredictorSolarTariffEvccImplTest {
 
 	@Test
 	public void test() throws Exception {
-		String[] channels = {"_sum/ProductionActivePower"};
 		final var httpTestBundle = new DummyBridgeHttpBundle();
 		final var clock = createDummyClock();
 		new ComponentTest(new PredictorSolarTariffEvccImpl()) //
@@ -24,7 +23,6 @@ public class PredictorSolarTariffEvccImplTest {
 						.setId("predictor0") //
 						.setUrl("http://evcc:7070/api/tariff/solar") //
 						.setLogVerbosity(LogVerbosity.REQUESTED_PREDICTIONS) //
-						.setChannelAddresses(channels) //
 						.build()) //
 				.deactivate();
 	}
