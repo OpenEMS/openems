@@ -182,13 +182,20 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                             }
                         });
                         this.datasets = datasets.map((el, i) => ({ ...el, ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(this.colors[i]) }));;
-                    });
+                        this.loading = false;
+                        this.stopSpinner();
+                    }).finally(async () => {
+                        this.unit = YAxisType.ENERGY;
+                        await this.setOptions(this.options);
+                        this.applyControllerSpecificChartOptions(this.options);
+                        this.loading = false;
+                        this.stopSpinner();
+                    });;
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
-
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
@@ -199,12 +206,6 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
-        }).finally(async () => {
-            this.unit = YAxisType.ENERGY;
-            await this.setOptions(this.options);
-            this.applyControllerSpecificChartOptions(this.options);
-            this.loading = false;
-            this.stopSpinner();
         });
 
     }

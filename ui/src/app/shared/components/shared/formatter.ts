@@ -15,6 +15,10 @@ export namespace Formatter {
     return formatNumber(value, locale, "1.0-2") + " kW";
   };
 
+  export const FORMAT_WATT_HOURS = (value: number) => {
+    return formatNumber(value, locale, "1.0-0") + " Wh";
+  };
+
   export const FORMAT_KILO_WATT_HOURS = (value: number) => {
     return formatNumber(value, locale, "1.0-0") + " kWh";
   };

@@ -3,10 +3,8 @@ package io.openems.edge.energy.api;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstPeakIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstValleyIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
-import static io.openems.edge.energy.api.EnergyUtils.toPower;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -35,11 +33,5 @@ public class EnergyUtilsTest {
 	@Test
 	public void testFindValleyIndexes() {
 		assertArrayEquals(new int[] { 1, 6 }, findValleyIndexes(new double[] { 0, 0, 1, 2, 1, 0, 0, 2, 0 }));
-	}
-
-	@Test
-	public void testToPower() {
-		assertEquals(2000, (int) toPower(500));
-		assertNull(toPower(null));
 	}
 }

@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import com.google.gson.JsonObject;
 
 import io.openems.edge.energy.EnergySchedulerTestUtils.Controller;
+import io.openems.edge.energy.api.RiskLevel;
 
 /**
  * This little application allows running the Optimizer from a mocked JSON
@@ -21,15 +22,16 @@ public class RunOptimizerApp {
 
 	private static final JsonObject JSON = buildJsonObject() //
 			.addProperty("startTime", ZonedDateTime.parse("2025-03-17T07:45:00Z")) //
+			.addProperty("riskLevel", RiskLevel.MEDIUM) //
 			.add("grid", buildJsonObject() //
-					.addProperty("maxBuy", 40000) //
-					.addProperty("maxSell", 20000) //
+					.addProperty("maxBuyPower", 10000) //
+					.addProperty("maxSellPower", 5000) //
 					.build()) //
 			.add("ess", buildJsonObject() //
-					.addProperty("currentEnergy", 10120) //
+					.addProperty("currentEnergy", 11000) //
 					.addProperty("totalEnergy", 22000) //
-					.addProperty("maxChargeEnergy", 2499) //
-					.addProperty("maxDischargeEnergy", 2749) //
+					.addProperty("maxChargePower", 6000) //
+					.addProperty("maxDischargePower", 6000) //
 					.build()) //
 			.add("eshs", buildJsonArray() //
 					// ESS Fix-Active-Power
@@ -37,7 +39,7 @@ public class RunOptimizerApp {
 							.addProperty("factoryPid", Controller.ESS_FIX_ACTIVE_POWER.factoryPid) //
 							.addProperty("id", "ctrlFixActivePower0") //
 							.add("source", buildJsonObject() //
-									.addProperty("energy", 500) //
+									.addProperty("power", 500) //
 									.addProperty("relationship", "EQUALS") //
 									.build()) //
 							.build())
@@ -86,6 +88,7 @@ public class RunOptimizerApp {
 							.add("source", buildJsonObject() //
 									.addProperty("class", "ManualOptimizationContext") //
 									.addProperty("isReadyForCharging", true) //
+									.addProperty("appearsToBeFullyCharged", false) //
 									.add("limit", buildJsonObject() //
 											.addProperty("phase", "SINGLE_PHASE") //
 											.addProperty("minCurrent", 6000) //
@@ -104,6 +107,7 @@ public class RunOptimizerApp {
 							.add("source", buildJsonObject() //
 									.addProperty("class", "SmartOptimizationConfig") //
 									.addProperty("isReadyForCharging", true) //
+									.addProperty("appearsToBeFullyCharged", false) //
 									.add("limit", buildJsonObject() //
 											.addProperty("phase", "SINGLE_PHASE") //
 											.addProperty("minCurrent", 6000) //

@@ -22,7 +22,6 @@ export interface CategorizedFactories {
 
 export class EdgeConfig {
 
-    public readonly navigation: NavigationTree | null = null;
     /**
      * Component-ID -> Component.
      */
@@ -42,6 +41,8 @@ export class EdgeConfig {
      * UI-Widgets.
      */
     public readonly widgets: Widgets;
+
+    public readonly navigation: NavigationTree;
 
     constructor(edge: Edge, source?: EdgeConfig) {
         if (source) {
@@ -471,6 +472,23 @@ export class EdgeConfig {
     }
 
     /**
+     * Get a component by another components property
+     *
+     * @param otherComponentId the other component
+     * @param property the property of the other component
+     * @returns the component, if found, else null
+     */
+    public getComponentFromOtherComponentsProperty(otherComponentId: string, property: string): EdgeConfig.Component | null {
+        const component = this.components[otherComponentId];
+        if (component && property in component.properties) {
+            const id = component.properties[property];
+            return this.components[id];
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Determines if component has nature
      *
      * @param nature the given Nature.
@@ -715,17 +733,29 @@ export class EdgeConfig {
         return component?.properties[property] ?? null;
     }
 
-    public createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory; }): NavigationTree {
-        const navigationTree: NavigationTree = NavigationTree.of(baseNavigationTree);
-        const baseMode: NavigationTree["mode"] = "label";
+    /**
+     * Creates a navigation Tree
+     *
+     * @param components the edgeconfig components
+     * @param factories the edgeconfig factories
+     * @returns a navigationTree
+     */
+    private createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory; }): NavigationTree {
 
+        // Create copy of navigationTree, avoid call by reference
+        const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree.slice() as ConstructorParameters<typeof NavigationTree>;
+        const navigationTree: NavigationTree = new NavigationTree(..._baseNavigationTree);
+
+        const baseMode: NavigationTree["mode"] = "label";
         for (const [componentId, component] of Object.entries(components)) {
             switch (component.factoryId) {
                 case "Evse.Controller.Single":
                     navigationTree.setChild(NavigationId.LIVE,
                         new NavigationTree(
-                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
-                            navigationTree,));
+                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+                            new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, "Historie", baseMode, [], null),
+                            new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, "Prognose", baseMode, [], null),
+                        ], navigationTree));
                     break;
                 case "Controller.IO.Heating.Room":
                     navigationTree.setChild(NavigationId.LIVE,
@@ -791,6 +821,16 @@ export namespace EdgeConfig {
             public readonly properties: { [key: string]: any } = {},
             public readonly channels?: { [channelId: string]: ComponentChannel },
         ) { }
+
+        /* Safely gets a property from a component, if it exists, else returns null.
+        *
+        * @param component The component from which to retrieve the property.
+        * @param property The property name to retrieve.
+        * @returns The property value if it exists, otherwise null.
+        */
+        public getPropertyFromComponent<T>(property: string): T | null {
+            return this.properties[property] ?? null;
+        }
     }
 
     export class FactoryProperty {

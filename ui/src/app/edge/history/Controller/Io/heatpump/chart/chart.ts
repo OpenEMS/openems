@@ -14,7 +14,7 @@ import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions-utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
     selector: "controller-io-heatpump-chart",

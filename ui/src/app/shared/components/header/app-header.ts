@@ -7,6 +7,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { Edge, Service, Websocket } from "../../shared";
+import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
 
@@ -37,6 +38,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public router: Router,
         public service: Service,
         public websocket: Websocket,
+        protected navigationService: NavigationService,
     ) { }
 
     @Input() public set customBackUrl(url: string | null) {

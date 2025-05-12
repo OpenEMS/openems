@@ -47,13 +47,13 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * <pre>
   {
     "appId":"App.TimeOfUseTariff.OctopusHeat",
-    "alias":"Octopus Go",
+    "alias":"Octopus Heat",
     "instanceId": UUID,
     "image": base64,
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"HIGH_PRICE": {}highPrice,
+    	"HIGH_PRICE": {highPrice},
     	"STANDARD_PRICE": {standardPrice},
     	"LOW_PRICE": {lowPrice}
     },
@@ -126,7 +126,7 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.OctopusGo",
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.OctopusHeat",
 							JsonUtils.buildJsonObject() //
 									.addProperty("highPrice", highPrice) //
 									.addProperty("standardPrice", standardPrice) //

@@ -1,15 +1,12 @@
 package io.openems.edge.evse.api;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsEnum;
-import static io.openems.common.utils.JsonUtils.getAsInt;
 import static java.lang.Math.round;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 
 public record Limit(SingleThreePhase phase, int minCurrent, int maxCurrent) {
 
@@ -45,32 +42,24 @@ public record Limit(SingleThreePhase phase, int minCurrent, int maxCurrent) {
 	}
 
 	/**
-	 * Serialize to {@link JsonElement}.
+	 * Returns a {@link JsonSerializer} for a {@link Limit}.
 	 * 
-	 * @param limit the {@link Limit}, possibly null
-	 * @return the {@link JsonElement}
+	 * @return the created {@link JsonSerializer}
 	 */
-	public static JsonElement toJson(Limit limit) {
-		if (limit == null) {
-			return JsonNull.INSTANCE;
-		}
-		return buildJsonObject() //
-				.addProperty("phase", limit.phase.name()) //
-				.addProperty("minCurrent", limit.minCurrent) //
-				.addProperty("maxCurrent", limit.maxCurrent) //
-				.build();
-	}
-
-	/**
-	 * Deserialize a {@link JsonObject} to a {@link Limit} instance.
-	 * 
-	 * @param j a {@link JsonObject}
-	 * @throws OpenemsNamedException on error
-	 */
-	public static Limit fromJson(JsonObject j) throws OpenemsNamedException {
-		return new Limit(//
-				getAsEnum(SingleThreePhase.class, j, "phase"), //
-				getAsInt(j, "minCurrent"), //
-				getAsInt(j, "maxCurrent"));
+	public static JsonSerializer<Limit> serializer() {
+		return JsonSerializerUtil.jsonObjectSerializer(Limit.class, json -> {
+			return new Limit(//
+					json.getEnum("phase", SingleThreePhase.class), //
+					json.getInt("minCurrent"), //
+					json.getInt("maxCurrent"));
+		}, obj -> {
+			return obj == null //
+					? JsonNull.INSTANCE //
+					: buildJsonObject() //
+							.addProperty("phase", obj.phase()) //
+							.addProperty("minCurrent", obj.minCurrent()) //
+							.addProperty("maxCurrent", obj.maxCurrent()) //
+							.build();
+		});
 	}
 }

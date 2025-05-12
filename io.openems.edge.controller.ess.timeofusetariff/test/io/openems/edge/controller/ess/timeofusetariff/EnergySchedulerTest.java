@@ -44,7 +44,7 @@ public class EnergySchedulerTest {
 
 		assertEquals(106, t.simulatePeriod(0 /* BALANCING */).ef().solve().getEss());
 		assertEquals(0, t.simulatePeriod(1 /* DELAY_DISCHARGE */).ef().solve().getEss());
-		assertEquals(-983, t.simulatePeriod(2 /* CHARGE_GRID */).ef().solve().getEss());
+		assertEquals(-982, t.simulatePeriod(2 /* CHARGE_GRID */).ef().solve().getEss());
 	}
 
 	@Test
@@ -65,5 +65,16 @@ public class EnergySchedulerTest {
 
 		assertEquals(106, t.simulatePeriod(0 /* BALANCING */).ef().solve().getEss());
 		assertEquals(0, t.simulatePeriod(1 /* DELAY_DISCHARGE */).ef().solve().getEss());
+	}
+
+	@Test
+	public void testDischargeToGrid() {
+		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"),
+				() -> new EnergyScheduler.Config(ControlMode.DISCHARGE_TO_GRID));
+		var t = EnergyScheduleTester.from(esh);
+
+		// Initial Population: DELAY_DISCHARGE, CHARGE_GRID and DISCHARGE_GRID
+		var ip = t.perEsh.get(0).initialPopulation();
+		assertEquals(5, ip.size());
 	}
 }
