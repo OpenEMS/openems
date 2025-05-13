@@ -1,11 +1,22 @@
 package io.openems.edge.kostal.plenticore.ess;
 
-import io.openems.common.channel.AccessMode;
+import static io.openems.common.channel.AccessMode.READ_ONLY;
+import static io.openems.common.channel.AccessMode.WRITE_ONLY;
+import static io.openems.common.channel.Unit.AMPERE;
+import static io.openems.common.channel.Unit.DEGREE_CELSIUS;
+import static io.openems.common.channel.Unit.HERTZ;
+import static io.openems.common.channel.Unit.MILLIVOLT;
+import static io.openems.common.channel.Unit.PERCENT;
+import static io.openems.common.channel.Unit.VOLT;
+import static io.openems.common.channel.Unit.VOLT_AMPERE;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+
 import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -20,16 +31,9 @@ import io.openems.edge.kostal.plenticore.enums.FuseState;
 import io.openems.edge.kostal.plenticore.enums.InverterState;
 import io.openems.edge.kostal.plenticore.enums.SensorType;
 
-public interface KostalManagedEss
-		extends
-			ManagedSymmetricEss,
-			SymmetricEss,
-			ModbusComponent,
-			OpenemsComponent {
+public interface KostalManagedEss extends ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent {
 
-	public static enum ChannelId
-			implements
-				io.openems.edge.common.channel.ChannelId {
+	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		// EnumReadChannels
 		/**
@@ -47,8 +51,7 @@ public interface KostalManagedEss
 		/**
 		 * Represents the operating mode for battery management.
 		 */
-		OPERATING_MODE_FOR_BATTERY_MANAGEMENT(
-				Doc.of(BatteryManagementMode.values())), //
+		OPERATING_MODE_FOR_BATTERY_MANAGEMENT(Doc.of(BatteryManagementMode.values())), //
 
 		// EnumWriteChannels
 		/**
@@ -62,120 +65,114 @@ public interface KostalManagedEss
 
 		// LongReadChannels
 		/**
-		 * Represents the serial number of the device. Data is persisted with
-		 * high priority.
+		 * Represents the serial number of the device. Data is persisted with high
+		 * priority.
 		 */
-		SERIAL_NUMBER(Doc.of(OpenemsType.LONG)
-				.persistencePriority(PersistencePriority.HIGH) //
-		), //
+		SERIAL_NUMBER(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
 		 * Represents the grid voltage of phase L1 in volts.
 		 */
-		GRID_VOLTAGE_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
-		), //
+		GRID_VOLTAGE_L1(Doc.of(INTEGER) //
+				.unit(VOLT)),
 		/**
 		 * Represents the grid voltage of phase L2 in volts.
 		 */
-		GRID_VOLTAGE_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
-		), //
+		GRID_VOLTAGE_L2(Doc.of(INTEGER) //
+				.unit(VOLT)),
 		/**
 		 * Represents the grid voltage of phase L3 in volts.
 		 */
-		GRID_VOLTAGE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT) //
-		), //
+		GRID_VOLTAGE_L3(Doc.of(INTEGER) //
+				.unit(VOLT)),
 
 		/**
 		 * Represents the grid frequency in hertz.
 		 */
-		FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ) //
-		), //
+		FREQUENCY(Doc.of(INTEGER) //
+				.unit(HERTZ)),
 
 		// IntegerWriteChannels
 		/**
 		 * Sets the active power in watts. This channel is write-only.
 		 */
-		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.unit(Unit.WATT)), //
+		SET_ACTIVE_POWER(Doc.of(INTEGER) //
+				.accessMode(WRITE_ONLY) //
+				.unit(WATT)),
 
 		/**
 		 * Sets the reactive power in volt-amperes. This channel is write-only.
 		 */
-		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.unit(Unit.VOLT_AMPERE)), //
+		SET_REACTIVE_POWER(Doc.of(INTEGER) //
+				.accessMode(WRITE_ONLY) //
+				.unit(VOLT_AMPERE)),
 
 		/**
-		 * Represents the current charge power in watts. This channel is
-		 * read-only.
+		 * Represents the current charge power in watts. This channel is read-only.
 		 */
-		CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
+		CHARGE_POWER(Doc.of(INTEGER) //
+				.unit(WATT) //
+				.accessMode(READ_ONLY)),
 
 		/**
-		 * Represents the desired charge/discharge power in watts. Defined by
-		 * external controllers.
+		 * Represents the desired charge/discharge power in watts. Defined by external
+		 * controllers.
 		 */
-		CHARGE_POWER_WANTED(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //
+		CHARGE_POWER_WANTED(Doc.of(INTEGER) //
+				.unit(WATT)), //
 
 		/**
-		 * Represents the maximum charge power in watts. This channel is
-		 * read-only.
+		 * Represents the maximum charge power in watts. This channel is read-only.
 		 */
-		MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
+		MAX_CHARGE_POWER(Doc.of(INTEGER) //
+				.unit(WATT) //
+				.accessMode(READ_ONLY)),
 
 		/**
-		 * Represents the maximum discharge power in watts. This channel is
-		 * read-only.
+		 * Represents the maximum discharge power in watts. This channel is read-only.
 		 */
-		MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
+		MAX_DISCHARGE_POWER(Doc.of(INTEGER) //
+				.unit(WATT) //
+				.accessMode(READ_ONLY)),
 
 		/**
 		 * Sets the maximum charge power in watts. This channel is write-only.
 		 */
-		SET_MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)),
+		SET_MAX_CHARGE_POWER(Doc.of(INTEGER) //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY)),
 
 		/**
-		 * Sets the maximum discharge power in watts. This channel is
-		 * write-only.
+		 * Sets the maximum discharge power in watts. This channel is write-only.
 		 */
-		SET_MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)),
+		SET_MAX_DISCHARGE_POWER(Doc.of(INTEGER) //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY)),
 
 		/**
 		 * Represents the current battery capacity as a percentage.
 		 */
-		CURRENT_BATTERY_CAPACITY(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT) //
-		), //
+		CURRENT_BATTERY_CAPACITY(Doc.of(INTEGER) //
+				.unit(PERCENT)),
 
 		/**
 		 * Represents the battery voltage in millivolts.
 		 */
-		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT) //
-		), //
+		BATTERY_VOLTAGE(Doc.of(INTEGER) //
+				.unit(MILLIVOLT)),
 
 		/**
 		 * Represents the battery temperature in degrees Celsius.
 		 */
-		BATTERY_TEMPERATURE(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS) //
-		), //
+		BATTERY_TEMPERATURE(Doc.of(INTEGER) //
+				.unit(DEGREE_CELSIUS)),
 
 		/**
 		 * Represents the battery current in amperes.
 		 */
-		BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE) //
-		);
+		BATTERY_CURRENT(Doc.of(INTEGER) //
+				.unit(AMPERE));
 
 		private final Doc doc;
 
@@ -188,24 +185,21 @@ public interface KostalManagedEss
 			return this.doc;
 		}
 	}
-	
+
 	/**
-	 * Sets the desired charge power on the
-	 * {@link ChannelId#CHARGE_POWER_WANTED} channel.
+	 * Sets the desired charge power on the {@link ChannelId#CHARGE_POWER_WANTED}
+	 * channel.
 	 *
-	 * @param value
-	 *            the next value to set for charge/discharge power
+	 * @param value the next value to set for charge/discharge power
 	 */
 	public default void _setChargePowerWanted(Integer value) {
 		this.getChargePowerWantedChannel().setNextValue(value);
 	}
 
 	/**
-	 * Sets the desired charge power on the {@link ChannelId#CHARGE_POWER}
-	 * channel.
+	 * Sets the desired charge power on the {@link ChannelId#CHARGE_POWER} channel.
 	 *
-	 * @param value
-	 *            the next value to set for charge power
+	 * @param value the next value to set for charge power
 	 */
 	public default void _setChargePower(Integer value) {
 		System.out.println("setChargePower called... setting value: " + value);
@@ -213,16 +207,13 @@ public interface KostalManagedEss
 	}
 
 	/**
-	 * Sets the maximum charge power on the
-	 * {@link ChannelId#SET_MAX_CHARGE_POWER} channel.
+	 * Sets the maximum charge power on the {@link ChannelId#SET_MAX_CHARGE_POWER}
+	 * channel.
 	 *
-	 * @param value
-	 *            the next value to set for max charge power
-	 * @throws OpenemsNamedException
-	 *             if an error occurs while setting the value
+	 * @param value the next value to set for max charge power
+	 * @throws OpenemsNamedException if an error occurs while setting the value
 	 */
-	public default void _setMaxChargePower(Integer value)
-			throws OpenemsNamedException {
+	public default void _setMaxChargePower(Integer value) throws OpenemsNamedException {
 		this.getSetMaxChargePowerChannel().setNextWriteValue(value);
 	}
 
@@ -230,13 +221,10 @@ public interface KostalManagedEss
 	 * Sets the maximum discharge power on the
 	 * {@link ChannelId#SET_MAX_DISCHARGE_POWER} channel.
 	 *
-	 * @param value
-	 *            the next value to set for max discharge power
-	 * @throws OpenemsNamedException
-	 *             if an error occurs while setting the value
+	 * @param value the next value to set for max discharge power
+	 * @throws OpenemsNamedException if an error occurs while setting the value
 	 */
-	public default void _setMaxDischargePower(Integer value)
-			throws OpenemsNamedException {
+	public default void _setMaxDischargePower(Integer value) throws OpenemsNamedException {
 		this.getSetMaxDischargePowerChannel().setNextWriteValue(value);
 	}
 

@@ -2,9 +2,7 @@ package io.openems.edge.kostal.plenticore.ess;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.kostal.plenticore.enums.ControlMode;
-import io.openems.edge.kostal.plenticore.ess.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -64,7 +62,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.tolerance = tolerance;
 			return this;
 		}
-		
+
 		public Builder setMinSoc(int minsoc) {
 			this.minsoc = minsoc;
 			return this;
@@ -89,7 +87,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.controlMode = controlMode;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -150,7 +148,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public ControlMode controlMode() {
 		return this.builder.controlMode;
 	}
-	
+
 	@Override
 	public int tolerance() {
 		return this.builder.tolerance;

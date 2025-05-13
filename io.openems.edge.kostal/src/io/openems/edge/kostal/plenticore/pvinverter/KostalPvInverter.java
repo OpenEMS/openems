@@ -5,23 +5,20 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface KostalPvInverter
-  extends
-    //ManagedSymmetricPvInverter,
-    ElectricityMeter,
-    OpenemsComponent, ModbusSlave {
-  public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-    ;
+public interface KostalPvInverter extends ElectricityMeter, OpenemsComponent, ModbusSlave {
 
-    private final Doc doc;
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		;
 
-    private ChannelId(Doc doc) {
-      this.doc = doc;
-    }
+		private final Doc doc;
 
-    @Override
-    public Doc doc() {
-      return this.doc;
-    }
-  }
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
 }

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.common.types.MeterType;
 
-@ObjectClassDefinition(name = "Meter Kostal Smart Energy (KSEM)", //
+@ObjectClassDefinition(name = "KOSTAL Smart Energy Meter (KSEM)", //
 		description = "Implements the Kostal Smart Energy Meter (KSEM)")
 @interface Config {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -35,5 +35,5 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.GRID;
 
-	String webconsole_configurationFactory_nameHint() default "Meter Kostal Smart Energy (KSEM) [{id}]";
+	String webconsole_configurationFactory_nameHint() default "KOSTAL Smart Energy Meter (KSEM) [{id}]";
 }

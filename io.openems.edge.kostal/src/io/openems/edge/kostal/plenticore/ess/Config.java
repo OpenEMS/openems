@@ -5,9 +5,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.kostal.plenticore.enums.ControlMode;
 
-@ObjectClassDefinition(
-		//
-		name = "ESS Kostal Plenticore", //
+@ObjectClassDefinition(//
+		name = "KOSTAL Plenticore ESS", //
 		description = "Implements the Kostal Plenticore hybrid energy storage system (battery).")
 @interface Config {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -46,5 +45,5 @@ import io.openems.edge.kostal.plenticore.enums.ControlMode;
 	@AttributeDefinition(name = "Capacity", description = "Capacity of the battery in [Wh]")
 	int capacity() default 10_000;
 
-	String webconsole_configurationFactory_nameHint() default "ESS Kostal Plenticore [{id}]";
+	String webconsole_configurationFactory_nameHint() default "KOSTAL Plenticore ESS [{id}]";
 }

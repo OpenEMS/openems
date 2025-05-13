@@ -3,105 +3,101 @@ package io.openems.edge.kostal.plenticore.gridmeter;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.kostal.plenticore.gridmeter.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-  protected static class Builder {
+	protected static class Builder {
 
-    private String id;
-    private String modbusId;
-    private boolean wordwrap;
-    private boolean inverter; 
-    private int modbusUnitId;
-    private MeterType type;
+		private String id;
+		private String modbusId;
+		private boolean wordwrap;
+		private boolean inverter;
+		private int modbusUnitId;
+		private MeterType type;
 
-    private Builder() {
-    	// empty
-    }
+		private Builder() {
+			// empty
+		}
 
-    public Builder setId(String id) {
-      this.id = id;
-      return this;
-    }
+		public Builder setId(String id) {
+			this.id = id;
+			return this;
+		}
 
-    public Builder setModbusId(String modbusId) {
-      this.modbusId = modbusId;
-      return this;
-    }
+		public Builder setModbusId(String modbusId) {
+			this.modbusId = modbusId;
+			return this;
+		}
 
-    public Builder setModbusUnitId(int modbusUnitId) {
-      this.modbusUnitId = modbusUnitId;
-      return this;
-    }
-    
-    public Builder setWordwrap(boolean wordwrap) {
-        this.wordwrap = wordwrap;
-        return this;
-      }    
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
 
-    public Builder setViaInverter(boolean inverter) {
-        this.inverter = inverter;
-        return this;
-      } 
+		public Builder setWordwrap(boolean wordwrap) {
+			this.wordwrap = wordwrap;
+			return this;
+		}
 
-    public Builder setType(MeterType type) {
-        this.type = type;
-        return this;
-      } 
-    
-    public MyConfig build() {
-      return new MyConfig(this);
-    }
-  }
+		public Builder setViaInverter(boolean inverter) {
+			this.inverter = inverter;
+			return this;
+		}
 
-  /**
-   * Create a Config builder.
-   *
-   * @return a {@link Builder}
-   */
-  public static Builder create() {
-    return new Builder();
-  }
+		public Builder setType(MeterType type) {
+			this.type = type;
+			return this;
+		}
 
-  private final Builder builder;
+		public MyConfig build() {
+			return new MyConfig(this);
+		}
+	}
 
-  private MyConfig(Builder builder) {
-    super(Config.class, builder.id);
-    this.builder = builder;
-  }
+	/**
+	 * Create a Config builder.
+	 *
+	 * @return a {@link Builder}
+	 */
+	public static Builder create() {
+		return new Builder();
+	}
 
-  @Override
-  public String modbus_id() {
-    return this.builder.modbusId;
-  }
+	private final Builder builder;
 
-  @Override
-  public String Modbus_target() {
-    return ConfigUtils.generateReferenceTargetFilter(
-      this.id(),
-      this.modbus_id()
-    );
-  }
+	private MyConfig(Builder builder) {
+		super(Config.class, builder.id);
+		this.builder = builder;
+	}
 
-  @Override
-  public int modbusUnitId() {
-    return this.builder.modbusUnitId;
-  }
-  
-  @Override
-  public boolean wordwrap() {
-    return this.builder.wordwrap;
-  }
-  
-  @Override
-  public boolean viaInverter() {
-    return this.builder.inverter;
-  }
+	@Override
+	public String modbus_id() {
+		return this.builder.modbusId;
+	}
 
-@Override
-public MeterType type() {
-	return this.builder.type;
-}
+	@Override
+	public String Modbus_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public boolean wordwrap() {
+		return this.builder.wordwrap;
+	}
+
+	@Override
+	public boolean viaInverter() {
+		return this.builder.inverter;
+	}
+
+	@Override
+	public MeterType type() {
+		return this.builder.type;
+	}
 }

@@ -2,6 +2,8 @@ package io.openems.edge.kostal.plenticore.ess;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,7 +40,6 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.HybridEss;
@@ -51,22 +52,18 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Ess.Kostal.Plenticore", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component( //
+		name = "Kostal.Plenticore.Ess", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
+public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent implements KostalManagedEss,
+		ManagedSymmetricEss, SymmetricEss, ModbusComponent, TimedataProvider, EventHandler, OpenemsComponent {
 
-public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
-		implements
-			KostalManagedEss,
-			ManagedSymmetricEss,
-			SymmetricEss,
-			ModbusComponent,
-			TimedataProvider,
-			EventHandler,
-			OpenemsComponent {
+	private static final Logger log = LoggerFactory.getLogger(KostalManagedEss.class);
 
 	@Reference
 	private Power power;
@@ -75,11 +72,10 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 	private ConfigurationAdmin cm;
 
 	/**
-	 * Sets the Modbus bridge service reference. This method is used to
-	 * reference the Modbus bridge component.
+	 * Sets the Modbus bridge service reference. This method is used to reference
+	 * the Modbus bridge component.
 	 *
-	 * @param modbus
-	 *            the Modbus bridge instance
+	 * @param modbus the Modbus bridge instance
 	 */
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -100,24 +96,19 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 	private int tolerance = 20;
 	private int watchdog = 30;
 
-	private static final Logger log = LoggerFactory
-			.getLogger(KostalManagedEss.class);
-
 	// is DC power for consistency
-	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(
-			this, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(
-			this, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	/**
-	 * Constructor for KostalManagedESSImpl. Initializes the component with
-	 * default channels.
+	 * Constructor for KostalManagedESSImpl. Initializes the component with default
+	 * channels.
 	 */
 	public KostalManagedEssImpl() {
-		super(OpenemsComponent.ChannelId.values(),
-				ModbusComponent.ChannelId.values(),
-				SymmetricEss.ChannelId.values(), HybridEss.ChannelId.values(),
-				ManagedSymmetricEss.ChannelId.values(),
+		super(OpenemsComponent.ChannelId.values(), ModbusComponent.ChannelId.values(), SymmetricEss.ChannelId.values(),
+				HybridEss.ChannelId.values(), ManagedSymmetricEss.ChannelId.values(),
 				KostalManagedEss.ChannelId.values());
 	}
 
@@ -125,21 +116,16 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 	 * Activates the component and initializes the configuration. This method is
 	 * called when the component is activated.
 	 *
-	 * @param context
-	 *            the component context
-	 * @param config
-	 *            the configuration settings
-	 * @throws OpenemsException
-	 *             if there are activation issues
+	 * @param context the component context
+	 * @param config  the configuration settings
+	 * @throws OpenemsException if there are activation issues
 	 */
 	@Activate
-	private void activate(ComponentContext context, Config config)
-			throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
-		if (super.activate(context, config.id(), config.alias(),
-				config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 
@@ -163,16 +149,12 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Applies the desired active and reactive power to the system.
 	 *
-	 * @param activePower
-	 *            the desired active power
-	 * @param reactivePower
-	 *            the desired reactive power
-	 * @throws OpenemsNamedException
-	 *             if there are issues applying power
+	 * @param activePower   the desired active power
+	 * @param reactivePower the desired reactive power
+	 * @throws OpenemsNamedException if there are issues applying power
 	 */
 	@Override
-	public void applyPower(int activePower, int reactivePower)
-			throws OpenemsNamedException {
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		// Using separate channel for the demanded charge/discharge power
 		this._setChargePowerWanted(activePower);
 
@@ -181,14 +163,11 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 		if (this.isManaged() && this.controlMode != ControlMode.INTERNAL) {
 			// allow minimum writes if values not set (zero or null)
 			Instant now = Instant.now();
-			if (this.lastSetPower != null && activePower == 0
-					&& this.lastSetPower == activePower
-					// allows moderate differences
+			if (this.lastSetPower != null && activePower == 0 && this.lastSetPower == activePower
+			// allows moderate differences
 					&& (this.lastSetPower - this.tolerance >= activePower
-							&& this.lastSetPower
-									+ this.tolerance <= activePower)
-					&& Duration.between(this.lastApplyPower, now)
-							.getSeconds() < this.watchdog) {
+							&& this.lastSetPower + this.tolerance <= activePower)
+					&& Duration.between(this.lastApplyPower, now).getSeconds() < this.watchdog) {
 
 				// no need to apply to new set-point
 				log.debug("skipped - wait for expiring watchdog (zero)");
@@ -196,22 +175,16 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 			}
 
 			// allow minimum writes if values are maximized (smart control)
-			if (this.lastSetPower != null
-					&& this.controlMode == ControlMode.SMART
-					&& (this.lastSetPower == activePower
-							// allows little differences
-							|| (this.lastSetPower
-									- this.tolerance >= activePower
-									&& this.lastSetPower
-											+ this.tolerance <= activePower)
-							// at limits
-							|| (activePower == this.getMaxChargePower().get()
-									|| Math.abs(activePower) == this
-											.getMaxDischargePower().get()) //
-							// in tolerance around zero
-							|| (Math.abs(activePower) < this.tolerance))
-					&& Duration.between(this.lastApplyPower, now)
-							.getSeconds() < this.watchdog) {
+			if (this.lastSetPower != null && this.controlMode == ControlMode.SMART && (this.lastSetPower == activePower
+					// allows little differences
+					|| (this.lastSetPower - this.tolerance >= activePower
+							&& this.lastSetPower + this.tolerance <= activePower)
+					// at limits
+					|| (activePower == this.getMaxChargePower().get()
+							|| Math.abs(activePower) == this.getMaxDischargePower().get()) //
+					// in tolerance around zero
+					|| (Math.abs(activePower) < this.tolerance))
+					&& Duration.between(this.lastApplyPower, now).getSeconds() < this.watchdog) {
 
 				// no need to apply to new set-point
 				log.debug("skipped - wait for expiring watchdog (tolerance)");
@@ -220,8 +193,7 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 
 			// write to channel if necessary (expired/changed)
 			if (this.lastSetPower == null || activePower != this.lastSetPower
-					|| Duration.between(this.lastApplyPower, now)
-							.getSeconds() >= this.watchdog) {
+					|| Duration.between(this.lastApplyPower, now).getSeconds() >= this.watchdog) {
 
 				// in tolerance around zero
 				if (Math.abs(activePower) < this.tolerance) {
@@ -229,8 +201,7 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 				}
 
 				// Kostal is fine by writing one register with signed value
-				IntegerWriteChannel setActivePowerChannel = this
-						.channel(KostalManagedEss.ChannelId.SET_ACTIVE_POWER);
+				IntegerWriteChannel setActivePowerChannel = this.channel(KostalManagedEss.ChannelId.SET_ACTIVE_POWER);
 				setActivePowerChannel.setNextWriteValue(activePower);
 
 				this.lastSetPower = activePower;
@@ -253,68 +224,46 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this,
 				new FC3ReadRegistersTask(56, Priority.LOW,
 						m(KostalManagedEss.ChannelId.INVERTER_STATE,
-								new UnsignedDoublewordElement(56)
-										.wordOrder(LSWMSW))),
+								new UnsignedDoublewordElement(56).wordOrder(LSWMSW))),
 				new FC3ReadRegistersTask(104, Priority.LOW,
 						m(KostalManagedEss.ChannelId.ENERGY_MANAGER_MODE,
-								new UnsignedDoublewordElement(104)
-										.wordOrder(LSWMSW))),
+								new UnsignedDoublewordElement(104).wordOrder(LSWMSW))),
 				new FC3ReadRegistersTask(152, Priority.HIGH,
-						m(KostalManagedEss.ChannelId.FREQUENCY,
-								new FloatDoublewordElement(152)
-										.wordOrder(LSWMSW)),
+						m(KostalManagedEss.ChannelId.FREQUENCY, new FloatDoublewordElement(152).wordOrder(LSWMSW)),
 						new DummyRegisterElement(154, 157), //
 						m(KostalManagedEss.ChannelId.GRID_VOLTAGE_L1,
-								new FloatDoublewordElement(158)
-										.wordOrder(LSWMSW)),
+								new FloatDoublewordElement(158).wordOrder(LSWMSW)),
 						new DummyRegisterElement(160, 163), //
 						m(KostalManagedEss.ChannelId.GRID_VOLTAGE_L2,
-								new FloatDoublewordElement(164)
-										.wordOrder(LSWMSW)),
+								new FloatDoublewordElement(164).wordOrder(LSWMSW)),
 						new DummyRegisterElement(166, 169), //
 						m(KostalManagedEss.ChannelId.GRID_VOLTAGE_L3,
-								new FloatDoublewordElement(170)
-										.wordOrder(LSWMSW)),
+								new FloatDoublewordElement(170).wordOrder(LSWMSW)),
 						new DummyRegisterElement(172, 173), //
-						m(SymmetricEss.ChannelId.REACTIVE_POWER,
-								new FloatDoublewordElement(174)
-										.wordOrder(LSWMSW)),
+						m(SymmetricEss.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(174).wordOrder(LSWMSW)),
 						new DummyRegisterElement(176, 189), //
 						m(KostalManagedEss.ChannelId.BATTERY_CURRENT,
-								new FloatDoublewordElement(190)
-										.wordOrder(LSWMSW)),
+								new FloatDoublewordElement(190).wordOrder(LSWMSW)),
 						new DummyRegisterElement(192, 209), //
-						m(SymmetricEss.ChannelId.SOC,
-								new FloatDoublewordElement(210)
-										.wordOrder(LSWMSW)),
+						m(SymmetricEss.ChannelId.SOC, new FloatDoublewordElement(210).wordOrder(LSWMSW)),
 						new DummyRegisterElement(212, 213), //
 						m(KostalManagedEss.ChannelId.BATTERY_TEMPERATURE,
-								new FloatDoublewordElement(214)
-										.wordOrder(LSWMSW)),
-						m(KostalManagedEss.ChannelId.BATTERY_VOLTAGE,
-								new FloatDoublewordElement(216)
-										.wordOrder(LSWMSW),
+								new FloatDoublewordElement(214).wordOrder(LSWMSW)),
+						m(KostalManagedEss.ChannelId.BATTERY_VOLTAGE, new FloatDoublewordElement(216).wordOrder(LSWMSW),
 								SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(531, Priority.LOW,
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
-								new UnsignedWordElement(531)),
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(531)),
 						new DummyRegisterElement(532, 581), //
-						m(SymmetricEss.ChannelId.ACTIVE_POWER,
-								new SignedWordElement(582))),
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(582))),
 				new FC3ReadRegistersTask(1034, Priority.LOW,
-						m(KostalManagedEss.ChannelId.CHARGE_POWER,
-								new FloatDoublewordElement(1034)
-										.wordOrder(LSWMSW)),
+						m(KostalManagedEss.ChannelId.CHARGE_POWER, new FloatDoublewordElement(1034).wordOrder(LSWMSW)),
 						new DummyRegisterElement(1036, 1037), //
 						m(KostalManagedEss.ChannelId.MAX_CHARGE_POWER,
-								new FloatDoublewordElement(1038)
-										.wordOrder(LSWMSW)),
+								new FloatDoublewordElement(1038).wordOrder(LSWMSW)),
 						m(KostalManagedEss.ChannelId.MAX_DISCHARGE_POWER,
-								new FloatDoublewordElement(1040)
-										.wordOrder(LSWMSW))),
+								new FloatDoublewordElement(1040).wordOrder(LSWMSW))),
 
-				new FC16WriteRegistersTask(1034, m(
-						KostalManagedEss.ChannelId.SET_ACTIVE_POWER,
+				new FC16WriteRegistersTask(1034, m(KostalManagedEss.ChannelId.SET_ACTIVE_POWER,
 						new FloatDoublewordElement(1034).wordOrder(LSWMSW))));
 
 	}
@@ -329,22 +278,14 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed Charge Power:"
-				+ this.channel(
-						ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER)
-						.value().asStringWithoutUnit()
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit()
 				+ "|Allowed Discharge Power:"
-				+ this.channel(
-						ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER)
-						.value().asStringWithoutUnit()
+				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asStringWithoutUnit()
 				+ "|MaxChargePower:"
-				+ this.channel(KostalManagedEss.ChannelId.MAX_CHARGE_POWER)
-						.value().asStringWithoutUnit()
+				+ this.channel(KostalManagedEss.ChannelId.MAX_CHARGE_POWER).value().asStringWithoutUnit()
 				+ "|MaxDischargePower:"
-				+ this.channel(KostalManagedEss.ChannelId.MAX_DISCHARGE_POWER)
-						.value().asStringWithoutUnit()
-				+ "|ChargePower:"
-				+ this.channel(KostalManagedEss.ChannelId.CHARGE_POWER).value()
-						.asString();
+				+ this.channel(KostalManagedEss.ChannelId.MAX_DISCHARGE_POWER).value().asStringWithoutUnit()
+				+ "|ChargePower:" + this.channel(KostalManagedEss.ChannelId.CHARGE_POWER).value().asString();
 	}
 
 	/**
@@ -380,27 +321,22 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Handles system events and reacts to specific topics.
 	 *
-	 * @param event
-	 *            the event to handle
+	 * @param event the event to handle
 	 */
 	@Override
 	public void handleEvent(Event event) {
-		// super.handleEvent(event);
-
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
-			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE :
-				log.debug("== update values topic cycle execute write ==");
-				// this._setMyActivePower();
-				break;
-			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS :
-				log.debug("== update values topic cycle before controllers ==");
-				this.setLimits();
-				break;
-			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
-				log.debug(
-						"== update values topic cycle before process image ==");
-				this.calculateEnergy();
-				break;
+		case TOPIC_CYCLE_BEFORE_CONTROLLERS:
+			log.debug("== update values topic cycle before controllers ==");
+			this.setLimits();
+			break;
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			log.debug("== update values topic cycle before process image ==");
+			this.calculateEnergy();
+			break;
 		}
 	}
 
@@ -411,7 +347,6 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 	 */
 	@Override
 	public boolean isManaged() {
-		// && this.controlMode != ControlMode.INTERNAL
 		return (this.config.enabled() && !this.config.readOnlyMode());
 	}
 
@@ -436,8 +371,7 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 		} catch (NullPointerException e) {
 			// Handle potential null values gracefully
 		}
-		log.debug("--> set limits: " + maxDischargePower + " / "
-				+ maxChargePower);
+		log.debug("--> set limits: " + maxDischargePower + " / " + maxChargePower);
 	}
 
 	private void calculateEnergy() {
@@ -460,5 +394,4 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent
 			}
 		}
 	}
-
 }
