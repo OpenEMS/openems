@@ -52,7 +52,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Kostal.Plenticore.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -163,8 +163,8 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent impleme
 		if (this.isManaged() && this.controlMode != ControlMode.INTERNAL) {
 			// allow minimum writes if values not set (zero or null)
 			Instant now = Instant.now();
-			if (this.lastSetPower != null && activePower == 0 && this.lastSetPower == activePower
 			// allows moderate differences
+			if (this.lastSetPower != null && activePower == 0 && this.lastSetPower == activePower
 					&& (this.lastSetPower - this.tolerance >= activePower
 							&& this.lastSetPower + this.tolerance <= activePower)
 					&& Duration.between(this.lastApplyPower, now).getSeconds() < this.watchdog) {
