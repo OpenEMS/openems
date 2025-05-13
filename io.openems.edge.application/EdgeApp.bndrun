@@ -156,7 +156,7 @@
 	bnd.identity;id='io.openems.edge.io.weidmueller',\
 	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
 	bnd.identity;id='io.openems.edge.katek.edcom',\
-	bnd.identity;id='io.openems.edge.kostal.piko',\
+	bnd.identity;id='io.openems.edge.kostal',\
 	bnd.identity;id='io.openems.edge.meter.abb',\
 	bnd.identity;id='io.openems.edge.meter.artemes.am2',\
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
@@ -346,7 +346,7 @@
 	io.openems.edge.io.weidmueller;version=snapshot,\
 	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
 	io.openems.edge.katek.edcom;version=snapshot,\
-	io.openems.edge.kostal.piko;version=snapshot,\
+	io.openems.edge.kostal;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
 	io.openems.edge.meter.api;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
