@@ -96,7 +96,6 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent
 		this.baseUrl = "http://" + config.ip();  
 		this.httpBridge = this.httpBridgeFactory.get();  
 		  
-		// Falls die Config eine Phase-Einstellung hat, können wir sie hier setzen  
 		this.phase = config.phase(); 
 		
 		// Sum or not
@@ -155,7 +154,6 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent
 		Integer reactivePower = null; 
 		Integer voltage = null;  
 		Integer current = null;  
-		boolean hasUpdate = false;  
 		boolean overpower = false;  
   
 		if (error != null) {  
@@ -171,11 +169,7 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent
 					relay0 = getAsBoolean(relay, "ison");  
 					overpower = getAsBoolean(relay, "overpower");  
 				}  
-  
-				var update = getAsJsonObject(response, "update");  
-				hasUpdate = getAsBoolean(update, "has_update");  
-  
-				// Summen für die Werte initialisieren  
+    
 				int totalPower = 0;  
 				int totalVoltage = 0;  
 				int validEmeterCount = 0;  
@@ -189,9 +183,7 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent
 					var emeterVoltage = round(getAsFloat(emeter, "voltage") * 1000);  
 					var isValid = getAsBoolean(emeter, "is_valid");  
   
-					// Nur gültige Messungen berücksichtigen  
 					if (isValid) {  
-						// Durchschnittliche Spannung berechnen (falls gültige Messungen vorliegen)  
 						if (this.sumEmeter1AndEmeter2) {
 							totalPower += power;  
 							totalReactivePower += singleReactivePower;
@@ -204,14 +196,12 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent
 							validEmeterCount++; 
 						}
 												  
-						// Emeter-spezifische Kanalupdates  
 						if (i == 0) {  
 							this.channel(IoShellyEm.ChannelId.EMETER1_EXCEPTION).setNextValue(false);  
 						} else if (i == 1) {  
 							this.channel(IoShellyEm.ChannelId.EMETER2_EXCEPTION).setNextValue(false);  
 						}  
 					} else {  
-						// Fehler in den entsprechenden Kanälen setzen  
 						if (i == 0) {  
 							this.channel(IoShellyEm.ChannelId.EMETER1_EXCEPTION).setNextValue(true);  
 						} else if (i == 1) {  
@@ -235,14 +225,11 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent
 			}  
 		}  
   
-		// Kanäle setzen  
 		this._setRelay(relay0);  
 		this.channel(IoShellyEm.ChannelId.RELAY_OVERPOWER_EXCEPTION).setNextValue(overpower);  
 		this._setActivePower(activePower);  
 		this._setReactivePower(reactivePower);
-		this.channel(IoShellyEm.ChannelId.HAS_UPDATE).setNextValue(hasUpdate);  
   
-		// Spannung und Strom setzen  
 		this._setVoltage(voltage);  
 		this._setCurrent(current);  
   
