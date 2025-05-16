@@ -69,6 +69,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public int maxChargePower() {
+		return this.capacity();
+	}
+
+	@Override
+	public int maxDischargePower() {
+		return this.capacity();
+	}
+
+	@Override
 	public int capacity() {
 		return this.builder.capacity;
 	}
