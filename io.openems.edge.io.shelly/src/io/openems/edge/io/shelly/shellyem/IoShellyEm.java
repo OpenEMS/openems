@@ -42,7 +42,17 @@ public interface IoShellyEm extends DigitalOutput, ElectricityMeter, OpenemsComp
 		RELAY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
-		
+		/**
+		 * Indicates if an update is available.
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlug
+		 * <li>Type: Boolean
+		 * <li>Level: INFO
+		 * </ul>
+		 */
+		HAS_UPDATE(Doc.of(Level.INFO) //
+				.text("A new Firmware Update is available.")),
 		/**
 		 * Indicates whether the associated meter is functioning properly.
 		 *
