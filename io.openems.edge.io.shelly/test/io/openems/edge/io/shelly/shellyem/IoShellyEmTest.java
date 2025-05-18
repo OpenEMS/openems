@@ -35,53 +35,89 @@ public class IoShellyEmTest {
 				.next(new TestCase("Successful read response") //
 						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
-								    {
-								      "relays": [
-								        {
-								          "ison": true,
-								          "overpower": false
-								        }
-								      ],
-								      "emeters": [
-								        {
-								          "power": 200,
-								          "reactive": 0.00,
-								          "pf": -0.08,
-								          "voltage": 224.23,
-								          "is_valid": true,
-								          "total": 3301872.8,
-								          "total_returned": 785.7
-								        },
-								        {
-								          "power": 589,
-								          "reactive": -12.07,
-								          "pf": -0.39,
-								          "voltage": 224.23,
-								          "is_valid": true,
-								          "total": 683451.3,
-								          "total_returned": 194.1
-								        }
-								      ],
-								      "update": {
-								        "status": "idle",
-								        "has_update": false
-								      }
-								    }
+								 {
+								   "wifi_sta": {
+								     "connected": true,
+								     "ssid": "",
+								     "ip": "127.0.0.1",
+								     "rssi": -30
+								   },
+								   "cloud": {
+								     "enabled": false,
+								     "connected": false
+								   },
+								   "mqtt": {
+								     "connected": false
+								   },
+								   "time": "20:16",
+								   "unixtime": 1747505765,
+								   "serial": 6294,
+								   "has_update": false,
+								   "mac": "",
+								   "cfg_changed_cnt": 0,
+								   "actions_stats": {
+								     "skipped": 0
+								   },
+								   "relays": [
+								     {
+								       "ison": false,
+								       "has_timer": false,
+								       "timer_started": 0,
+								       "timer_duration": 0,
+								       "timer_remaining": 0,
+								       "overpower": false,
+								       "is_valid": true,
+								       "source": "input"
+								     }
+								   ],
+								   "emeters": [
+								     {
+								       "power": 4,
+								       "reactive": 0,
+								       "pf": -0.07,
+								       "voltage": 219.97,
+								       "is_valid": true,
+								       "total": 3301893.8,
+								       "total_returned": 785.7
+								     },
+								     {
+								       "power": 5,
+								       "reactive": -12.38,
+								       "pf": -0.38,
+								       "voltage": 219.97,
+								       "is_valid": true,
+								       "total": 683493.3,
+								       "total_returned": 194.1
+								     }
+								   ],
+								   "update": {
+								     "status": "idle",
+								     "has_update": false,
+								     "new_version": "20230913-114150/v1.14.0-gcb84623",
+								     "old_version": "20230913-114150/v1.14.0-gcb84623",
+								     "beta_version": "20231107-164916/v1.14.1-rc1-g0617c15"
+								   },
+								   "ram_total": 51064,
+								   "ram_free": 33076,
+								   "fs_size": 233681,
+								   "fs_free": 150349,
+								   "uptime": 281011
+								 }
 								"""));
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.onAfterProcessImage(() -> assertEquals("x|789 W", sut.debugLog()))
+						.onAfterProcessImage(() -> assertEquals("-|9 W", sut.debugLog()))
 
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 789) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 789) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 9) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 9) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
-						.output(ElectricityMeter.ChannelId.VOLTAGE, 224230) //
-						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 224230) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 219970) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 219970) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
-						.output(ElectricityMeter.ChannelId.CURRENT, 3000) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L1, 3000) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 0) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 0) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
