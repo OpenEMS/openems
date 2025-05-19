@@ -4,6 +4,8 @@ import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.executeWrite;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
@@ -35,7 +37,6 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhase;
@@ -51,9 +52,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-})
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		TOPIC_CYCLE_EXECUTE_WRITE })
 public class IoShellyEmImpl extends AbstractOpenemsComponent implements IoShellyEm, DigitalOutput, ElectricityMeter,
 		OpenemsComponent, TimedataProvider, EventHandler, SinglePhaseMeter {
 
@@ -133,9 +133,9 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent implements IoShelly
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 			-> this.calculateEnergy();
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		case TOPIC_CYCLE_EXECUTE_WRITE //
 			-> executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge, 0);
 		}
 	}
@@ -148,7 +148,7 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent implements IoShelly
 		Integer reactivePower = null;
 		Integer voltage = null;
 		Integer current = null;
-		boolean hasUpdate = false; 
+		boolean hasUpdate = false;
 		boolean overpower = false;
 
 		if (error != null) {

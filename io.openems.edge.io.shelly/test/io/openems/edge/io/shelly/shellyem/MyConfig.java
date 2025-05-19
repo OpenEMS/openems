@@ -2,7 +2,6 @@ package io.openems.edge.io.shelly.shellyem;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.edge.io.shelly.shellyem.Config;
 import io.openems.edge.meter.api.SinglePhase;
 
 @SuppressWarnings("all")
@@ -38,14 +37,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.type = type;
 			return this;
 		}
-		
+
 		public Builder setSumEmeter1AndEmeter2(boolean sumEmeter1AndEmeter2) {
-			this.sumEmeter1AndEmeter2 = sumEmeter1AndEmeter2; 
-			return this; 
+			this.sumEmeter1AndEmeter2 = sumEmeter1AndEmeter2;
+			return this;
 		}
-	
+
 		public Builder setChannel(int channel) {
-			this.channel = channel; 
+			this.channel = channel;
 			return this;
 		}
 
@@ -92,6 +91,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public int channel() {
-		return this.builder.channel; 
+		return this.builder.channel;
 	}
 }

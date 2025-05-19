@@ -18,7 +18,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public interface IoShellyEm extends DigitalOutput, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		
+
 		/**
 		 * Holds writes to Relay Output for debugging.
 		 *
@@ -29,7 +29,7 @@ public interface IoShellyEm extends DigitalOutput, ElectricityMeter, OpenemsComp
 		 * </ul>
 		 */
 		DEBUG_RELAY(Doc.of(OpenemsType.BOOLEAN)), //
-		
+
 		/**
 		 * Relay Output.
 		 *
@@ -64,7 +64,7 @@ public interface IoShellyEm extends DigitalOutput, ElectricityMeter, OpenemsComp
 		 */
 		EMETER1_EXCEPTION(Doc.of(Level.WARNING) //
 				.text("E-Meter Phase 1 is not valid.")),
-		
+
 		/**
 		 * Indicates whether the associated meter is functioning properly.
 		 *
@@ -76,7 +76,7 @@ public interface IoShellyEm extends DigitalOutput, ElectricityMeter, OpenemsComp
 		 */
 		EMETER2_EXCEPTION(Doc.of(Level.WARNING) //
 				.text("E-Meter Phase 2 is not valid.")),
-		
+
 		/**
 		 * Indicates whether the associated meter is functioning properly.
 		 *
@@ -89,7 +89,7 @@ public interface IoShellyEm extends DigitalOutput, ElectricityMeter, OpenemsComp
 
 		EMETERN_EXCEPTION(Doc.of(Level.WARNING) //
 				.text("E-Meter Phase N is not valid.")),
-		
+
 		/**
 		 * Indicates whether the Relay is in an Overpower Condition.
 		 *
@@ -101,7 +101,7 @@ public interface IoShellyEm extends DigitalOutput, ElectricityMeter, OpenemsComp
 		 */
 		RELAY_OVERPOWER_EXCEPTION(Doc.of(Level.WARNING) //
 				.text("Relay is in overpower condition.")),
-		
+
 		/**
 		 * Slave Communication Failed Fault.
 		 *
