@@ -152,6 +152,18 @@
                 }
               ]
             },
+            "openems-custom": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/custom.ts"
+                }
+              ]
+            },
             "openems-gitpod": {
               "fileReplacements": [
                 {
@@ -178,11 +190,17 @@
             "openems-edge-dev": {
               "buildTarget": "app:build:openems,openems-edge-dev"
             },
+            "openems-custom-dev": {
+              "buildTarget": "app:build:openems,openems-custom"
+            },
             "openems-backend-prod": {
               "buildTarget": "app:build:openems,openems-backend-prod,prod"
             },
             "openems-edge-prod": {
               "buildTarget": "app:build:openems,openems-edge-prod,prod"
+            },
+            "openems-custom-prod": {
+              "buildTarget": "app:build:openems,openems-custom,prod"
             },
             "openems-gitpod": {
               "buildTarget": "app:build:openems,openems-gitpod"
