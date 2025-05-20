@@ -59,7 +59,7 @@ public class IoShellyEmTest {
 									   },
 									   "relays": [
 									     {
-									       "ison": false,
+									       "ison": true,
 									       "has_timer": false,
 									       "timer_started": 0,
 									       "timer_duration": 0,
