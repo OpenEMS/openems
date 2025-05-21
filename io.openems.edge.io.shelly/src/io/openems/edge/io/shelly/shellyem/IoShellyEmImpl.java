@@ -6,9 +6,10 @@ import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
-import static io.openems.edge.io.shelly.common.Utils.executeWrite;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
+
+import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -136,7 +137,7 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent implements IoShelly
 		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 			-> this.calculateEnergy();
 		case TOPIC_CYCLE_EXECUTE_WRITE //
-			-> executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge, 0);
+			-> this.executeWrite(this.getRelayChannel(), this.channel);
 		}
 	}
 
@@ -258,5 +259,28 @@ public class IoShellyEmImpl extends AbstractOpenemsComponent implements IoShelly
 	@Override
 	public SinglePhase getPhase() {
 		return this.phase;
+	}
+	
+	/**
+	 * Execute on Cycle Event "Execute Write".
+	 * 
+	 * @param channel write channel
+	 * @param index   index
+	 */
+	private void executeWrite(BooleanWriteChannel channel, int index) {
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
+		if (writeValue.isEmpty()) {
+			// no write value
+			return;
+		}
+		if (Objects.equals(readValue, writeValue.get())) {
+			// read value = write value
+			return;
+		}
+		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		this.httpBridge.get(url).whenComplete((t, e) -> {
+			this._setSlaveCommunicationFailed(e != null);
+		});
 	}
 }

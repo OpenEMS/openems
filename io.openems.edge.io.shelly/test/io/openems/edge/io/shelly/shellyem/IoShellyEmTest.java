@@ -105,7 +105,7 @@ public class IoShellyEmTest {
 									"""));
 							httpTestBundle.triggerNextCycle();
 						}) //
-						.onAfterProcessImage(() -> assertEquals("-|9 W", sut.debugLog()))
+						.onAfterProcessImage(() -> assertEquals("x|9 W", sut.debugLog()))
 
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 9) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 9) //
