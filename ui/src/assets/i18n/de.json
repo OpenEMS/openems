@@ -837,7 +837,7 @@
       "QU_ENABLED_CURVE": "Blindleistungs-Spannungskennlinie Q(U)",
       "SHADE_MANAGEMENT_DEACTIVATED": "Schattenmanagement deaktivert",
       "TITLE": "Einspeisemanagement",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
+      "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
       "NO_LIMITATION": "Kein Einspeisemanagement",
       "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)"
