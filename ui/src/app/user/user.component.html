@@ -1,4 +1,3 @@
-<header></header>
 <ion-content>
   <ion-grid>
     <ion-row class="ion-justify-content-center">
@@ -17,14 +16,16 @@
                 Menu.name
               </ion-label>
               <ion-label>
-                {{ this.form?.model ? (this.form?.model?.firstname + ' ' + this.form?.model?.lastname) : user.name }}
-                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
-                </ion-icon> -->
+                {{
+                this.form?.model
+                ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim()
+                : user.name
+                }}
               </ion-label>
             </ion-item>
             <ion-item lines="inset">
-              <ion-label>
-                Login
+              <ion-label translate>
+                Login.title
               </ion-label>
               <ion-label>
                 {{ user.id }}
@@ -43,7 +44,7 @@
               </ion-label>
             </ion-item>
             <ion-item lines="none">
-              <ion-button (click)="doLogout()" slot="end" size="default" fill="clear">
+              <ion-button (click)="doLogout()" slot="end" style="padding-top: 0.8em">
                 <ion-label translate>Menu.logout</ion-label>
                 <ion-icon name="log-out-outline"></ion-icon>
               </ion-button>
@@ -59,64 +60,81 @@
         </ion-card>
 
         <!-- Show and Edit UserInformation -->
-        <ion-card *ngIf="showInformation" style="margin-top: 5%;">
+        <ion-card *ngIf="isAllowedToSeeUserDetails">
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
-            <ion-label class="ion-text-wrap" translate>
-              Register.Form.contactDetails
+            <ion-label class="ion-text-wrap">
+              <span translate>
+                Register.Form.contactDetails
+              </span>
+              <ng-container *ngIf="companyInformationFields.length > 0">
+                (<span translate>Register.Form.PRIVATE</span>)
+              </ng-container>
             </ion-label>
           </ion-item>
           <ion-card-content>
-            <formly-form [form]="form?.formGroup" [fields]="form?.fields" [model]="form?.model" style="color: primary"
-              color="primary">
-            </formly-form>
+
+            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+              [fields]="userInformationFields" [model]="form?.model">
+            </oe-formly-skeleton-wrapper>
 
             <ion-item lines="none">
-              <ion-button slot="start" (click)="enableAndDisableEditMode()"
+              <ion-button style="padding-top: 0.3em" slot="start" (click)="enableAndDisableEditMode()"
                 [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
-                <ion-label>{{isEditModeDisabled ?'bearbeiten':'zurücksetzen'}}</ion-label>
+                <ion-label>{{isEditModeDisabled ? ('General.EDIT' | translate) :('General.RESET' |
+                  translate)}}</ion-label>
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
-                <ion-label translate>General.save</ion-label>
+                <ion-label translate>General.SAVE</ion-label>
                 <ion-icon name="save-outline" slot="end"></ion-icon>
               </ion-button>
             </ion-item>
 
           </ion-card-content>
         </ion-card>
+
+        <ion-card *ngIf="companyInformationFields.length > 0">
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              {{'Register.Form.contactDetails' | translate}} ({{'Register.Form.company' | translate}})
+            </ion-label>
+          </ion-item>
+          <ion-card-content>
+            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+              [fields]="companyInformationFields" [model]="form?.model">
+            </oe-formly-skeleton-wrapper>
+          </ion-card-content>
+        </ion-card>
       </ion-col>
+
       <ion-col size="12" size-md="8" size-xl="4">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="code-slash-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
-              {{ environment.edgeShortName }} - {{ environment.edgeLongName }}
+              {{ environment.edgeShortName }} - {{ environment.edgeLongName }} {{"About.ENERGY_MANAGEMENT" | translate}}
             </ion-label>
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <p class="ion-padding" translate>About.developed</p>
+            <p class="ion-padding" [innerHTML]="'About.DESCRIPTION' | translate"></p>
             <ul>
               <li>
-                <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
+                <a class="ion-link" target="_blank" href="https://openems.io" translate>About.openEMS</a>
               </li>
             </ul>
-            <p class="ion-padding" translate>About.build</p>
-            <ul>
-              <li>
-                <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
-                  <span translate>About.build</span>: 2023.1.0-SNAPSHOT</a>
-              </li>
-            </ul>
-            <p class="ion-padding">
-              <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
-            </p>
-            <ion-item lines="none">
-              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
-              </ion-checkbox>
-              <ion-label translate>Debug-Mode</ion-label>
-            </ion-item>
+            <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
+              <p class="ion-padding" translate>About.BUILD</p>
+              <ul>
+                <li>
+                  <a class="ion-link" routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role
+                    }}</a>
+                </li>
+              </ul>
+            </div>
+            <p class="ion-padding" [innerHTML]="'About.CONTACT' | translate"></p>
           </ion-card-content>
         </ion-card>
         <ion-card>
@@ -126,19 +144,33 @@
           </ion-item>
           <ion-card-content>
             <ion-item lines="none">
-              <ion-label translate>About.language</ion-label>
-              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
+              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage"
+                interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }"
+                [label]="'About.language' |translate">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
                   {{ language.title }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
-
-            <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
-              <small>
-                The language can not be changed permanently in the local online-monitoring for technical
-                reasons.</small>
-            </ion-note>
+            <ion-item id="theme-switcher" lines="none" class="page-content">
+              <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="userTheme" interface="popover"
+                [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" label="Theme">
+                <ion-select-option *ngFor="let theme of themes" [value]="theme.value">
+                  {{ theme.key }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ng-container *ngIf="isAtLeastAdmin">
+              <ion-item lines="none">
+                <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">Debug-Mode
+                </ion-checkbox>
+              </ion-item>
+              <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
+                <small>
+                  The language can not be changed permanently in the local online-monitoring for technical
+                  reasons.</small>
+              </ion-note>
+            </ng-container>
           </ion-card-content>
         </ion-card>
       </ion-col>

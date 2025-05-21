@@ -1,0 +1,55 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+coverage:
+  round: up
+  precision: 2
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0.1%
+    patch:
+      default:
+        target: 75%
+        threshold: 0%
+
+comment:
+  layout: "condensed_header, diff"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+  hide_project_coverage: true
+
+component_management:
+  default_rules: 
+    statuses:
+      - type: project
+        target: auto
+        threshold: 0.1%
+        branches:
+          - "!main"
+  individual_components:
+    - component_id: openems_backend
+      name: "OpenEMS Backend"
+      paths:
+        - io.openems.backend.*/**
+        - io.openems.common/**
+        - io.openems.oem.*/**
+        - io.openems.shared.*/**
+        - io.openems.wrapper/**
+    - component_id: openems_edge
+      name: "OpenEMS Edge"
+      paths:
+        - io.openems.edge.*/**
+        - io.openems.common/**
+        - io.openems.oem.*/**
+        - io.openems.shared.*/**
+        - io.openems.wrapper/**
+    - component_id: openems_ui
+      name: "OpenEMS UI"
+      paths:
+        - ui/**

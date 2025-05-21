@@ -9,8 +9,8 @@ import io.openems.edge.common.statemachine.StateHandler;
 
 public class RunningHandler extends StateHandler<State, Context> {
 
-	public static int refreshIntervalSeconds = 900;
-	LocalDateTime refreshTime = null;
+	public static final int refreshIntervalSeconds = 900;
+	private LocalDateTime refreshTime = null;
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {

@@ -6,11 +6,11 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String essId = null;
-		public int minSoc;
-		public int forceChargeSoc;
-		public int forceChargePower;
+		private String id;
+		private String essId;
+		private int minSoc;
+		private int forceChargeSoc;
+		private int forceChargePower;
 
 		private Builder() {
 		}

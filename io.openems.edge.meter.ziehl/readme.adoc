@@ -1,9 +1,7 @@
 = Meter Ziehl EFR4001IP
 
-Implemented Natures
-
-- AsymmetricMeter
-- SymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 For details, see https://www.ziehl.com/de/produkte/detail/EFR4001IP-362.
 

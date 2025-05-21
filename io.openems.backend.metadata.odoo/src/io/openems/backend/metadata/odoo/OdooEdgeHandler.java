@@ -9,9 +9,9 @@ import io.openems.common.types.EdgeConfig;
 
 public final class OdooEdgeHandler implements EdgeHandler {
 
-	private final OdooMetadata parent;
+	private final MetadataOdoo parent;
 
-	protected OdooEdgeHandler(OdooMetadata parent) {
+	protected OdooEdgeHandler(MetadataOdoo parent) {
 		this.parent = parent;
 	}
 

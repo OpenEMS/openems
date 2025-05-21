@@ -1,28 +1,42 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ProductType } from 'src/app/shared/type/widget';
-import { environment } from 'src/environments';
-import { Edge, Service, Utils } from '../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { Role } from "src/app/shared/type/role";
+import { environment } from "src/environments";
+import { Edge, Service, Utils } from "../../shared/shared";
+import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
 
 @Component({
-  selector: 'settings',
-  templateUrl: './settings.component.html'
+  selector: "settings",
+  templateUrl: "./settings.component.html",
+  standalone: false,
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
 
-  public edge: Edge = null;
+  public edge: Edge | null = null;
   public environment = environment;
 
+  public isAtLeastOwner: boolean = false;
+  public isAtLeastInstaller: boolean = false;
+  public isAtLeastAdmin: boolean = false;
+  public canSeeJsonrpcTest: boolean = false;
+
+  protected isEdgeBackend: boolean = environment.backend === "OpenEMS Edge";
+
   constructor(
-    private route: ActivatedRoute,
     protected utils: Utils,
-    private service: Service
+    private service: Service,
+    private translate: TranslateService,
   ) {
   }
 
-  ionViewWillEnter() {
-    this.service.setCurrentComponent({ languageKey: 'Menu.edgeSettings' }, this.route).then(edge => {
-      this.edge = edge
+  public ngOnInit() {
+    this.service.getCurrentEdge().then(edge => {
+      this.edge = edge;
+      const user = this.service.metadata?.value?.user;
+      this.isAtLeastOwner = edge.roleIsAtLeast(Role.OWNER);
+      this.isAtLeastInstaller = edge.roleIsAtLeast(Role.INSTALLER);
+      this.isAtLeastAdmin = edge.roleIsAtLeast(Role.ADMIN);
+      this.canSeeJsonrpcTest = JsonrpcTestPermission.canSee(user, edge);
     });
   }
 }

@@ -17,7 +17,7 @@ public class EdgeCache {
 
 	public static final int EXPECTED_CACHE_SIZE = 1_000;
 
-	private final OdooMetadata parent;
+	private final MetadataOdoo parent;
 
 	/**
 	 * Map Edge-ID (String) to Edge. Initialized with expected cache size.
@@ -36,7 +36,7 @@ public class EdgeCache {
 	 */
 	private final Map<String, String> apikeyToEdgeId = new HashMap<>(EXPECTED_CACHE_SIZE);
 
-	public EdgeCache(OdooMetadata parent) {
+	public EdgeCache(MetadataOdoo parent) {
 		this.parent = parent;
 	}
 

@@ -36,20 +36,17 @@ public class StopBatteryInverterHandler extends StateHandler<OffGridState, Conte
 			// Still waiting...
 			return OffGridState.STOP_BATTERY_INVERTER;
 		}
+
 		if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 			// Too many tries
 			ess._setMaxBatteryInverterStopAttemptsFault(true);
 			return OffGridState.UNDEFINED;
-
-		} else {
-			// Trying to stop Battery Inverter
-			inverter.stop();
-
-			this.lastAttempt = Instant.now();
-			this.attemptCounter++;
-			return OffGridState.STOP_BATTERY_INVERTER;
-
 		}
-	}
 
+		// Trying to stop Battery Inverter
+		inverter.stop();
+		this.lastAttempt = Instant.now();
+		this.attemptCounter++;
+		return OffGridState.STOP_BATTERY_INVERTER;
+	}
 }

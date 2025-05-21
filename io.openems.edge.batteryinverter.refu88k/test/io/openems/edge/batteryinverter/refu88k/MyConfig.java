@@ -8,12 +8,12 @@ import io.openems.edge.common.startstop.StartStopConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public int timeLimitNoPower;
-		public StartStopConfig startStop;
-		public int watchdoginterval;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int timeLimitNoPower;
+		private StartStopConfig startStop;
+		private int watchdoginterval;
 
 		private Builder() {
 		}

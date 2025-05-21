@@ -27,7 +27,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.internal.AbstractDoc;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -304,8 +303,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 					.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
 			if (channel == null) {
 				// Channel does not already exist -> create new Channel
-				AbstractDoc<?> doc = Doc.of(channelType);
-				doc.persistencePriority(PersistencePriority.MEDIUM);
+				var doc = Doc.of(channelType) //
+						.persistencePriority(PersistencePriority.HIGH);
 				io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
 
 					@Override

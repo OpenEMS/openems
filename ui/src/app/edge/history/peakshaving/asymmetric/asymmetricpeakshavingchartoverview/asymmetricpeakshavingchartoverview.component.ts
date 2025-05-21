@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service } from '../../../../../shared/shared';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Edge, EdgeConfig, Service } from "../../../../../shared/shared";
 
 @Component({
     selector: AsymmetricPeakshavingChartOverviewComponent.SELECTOR,
-    templateUrl: './asymmetricpeakshavingchartoverview.component.html'
+    templateUrl: "./asymmetricpeakshavingchartoverview.component.html",
+    standalone: false,
 })
 export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
-
     private static readonly SELECTOR = "asymmetricpeakshaving-chart-overview";
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
 
     constructor(
         public service: Service,
@@ -19,12 +19,12 @@ export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
 
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-            })
-        })
+            });
+        });
     }
 }

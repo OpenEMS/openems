@@ -1,6 +1,6 @@
 package io.openems.common.utils;
 
-import java.util.function.Predicate;
+import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
 import com.google.gson.JsonElement;
@@ -89,30 +89,69 @@ public class StringUtils {
 		}
 	}
 
-	private static final Predicate<String> DETECT_INTEGER_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]+$").asPredicate();
-	private static final Predicate<String> DETECT_FLOAT_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]*\\.[0-9]+$").asPredicate();
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	/**
-	 * Checks if the given string matches an Integer pattern, i.e. if could be
-	 * parsed to Integer/Long.
+	 * Causes this character sequence to be replaced by the reverse of the sequence.
 	 * 
-	 * @param string a string
-	 * @return true if it matches Integer
+	 * @param string to be reversed.
+	 * @return reversed String.
 	 */
-	public static boolean matchesIntegerPattern(String string) {
-		return DETECT_INTEGER_PATTERN.test(string);
+	public static String reverse(String string) {
+		return new StringBuilder(string).reverse().toString();
 	}
 
 	/**
-	 * Checks if the given string matches an Float pattern, i.e. if could be parsed
-	 * to Float/Double.
+	 * If the given string is null return false, otherwise result of
+	 * {@link String#contains(CharSequence)} is returned.
 	 * 
-	 * @param string a string
-	 * @return true if it matches Float
+	 * @param string the string to check
+	 * @param value  the sequence to search for
+	 * @return true if string is not null and string contains value, otherwise false
 	 */
-	public static boolean matchesFloatPattern(String string) {
-		return DETECT_FLOAT_PATTERN.test(string);
+	public static boolean containsWithNullCheck(String string, String value) {
+		return string != null && string.contains(value);
+	}
+
+	/**
+	 * Returns the 'alternative' if 'original' is null or blank.
+	 *
+	 * @param original    the original value, can be null, empty or filled with
+	 *                    white-space only
+	 * @param alternative the alternative value
+	 * @return either the 'defined' value (not null, not empty, not only
+	 *         white-space), alternatively the 'orElse' value
+	 */
+	public static String definedOrElse(String original, String alternative) {
+		if (original != null && !original.isBlank()) {
+			return original;
+		}
+		return alternative;
+	}
+
+	/**
+	 * Parses the number of an Edge from its name string.
+	 *
+	 * <p>
+	 * e.g. translates "edge0" to "0".
+	 *
+	 * @param name the edge name
+	 * @return the number or empty optional if there is no number in the name or if
+	 *         the name is null
+	 */
+	public static OptionalInt parseNumberFromName(String name) {
+		if (name == null) {
+			return OptionalInt.empty();
+		}
+		try {
+			var matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				var nameNumberString = matcher.group(1);
+				return OptionalInt.of(Integer.parseInt(nameNumberString));
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		return OptionalInt.empty();
 	}
 }

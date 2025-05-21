@@ -27,7 +27,7 @@ import io.openems.edge.common.startstop.StartStopConfig;
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
-	
+
 	@AttributeDefinition(name = "Battery Start Stop Relay", description = "The output channel to start the battery automatically.")
 	String batteryStartStopRelay() default "io0/Relay7";
 

@@ -2,11 +2,10 @@
 
 Applies to multiple similar products like the FENECON by BYD PRO Hybrid.
 
-Implemented Natures::
+Implemented Natures:
 - SymmetricEss
 - AsymmetricEss
 - EssDcCharger
-- AsymmetricMeter (for Grid and AC-connected PV)
-- SymmetricMeter (for Grid and AC-connected PV)
+- ElectricityMeter (for Grid and AC-connected PV)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fenecon.dess[Source Code icon:github[]]

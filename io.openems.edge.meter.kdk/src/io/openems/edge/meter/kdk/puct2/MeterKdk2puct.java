@@ -7,10 +7,9 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterKdk2puct extends SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+public interface MeterKdk2puct extends ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		PRIMARY_CURRENT(Doc.of(OpenemsType.INTEGER) //

@@ -8,16 +8,22 @@ import io.openems.edge.pvinverter.sunspec.Phase;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
+		private String id;
+		private boolean readOnly;
+		private String modbusId;
 		private int modbusUnitId;
-		public Phase phase;
+		private Phase phase;
 
 		private Builder() {
 		}
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
 			return this;
 		}
 
@@ -30,7 +36,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
-		
+
 		public Builder setPhase(Phase phase) {
 			this.phase = phase;
 			return this;
@@ -55,6 +61,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public boolean readOnly() {
+		return this.builder.readOnly;
 	}
 
 	@Override

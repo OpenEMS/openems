@@ -4,8 +4,8 @@ Generic implementation of SunSpec PV inverters. It is tested with
 - KACO blueplanet TL.3 series
 - SolarEdge SE12.5K - SE27.6K
 
-Implemented Natures::
+Implemented Natures:
 - ManagedSymmetricPvInverter
-- SymmetricMeter
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.sunspec[Source Code icon:github[]]

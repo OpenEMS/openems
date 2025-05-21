@@ -1,8 +1,12 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Before;
@@ -11,33 +15,23 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
-import io.openems.edge.app.evcs.KebaEvcs;
-import io.openems.edge.app.integratedsystem.FeneconHome;
-import io.openems.edge.app.timeofusetariff.AwattarHourly;
-import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTaskImpl;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class AppManagerAppHelperImplTest {
 
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
-
 	private AppManagerTestBundle appManagerTestBundle;
-
-	private FeneconHome homeApp;
-	private KebaEvcs kebaEvcsApp;
-	private AwattarHourly awattarApp;
-	private StromdaoCorrently stromdao;
 
 	private TestADependencyToC testAApp;
 	private TestBDependencyToC testBApp;
@@ -46,24 +40,17 @@ public class AppManagerAppHelperImplTest {
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			this.homeApp = new FeneconHome(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.FENECON.Home"), t.cm, t.componentUtil);
-			this.kebaEvcsApp = new KebaEvcs(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Evcs.Keba"), t.cm, t.componentUtil);
-			this.awattarApp = new AwattarHourly(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Awattar"), t.cm, t.componentUtil);
-			this.stromdao = new StromdaoCorrently(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Stromdao"), t.cm, t.componentUtil);
+			return ImmutableList.of(//
+					Apps.feneconHome10(t), //
+					Apps.kebaEvcs(t), //
+					Apps.awattarHourly(t), //
+					Apps.entsoE(t), //
+					Apps.stromdaoCorrently(t), //
 
-			this.testAApp = new TestADependencyToC(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Test.TestADependencyToC"), t.cm, t.componentUtil);
-			this.testBApp = new TestBDependencyToC(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Test.TestBDependencyToC"), t.cm, t.componentUtil);
-			this.testCApp = new TestC(t.componentManger, AppManagerTestBundle.getComponentContext("App.Test.TestC"),
-					t.cm, t.componentUtil);
-
-			return ImmutableList.of(this.homeApp, this.kebaEvcsApp, this.awattarApp, this.stromdao, this.testAApp,
-					this.testBApp, this.testCApp);
+					this.testAApp = Apps.testADependencyToC(t), //
+					this.testBApp = Apps.testBDependencyToC(t), //
+					this.testCApp = Apps.testC(t) //
+			);
 		});
 
 	}
@@ -72,16 +59,16 @@ public class AppManagerAppHelperImplTest {
 	public void testCreatePolicyIfNotExisting() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING.name())
 								.build()));
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING.name())
 								.build()));
@@ -93,16 +80,16 @@ public class AppManagerAppHelperImplTest {
 	public void testCreatePolicyAlways() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.ALWAYS.name())
 								.build()));
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.ALWAYS.name())
 								.build()));
@@ -114,16 +101,16 @@ public class AppManagerAppHelperImplTest {
 	public void testCreatePolicyNever() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.NEVER.name())
 								.build()));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.NEVER.name())
 								.build()));
@@ -135,8 +122,8 @@ public class AppManagerAppHelperImplTest {
 	public void testUpdatePolicyNever() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.NEVER.name()) //
 								.addProperty("NUMBER", 1) //
@@ -144,7 +131,7 @@ public class AppManagerAppHelperImplTest {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.NEVER.name()) //
@@ -159,8 +146,8 @@ public class AppManagerAppHelperImplTest {
 	public void testUpdatePolicyAlways() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.ALWAYS.name()) //
 								.addProperty("NUMBER", 1) //
@@ -168,13 +155,13 @@ public class AppManagerAppHelperImplTest {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.ALWAYS.name()) //
@@ -189,8 +176,8 @@ public class AppManagerAppHelperImplTest {
 	public void testUpdatePolicyIfMine() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.IF_MINE.name()) //
 								.addProperty("NUMBER", 1) //
@@ -198,7 +185,7 @@ public class AppManagerAppHelperImplTest {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.IF_MINE.name()) //
@@ -208,13 +195,13 @@ public class AppManagerAppHelperImplTest {
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
 		assertEquals(2, instance.properties.get(TestC.Property.NUMBER.name()).getAsInt());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testAApp.getAppId()).instanceId, "",
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.IF_MINE.name()) //
@@ -229,8 +216,8 @@ public class AppManagerAppHelperImplTest {
 	public void testDeletePolicyNever() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DELETE_POLICY", DependencyDeclaration.DeletePolicy.NEVER.name()) //
 								.build()));
@@ -238,7 +225,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var instance = this.getAppByAppId(this.testAApp.getAppId());
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
 				new DeleteAppInstance.Request(instance.instanceId));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -248,22 +235,22 @@ public class AppManagerAppHelperImplTest {
 	public void testDeletePolicyAlways() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DELETE_POLICY", DependencyDeclaration.DeletePolicy.ALWAYS.name()) //
 								.build()));
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var instance = this.getAppByAppId(this.testAApp.getAppId());
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
 				new DeleteAppInstance.Request(instance.instanceId));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -273,22 +260,22 @@ public class AppManagerAppHelperImplTest {
 	public void testDeletePolicyIfMine() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DELETE_POLICY", DependencyDeclaration.DeletePolicy.IF_MINE.name()) //
 								.build()));
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var instance = this.getAppByAppId(this.testAApp.getAppId());
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
 				new DeleteAppInstance.Request(instance.instanceId));
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -298,8 +285,8 @@ public class AppManagerAppHelperImplTest {
 	public void testDependencyDeletePolicyAllowed() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_DELETE_POLICY",
 										DependencyDeclaration.DependencyDeletePolicy.ALLOWED.name()) //
@@ -308,7 +295,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
 				new DeleteAppInstance.Request(instance.instanceId));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -318,8 +305,8 @@ public class AppManagerAppHelperImplTest {
 	public void testDependencyDeletePolicyNotAllowed() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_DELETE_POLICY",
 										DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED.name()) //
@@ -328,7 +315,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
 				new DeleteAppInstance.Request(instance.instanceId));
 	}
 
@@ -337,8 +324,8 @@ public class AppManagerAppHelperImplTest {
 			throws OpenemsNamedException, InterruptedException, ExecutionException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_UPDATE_POLICY",
 										DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL.name()) //
@@ -348,14 +335,13 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var newAlias = "newAppAlias";
-		var completable = this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		var result = this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
 						JsonUtils.buildJsonObject() //
 								.addProperty("NUMBER", 2) //
 								.build()));
 
-		var result = completable.get().getResult();
-		assertTrue(!result.has("warnings") || result.get("warnings").getAsJsonArray().size() == 0);
+		assertTrue(result.warnings().isEmpty());
 
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
 		assertEquals(newAlias, instance.alias);
@@ -367,8 +353,8 @@ public class AppManagerAppHelperImplTest {
 			throws OpenemsNamedException, InterruptedException, ExecutionException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_UPDATE_POLICY",
 										DependencyDeclaration.DependencyUpdatePolicy.ALLOW_NONE.name()) //
@@ -378,7 +364,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var newAlias = "newAppAlias";
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
 						JsonUtils.buildJsonObject() //
 								.addProperty("NUMBER", 2) //
@@ -390,8 +376,8 @@ public class AppManagerAppHelperImplTest {
 			throws OpenemsNamedException, InterruptedException, ExecutionException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
-				this.testAApp.getAppId(), "", //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
+				this.testAApp.getAppId(), "key", "", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("DEPENDENCY_UPDATE_POLICY",
 								DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES.name()) //
@@ -401,15 +387,13 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var newAlias = "newAppAlias";
-		var completable = this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		var result = this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
 						JsonUtils.buildJsonObject() //
 								.addProperty("NUMBER", 2) //
 								.build()));
 
-		var result = completable.get().getResult();
-		assertTrue(result.has("warnings"));
-		assertTrue(result.get("warnings").getAsJsonArray().size() > 0);
+		assertFalse(result.warnings().isEmpty());
 
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
 		assertEquals(newAlias, instance.alias);
@@ -420,6 +404,32 @@ public class AppManagerAppHelperImplTest {
 	private OpenemsAppInstance getAppByAppId(String appId) {
 		return this.appManagerTestBundle.sut.getInstantiatedApps().stream().filter(i -> i.appId.equals(appId)).findAny()
 				.get();
+	}
+
+	@Test
+	public void testInsertAggregateTask() {
+		final var componentTask = new ComponentAggregateTaskImpl(null);
+		final var schedulerTask = new SchedulerAggregateTaskImpl(componentTask, null);
+		final var networkTask = new StaticIpAggregateTaskImpl(null);
+
+		final var list = new ArrayList<AggregateTask<?>>();
+
+		AppManagerAppHelperImpl.insert(list, componentTask);
+		AppManagerAppHelperImpl.insert(list, networkTask);
+		AppManagerAppHelperImpl.insert(list, schedulerTask);
+		assertEquals(List.of(componentTask, networkTask, schedulerTask), list);
+
+		list.clear();
+		AppManagerAppHelperImpl.insert(list, schedulerTask);
+		AppManagerAppHelperImpl.insert(list, componentTask);
+		AppManagerAppHelperImpl.insert(list, networkTask);
+		assertEquals(List.of(componentTask, schedulerTask, networkTask), list);
+
+		list.clear();
+		AppManagerAppHelperImpl.insert(list, schedulerTask);
+		AppManagerAppHelperImpl.insert(list, networkTask);
+		AppManagerAppHelperImpl.insert(list, componentTask);
+		assertEquals(List.of(componentTask, schedulerTask, networkTask), list);
 	}
 
 }

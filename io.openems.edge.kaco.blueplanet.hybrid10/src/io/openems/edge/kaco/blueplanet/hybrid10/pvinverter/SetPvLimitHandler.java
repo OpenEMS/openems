@@ -7,8 +7,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ed.data.Settings;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.ChannelId;
@@ -17,13 +15,13 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
-	private final BpPvInverterImpl parent;
+	private final KacoBlueplanetHybrid10PvInverterImpl parent;
 	private final ChannelId channelId;
 
 	private Float lastEpLimit = null;
 	private LocalDateTime lastWMaxLimPctTime = LocalDateTime.MIN;
 
-	public SetPvLimitHandler(BpPvInverterImpl parent, ChannelId channelId) {
+	public SetPvLimitHandler(KacoBlueplanetHybrid10PvInverterImpl parent, ChannelId channelId) {
 		this.parent = parent;
 		this.channelId = channelId;
 	}
@@ -37,7 +35,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 		int power;
 		if (powerOpt.isPresent()) {
 			power = powerOpt.get();
-			ePLimit = (int) ((double) power / BpPvInverter.MAX_APPARENT_POWER * 100.0);
+			ePLimit = (int) ((double) power / KacoBlueplanetHybrid10PvInverter.MAX_APPARENT_POWER * 100.0);
 
 			// keep percentage in range [0, 100]
 			if (ePLimit > 100) {
@@ -48,23 +46,20 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 			}
 		} else {
 			// Reset limit
-			power = BpPvInverter.MAX_APPARENT_POWER;
+			power = KacoBlueplanetHybrid10PvInverter.MAX_APPARENT_POWER;
 			ePLimit = 100;
 		}
 
 		if (!Objects.equals(this.lastEpLimit, ePLimit) || this.lastWMaxLimPctTime
 				.isBefore(LocalDateTime.now().minusSeconds(60 /* TODO: how often should it be written? */))) {
 			// Value needs to be set
-			Settings settings = this.parent.core.getSettings();
-			if (settings != null) {
+			var bpData = this.parent.core.getBpData();
+			if (bpData != null) {
 				this.parent.logInfo(this.log, "Apply new limit: " + power + " W (" + ePLimit + " %)");
-				settings.setEPLimit(ePLimit);
+				bpData.settings.setEPLimit(ePLimit);
 
 				this.lastEpLimit = ePLimit;
 				this.lastWMaxLimPctTime = LocalDateTime.now();
-
-			} else {
-				this.parent.logWarn(this.log, "Unable to apply limit: no Settings available.");
 			}
 		}
 	}

@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
@@ -28,8 +27,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Represents a JSON-RPC Response for 'channelExportXlsxRequest'.
- *
- * <p>
  *
  * <pre>
  * {
@@ -72,8 +69,8 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 
 					// Create Sheet
 					List<Channel<?>> channels = component.channels().stream() //
-							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name()))
-							.collect(Collectors.toList()); //
+							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
+							.toList(); //
 					for (Channel<?> channel : channels) {
 						/*
 						 * create descriptive text
@@ -87,19 +84,17 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 								description += "ERROR: " + e.getMessage();
 							}
 
-						} else if (channel instanceof StateChannel
-								&& ((StateChannel) channel).value().orElse(false) == true) {
+						} else if (channel instanceof StateChannel sc && sc.value().orElse(false) == true) {
 							if (!description.isEmpty()) {
 								description += "; ";
 							}
-							description += ((StateChannel) channel).channelDoc().getText();
+							description += sc.channelDoc().getText();
 
-						} else if (channel instanceof StateCollectorChannel
-								&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
+						} else if (channel instanceof StateCollectorChannel scc && scc.value().orElse(0) != 0) {
 							if (!description.isEmpty()) {
 								description += "; ";
 							}
-							description += ((StateCollectorChannel) channel).listStates();
+							description += scc.listStates();
 						}
 
 						ws.value(row, COL_CHANNEL_ID, channel.channelId().id());
@@ -113,7 +108,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 							break;
 						}
 
-						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().getSymbol());
+						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().symbol);
 						ws.value(row, COL_DESCRIPTION, description);
 						ws.value(row, COL_ACCESS, channel.channelDoc().getAccessMode().getAbbreviation());
 

@@ -17,8 +17,8 @@ public class ChannelDataRecordMapper {
 		this.channelDataRecordsList = channelDataRecordsList;
 
 		for (ChannelRecord channelRecord : channelDataRecordsList) {
-			this.mapDataToChannel(data, channelRecord.getDataRecordPosition(), channelRecord.getChannel(),
-					channelRecord.getDataType());
+			this.mapDataToChannel(data, channelRecord.dataRecordPosition, channelRecord.channel,
+					channelRecord.dataType);
 		}
 	}
 

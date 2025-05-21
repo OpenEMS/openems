@@ -37,7 +37,7 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		implements FeneconDessCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -55,7 +55,7 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config1 config) throws OpenemsException {
+	private void activate(ComponentContext context, Config1 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
 				"Modbus", this.ess.getModbusBridgeId())) {
 			return;

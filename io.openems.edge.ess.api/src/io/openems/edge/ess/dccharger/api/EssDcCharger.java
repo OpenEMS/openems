@@ -10,13 +10,13 @@ import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.ess.api.SymmetricEss;
 
 @ProviderType
 public interface EssDcCharger extends OpenemsComponent {
@@ -46,25 +46,21 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
+		ACTUAL_POWER(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						/*
-						 * Fill Max Actual Power channel
-						 */
-						if (value.asOptional().isPresent()) {
-							int newValue = (Integer) value.get();
-							Channel<Integer> maxActualPowerChannel = channel.getComponent()
-									.channel(ChannelId.MAX_ACTUAL_POWER);
-							int maxActualPower = maxActualPowerChannel.value().orElse(0);
-							int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);
-							if (newValue > Math.max(maxActualPower, maxNextActualPower)) {
-								// avoid getting called too often -> round to 100
-								newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
-								maxActualPowerChannel.setNextValue(newValue);
-							}
+				.onChannelSetNextValue((self, value) -> {
+					/*
+					 * Fill Max Actual Power channel
+					 */
+					value.ifPresent(newValue -> {
+						Channel<Integer> maxActualPowerChannel = self.channel(ChannelId.MAX_ACTUAL_POWER);
+						int maxActualPower = maxActualPowerChannel.value().orElse(0);
+						int maxNextActualPower = maxActualPowerChannel.getNextValue().orElse(0);
+						if (newValue > Math.max(maxActualPower, maxNextActualPower)) {
+							// avoid getting called too often -> round to 100
+							newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
+							maxActualPowerChannel.setNextValue(newValue);
 						}
 					});
 				})),
@@ -78,7 +74,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTUAL_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -205,7 +201,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Actual Energy in [Wh]. See {@link ChannelId#ACTUAL_ENERGY}.
+	 * Gets the Actual Energy in [Wh_Σ]. See {@link ChannelId#ACTUAL_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -313,7 +309,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
+		return ModbusSlaveNatureTable.of(EssDcCharger.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTUAL_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTUAL_ENERGY, ModbusType.FLOAT64) //
 				.channel(6, ChannelId.VOLTAGE, ModbusType.FLOAT32) //

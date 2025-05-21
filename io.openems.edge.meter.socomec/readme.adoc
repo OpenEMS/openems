@@ -14,8 +14,7 @@ Just configure `Meter.Socomec.Singlephase` or `Meter.Socomec.Threephase`. The ac
 ** https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-b_en.html[Socomec Diris B30]
 
 * Implemented Natures:
-** SymmetricMeter
-** AsymmetricMeter
-** SinglephaseMeter
+- ElectricityMeter
+- SinglephaseMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.socomec[Source Code icon:github[]]

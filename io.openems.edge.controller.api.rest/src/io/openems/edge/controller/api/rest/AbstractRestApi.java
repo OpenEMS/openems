@@ -1,10 +1,15 @@
 package io.openems.edge.controller.api.rest;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.AcceptRateLimit;
 import org.eclipse.jetty.server.ConnectionLimit;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -12,15 +17,14 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
-import io.openems.edge.controller.api.rest.readonly.RestApiReadOnlyImpl;
-import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
+import io.openems.edge.controller.api.rest.readonly.ControllerApiRestReadOnlyImpl;
 
 public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		implements RestApi, Controller, OpenemsComponent {
@@ -29,7 +33,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
-	private final Logger log = LoggerFactory.getLogger(RestApiReadOnlyImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ControllerApiRestReadOnlyImpl.class);
 	private final String implementationName;
 
 	private Server server = null;
@@ -49,7 +53,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	 * @param alias              the Alias
 	 * @param enabled            enable component?
 	 * @param isDebugModeEnabled enable debug mode?
-	 * @param apiTimeout         the API timeout
+	 * @param apiTimeout         the API timeout in seconds
 	 * @param port               the port; if '0', the port is automatically
 	 *                           assigned
 	 * @param connectionlimit    the connection limit
@@ -60,17 +64,22 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		this.isDebugModeEnabled = isDebugModeEnabled;
 
 		if (!this.isEnabled()) {
-			// abort if disabled
+			// Abort if disabled.
 			return;
 		}
 
 		this.apiWorker.setTimeoutSeconds(apiTimeout);
 
-		/*
-		 * Start RestApi-Server
-		 */
 		try {
-			this.server = new Server(port);
+			// Create a server with custom configuration
+			this.server = new Server();
+			final var httpConfig = new HttpConfiguration();
+			httpConfig.setUriCompliance(UriCompliance.from(Set.of(//
+					UriCompliance.Violation.SUSPICIOUS_PATH_CHARACTERS, //
+					UriCompliance.Violation.ILLEGAL_PATH_CHARACTERS)));
+			final var connector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
+			connector.setPort(port);
+			this.server.addConnector(connector);
 			this.server.setHandler(new RestHandler(this));
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
 			this.server.addBean(new ConnectionLimit(connectionlimit, this.server));
@@ -83,6 +92,9 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 					"Unable to start " + this.implementationName + " on port [" + port + "]: " + e.getMessage());
 			this._setUnableToStart(true);
 		}
+		this.getRpcRestHandler().setOnCall(call -> {
+			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
+		});
 	}
 
 	@Override
@@ -123,14 +135,6 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Gets the Timedata service.
-	 *
-	 * @return the service
-	 * @throws OpenemsException if the timeservice is not available
-	 */
-	protected abstract Timedata getTimedata() throws OpenemsException;
-
-	/**
 	 * Gets the UserService.
 	 *
 	 * @return the service
@@ -143,6 +147,13 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	 * @return the service
 	 */
 	protected abstract ComponentManager getComponentManager();
+
+	/**
+	 * Gets the JsonRpcRestHandler.
+	 *
+	 * @return the service
+	 */
+	protected abstract JsonRpcRestHandler getRpcRestHandler();
 
 	/**
 	 * Gets the AccessMode.

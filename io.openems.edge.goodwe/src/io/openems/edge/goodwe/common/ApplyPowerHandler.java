@@ -1,6 +1,8 @@
 package io.openems.edge.goodwe.common;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.BooleanConsumer;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -10,7 +12,10 @@ import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 
-public class ApplyPowerHandler {
+public final class ApplyPowerHandler {
+
+	private ApplyPowerHandler() {
+	}
 
 	/**
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
@@ -27,93 +32,100 @@ public class ApplyPowerHandler {
 	 * @param isPidEnabled    if PID Filter is enabled
 	 * @throws OpenemsNamedException on error
 	 */
-	public synchronized void apply(AbstractGoodWe goodWe, int setActivePower, ControlMode controlMode,
+	public static synchronized void apply(AbstractGoodWe goodWe, int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
 			Value<Integer> maxAcExport, boolean isPidEnabled) throws OpenemsNamedException {
+		// Evaluate MeterCommunicateStatus
+		EnumReadChannel meterCommunicateStatusChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
+		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
+
+		// Calculate PV production and Surplus Power
+		var pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
+		var surplusPower = TypeUtils.max(0, goodWe.getSurplusPower());
+
+		// Write-Channels
+		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
+		EnumWriteChannel emsPowerModeChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_MODE);
+
+		apply(setActivePower, controlMode, gridActivePower, essActivePower, maxAcImport, maxAcExport, isPidEnabled,
+				meterCommunicateStatus, pvProduction, surplusPower, //
+				goodWe.channel(GoodWe.ChannelId.SMART_MODE_NOT_WORKING_WITH_PID_FILTER)::setNextValue, //
+				goodWe.channel(GoodWe.ChannelId.NO_SMART_METER_DETECTED)::setNextValue, //
+				emsPowerSetChannel::setNextWriteValue, //
+				emsPowerModeChannel::setNextWriteValue);
+	}
+
+	protected static synchronized void apply(int setActivePower, ControlMode controlMode,
+			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
+			Value<Integer> maxAcExport, boolean isPidEnabled, MeterCommunicateStatus meterCommunicateStatus,
+			int pvProduction, int surplusPower, //
+			BooleanConsumer setSmartModeNotWorkingWithPidFilter, BooleanConsumer setNoSmartMeterDetected, //
+			ThrowingConsumer<Integer, OpenemsNamedException> writeEmsPowerSet, //
+			ThrowingConsumer<EmsPowerMode, OpenemsNamedException> writeEmsPowerMode) throws OpenemsNamedException {
 
 		// Update Warn Channels
-		this.checkControlModeWithActivePid(goodWe, controlMode, isPidEnabled);
-		this.checkControlModeRequiresSmartMeter(goodWe, controlMode);
+		setSmartModeNotWorkingWithPidFilter.accept(//
+				checkControlModeWithActivePid(controlMode, isPidEnabled));
 
-		// calculate pv production
-		int pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
-
-		final ApplyPowerHandler.Result apply;
-		if (gridActivePower.isDefined() && essActivePower.isDefined() && maxAcImport.isDefined()
-				&& maxAcExport.isDefined()) {
-			apply = calculate(goodWe, setActivePower, pvProduction, controlMode, gridActivePower.get(),
-					essActivePower.get(), maxAcImport.get(), maxAcExport.get());
-		} else {
-			// If any Channel Value is not available: fall back to AUTO mode
-			apply = new ApplyPowerHandler.Result(EmsPowerMode.AUTO, 0);
-		}
+		setNoSmartMeterDetected.accept(//
+				checkControlModeRequiresSmartMeter(controlMode, meterCommunicateStatus));
 
 		// Set Channels
-		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
-		emsPowerSetChannel.setNextWriteValue(apply.emsPowerSet);
-		EnumWriteChannel emsPowerModeChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_MODE);
-		emsPowerModeChannel.setNextWriteValue(apply.emsPowerMode);
+		final ApplyPowerHandler.Result apply = calculate(setActivePower, pvProduction, controlMode,
+				gridActivePower.get(), essActivePower.get(), maxAcImport.get(), maxAcExport.get(), surplusPower);
+		writeEmsPowerSet.accept(apply.emsPowerSet);
+		writeEmsPowerMode.accept(apply.emsPowerMode);
 	}
 
-	private static class Result {
-
-		protected EmsPowerMode emsPowerMode;
-		protected int emsPowerSet;
-
-		public Result(EmsPowerMode emsPowerMode, int emsPowerSet) {
-			this.emsPowerMode = emsPowerMode;
-			this.emsPowerSet = emsPowerSet;
-		}
-
+	protected static record Result(EmsPowerMode emsPowerMode, int emsPowerSet) {
 	}
 
-	private static ApplyPowerHandler.Result calculate(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
-			ControlMode controlMode, int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport)
-			throws OpenemsNamedException {
-		switch (controlMode) {
-		case INTERNAL:
-			return handleInternalMode();
-		case SMART:
-			return handleSmartMode(goodWe, activePowerSetPoint, pvProduction, gridActivePower, essActivePower,
-					maxAcImport, maxAcExport);
-		case REMOTE:
-			return handleRemoteMode(activePowerSetPoint, pvProduction);
-		default:
-			return handleInternalMode();
+	protected static ApplyPowerHandler.Result calculate(int activePowerSetPoint, int pvProduction,
+			ControlMode controlMode, Integer gridActivePower, Integer essActivePower, Integer maxAcImport,
+			Integer maxAcExport, int surplusPower) throws OpenemsNamedException {
+		return switch (controlMode) {
+		case INTERNAL //
+			-> handleInternalMode();
+
+		case SMART -> {
+			if (essActivePower != null && maxAcImport != null && maxAcImport != null) {
+				if (gridActivePower != null) {
+					// Sufficient data to apply SMART mode
+					yield handleSmartMode(activePowerSetPoint, pvProduction, gridActivePower, essActivePower,
+							maxAcImport, maxAcExport, surplusPower);
+				} else {
+					// Only Grid-Meter is not available -> SMART is not possible, but can still
+					// apply REMOTE
+					yield handleRemoteMode(activePowerSetPoint, pvProduction);
+				}
+			}
+			// If any Channel Value is not available: fall back to AUTO mode
+			yield handleInternalMode();
 		}
+
+		case REMOTE //
+			-> handleRemoteMode(activePowerSetPoint, pvProduction);
+		};
 	}
 
 	private static Result handleInternalMode() {
 		return new Result(EmsPowerMode.AUTO, 0);
 	}
 
-	private static Result handleSmartMode(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
-			int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport) throws OpenemsNamedException {
+	private static Result handleSmartMode(int activePowerSetPoint, int pvProduction, int gridActivePower,
+			int essActivePower, int maxAcImport, int maxAcExport, int surplusPower) throws OpenemsNamedException {
+
+		// Is Surplus-Feed-In active?
+		var diffSurplus = Integer.MAX_VALUE;
+		if (surplusPower > 0 && activePowerSetPoint != 0) {
+			diffSurplus = activePowerSetPoint - surplusPower;
+		}
 
 		// Is Balancing to zero active?
 		var diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
 
-		// Is Surplus-Feed-In active?
-		final var surplusPower = goodWe.getSurplusPower();
-		var diffSurplus = Integer.MAX_VALUE;
-		if (surplusPower != null && surplusPower > 0 && activePowerSetPoint != 0) {
-			diffSurplus = activePowerSetPoint - surplusPower;
-		}
+		if (diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1) {
 
-		// Is charging from AC at maximum?
-		// PV = 10.000
-		// Max AC import = 3.000
-		// ActivePowerSetPoint = 3.000
-		var diffMaxAcImport = activePowerSetPoint - maxAcImport;
-
-		// Is discharging from AC at maximum?
-		// PV = 0
-		// Max AC import = 8.000
-		// ActivePowerSetPoint = 8.000
-		var diffMaxAcExport = activePowerSetPoint - maxAcExport;
-
-		if (diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1
-				|| diffMaxAcImport > -1 && diffMaxAcImport < 1 || diffMaxAcExport > -1 && diffMaxAcExport < 1) {
 			// avoid rounding errors
 			return handleInternalMode();
 		}
@@ -146,61 +158,48 @@ public class ApplyPowerHandler {
 	 * If true warning channel SMART_MODE_NOT_WORKING_WITH_PID_FILTER set to true,
 	 * otherwise to false.
 	 *
-	 * @param goodWe       the GoodWe - either Battery-Inverter or ESS
 	 * @param controlMode  the {@link ControlMode} to check SMART mode
 	 * @param isPidEnabled if PID filter is enabled
+	 * @return SMART_MODE_NOT_WORKING_WITH_PID_FILTER
 	 */
-	private void checkControlModeWithActivePid(AbstractGoodWe goodWe, ControlMode controlMode, boolean isPidEnabled) {
-		var enableWarning = false;
+	protected static boolean checkControlModeWithActivePid(ControlMode controlMode, boolean isPidEnabled) {
 		if (controlMode.equals(ControlMode.SMART) && isPidEnabled) {
-			enableWarning = true;
+			return true;
+		} else {
+			return false;
 		}
-
-		goodWe.channel(GoodWe.ChannelId.SMART_MODE_NOT_WORKING_WITH_PID_FILTER).setNextValue(enableWarning);
 	}
 
 	/**
 	 * Check if configured {@link ControlMode} is possible - depending on if a
 	 * GoodWe Smart Meter is connected or not.
 	 *
-	 * @param goodWe      the GoodWe - either Battery-Inverter or ESS
-	 * @param controlMode the {@link ControlMode} to check SMART mode
+	 * @param controlMode            the {@link ControlMode} to check SMART mode
+	 * @param meterCommunicateStatus the {@link MeterCommunicateStatus}
+	 * @return NO_SMART_METER_DETECTED
 	 */
-	private void checkControlModeRequiresSmartMeter(AbstractGoodWe goodWe, ControlMode controlMode) {
-		EnumReadChannel meterCommunicateStatusChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
-		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
-
-		var enableWarning = false;
-		switch (meterCommunicateStatus) {
-		case UNDEFINED:
+	protected static boolean checkControlModeRequiresSmartMeter(ControlMode controlMode,
+			MeterCommunicateStatus meterCommunicateStatus) {
+		return switch (meterCommunicateStatus) {
+		case UNDEFINED -> //
 			// We don't know if GoodWe Smart Meter is connected. Either not read yet (on
 			// startup) or DSP version too low.
-			enableWarning = false;
-			break;
+			false;
 
-		case OK:
+		case OK ->
 			// GoodWe Smart Meter is connected.
-			enableWarning = false;
-			break;
+			false;
 
-		case NG:
-			// GoodWe Smart Meter is NOT connected.
-			switch (controlMode) {
-			case REMOTE:
+		case NG //
+			-> switch (controlMode) {
+			case REMOTE ->
 				// REMOTE mode is ok without GoodWe Smart Meter
-				enableWarning = false;
-				break;
-
-			case INTERNAL:
-			case SMART:
+				false;
+			case INTERNAL, SMART ->
 				// INTERNAL and SMART mode require a GoodWe Smart Meter
-				enableWarning = true;
-				break;
-			}
-			break;
-		}
-
-		goodWe.channel(GoodWe.ChannelId.NO_SMART_METER_DETECTED).setNextValue(enableWarning);
+				true;
+			};
+		};
 	}
 
 }

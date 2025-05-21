@@ -64,7 +64,7 @@ public class WriteHandler implements Runnable {
 		if (energyLimit > 0 && this.parent.getEnergySession().orElse(0) >= energyLimit) {
 
 			try {
-				this.parent.setDisplayText(energyLimit + " Wh limit reached");
+				this.parent.setDisplayText(energyLimit + " Wh erreicht");
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}
@@ -75,7 +75,7 @@ public class WriteHandler implements Runnable {
 			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
 
 			// Apply Charge Power
-			if (this.lastTarget != 0 || this.parent.getChargePower().orElse(0) != 0) {
+			if (this.lastTarget != 0 || this.parent.getActivePower().orElse(0) != 0) {
 				this.parent.getChargeStateHandler().applyNewChargeState(ChargeState.DECREASING);
 				this.applyChargePower(0);
 			}
@@ -128,7 +128,7 @@ public class WriteHandler implements Runnable {
 	 * 
 	 * @param power Power that should be applied
 	 */
-	private void applyChargePower(int power) {
+	protected void applyChargePower(int power) {
 		try {
 
 			boolean sent = false;
@@ -140,6 +140,7 @@ public class WriteHandler implements Runnable {
 
 			if (sent) {
 				this.logDebug("Setting EVCS " + this.parent.alias() + " charge power to " + power + " W");
+				this.parent.setDisplayText(power + " W");
 
 				this.parent._setSetChargePowerLimit(power);
 				this.nextPowerWrite = LocalDateTime.now().plusSeconds(this.parent.getWriteInterval());
@@ -223,23 +224,16 @@ public class WriteHandler implements Runnable {
 		ChargeState chargeStatus = ChargeState.UNDEFINED;
 		Status status = this.parent.getStatusChannel().getNextValue().asEnum();
 
-		switch (status) {
-		case CHARGING:
-			chargeStatus = ChargeState.CHARGING;
-			break;
-		case CHARGING_FINISHED:
-		case CHARGING_REJECTED:
-		case ENERGY_LIMIT_REACHED:
-		case ERROR:
-		case STARTING:
-		case READY_FOR_CHARGING:
-		case NOT_READY_FOR_CHARGING:
-			chargeStatus = ChargeState.NOT_CHARGING;
-			break;
-		case UNDEFINED:
-			chargeStatus = ChargeState.UNDEFINED;
-			break;
-		}
+		chargeStatus = switch (status) {
+		case CHARGING -> ChargeState.CHARGING;
+		case CHARGING_REJECTED, //
+				ENERGY_LIMIT_REACHED, //
+				ERROR, STARTING, //
+				READY_FOR_CHARGING, //
+				NOT_READY_FOR_CHARGING ->
+			ChargeState.NOT_CHARGING;
+		case UNDEFINED -> ChargeState.UNDEFINED;
+		};
 		this.parent.getChargeStateHandler().applyNewChargeState(chargeStatus);
 	}
 
@@ -247,5 +241,12 @@ public class WriteHandler implements Runnable {
 		if (this.parent.getConfiguredDebugMode()) {
 			OpenemsComponent.logInfo(this.parent, this.log, message);
 		}
+	}
+
+	/**
+	 * Used for async applyChargePower calls.
+	 * 
+	 */
+	public void cancelChargePower() {
 	}
 }

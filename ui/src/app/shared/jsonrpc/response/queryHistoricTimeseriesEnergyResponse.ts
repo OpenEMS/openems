@@ -6,7 +6,7 @@ export interface Cumulated {
 
 /**
  * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -20,10 +20,10 @@ export interface Cumulated {
 export class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             data: Cumulated;
-        }
+        },
     ) {
         super(id, result);
     }

@@ -23,6 +23,9 @@ import io.openems.common.channel.PersistencePriority;
 	@AttributeDefinition(name = "Edge-ID", description = "Client-ID for authentication at MQTT broker")
 	String clientId() default "edge0";
 
+	@AttributeDefinition(name = "Topic prefix", description = "Optional topic prefix (<topic_prefix>/edge/<edge_id>/...)")
+	String topicPrefix() default "";
+
 	@AttributeDefinition(name = "Username", description = "Username for authentication at MQTT broker")
 	String username();
 
@@ -31,6 +34,15 @@ import io.openems.common.channel.PersistencePriority;
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to MQTT broker.")
 	String uri() default "tcp://localhost:1883";
+
+	@AttributeDefinition(name = "Certificate", description = "The client certificate in PEM format")
+	String certPem();
+
+	@AttributeDefinition(name = "Private Key", description = "The private key in PEM format")
+	String privateKeyPem();
+
+	@AttributeDefinition(name = "Trust Store", description = "The trust store in PEM format")
+	String trustStorePem();
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
 	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;

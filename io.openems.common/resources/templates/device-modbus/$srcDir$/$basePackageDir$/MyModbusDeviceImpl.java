@@ -27,6 +27,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implements MyModbusDevice, ModbusComponent, OpenemsComponent {
+	
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
 	private Config config = null;
 
@@ -38,16 +46,8 @@ public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implement
 		);
 	}
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if(super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
@@ -55,6 +55,7 @@ public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implement
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

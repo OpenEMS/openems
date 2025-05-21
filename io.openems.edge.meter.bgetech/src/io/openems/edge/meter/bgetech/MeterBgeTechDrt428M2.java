@@ -5,10 +5,9 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterBgeTechDrt428M2 extends SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+public interface MeterBgeTechDrt428M2 extends ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Apparent Power
@@ -33,33 +32,33 @@ public interface MeterBgeTechDrt428M2 extends SymmetricMeter, AsymmetricMeter, O
 
 		// Active Energy
 		TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L1_TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L2_TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L3_TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// Forward Active Energy
 		FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L1_FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L2_FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L3_FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// Reverse Active Energy
 		REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L1_REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L2_REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		L3_REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// Reactive Energy
 		TOTAL_REACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
@@ -93,11 +92,11 @@ public interface MeterBgeTechDrt428M2 extends SymmetricMeter, AsymmetricMeter, O
 
 		// T1 Active Energy
 		T1_TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T1_FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T1_REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// T1 Reactive Energy
 		T1_TOTAL_REACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
@@ -109,11 +108,11 @@ public interface MeterBgeTechDrt428M2 extends SymmetricMeter, AsymmetricMeter, O
 
 		// T2 Active Energy
 		T2_TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T2_FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T2_REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// T2 Reactive Energy
 		T2_TOTAL_REACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
@@ -125,11 +124,11 @@ public interface MeterBgeTechDrt428M2 extends SymmetricMeter, AsymmetricMeter, O
 
 		// T3 Active Energy
 		T3_TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T3_FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T3_REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// T3 Reactive Energy
 		T3_TOTAL_REACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
@@ -141,11 +140,11 @@ public interface MeterBgeTechDrt428M2 extends SymmetricMeter, AsymmetricMeter, O
 
 		// T4 Active Energy
 		T4_TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T4_FORWARD_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		T4_REVERSE_ACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// T4 Reactive Energy
 		T4_TOTAL_REACTIVE_ENERGY(Doc.of(OpenemsType.FLOAT) //

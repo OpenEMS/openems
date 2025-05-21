@@ -9,13 +9,13 @@ import io.openems.edge.ess.power.api.Relationship;
  */
 public class BatteryInverterConstraint {
 
+	public static final BatteryInverterConstraint[] NO_CONSTRAINTS = {};
+
 	public final String description;
 	public final Phase phase;
 	public final Pwr pwr;
 	public final Relationship relationship;
 	public final double value;
-
-	public static BatteryInverterConstraint[] NO_CONSTRAINTS = {};
 
 	public BatteryInverterConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
 			double value) {

@@ -32,7 +32,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("State of Charge of the energy storage system")), //
 		/**
 		 * Capacity.
 		 *
@@ -57,7 +58,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		GRID_MODE(Doc.of(GridMode.values()) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Current power grid mode; 1:On-Grid, 2:Off-Grid")), //
 		/**
 		 * Active Power.
 		 *
@@ -71,7 +73,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Negative values for Charge; positive for Discharge") //
+				.text("Discharge or charging Power (including DC-PV power, if applicable)."
+						+ " For the actual charging or discharging power of the battery, please refer to address"
+						+ " \"ess0/DcDischargePower\". Negative values for charge; positive for discharge.") //
 		),
 		/**
 		 * Reactive Power.
@@ -85,6 +89,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Current value of the reactive power")//
 		),
 		/**
 		 * Holds the currently maximum possible apparent power. This value is commonly
@@ -110,7 +115,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Discharge Energy.
@@ -122,7 +127,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Min Cell Voltage.
@@ -138,7 +143,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Minimum cell voltage")), //
 		/**
 		 * Max Cell Voltage.
 		 *
@@ -153,7 +159,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Maximum cell voltage")), //
 		/**
 		 * Min Cell Temperature.
 		 *
@@ -168,7 +175,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Minimum cell temperature")), //
 		/**
 		 * Max Cell Temperature.
 		 *
@@ -183,7 +191,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
-				.persistencePriority(PersistencePriority.HIGH));
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Maximum cell temperature")); //
 
 		private final Doc doc;
 
@@ -211,6 +220,12 @@ public interface SymmetricEss extends OpenemsComponent {
 				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
 				.channel(2, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.REACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.MIN_CELL_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.MIN_CELL_TEMPERATURE, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.CAPACITY, ModbusType.FLOAT32) //
+				.channel(16, ChannelId.MAX_APPARENT_POWER, ModbusType.FLOAT32) //
 				.build();
 	}
 
@@ -440,7 +455,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh]. See
+	 * Gets the Active Charge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -479,7 +494,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh]. See
+	 * Gets the Active Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

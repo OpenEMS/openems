@@ -1,7 +1,7 @@
 import { JsonrpcRequest } from "../base";
 
 /**
- * 
+ *
  * Represents a JSON-RPC Response for a {@link UpdateUserLanguageRequest}.
  * <pre>
  * {
@@ -15,12 +15,12 @@ import { JsonrpcRequest } from "../base";
  */
 export class UpdateUserLanguageRequest extends JsonrpcRequest {
 
-    static METHOD: string = "updateUserLanguage";
+    private static METHOD: string = "updateUserLanguage";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             language: string
-        }
+        },
     ) {
         super(UpdateUserLanguageRequest.METHOD, params);
     }

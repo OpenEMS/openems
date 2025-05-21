@@ -1,17 +1,28 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.jsonrpc.GetApp.Request;
+import io.openems.edge.core.appmanager.jsonrpc.GetApp.Response;
+import io.openems.edge.core.appmanager.validator.OpenemsAppStatus;
 import io.openems.edge.core.appmanager.validator.Validator;
 
 /**
@@ -57,81 +68,130 @@ import io.openems.edge.core.appmanager.validator.Validator;
  * }
  * </pre>
  */
-public class GetApp {
+public class GetApp implements EndpointRequestType<Request, Response> {
 
-	public static final String METHOD = "getApp";
+	@Override
+	public String getMethod() {
+		return "getApp";
+	}
 
-	public static class Request extends JsonrpcRequest {
+	@Override
+	public JsonSerializer<Request> getRequestSerializer() {
+		return Request.serializer();
+	}
+
+	@Override
+	public JsonSerializer<Response> getResponseSerializer() {
+		return Response.serializer();
+	}
+
+	public record Request(//
+			String appId //
+	) {
 
 		/**
-		 * Parses a generic {@link JsonrpcRequest} to a {@link Request}.
-		 *
-		 * @param r the {@link JsonrpcRequest}
-		 * @return the {@link GetAppsRequest}
-		 * @throws OpenemsNamedException on error
+		 * Returns a {@link JsonSerializer} for a {@link GetApp.Request}.
+		 * 
+		 * @return the created {@link JsonSerializer}
 		 */
-		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
-			var p = r.getParams();
-			var appId = JsonUtils.getAsString(p, "appId");
-			return new Request(r, appId);
-		}
-
-		public final String appId;
-
-		private Request(JsonrpcRequest request, String appId) {
-			super(request, METHOD);
-			this.appId = appId;
-		}
-
-		public Request(String appId) {
-			super(METHOD);
-			this.appId = appId;
-		}
-
-		@Override
-		public JsonObject getParams() {
-			return new JsonObject();
+		public static JsonSerializer<GetApp.Request> serializer() {
+			return jsonObjectSerializer(GetApp.Request.class, //
+					json -> new GetApp.Request(//
+							json.getString("appId")), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("appId", obj.appId()) //
+							.build());
 		}
 
 	}
 
-	public static class Response extends JsonrpcResponseSuccess {
+	public record Response(//
+			JsonObject app //
+	) {
 
-		private static JsonObject createAppObject(OpenemsApp app, List<OpenemsAppInstance> instantiatedApps,
-				Language language, Validator validator) {
+		/**
+		 * Creates a Response.
+		 * 
+		 * @param app              the app of the response
+		 * @param instantiatedApps all created {@link OpenemsAppInstance}
+		 * @param language         the current language
+		 * @param validator        the {@link Validator}
+		 * @return the created Response
+		 * @throws OpenemsNamedException on error
+		 */
+		public static Response newInstance(OpenemsApp app, List<OpenemsAppInstance> instantiatedApps, Language language,
+				Validator validator) throws OpenemsNamedException {
+			return new Response(createJsonObjectOf(app, validator, instantiatedApps, language));
+		}
 
-			var instanceIds = JsonUtils.buildJsonArray();
-			for (var instantiatedApp : instantiatedApps) {
-				instanceIds.add(instantiatedApp.instanceId.toString());
-			}
-			var categorys = JsonUtils.buildJsonArray().build();
-			for (var cat : app.getCategorys()) {
-				categorys.add(cat.toJsonObject(language));
-			}
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link GetApp.Response}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<GetApp.Response> serializer() {
+			return jsonObjectSerializer(GetApp.Response.class, //
+					json -> new GetApp.Response(JsonUtils.buildJsonObject() //
+							.addProperty("appId", json.getString("appId")) //
+							.build()), //
+					obj -> JsonUtils.buildJsonObject() //
+							.add("app", obj.app()) //
+							.build());
+		}
+
+	}
+
+	/**
+	 * Creates a {@link JsonObject} of the given {@link OpenemsApp}.
+	 * 
+	 * <p>
+	 * Also adds the status of the app and the instances of the app.
+	 * 
+	 * @param app              the {@link OpenemsApp}
+	 * @param validator        a {@link Validator} to get the status of the app
+	 *                         {@link OpenemsAppStatus}
+	 * @param instantiatedApps all instances
+	 * @param language         the {@link Language}
+	 * @return the created {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public static final JsonObject createJsonObjectOf(//
+			final OpenemsApp app, //
+			final Validator validator, //
+			final List<OpenemsAppInstance> instantiatedApps, //
+			final Language language //
+	) throws OpenemsNamedException {
+
+		final var imageFuture = CompletableFuture.supplyAsync(app::getImage);
+		final var statusFuture = CompletableFuture
+				.supplyAsync(() -> validator.toJsonObject(app.getValidatorConfig(), language));
+		try {
+			final var image = imageFuture.get();
+			final var status = statusFuture.get();
+
 			return JsonUtils.buildJsonObject() //
-					.add("categorys", categorys) //
+					.add("categorys", Arrays.stream(app.getCategories()) //
+							.map(cat -> cat.toJsonObject(language)) //
+							.collect(JsonUtils.toJsonArray())) //
 					.addProperty("cardinality", app.getCardinality().name()) //
 					.addProperty("appId", app.getAppId()) //
 					.addProperty("name", app.getName(language)) //
-					.addProperty("image", app.getImage()) //
-					.add("status", validator.toJsonObject(app.getValidatorConfig(), language)) //
-					.add("instanceIds", instanceIds.build()) //
+					.addProperty("shortName", app.getShortName(language)) //
+					.addPropertyIfNotNull("image", image) //
+					.add("flags", Arrays.stream(app.flags()) //
+							.map(Flag::toJson) //
+							.collect(JsonUtils.toJsonArray()))
+					.add("status", status) //
+					.add("instanceIds", instantiatedApps.stream() //
+							.filter(instance -> app.getAppId().equals(instance.appId)) //
+							.map(instance -> new JsonPrimitive(instance.instanceId.toString())) //
+							.collect(JsonUtils.toJsonArray())) //
 					.build();
-		}
-
-		private final JsonObject app;
-
-		public Response(UUID id, OpenemsApp app, List<OpenemsAppInstance> instantiatedApps, Language language,
-				Validator validator) {
-			super(id);
-			this.app = createAppObject(app, instantiatedApps, language, validator);
-		}
-
-		@Override
-		public JsonObject getResult() {
-			return JsonUtils.buildJsonObject() //
-					.add("app", this.app) //
-					.build();
+		} catch (InterruptedException | CancellationException e) {
+			throw new OpenemsException(e);
+		} catch (ExecutionException e) {
+			e.getCause().printStackTrace();
+			throw new OpenemsException(e.getCause());
 		}
 	}
 

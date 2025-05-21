@@ -1,9 +1,10 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-toolbar class="ion-justify-content-center"
+        style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
         <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline"></ion-icon>
+                <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -21,9 +22,8 @@
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
                                 <ion-input class="regularFont" type="number" formControlName="sellToGridPowerLimit"
-                                    style="text-align: end;">
+                                    style="text-align: end;" label="&nbsp;W">
                                 </ion-input>
-                                <ion-label class="regularFont">&nbsp;W</ion-label>
                             </ion-item>
                         </td>
                     </tr>
@@ -38,9 +38,8 @@
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
                                 <ion-input class="regularFont" type="number" formControlName="continuousSellToGridPower"
-                                    style="text-align: end;">
+                                    style="text-align: end;" label="&nbsp;W">
                                 </ion-input>
-                                <ion-label class="regularFont">&nbsp;W</ion-label>
                             </ion-item>
                         </td>
                     </tr>

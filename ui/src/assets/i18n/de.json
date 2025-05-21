@@ -1,20 +1,21 @@
 {
   "About": {
-    "build": "Dieser Build",
-    "contact": "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser Team unter <a href=\"mailto:{{value}}\">{{ value }}</a>.",
+    "DESCRIPTION": "Dieses Energiemanagementsystem wird auf Basis von OpenEMS als Open-Source-Software entwickelt. OpenEMS - das Open Source Energy Management System - ist eine modulare Plattform für Energiemanagement-Anwendungen. Es wurde von FENECON initiiert und wird mittlerweile von einer großen Zahl an Unternehmen, Universitäten und Instituten sowohl zur Forschung und Entwicklung verwendet, als auch für deren eigene Energiemanagementsysteme eingesetzt. Die Entwicklung wird in der OpenEMS Association e.V. koordiniert.",
+    "CONTACT": "Für Rückfragen und Anregungen zum Energiemanagement und unseren Produkten, wenden Sie sich bitte an unser Team unter <a href=\"mailto:service@fenecon.de\">service&#64;fenecon.de</a>. Für Fragen zu OpenEMS steht Ihnen das <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community-Forum</a> zur Verfügung.",
+    "BUILD": "Dieser Build",
+    "ENERGY_MANAGEMENT": "Energiemanagementsystem",
     "currentDevelopments": "Aktuelle Entwicklungen",
     "developed": "Diese Benutzeroberfläche wird als Open-Source-Software entwickelt.",
     "faq": "Häufig gestellte Fragen (FAQ)",
     "language": "Sprache wählen:",
     "openEMS": "Mehr zu OpenEMS",
-    "patchnotes": "Änderungen im Monitoring zu diesem Build",
-    "ui": "Benutzeroberfläche für OpenEMS"
+    "patchnotes": "Änderungen im Monitoring zu diesem Build"
   },
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.",
-        "emergencyReserve": "Notstromreserve"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden.",
+        "EMERGENCY_RESERVE": "Notstromreserve"
       },
       "Energymonitor": {
         "activePower": "Ausgabeleistung",
@@ -26,7 +27,8 @@
         "storageCharge": "Speicher-Beladung",
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
-        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Bitte versuchen Sie es später noch einmal."
+        "ERROR_TEMPORARY": "Fehler beim Abruf der Daten. Bitte versuchen Sie es später noch einmal.",
+        "ERROR_TOO_LONG": ""
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
@@ -36,7 +38,9 @@
         "InfoStorageForCharge": "Negative Werte entsprechen Speicher Beladung",
         "InfoStorageForDischarge": "Positive Werte entsprechen Speicher Entladung",
         "Channeltreshold": {
-          "output": "Ausgang"
+          "TITLE": "Schwellenwertcontroller",
+          "output": "Ausgang",
+          "ACTIVE_TIME_OVER_PERIOD": "Aktive Zeit"
         },
         "Singlethreshold": {
           "above": "Über",
@@ -125,7 +129,8 @@
             "passedEndTime": "Endzeitpunkt der begrenzten Beladung überschritten",
             "storageAlreadyFull": "Speicher bereits voll"
           },
-          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)"
+          "storageCapacity": "Speicherkapazität (nur sichtbar für admin)",
+          "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale Netzeinspeisung durch Batteriebeladung"
         },
         "CHP": {
           "highThreshold": "Oberer Schwellenwert",
@@ -197,7 +202,10 @@
             "maxChargingDetails": "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt.",
             "name": "Erzwungene Beladung",
             "shortName": "Manuell"
-          }
+          },
+          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden.",
+          "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
+          "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt."
         },
         "Heatingelement": {
           "activeForced": "Aktiv (Mindestlaufzeit)",
@@ -228,20 +236,60 @@
           "switchOnRecShort": "Empfehlung",
           "undefined": "Nicht definiert"
         },
-        "TimeOfUseTariff": {
-          "currentTariff": "Aktueller Bezugsstrompreis",
-          "delayedDischarge": "Entladung verzögert",
-          "storageDischarge": "Speicherentladung",
-          "State": {
-            "notStarted": "Noch nicht gestartet",
-            "delayed": "Verzögert",
-            "allowsDischarge": "Freigegeben",
-            "standby": "Standby"
-          }
+        "TIME_OF_USE_TARIFF": {
+          "CONTROL_MODE_DESCRIPTION": {
+            "CHARGE_CONSUMPTION": ""
+          },
+          "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
+          "PRICE": "Aktueller Bezugsstrompreis",
+          "STATE": {
+            "DELAY_DISCHARGE": "Entladung verzögert",
+            "BALANCING": "Eigenverbrauchsoptimierung",
+            "CHARGE_GRID": "Beladung aus dem Netz freigegeben"
+          },
+          "CHART_TITLE": "Aktueller Fahrplan",
+          "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
+          "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)"
+        },
+        "SYSTEM": {
+          "INDUSTRIAL": {
+            "NOTE": "Startet oder stoppt das Gesamtsystem, inklusive Batteriewechselrichter und Batterien."
+          },
+          "OVERALL_SYSTEM": "Gesamtsystem"
+        },
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
+          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
         }
-      }
+      },
+      "RETROFITTING": {
+        "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
+        "OPTIMAL": "Kapazitätserweiterung",
+        "REFERENCING_OF_STORAGE": {
+          "HEADER": "Bitte beachten Sie vor einer Kapazitätserweiterung eine Referenzierung des Speichers durchzuführen",
+          "CONTENT": "Vor einer Kapazitätserweiterung muss eine Referenzierung des Speichers in den Tagen vor der Kapazitätserweiterung zwingend stattfinden. D.h., dass dieser vollständig entladen (SOC: 0 %) und anschließend vollständig beladen werden muss (SOC: 100 %).",
+          "TO_INSTRUCTIONS": "Link zur Anleitung"
+        },
+        "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
+        "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
+        "INSTANT_START": "Sofortstart",
+        "PLANNED_EXPANSION": "Geplante Erweiterung",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "PREPARING": "Kapazitätserweiterung wird vorbereitet",
+        "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
+        "TARGET_TIME_SPECIFIED": "Kapazitätserweiterung wird am {{targetDate}} um {{targetTime}} durchgeführt"
+      },
+      "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
+      "PHASE_ACCURATE": "Phasengenau",
+      "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
       "endDate": "Enddatum wählen",
@@ -260,6 +308,7 @@
       "today": "Heute",
       "week": "Woche",
       "year": "Jahr",
+      "TOTAL": "Gesamt",
       "yesterday": "Gestern",
       "sun": "So",
       "mon": "Mo",
@@ -280,26 +329,36 @@
       "oct": "Okt",
       "nov": "Nov",
       "dec": "Dez",
-      "activeDuration": "Einschaltdauer"
+      "activeDuration": "Einschaltdauer",
+      "ACTIVE_DURATION_WITH_LEVEL": "Einschaltdauer Level {{level}}",
+      "CURRENT": "Strom",
+      "VOLTAGE": "Spannung"
     },
     "Config": {
       "Index": {
         "addComponents": "Komponenten installieren",
         "adjustComponents": "Komponenten konfigurieren",
+        "alerting": "Benachrichtigung",
         "bridge": "Verbindungen und Geräte",
+        "COMMENT": "Kommentar",
+        "CONFIGURATION": "Konfiguration",
         "controller": "Anwendungen",
         "dataStorage": "Datenspeicher",
         "executeSimulator": "Simulationen ausführen",
+        "GENERAL_DATA": "Allgemeine Daten",
         "liveLog": "Live Systemprotokoll",
         "log": "Log",
         "manualControl": "Manuelle Steuerung",
+        "ROLE": "Rolle",
         "renameComponents": "Komponenten umbenennen",
+        "SYSTEM": "System",
         "scheduler": "Anwendungsplaner",
         "simulator": "Simulator",
         "systemExecute": "System-Befehl ausführen",
         "systemProfile": "Anlagenprofil",
-        "alerting": "Benachrichtigung",
-        "networkConfiguration": "Netzwerkkonfiguration"
+        "PRODUCT_TYPE": "Produkt-Typ",
+        "networkConfiguration": "Netzwerkkonfiguration",
+        "EXPORT_CHANNELS": "Export-Kanäle"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
@@ -327,7 +386,8 @@
         "level": "Level",
         "message": "Nachricht",
         "source": "Quelle",
-        "timestamp": "Zeitpunkt"
+        "timestamp": "Zeitpunkt",
+        "CONDENSED_OUTPUT": "Komprimierte Ausgabe"
       },
       "Controller": {
         "app": "Anwendung:",
@@ -338,36 +398,64 @@
         "newConnection": "Neue Verbindung...",
         "newDevice": "Neues Gerät..."
       },
-      "Alerting": {
-        "activate": "Aktivieren",
-        "delay": "Verzögerung",
-        "save": "Speichern",
-        "toast": {
-          "success": "Einstellungen übernommen",
-          "error": "Fehler beim Laden der Einstellungen"
-        },
-        "interval": {
-          "hour": "Stunde",
-          "hours": "Stunden",
-          "minute": "Minute",
-          "minutes": "minuten",
-          "day": "Tag",
-          "days": "Tage"
+      "ALERTING": {
+        "OFFLINE": "Offline Benachrichtigung",
+        "FAULT": "Fehler Benachrichtigung",
+        "WARNING": "Warnungs Benachrichtigung",
+        "DEACTIVATED": "Deaktiviert",
+        "ACTIVATE": "Aktivieren",
+        "DELAY": "Verzögerung",
+        "TOAST": {
+          "SUCCESS": "Einstellungen übernommen",
+          "ERROR": "Fehler beim Laden der Einstellungen"
         }
       },
       "App": {
+        "NAME": "App Center",
+        "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "Der App-Manager befindet sich aktuell in einer ersten Testversion.",
         "updateAvailable": "Es ist eine neue {{ edgeShortName }} Version verfügbar! Bitte aktualisieren Sie das {{ edgeShortName }}, damit alle neuen {{ edgeShortName }} Apps im App Center angezeigt werden.",
+        "UNUSED_REGISTERED_KEY_AVAILABLE": "Es steht noch eine App zur Installation bereit! Klicken Sie auf 'Lizenzschlüssel einlösen', um sie zu installieren.",
         "installed": "Installiert",
         "available": "Verfügbar",
         "incompatible": "Inkompatibel",
-        "buyApp": "App kaufen",
+        "buyApp": "Lizenzschlüssel kaufen",
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
+        "DELETE_CONFIRM": "entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
-        "errorCompatible": "Kompatibilitäts fehler"
+        "errorCompatible": "Kompatibilitäts fehler",
+        "notAvailable": "Nicht verfügbar",
+        "Key": {
+          "enterKey": "Geben Sie hier den Lizenzschlüssel ein, den Sie mit der Bestellung der App erhalten haben",
+          "useRegisteredKey": "Bereits registrierten Lizenzschlüssel einlösen?",
+          "useMasterKey": "Masterkey verwenden",
+          "registeredKey": "Registrierte Lizenzschlüssel",
+          "key": "Lizenzschlüssel",
+          "validateKey": "Lizenzschlüssel validieren",
+          "useKey": "Lizenzschlüssel einlösen",
+          "registerKey": "Lizenzschlüssel registrieren",
+          "alreadyRegisteredDifferentSystem": "Lizenzschlüssel wurde bereits auf einem anderen System registriert! Wenn Sie fortfahren, wird die andere Registrierung entfernt.",
+          "failedLoadingRegisterKey": "Bereits registrierte Schlüssel konnten nicht abgerufen werden",
+          "successRegisterKey": "Schlüssel wurde erfolgreich registriert",
+          "failedRegisterKey": "Registrierung des Schlüssels fehlgeschlagen",
+          "alreadyRegisteredDifferentApp": "Key wurde bereits für eine App auf diesem System registriert! \nWenn Sie fortfahren, wird die andere Registrierung entfernt.",
+          "valid": "Lizenzschlüssel ist gültig",
+          "invalid": "Lizenzschlüssel ist ungültig",
+          "invalidPattern": "Eingabe ist ungültig",
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achten Sie bei der Eingabe des Lizenzschlüssels auf mögliche Vertipper: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>",
+          "MASTER_KEY_HINT": "<br><span class=\"warning\">Hinweis</span>: Der Masterkey wird im Hintergrund verwendet. Es wird kein Key angezeigt. Sofern ein Lizenzschlüssel vorliegt, bitte diesen verwenden.<br>"
+        },
+        "successInstall": "App erfolgreich installiert",
+        "failInstall": "Installation der App fehlgeschlagen: {{error}}",
+        "successUpdate": "App erfolgreich aktualisiert",
+        "failUpdate": "Fehler während der Aktualisierung: {{error}}",
+        "successDelete": "App erfolgreich entfernt",
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
+        "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
       }
     },
     "Service": {
@@ -390,11 +478,26 @@
       "advancedMode": "erweiterte Ansicht",
       "submit": "Anwenden"
     },
-    "title": "OpenEMS"
+    "title": "{{ edgeShortName }}",
+    "FOOTER": {
+      "REFRESHED_LAST": "vor {{period}} aktualisiert"
+    }
   },
   "General": {
+    "EDIT": "Bearbeiten",
+    "THEME_SELECTION": {
+      "TITLE": "Licht aus, Komfort an!",
+      "DESCRIPTION": "Ab sofort steht dir unser Monitoring im <b>Darkmode</b> zur Verfügung.<hr>Einfach umschalten und loslegen!"
+    },
+    "LIGHT": "Hell",
+    "DARK": "Dunkel",
+    "RESET": "Zurücksetzen",
+    "SAVE": "Speichern",
+    "SYSTEM_THEME": "System",
     "active": "Aktiv",
-    "actualPower": "E-Auto Beladung",
+    "actualPower": "E-Auto-Beladung",
+    "ALL": "Alle",
+    "CURRENT_STATUS": "Aktueller Status",
     "apply": "Übernehmen",
     "autarchy": "Autarkie",
     "automatic": "Automatisch",
@@ -403,7 +506,6 @@
     "changeAccepted": "Änderung übernommen",
     "changeFailed": "Änderung fehlgeschlagen",
     "chargeDischarge": "Be-/Entladung",
-    "chargePower": "Beladung",
     "componentCount": "Anzahl Komponenten",
     "componentInactive": "Komponente ist inaktiv!",
     "connectionLost": "Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.",
@@ -412,24 +514,24 @@
     "currentName": "Aktueller Name",
     "currentValue": "Aktueller Wert",
     "dateFormat": "dd.MM.yyyy",
-    "dateFormatShort": "dd.MM",
     "digitalInputs": "Digitaleingänge",
+    "HEAT_PUMP": "Wärmepumpe",
     "numberOfComponents": "Anzahl der Komponenten",
     "directConsumption": "Direktverbrauch",
-    "dischargePower": "Entladung",
     "energyLimit": "Energielimit",
     "fault": "Fehler",
+    "FOR": "für",
     "grid": "Netz",
     "gridBuy": "Netzbezug",
     "gridBuyAdvanced": "Bezug",
     "gridSell": "Netzeinspeisung",
     "gridSellAdvanced": "Einspeisung",
-    "history": "Historie",
+    "HISTORY": "Historie",
     "inactive": "Inaktiv",
     "info": "Info",
     "inputNotValid": "Eingabe ungültig",
     "insufficientRights": "Unzureichende Rechte",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "Last",
     "manual": "Anleitung",
     "manually": "Manuell",
@@ -455,10 +557,12 @@
     "selfConsumption": "Eigenverbrauch",
     "soc": "Ladezustand",
     "state": "Zustand",
+    "STATUS": "Status",
     "storageSystem": "Speichersystem",
-    "systemState": "Systemzustand",
-    "total": "Gesamt",
+    "SYSTEM_STATE": "Systemstatus",
+    "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
+    "VISIBLE_FOR_ADMINS_ONLY": "Sichtbar nur für Service & Administration",
     "warning": "Warnung",
     "Week": {
       "monday": "Montag",
@@ -491,11 +595,79 @@
       "netherlands": "Niederlande",
       "sweden": "Schweden",
       "switzerland": "Schweiz",
-      "czech": "Tschechische Republik"
+      "czech": "Tschechische Republik",
+      "GREECE": "Griechenland"
     },
     "yes": "Ja",
     "no": "Nein",
-    "value": "Wert"
+    "value": "Wert",
+    "STATE_MACHINE": {
+      "GO_STOPPED": "Stoppt...",
+      "GO_RUNNING": "Startet...",
+      "RUNNING": "Gestartet",
+      "STOPPED": "Gestoppt",
+      "UNDEFINED": "Unbekannt",
+      "ERROR": "Fehler"
+    },
+    "SUM_STATE": "Systemzustand",
+    "SYSTEM": "System",
+    "RESTART": "Neu starten",
+    "TIME": {
+      "HOUR": "Stunde",
+      "HOURS": "Stunden",
+      "MINUTE": "Minute",
+      "MINUTES": "Minuten",
+      "DAY": "Tag",
+      "DAYS": "Tage"
+    },
+    "CHARGE": "Beladung",
+    "DISCHARGE": "Entladung"
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+      "MORE_INFO": "mehr Infos",
+      "EMS_OFFLINE": "{{edgeShortName}} ist offline"
+    },
+    "DEFAULT": {
+      "STEP_TEST_WIFI_CONNECTION": {
+        "HEADER": "Routerverbindung mit Laptop überprüfen",
+        "DESCRIPTION": "<p><b>a)</b> Stecken Sie das LAN-Kabel von der Home--{{edgeShortName}} Box („LAN“ Schnittstelle) ab und schließen Sie dieses an einem Laptop/PC an (Achtung: WLAN Adapter ausschalten). Wenn der Laptop/PC erfolgreich eine Internetverbindung aufbauen konnte, gehen Sie weiter zu Schritt 3, ansonsten weiter zu b.</p> <p><b>b)</b> Wenn der Laptop/PC keine Internetverbindung aufbaut, schließen Sie das Gerät bitte direkt per LAN-Kabel am Router an, um die Funktionalität des Routers sicherzustellen (also ohne zusätzliche Kabelstrecke und ohne weitere Netzwerkteilnehmer dazwischen).</p> <p> → Wenn die Funktionalität des Routers sichergestellt ist, leitet das LAN-Kabel, ein WLAN Repeater oder ein Powerline Adapter das Signal vermutlich nicht korrekt weiter. In diesem Fall finden Sie in den produktspezifischen Anleitungen des jeweiligen Herstellers weitere Informationen.</p>"
+      },
+      "STEP_FIREWALL": {
+        "HEADER": "Portfreigabe/Firewall prüfen",
+        "DESCRIPTION": "Einstellungen der Firewall können die Internetverbindung zum {{edgeShortName}}. begrenzen. Besonders bei Erstinbetriebnahmen ist dies häufig der Fall. Bitte überprüfen Sie mithilfe der <a href=\"https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal\" target=\"_blank\">Anleitung</a> die Ports und Dienste, die auf dem {{edgeShortName}} aktiv sind."
+      },
+      "STEP_SERVICE": {
+        "HEADER": "FENECON-Service",
+        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben, und das Online-Monitoring weiterhin keine Daten anzeigt, können Sie sich an unseren Service wenden: <br> Per Mail: <a href=\"mailto:service@fenecon.de\">service@fenecon.de</a> oder telefonisch unter: +49 9903 6280-0 (Mo. bis Do.: 08:00 bis 12:00 Uhr | 13:00 – 17:00 Uhr | Fr.: 08:00 bis 12:00 Uhr | 13:00 – 17:00 Uhr)"
+      },
+      "STEP_CONTACT_INSTALLER": {
+        "HEADER": "Installateur kontaktieren",
+        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben, und das Online-Monitoring weiterhin keine Daten anzeigt, bitten wir Sie, sich mit Ihrem <b>Installateur</b> in Verbindung zu setzen."
+      },
+      "STEP_EMS_RESTART": {
+        "HEADER": "{{edgeShortName}} neu starten und LAN-Stecker prüfen"
+      }
+    },
+    "HOME_10": {
+      "STEP_EMS_RESTART": {
+        "HEADER": "{{edgeShortName}} neu starten",
+        "DESCRIPTION": "Starten Sie das {{edgeShortName}} neu indem Sie an der obersten Box des Speicherturms an der Vorderseite den Taster für 10 Sekunden gedrückt halten. Warten Sie nun  <b>5-10 Minuten</b> ab (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker akkurat in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie nun das Browser-Fenster des Online-Monitorings: War diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des FENECON Online-Monitorings sollte wie gewohnt zu sehen sein."
+      }
+    },
+    "HOME_20_30": {
+      "STEP_EMS_RESTART": {
+        "DESCRIPTION": "An der obersten Box des Speicherturms befindet sich ein Kaltgerätestecker (schwarz-blau). Stecken Sie diesen aus und warten Sie 15 Sekunden ab; Stecken Sie den Kaltgerätestecker wieder ein, und warten Sie nun <b>5-10 Minuten</b> (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker akkurat in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie nun das Browser-Fenster des Online-Monitorings: war diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des {{edgeLongName}} Energiemanagementsystem Online-Monitorings wie gewohnt zu sehen sein."
+      }
+    },
+    "STEP_EMS_RESTART": {
+      "DESCRIPTION": "Im Anschlussbereich des FENECON Home Stromspeichersystems befindet sich ein blauer Steckverbinder. Dieser versorgt das {{edgeShortName}}. mit einer Hilfsversorgung. Ziehen Sie den Stecker heraus und stecken ihn nach 10 Sekunden wieder ein, um das {{edgeShortName}}. neu zu starten. Warten Sie anschließend einige Minuten und aktualisieren Sie das Browser-Fenster. Die Fehlermeldung sollte anschließend verschwunden sein und das Online-Monitoring wieder sichtbar. Falls dies nicht der Fall ist, gehen Sie weiter zu Schritt 2."
+    }
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
@@ -504,11 +676,15 @@
     "connectionSuccessful": "Verbindung zu {{ value }} hergestellt.",
     "deviceOffline": "Das Gerät ist nicht verbunden!",
     "isOffline": "OpenEMS ist offline!",
-    "loggedInAs": "Angemeldet als:",
+    "LOGGED_IN_AS": "Angemeldet als",
     "toEnergymonitor": "Zum Energiemonitor...",
-    "type": "Typ",
+    "TYPE": "Typ",
     "OFFLINE_SINCE": "Offline seit",
-    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
+    "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt.",
+    "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem Ihr {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser Stelle.",
+    "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
+    "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -517,9 +693,10 @@
       "DOWNLOAD_ERROR": "Das Protokoll konnte nicht heruntergeladen werden",
       "DOWNLOAD": "IBN-Protokoll herunterladen",
       "SUB_TITLE": "Sie haben den {{ value }} erfolgreich in Betrieb genommen.",
-      "TITLE": "Abschließen"
+      "TITLE": "Abschließen",
+      "NOTE": "Hier geht's weiter zum App Center, um weitere Komponenten zu konfigurieren und Apps zu installieren."
     },
-    "COMPLETE": "abschließen",
+    "COMPLETE": "Zum Online-Monitoring",
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "Wenn diese Funktion aktiviert ist, kann der Ladezustand der Batterie nicht unter den eingestellten Wert fallen.",
       "EMERGENCY_RESERVE_VALUE": "Notstrom wert",
@@ -529,14 +706,14 @@
       "RECENT": "Aktuell:",
       "TITLE": "Angaben zu Notstrom",
       "VALUE": "Wert [%]",
-      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}"
+      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}",
+      "COUPLER_TITLE": "Welcher Feldbuskoppler ist in Ihrer Netztrennstelle verbaut?"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Batterie-Wechselrichter",
       "BATTERY": "Batterie",
       "COMMUNICATION_WITH_BATTERY_INVERTER": "Kommunikation mit dem Batterie-Wechselrichter",
       "COMMUNICATION_WITH_BATTERY": "Kommunikation mit der Batterie",
-      "CONFIGURATION_SUCCESS": "Konfiguration erfolgreich.",
       "DESCRIPTION_1": "Um sicherzustellen, dass alle Komponenten Ihres Systems korrekt eingerichtet werden,",
       "DESCRIPTION_2": "können die Konfiguration und die nachfolgenden Funktionstests bis zu 10 Minuten in Anspruch nehmen.",
       "EMERGENCY_CAPACITY_RESERVE": "Ansteuerung der Notstromreserve",
@@ -547,8 +724,9 @@
       "FUNCTION_TEST": "Funktionstest",
       "GRID_METER": "Netzzähler",
       "GRID_OPTIMIZED_CHARGE": "Netzdienliche Beladung",
+      "TIME_OF_USE_TARIFF": "Dynamischer Stromtarif",
       "LEGEND": "Legende",
-      "NOT_YET_CONFIGURED": "noch nicht konfiguriert / ausgeführt",
+      "NOT_YET_CONFIGURED": "noch nicht konfiguriert/ausgeführt",
       "PARTIAL_CONFIGURATION": "Es konnten nicht alle Komponenten richtig konfiguriert werden.",
       "PRE_CONFIGURED": "vorkonfiguriert / Warnung",
       "PROGNOSIS": "Prognose",
@@ -560,12 +738,21 @@
       "SURPLUS_ENERGY_FEEDIN": "Überschusseinspeisung",
       "TITLE": "Konfiguration",
       "WAITING": "Konfiguration läuft...",
-      "WILL_BE_CONFIGURED": "wird konfiguriert / ausgeführt",
       "POWER": "Power",
       "COMMUNICATION_WITH_METER": "Kommunikation mit den Zählern",
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
-      "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle"
+      "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
+      "BATTERY_INTERFACE": "Schnittstelle Batterie",
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
+        "WAGO_BRIDGE": "WAGO (graue Komponente)"
+      },
+      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais",
+      "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden.",
+      "START_FUNCTION_TEST": "Funktionstests für die installierten Komponenten gestartet",
+      "FINISH_FUNCTION_TEST": "Funktionstests für die verbauten Komponenten abgeschlossen"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -573,7 +760,9 @@
       "OTHER": "Sonstige",
       "TITLE_COMMERCIAL": "Vorsicherung Netzanschlusspunkt / Zählervorsicherung",
       "TITLE_HOME": "Vorsicherung Hausanschlusszähler",
-      "VALUE": "Wert [A]"
+      "VALUE": "Wert [A]",
+      "METER_LABEL": "Netzanschlusspunkt Zählertyp",
+      "METER": "Zähler"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "Standort",
@@ -583,18 +772,25 @@
       "DEVICE_ACTIVE_CHECKED": "Batterie und Wechselrichter eingeschaltet",
       "EDGE_NUMBER": "{{ edgeShortName }} Nummer",
       "GENERAL": "Allgemein",
-      "GTC_ACCEPT": "AGB akzeptieren",
+      "GTC_ACCEPT": "AGB",
       "INSTALLER": "Installateur",
       "INVERTER": "Wechselrichter",
       "NEXT_CLICKED_DESCRIPTION": "Wenn Sie jetzt 'weiter' klicken, wird das Speichersystem konfiguriert. Stellen Sie sicher, dass die Batterie und der Wechselrichter während des gesamten Konfigurationsvorgangs eingeschaltet sind.",
       "PRODUCER": "Erzeuger",
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
-      "VALUE_AC": "Wert AC",
-      "WARRANTY_TERMS": "Garantiebedingungen akzeptieren",
-      "PEAK_SHAVING": "Lastspitzenkappung",
-      "APPS": "Apps",
-      "HECKERT": "Ihre gewählte kostenlose App"
+      "WARRANTY_TERMS": "Garantiebedingungen",
+      "ACCEPT": "akzeptieren",
+      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}}",
+      "VALUE_WITH_LABEL_HOME_DC": "Wert MPPT{{ mppt }} {{ symbol }}",
+      "ORIENTATION_WITH_LABEL_HOME_DC": "Ausrichtung MPPT{{ mppt }}",
+      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Modultyp MPPT{{ mppt }}",
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Anzahl PV-Module MPPT{{ mppt }}",
+      "BOTH_SELECTED_LABEL": "Beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt",
+      "DEVICE_CONNECTION_CHECKED": "Das Stromspeichersystem ist an das Stromnetz angeschlossen",
+      "ENERGY_FLOW_METER": {
+        "LABEL": "Netz"
+      }
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Anleitung öffnen",
@@ -606,11 +802,12 @@
     "FORM": {
       "MANDATORY_FIELD": "Dies ist ein Pflichtfeld.",
       "BATTERY_SERIAL_NUMBER": "{{ serialNumber }} ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus {{ length }} Ziffern.",
-      "MIN": "Nur Werte größer oder gleich {{ min }} sind erlaubt.",
-      "MAX": "Nur Werte kleiner oder gleich {{ max }} sind erlaubt.",
+      "MIN": "Bitte geben Sie einen Wert größer als {{ min }} ein.",
+      "MAX": "Bitte geben Sie einen Wert kleiner als {{ max }} ein.",
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
-      "POSITIVE_INTEGER": "Nur ganze positive Zahlen sind erlaubt."
+      "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt.",
+      "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat"
     },
     "FORWARD": "weiter",
     "LOAD": "laden...",
@@ -628,7 +825,7 @@
       "CHOOSE": "Typ",
       "CONSTANT_VALUE": "Cos φ Festwert",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamische Begrenzung der Einspeisung aktiviert?",
-      "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung (z.B. 70% Abregelung)",
+      "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
       "EXTERNAL_CONTROLLER_CHECK": "Der Rundsteuerempfänger wurde lt. Anleitung ordnungsgemäß und vollständig installiert.",
       "EXTERNAL_LIMITATION_ACTIVATED": "Rundsteuerempfänger aktiviert?",
       "EXTERNAL_LIMITATION": "Rundsteuerempfänger (Externe Abregelung durch Netzbetreiber)",
@@ -640,7 +837,10 @@
       "QU_ENABLED_CURVE": "Blindleistungs-Spannungskennlinie Q(U)",
       "SHADE_MANAGEMENT_DEACTIVATED": "Schattenmanagement deaktivert",
       "TITLE": "Einspeisemanagement",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger"
+      "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
+      "PLACE_HOLDER": "Wähle eine Option",
+      "NO_LIMITATION": "Kein Einspeisemanagement",
+      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -658,10 +858,8 @@
       "TITLE_INSTALLER": "Kontaktdaten Installateur",
       "ZIP": "PLZ"
     },
-    "PROTOCOL_PV_AND_ADDITIONAL_AC": {
-      "ADD": "Erzeuger hinzufügen",
+    "PROTOCOL_PV": {
       "ADDITIONAL_GENERATOR": "Zusätzliche AC-Erzeuger",
-      "ALIAS_DESCRIPTION_ADDITIONAL_AC": "z. B. \"PV Hausdach\"",
       "ALIAS_DESCRIPTION_PV": "wird im Online-Monitoring angezeigt, z. B. \"PV Hausdach\"",
       "ALIAS": "Bezeichnung",
       "DIRECTIONS": {
@@ -674,34 +872,29 @@
         "SOUTH": "Sued",
         "WEST": "West"
       },
-      "INSTALLED_POWER": "Installierte leistung [Wₚ]",
-      "MARKED_AS": " MPPT {{number}} (beschriftet mit \"PV{{ number}}\")",
-      "METER_TYPE_WITH_LABEL": "Zählertyp {{ label }}{{ number }}",
-      "METER_TYPE": "Zählertyp",
-      "MODBUS_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (bAud) \"9600\", Kommunikationsparität (PrtY) \"n\", Kommunikations-Stopbit (StoP) \"1\"",
-      "MODBUS_WITH_LABEL": "Modbus Kommunikationsadresse {{ label }}{{ number }}",
-      "MODBUS": "Modbus Kommunikationsadresse",
+      "INSTALLED_POWER": "Installierte Leistung [Wₚ]",
+      "INSTALLED_POWER_PER_STRING": "Installierte Leistung pro String [Wₚ]",
+      "MARKED_AS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv }}\")",
+      "MARKED_AS_BOTH_STRINGS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv1 }}\" & \"PV{{ pv2 }}\")",
       "MODULE_TYPE_DESCRIPTION": "z. B. Hersteller und Leistung",
       "MODULE_TYPE_WITH_LABEL": "Modultyp {{ label }}{{ number }}",
       "MODULE_TYPE": "Modultyp",
       "NUMBER_OF_MODULES_WITH_LABEL": "Anzahl PV-Module {{ label }}{{ number }}",
       "NUMBER_OF_MODULES": "Anzahl PV-Module",
+      "NUMBER_OF_MODULES_PER_STRING": "Anzahl PV-Module pro String",
       "OPEN_MANUAL": "Anleitung öffnen",
       "ORIENTATION_WITH_LABEL": "Ausrichtung {{ label }}{{ number }}",
       "ORIENTATION": "Ausrichtung",
-      "SAVE_TO_CONTINUE": "Speichern Sie zuerst Ihre Eingaben um fortzufahren.",
-      "SAVE": "Erzeuger speichern",
       "SHADE_MANAGEMENT_DEACTIVATE": "Schattenmanagement deaktivieren",
       "SHADE_MANAGEMENT_DESCRIPTION": "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
-      "TITLE_ADDITIONAL_AC": "AC-Erzeuger",
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
-      "VALID_DATA": "Geben Sie gültige Daten ein um zu Speichern.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC zähler nicht erstellt!"
+      "DUPLICATE": " MPPT {{ mppt }} doppelt belegt (beschriftet mit \"PV{{ pv }}\")",
+      "BOTH_SELECTED_LABEL": "Sind beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt?"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",
-      "BATTERY_TOWER": "Batterie Turm {{ towerNumber }}",
+      "BATTERY_TOWER": "Batterie Turm {{ number }}",
       "BESS_COMPONENTS": "Speichersystemkomponenten",
       "BMS_BOX": "BMS Box & Sockel",
       "CONFIRM": "speichern",
@@ -720,7 +913,19 @@
       "SYSTEM_SETUP": "Voreinstellungen",
       "BATTERY_STRING": "Batterie String {{ stringNumber }}",
       "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
-      "EMS_BOX_HECKERT": "EMS Box"
+      "EMS_BOX_HECKERT": "EMS Box",
+      "NUMBER_OF_STRINGS": "Anzahl Strings",
+      "MINIMUM_AND_MAXIMUM_STRINGS": "Minimum Strings: {{ min }} und Maximum: {{ max }}",
+      "NUMBER_OF_MODULES_PER_STRINGS": "Anzahl Module pro String",
+      "MODULES_PER_STRINGS_DESCRIPTION": "Modules pro String für Commercial-50 system: {{ number }}",
+      "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Anschlussbox",
+      "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
+      "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Netztrennstelle",
+      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein.",
+      "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
+      "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
+      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -735,7 +940,48 @@
     },
     "VALUE_WITH_LABEL": "Wert {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
-    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
+    "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
+      "BALANCING": "Eigenverbrauchsoptimierung"
+    },
+    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen.",
+    "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
+      "TCP_IP_LABEL": "TCP/IP (6-RJ45-Ports) - Anschluss: Internal",
+      "RS485_LABEL": "RS485 (4-RJ45-Ports) - Anschluss: FEMS"
+    },
+    "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
+      "HEADER": "Auswahl der Kommunikationsart"
+    },
+    "CONFIGURATION_ENERGY_FLOW_METER": {
+      "TITLE": "Auswahl Energieflussrichtungszähler",
+      "METER": {
+        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A ({{type}})",
+        "WITHOUT_CT": "Home 3-Phasensensor ohne Stromwandler (Optional)",
+        "LABEL": "Zähler",
+        "INTEGRATED": "Integrierter Home 3-Phasensensor mit Stromwandler ({{type}})",
+        "TYPE": {
+          "STANDARD": "Standardlieferumfang",
+          "OPTIONAL": "Optional"
+        }
+      },
+      "CONVERTER_RATIO": "Primärstrom (200–5000A)"
+    },
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Dimmung nach §14a EnWG",
+      "IS_ACTIVATE": "Möglichkeit der Dimmung nach §14a EnWG aktivieren",
+      "INFO_NOTE": "Um eine Überlastung des Netzes zu vermeiden, erhält der Netzbetreiber bei allen, seit dem 01.01.2024 installierten Verbrauchseinrichtungen, zukünftig die Möglichkeit, diese auf eine Netzbezugsleistung des Stromspeichers von 4,2 kW zu dimmen.",
+      "IS_ACTIVATE_LABEL": "Die Verdrahtung ist entsprechend der Montageanleitung anzubringen."
+    }
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
+  },
+  "LOADING_SCREEN": {
+    "LOADING": "Wird geladen",
+    "SERVER_NOT_ACCESSIBLE": "Server nicht erreichbar",
+    "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Probieren Sie bitte in 10 Minuten den Browser neu zu laden.",
+    "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Lokal zugreifen",
+    "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich. Die Daten werden lokal gespeichert und gehen nicht verloren."
   },
   "Login": {
     "title": "Login",
@@ -747,7 +993,6 @@
     "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal."
   },
   "Menu": {
-    "aboutUI": "Über OpenEMS",
     "accessLevel": "Zugriffslevel",
     "edgeSettings": "Einstellungen",
     "generalSettings": "Allgemeine Einstellungen",
@@ -758,6 +1003,10 @@
     "overview": "Alle Systeme",
     "settings": "Einstellungen",
     "user": "Benutzer",
+    "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
+    "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
+    "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
+    "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
     "changelog": "Changelog",
     "otherUser": "Weitere Benutzer"
   },
@@ -768,6 +1017,44 @@
     "loggedIn": "Angemeldet.",
     "loggedInAs": "Angemeldet als Benutzer '{{ value }}'."
   },
+  "Register": {
+    "title": "Account anlegen",
+    "segment": {
+      "user": "Benutzer",
+      "installer": "Installateur"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Kontaktdaten",
+      "company": "Firma",
+      "companyName": "Firmenname",
+      "firstname": "Vorname",
+      "lastname": "Nachname",
+      "street": "Straße | Hausnummer",
+      "zip": "PLZ",
+      "city": "Ort",
+      "country": "Land",
+      "phone": "Telefonnummer",
+      "email": "E-Mail Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort wiederholen",
+      "confirmEmail": "E-Mail Adresse wiederholen",
+      "PRIVATE": "Privat"
+    },
+    "button": "Anlegen",
+    "errors": {
+      "requiredFields": "Bitte alle Felder ausfüllen",
+      "passwordNotEqual": "Passwörter sind nicht gleich",
+      "emailNotEqual": "E-Mails stimmen nicht überein"
+    },
+    "success": "Registrierung erfolgreich",
+    "createUser": "Account anlegen"
+  },
   "Role": {
     "guest": "Gast",
     "owner": "Eigentümer",
@@ -775,17 +1062,97 @@
     "admin": "Administrator"
   },
   "SETTINGS": {
+    "CATEGORY": {
+      "TITLE": {
+        "METER": "Zähler",
+        "SIMULATORS": "Simulatoren",
+        "STORAGE_SYSTEMS": "Speichersysteme",
+        "EXTERNAL_INTERFACES": "Externe Schnittstellen",
+        "STORAGE_SYSTEM_CONTROL": "Speichersystem-Steuerung",
+        "CLOUD_INTERFACES": "Cloud-Schnittstellen",
+        "EV_CHARGING_STATION": "E-Auto-Ladestation",
+        "EV_CHARGING_STATION_CONTROL": "E-Auto-Ladestation-Steuerung",
+        "IOs": "I/Os",
+        "IO-CONTROL": "I/O-Steuerung",
+        "TEMPERATURE_SENSORS": "Temperatursensoren",
+        "DEVICE_INTERFACES": "Geräte-Schnittstellen",
+        "DEDICATED_CONTROLLERS": "Spezial-Controller",
+        "STANDARD_COMPONENTS": "Standard-Komponenten",
+        "OTHERS": "Weitere"
+      }
+    },
     "SYSTEM_UPDATE": {
-      "INSTALLED_VERSION": "Installierte version:",
+      "INSTALLED_VERSION": "Installierte Version:",
+      "CREATE_COMPONENT": "Komponente anlegen",
+      "UPDATE_COMPONENT": "Aktualisiere Komponente",
+      "DELETE_COMPONENT": "Lösche Komponente",
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
-      "NEW_VERSION_INSTALLING": "Neueste version installieren",
-      "NEW_VERSION": "Neueste version:",
+      "NEW_VERSION_INSTALLING": "Neueste Version installieren",
+      "NEW_VERSION": "Neueste Version:",
       "OFFLINE": "Das {{ edgeShortName }} ist offline.",
-      "RESTARTING": "Das {{ edge }} wird neu gestartet...",
+      "EDGE_RESTARTING": "Das {{ edge }} wird neu gestartet...",
       "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
       "UPDATE_PROGRESS": "Update wird ausgeführt...",
       "UPDATE_SEARCH": "Suche nach Updates...",
-      "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)"
+      "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)",
+      "EMS_RESTARTING": "{{edgeShortName}} neu starten",
+      "RESTARTING": "{{system}} wird neu gestartet (Dies kann bis zu {{minutes}} Minuten dauern)",
+      "RESTARTED": "{{system}} neu starten war erfolgreich.",
+      "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
+      "RESTART_CONFIRMATION": "Möchten Sie {{system}} neu starten?",
+      "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "CONFIRMATION_INFO": "Möchten Sie ihr {{edgeShortName}} aktualisieren?",
+      "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+      "UPDATE_EXECUTE": "Systemupdate durchführen",
+      "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
+    },
+    "ENERGY_JOURNEY": {
+      "TO_THE_ANALYSIS": "Zur Analyse",
+      "CURRENT_NUMBER_OF_MODULES": "Aktuell",
+      "SIMULATION_NOT_STARTED": "Simulation nicht gestartet"
+    }
+  },
+  "CHANNELS": {
+    "SAVE": "Konfiguration speichern",
+    "SAVE_DESCRIPTION": "Das Speichern der neuen Konfiguration überschreibt die bestehende für dieses {{edgeShortName}} und wird beim Neuladen der Seite übernommen.",
+    "Component": "Komponente",
+    "ADD_CHANNEL": "Kanal hinzufügen",
+    "ADD": "hinzufügen",
+    "VALUE": "Wert",
+    "SET_VALUE": "Eingestellter Wert",
+    "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
+    "CHANNEL": "Kanal"
+  },
+  "MODBUS_TCP_API_READ_WRITE": {
+    "CURRENT_STATE": "Aktueller Status",
+    "CUMULATED_ACTIVE_TIME": "Externe Vorgaben berücksichtigt",
+    "CUMULATED_INACTIVE_TIME": "Keine externe Vorgabe vorhanden",
+    "NO_OVERRIDDEN_CHANNELS": "Es wurden noch keine Kanäle überschrieben.",
+    "NOT_OVERRIDING": "Keine externe Vorgabe vorhanden",
+    "OVERRIDING": "Externe Vorgabe wird berücksichtigt",
+    "LAST_COMMAND": "Letzter Schreibbefehl",
+    "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",
+    "REGISTER": "Register",
+    "LIMITATION": "Vorgabe",
+    "ACTUAL_VALUE": "Tatsächlicher Wert",
+    "INFO_TEXT": "Tatsächlicher Wert kann von der Vorgabe abweichen. Negative Werte entsprechen Speicherbeladung - postive Speicherentladung. Eine detaillierte Erklärung finden Sie in der Anleitung.",
+    "SET_ACTIVE_POWER_EQUALS": "Vorgabe Be- bzw. Entladeleistung",
+    "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimale Beladeleistung",
+    "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximale Beladeleistung",
+    "DOWNLOAD_PROTOCOL": "Protokoll Herunterladen"
+  },
+  "GRID_STATES": {
+    "OFF_GRID": "Netzausfall",
+    "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
+    "RIPPLE_CONTROL_RECEIVER": "Rundsteuerempfänger",
+    "RESTRICTION": "Dimmung nach §14a EnWG"
+  },
+  "APP": {
+    "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "Ist erforderlich"
     }
   }
 }

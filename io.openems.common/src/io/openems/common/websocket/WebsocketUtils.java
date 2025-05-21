@@ -3,33 +3,63 @@ package io.openems.common.websocket;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.Handshakedata;
 
-import com.google.gson.JsonObject;
-
 public class WebsocketUtils {
 
 	/**
-	 * Converts a Handshake to a JsonObject.
+	 * Gets a String value from a {@link Handshakedata}.
+	 * 
+	 * <p>
+	 * NOTE: Per <a href=
+	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
+	 * "Field names are case-insensitive".
 	 *
-	 * @param handshake the {@link Handshakedata}
-	 * @return the converted {@link JsonObject}
+	 * @param handshakedata the {@link Handshakedata}
+	 * @param fieldName     the name of the field
+	 * @return the field value; or null
 	 */
-	public static JsonObject handshakeToJsonObject(Handshakedata handshake) {
-		var j = new JsonObject();
-		for (var iter = handshake.iterateHttpFields(); iter.hasNext();) {
+	public static String getAsString(Handshakedata handshakedata, String fieldName) {
+		for (var iter = handshakedata.iterateHttpFields(); iter.hasNext();) {
 			var field = iter.next();
-			j.addProperty(field, handshake.getFieldValue(field));
+			if (fieldName.equalsIgnoreCase(field)) {
+				return handshakedata.getFieldValue(field).trim();
+			}
 		}
-		return j;
+		return null;
+	}
+
+	private static final String[] REMOTE_IDENTIFICATION_HEADERS = new String[] { //
+			"Forwarded", "X-Forwarded-For", "X-Real-IP" };
+
+	/**
+	 * Parses a identifier for the Remote from the {@link Handshakedata}.
+	 * 
+	 * <p>
+	 * Tries to use the headers "Forwarded", "X-Forwarded-For" or "X-Real-IP". Falls
+	 * back to `ws.getRemoteSocketAddress()`. See https://serverfault.com/a/920060
+	 * 
+	 * @param ws            the {@link WebSocket}
+	 * @param handshakedata the {@link Handshakedata}
+	 * @return an identifier String
+	 */
+	public static String parseRemoteIdentifier(WebSocket ws, Handshakedata handshakedata) {
+		for (var key : REMOTE_IDENTIFICATION_HEADERS) {
+			var value = getAsString(handshakedata, key);
+			if (value != null) {
+				return value;
+			}
+		}
+		// fallback
+		return ws.getRemoteSocketAddress().toString();
 	}
 
 	/**
-	 * Gets the toString() content of the WsData attachment of the WebSocket; or
+	 * Gets the toLogString() content of the WsData attachment of the WebSocket; or
 	 * empty string if not available.
 	 *
 	 * @param ws the WebSocket
-	 * @return the {@link WsData#toString()} content
+	 * @return the {@link WsData#toLogString()} content
 	 */
-	public static String getWsDataString(WebSocket ws) {
+	public static String generateWsDataString(WebSocket ws) {
 		if (ws == null) {
 			return "";
 		}
@@ -37,7 +67,10 @@ public class WebsocketUtils {
 		if (wsData == null) {
 			return "";
 		}
-		return wsData.toString();
+		var logString = wsData.toLogString();
+		if (logString == null) {
+			return "";
+		}
+		return logString;
 	}
-
 }

@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "defaultProject": "app",
   "newProjectRoot": "projects",
   "projects": {
     "app": {
@@ -9,7 +8,6 @@
       "sourceRoot": "src",
       "projectType": "application",
       "prefix": "app",
-      "schematics": {},
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -45,9 +43,17 @@
               "aot": true,
               "buildOptimizer": true,
               "extractLicenses": true,
-              "optimization": true,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
-              "sourceMap": false
+              "sourceMap": false,
+              "serviceWorker": true
             },
             "openems": {
               "assets": [
@@ -70,7 +76,8 @@
               },
               "styles": [
                 "src/themes/openems/scss/variables.scss",
-                "src/global.scss"
+                "src/global.scss",
+                "src/global-ion-custom.scss"
               ]
             },
             "openems-backend-dev": {
@@ -121,6 +128,30 @@
                 }
               ]
             },
+            "openems-edge-docker": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/edge-docker.ts"
+                }
+              ]
+            },
+            "openems-backend-docker": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/backend-docker.ts"
+                }
+              ]
+            },
             "openems-gitpod": {
               "fileReplacements": [
                 {
@@ -138,23 +169,23 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "app:build:openems,openems-edge-dev"
+            "buildTarget": "app:build:openems,openems-edge-dev"
           },
           "configurations": {
             "openems-backend-dev": {
-              "browserTarget": "app:build:openems,openems-backend-dev"
+              "buildTarget": "app:build:openems,openems-backend-dev"
             },
             "openems-edge-dev": {
-              "browserTarget": "app:build:openems,openems-edge-dev"
+              "buildTarget": "app:build:openems,openems-edge-dev"
             },
             "openems-backend-prod": {
-              "browserTarget": "app:build:openems,openems-backend-prod,prod"
+              "buildTarget": "app:build:openems,openems-backend-prod,prod"
             },
             "openems-edge-prod": {
-              "browserTarget": "app:build:openems,openems-edge-prod,prod"
+              "buildTarget": "app:build:openems,openems-edge-prod,prod"
             },
             "openems-gitpod": {
-              "browserTarget": "app:build:openems,openems-gitpod"
+              "buildTarget": "app:build:openems,openems-gitpod"
             }
           }
         },
@@ -175,21 +206,17 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "scripts": []
+          },
+          "configurations": {
+            "local": {
+              "karmaConfig": "karma.conf.local.js"
+            }
           }
         }
       }
     }
   },
   "cli": {
-    "analytics": false,
-    "defaultCollection": "@angular-eslint/schematics"
-  },
-  "schematics": {
-    "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
-    },
-    "@ionic/angular-toolkit:page": {
-      "styleext": "scss"
-    }
+    "analytics": false
   }
 }

@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -101,7 +101,9 @@ public class OdooUtils {
 		HttpURLConnection connection = null;
 		try {
 			// Open connection to Odoo
-			connection = (HttpURLConnection) new URL(url).openConnection();
+			connection = (HttpURLConnection) URI.create(url) //
+					.toURL() //
+					.openConnection(); //
 			connection.setConnectTimeout(5000);// 5 secs
 			connection.setReadTimeout(timeout);// 5 secs
 			connection.setRequestProperty("Accept-Charset", "US-ASCII");
@@ -155,6 +157,12 @@ public class OdooUtils {
 					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				default:
+					// for OpenemsExceptions from Odoo only throw OpenemsException with message for
+					// more readability
+					if (dataName.endsWith("OpenemsException")) {
+						throw new OpenemsException(dataMessage);
+					}
+
 					var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
 							+ dataMessage + ";" //
 							+ " Code [" + code + "]" //
@@ -270,8 +278,9 @@ public class OdooUtils {
 	private static Object executeKw(Credentials creds, String model, String action, Object[] arg, Map<String, ?> kw)
 			throws MalformedURLException, XMLRPCException {
 		var params = new Object[] { creds.getDatabase(), creds.getUid(), creds.getPassword(), model, action, arg, kw };
-		var client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", creds.getUrl())),
-				XMLRPCClient.FLAGS_NIL);
+		var uri = URI.create(String.format("%s/xmlrpc/2/object", creds.getUrl()));
+		var client = new XMLRPCClient(uri.toURL(), XMLRPCClient.FLAGS_NIL);
+
 		client.setTimeout(60 /* seconds */);
 		return client.call("execute_kw", params);
 	}
@@ -408,7 +417,7 @@ public class OdooUtils {
 			throws OpenemsException {
 		try {
 			// Execute XML request
-			var resultObj = (Object[]) executeKw(credentials, "ir.model.data", "get_object_reference",
+			var resultObj = (Object[]) executeKw(credentials, "ir.model.data", "check_object_reference",
 					new Object[] { module, name });
 			if (resultObj == null) {
 				throw new OpenemsException(
@@ -417,28 +426,6 @@ public class OdooUtils {
 			return (int) resultObj[1];
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
-		}
-	}
-
-	/**
-	 * Adds a message in Odoo Chatter ('mail.thread').
-	 *
-	 * @param credentials the Odoo credentials
-	 * @param model       Odoo model (e.g. 'res.partner')
-	 * @param id          id of model
-	 * @param message     the message
-	 * @throws OpenemsException on error
-	 */
-	protected static void addChatterMessage(Credentials credentials, String model, int id, String message)
-			throws OpenemsException {
-		try {
-			// Execute XML request
-			var resultObj = executeKw(credentials, model, "message_post", new Object[] { id, message });
-			if (resultObj == null) {
-				throw new OpenemsException("Returned Null");
-			}
-		} catch (Throwable e) {
-			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
 		}
 	}
 
@@ -549,12 +536,10 @@ public class OdooUtils {
 	 * @return the odoo reference id or empty {@link Optional}
 	 */
 	protected static Optional<Integer> getOdooReferenceId(Object object) {
-		if (object instanceof Object[]) {
-			var odooReference = (Object[]) object;
-
-			if (odooReference.length > 0 && odooReference[0] instanceof Integer) {
-				return Optional.of((Integer) odooReference[0]);
-			}
+		if (object instanceof Object[] odooReference //
+				&& odooReference.length > 0 //
+				&& odooReference[0] instanceof Integer i) {
+			return Optional.of(i);
 		}
 
 		return Optional.empty();
@@ -575,9 +560,9 @@ public class OdooUtils {
 
 		HttpURLConnection connection = null;
 		try {
-			connection = (HttpURLConnection) new URL(
-					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
-					.openConnection();
+			connection = (HttpURLConnection) URI
+					.create(credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
+					.toURL().openConnection();
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			connection.setRequestMethod("GET");
@@ -591,6 +576,42 @@ public class OdooUtils {
 				connection.disconnect();
 			}
 		}
+	}
+
+	/**
+	 * Odoo returns unset values as false. So this Method checks if the value is
+	 * meant to be null.
+	 *
+	 * @param <T>          type to be expected
+	 * @param entry        raw entry value
+	 * @param expectedType class instance of expected type
+	 * @return false if value is meant to be null.
+	 */
+	private static <T> boolean isUnset(Object entry, Class<T> expectedType) {
+		var entryType = entry.getClass();
+		if (entryType.isAssignableFrom(Boolean.class) && !expectedType.isAssignableFrom(Boolean.class)
+				&& !Boolean.class.cast(entry)) {
+			return true;
+		}
+		return false;
+	}
+
+	private static Object getRawValue(Field field, Map<String, ?> values) {
+		if (field == null || values == null) {
+			var warningMsg = new StringBuilder() //
+					.append("[getAsOrElse] missing parameter (") //
+					.append(field == null ? "field is null, " : "") //
+					.append(values == null ? "values is null, " : "") //
+					.toString();
+			log.warn(warningMsg);
+			return null;
+		}
+
+		if (!values.containsKey(field.id())) {
+			return null;
+		}
+
+		return values.get(field.id());
 	}
 
 	/**
@@ -617,29 +638,42 @@ public class OdooUtils {
 	 * @return value found in map casted to type or alternate on error
 	 */
 	public static <T> T getAsOrElse(Field field, Map<String, ?> values, Class<T> type, T alternate) {
-		if (field == null || values == null || type == null) {
-			var warningMsg = new StringBuilder().append("[getAsOrElse] missing parameter (")
-					.append(field == null ? "field is null, " : "").append(values == null ? "values is null, " : "")
-					.append(type == null ? "type is null, " : "").toString();
-			log.warn(warningMsg);
+		var entry = getRawValue(field, values);
+
+		if (entry == null || isUnset(entry, type)) {
 			return alternate;
-		}
-
-		if (!values.containsKey(field.id())) {
-			return alternate;
-		}
-
-		var entry = values.get(field.id());
-		var entryType = entry.getClass();
-
-		// Entry equals false if table value is null;
-		if (entryType.isAssignableFrom(Boolean.class) && !type.isAssignableFrom(Boolean.class)
-				&& !Boolean.class.cast(entry)) {
-			return null;
 		}
 
 		try {
+			if (type.equals(ZonedDateTime.class)) {
+				return type.cast(DateTime.stringToDateTime(entry.toString()));
+			}
 			return type.cast(entry);
+		} catch (Throwable t) {
+			log.warn(t.getMessage());
+			return alternate;
+		}
+	}
+
+	/**
+	 * Return Field value in values and cast it to value of type 'enumType'.
+	 *
+	 * @param <T>       expected type of value
+	 * @param field     to search for
+	 * @param values    map with values to search in
+	 * @param enumType  to cast into
+	 * @param alternate value to return
+	 * @return value found in map casted to type or alternate on error
+	 */
+	public static <T extends Enum<T>> T getAsEnum(Field field, Map<String, ?> values, Class<T> enumType, T alternate) {
+		var entry = getRawValue(field, values);
+
+		if (entry == null || isUnset(entry, enumType)) {
+			return alternate;
+		}
+
+		try {
+			return Enum.valueOf(enumType, entry.toString().toUpperCase());
 		} catch (Throwable t) {
 			log.warn(t.getMessage());
 			return alternate;

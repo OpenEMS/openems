@@ -2,11 +2,13 @@ package io.openems.edge.controller.ess.emergencycapacityreserve.statemachine;
 
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve;
+import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
+import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine.State;
 
-public class Context extends AbstractContext<EmergencyCapacityReserve> {
+public class Context extends AbstractContext<ControllerEssEmergencyCapacityReserve> {
 
 	protected final Sum sum;
+	protected final boolean isEssChargeFromGridAllowed;
 
 	/**
 	 * MaxApparentPower is guaranteed to be not-null in any State other than
@@ -21,14 +23,17 @@ public class Context extends AbstractContext<EmergencyCapacityReserve> {
 
 	private Float targetPower;
 	private float rampPower;
+	private State lastActiveState;
+	private State previousState;
 
-	public Context(EmergencyCapacityReserve emergencyCapacityReserve, Sum sum, Integer maxApparentPower, Integer soc,
-			int reserveSoc) {
+	public Context(ControllerEssEmergencyCapacityReserve emergencyCapacityReserve, Sum sum, Integer maxApparentPower,
+			Integer soc, int reserveSoc, boolean isEssChargeFromGridAllowed) {
 		super(emergencyCapacityReserve);
 		this.sum = sum;
 		this.maxApparentPower = maxApparentPower;
 		this.soc = soc;
 		this.reserveSoc = reserveSoc;
+		this.isEssChargeFromGridAllowed = isEssChargeFromGridAllowed;
 	}
 
 	public Float getTargetPower() {
@@ -47,6 +52,14 @@ public class Context extends AbstractContext<EmergencyCapacityReserve> {
 		return this.rampPower;
 	}
 
+	public State getLastActiveState() {
+		return this.lastActiveState == null ? State.UNDEFINED : this.lastActiveState;
+	}
+
+	public State getPreviousState() {
+		return this.previousState == null ? State.UNDEFINED : this.previousState;
+	}
+
 	protected void setRampPower(Double rampPower) {
 		this.rampPower = rampPower == null ? null : rampPower.floatValue();
 	}
@@ -57,6 +70,14 @@ public class Context extends AbstractContext<EmergencyCapacityReserve> {
 
 	protected void setRampPower(int rampPower) {
 		this.rampPower = rampPower;
+	}
+
+	public void setLastActiveState(State state) {
+		this.lastActiveState = state;
+	}
+
+	public void setPreviousState(State state) {
+		this.previousState = state;
 	}
 
 }

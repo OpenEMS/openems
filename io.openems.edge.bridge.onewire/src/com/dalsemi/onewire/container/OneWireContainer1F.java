@@ -267,9 +267,12 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 */
 	@Override
 	public String getDescription() {
-		return "1-Wire Network Coupler with dual addressable " + "switches and a general purpose open drain control "
-				+ "output.  Provides a common ground for all connected"
-				+ "multi-level MicroLan networks.  Keeps inactive branches" + "Pulled to 5V.";
+		return """
+				1-Wire Network Coupler with dual addressable \
+				switches and a general purpose open drain control \
+				output. Provides a common ground for all connected \
+				multi-level MicroLan networks. Keeps inactive branches \
+				Pulled to 5V.""";
 	}
 
 	/**

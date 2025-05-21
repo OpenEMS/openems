@@ -1,13 +1,24 @@
-<header></header>
-<ion-content>
-  <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
-    <ion-row class="ion-justify-content-center" *ngIf="widgets">
-      <!-- Energymonitor -->
-      <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-        <ion-col *ngSwitchCase="'Energymonitor'" size="12" size-md="8" size-lg="3" class="ion-no-padding">
-          <energymonitor></energymonitor>
-        </ion-col>
-      </ng-container>
+<oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
+  <ion-refresher mode="ios" slot="fixed">
+    <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
+  </ion-refresher>
+  <ion-grid *ngIf="edge && edge.isOnline">
+    <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">
+
+      <!-- Left column -->
+      <ion-col size="12" [attr.size-md]="navigationService.position === 'left' ? 8 : 8"
+        [attr.size-lg]="navigationService.position === 'left' ? 4 : 3" class="ion-no-padding">
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="12">
+              <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+                <!-- Energymonitor -->
+                <energymonitor *ngSwitchCase="'Energymonitor'"></energymonitor>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
 
       <!-- Widgets -->
       <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
@@ -40,7 +51,6 @@
                 <consumption></consumption>
               </ion-col>
 
-
             </ng-container>
 
             <!-- Widgets depending on the configuration of the OpenEMS Edge -->
@@ -52,8 +62,7 @@
                 <ng-container
                   *ngIf="factoryId !== 'Evcs.Cluster.PeakShaving' && factoryId !== 'Evcs.Cluster.SelfConsumption'">
                   <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
-                    <Controller_Evcs [componentId]="widget.componentId">
-                    </Controller_Evcs>
+                    <Controller_Evcs [componentId]="widget.componentId"></Controller_Evcs>
                   </ion-col>
                 </ng-container>
               </ng-container>
@@ -79,6 +88,13 @@
                 <Controller_Io_FixDigitalOutput [componentId]="widget.componentId"></Controller_Io_FixDigitalOutput>
               </ion-col>
 
+              <ng-container *ngIf="isModbusTcpWidgetAllowed">
+                <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6"
+                  class="ion-no-padding">
+                  <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
+                </ion-col>
+              </ng-container>
+
               <!-- Widgets that are likely to be configured seldomly -->
 
               <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
@@ -94,7 +110,8 @@
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <Controller_Symmetric_PeakShaving [componentId]="widget.componentId"></Controller_Symmetric_PeakShaving>
+                <Controller_Symmetric_PeakShaving [componentId]="widget.componentId">
+                </Controller_Symmetric_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
@@ -117,10 +134,9 @@
                 </Controller_Io_ChannelSingleThresholdComponent>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff.Discharge'" size="12" size-lg="6"
-                class="ion-no-padding">
-                <Controller_Ess_TimeOfUseTariff_Discharge [componentId]="widget.componentId">
-                </Controller_Ess_TimeOfUseTariff_Discharge>
+              <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'" size="12" size-lg="6" class="ion-no-padding">
+                <Controller_Ess_TimeOfUseTariff [componentId]="widget.componentId">
+                </Controller_Ess_TimeOfUseTariff>
               </ion-col>
 
               <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"
@@ -152,8 +168,8 @@
   <ion-grid *ngIf="edge && !edge.isOnline">
     <ion-row class="ion-justify-content-center">
       <ion-col size-xl="8" size-lg="10" size-md="11" size-sm="12">
-        <offline></offline>
+        <oe-offline></oe-offline>
       </ion-col>
     </ion-row>
   </ion-grid>
-</ion-content>
+</oe-refresh-view>

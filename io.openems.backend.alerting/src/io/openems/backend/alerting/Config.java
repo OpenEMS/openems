@@ -13,4 +13,10 @@ public @interface Config {
 	@AttributeDefinition(name = "Initial Delay", description = "Delay in minutes, after Backend start, before Offline-Edge detection starts.")
 	int initialDelay() default 15;
 
+	@AttributeDefinition(name = "Notify On Offline", description = "Enable E-Mail-Notifications on Edge connection losses.")
+	boolean notifyOnOffline() default true;
+
+	@AttributeDefinition(name = "Notify On SumStateChange", description = "Enable E-Mail-Notifications on Edge SumStateChange conditions.")
+	boolean notifyOnSumStateChange() default true;
+
 }

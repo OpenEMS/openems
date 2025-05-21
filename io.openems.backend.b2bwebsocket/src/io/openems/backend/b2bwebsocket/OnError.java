@@ -9,14 +9,14 @@ import io.openems.common.exceptions.OpenemsException;
 public class OnError implements io.openems.common.websocket.OnError {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnError(B2bWebsocket parent) {
+	public OnError(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	public void run(WebSocket ws, Exception ex) throws OpenemsException {
+	public void accept(WebSocket ws, Exception ex) throws OpenemsException {
 		this.parent.logInfo(this.log, "Error: " + ex.getMessage());
 	}
 

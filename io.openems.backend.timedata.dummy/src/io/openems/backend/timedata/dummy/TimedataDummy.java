@@ -1,7 +1,6 @@
 package io.openems.backend.timedata.dummy;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +15,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
@@ -24,15 +22,24 @@ import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.ResendDataNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Timedata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Timedata.Dummy", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class TimedataDummy extends AbstractOpenemsBackendComponent implements Timedata {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataDummy.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
+
+	private Config config;
 
 	public TimedataDummy() {
 		super("Timedata.Dummy");
@@ -40,6 +47,7 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 
 	@Activate
 	private void activate(Config config) throws OpenemsException {
+		this.config = config;
 		this.logInfo(this.log, "Activate");
 	}
 
@@ -49,34 +57,39 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		var edgeCache = this.edgeCacheMap.get(edgeId);
-		if (edgeCache == null) {
-			return Collections.emptyMap();
+	public void write(String edgeId, TimestampedDataNotification data) {
+		synchronized (this.edgeCacheMap) {
+			// get existing or create new EdgeCache
+			var edgeCache = this.edgeCacheMap.get(edgeId);
+			if (edgeCache == null) {
+				edgeCache = new EdgeCache();
+				this.edgeCacheMap.put(edgeId, edgeCache);
+			}
+
+			// Update the Data Cache
+			edgeCache.updateCurrentData(data);
 		}
-		var result = new HashMap<ChannelAddress, JsonElement>();
-		for (var channelAddress : channelAddresses) {
-			result.put(channelAddress, edgeCache.getChannelValue(channelAddress.toString()));
-		}
-		return result;
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
-		// get existing or create new EdgeCache
-		var edgeCache = this.edgeCacheMap.get(edgeId);
-		if (edgeCache == null) {
-			edgeCache = new EdgeCache();
-			this.edgeCacheMap.put(edgeId, edgeCache);
-		}
+	public void write(String edgeId, AggregatedDataNotification data) {
+		synchronized (this.edgeCacheMap) {
+			// get existing or create new EdgeCache
+			var edgeCache = this.edgeCacheMap.get(edgeId);
+			if (edgeCache == null) {
+				edgeCache = new EdgeCache();
+				this.edgeCacheMap.put(edgeId, edgeCache);
+			}
 
-		// Complement incoming data with data from Cache, because only changed values
-		// are transmitted
-		edgeCache.complementDataFromCache(data.rowMap(), //
-				(incomingTimestamp, cacheTimestamp) -> this.log.info(//
-						"Edge [" + edgeId + "]: invalidate cache. " //
-								+ "Incoming [" + incomingTimestamp + "]. " //
-								+ "Cache [" + cacheTimestamp + "]"));
+			// Update the Data Cache
+			edgeCache.updateAggregatedData(data);
+		}
+	}
+
+	@Override
+	public void write(String edgeId, ResendDataNotification data) {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
@@ -102,4 +115,8 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 		return new TreeMap<>();
 	}
 
+	@Override
+	public String id() {
+		return this.config.id();
+	}
 }

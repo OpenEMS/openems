@@ -4,11 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 public enum Level implements OptionsEnum {
 	/**
-	 * Unknown state on first state.
-	 */
-	UNDEFINED(-1, "Undefined"),
-	/**
-	 * Unknown state on first state.
+	 * Switch off everything.
 	 */
 	LEVEL_0(0, "Switch off everything"),
 	/**

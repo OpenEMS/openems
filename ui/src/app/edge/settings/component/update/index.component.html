@@ -1,6 +1,6 @@
-<header></header>
 <ion-content>
-  <ion-searchbar (ionChange)="updateFilter($event.detail.value)"></ion-searchbar>
+  <ion-searchbar style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
+    (ionChange)="updateFilter($event.detail.value)"></ion-searchbar>
 
   <ion-list>
     <ng-container *ngFor="let entry of list">
@@ -21,7 +21,7 @@
             </h3>
           </ion-text>
           <ng-container *ngIf="config.factories[item.factoryId] as factory">
-            <p>{{ factory.name }} <small>({{ factory.description }})</small></p>
+            <p class="custom-channels-text">{{ factory.name }} <small>({{ factory.description }})</small></p>
           </ng-container>
         </ion-label>
       </ion-item>

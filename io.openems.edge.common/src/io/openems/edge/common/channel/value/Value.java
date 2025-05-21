@@ -2,6 +2,7 @@ package io.openems.edge.common.channel.value;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.google.gson.JsonElement;
 
@@ -131,6 +132,18 @@ public class Value<T> {
 	}
 
 	/**
+	 * If a value is present, performs the given action with the value, otherwise
+	 * does nothing.
+	 *
+	 * @param action the action to be performed, if a value is present
+	 * @throws NullPointerException if value is present and the given action is
+	 *                              {@code null}
+	 */
+	public void ifPresent(Consumer<? super T> action) {
+		this.asOptional().ifPresent(action);
+	}
+
+	/**
 	 * Gets the value or the given alternativeValue. This is short for
 	 * '.asOptional().or()'.
 	 *
@@ -202,10 +215,10 @@ public class Value<T> {
 	 *         enum
 	 */
 	private EnumDoc isEnumValue() {
-		if (this.parent.channelDoc() instanceof EnumDoc) {
-			return (EnumDoc) this.parent.channelDoc();
-		}
-		return null;
+		return switch (this.parent.channelDoc()) {
+		case EnumDoc ed -> ed;
+		default -> null;
+		};
 	}
 
 	/**

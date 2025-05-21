@@ -52,7 +52,7 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
@@ -65,7 +65,7 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH) //
 		);
 
@@ -140,7 +140,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	}
 
 	/**
-	 * Gets the DC Charge Energy in [Wh]. See {@link ChannelId#DC_CHARGE_ENERGY}.
+	 * Gets the DC Charge Energy in [Wh_Σ]. See {@link ChannelId#DC_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -178,7 +178,7 @@ public interface HybridManagedSymmetricBatteryInverter
 	}
 
 	/**
-	 * Gets the DC Discharge Energy in [Wh]. See
+	 * Gets the DC Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#DC_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

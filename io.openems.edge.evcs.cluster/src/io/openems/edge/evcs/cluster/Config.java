@@ -21,7 +21,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
-	@AttributeDefinition(name = "Hardware current limit per phase", description = "The maximum power in Watt that can be used by one phase of the cable (For all EVCSs).", required = true)
+	@AttributeDefinition(name = "Power limit per phase", description = "The maximum power in Watt that can be used by one phase of the cable (For all EVCSs).", required = true)
 	int hardwarePowerLimitPerPhase() default 7000;
 
 	@AttributeDefinition(name = "Evcs-IDs", description = "IDs of EVCS devices ordered by the priority. "

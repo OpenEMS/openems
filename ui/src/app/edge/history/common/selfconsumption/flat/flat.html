@@ -1,0 +1,6 @@
+<oe-flat-widget [title]="'General.selfConsumption' | translate" [icon]="{name: 'oe-consumption', color:'normal'}" button
+    routerLink="/device/{{edge.id}}/history/selfconsumptionchart" *ngIf="isInitialized">
+
+    <oe-flat-widget-percentagebar [value]="selfconsumptionValue">
+    </oe-flat-widget-percentagebar>
+</oe-flat-widget>

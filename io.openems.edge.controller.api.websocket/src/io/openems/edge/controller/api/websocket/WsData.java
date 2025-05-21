@@ -7,21 +7,21 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.user.User;
 
 public class WsData extends io.openems.common.websocket.WsData {
@@ -42,6 +42,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		public synchronized void handleSubscribeChannelsRequest(SubscribeChannelsRequest request)
 				throws OpenemsNamedException {
 			if (this.lastRequestCount < request.getCount()) {
+				this.lastRequestCount = request.getCount();
 				this.subscribedChannels.clear();
 				for (var channel : request.getChannels()) {
 					this.subscribedChannels.add(ChannelAddress.fromString(channel));
@@ -49,9 +50,9 @@ public class WsData extends io.openems.common.websocket.WsData {
 			}
 		}
 
-		public Map<String, JsonElement> getChannelValues(ComponentManager componentManager) {
+		public synchronized Map<String, JsonElement> getChannelValues(ComponentManager componentManager) {
 			var subscribedChannels = this.subscribedChannels;
-			if (subscribedChannels == null || subscribedChannels.isEmpty()) {
+			if (subscribedChannels.isEmpty()) {
 				return Collections.emptyMap();
 			}
 
@@ -70,14 +71,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 			return result;
 		}
 
-		protected void dispose() {
+		protected synchronized void dispose() {
 			this.subscribedChannels.clear();
 		}
 	}
 
-	private final Logger log = LoggerFactory.getLogger(WsData.class);
-	private final WebsocketApi parent;
+	private final ControllerApiWebsocketImpl parent;
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
+	private volatile boolean channelChangesSubscribed = false;
 
 	/**
 	 * The token that is stored in the Browser Cookie. Be aware that this can be
@@ -85,9 +86,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	private String sessionToken = null;
 
-	private Optional<User> user = Optional.empty();
+	private volatile User user;
 
-	public WsData(WebsocketApi parent) {
+	public WsData(WebSocket ws, ControllerApiWebsocketImpl parent) {
+		super(ws);
 		this.parent = parent;
 	}
 
@@ -123,14 +125,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @param user the {@link User}
 	 */
 	public void setUser(User user) {
-		this.user = Optional.ofNullable(user);
+		this.user = user;
 	}
 
 	/**
 	 * Unsets the {@link User}.
 	 */
 	public void unsetUser() {
-		this.user = Optional.empty();
+		this.user = null;
 	}
 
 	/**
@@ -139,33 +141,19 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the {@link Optional} {@link User}
 	 */
 	public Optional<User> getUser() {
-		return this.user;
-	}
-
-	/**
-	 * Throws an exception if the User is not authenticated.
-	 *
-	 * @param resource a resource identifier; used for the exception
-	 * @return the current {@link User}
-	 * @throws OpenemsNamedException if the current Role privileges are less
-	 */
-	public User assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
-		if (this.getUser().isPresent()) {
-			return this.getUser().get();
-		}
-		throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
-				.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
+		return Optional.ofNullable(this.user);
 	}
 
 	@Override
-	public String toString() {
-		String tokenString;
-		if (this.sessionToken != null) {
-			tokenString = this.sessionToken.toString();
-		} else {
-			tokenString = "UNKNOWN";
-		}
-		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + this.user + "]";
+	public String toLogString() {
+		return new StringBuilder("WebsocketApi.WsData [sessionToken=") //
+				.append(this.sessionToken != null //
+						? this.sessionToken.toString() //
+						: "UNKNOWN") //
+				.append(", user=") //
+				.append(this.user) //
+				.append("]") //
+				.toString();
 	}
 
 	/**
@@ -188,15 +176,28 @@ public class WsData extends io.openems.common.websocket.WsData {
 			return;
 		}
 		this.parent.server.execute(() -> {
-			try {
-				this.send(//
-						new EdgeRpcNotification(WebsocketApi.EDGE_ID, //
-								new CurrentDataNotification(values)));
-
-			} catch (OpenemsException e) {
-				this.parent.logWarn(this.log, "Unable to send CurrentDataNotification: " + e.getMessage());
-			}
+			this.send(//
+					new EdgeRpcNotification(ControllerApiWebsocket.EDGE_ID, //
+							new CurrentDataNotification(values)));
 		});
 	}
 
+	/**
+	 * Sets if this connection is subscribed to channel changes.
+	 * 
+	 * @param subscribed true if subscribed; false if not subscribed
+	 * @see EdgeEventConstants#TOPIC_CHANNEL_UPDATE
+	 */
+	public void setChannelChangesSubscribed(boolean subscribed) {
+		this.channelChangesSubscribed = subscribed;
+	}
+
+	/**
+	 * Gets the current subscribe state to channel changes.
+	 * 
+	 * @return if subscribed true; else false
+	 */
+	public boolean isChannelChangesSubscribed() {
+		return this.channelChangesSubscribed;
+	}
 }

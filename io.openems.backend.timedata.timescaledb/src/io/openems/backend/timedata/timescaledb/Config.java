@@ -9,6 +9,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Configures the TimescaleDB Timedata provider")
 public @interface Config {
 
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "timedata0";
+
 	@AttributeDefinition(name = "Host", description = "The TimescaleDB/PostgresDB host")
 	String host() default "localhost";
 

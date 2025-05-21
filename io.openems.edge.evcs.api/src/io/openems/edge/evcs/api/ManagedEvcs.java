@@ -176,7 +176,6 @@ public interface ManagedEvcs extends Evcs {
 		 * <li>Hardy Barth allows setting in Ampere. It should return 230 W (1A * 230V).
 		 * </ul>
 		 *
-		 * <p>
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
@@ -219,7 +218,6 @@ public interface ManagedEvcs extends Evcs {
 		 */
 		SET_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 
@@ -239,41 +237,36 @@ public interface ManagedEvcs extends Evcs {
 		 */
 		SET_CHARGE_POWER_LIMIT_WITH_FILTER(new IntegerDoc() //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE).onInit(channel -> {
-					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+				.accessMode(AccessMode.READ_WRITE) //
+				.<ManagedEvcs>onChannelSetNextWrite((evcs, value) -> {
+					if (value != null) {
 
-						if (value != null) {
-
-							var evcs = (ManagedEvcs) channel.getComponent();
-
-							// Set the limit directly if it is decreasing
-							var currentTarget = evcs.getSetChargePowerLimit().orElse(0);
-							if (value == null || value <= currentTarget || evcs.getEvcsPower() == null) {
-								evcs.setChargePowerLimit(value);
-								return;
-							}
-
-							var min = evcs.getMinimumHardwarePower().orElse(Evcs.DEFAULT_MINIMUM_HARDWARE_POWER);
-							var max = evcs.getMaximumHardwarePower().orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER);
-
-							var increaseRate = evcs.getEvcsPower().getIncreaseRate();
-
-							// Fit values into max value
-							value = TypeUtils.fitWithin(min, max, value);
-							currentTarget = TypeUtils.fitWithin(min, max, currentTarget);
-
-							// Increase the last value with a ramp
-							var filterOutput = evcs.getEvcsPower().getRampFilter().getFilteredValueAsInteger(
-									currentTarget, value.floatValue(), evcs.getMaximumHardwarePower().orElse(22080),
-									increaseRate);
-
-							evcs.setChargePowerLimit(filterOutput);
-
-							if (evcs instanceof ManagedEvcs) {
-								((ManagedEvcs) evcs).logDebug("Filter: " + value + " -> " + filterOutput);
-							}
+						// Set the limit directly if it is decreasing
+						var currentTarget = evcs.getSetChargePowerLimit().orElse(0);
+						if (value == null || value <= currentTarget || evcs.getEvcsPower() == null) {
+							evcs.setChargePowerLimit(value);
+							return;
 						}
-					});
+
+						var min = evcs.getMinimumHardwarePower().orElse(Evcs.DEFAULT_MINIMUM_HARDWARE_POWER);
+						var max = evcs.getMaximumHardwarePower().orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER);
+
+						var increaseRate = evcs.getEvcsPower().getIncreaseRate();
+
+						// Fit values into max value
+						value = TypeUtils.fitWithin(min, max, value);
+						currentTarget = TypeUtils.fitWithin(min, max, currentTarget);
+
+						// Increase the last value with a ramp
+						var filterOutput = evcs.getEvcsPower().getRampFilter().getFilteredValueAsInteger(currentTarget,
+								value.floatValue(), evcs.getMaximumHardwarePower().orElse(22080), increaseRate);
+
+						evcs.setChargePowerLimit(filterOutput);
+
+						if (evcs instanceof ManagedEvcs me) {
+							me.logDebug("Filter: " + value + " -> " + filterOutput);
+						}
+					}
 				})), //
 
 		/**
@@ -676,7 +669,7 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
-	 * Gets the energy limit for the current or next session in [Wh].. See
+	 * Gets the energy limit for the current or next session in [Wh]. See
 	 * {@link ChannelId#SET_ENERGY_LIMIT}.
 	 *
 	 * @return the Channel {@link Value}

@@ -6,7 +6,6 @@ import io.openems.edge.common.statemachine.StateHandler;
 
 public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
 
-	// TODO add States for waiting time
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
 		UNDEFINED(-1), //
 		COMPLETED_CYCLE(0), //
@@ -50,24 +49,15 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
-		switch (state) {
-		case START_CHARGE:
-			return new StartChargeHandler();
-		case START_DISCHARGE:
-			return new StartDischargeHandler();
-		case CONTINUE_WITH_CHARGE:
-			return new ContinueWithChargeHandler();
-		case CONTINUE_WITH_DISCHARGE:
-			return new ContinueWithDischargeHandler();
-		case COMPLETED_CYCLE:
-			return new CompletedCycleHandler();
-		case FINAL_SOC:
-			return new FinalSocHandler();
-		case FINISHED:
-			return new FinishedHandler();
-		case UNDEFINED:
-			return new UndefinedHandler();
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		return switch (state) {
+		case COMPLETED_CYCLE -> new CompletedCycleHandler();
+		case CONTINUE_WITH_CHARGE -> new ContinueWithChargeHandler();
+		case CONTINUE_WITH_DISCHARGE -> new ContinueWithDischargeHandler();
+		case FINAL_SOC -> new FinalSocHandler();
+		case FINISHED -> new FinishedHandler();
+		case START_CHARGE -> new StartChargeHandler();
+		case START_DISCHARGE -> new StartDischargeHandler();
+		case UNDEFINED -> new UndefinedHandler();
+		};
 	}
 }

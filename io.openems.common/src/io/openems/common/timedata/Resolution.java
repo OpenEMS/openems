@@ -38,15 +38,12 @@ public class Resolution {
 	 * @return Date without offset
 	 */
 	public ZonedDateTime revertInfluxDbOffset(ZonedDateTime date) {
-		switch (this.unit) {
-		case DAYS:
-		case MONTHS:
-			return date.minus(this.value, this.unit);
-		case MINUTES:
-		case HOURS:
-		default:
-			return date;
-		}
+		return switch (this.unit) {
+		case DAYS, MONTHS //
+			-> date.minus(this.value, this.unit);
+		default // MINUTES, HOURS, etc.
+			-> date;
+		};
 	}
 
 	/**
@@ -58,4 +55,8 @@ public class Resolution {
 		return Duration.of(this.value, this.unit).toSeconds();
 	}
 
+	@Override
+	public String toString() {
+		return this.value + " " + this.unit;
+	}
 }

@@ -66,7 +66,7 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 		 */
 		public ChargeMaxCurrentHandler build() {
 			return new ChargeMaxCurrentHandler(this.clockProvider, this.initialBmsMaxEverCurrent, this.voltageToPercent,
-					this.temperatureToPercent, this.maxIncreasePerSecond, this.forceDischargeParams);
+					this.temperatureToPercent, this.socToPercent, this.maxIncreasePerSecond, this.forceDischargeParams);
 		}
 
 		@Override
@@ -92,10 +92,10 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	}
 
 	protected ChargeMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverAllowedChargeCurrent,
-			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond,
-			ForceDischarge.Params forceDischargeParams) {
+			PolyLine voltageToPercent, PolyLine temperatureToPercent, PolyLine socToPercent,
+			Double maxIncreasePerSecond, ForceDischarge.Params forceDischargeParams) {
 		super(clockProvider, initialBmsMaxEverAllowedChargeCurrent, voltageToPercent, temperatureToPercent,
-				maxIncreasePerSecond, ForceDischarge.from(forceDischargeParams));
+				socToPercent, maxIncreasePerSecond, ForceDischarge.from(forceDischargeParams));
 	}
 
 	@Override
@@ -124,6 +124,11 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	}
 
 	@Override
+	protected ChannelId getBpMaxSocChannelId() {
+		return BatteryProtection.ChannelId.BP_CHARGE_MAX_SOC;
+	}
+
+	@Override
 	protected ChannelId getBpMaxIncreaseAmpereChannelId() {
 		return BatteryProtection.ChannelId.BP_CHARGE_INCREASE;
 	}
@@ -132,5 +137,4 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	protected ChannelId getBpForceCurrentChannelId() {
 		return BatteryProtection.ChannelId.BP_FORCE_DISCHARGE;
 	}
-
 }

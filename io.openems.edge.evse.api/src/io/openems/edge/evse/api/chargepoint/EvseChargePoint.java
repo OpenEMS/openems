@@ -1,0 +1,113 @@
+package io.openems.edge.evse.api.chargepoint;
+
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+
+import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonNull;
+
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.evse.api.Limit;
+import io.openems.edge.meter.api.ElectricityMeter;
+
+public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/**
+		 * Charge-Point is ready for charging.
+		 * 
+		 * <ul>
+		 * <li>Cable is plugged on Charge-Point and Electric-Vehicle
+		 * <li>RFID authorization is OK (if required)
+		 * <li>There are no known errors
+		 * <li>...
+		 * </ul>
+		 */
+		IS_READY_FOR_CHARGING(Doc.of(OpenemsType.BOOLEAN)) //
+		;
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
+	public record ChargeParams(boolean isReadyForCharging, Limit limit, ImmutableList<Profile> profiles) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link ChargeParams}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<ChargeParams> serializer() {
+			return jsonObjectSerializer(ChargeParams.class, json -> {
+				return new ChargeParams(//
+						json.getBoolean("isReadyForCharging"), //
+						json.getObject("limit", Limit.serializer()), //
+						// TODO json.getImmutableList("profiles", Profile.serializer())
+						ImmutableList.of());
+			}, obj -> {
+				return obj == null //
+						? JsonNull.INSTANCE //
+						: buildJsonObject() //
+								.addProperty("isReadyForCharging", obj.isReadyForCharging) //
+								.add("limit", Limit.serializer().serialize(obj.limit)) //
+								// TODO .add("profiles", ...) //
+								.build();
+			});
+		}
+	}
+
+	/**
+	 * Gets the {@link ChargeParams}.
+	 * 
+	 * @return list of {@link ChargeParams}s
+	 */
+	public ChargeParams getChargeParams();
+
+	/**
+	 * Apply Current in [mA] and optionally {@link Profile.Command}s.
+	 * 
+	 * @param current         the Current in [mA]
+	 * @param profileCommands the {@link Profile.Command}s
+	 */
+	public void apply(int current, ImmutableList<Profile.Command> profileCommands);
+
+	/**
+	 * Is this Charge-Point installed according to standard or rotated wiring?. See
+	 * {@link PhaseRotation} for details.
+	 *
+	 * @return the {@link PhaseRotation}.
+	 */
+	public PhaseRotation getPhaseRotation();
+
+	/**
+	 * Gets the Channel for {@link ChannelId#IS_READY_FOR_CHARGING}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getIsReadyForChargingChannel() {
+		return this.channel(ChannelId.IS_READY_FOR_CHARGING);
+	}
+
+	/**
+	 * Gets the Plug-Status of the Charge Point. See
+	 * {@link ChannelId#IS_READY_FOR_CHARGING}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default boolean getIsReadyForCharging() {
+		return this.getIsReadyForChargingChannel().value().orElse(false);
+	}
+}

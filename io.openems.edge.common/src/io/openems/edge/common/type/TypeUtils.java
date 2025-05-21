@@ -2,6 +2,7 @@ package io.openems.edge.common.type;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.gson.JsonElement;
@@ -28,350 +29,272 @@ public class TypeUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, Object value) throws IllegalArgumentException {
+		// Handle null value
+		if (value == null) {
+			return null;
+		}
 		// Extract Value containers
-		if (value instanceof Value<?>) {
-			value = ((Value<?>) value).get();
+		if (value instanceof Value<?> v) {
+			return getAsType(type, v.get());
 		}
 		// Extract Optionals
-		if (value instanceof Optional<?>) {
-			value = ((Optional<?>) value).orElse(null);
+		if (value instanceof Optional<?> v) {
+			return getAsType(type, v.orElse(null));
 		}
 		// Extract OptionsEnum
-		if (value instanceof OptionsEnum) {
-			value = ((OptionsEnum) value).getValue();
+		if (value instanceof OptionsEnum oe) {
+			return getAsType(type, oe.getValue());
 		}
 		// Extract Enum (lower priority than OptionsEnum)
-		if (value instanceof Enum<?>) {
-			value = ((Enum<?>) value).ordinal();
+		if (value instanceof Enum<?> e) {
+			return getAsType(type, e.ordinal());
 		}
 		// Extract value from Array
 		if (type != OpenemsType.STRING && value != null && value.getClass().isArray()) {
 			if (Array.getLength(value) == 1) {
-				return TypeUtils.getAsType(type, Array.get(value, 0));
+				return getAsType(type, Array.get(value, 0));
 			}
 			return null;
 		}
 
-		switch (type) {
-		case BOOLEAN:
-			if (value == null) {
-				return (T) (Boolean) value;
+		// Handle special floating point numbers
+		if (value instanceof Float f && (f.isInfinite() || f.isNaN())) {
+			return null;
+		}
+		if (value instanceof Double d && (d.isInfinite() || d.isNaN())) {
+			return null;
+		}
 
-			}
-			if (value instanceof Boolean) {
-				return (T) (Boolean) value;
-
-			} else if (value instanceof Short) {
-				return (T) ((Short) value == 0 ? Boolean.FALSE : Boolean.TRUE);
-
-			} else if (value instanceof Integer) {
-				return (T) ((Integer) value == 0 ? Boolean.FALSE : Boolean.TRUE);
-
-			} else if (value instanceof Long) {
-				return (T) ((Long) value == 0 ? Boolean.FALSE : Boolean.TRUE);
-
-			} else if (value instanceof Float) {
-				return (T) ((Float) value == 0 ? Boolean.FALSE : Boolean.TRUE);
-
-			} else if (value instanceof Double) {
-				return (T) ((Double) value == 0 ? Boolean.FALSE : Boolean.TRUE);
-
-			} else if (value instanceof String) {
-				var stringValue = (String) value;
-				if (stringValue.isEmpty()) {
-					return null;
-				} else if (stringValue.equalsIgnoreCase("false")) {
-					return (T) Boolean.FALSE;
-				} else if (stringValue.equalsIgnoreCase("true")) {
-					return (T) Boolean.TRUE;
+		return (T) switch (type) {
+		case BOOLEAN //
+			-> switch (value) {
+			case Boolean b -> b;
+			case Short s -> s == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Integer i -> i == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Long l -> l == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Float f -> f == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case Double d -> d == 0 ? Boolean.FALSE : Boolean.TRUE;
+			case String s -> {
+				if (s.isEmpty()) {
+					yield null;
+				} else if (s.equalsIgnoreCase("false")) {
+					yield Boolean.FALSE;
+				} else if (s.equalsIgnoreCase("true")) {
+					yield Boolean.TRUE;
 				} else {
-					throw new IllegalArgumentException("Cannot convert String [" + value + "] to Boolean.");
+					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Boolean.");
 				}
 			}
-			break;
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case SHORT:
-			if (value == null) {
-				return (T) (Short) value;
-
-			}
-			if (value instanceof Boolean) {
-				boolean boolValue = (Boolean) value;
-				return (T) Short.valueOf(boolValue ? (short) 1 : (short) 0);
-
-			} else if (value instanceof Short) {
-				return (T) (Short) value;
-
-			} else if (value instanceof Integer) {
-				int intValue = (Integer) value;
+		case SHORT //
+			-> switch (value) {
+			case Boolean b -> Short.valueOf(b ? (short) 1 : (short) 0);
+			case Short s -> s;
+			case Integer i -> {
+				var intValue = i.intValue();
 				if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
-					return (T) Short.valueOf((short) intValue);
+					yield Short.valueOf((short) intValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Integer [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof Long) {
-				long longValue = (Long) value;
+			}
+			case Long l -> {
+				var longValue = l.longValue();
 				if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
-					return (T) Short.valueOf((short) longValue);
+					yield Short.valueOf((short) longValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Long [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof Float) {
-				float floatValue = (Float) value;
-				var intValue = Math.round(floatValue);
+			}
+			case Float f -> {
+				var intValue = Math.round(f.floatValue());
 				if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
-					return (T) Short.valueOf((short) intValue);
+					yield Short.valueOf((short) intValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Float [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof Double) {
-				double doubleValue = (Double) value;
-				var longValue = Math.round(doubleValue);
+			}
+			case Double d -> {
+				var longValue = Math.round(d.doubleValue());
 				if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
-					return (T) Short.valueOf((short) longValue);
+					yield Short.valueOf((short) longValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Short range.");
 				}
-
-			} else if (value instanceof String) {
-				var stringValue = (String) value;
-				if (stringValue.isEmpty()) {
-					return null;
+			}
+			case String s -> {
+				if (s.isEmpty()) {
+					yield null;
 				}
 				try {
-					return (T) Short.valueOf(Short.parseShort(stringValue));
+					yield Short.valueOf(Short.parseShort(s));
 				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Short.");
+					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Short.");
 				}
 			}
-			break;
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case INTEGER:
-			if (value == null) {
-				return (T) (Integer) value;
-
-			}
-			if (value instanceof Boolean) {
-				boolean boolValue = (Boolean) value;
-				return (T) Integer.valueOf(boolValue ? 1 : 0);
-
-			} else if (value instanceof Short) {
-				return (T) Integer.valueOf((Short) value);
-
-			} else if (value instanceof Integer) {
-				return (T) (Integer) value;
-
-			} else if (value instanceof Long) {
-				long longValue = (Long) value;
+		case INTEGER //
+			-> switch (value) {
+			case Boolean b -> Integer.valueOf(b ? 1 : 0);
+			case Short s -> Integer.valueOf(s);
+			case Integer i -> i;
+			case Long l -> {
+				var longValue = l.longValue();
 				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-					return (T) Integer.valueOf((int) longValue);
+					yield Integer.valueOf((int) longValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Long [" + value + "] is not fitting in Integer range.");
 				}
-
-			} else if (value instanceof Float) {
-				float floatValue = (Float) value;
+			}
+			case Float f -> {
+				var floatValue = f.floatValue();
 				if (floatValue >= Integer.MIN_VALUE && floatValue <= Integer.MAX_VALUE) {
-					return (T) Integer.valueOf((int) floatValue);
+					yield Integer.valueOf((int) floatValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Float [" + value + "] is not fitting in Integer range.");
 				}
-
-			} else if (value instanceof Double) {
-				double doubleValue = (Double) value;
-				var longValue = Math.round(doubleValue);
+			}
+			case Double d -> {
+				var longValue = Math.round(d.doubleValue());
 				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-					return (T) Integer.valueOf((int) longValue);
+					yield Integer.valueOf((int) longValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
 				}
-
-			} else if (value instanceof String) {
-				var stringValue = (String) value;
-				if (stringValue.isEmpty()) {
-					return null;
+			}
+			case String s -> {
+				if (s.isEmpty()) {
+					yield null;
 				}
 				try {
-					return (T) Integer.valueOf(Integer.parseInt(stringValue));
+					yield Integer.valueOf(Integer.parseInt(s));
 				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Integer.");
+					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Integer.");
 				}
 			}
-			break;
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case LONG:
-			if (value == null) {
-				return (T) (Long) value;
-
-			}
-			if (value instanceof Boolean) {
-				boolean boolValue = (Boolean) value;
-				return (T) Long.valueOf(boolValue ? 1L : 0L);
-
-			} else if (value instanceof Short) {
-				return (T) (Long) ((Short) value).longValue();
-
-			} else if (value instanceof Integer) {
-				return (T) (Long) ((Integer) value).longValue();
-
-			} else if (value instanceof Long) {
-				return (T) (Long) value;
-
-			} else if (value instanceof Float) {
-				float floatValue = (Float) value;
+		case LONG //
+			-> switch (value) {
+			case Boolean b -> Long.valueOf(b ? 1L : 0L);
+			case Short s -> (Long) s.longValue();
+			case Integer i -> (Long) i.longValue();
+			case Long l -> l;
+			case Float f -> {
+				var floatValue = f.floatValue();
 				if (floatValue >= Long.MIN_VALUE && floatValue <= Long.MAX_VALUE) {
-					return (T) Long.valueOf((long) floatValue);
+					yield Long.valueOf((long) floatValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Float [" + value + "] is not fitting in Long range.");
 				}
-
-			} else if (value instanceof Double) {
-				double doubleValue = (Double) value;
-				var longValue = Math.round(doubleValue);
-				if (longValue >= Long.MIN_VALUE && longValue <= Long.MAX_VALUE) {
-					return (T) Long.valueOf(longValue);
+			}
+			case Double d -> {
+				var doubleValue = d.doubleValue();
+				if (doubleValue >= Long.MIN_VALUE && doubleValue <= Long.MAX_VALUE) {
+					yield (Long) Math.round(d.doubleValue());
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Long range.");
 				}
-
-			} else if (value instanceof String) {
-				var stringValue = (String) value;
-				if (stringValue.isEmpty()) {
-					return null;
+			}
+			case String s -> {
+				if (s.isEmpty()) {
+					yield null;
 				}
 				try {
-					return (T) Long.valueOf(Long.parseLong(stringValue));
+					yield Long.valueOf(Long.parseLong(s));
 				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Long.");
+					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Long.");
 				}
 			}
-			break;
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case FLOAT:
-			if (value == null) {
-				return (T) (Float) value;
-
-			}
-			if (value instanceof Boolean) {
-				boolean boolValue = (Boolean) value;
-				return (T) Float.valueOf(boolValue ? 1f : 0f);
-
-			} else if (value instanceof Short) {
-				return (T) (Float) ((Short) value).floatValue();
-
-			} else if (value instanceof Integer) {
-				return (T) (Float) ((Integer) value).floatValue();
-
-			} else if (value instanceof Long) {
-				return (T) (Float) ((Long) value).floatValue();
-
-			} else if (value instanceof Float) {
-				return (T) (Float) value;
-
-			} else if (value instanceof Double) {
+		case FLOAT //
+			-> switch (value) {
+			case Boolean b -> Float.valueOf(b ? 1f : 0f);
+			case Short s -> (Float) s.floatValue();
+			case Integer i -> (Float) i.floatValue();
+			case Long l -> (Float) l.floatValue();
+			case Float f -> f;
+			case Double d ->
 				// Returns the value of this Double as a float after a narrowing primitive
 				// conversion.
-				return (T) Float.valueOf(((Double) value).floatValue());
-
-			} else if (value instanceof String) {
-				var stringValue = (String) value;
-				if (stringValue.isEmpty()) {
-					return null;
+				Float.valueOf(d.floatValue());
+			case String s -> {
+				if (s.isEmpty()) {
+					yield null;
 				}
 				try {
-					return (T) Float.valueOf(Float.parseFloat(stringValue));
+					yield Float.valueOf(Float.parseFloat(s));
 				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Float.");
+					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Float.");
 				}
 			}
-			break;
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case DOUBLE:
-			if (value == null) {
-				return (T) (Double) value;
-
-			}
-			if (value instanceof Boolean) {
-				boolean boolValue = (Boolean) value;
-				return (T) Double.valueOf(boolValue ? 1L : 0L);
-
-			} else if (value instanceof Short) {
-				return (T) Double.valueOf((Short) value);
-
-			} else if (value instanceof Integer) {
-				return (T) Double.valueOf((Integer) value);
-
-			} else if (value instanceof Long) {
-				return (T) Double.valueOf((Long) value);
-
-			} else if (value instanceof Float) {
-				return (T) Double.valueOf((Float) value);
-
-			} else if (value instanceof Double) {
-				return (T) (Double) value;
-
-			} else if (value instanceof String) {
-				var stringValue = (String) value;
-				if (stringValue.isEmpty()) {
-					return null;
+		case DOUBLE //
+			-> switch (value) {
+			case Boolean b -> Double.valueOf(b ? 1L : 0L);
+			case Short s -> Double.valueOf(s);
+			case Integer i -> Double.valueOf(i);
+			case Long l -> Double.valueOf(l);
+			case Float f -> Double.valueOf(f);
+			case Double d -> d;
+			case String s -> {
+				if (s.isEmpty()) {
+					yield null;
 				}
 				try {
-					return (T) Double.valueOf(Double.parseDouble(stringValue));
+					yield Double.valueOf(s);
 				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException("Cannot convert String [" + stringValue + "] to Double.");
+					throw new IllegalArgumentException("Cannot convert String [" + s + "] to Double.");
 				}
 			}
-			break;
+			default -> throw converterIsNotImplemented(type, value);
+			};
 
-		case STRING:
-			if (value == null) {
-				return (T) (String) value;
-
-			}
-			if (value instanceof Object[]) {
-				return (T) Arrays.deepToString((Object[]) value);
+		case STRING -> {
+			if (value instanceof Object[] os) {
+				yield Arrays.deepToString(os);
 
 			} else if (value.getClass().isArray()) {
-				if (value instanceof boolean[]) {
-					return (T) Arrays.toString((boolean[]) value);
-				} else if (value instanceof byte[]) {
-					return (T) Arrays.toString((byte[]) value);
-				} else if (value instanceof char[]) {
-					return (T) Arrays.toString((char[]) value);
-				} else if (value instanceof double[]) {
-					return (T) Arrays.toString((double[]) value);
-				} else if (value instanceof float[]) {
-					return (T) Arrays.toString((float[]) value);
-				} else if (value instanceof int[]) {
-					return (T) Arrays.toString((int[]) value);
-				} else if (value instanceof long[]) {
-					return (T) Arrays.toString((long[]) value);
-				} else if (value instanceof short[]) {
-					return (T) Arrays.toString((short[]) value);
-				} else {
-					return (T) value.toString();
-				}
+				yield switch (value) {
+				case boolean[] bs -> Arrays.toString(bs);
+				case byte[] bs -> Arrays.toString(bs);
+				case char[] cs -> Arrays.toString(cs);
+				case double[] ds -> Arrays.toString(ds);
+				case float[] fs -> Arrays.toString(fs);
+				case int[] is -> Arrays.toString(is);
+				case long[] ls -> Arrays.toString(ls);
+				case short[] ss -> Arrays.toString(ss);
+				default -> value.toString();
+				};
 
 			} else {
-				return (T) value.toString();
+				yield value.toString();
 			}
-
 		}
-		throw new IllegalArgumentException("Converter for value [" + value + "] of type [" + value.getClass()
-				+ "] to type [" + type + "] is not implemented.");
+		};
+	}
 
+	private static IllegalArgumentException converterIsNotImplemented(OpenemsType type, Object value) {
+		return new IllegalArgumentException("Converter for value [" + value + "] of type [" + value.getClass()
+				+ "] to type [" + type + "] is not implemented.");
 	}
 
 	/**
@@ -386,23 +309,37 @@ public class TypeUtils {
 			return JsonNull.INSTANCE;
 		}
 		var value = TypeUtils.getAsType(type, originalValue);
-		switch (type) {
-		case BOOLEAN:
-			return new JsonPrimitive((Boolean) value ? 1 : 0);
-		case SHORT:
-			return new JsonPrimitive((Short) value);
-		case INTEGER:
-			return new JsonPrimitive((Integer) value);
-		case LONG:
-			return new JsonPrimitive((Long) value);
-		case FLOAT:
-			return new JsonPrimitive((Float) value);
-		case DOUBLE:
-			return new JsonPrimitive((Double) value);
-		case STRING:
-			return new JsonPrimitive((String) value);
-		}
-		throw new IllegalArgumentException("Converter for value [" + value + "] to JSON is not implemented.");
+		return switch (type) {
+		case BOOLEAN -> new JsonPrimitive((Boolean) value ? 1 : 0);
+		case SHORT -> new JsonPrimitive((Short) value);
+		case INTEGER -> new JsonPrimitive((Integer) value);
+		case LONG -> new JsonPrimitive((Long) value);
+		case FLOAT -> new JsonPrimitive((Float) value);
+		case DOUBLE -> new JsonPrimitive((Double) value);
+		case STRING -> new JsonPrimitive((String) value);
+		};
+	}
+
+	/**
+	 * Safely add Integers. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the sum
+	 */
+	public static Integer sumInt(List<Integer> values) {
+		return sum(values.toArray(Integer[]::new));
+	}
+
+	/**
+	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
+	 * are null, 'null' is returned.
+	 *
+	 * @param values the {@link Long} values
+	 * @return the sum
+	 */
+	public static Long sumLong(List<Long> values) {
+		return sum(values.toArray(Long[]::new));
 	}
 
 	/**
@@ -428,6 +365,28 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely add Floats. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 *
+	 * @param values the {@link Float} values
+	 * @return the sum
+	 */
+	public static Float sum(Float... values) {
+		Float result = null;
+		for (Float value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
 	 * are null, 'null' is returned.
 	 *
@@ -437,6 +396,28 @@ public class TypeUtils {
 	public static Long sum(Long... values) {
 		Long result = null;
 		for (Long value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely add Doubles. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 * 
+	 * @param values the {@link Double} values
+	 * @return the sum, possibly null
+	 */
+	public static Double sum(Double... values) {
+		Double result = null;
+		for (var value : values) {
 			if (value == null) {
 				continue;
 			}
@@ -486,6 +467,29 @@ public class TypeUtils {
 	 * @return the result, possibly null
 	 */
 	public static Long subtract(Long minuend, Long subtrahend) {
+		if (minuend == null) {
+			return null;
+		}
+		if (subtrahend == null) {
+			return minuend;
+		}
+		return minuend - subtrahend;
+	}
+
+	/**
+	 * Safely subtract Doubles.
+	 *
+	 * <ul>
+	 * <li>if minuend is null -&gt; result is null
+	 * <li>if subtrahend is null -&gt; result is minuend
+	 * <li>if both are null -&gt; result is null
+	 * </ul>
+	 *
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 */
+	public static Double subtract(Double minuend, Double subtrahend) {
 		if (minuend == null) {
 			return null;
 		}
@@ -709,6 +713,37 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the average value of all values.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the average value; or null if all values are null
+	 */
+	public static Integer averageInt(Integer... values) {
+		var count = 0;
+		float sum = 0;
+		for (Integer value : values) {
+			if (value != null) {
+				count++;
+				sum += value;
+			}
+		}
+		if (count == 0) {
+			return null;
+		}
+		return Math.round(sum / count);
+	}
+
+	/**
+	 * Safely finds the average value of all values.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the average value; or null if all values are null
+	 */
+	public static Integer averageInt(List<Integer> values) {
+		return averageInt(values.toArray(Integer[]::new));
+	}
+
+	/**
 	 * Safely finds the average value of all values and rounds the result to an
 	 * Integer using {@link Math#round(float)}.
 	 *
@@ -782,12 +817,51 @@ public class TypeUtils {
 	/**
 	 * Fits a value within a lower and upper boundary.
 	 *
-	 * @param lowLimit  the lower boundary
-	 * @param highLimit the upper boundary
-	 * @param value     the actual value
-	 * @return the adjusted value
+	 * @param lowLimit  the int lower boundary
+	 * @param highLimit the int upper boundary
+	 * @param value     the int actual value
+	 * @return the adjusted int value
 	 */
 	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the long lower boundary
+	 * @param highLimit the long upper boundary
+	 * @param value     the long actual value
+	 * @return the adjusted long value
+	 */
+	public static long fitWithin(long lowLimit, long highLimit, long value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the double lower boundary
+	 * @param highLimit the double upper boundary
+	 * @param value     the double actual value
+	 * @return the adjusted double value
+	 */
+	public static double fitWithin(double lowLimit, double highLimit, double value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the float lower boundary
+	 * @param highLimit the float upper boundary
+	 * @param value     the float actual value
+	 * @return the adjusted float value
+	 */
+	public static float fitWithin(float lowLimit, float highLimit, float value) {
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}

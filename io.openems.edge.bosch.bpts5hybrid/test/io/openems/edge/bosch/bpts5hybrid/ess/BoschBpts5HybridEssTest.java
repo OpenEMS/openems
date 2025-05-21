@@ -3,6 +3,7 @@ package io.openems.edge.bosch.bpts5hybrid.ess;
 import org.junit.Test;
 
 import io.openems.edge.bosch.bpts5hybrid.core.BoschBpts5HybridCoreImpl;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 
@@ -23,13 +24,14 @@ public class BoschBpts5HybridEssTest {
 						.setInterval(2) //
 						.build()); //
 
-		new ComponentTest(new BoschBpts5HybridEss()) //
+		new ComponentTest(new BoschBpts5HybridEssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("core", core) //
 				.activate(MyConfig.create() //
 						.setId(ESS_ID) //
 						.setCoreId(CORE_ID) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }

@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Notification for sending the current data of all
@@ -33,13 +34,14 @@ public class CurrentDataNotification extends JsonrpcNotification {
 		this.data = data;
 	}
 
+	public Map<String, JsonElement> getData() {
+		return this.data;
+	}
+
 	@Override
 	public JsonObject getParams() {
-		var p = new JsonObject();
-		for (Entry<String, JsonElement> entry : this.data.entrySet()) {
-			p.add(entry.getKey(), entry.getValue());
-		}
-		return p;
+		return this.data.entrySet().stream() //
+				.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue));
 	}
 
 }

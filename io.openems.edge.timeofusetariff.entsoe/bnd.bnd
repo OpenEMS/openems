@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Edge Time-Of-Use ENTSO-E
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	com.squareup.okio,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.timeofusetariff.api,\
+	io.openems.wrapper.okhttp,\
+	
+-testpath: \
+	org.jetbrains.kotlin.osgi-bundle,\
+	${testpath}

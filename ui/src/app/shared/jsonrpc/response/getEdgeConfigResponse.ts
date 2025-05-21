@@ -3,7 +3,7 @@ import { JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a GetEdgeConfigRequest.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -15,8 +15,8 @@ import { JsonrpcResponseSuccess } from "../base";
 export class GetEdgeConfigResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: EdgeConfig
+        public override readonly id: string,
+        public override readonly result: EdgeConfig,
     ) {
         super(id, result);
     }

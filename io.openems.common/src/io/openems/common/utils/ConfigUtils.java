@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,6 +80,7 @@ public class ConfigUtils {
 		// add filter for given Component-IDs
 		String idsFilter = Stream.of(ids) //
 				.filter(Objects::nonNull) //
+				.filter(Predicate.not(String::isBlank)) //
 				.map(id -> "(id=" + id + ")") //
 				.collect(Collectors.joining());
 		if (!idsFilter.isEmpty()) {

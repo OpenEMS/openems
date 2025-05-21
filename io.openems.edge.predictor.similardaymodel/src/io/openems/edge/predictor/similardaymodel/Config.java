@@ -3,9 +3,11 @@ package io.openems.edge.predictor.similardaymodel;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.predictor.api.prediction.LogVerbosity;
+
 @ObjectClassDefinition(//
 		name = "Predictor Similarday-Model", //
-		description = "Implements Similarday-Model predictor")
+		description = "Predicts same values as on same day in the previous weeks (e.g. on Monday the average of previous monday's will be returned)")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -21,7 +23,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int numOfWeeks() default 4;
 
 	@AttributeDefinition(name = "Channel-Addresses", description = "List of Channel-Addresses this Predictor is used for, e.g. '*/ActivePower', '*/ActualPower'")
-	String[] channelAddresses() default { "_sum/ProductionActivePower", "_sum/ConsumptionActivePower" };
+	String[] channelAddresses() default { //
+			"_sum/ProductionActivePower", //
+			"_sum/UnmanagedConsumptionActivePower", //
+			"_sum/ConsumptionActivePower" };
+
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "Predictor Similarday-Model [{id}]";
 

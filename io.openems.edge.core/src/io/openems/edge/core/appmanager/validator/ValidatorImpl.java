@@ -1,98 +1,71 @@
 package io.openems.edge.core.appmanager.validator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import static java.util.Collections.emptyList;
 
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
-import io.openems.common.OpenemsConstants;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
 
 @Component
 public class ValidatorImpl implements Validator {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ValidatorImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ValidatorImpl.class);
+
+	private final CheckableFactory checkableFactory;
 
 	@Activate
-	public ValidatorImpl() {
+	public ValidatorImpl(@Reference CheckableFactory checkableFactory) {
+		this.checkableFactory = checkableFactory;
 	}
 
 	@Override
-	public List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
-			boolean returnImmediate) {
+	public List<String> getErrorMessages(//
+			final List<CheckableConfig> checkableConfigs, //
+			final Language language, //
+			final boolean returnImmediate //
+	) {
 		if (checkableConfigs.isEmpty()) {
-			return new ArrayList<>();
+			return emptyList();
 		}
-		var errorMessages = new ArrayList<String>(checkableConfigs.size());
-		var bundleContext = FrameworkUtil.getBundle(Checkable.class).getBundleContext();
-		// build filter
-		var filterBuilder = new StringBuilder();
-		if (checkableConfigs.size() > 1) {
-			filterBuilder.append("(|");
-		}
-		checkableConfigs.forEach(t -> filterBuilder.append("(component.name=" + t.checkableComponentName + ")"));
-		if (checkableConfigs.size() > 1) {
-			filterBuilder.append(")");
-		}
-		try {
-			// get all service references
-			Collection<ServiceReference<Checkable>> serviceReferences = bundleContext
-					.getServiceReferences(Checkable.class, filterBuilder.toString());
-			var noneExistingCheckables = Lists.<CheckableConfig>newArrayList();
-			checkableConfigs.forEach(c -> noneExistingCheckables.add(c));
-			var isReturnedImmediate = false;
-			final var usedReferencens = new ArrayList<ServiceReference<Checkable>>(serviceReferences.size());
-			for (var reference : serviceReferences) {
-				var componentName = (String) reference.getProperty(OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME);
-				var checkableConfig = checkableConfigs.stream()
-						.filter(c -> c.checkableComponentName.equals(componentName)).findFirst().orElse(null);
-				var checkable = bundleContext.getService(reference);
+		final var errorMessages = new ArrayList<String>(checkableConfigs.size());
+
+		for (var config : checkableConfigs) {
+			try (final var checkable = this.checkableFactory.useCheckable(config.checkableComponentName())) {
 				if (checkable == null) {
-					errorMessages.add("Can not get Checkable[" + checkableConfig.checkableComponentName + "]");
 					continue;
 				}
-				usedReferencens.add(reference);
-				if (checkableConfig.properties != null) {
-					checkable.setProperties(checkableConfig.properties);
-				}
-				noneExistingCheckables.removeIf(c -> c.equals(checkableConfig));
+
+				// validate checkable
+				checkable.setProperties(config.properties());
 				var result = checkable.check();
-				if (result == checkableConfig.invertResult) {
-					var errorMessage = checkable.getErrorMessage(language);
-					if (checkableConfig.invertResult) {
-						errorMessage = "Invert[" + errorMessage + "]";
+				if (result == config.invertResult()) {
+					String errorMessage;
+					try {
+						errorMessage = config.invertResult() ? checkable.getInvertedErrorMessage(language)
+								: checkable.getErrorMessage(language);
+					} catch (UnsupportedOperationException e) {
+						this.log.error(
+								"Missing implementation for getting " + (config.invertResult() ? "inverted " : "")
+										+ "error message for check \"" + config.checkableComponentName() + "\"!",
+								e);
+						errorMessage = "Check \"" + config.checkableComponentName() + "\" failed.";
 					}
 					errorMessages.add(errorMessage);
 					if (returnImmediate) {
-						isReturnedImmediate = true;
-						break;
+						return errorMessages;
 					}
 				}
+			} catch (Exception e) {
+				this.log.error("Error while using checkable " + config.checkableComponentName() + "!", e);
 			}
-
-			if (!noneExistingCheckables.isEmpty() && !isReturnedImmediate) {
-				LOG.warn("Checkables[" + noneExistingCheckables.stream().map(c -> c.checkableComponentName)
-						.collect(Collectors.joining(";")) + "] are not found!");
-			}
-
-			// free all service references
-			for (var reference : usedReferencens) {
-				bundleContext.ungetService(reference);
-			}
-		} catch (InvalidSyntaxException | IllegalStateException e) {
-			// Can not get service references
-			e.printStackTrace();
 		}
 		return errorMessages;
 	}

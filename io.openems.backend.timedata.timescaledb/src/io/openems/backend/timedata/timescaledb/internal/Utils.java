@@ -21,7 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.zaxxer.hikari.HikariDataSource;
 
-import io.openems.backend.timedata.timescaledb.TimescaledbImpl;
+import io.openems.backend.timedata.timescaledb.TimedataTimescaleDb;
 import io.openems.backend.timedata.timescaledb.internal.Schema.ChannelRecord;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -66,7 +66,7 @@ public class Utils {
 
 	/**
 	 * Used for
-	 * {@link TimescaledbImpl#getChannelIdsFromSchemaCache(Schema, String, Set)}.
+	 * {@link TimedataTimescaleDb#getChannelIdsFromSchemaCache(Schema, String, Set)}.
 	 */
 	protected static class TemporaryChannelRecord {
 		public final ChannelAddress address;

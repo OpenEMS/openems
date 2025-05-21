@@ -1,7 +1,6 @@
 = ABB B23 Meter
 
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.abb[Source Code icon:github[]]

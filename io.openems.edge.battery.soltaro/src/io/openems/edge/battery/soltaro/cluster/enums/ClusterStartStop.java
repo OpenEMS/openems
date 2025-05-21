@@ -7,8 +7,8 @@ public enum ClusterStartStop implements OptionsEnum {
 	START(1, "Start"), //
 	STOP(2, "Stop");
 
-	int value;
-	String name;
+	private final int value;
+	private final String name;
 
 	private ClusterStartStop(int value, String name) {
 		this.value = value;

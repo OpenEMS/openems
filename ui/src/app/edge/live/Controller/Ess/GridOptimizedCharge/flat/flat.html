@@ -1,5 +1,5 @@
-<oe-flat-widget [title]="component.alias" button (click)="presentModal()" img="assets/img/gridStorage.png"
-    *ngIf="isInitialized">
+<oe-flat-widget [title]="component.alias" button (click)="presentModal()"
+    [icon]="{name: 'oe-grid-storage', color: 'dark'}" *ngIf="isInitialized">
 
     <!--Selected mode-->
     <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"

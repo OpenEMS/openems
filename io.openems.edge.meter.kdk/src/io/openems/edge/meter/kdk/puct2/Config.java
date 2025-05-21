@@ -3,7 +3,7 @@ package io.openems.edge.meter.kdk.puct2;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Meter KDK 2PU CT", //
@@ -26,7 +26,7 @@ import io.openems.edge.meter.api.MeterType;
 	int modbusUnitId() default 1;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
-	MeterType meterType() default MeterType.GRID;
+	MeterType type() default MeterType.GRID;
 
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
 	boolean invert() default false;

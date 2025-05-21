@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String meter_id();
 
 	@AttributeDefinition(name = "Cos-Phi", description = "Cosinus Phi (e.g. '1' or '0.95').")
-	double cosPhi() default CosPhi.DEFAULT_COS_PHI;
+	double cosPhi() default ControllerAsymmetricBalancingCosPhi.DEFAULT_COS_PHI;
 
 	@AttributeDefinition(name = "Inductive/Capacitive", description = "Inductive or Capacitive cos phi.")
 	CosPhiDirection direction() default CosPhiDirection.CAPACITIVE;

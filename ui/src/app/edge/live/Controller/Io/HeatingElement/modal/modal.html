@@ -1,5 +1,5 @@
-<oe-modal [toolbarButtons]="{url: 'https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Heizstab.html'}"
-    [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
+    helpKey="CONTROLLER_IO_HEATING_ELEMENT" *ngIf="isInitialized">
     <oe-modal-line [name]="'General.state' | translate" [value]="this.state">
     </oe-modal-line>
 
@@ -13,7 +13,7 @@
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
     { name: ('General.on' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'power'}},
     { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
-    { name: ('General.off' | translate), value: 'MANUAL_OFF', icon: {color:'light-contrast', name: 'power'}}]">
+    { name: ('General.off' | translate), value: 'MANUAL_OFF', icon: {color:'danger', name: 'power'}}]">
     </oe-modal-buttons>
 
 
@@ -26,7 +26,7 @@
                     Edge.Index.Widgets.Heatingelement.guaranteeMinimumHeating
                 </td>
                 <td style="width: 35%" class="align_right">
-                    <ion-toggle (ionChange)="switchAllowMinimumHeating($event)"
+                    <ion-toggle mode="md" (ionChange)="switchAllowMinimumHeating($event)"
                         [checked]="formGroup.value.workMode !== 'NONE'">
                     </ion-toggle>
                 </td>

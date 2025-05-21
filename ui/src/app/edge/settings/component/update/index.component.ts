@@ -1,41 +1,40 @@
-import { ActivatedRoute } from '@angular/router';
-import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
-import { Component } from '@angular/core';
-import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
+// @ts-strict-ignore
+import { Component, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
+import { EdgeConfig, Service, Utils } from "../../../../shared/shared";
 
 interface MyCategorizedComponents extends CategorizedComponents {
-  isNatureClicked?: Boolean,
-  filteredComponents?: EdgeConfig.Component[]
+  isNatureClicked?: boolean,
+  filteredComponents?: EdgeConfig.Component[],
 }
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html'
+  templateUrl: "./index.component.html",
+  standalone: false,
 })
-export class IndexComponent {
+export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
-  public config: EdgeConfig = null;
+  public config: EdgeConfig | null = null;
   public list: MyCategorizedComponents[];
 
   public showAllEntries = false;
 
   constructor(
-    private route: ActivatedRoute,
     private service: Service,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
   }
 
-  ionViewWillEnter() {
-    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route);
+  public ngOnInit() {
     this.service.getConfig().then(config => {
       this.config = config;
-      let categorizedComponentIds: string[] = [];
-      this.list = config.listActiveComponents(categorizedComponentIds);
-      for (let entry of this.list) {
+      const categorizedComponentIds: string[] = [];
+      this.list = config.listActiveComponents(categorizedComponentIds, this.translate);
+      for (const entry of this.list) {
         entry.isNatureClicked = false;
         entry.filteredComponents = entry.components;
       }
@@ -45,16 +44,16 @@ export class IndexComponent {
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    let filters = completeFilter.split(' ');
+    const filters = completeFilter.toLowerCase().split(" ");
     let countFilteredEntries = 0;
-    for (let entry of this.list) {
+    for (const entry of this.list) {
       entry.filteredComponents = entry.components.filter(entry =>
         // Search for filter strings in Component-ID, -Alias and Factory-ID
         Utils.matchAll(filters, [
           entry.id.toLowerCase(),
           entry.alias.toLowerCase(),
-          entry.factoryId
-        ])
+          entry.factoryId,
+        ]),
       );
       countFilteredEntries += entry.filteredComponents.length;
     }

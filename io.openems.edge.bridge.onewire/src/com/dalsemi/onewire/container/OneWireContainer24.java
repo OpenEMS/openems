@@ -251,9 +251,12 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 */
 	@Override
 	public String getDescription() {
-		return "Real time clock implemented as a binary counter " + "that can be used to add functions such as "
-				+ "calendar, time and date stamp and logbook to any "
-				+ "type of electronic device or embedded application that " + "uses a microcontroller.";
+		return """
+				Real time clock implemented as a binary counter \
+				that can be used to add functions such as \
+				calendar, time and date stamp and logbook to any \
+				type of electronic device or embedded application that \
+				uses a microcontroller.""";
 	}
 
 	// --------

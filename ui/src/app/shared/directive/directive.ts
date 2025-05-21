@@ -1,22 +1,23 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { VarDirective } from './ngvar';
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { AutofillDirective } from "./autofill";
+import { VarDirective } from "./ngvar";
 
 @NgModule({
     imports: [
         BrowserModule,
     ],
-    entryComponents: [
-        VarDirective
-    ],
     declarations: [
-        VarDirective
+        VarDirective,
+        AutofillDirective,
     ],
     exports: [
-        VarDirective
+        VarDirective,
+        AutofillDirective,
     ],
     providers: [
-        VarDirective
-    ]
+        VarDirective,
+        AutofillDirective,
+    ],
 })
 export class DirectiveModule { }

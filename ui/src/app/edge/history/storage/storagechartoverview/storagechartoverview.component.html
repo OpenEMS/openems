@@ -1,19 +1,40 @@
 <ng-container *ngIf="edge">
+
+    <!-- Reusable Info Text Template -->
+    <ng-template #infoStorageText>
+        <ion-card-content class="underline">
+            <ion-row class="ion-justify-content-center">
+                <ion-item class="ion-text-center" lines="none">
+                    <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+                    <ion-label class="ion-text-wrap">
+                        <ion-row class="ion-text-center" style="white-space: pre !important; width: 100%">
+                            <small translate>Edge.Index.Widgets.InfoStorageForCharge</small>
+                        </ion-row>
+                        <ion-row size="6" class="ion-text-center" style="white-space: pre !important; width: 100%">
+                            <small translate>Edge.Index.Widgets.InfoStorageForDischarge</small>
+                        </ion-row>
+                    </ion-label>
+                </ion-item>
+            </ion-row>
+        </ion-card-content>
+    </ng-template>
+
     <ion-header>
-        <ion-toolbar class="ion-justify-content-center" color="primary">
-            <ion-title class="ion-text-start ion-padding-left" translate>General.storageSystem
+        <ion-toolbar class="ion-justify-content-center" style="--background: var(--ion-color-toolbar-primary);">
+            <ion-title class="ion-text-start ion-padding-left" style="color: var(--ion-title-color);"
+                translate>General.storageSystem
             </ion-title>
-            <ion-buttons slot="start">
+            <ion-buttons style="color: var(--ion-color-toggle-background);" slot="start">
                 <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
                     [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
             </ion-buttons>
-            <ion-buttons slot="end">
+            <ion-buttons style="color: var(--ion-color-toggle-background);" slot="end">
                 <ion-button routerLink="/device/{{edge.id}}/history">
-                    <ion-icon name="close-outline"></ion-icon>
+                    <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
                 </ion-button>
             </ion-buttons>
         </ion-toolbar>
-        <ion-toolbar color="primary">
+        <ion-toolbar color="secondary">
             <ion-buttons class="ion-justify-content-center">
                 <pickdate></pickdate>
             </ion-buttons>
@@ -26,35 +47,17 @@
                     <td style="width: 100%" class="ion-padding" translate>General.soc</td>
                 </tr>
             </table>
-            <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod"></socStorageChart>
+            <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod.value"></socStorageChart>
         </ion-card-content>
         <ng-container *ngIf="showTotal">
             <ion-card-content>
                 <table class="full_width">
                     <tr>
-                        <td style="width: 100%" class="ion-padding" translate>General.total</td>
+                        <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                     </tr>
                 </table>
-                <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod">
-                </storageTotalChart>
-                <!-- Info Text -->
-                <ion-row class="ion-justify-content-center">
-                    <ion-item class="ion-text-center" lines="none">
-                        <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
-                        <ion-label class="ion-text-wrap">
-                            <ion-row class="ion-text-center" translate>
-                                <small translate>
-                                    Edge.Index.Widgets.InfoStorageForCharge
-                                </small>
-                            </ion-row>
-                            <ion-row size="6" class="ion-text-center">
-                                <small translate>
-                                    Edge.Index.Widgets.InfoStorageForDischarge
-                                </small>
-                            </ion-row>
-                        </ion-label>
-                    </ion-item>
-                </ion-row>
+                <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod.value"></storageTotalChart>
+                <ng-container *ngTemplateOutlet="infoStorageText"></ng-container>
             </ion-card-content>
         </ng-container>
         <ng-container *ngIf="!showTotal">
@@ -62,41 +65,23 @@
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
-                            <td style="width: 100%" class="ion-padding" translate>General.total</td>
+                            <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                         </tr>
                     </table>
-                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
                     </storageSingleChart>
                 </ion-card-content>
-                <!-- Info Text -->
-                <ion-card-content class="underline">
-                    <ion-row class="ion-justify-content-center">
-                        <ion-item class="ion-text-center" lines="none">
-                            <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
-                            <ion-label class="ion-text-wrap">
-                                <ion-row class="ion-text-center" translate>
-                                    <small translate>
-                                        Edge.Index.Widgets.InfoStorageForCharge
-                                    </small>
-                                </ion-row>
-                                <ion-row size="6" class="ion-text-center">
-                                    <small translate>
-                                        Edge.Index.Widgets.InfoStorageForDischarge
-                                    </small>
-                                </ion-row>
-                            </ion-label>
-                        </ion-item>
-                    </ion-row>
-                </ion-card-content>
+                <ng-container *ngTemplateOutlet="infoStorageText"></ng-container>
             </ng-container>
             <ng-container *ngIf="essComponents?.length > 1">
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
-                            <td style="width: 100%" class="ion-padding" translate>General.total</td>
+                            <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                         </tr>
                     </table>
-                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod"></storageSingleChart>
+                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
+                    </storageSingleChart>
                 </ion-card-content>
                 <ng-container *ngFor="let component of essComponents">
                     <ion-card-content class="underline">
@@ -107,30 +92,11 @@
                                 </td>
                             </tr>
                         </table>
-                        <storageESSChart [showPhases]="showPhases" [period]="service.historyPeriod"
+                        <storageESSChart [showPhases]="showPhases" [period]="service.historyPeriod.value"
                             [componentId]="component.id"></storageESSChart>
                     </ion-card-content>
                 </ng-container>
-                <!-- Info Text -->
-                <ion-card-content class="underline">
-                    <ion-row class="ion-justify-content-center">
-                        <ion-item class="ion-text-center" lines="none">
-                            <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
-                            <ion-label class="ion-text-wrap">
-                                <ion-row class="ion-text-center" translate>
-                                    <small translate>
-                                        Edge.Index.Widgets.InfoStorageForCharge
-                                    </small>
-                                </ion-row>
-                                <ion-row size="6" class="ion-text-center">
-                                    <small translate>
-                                        Edge.Index.Widgets.InfoStorageForDischarge
-                                    </small>
-                                </ion-row>
-                            </ion-label>
-                        </ion-item>
-                    </ion-row>
-                </ion-card-content>
+                <ng-container *ngTemplateOutlet="infoStorageText"></ng-container>
             </ng-container>
             <ng-container *ngIf="essComponents?.length !== 1">
                 <ng-container *ngFor="let component of chargerComponents">
@@ -142,7 +108,7 @@
                                 </td>
                             </tr>
                         </table>
-                        <storageChargerChart [period]="service.historyPeriod" [componentId]="component.id">
+                        <storageChargerChart [period]="service.historyPeriod.value" [componentId]="component.id">
                         </storageChargerChart>
                     </ion-card-content>
                 </ng-container>

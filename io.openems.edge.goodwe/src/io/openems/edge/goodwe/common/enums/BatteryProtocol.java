@@ -10,7 +10,8 @@ public enum BatteryProtocol implements OptionsEnum {
 	BYD_BOX_PREMIUM_HVS(0x106, "Byd box premium hvs"), //
 	BYD_BOX_PREMIUM_HVM_OR_HVL(0x105, "Byd box premium hvm / hvl"), //
 	LG(0x104, "Resu_hv_type-r"), //
-	OLOID_DYNESS_SOLUNA(0x11E, "For Oloid is LBS, For DYNESS is Tower, For SOLUNA is HV Battery");
+	OLOID_DYNESS_SOLUNA(0x11E, "For Oloid is LBS, For DYNESS is Tower, For SOLUNA is HV Battery"), //
+	EMS_USE(0x11F, "EMS Battery"); //
 
 	private final int value;
 	private final String option;

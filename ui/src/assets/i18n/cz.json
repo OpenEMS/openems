@@ -10,7 +10,6 @@
     "changeAccepted": "Změna byla přijata",
     "changeFailed": "Změna se nezdařila",
     "chargeDischarge": "Debetní/vybíjení",
-    "chargePower": "Nabíjecí výkon",
     "componentCount": "Počet komponentů",
     "componentInactive": "Komponenta je neaktivní!",
     "connectionLost": "Spojení ztraceno. Pokouší se znovu připojit.",
@@ -22,19 +21,18 @@
     "digitalInputs": "Digitální vstupy",
     "numberOfComponents": "Počet komponentů",
     "directConsumption": "Přímá spotřeba",
-    "dischargePower": "Vybíjecí výkon",
     "fault": "Chyba",
     "grid": "Síť",
     "gridBuy": "Nákup ze sítě",
     "gridBuyAdvanced": "Nákup",
     "gridSell": "Prodej do sítě",
     "gridSellAdvanced": "Prodej",
-    "history": "Historie",
+    "HISTORY": "Historie",
     "inactive": "Neaktivní",
     "info": "Informace",
     "inputNotValid": "Vstup je neplatný",
     "insufficientRights": "Nedostatečná práva",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "nálož",
     "manual": "pokyny",
     "manually": "Ruční",
@@ -53,13 +51,13 @@
     "production": "Výroba",
     "rename": "Přejmenovat",
     "reportValue": "Nahlásit nesprávná data",
-    "reset": "Reset",
+    "reset": "Resetovat",
     "selfConsumption": "Vlastní spotřeba",
     "soc": "Stav nabití",
     "state": "Stát",
     "storageSystem": "Systém bateriového úložiště",
-    "systemState": "Stav systému",
-    "total": "celková spotřeba",
+    "SYSTEM_STATE": "Stav systému",
+    "TOTAL": "celková spotřeba",
     "totalState": "Celkový stav",
     "warning": "Varování",
     "Week": {
@@ -85,18 +83,30 @@
       "november": "Listopad",
       "december": "Prosinec"
     },
-    "save": "Save"
+    "save": "Uložit",
+    "temperature": "Teplota",
+    "subscribed_successfully": "Úspěšně uloženy odebírané kanály",
+    "loaded_subscribed_successfully": "Načtená uložená konfigurace kanálu",
+    "TIME": {
+      "HOUR": "Hodina",
+      "HOURS": "Hodiny",
+      "MINUTE": "Minuta",
+      "MINUTES": "Minuty",
+      "DAY": "Den",
+      "DAYS": "Dny"
+    },
+    "DISCHARGE": "Vypouštění",
+    "CHARGE": "Načítání"
   },
   "Menu": {
-    "aboutUI": "About OpenEMS",
     "accessLevel": "Úroveň přístupu",
-    "edgeSettings": "OpenEMS Předvolby",
+    "edgeSettings": "Předvolby",
     "generalSettings": "Obecné Nastavení",
     "index": "Přehled",
     "logout": "Odhlásit",
     "menu": "Menu",
     "name": "Název",
-    "overview": "OpenEMS Přehled",
+    "overview": "Všechny systémy",
     "settings": "nastavení",
     "user": "Uživatel",
     "changelog": "Changelog"
@@ -108,12 +118,12 @@
     "connectionSuccessful": "Úspěšně připojeno k {{ value }}.",
     "deviceOffline": "Zařízení není připojeno!",
     "isOffline": "OpenEMS je ve stavu offline!",
-    "loggedInAs": "Registrováno jako:",
+    "LOGGED_IN_AS": "Registrováno jako",
     "toEnergymonitor": "Do Monitoringu energetických toků…",
-    "type": "Typ:"
+    "TYPE": "Typ"
   },
   "Login": {
-    "title": "Login",
+    "title": "Přihlásit se",
     "preamble": "Pro přihlášení jako host zadejte své heslo nebo potvrďte výchozí zadání.",
     "passwordLabel": "Heslo",
     "passwordReset": "Obnovení hesla",
@@ -121,17 +131,16 @@
     "user": "Uživatel"
   },
   "Register": {
-    "title": "Vytvoření uživatelského účtu",
     "segment": {
       "user": "Uživatel",
       "installer": "Instalatér"
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
+        "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
       },
       "installer": {
-        "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
+        "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
       },
       "contactDetails": "Kontaktní údaje",
       "companyName": "název společnosti",
@@ -142,12 +151,12 @@
       "city": "Město",
       "country": "Město",
       "phone": "Telefonní číslo",
-      "email": "E-Mail",
+      "email": "E-Mailem",
       "password": "Heslo",
       "confirmPassword": "Potvrzení hesla",
       "isElectrician": "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
-      "acceptPrivacyPolicy": "Vytvořením účtu instalátoru FENECON prohlašuji, že jsem si přečetl(a) a souhlasím se <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásadami ochrany osobních údajů</a> a Podmínkami použití společnosti FENECON.*",
-      "acceptAgb": "Potvrzuji <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+      "acceptPrivacyPolicy": "Vytvořením účtu instalátoru FENECON prohlašuji, že jsem si přečetl(a) a souhlasím se <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Zásadami ochrany osobních údajů</a> a Podmínkami použití společnosti FENECON.*",
+      "acceptAgb": "Potvrzuji <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
       "subscribeNewsletter": "Chci se přihlásit k odběru newsletteru FENECON a dostávat všechny novinky z FENECON."
     },
     "button": "Vytvořit",
@@ -160,8 +169,8 @@
   "Edge": {
     "Index": {
       "EmergencyReserve": {
-        "InfoForEmergencyReserveSlider": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.",
-        "emergencyReserve": "pohotovostní rezerva"
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.",
+        "EMERGENCY_RESERVE": "pohotovostní rezerva"
       },
       "Energymonitor": {
         "activePower": "Činný výkon",
@@ -172,8 +181,7 @@
         "storage": "Úložiště",
         "storageCharge": "baterie nakládání",
         "storageDischarge": "baterie výtok",
-        "title": "Monitoring energetických toků",
-        "excelExportWarning": "Zobrazení a export dat za delší časové období je v současné době možné pouze v omezené míře. Zkuste to prosím později."
+        "title": "Monitoring energetických toků"
       },
       "Widgets": {
         "autarchyInfo": "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
@@ -183,7 +191,9 @@
         "InfoStorageForCharge": "Záporné hodnoty odpovídají zatížení paměti",
         "InfoStorageForDischarge": "Kladné hodnoty odpovídají vybití paměti",
         "Channeltreshold": {
-          "output": "Výstup"
+          "output": "Výstup",
+          "TITLE": "Řadič prahové úrovně kanálu",
+          "ACTIVE_TIME_OVER_PERIOD": "Čas"
         },
         "Singlethreshold": {
           "above": "O",
@@ -269,8 +279,8 @@
             "noLimitActive": "Není aktivní žádný limit načítání",
             "noLimitPossible": "Žádné omezení není možné (omezeno ovládacími prvky s vyšší prioritou)",
             "notDefined": "Není definovaný",
-            "passedEndTime": "Byl překročen čas ukončení omezeného načítání",
-            "storageAlreadyFull": "Paměť je již plná"
+            "storageAlreadyFull": "Paměť je již plná",
+            "passedEndTime": "Překročen časový limit"
           },
           "storageCapacity": "skladovací kapacita (viditelné pouze pro správce)"
         },
@@ -375,17 +385,6 @@
           "switchOnRec": "Doporučení k zapnutí",
           "switchOnRecShort": "Doporučení",
           "undefined": "Nedefinováno"
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Aktuální cena",
-          "delayedDischarge": "Opožděné propuštění",
-          "storageDischarge": "Vybíjení ze skladu",
-          "State": {
-            "notStarted": "Ovladač ještě nezačal ",
-            "delayed": "Opožděné",
-            "allowsDischarge": "Uvolněno",
-            "standby": "Pohotovostní režim"
-          }
         }
       }
     },
@@ -440,8 +439,8 @@
     },
     "Config": {
       "Index": {
-        "addComponents": "Komponenten installieren",
-        "adjustComponents": "Komponenten konfigurieren",
+        "addComponents": "Nainstalujte komponenty",
+        "adjustComponents": "Nakonfigurujte komponenty",
         "bridge": "Připojená zařízení",
         "controller": "Aplikace",
         "dataStorage": "Ukládání dat",
@@ -455,15 +454,15 @@
         "systemExecute": "Spusťte příkaz systému",
         "systemProfile": "Systémový Profil",
         "alerting": "Upozornění",
-        "networkConfiguration": "Network Configuration"
+        "networkConfiguration": "Konfigurace sítě"
       },
       "More": {
         "manualCommand": "Manuální příkaz ",
         "manualpqPowerSpecification": "Specifikace výkonu",
-        "manualpqReset": "Reset",
+        "manualpqReset": "Resetovat",
         "manualpqSubmit": "Zadání",
         "refuInverter": "REFU Střídač",
-        "refuStart": "Start",
+        "refuStart": "Začít",
         "refuStartStop": "Start/Stop střídače",
         "refuStop": "Stop",
         "send": "Odeslat"
@@ -491,26 +490,16 @@
         "newConnection": "Nové připojení...",
         "newDevice": "Nové zařízení..."
       },
-      "Alerting": {
-        "activate": "Aktivace",
-        "delay": "Zpoždění",
-        "save": "Uložit",
-        "options": {},
-        "toast": {
-          "success": "Přijatá nastavení",
-          "error": "Chyba při načítání nastavení"
-        },
-        "interval": {
-          "hour": "hodina",
-          "hours": "hodiny",
-          "minute": "minuta",
-          "minutes": "minuty",
-          "day": "den",
-          "days": "dny"
+      "ALERTING": {
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "SUCCESS": "Přijatá nastavení",
+          "ERROR": "Chyba při načítání nastavení"
         }
       },
       "App": {
-        "header": "Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi OpenEMS.",
+        "header": "Správce aplikací je v současné době v první testovací verzi.",
         "installed": "Nainstalováno",
         "available": "Dostupné na",
         "incompatible": "Nekompatibilní",
@@ -518,7 +507,8 @@
         "modifyApp": "upravit aplikaci",
         "createApp": "vytvořit aplikaci",
         "deleteApp": "odstranit aplikaci",
-        "updateApp": "aktualizace aplikace"
+        "updateApp": "aktualizace aplikace",
+        "notAvailable": "Není k dispozici"
       }
     },
     "Service": {
@@ -547,10 +537,10 @@
     "currentDevelopments": "Aktuální vývoj",
     "developed": "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
     "faq": "Často kladené otázky (FAQ)",
-    "language": "Zvolte jazyk:",
+    "language": "Select language:",
     "openEMS": "Více o OpenEMS",
     "patchnotes": "Změny v monitorování tohoto sestavení",
-    "ui": "Uživatelské rozhraní pro OpenEMS"
+    "info": "Jazyk nemůže být trvale změněn v místním online monitorování z technických důvodů."
   },
   "Notifications": {
     "authenticationFailed": "Žádné připojení: Ověření uživatele selhalo.",
@@ -558,5 +548,6 @@
     "failed": "Připojení selhalo.",
     "loggedIn": "Přihlášení proběhlo úspěšně.",
     "loggedInAs": "Uživatel přihlášen jako {{ value }}."
-  }
+  },
+  "Debug-Mode": "Ladění režim"
 }

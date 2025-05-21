@@ -1,112 +1,172 @@
 package io.openems.edge.battery.fenecon.home.statemachine;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.EnumUtils;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoRunningHandler extends StateHandler<State, Context> {
 
-	private static enum BatteryRelayState {
-		WAIT_FOR_SWITCH_ON, WAIT_FOR_BMS_CONTROL, WAIT_FOR_SWITCH_OFF, FINISHED;
+	private static final int TIMEOUT = 120; // [s], per SubState
+	private static final int INTERNAL_TIMEOUT = 60; // [s], must be less than TIMEOUT
+
+	protected static enum SubState {
+		UNDEFINED, //
+		INITIAL_WAIT_FOR_BMS_CONTROL, //
+		START_UP_RELAY_ON, //
+		START_UP_RELAY_HOLD, //
+		START_UP_RELAY_OFF, //
+		RETRY_MODBUS_COMMUNICATION, //
+		WAIT_FOR_BMS_CONTROL, //
+		WAIT_FOR_MODBUS_COMMUNICATION, //
+		FINISHED;
 	}
 
-	private final Logger log = LoggerFactory.getLogger(GoRunningHandler.class);
+	protected static record GoRunningState(SubState subState, Instant lastChange) {
+	}
 
-	private BatteryRelayState state = BatteryRelayState.WAIT_FOR_SWITCH_ON;
+	protected GoRunningState grs;
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		this.state = BatteryRelayState.WAIT_FOR_SWITCH_ON;
+		this.grs = new GoRunningState(SubState.UNDEFINED, Instant.now(context.clock));
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		switch (this.state) {
-		case WAIT_FOR_SWITCH_ON: {
-			if (context.isBatteryStarted()) {
-				this.state = BatteryRelayState.WAIT_FOR_SWITCH_OFF;
+		// Handle the Sub-StateMachine
+		var nextSubState = this.getNextSubState(context);
 
-			} else if (this.getBatteryStartUpRelay(context) == Boolean.TRUE) {
-				// Relay switched on -> wait till battery is switched on
-				this.state = BatteryRelayState.WAIT_FOR_BMS_CONTROL;
-
-			} else {
-				// Turns the 12 V power on for battery start-up
-				this.setBatteryStartUpRelay(context, true);
-			}
-			break;
+		var now = Instant.now(context.clock);
+		if (nextSubState != this.grs.subState) {
+			// Record State changes
+			this.grs = new GoRunningState(nextSubState, now);
+		} else if (this.grs.lastChange.isBefore(now.minusSeconds(TIMEOUT))) {
+			// Handle GoRunningHandler State-timeout
+			throw new OpenemsException("Timeout [" + TIMEOUT + "s] in GoRunning-" + this.grs.subState);
 		}
 
-		case WAIT_FOR_BMS_CONTROL: {
-			// Battery internal relay has not switched on yet, wait ...
-			// TODO add timeout and throw error (see MaxStartAttempts in Soltaro as example)
-			if (context.isBatteryStarted()) {
-				this.state = BatteryRelayState.WAIT_FOR_SWITCH_OFF;
-			} else {
-				this.state = BatteryRelayState.WAIT_FOR_BMS_CONTROL;
-			}
-			break;
-		}
-
-		case WAIT_FOR_SWITCH_OFF: {
-			// Turns the 12 V power off after battery start-up
-			this.setBatteryStartUpRelay(context, false);
-
-			if (this.getBatteryStartUpRelay(context) != Boolean.TRUE) {
-				// Relay switched off or Relay state unknown -> battery is running
-				this.state = BatteryRelayState.FINISHED;
-			}
-			break;
-		}
-
-		case FINISHED:
+		if (nextSubState == SubState.FINISHED) {
+			// Sub-StateMachine finished
 			return State.RUNNING;
 		}
 
 		return State.GO_RUNNING;
 	}
 
-	private Boolean getBatteryStartUpRelay(Context context) {
-		if (context.batteryStartUpRelayChannel != null) {
-			return context.batteryStartUpRelayChannel.value().get();
+	private SubState getNextSubState(Context context) throws OpenemsNamedException {
+		return switch (this.grs.subState) {
+		case UNDEFINED -> {
+			if (context.bmsControl == null) {
+				// Modbus Communication might not be established yet
+				yield SubState.INITIAL_WAIT_FOR_BMS_CONTROL;
+
+			} else if (context.bmsControl) {
+				// Battery is already started -> make sure StartUpRelay is turned off
+				yield SubState.START_UP_RELAY_OFF;
+
+			} else {
+				// Battery is communicating, but stopped -> try to start
+				yield SubState.START_UP_RELAY_ON;
+			}
 		}
-		return false;
+
+		case INITIAL_WAIT_FOR_BMS_CONTROL -> {
+			if (context.bmsControl == Boolean.TRUE) {
+				// Waited successfully, Battery is started
+				// -> make sure StartUpRelay is turned off
+				yield SubState.START_UP_RELAY_OFF;
+
+			} else if (context.bmsControl == Boolean.FALSE) {
+				// Battery is communicating, but stopped -> try to start
+				yield SubState.START_UP_RELAY_ON;
+			}
+
+			// BMS_CONTROL is undefined -> apply internal timeout for Modbus Communication
+			var now = Instant.now(context.clock);
+			if (this.grs.lastChange.isBefore(now.minusSeconds(INTERNAL_TIMEOUT))) {
+				// Timeout -> try to start
+				yield SubState.START_UP_RELAY_ON;
+			}
+			// Keep waiting
+			yield SubState.INITIAL_WAIT_FOR_BMS_CONTROL;
+		}
+
+		case START_UP_RELAY_ON -> {
+			if (context.batteryStartUpRelay == Boolean.TRUE) {
+				// Successfully switched StartUpRelay ON -> toggle
+				yield SubState.START_UP_RELAY_HOLD;
+			}
+
+			// Switch StartUpRelay ON
+			context.setBatteryStartUpRelay.accept(true);
+
+			// Apply internal Timeout
+			var now = Instant.now(context.clock);
+			if (this.grs.lastChange.isBefore(now.minusSeconds(INTERNAL_TIMEOUT))) {
+				// Timeout; ignore StartUpRelay state
+				yield SubState.RETRY_MODBUS_COMMUNICATION;
+			}
+			// Keep waiting
+			yield SubState.START_UP_RELAY_ON;
+		}
+
+		case START_UP_RELAY_HOLD -> {
+			// Wait 10s
+			var now = Instant.now(context.clock);
+			if (this.grs.lastChange.isBefore(now.minusSeconds(10))) {
+				// Finished waiting
+				yield SubState.START_UP_RELAY_OFF;
+			}
+			// Keep waiting
+			yield SubState.START_UP_RELAY_HOLD;
+		}
+
+		case START_UP_RELAY_OFF -> {
+			// Switch StartUpRelay ON
+			context.setBatteryStartUpRelay.accept(false);
+
+			if (context.batteryStartUpRelay != Boolean.TRUE) {
+				// Successfully switched StartUpRelay OFF or lost connection
+				yield SubState.RETRY_MODBUS_COMMUNICATION;
+			}
+			// Keep waiting
+			yield SubState.START_UP_RELAY_OFF;
+		}
+
+		case RETRY_MODBUS_COMMUNICATION -> {
+			context.retryModbusCommunication.run();
+			yield SubState.WAIT_FOR_BMS_CONTROL;
+		}
+
+		case WAIT_FOR_BMS_CONTROL -> {
+			if (context.bmsControl == Boolean.TRUE) {
+				yield SubState.WAIT_FOR_MODBUS_COMMUNICATION;
+			}
+			// Keep waiting
+			yield SubState.WAIT_FOR_BMS_CONTROL;
+		}
+
+		case WAIT_FOR_MODBUS_COMMUNICATION -> {
+			if (context.modbusCommunicationFailed) {
+				yield SubState.WAIT_FOR_MODBUS_COMMUNICATION;
+			} else {
+				yield SubState.FINISHED;
+			}
+		}
+
+		case FINISHED ->
+			// Finished.
+			SubState.FINISHED;
+		};
 	}
 
-	/**
-	 * Set Switch to OFF or Switch ON Operation.
-	 *
-	 * @param context the {@link Context}
-	 * @param value   true to switch the relay on; <br/>
-	 *                false to switch the relay off
-	 * @throws OpenemsNamedException on error
-	 */
-	public void setBatteryStartUpRelay(Context context, boolean value) throws OpenemsNamedException {
-		if (value) {
-			if (context.batteryStartUpRelayChannel == null) {
-				context.logInfo(this.log,
-						"Because of the wrong/missed configured Battery Start Up Relay Channel Address, relay CAN NOT SWITCH ON.");
-				return;
-
-			} else {
-				context.logInfo(this.log,
-						"Set output [" + context.batteryStartUpRelayChannel.address() + "] SWITCHED ON.");
-			}
-		} else {
-			if (context.batteryStartUpRelayChannel == null) {
-				context.logInfo(this.log,
-						"Because of the wrong/missed configured Battery Start Up Relay Channel Address, relay CAN NOT SWITCH OFF.");
-				return;
-
-			} else {
-				context.logInfo(this.log,
-						"Set output [" + context.batteryStartUpRelayChannel.address() + "] SWITCHED OFF.");
-			}
-		}
-		context.batteryStartUpRelayChannel.setNextWriteValue(value);
+	@Override
+	protected String debugLog() {
+		return State.GO_RUNNING.asCamelCase() + "-" + EnumUtils.nameAsCamelCase(this.grs.subState);
 	}
 
 }

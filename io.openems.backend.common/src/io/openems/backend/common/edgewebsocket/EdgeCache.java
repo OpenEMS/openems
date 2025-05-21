@@ -1,101 +1,139 @@
 package io.openems.backend.common.edgewebsocket;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
-import java.util.function.BiConsumer;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+
 public class EdgeCache {
 
-	/**
-	 * The Timestamp of the data in the Cache.
-	 */
-	private long cacheTimestamp = 0L;
+	private final ChannelDataCache current = new ChannelDataCache();
+	private final ChannelDataCache aggregated = new ChannelDataCache();
 
-	/**
-	 * The Timestamp when the Cache was last applied to the incoming data.
-	 */
-	private long lastAppliedTimestamp = 0L;
+	public static record Pair<A, B>(A a, B b) {
 
-	private final HashMap<String, JsonElement> cacheData = new HashMap<>();
+	}
+
+	private static class ChannelDataCache {
+		private long timestamp = 0L;
+		private final HashMap<String, JsonElement> data = new HashMap<>();
+
+		/**
+		 * Gets the channel value from cache.
+		 *
+		 * @param address the Channel-Address of the channel
+		 * @return the value; {@link JsonNull} if it is not in cache
+		 */
+		public final JsonElement getChannelValue(String address) {
+			synchronized (this) {
+				return this.data.get(address);
+			}
+		}
+
+		/**
+		 * Updates the Cache.
+		 *
+		 * @param incomingDatas the incoming data
+		 */
+		public void update(SortedMap<Long, Map<String, JsonElement>> incomingDatas) {
+			for (var entry : incomingDatas.entrySet()) {
+				var incomingTimestamp = entry.getKey();
+				var incomingData = entry.getValue();
+
+				// Check if cache should be applied
+				if (incomingTimestamp < this.timestamp) {
+					// Incoming data is older than cache -> do not apply cache
+
+				} else {
+					// Incoming data is more recent than cache
+
+					if (incomingTimestamp > this.timestamp + 15 * 60 * 1000) {
+						// Cache is not anymore valid (elder than 15 minutes) -> clear Cache
+						synchronized (this) {
+							this.data.clear();
+						}
+					}
+
+					// update cache
+					this.timestamp = incomingTimestamp;
+					synchronized (this) {
+						this.data.putAll(incomingData);
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Gets the channel value from cache.
 	 *
 	 * @param address the Channel-Address of the channel
-	 * @return the value; empty if it is not in cache
+	 * @return the value; {@link JsonNull} if it is not in cache
 	 */
 	public final JsonElement getChannelValue(String address) {
-		synchronized (this) {
-			var result = this.cacheData.get(address);
-			if (result == null) {
-				return JsonNull.INSTANCE;
-			}
+		final var result = this.current.getChannelValue(address);
+		if (result != null) {
 			return result;
 		}
+		final var aggregatedResult = this.aggregated.getChannelValue(address);
+		if (aggregatedResult != null) {
+			return aggregatedResult;
+		}
+		return JsonNull.INSTANCE;
 	}
 
 	/**
-	 * Updates the 'incoming data' with the data from the cache.
+	 * Gets the channel values from cache.
 	 *
-	 * @param incomingDatas  the incoming data
-	 * @param onInvalidCache callback on invalid cache. Can be used for a log
-	 *                       message.
+	 * @param addresses the Channel-Addresses of the channels
+	 * @return a) Map of Channel-Address to values ({@link JsonNull} if not in
+	 *         cache); b) Set of Channel-Addresses that are only available as
+	 *         aggregated data
 	 */
-	public void complementDataFromCache(SortedMap<Long, Map<String, JsonElement>> incomingDatas,
-			BiConsumer<Instant, Instant> onInvalidCache) {
-		for (Entry<Long, Map<String, JsonElement>> entry : incomingDatas.entrySet()) {
-			var incomingTimestamp = entry.getKey();
-			var incomingData = entry.getValue();
-
-			// Check if cache should be applied
-			if (incomingTimestamp < this.cacheTimestamp) {
-				// Incoming data is older than cache -> do not apply cache
-
-			} else {
-				// Incoming data is more recent than cache
-
-				if (incomingTimestamp > this.cacheTimestamp + 5 * 60 * 1000) {
-					// Cache is not anymore valid (elder than 5 minutes)
-					if (this.cacheTimestamp != 0L) {
-						onInvalidCache.accept(Instant.ofEpochMilli(incomingTimestamp),
-								Instant.ofEpochMilli(this.cacheTimestamp));
-					}
-					synchronized (this) {
-						// Clear Cache
-						this.cacheData.clear();
-					}
-
-				} else if (incomingTimestamp < this.lastAppliedTimestamp + 4 * 60 * 1000) {
-					// Apply Cache only once every four minutes to throttle writes
-
-				} else {
-					// Apply Cache
-
-					// cache is valid (not elder than 5 minutes)
-					this.lastAppliedTimestamp = incomingTimestamp;
-					synchronized (this) {
-						this.cacheData.entrySet().stream() //
-								.forEach(e -> {
-									// check if there is a current value for this timestamp + channel
-									// if not -> add cache data to write data
-									incomingData.putIfAbsent(e.getKey(), e.getValue());
-								});
-					}
-				}
-
-				// update cache
-				this.cacheTimestamp = incomingTimestamp;
-				synchronized (this) {
-					this.cacheData.putAll(incomingData);
-				}
+	public final Pair<Map<String, JsonElement>, Set<String>> getChannelValues(Set<String> addresses) {
+		final var result = new TreeMap<String, JsonElement>();
+		final var aggregatedChannelValues = new TreeSet<String>();
+		for (var address : addresses) {
+			final var value = this.current.getChannelValue(address);
+			if (value != null) {
+				result.put(address, value);
+				continue;
 			}
+			final var aggregatedValue = this.aggregated.getChannelValue(address);
+			if (aggregatedValue != null) {
+				result.put(address, aggregatedValue);
+				aggregatedChannelValues.add(address);
+				continue;
+			}
+			result.put(address, JsonNull.INSTANCE);
 		}
+		return new Pair<>(result, aggregatedChannelValues);
+	}
+
+	/**
+	 * Updates the Cache.
+	 *
+	 * @param notification the incoming data
+	 */
+	public void updateCurrentData(TimestampedDataNotification notification) {
+		this.current.update(notification.getData().rowMap());
+	}
+
+	/**
+	 * Updates the aggregated data cache.
+	 *
+	 * @param notification the incoming data
+	 */
+	public void updateAggregatedData(AggregatedDataNotification notification) {
+		this.aggregated.update(notification.getData().rowMap());
 	}
 
 }

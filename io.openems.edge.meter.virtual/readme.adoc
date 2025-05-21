@@ -17,7 +17,7 @@ Example use-case: create a virtual Grid-Meter from Production-Meter, Consumption
 This is a virtual meter which is used to sum up the values from multiple symmetric meters. The use case for this feature is, Usually when there are multiple meters reading values from different systems, The average values from the systems make more sense for calculation and statistics. 
 
 Implemented Natures
-- SymmetricMeter
+- ElectricityMeter
 
 === Example Configuration
 

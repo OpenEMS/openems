@@ -15,7 +15,7 @@
 ** This implements the inverter as a pure photovoltaics inverter (i.e. `ManagedSymmetricPvInverter`). Use this instead of Ess+Charger, if you are using the inverter purely as PV inverter without a battery.
 
 * *Kaco.BlueplanetHybrid10.GridMeter*
-** This implements the grid meter (product name "VECTIS" or "blueplanet hy-switch") connected to the inverter (i.e. `AsymmetricMeter`) 
+** This implements the grid meter (product name "VECTIS" or "blueplanet hy-switch") connected to the inverter (i.e. `ElectricityMeter`) 
 
 == License/Dependencies
 

@@ -7,7 +7,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
-import io.openems.edge.battery.soltaro.cluster.versionc.ClusterVersionC;
+import io.openems.edge.battery.soltaro.cluster.versionc.BatterySoltaroClusterVersionC;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
@@ -27,7 +27,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		ClusterVersionC battery = context.getParent();
+		BatterySoltaroClusterVersionC battery = context.getParent();
 		PreChargeControl commonPreChargeControl = battery.getCommonPreChargeControl()
 				.orElse(PreChargeControl.UNDEFINED);
 		if (commonPreChargeControl == PreChargeControl.SWITCH_OFF) {

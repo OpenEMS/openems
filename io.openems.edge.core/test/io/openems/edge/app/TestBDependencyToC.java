@@ -13,16 +13,18 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.EnumUtils;
 import io.openems.edge.app.TestBDependencyToC.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -33,9 +35,9 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDepen
  * Test app for testing dependencies.
  */
 @Component(name = "App.Test.TestBDependencyToC")
-public class TestBDependencyToC extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class TestBDependencyToC extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		CREATE_POLICY
 	}
 
@@ -52,13 +54,13 @@ public class TestBDependencyToC extends AbstractOpenemsApp<Property> implements 
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
 				.build();
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TEST };
 	}
 
@@ -86,7 +88,9 @@ public class TestBDependencyToC extends AbstractOpenemsApp<Property> implements 
 							.build()) //
 			);
 
-			return new AppConfiguration(null, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

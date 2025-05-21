@@ -6,14 +6,13 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = "ctrlApiRest0";
-		public int port;
-		public int connectionlimit;
-		public int apiTimeout;
-		public boolean debugMode;
+		private String id;
+		private int port;
+		private int connectionlimit;
+		private int apiTimeout;
+		private boolean debugMode;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {

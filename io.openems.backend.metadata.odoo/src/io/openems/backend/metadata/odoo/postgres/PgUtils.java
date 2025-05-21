@@ -5,37 +5,10 @@ import java.sql.SQLException;
 import java.time.ZonedDateTime;
 
 import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils;
 import io.openems.common.exceptions.OpenemsException;
 
 public class PgUtils {
-
-	/**
-	 * Adds a message in Odoo Chatter ('mail.thread').
-	 *
-	 * @param credentials the Odoo credentials
-	 * @param model       Odoo model (e.g. 'res.partner')
-	 * @param id          id of model
-	 * @param message     the message
-	 * @throws OpenemsException on error
-	 */
-	protected static void addChatterMessage(Credentials credentials, String model, int id, String message)
-			throws OpenemsException {
-	}
-
-	/**
-	 * Update a record in Odoo.
-	 *
-	 * @param credentials the Odoo credentials
-	 * @param model       the Odoo model
-	 * @param ids         ids of model to update
-	 * @param fieldValues fields and values that should be written
-	 * @throws OpenemsException on error
-	 */
-	public static void write(Credentials credentials, String model, Integer[] ids, FieldValue<?>... fieldValues)
-			throws OpenemsException {
-	}
 
 	/**
 	 * Return the Field of the ResultSet.

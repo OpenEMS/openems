@@ -1,108 +1,105 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { FormlyFieldConfig } from '@ngx-formly/core';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
-import { DeleteAppInstance } from './jsonrpc/deleteAppInstance';
-import { GetAppAssistant } from './jsonrpc/getAppAssistant';
-import { GetAppInstances } from './jsonrpc/getAppInstances';
-import { UpdateAppInstance } from './jsonrpc/updateAppInstance';
+// @ts-strict-ignore
+import { Component, OnInit } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { AlertController } from "@ionic/angular";
+import { FormlyFieldConfig } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
+import { InstallAppComponent } from "./install.component";
+import { DeleteAppInstance } from "./jsonrpc/deleteAppInstance";
+import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
+import { GetAppInstances } from "./jsonrpc/getAppInstances";
+import { UpdateAppInstance } from "./jsonrpc/updateAppInstance";
 
 interface MyInstance {
   instanceId: string, // uuid
   form: FormGroup,
   isDeleting: boolean,
-  isUpdateting: boolean,
+  isUpdating: boolean,
   fields: FormlyFieldConfig[]
   properties: {},
 }
 
 @Component({
   selector: UpdateAppComponent.SELECTOR,
-  templateUrl: './update.component.html'
+  templateUrl: "./update.component.html",
+  standalone: false,
 })
 export class UpdateAppComponent implements OnInit {
 
-  private static readonly SELECTOR = "appUpdate";
+  private static readonly SELECTOR = "app-update";
   public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
   protected instances: MyInstance[] = [];
-  protected forms: FormGroup[] = [];
+  protected appName: string | null = null;
 
   private edge: Edge | null = null;
-
-  protected appName: string | null = null;
 
   public constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
+    private router: Router,
+    private translate: TranslateService,
+    private alertCtrl: AlertController,
   ) {
   }
 
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
-    let appId = this.route.snapshot.params["appId"];
-    let appName = this.route.snapshot.queryParams['name'];
+    const appId = this.route.snapshot.params["appId"];
+    const appName = this.route.snapshot.queryParams["name"];
     this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge;
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: "_appManager",
-          payload: new GetAppInstances.Request({ appId: appId })
-        })).then(response => {
-          let recInstances = (response as GetAppInstances.Response).result.instances;
+          payload: new GetAppInstances.Request({ appId: appId }),
+        })).then(getInstancesResponse => {
+          const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
 
           edge.sendRequest(this.websocket,
             new ComponentJsonApiRequest({
               componentId: "_appManager",
-              payload: new GetAppAssistant.Request({ appId: appId })
-            })).then(response2 => {
-              let appAssistant = GetAppAssistant.postprocess((response2 as GetAppAssistant.Response).result);
+              payload: new GetAppAssistant.Request({ appId: appId }),
+            })).then(getAppAssistantResponse => {
+              const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
               this.appName = appAssistant.name;
               this.instances = [];
-              for (let instance of recInstances) {
-                let form = new FormGroup({})
-                this.forms.push(form)
-                const clonedFields = [];
-                appAssistant.fields.forEach(val => clonedFields.push(Object.assign({}, val)));
-                // insert alias field into fields
-                let aliasField = { key: "ALIAS", type: "input", templateOptions: { label: "Alias" }, defaultValue: instance.alias };
-                clonedFields.splice(0, 0, aliasField)
+              for (const instance of recInstances) {
+                const form = new FormGroup({});
+                const model = {
+                  "ALIAS": instance.alias,
+                  ...instance.properties,
+                };
                 this.instances.push({
                   instanceId: instance.instanceId,
                   form: form,
                   isDeleting: false,
-                  isUpdateting: false,
-                  fields: clonedFields,
-                  properties: instance.properties,
-                })
+                  isUpdating: false,
+                  fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model)),
+                  properties: model,
+                });
               }
 
               this.service.stopSpinner(this.spinnerId);
-
-            }).catch(reason => {
-              console.error(reason.error);
-              this.service.toast("Error while receiving App Assistant for [" + appId + "]: " + reason.error.message, 'danger');
-            });
-
-        }).catch(reason => {
-          console.error(reason.error);
-          this.service.toast("Error while receiving App-Instances for [" + appId + "]: " + reason.error.message, 'danger');
-        });
+            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
+        }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
     });
   }
 
   protected submit(instance: MyInstance) {
-    instance.isUpdateting = true
+    this.service.startSpinnerTransparentBackground(instance.instanceId);
+    instance.isUpdating = true;
     // remove alias field from properties
-    let alias = instance.form.value["ALIAS"]
+    const alias = instance.form.value["ALIAS"];
     const clonedFields = {};
-    for (let item in instance.form.value) {
+    for (const item in instance.form.value) {
       if (item != "ALIAS") {
-        clonedFields[item] = instance.form.value[item]
+        clonedFields[item] = instance.form.value[item];
       }
     }
     instance.form.markAsPristine();
@@ -112,40 +109,64 @@ export class UpdateAppComponent implements OnInit {
         payload: new UpdateAppInstance.Request({
           instanceId: instance.instanceId,
           alias: alias,
-          properties: clonedFields
-        })
+          properties: clonedFields,
+        }),
       })).then(response => {
-        var res = (response as UpdateAppInstance.Response);
+        const result = (response as UpdateAppInstance.Response).result;
 
-        if (res.result.warnings && res.result.warnings.length > 0) {
-          this.service.toast(res.result.warnings.join(";"), 'warning');
+        if (result.warnings && result.warnings.length > 0) {
+          this.service.toast(result.warnings.join(";"), "warning");
         } else {
-          this.service.toast("Successfully updated App", 'success');
+          this.service.toast(this.translate.instant("Edge.Config.App.successUpdate"), "success");
         }
-        instance.properties = res.result.instance.properties
-        instance.properties["ALIAS"] = res.result.instance.alias
-        instance.isUpdateting = false
-      }).catch(reason => {
-        this.service.toast("Error updating App:" + reason.error.message, 'danger');
-        instance.isUpdateting = false
+        instance.properties = result.instance.properties;
+        instance.properties["ALIAS"] = result.instance.alias;
+      })
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failUpdate", { error: error })))
+      .finally(() => {
+        instance.isUpdating = false;
+        this.service.stopSpinner(instance.instanceId);
       });
   }
 
+  protected async submitDelete(instance: MyInstance) {
+    const translate = this.translate;
+
+    const alert = this.alertCtrl.create({
+      subHeader: translate.instant("Edge.Config.App.DELETE_CONFIRM_HEADLINE"),
+      message: translate.instant("Edge.Config.App.DELETE_CONFIRM_DESCRIPTION"),
+      buttons: [{
+        text: translate.instant("General.cancel"),
+        role: "cancel",
+      },
+      {
+        text: translate.instant("Edge.Config.App.DELETE_CONFIRM"),
+        handler: () => this.delete(instance),
+      }],
+      cssClass: "alertController",
+    });
+    (await alert).present();
+  }
+
   protected delete(instance: MyInstance) {
-    instance.isDeleting = true
+    this.service.startSpinnerTransparentBackground(instance.instanceId);
+    instance.isDeleting = true;
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
         componentId: "_appManager",
         payload: new DeleteAppInstance.Request({
-          instanceId: instance.instanceId
-        })
+          instanceId: instance.instanceId,
+        }),
       })).then(response => {
-        this.instances.splice(this.instances.indexOf(instance), 1)
-        this.service.toast("Successfully deleted App", 'success');
-      }).catch(reason => {
-        this.service.toast("Error deleting App:" + reason.error.message, 'danger');
-      }).finally(() => {
-        instance.isDeleting = false
+        this.instances.splice(this.instances.indexOf(instance), 1);
+        this.service.toast(this.translate.instant("Edge.Config.App.successDelete"), "success");
+        const navigationExtras = { state: { appInstanceChange: true } };
+        this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
       })
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failDelete", { error: error })))
+      .finally(() => {
+        instance.isDeleting = false;
+        this.service.stopSpinner(instance.instanceId);
+      });
   }
 }

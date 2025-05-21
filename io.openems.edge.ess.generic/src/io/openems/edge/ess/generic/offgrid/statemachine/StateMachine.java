@@ -25,7 +25,6 @@ public class StateMachine extends AbstractStateMachine<StateMachine.OffGridState
 		STOPPED(32), //
 
 		GRID_SWITCH(41), //
-		STOP_BATTERY_INVERTER_BEFORE_SWITCH(42), //
 
 		ERROR(50), //
 		; //
@@ -63,36 +62,19 @@ public class StateMachine extends AbstractStateMachine<StateMachine.OffGridState
 
 	@Override
 	public StateHandler<OffGridState, Context> getStateHandler(OffGridState state) {
-		switch (state) {
-		case UNDEFINED:
-			return new UndefinedHandler();
-		case STARTED_IN_OFF_GRID:
-			return new StartedInOffGridHandler();
-		case STARTED_IN_ON_GRID:
-			return new StartedInOnGridHandler();
-		case START_BATTERY_INVERTER_IN_OFF_GRID:
-			return new StartBatteryInverterInOffGridHandler();
-		case START_BATTERY_INVERTER_IN_ON_GRID:
-			return new StartBatteryInverterInOnGridHandler();
-		case START_BATTERY_IN_OFF_GRID:
-			return new StartBatteryInOffGridHandler();
-		case START_BATTERY_IN_ON_GRID:
-			return new StartBatteryInOnGridHandler();
-		case STOPPED:
-			return new StoppedHandler();
-		case STOP_BATTERY:
-			return new StopBatteryHandler();
-		case STOP_BATTERY_INVERTER:
-			return new StopBatteryInverterHandler();
-		case ERROR:
-			return new ErrorHandler();
-		case GRID_SWITCH:
-			return new GridSwitchHandler();
-		case STOP_BATTERY_INVERTER_BEFORE_SWITCH:
-			return new StopBatteryInverterBeforeSwitchHandler();
-		}
-
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		return switch (state) {
+		case UNDEFINED -> new UndefinedHandler();
+		case STARTED_IN_OFF_GRID -> new StartedInOffGridHandler();
+		case STARTED_IN_ON_GRID -> new StartedInOnGridHandler();
+		case START_BATTERY_INVERTER_IN_OFF_GRID -> new StartBatteryInverterInOffGridHandler();
+		case START_BATTERY_INVERTER_IN_ON_GRID -> new StartBatteryInverterInOnGridHandler();
+		case START_BATTERY_IN_OFF_GRID -> new StartBatteryInOffGridHandler();
+		case START_BATTERY_IN_ON_GRID -> new StartBatteryInOnGridHandler();
+		case STOPPED -> new StoppedHandler();
+		case STOP_BATTERY -> new StopBatteryHandler();
+		case STOP_BATTERY_INVERTER -> new StopBatteryInverterHandler();
+		case ERROR -> new ErrorHandler();
+		case GRID_SWITCH -> new GridSwitchHandler();
+		};
 	}
-
 }

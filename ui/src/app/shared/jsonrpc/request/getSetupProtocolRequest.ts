@@ -7,19 +7,32 @@ import { JsonrpcRequest } from "../base";
  *   "id": UUID,
  *   "method": "submitSetupProtocol",
  *   "params": {
- *      
+ *
  *   }
  * </pre>
  */
 export class GetSetupProtocolRequest extends JsonrpcRequest {
 
-    static METHOD: string = "getSetupProtocol";
+    private static METHOD: string = "getSetupProtocol";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             setupProtocolId: string
-        }
+        },
     ) {
         super(GetSetupProtocolRequest.METHOD, params);
+    }
+}
+
+export class GetSetupProtocolDataRequest extends JsonrpcRequest {
+
+    private static METHOD: string = "getSetupProtocolData";
+
+    public constructor(
+        public override readonly params: {
+            edgeId: string
+        },
+    ) {
+        super(GetSetupProtocolDataRequest.METHOD, params);
     }
 }

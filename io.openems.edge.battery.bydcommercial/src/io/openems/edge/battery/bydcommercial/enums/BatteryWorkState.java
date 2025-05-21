@@ -8,8 +8,8 @@ public enum BatteryWorkState implements OptionsEnum {
 	DISCHARGE(1, "Discharge"), //
 	CHARGE(2, "Charge");
 
-	int value;
-	String name;
+	private final int value;
+	private final String name;
 
 	private BatteryWorkState(int value, String name) {
 		this.value = value;

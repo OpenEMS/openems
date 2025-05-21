@@ -1,20 +1,20 @@
 package io.openems.edge.meter.socomec.singlephase;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public MeterType type;
-		public boolean invert;
-		public SinglePhase phase;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private MeterType type;
+		private boolean invert;
+		private SinglePhase phase;
 
 		private Builder() {
 		}

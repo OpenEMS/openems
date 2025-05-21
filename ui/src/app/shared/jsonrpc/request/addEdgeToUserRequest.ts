@@ -14,12 +14,12 @@ import { JsonrpcRequest } from "../base";
  */
 export class AddEdgeToUserRequest extends JsonrpcRequest {
 
-    static METHOD: string = "addEdgeToUser";
+    private static METHOD: string = "addEdgeToUser";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             setupPassword: string
-        }
+        },
     ) {
         super(AddEdgeToUserRequest.METHOD, params);
     }

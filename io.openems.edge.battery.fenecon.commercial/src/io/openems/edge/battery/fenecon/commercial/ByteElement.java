@@ -4,11 +4,11 @@ import java.util.function.Consumer;
 
 public class ByteElement implements Consumer<Integer> {
 
-	private final FeneconCommercialBatteryImpl parent;
+	private final BatteryFeneconCommercialImpl parent;
 	private final ByteElement.Shifter shifter;
 	private final io.openems.edge.common.channel.ChannelId[] channels;
 
-	public ByteElement(FeneconCommercialBatteryImpl parent, Shifter shifter,
+	public ByteElement(BatteryFeneconCommercialImpl parent, Shifter shifter,
 			io.openems.edge.common.channel.ChannelId... channels) {
 		this.parent = parent;
 		this.shifter = shifter;

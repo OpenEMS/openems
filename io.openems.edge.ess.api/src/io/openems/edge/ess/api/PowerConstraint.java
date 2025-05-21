@@ -1,9 +1,8 @@
 package io.openems.edge.ess.api;
 
-import java.util.function.Consumer;
-
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -14,7 +13,7 @@ import io.openems.edge.ess.power.api.Relationship;
  * is directly validated and only added if the Power problem is still solvable
  * with the new constraint. Otherwise an error is logged.
  */
-public class PowerConstraint implements Consumer<Channel<Integer>> {
+public class PowerConstraint implements ThrowingBiConsumer<ManagedSymmetricEss, Integer, OpenemsNamedException> {
 
 	private final String channelId;
 	private final Phase phase;
@@ -29,29 +28,42 @@ public class PowerConstraint implements Consumer<Channel<Integer>> {
 	}
 
 	@Override
-	public void accept(Channel<Integer> channel) {
-		((IntegerWriteChannel) channel).onSetNextWrite(value -> {
-			if (value != null) {
-				var ess = (ManagedSymmetricEss) channel.getComponent();
+	public void accept(ManagedSymmetricEss ess, Integer value) throws OpenemsNamedException {
+		apply(ess, "Channel [" + this.channelId + "]", this.phase, this.pwr, this.relationship, value);
+	}
 
-				// adjust value so that it fits into Min/MaxActivePower
-				switch (this.relationship) {
-				case EQUALS:
-					value = ess.getPower().fitValueIntoMinMaxPower(this.channelId, ess, this.phase, this.pwr, value);
-					break;
-				case GREATER_OR_EQUALS:
-					value = ess.getPower().fitValueToMaxPower(this.channelId, ess, this.phase, this.pwr, value);
-					break;
-				case LESS_OR_EQUALS:
-					value = ess.getPower().fitValueToMinPower(this.channelId, ess, this.phase, this.pwr, value);
-					break;
-				}
+	/**
+	 * Apply a {@link PowerConstraint} to a {@link ManagedSymmetricEss}, defined by
+	 * its parameters.
+	 * 
+	 * <p>
+	 * The implementation assures, that the value fits the existing constraints.
+	 * 
+	 * @param ess          the target {@link ManagedSymmetricEss}
+	 * @param description  a descriptive text for log messages
+	 * @param phase        the target {@link Phase}h
+	 * @param pwr          the {@link Pwr} mode
+	 * @param relationship the {@link Relationship}
+	 * @param value        the power value in [W] or [var]
+	 * @throws OpenemsException on error
+	 */
+	public static void apply(ManagedSymmetricEss ess, String description, Phase phase, Pwr pwr,
+			Relationship relationship, Integer value) throws OpenemsException {
+		if (value != null) {
+			// adjust value so that it fits into Min/MaxActivePower
+			final var power = ess.getPower();
+			var v = switch (relationship) {
+			case EQUALS:
+				yield power.fitValueIntoMinMaxPower(description, ess, phase, pwr, value);
+			case GREATER_OR_EQUALS:
+				yield power.fitValueToMaxPower(description, ess, phase, pwr, value);
+			case LESS_OR_EQUALS:
+				yield power.fitValueToMinPower(description, ess, phase, pwr, value);
+			};
 
-				// set power channel constraint; throws an exception on error
-				ess.addPowerConstraintAndValidate("Channel [" + this.channelId + "]", this.phase, this.pwr,
-						this.relationship, value);
-			}
-		});
+			// set power channel constraint; throws an exception on error
+			ess.addPowerConstraintAndValidate(description, phase, pwr, relationship, v);
+		}
 	}
 
 }

@@ -2,8 +2,7 @@
 
 Generic implementation of SunSpec Meters.
 
-Implemented Natures::
-- AsymmetricMeter
-- SymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.sunspec[Source Code icon:github[]]

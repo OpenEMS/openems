@@ -3,7 +3,7 @@ import { GetApps } from "./getApps";
 
 /**
  * Represents a JSON-RPC Request for 'getApps'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -12,7 +12,7 @@ import { GetApps } from "./getApps";
  *   "params": {}
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
  * <pre>
@@ -47,9 +47,9 @@ export namespace GetApp {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId: string
-            }
+            },
         ) {
             super(METHOD, {});
         }
@@ -58,10 +58,10 @@ export namespace GetApp {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 app: GetApps.App
-            }
+            },
         ) {
             super(id, result);
         }

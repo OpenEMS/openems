@@ -20,8 +20,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface ModbusComponent extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MODBUS_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+
+		/*
+		 * If ModbusCommunicationFault would be a FaultState, check it explicitly in
+		 * Generic Ess ErrorHandler, as the battery could still have a communication
+		 * fault while starting the battery
+		 */
+		MODBUS_COMMUNICATION_FAILED(Doc.of(Level.WARNING) //
+				.debounce(10, Debounce.SAME_VALUES_IN_A_ROW_TO_CHANGE) //
 				.text("Modbus Communication failed")) //
 		;
 
@@ -52,8 +58,8 @@ public interface ModbusComponent extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getModbusCommunicationFailed() {
-		return this.getModbusCommunicationFailedChannel().value();
+	public default boolean getModbusCommunicationFailed() {
+		return this.getModbusCommunicationFailedChannel().value().get();
 	}
 
 	/**
@@ -66,4 +72,15 @@ public interface ModbusComponent extends OpenemsComponent {
 		this.getModbusCommunicationFailedChannel().setNextValue(value);
 	}
 
+	/**
+	 * The Modbus Bridge marks defective Components, e.g. if there are communication
+	 * failures. If a component is marked as defective, reads and writes are paused
+	 * for an increasing waiting time. This method resets the waiting time, causing
+	 * the Modbus Bridge to retry if a Component is not anymore defective.
+	 * 
+	 * <p>
+	 * Use this method if there is good reason that a Modbus Component should be
+	 * available again 'now', e.g. because it was turned on manually.
+	 */
+	public void retryModbusCommunication();
 }

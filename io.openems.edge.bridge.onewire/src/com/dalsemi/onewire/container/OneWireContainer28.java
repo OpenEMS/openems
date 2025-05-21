@@ -234,9 +234,11 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 */
 	@Override
 	public String getDescription() {
-		return "Digital thermometer measures temperatures from " + "-55C to 125C in 0.75 seconds (max).  +/- 0.5C "
-				+ "accuracy between -10C and 85C. Thermometer "
-				+ "resolution is programmable at 9, 10, 11, and 12 bits. ";
+		return """
+				Digital thermometer measures temperatures from \
+				-55C to 125C in 0.75 seconds (max).  +/- 0.5C \
+				accuracy between -10C and 85C. Thermometer \
+				resolution is programmable at 9, 10, 11, and 12 bits.""";
 	}
 
 	// --------
@@ -359,8 +361,6 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 */
 	@Override
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
-		var msDelay = 750; // in milliseconds
-
 		// select the device
 		if (!this.adapter.select(this.address)) {
 
@@ -374,23 +374,13 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 		this.adapter.putByte(CONVERT_TEMPERATURE_COMMAND);
 
 		// calculate duration of delay according to resolution desired
-		switch (state[4]) {
-
-		case RESOLUTION_9_BIT:
-			msDelay = 94;
-			break;
-		case RESOLUTION_10_BIT:
-			msDelay = 188;
-			break;
-		case RESOLUTION_11_BIT:
-			msDelay = 375;
-			break;
-		case RESOLUTION_12_BIT:
-			msDelay = 750;
-			break;
-		default:
-			msDelay = 750;
-		} // switch
+		var msDelay = switch (state[4]) {
+		case RESOLUTION_9_BIT -> 94;
+		case RESOLUTION_10_BIT -> 188;
+		case RESOLUTION_11_BIT -> 375;
+		case RESOLUTION_12_BIT -> 750;
+		default -> 750;
+		};
 
 		// delay for specified amount of time
 		try {
@@ -500,28 +490,14 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 	 */
 	@Override
 	public double getTemperatureResolution(byte[] state) {
-		var tempres = 0.0;
-
 		// calculate temperature resolution according to configuration byte
-		switch (state[4]) {
-
-		case RESOLUTION_9_BIT:
-			tempres = 0.5;
-			break;
-		case RESOLUTION_10_BIT:
-			tempres = 0.25;
-			break;
-		case RESOLUTION_11_BIT:
-			tempres = 0.125;
-			break;
-		case RESOLUTION_12_BIT:
-			tempres = 0.0625;
-			break;
-		default:
-			tempres = 0.0;
-		} // switch
-
-		return tempres;
+		return switch (state[4]) {
+		case RESOLUTION_9_BIT -> 0.5;
+		case RESOLUTION_10_BIT -> 0.25;
+		case RESOLUTION_11_BIT -> 0.125;
+		case RESOLUTION_12_BIT -> 0.0625;
+		default -> 0.0;
+		};
 	}
 
 	// --------

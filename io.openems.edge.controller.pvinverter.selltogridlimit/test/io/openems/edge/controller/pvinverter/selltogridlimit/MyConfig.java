@@ -6,11 +6,11 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
+		private String id;
 		private String meterId;
-		public String pvInverterId;
-		public boolean asymmetricMode;
-		public int maximumSellToGridPower;
+		private String pvInverterId;
+		private boolean asymmetricMode;
+		private int maximumSellToGridPower;
 
 		private Builder() {
 		}

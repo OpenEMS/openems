@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
@@ -40,9 +41,9 @@ public class SubscribedEdgesChannelsWorker {
 
 	private int lastRequestCount = Integer.MIN_VALUE;
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public SubscribedEdgesChannelsWorker(B2bWebsocket parent, WsData wsData) {
+	public SubscribedEdgesChannelsWorker(Backend2BackendWebsocket parent, WsData wsData) {
 		this.parent = parent;
 		this.wsData = wsData;
 	}
@@ -93,11 +94,15 @@ public class SubscribedEdgesChannelsWorker {
 					return;
 				}
 
+				JsonrpcNotification message;
 				try {
-					this.wsData.send(this.getCurrentDataNotification());
+					message = this.getCurrentDataNotification();
 				} catch (OpenemsNamedException e) {
 					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
+					return;
 				}
+
+				this.wsData.send(message);
 
 			}, 0, SubscribedEdgesChannelsWorker.UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
 		}
@@ -127,8 +132,8 @@ public class SubscribedEdgesChannelsWorker {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast("EdgesCurrentDataNotification", edgeId, Role.GUEST);
 
-			var values = this.parent.timeData.getChannelValues(edgeId, this.channels);
-			for (var entry : values.entrySet()) {
+			var data = this.parent.edgeWebsocket.getChannelValues(edgeId, this.channels);
+			for (var entry : data.entrySet()) {
 				result.addValue(edgeId, entry.getKey(), entry.getValue());
 			}
 		}

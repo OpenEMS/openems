@@ -10,7 +10,7 @@ public class FieldbusModuleFactory {
 	 * Builds a WAGO {@link FieldbusModule} instance, defined by the XML
 	 * specification.
 	 *
-	 * @param parent          the {@link Wago} parent component
+	 * @param parent          the {@link IoWagoImpl} parent component
 	 * @param moduleArtikelnr the XML 'Artikelnr'
 	 * @param moduleType      the XML 'Type'
 	 * @param kanals          the XML 'Kanals'
@@ -18,7 +18,7 @@ public class FieldbusModuleFactory {
 	 * @param coilOffset512   the current offset for coils starting from 512
 	 * @return the {@link FieldbusModule}
 	 */
-	public FieldbusModule of(Wago parent, String moduleArtikelnr, String moduleType, FieldbusModuleKanal[] kanals,
+	public FieldbusModule of(IoWagoImpl parent, String moduleArtikelnr, String moduleType, FieldbusModuleKanal[] kanals,
 			int coilOffset0, int coilOffset512) {
 		final var channelsCount = kanals.length;
 		switch (moduleArtikelnr) {

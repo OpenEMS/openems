@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Simulator Battery Management System", //
-		description = "Implements a simulated battery management system that sends values given in the configuration")
+		name = "Simulator Battery", //
+		description = "Implements a simulated battery that sends values given in the configuration")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -40,6 +40,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	int minCellVoltage_mV() default 3300;
 
-	String webconsole_configurationFactory_nameHint() default "BMS Simulated [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Simulator Battery [{id}]";
 
 }

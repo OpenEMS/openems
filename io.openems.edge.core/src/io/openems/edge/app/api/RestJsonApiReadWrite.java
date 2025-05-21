@@ -1,5 +1,7 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import java.util.EnumMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -12,25 +14,29 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.RestJsonApiReadWrite.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for ReadWrite Rest JSON Api.
@@ -58,9 +64,9 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Api.RestJson.ReadWrite")
-public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class RestJsonApiReadWrite extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		// Component-IDs
 		CONTROLLER_ID, //
 		// Properties
@@ -83,9 +89,9 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
-								.setInputType(Type.NUMBER) //
+								.setInputType(NUMBER) //
 								.setDefaultValue(60) //
-								.setMin(30) //
+								.setMin(0) //
 								.isRequired(true) //
 								.build())
 						.build())
@@ -93,13 +99,14 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 
@@ -138,7 +145,12 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 									.build()) //
 			);
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerComponent(controllerId, "Controller.Api.Rest.ReadWrite", this.getAppId()))) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

@@ -8,11 +8,11 @@ import io.openems.edge.ess.power.api.Phase;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public Phase phase;
-		public boolean readOnlyMode;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private Phase phase;
+		private boolean readOnlyMode;
 
 		private Builder() {
 		}
@@ -31,7 +31,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.phase = phase;
 			return this;
 		}
-		
+
 		public Builder setReadOnlyMode(boolean readOnlyMode) {
 			this.readOnlyMode = readOnlyMode;
 			return this;

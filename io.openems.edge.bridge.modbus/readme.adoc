@@ -1,15 +1,48 @@
 = Modbus
 
-Modbus is a widely used standard for fieldbus connections. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.
+Modbus is a widely used standard for fieldbus communications. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.
 
 == Modbus/TCP
 
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusTcpImpl.java[Modbus/TCP icon:code[]]::
-https://en.wikipedia.org/wiki/Modbus[Modbus/TCP icon:external-link[]] for fieldbus connections via TCP/IP network.
-// TODO add configuration settings
+https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusTcpImpl.java[Bridge Modbus/TCP] for fieldbus communication via TCP/IP network.
 
 == Modbus/RTU
 
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusSerialImpl.java[Modbus/Serial icon:code[]]::
-https://en.wikipedia.org/wiki/Modbus[Modbus/RTU icon:external-link[]] for fieldbus connections via RS485 serial bus. 
-// TODO add configuration settings
+https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusSerialImpl.java[Bridge Modbus/RTU Serial] for fieldbus communication via RS485 serial bus.
+
+== Implementation details
+
+OpenEMS Components that use Modbus communication, must implement the `ModbusComponent` interface and provide a `ModbusProtocol`. A protocol uses the notion of a `Task` to define an individual Modbus Read or Write request that can cover multiple Modbus Registers or Coils depending on the Modbus function code. It is possible to add or remove tasks to/from a protocol at runtime or to change the execution `Priority`. The Modbus Bridge (`Bridge Modbus/RTU Serial` or `Bridge Modbus/TCP`) collects all protocols and manages the execution of Tasks.
+
+=== Execution of Modbus Tasks
+
+Execution of Modbus Tasks is managed by the `ModbusWorker`. It...
+- executes Write-Tasks as early as possible (directly after the EXECUTE_WRITE event)
+- executes Read-Tasks as late as possible to have values available exactly when they are needed (i.e. just before the BEFORE_PROCESS_IMAGE event). To achieve this, the ModbusWorker evaluates all execution times and 'learns' an ideal delay time, that is applied on every Cycle - the 'CycleDelay'
+- handles defective ModbusComponents (i.e. ones where tasks have repeatedly failed) and delays reading from/writing to those components in order to avoid having defective components block the entire communication bus. Maximum delay is 5 minutes for read from defective components. ModbusComponents can trigger a retry from a defective Component by calling the `retryModbusCommunication()` method.
+
+=== Priority
+
+Read-Tasks can have two different priorities, that are defined in the ModbusProtocol definition:
+- `HIGH`: the task is executed once every Cycle
+- `LOW`: only one task of all defined LOW priority tasks of all components registered on the same bridge is executed per Cycle
+Write-Tasks always have `HIGH` priority, i.e. a set-point is always executed as-soon-as-possible - as long as the Component is not marked as defective
+
+=== Channels
+
+Each Modbus Bridge provides Channels for more detailed information:
+- `CycleTimeIsTooShort`: the configured global Cycle-Time is too short to execute all planned tasks in one Cycle
+- `CycleDelay`: see 'CycleDelay' in the 'ModbusWorker' description above
+
+=== Logging
+
+Often it is useful to print detailed logging information on the Console for debugging purposes. Logging can be enabled on Task level in the definition of the ModbusProtocol by adding `.debug()` or globally per Modbus Bridge via the `LogVerbosity` configuration parameter:
+
+- `NONE`: Show no logs
+- `DEBUG_LOG`: Shows basic logging information via the Controller.Debug.Log
+- `READS_AND_WRITES`: Show logs for all read and write requests
+- `READS_AND_WRITES_VERBOSE`: Show logs for all read and write requests, including actual hex or binary values of request and response
+- `READS_AND_WRITES_DURATION`: Show logs for all read and write requests, including actual duration time per request
+- `READS_AND_WRITES_DURATION_TRACE_EVENTS`: Show logs for all read and write requests, including actual duration time per request & trace the internal Event-based State-Machine
+
+The log level via configuration parameter may be changed at any time during runtime without side-effects on the communication.

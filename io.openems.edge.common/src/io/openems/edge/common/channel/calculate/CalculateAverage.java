@@ -14,7 +14,7 @@ import io.openems.edge.common.channel.Channel;
  */
 public class CalculateAverage {
 
-	private final Logger log = LoggerFactory.getLogger(CalculateLongSum.class);
+	private final Logger log = LoggerFactory.getLogger(CalculateAverage.class);
 	private final List<Double> values = new ArrayList<>();
 
 	/**
@@ -22,16 +22,27 @@ public class CalculateAverage {
 	 *
 	 * @param channel the channel
 	 */
-	public void addValue(Channel<Integer> channel) {
+	public void addValue(Channel<? extends Number> channel) {
 		var value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
-				this.values.add(Double.valueOf(value.get()));
+				this.addValue(value.get());
 			} catch (Exception e) {
 				this.log.error("Adding Channel [" + channel.address() + "] value [" + value + "] failed. "
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 				e.printStackTrace();
 			}
+		}
+	}
+
+	/**
+	 * Adds a Value.
+	 *
+	 * @param value the value
+	 */
+	public void addValue(Number value) {
+		if (value != null) {
+			this.values.add(value.doubleValue());
 		}
 	}
 
@@ -63,7 +74,7 @@ public class CalculateAverage {
 		}
 		var longValue = Math.round(value);
 		if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-			return Integer.valueOf((int) longValue);
+			return (int) longValue;
 		}
 		throw new IllegalArgumentException("Cannot convert. Double [" + value + "] is not fitting in Integer range.");
 	}

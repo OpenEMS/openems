@@ -1,8 +1,8 @@
 package io.openems.edge.meter.pqplus.umd97;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -10,8 +10,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String modbusId;
-		public int modbusUnitId;
-		public MeterType type;
+		private int modbusUnitId;
+		private MeterType type;
+		private boolean invert;
 
 		private Builder() {
 		}
@@ -28,6 +29,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setType(MeterType type) {
 			this.type = type;
+			return this;
+		}
+
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
 			return this;
 		}
 
@@ -70,6 +76,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public MeterType type() {
 		return this.builder.type;
+	}
+
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
 	}
 
 }

@@ -1,9 +1,9 @@
 eclipse.preferences.version=1
 encoding//src/io/openems/edge/io/weidmueller/Config.java=UTF-8
-encoding//src/io/openems/edge/io/weidmueller/WeidmuellerUR20.java=UTF-8
-encoding//src/io/openems/edge/io/weidmueller/WeidmuellerUR20Impl.java=UTF-8
+encoding//src/io/openems/edge/io/weidmueller/IoWeidmuellerUr20.java=UTF-8
+encoding//src/io/openems/edge/io/weidmueller/IoWeidmuellerUr20Impl.java=UTF-8
+encoding//test/io/openems/edge/io/weidmueller/IoWeidmuellerUr20ImplTest.java=UTF-8
 encoding//test/io/openems/edge/io/weidmueller/MyConfig.java=UTF-8
-encoding//test/io/openems/edge/io/weidmueller/WeidmuellerUR20ImplTest.java=UTF-8
 encoding/<project>=UTF-8
 encoding/bnd.bnd=UTF-8
 encoding/readme.adoc=UTF-8

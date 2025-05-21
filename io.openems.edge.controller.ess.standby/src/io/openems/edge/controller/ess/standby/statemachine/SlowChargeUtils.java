@@ -15,8 +15,8 @@ public class SlowChargeUtils {
 	private static final float MAX_POWER_LIMIT_FACTOR = 0.5f;
 
 	/**
-	 * Calculates and applies the charging power for {@link State#SLOW_CHARGE_1} and
-	 * {@link State#SLOW_CHARGE_2}.
+	 * Calculates and applies the charging power for
+	 * {@link StateMachine#SLOW_CHARGE_1} and {@link StateMachine#SLOW_CHARGE_2}.
 	 *
 	 * @param context the Context
 	 * @throws IllegalArgumentException on error

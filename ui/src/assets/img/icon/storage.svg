@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24.675mm" height="12.942mm" version="1.1" viewBox="0 0 24.675 12.942" xml:space="preserve"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="root">
+    <defs>
+        <rect id="segment" y="155.21" width="2.6458" height="8.4667"></rect>
+        <g id="border">
+            <path
+                d="m155.85 153.63h17.992a1.8521 1.8521 45 0 1 1.8521 1.8521v7.9375a1.8521 1.8521 135 0 1-1.8521 1.8521h-17.992a1.8521 1.8521 45 0 1-1.8521-1.8521v-7.9375a1.8521 1.8521 135 0 1 1.8521-1.8521z"
+                fill="none" stroke-linejoin="round" stroke-width="1.3"
+                style="mix-blend-mode:normal;paint-order:normal" />
+            <rect x="176.23" y="157.33" width="1.5875" height="4.7625" stroke-linejoin="round"
+                    stroke-width=".42426" fill="currentColor"/>
+        </g>
+    </defs>
+    <g transform="translate(38.204 -124.75)">
+        <g transform="translate(-191.56 -28.229)" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10">
+            <use href="#border"/>
+            <g fill="currentColor">
+                <g stroke-width="0.5">
+                    <use id="segment-0" x="155.59" href="#segment" display="var(--storage-segment-0)" />
+                    <use id="segment-1" x="159.56" href="#segment" display="var(--storage-segment-1)" />
+                    <use id="segment-2" x="163.53" href="#segment" display="var(--storage-segment-2)" />
+                    <use id="segment-3" x="167.49" href="#segment" display="var(--storage-segment-3)" />
+                    <use id="segment-4" x="171.46" href="#segment" display="var(--storage-segment-4)" />
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

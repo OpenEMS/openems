@@ -7,10 +7,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public String meterId;
-		public int peakShavingPower;
-		public int rechargePower;
+		private String essId;
+		private String meterId;
+		private int peakShavingPower;
+		private int rechargePower;
 
 		private Builder() {
 		}
