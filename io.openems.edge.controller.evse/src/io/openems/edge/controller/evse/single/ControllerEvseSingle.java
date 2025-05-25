@@ -4,15 +4,13 @@ import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Profile;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 
 public interface ControllerEvseSingle extends OpenemsComponent {
 
@@ -45,12 +43,11 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 	public Params getParams();
 
 	/**
-	 * Apply Current in [mA] and optionally {@link Profile.Command}s.
+	 * Apply {@link ChargePointActions}.
 	 * 
-	 * @param current         the Current in [mA]
-	 * @param profileCommands the {@link Profile.Command}s
+	 * @param actions the {@link ChargePointActions}
 	 */
-	public void apply(int current, ImmutableList<Profile.Command> profileCommands);
+	public void apply(ChargePointActions actions);
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SESSION_ENERGY}.
