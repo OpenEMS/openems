@@ -272,8 +272,9 @@ public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements E
 		// all registers are Priority.low except ActivePower because only one register
 		// can be read at a time and only one readtask can be executed every 0.5 seconds
 		final var phaseRotated = this.getPhaseRotation();
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, new FC3ReadRegistersTask(1000, Priority.LOW, //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, new FC3ReadRegistersTask(1000, Priority.HIGH, //
 				m(Evcs.ChannelId.STATUS, new UnsignedDoublewordElement(1000), new ElementToChannelConverter(t -> {
+					this.logDebug("Keba Reading Status: " + TypeUtils.<Integer>getAsType(INTEGER, t));
 					return switch (TypeUtils.<Integer>getAsType(INTEGER, t)) {
 					case 0 -> Status.STARTING;
 					case 1 -> Status.NOT_READY_FOR_CHARGING;
