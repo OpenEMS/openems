@@ -1,4 +1,4 @@
-package io.openems.shared.influxdb;
+package io.openems.common.timedata;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,7 +17,6 @@ import org.junit.Test;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 
 public class DbDataUtilsTest {

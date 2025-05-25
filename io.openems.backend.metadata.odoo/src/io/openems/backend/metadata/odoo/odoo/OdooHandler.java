@@ -11,6 +11,7 @@ import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static io.openems.common.utils.JsonUtils.getAsString;
+import static java.util.stream.Collectors.joining;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
+import io.openems.backend.common.metadata.Metadata.SetupProtocolCoreInfo;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
@@ -50,6 +52,7 @@ import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.odoo.Domain.Operator;
+import io.openems.backend.metadata.odoo.odoo.OdooUtils.DateTime;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -57,6 +60,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
 
@@ -411,6 +415,37 @@ public class OdooHandler {
 	}
 
 	/**
+	 * Returns the latest {@link SetupProtocolCoreInfo}.
+	 *
+	 * @param edgeId the edge id
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		final var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
+		if (edge == null) {
+			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
+		}
+
+		final var setupProtocolFilter = new Domain[] {
+				new Domain(Field.SetupProtocol.EDGE, Operator.EQ, edge.getOdooId()) };
+		final var setupProtocol = OdooUtils.searchRead(this.credentials, Field.SetupProtocol.ODOO_MODEL,
+				new Field[] { Field.SetupProtocol.CREATE_DATE }, Map.of("order", "id desc", "limit", 1),
+				setupProtocolFilter);
+
+		if (setupProtocol.length != 1) {
+			return Optional.empty();
+		}
+
+		final var latestSetupProtocol = setupProtocol[0];
+		final var setupProtocolId = JsonUtils.getAsInt(JsonUtils.getAsJsonElement(latestSetupProtocol.get("id")));
+		final var createDate = DateTime.stringToDateTime(
+				JsonUtils.getAsString(JsonUtils.getAsJsonElement(latestSetupProtocol.get("create_date"))));
+
+		return Optional.of(new SetupProtocolCoreInfo(setupProtocolId, createDate));
+	}
+
+	/**
 	 * Save the Setup Protocol to Odoo.
 	 *
 	 * @param user              {@link MyUser} current user
@@ -453,8 +488,15 @@ public class OdooHandler {
 					.ifPresent(lastname -> fieldsToUpdate.put(Field.Partner.LASTNAME.id(), lastname));
 
 			if (!fieldsToUpdate.isEmpty()) {
-				OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { installerId },
-						fieldsToUpdate);
+				try {
+					OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { installerId },
+							fieldsToUpdate);
+				} catch (OpenemsNamedException e) {
+					this.log.info("Unable to write to " + Field.Partner.ODOO_MODEL + ", params{installerId="
+							+ installerId + ", fieldsToUpdate=[" + fieldsToUpdate.entrySet().stream()
+									.map(t -> t.getKey() + "=" + t.getValue()).collect(joining(";"))
+							+ "]}", e);
+				}
 			}
 		}
 

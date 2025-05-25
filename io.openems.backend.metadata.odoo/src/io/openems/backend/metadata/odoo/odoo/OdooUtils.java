@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo.odoo;
 
+import static java.util.Collections.emptyMap;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -298,22 +300,37 @@ public class OdooUtils {
 	 *
 	 * @param credentials the Odoo credentials
 	 * @param model       Odoo model to query (e.g. 'res.partner')
+	 * @param params      the params, e.g ("limit","1")
 	 * @param domains     Odoo domain filters
 	 * @return Odoo object ids
 	 * @throws OpenemsException on error
 	 */
-	protected static Integer[] search(Credentials credentials, String model, Domain... domains)
+	protected static Integer[] search(Credentials credentials, String model, Map<String, ?> params, Domain... domains)
 			throws OpenemsException {
 		// Add domain filter
 		var domain = getAsObjectArray(domains);
 		Object[] paramsDomain = { domain };
 		try {
 			// Execute XML request
-			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "search", paramsDomain, Map.of());
+			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "search", paramsDomain, params);
 			return Arrays.copyOf(resultObjs, resultObjs.length, Integer[].class);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to search from Odoo: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Executes a search on Odoo.
+	 *
+	 * @param credentials the Odoo credentials
+	 * @param model       Odoo model to query (e.g. 'res.partner')
+	 * @param domains     Odoo domain filters
+	 * @return Odoo object ids
+	 * @throws OpenemsException on error
+	 */
+	protected static Integer[] search(Credentials credentials, String model, Domain... domains)
+			throws OpenemsException {
+		return OdooUtils.search(credentials, model, emptyMap(), domains);
 	}
 
 	/**
@@ -381,16 +398,33 @@ public class OdooUtils {
 	 * @return the records as a Map array
 	 * @throws OpenemsException on error
 	 */
-	@SuppressWarnings("unchecked")
 	protected static Map<String, Object>[] searchRead(Credentials credentials, String model, Field[] fields,
 			Domain... domains) throws OpenemsException {
-		// Create request params
+		return OdooUtils.searchRead(credentials, model, fields, emptyMap(), domains);
+	}
+
+	/**
+	 * Search-Reads multiple records from Odoo.
+	 *
+	 * @param credentials the Odoo credentials
+	 * @param model       Odoo model to query (e.g. 'res.partner')
+	 * @param fields      fields that should be read
+	 * @param params      the odoo query params
+	 * @param domains     filter domains
+	 * @return the records as a Map array
+	 * @throws OpenemsException on error
+	 */
+	@SuppressWarnings("unchecked")
+	protected static Map<String, Object>[] searchRead(Credentials credentials, String model, Field[] fields,
+			Map<String, ?> params, Domain... domains) throws OpenemsException {
 		// Add domain filter
 		var domain = getAsObjectArray(domains);
 		var paramsDomain = new Object[] { domain };
 		// Add fields
 		var fieldStrings = getAsStringArray(fields);
-		var paramsFields = Map.of("fields", fieldStrings);
+		final var paramsFields = new HashMap<String, Object>();
+		paramsFields.put("fields", fieldStrings);
+		paramsFields.putAll(params);
 		try {
 			// Execute XML request
 			var result = (Object[]) OdooUtils.executeKw(credentials, model, "search_read", paramsDomain, paramsFields);
@@ -562,6 +596,7 @@ public class OdooUtils {
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Cookie", "session_id=" + session);
 			connection.setDoOutput(true);
 
 			return ByteStreams.toByteArray(connection.getInputStream());

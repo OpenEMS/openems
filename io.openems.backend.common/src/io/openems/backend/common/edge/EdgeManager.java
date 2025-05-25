@@ -1,4 +1,4 @@
-package io.openems.backend.common.edgewebsocket;
+package io.openems.backend.common.edge;
 
 import java.util.Set;
 import java.util.SortedMap;
@@ -18,7 +18,7 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.ChannelAddress;
 
 @ProviderType
-public interface EdgeWebsocket {
+public interface EdgeManager {
 
 	/**
 	 * Send an authenticated JSON-RPC Request to an Edge via Websocket and expect a
@@ -60,5 +60,15 @@ public interface EdgeWebsocket {
 	 * @return the values; possibly {@link JsonNull}
 	 */
 	public SortedMap<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses);
+
+	/**
+	 * Gets the {@link EdgeCache} of the WebSocket connection for an Edge-ID. If
+	 * more than one connection exists, the EdgeCache of the first one is returned.
+	 * Returns null if none is found.
+	 *
+	 * @param edgeId the Edge-ID
+	 * @return the {@link EdgeCache}
+	 */
+	public EdgeCache getEdgeCacheForEdgeId(String edgeId);
 
 }

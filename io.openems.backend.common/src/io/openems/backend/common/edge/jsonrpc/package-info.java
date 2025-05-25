@@ -1,3 +1,3 @@
 @org.osgi.annotation.versioning.Version("1.0.0")
 @org.osgi.annotation.bundle.Export
-package io.openems.backend.common.edgewebsocket;
+package io.openems.backend.common.edge.jsonrpc;

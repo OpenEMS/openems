@@ -1,4 +1,4 @@
-package io.openems.backend.common.edgewebsocket;
+package io.openems.backend.common.edge;
 
 import static org.junit.Assert.assertEquals;
 

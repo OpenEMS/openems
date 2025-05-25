@@ -1,21 +1,20 @@
-package io.openems.shared.influxdb;
+package io.openems.common.timedata;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.timedata.DurationUnit;
-import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.CollectorUtils;
 import io.openems.common.utils.JsonUtils;
 
 public final class DbDataUtils {
@@ -45,24 +44,18 @@ public final class DbDataUtils {
 			return null;
 		}
 
-		// currently only works for days, months and years otherwise just return the
-		// table
-		if (resolution.getUnit() != ChronoUnit.DAYS //
-				&& resolution.getUnit() != ChronoUnit.MONTHS //
-				&& resolution.getUnit() != ChronoUnit.YEARS) {
-			return table;
-		}
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> normalizedTable = new TreeMap<>();
 
 		var start = fromDate;
 		while (start.isBefore(toDate)) {
 			ZonedDateTime end = switch (resolution.getUnit()) {
 			case CENTURIES, DECADES, ERAS, FOREVER, //
-					HALF_DAYS, HOURS, MICROS, MILLENNIA, //
-					MILLIS, MINUTES, NANOS, SECONDS, WEEKS -> {
+					HALF_DAYS, MICROS, MILLENNIA, //
+					MILLIS, NANOS, WEEKS -> {
 				// No specific handling required
 				yield null;
 			}
+			case HOURS, MINUTES, SECONDS -> start.plus(resolution.getValue(), resolution.getUnit());
 			case DAYS -> start.plusDays(resolution.getValue()) //
 					.truncatedTo(DurationUnit.ofDays(1));
 			case MONTHS -> start.plusMonths(resolution.getValue()) //
@@ -70,6 +63,11 @@ public final class DbDataUtils {
 			case YEARS -> start.plusYears(resolution.getValue()) //
 					.withDayOfYear(1);
 			};
+
+			if (end == null) {
+				// not supported resolutions
+				return table;
+			}
 
 			SortedMap<ChannelAddress, JsonElement> foundData = null;
 			for (var data : table.entrySet()) {
@@ -89,18 +87,33 @@ public final class DbDataUtils {
 			// fill with null values
 			if (foundData == null) {
 				foundData = channels.stream() //
-						.collect(Collectors.toMap(//
-								t -> t, //
-								t -> JsonNull.INSTANCE, //
-								(oldValue, newValue) -> newValue, //
-								TreeMap::new //
-						));
+						.collect(CollectorUtils.<ChannelAddress, ChannelAddress, JsonElement>//
+								toSortedMap(Function.identity(), t -> JsonNull.INSTANCE));
+			} else {
+				foundData = fillUpMissingValues(foundData, channels);
 			}
 			normalizedTable.put(start, foundData);
 			start = end;
 		}
 
 		return normalizedTable;
+	}
+
+	private static SortedMap<ChannelAddress, JsonElement> fillUpMissingValues(//
+			SortedMap<ChannelAddress, JsonElement> data, //
+			Set<ChannelAddress> channels //
+	) {
+		if (data.size() == channels.size()) {
+			return data;
+		}
+		final var filledUpMap = new TreeMap<>(data);
+		for (var channel : channels) {
+			if (filledUpMap.containsKey(channel)) {
+				continue;
+			}
+			filledUpMap.put(channel, JsonNull.INSTANCE);
+		}
+		return filledUpMap;
 	}
 
 	/**
