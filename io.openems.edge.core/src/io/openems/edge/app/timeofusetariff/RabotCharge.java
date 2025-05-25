@@ -47,7 +47,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * <pre>
   {
     "appId":"App.TimeOfUseTariff.RabotCharge",
-    "alias":"Rabot Charge",
+    "alias":"Rabot Energy",
     "instanceId": UUID,
     "image": base64,
     "properties":{
