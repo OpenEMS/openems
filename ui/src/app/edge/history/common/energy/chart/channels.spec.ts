@@ -24,9 +24,17 @@ export namespace History {
       "datasets": { "bar": {}, "line": {} },
       "plugins": {
         "colors": { "enabled": false },
-        "legend": { "display": true, "position": "bottom", "labels": { "color": "" } },
+        "legend": {
+          "display": true, "position": "bottom", "labels": {
+            "color": "",
+            "usePointStyle": true,
+            "textAlign": "center",
+          },
+        },
         "tooltip": {
           "intersect": false, "mode": "index", "callbacks": {}, "enabled": true,
+          "usePointStyle": true,
+          "caretSize": 0,
         },
         "annotation": {
           annotations: {},
@@ -87,9 +95,14 @@ export namespace History {
       "datasets": { "bar": { "barPercentage": 1 }, "line": {} },
       "plugins": {
         "colors": { "enabled": false },
-        "legend": { "display": true, "position": "bottom", "labels": { "color": "" } },
+        "legend": {
+          "display": true, "position": "bottom", "labels": {
+            "color": "", "usePointStyle": true,
+            "textAlign": "center",
+          },
+        },
         "tooltip": {
-          "intersect": false, "mode": "x", "callbacks": {}, "enabled": true,
+          "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0,
         },
         "annotation": {
           annotations: {},

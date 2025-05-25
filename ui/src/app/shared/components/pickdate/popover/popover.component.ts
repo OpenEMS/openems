@@ -14,6 +14,13 @@ import { Edge } from "../../edge/edge";
     selector: "pickdatepopover",
     templateUrl: "./popover.component.html",
     standalone: false,
+    styles: [
+        `
+        :host{
+             --width: fit-content !important;
+        }
+        `,
+    ],
 })
 export class PickDatePopoverComponent implements OnInit {
 

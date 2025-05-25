@@ -299,15 +299,15 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       label: label,
       data: data,
       hidden: !isLabelVisible(element.name, !(element.hiddenOnInit)),
-      ...(stack != null && { stack: stack.toString() }),
-      maxBarThickness: 100,
-      ...(element.borderDash != null && { borderDash: element.borderDash }),
       yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
       order: element.order ?? Number.MAX_VALUE,
-      ...(element.hideShadow && { fill: !element.hideShadow }),
-      ...(element.custom?.type && { type: chartType }),
-      ...colors,
+      maxBarThickness: 100,
       borderWidth: 2,
+      ...(stack != null ? { stack: stack.toString() } : {}),
+      ...(element.borderDash != null ? { borderDash: element.borderDash } : {}),
+      ...(element.hideShadow ? { fill: !element.hideShadow } : {}),
+      ...(element.custom?.type ? { type: chartType } : {}),
+      ...colors,
       ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(colors),
     };
     return dataset;
@@ -378,6 +378,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber);
     });
 
+    options.plugins.tooltip.callbacks.labelPointStyle = function (context: { dataset: Chart.ChartDataset }) {
+      return ChartConstants.Plugins.ToolTips.POINT_STYLE(context.dataset);
+    };
+
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
       if (tooltipItems?.length === 0) {
         return null;
@@ -409,7 +413,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       return AbstractHistoryChart.getToolTipsSuffix(label, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, translate, config);
     };
 
-    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>): Chart.TooltipLabelStyle | void => {
       let backgroundColor = item.dataset.backgroundColor;
 
       if (Array.isArray(backgroundColor)) {
@@ -440,7 +444,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
         const isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
-        const chartLegendLabelItem = {
+        const chartLegendLabelItem: Chart.LegendItem = {
           text: dataset.label,
           datasetIndex: index,
           fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
@@ -449,6 +453,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           lineWidth: 2,
           ...(dataset.borderColor != null && { strokeStyle: dataset.borderColor.toString() }),
           ...(dataset["borderDash"] != null && { lineDash: dataset["borderDash"] }),
+          ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
         };
 
         const currentDisplayValue = displayValues.find(el => el.name == chartLegendLabelItem.text.split(":")[0]);
