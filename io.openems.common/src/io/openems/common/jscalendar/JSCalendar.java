@@ -16,7 +16,6 @@ import static java.time.LocalDate.EPOCH;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
-import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.util.Arrays.stream;
 
@@ -229,11 +228,12 @@ public class JSCalendar<PAYLOAD> {
 		}
 
 		public static class Builder<PAYLOAD> {
+			private final ImmutableList.Builder<RecurrenceRule> recurrenceRules = ImmutableList.builder();
+
 			private UUID uid = null;
 			private ZonedDateTime updated = null;
 			private LocalDateTime start = null;
 			private Duration duration = null;
-			private final ImmutableList.Builder<RecurrenceRule> recurrenceRules = ImmutableList.builder();
 			private PAYLOAD payload = null;
 
 			protected Builder() {
@@ -333,6 +333,7 @@ public class JSCalendar<PAYLOAD> {
 					: from.minus(this.duration); // query active tasks
 			return this.recurrenceRules.stream() //
 					.map(rr -> rr.getNextOccurence(this.start, f)) //
+					.filter(Objects::nonNull) //
 					.min((o1, o2) -> o1.toInstant().compareTo(o2.toInstant())) //
 					.orElse(null);
 		}
@@ -382,7 +383,9 @@ public class JSCalendar<PAYLOAD> {
 		}
 	}
 
-	public record RecurrenceRule(RecurrenceFrequency frequency, ImmutableSortedSet<DayOfWeek> byDay) {
+	public record RecurrenceRule(RecurrenceFrequency frequency, LocalDate until, ImmutableSortedSet<DayOfWeek> byDay) {
+		// TODO "until" is defined as LocalDateTime in the RFC
+		// https://www.rfc-editor.org/rfc/rfc8984.html#section-4.3.3
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link RecurrenceRule}.
@@ -393,6 +396,7 @@ public class JSCalendar<PAYLOAD> {
 			return jsonObjectSerializer(RecurrenceRule.class, json -> {
 				return new RecurrenceRule(//
 						json.getEnum("frequency", RecurrenceFrequency.class), //
+						json.getOptionalLocalDate("until").orElse(null), //
 						json.getNullableJsonArrayPath("byDay") //
 								.mapToOptional(t -> t.getAsImmutableSortedSet(//
 										dayOfWeekSerializer()::deserializePath, Ordering.natural()))
@@ -400,6 +404,7 @@ public class JSCalendar<PAYLOAD> {
 			}, obj -> {
 				return buildJsonObject() //
 						.addPropertyIfNotNull("frequency", obj.frequency().name().toLowerCase()) //
+						.addPropertyIfNotNull("until", obj.until()) //
 						.onlyIf(!obj.byDay.isEmpty(),
 								j -> j.add("byDay", dayOfWeekSerializer().toSetSerializer().serialize(obj.byDay)))
 						.build();
@@ -433,6 +438,7 @@ public class JSCalendar<PAYLOAD> {
 
 		public static class Builder {
 			private RecurrenceFrequency frequency;
+			private LocalDate until;
 			private ImmutableSortedSet.Builder<DayOfWeek> byDay = ImmutableSortedSet.naturalOrder();
 
 			public Builder() {
@@ -440,6 +446,11 @@ public class JSCalendar<PAYLOAD> {
 
 			public Builder setFrequency(RecurrenceFrequency frequency) {
 				this.frequency = frequency;
+				return this;
+			}
+
+			public Builder setUntil(LocalDate until) {
+				this.until = until;
 				return this;
 			}
 
@@ -455,7 +466,7 @@ public class JSCalendar<PAYLOAD> {
 			}
 
 			public RecurrenceRule build() {
-				return new RecurrenceRule(this.frequency, this.byDay.build());
+				return new RecurrenceRule(this.frequency, this.until, this.byDay.build());
 			}
 		}
 
@@ -483,20 +494,27 @@ public class JSCalendar<PAYLOAD> {
 
 			return switch (this.frequency) {
 			case DAILY -> {
+				// Adjust 'from' if the time of day has already passed
 				if (from.toLocalTime().isAfter(taskStart.toLocalTime())) {
-					from = from.plusDays(1);
+					from = from.plusDays(1); // tomorrow
 				}
-				yield from. //
-						truncatedTo(DAYS) //
-						.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
+				from = from.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
+
+				// Check if result is after the 'until' date
+				if (this.until != null && from.toLocalDate().isAfter(this.until)) {
+					yield null;
+				}
+				yield from;
 
 			}
 			case WEEKLY -> {
 				if (!this.byDay.isEmpty()) {
+					// Adjust 'from' if the time of day has already passed
 					if (from.toLocalTime().isAfter(taskStart.toLocalTime())) {
 						from = from.plusDays(1); // tomorrow
 					}
 					from = from.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
+
 					var nextByDay = this.byDay.ceiling(from.getDayOfWeek());
 					if (nextByDay != null) {
 						yield from.with(nextOrSame(nextByDay)); // next weekday in list

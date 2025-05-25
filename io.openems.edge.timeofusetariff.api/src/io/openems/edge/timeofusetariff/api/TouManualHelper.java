@@ -1,4 +1,4 @@
-package io.openems.edge.timeofusetariff.manual;
+package io.openems.edge.timeofusetariff.api;
 
 import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
@@ -12,9 +12,10 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
-import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class TouManualHelper {
+
+	public static final TouManualHelper EMPTY_TOU_MANUAL_HELPER = new TouManualHelper(ImmutableList.of(), 0.0d);
 
 	private final Clock clock;
 	private final double standardPrice;
@@ -22,7 +23,7 @@ public class TouManualHelper {
 	private ImmutableSortedMap<ZonedDateTime, Double> prices;
 	private ZonedDateTime lastAccessTime = null;
 
-	protected TouManualHelper(Clock clock, ImmutableList<Task<Double>> schedule, double standardPrice) {
+	public TouManualHelper(Clock clock, ImmutableList<Task<Double>> schedule, double standardPrice) {
 		this.clock = clock;
 		this.schedule = schedule;
 		this.standardPrice = standardPrice;

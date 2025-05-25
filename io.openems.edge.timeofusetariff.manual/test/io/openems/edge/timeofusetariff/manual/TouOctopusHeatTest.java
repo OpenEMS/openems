@@ -16,13 +16,9 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TestUtils;
+import io.openems.edge.timeofusetariff.api.TouManualHelper;
 
-public class TouManualHelperTest {
-
-	// Octopus Go constants
-	private static final double GO_STANDARD_PRICE = 24.8;
-	private static final double GO_LOW_PRICE = 14.5;
-	private TouManualHelper goHelper;
+public class TouOctopusHeatTest {
 
 	// Octopus Heat constants
 	private static final double HEAT_HIGHER_PRICE = 32.5;
@@ -36,52 +32,23 @@ public class TouManualHelperTest {
 	public void setup() {
 		this.clock = TestUtils.createDummyClock();
 
-		// Setup Octopus Go schedule
-		final var goSchedule = ImmutableList
-				.of(JSCalendar.Task.<Double>create().setStart(LocalTime.of(0, 0)).setDuration(Duration.ofHours(5))
-						.addRecurrenceRule(b -> b.setFrequency(DAILY)).setPayload(GO_LOW_PRICE).build());
-		this.goHelper = new TouManualHelper(this.clock, goSchedule, GO_STANDARD_PRICE);
-
 		// Setup Octopus Heat schedule
 		final var heatSchedule = ImmutableList.of(JSCalendar.Task.<Double>create() // Lower price 02:00-06:00
 				.setStart(LocalTime.of(2, 0)).setDuration(Duration.ofHours(4))
 				.addRecurrenceRule(b -> b.setFrequency(DAILY)).setPayload(HEAT_LOWER_PRICE).build(),
 				JSCalendar.Task.<Double>create() // Lower price 12:00-16:00
-						.setStart(LocalTime.of(12, 0)).setDuration(Duration.ofHours(4))
-						.addRecurrenceRule(b -> b.setFrequency(DAILY)).setPayload(HEAT_LOWER_PRICE).build(),
+						.setStart(LocalTime.of(12, 0)) //
+						.setDuration(Duration.ofHours(4)) //
+						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
+						.setPayload(HEAT_LOWER_PRICE) //
+						.build(),
 				JSCalendar.Task.<Double>create() // Higher price 18:00-21:00
-						.setStart(LocalTime.of(18, 0)).setDuration(Duration.ofHours(3))
-						.addRecurrenceRule(b -> b.setFrequency(DAILY)).setPayload(HEAT_HIGHER_PRICE).build());
+						.setStart(LocalTime.of(18, 0)) //
+						.setDuration(Duration.ofHours(3)) //
+						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
+						.setPayload(HEAT_HIGHER_PRICE) //
+						.build());
 		this.heatHelper = new TouManualHelper(this.clock, heatSchedule, HEAT_STANDARD_PRICE);
-	}
-
-	// Octopus Go Tests
-	@Test
-	public void testGoStandardPriceOutsideSchedule() {
-		var testTime = roundDownToQuarter(ZonedDateTime.now(this.clock).withHour(10));
-		var price = this.goHelper.getPrices().getAt(testTime);
-		assertEquals(GO_STANDARD_PRICE, price, 0.001);
-	}
-
-	@Test
-	public void testGoLowPriceDuringSchedule() {
-		var testTime = roundDownToQuarter(ZonedDateTime.now(this.clock).withHour(2));
-		var price = this.goHelper.getPrices().getAt(testTime);
-		assertEquals(GO_LOW_PRICE, price, 0.001);
-	}
-
-	@Test
-	public void testGoBoundaryStartOfLowPricePeriod() {
-		var testTime = roundDownToQuarter(ZonedDateTime.now(this.clock).withHour(0));
-		var price = this.goHelper.getPrices().getAt(testTime);
-		assertEquals(GO_LOW_PRICE, price, 0.001);
-	}
-
-	@Test
-	public void testGoBoundaryEndOfLowPricePeriod() {
-		var testTime = roundDownToQuarter(ZonedDateTime.now(this.clock).withHour(5));
-		var price = this.goHelper.getPrices().getAt(testTime);
-		assertEquals(GO_STANDARD_PRICE, price, 0.001);
 	}
 
 	// Octopus Heat Tests
