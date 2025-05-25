@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,9 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.MetricsConsumer;
 import io.openems.backend.common.timedata.InternalTimedataException;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -44,7 +47,7 @@ import io.openems.common.types.ChannelAddress;
 		name = "Core.TimedataManager", //
 		immediate = true //
 )
-public class TimedataManagerImpl extends AbstractOpenemsBackendComponent implements TimedataManager {
+public class TimedataManagerImpl extends AbstractOpenemsBackendComponent implements TimedataManager, MetricsConsumer {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataManagerImpl.class);
 
@@ -245,6 +248,16 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 				this.logWarn(this.log, "Timedata write failed for Edge=" + edgeId);
 			}
 		}
+	}
+
+	@Override
+	public void consumeMetrics(ZonedDateTime now, Map<String, JsonElement> metrics) {
+		final var epochMillis = now.toInstant().toEpochMilli();
+		final var data = TreeBasedTable.<Long, String, JsonElement>create();
+		for (var entry : metrics.entrySet()) {
+			data.put(epochMillis, entry.getKey(), entry.getValue());
+		}
+		this.write("backend0", new TimestampedDataNotification(data));
 	}
 
 }
