@@ -4,8 +4,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ViewWillLeave } from "@ionic/angular";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
-import { DataService } from "../shared/components/shared/dataservice";
-import { LiveDataService } from "./live/livedataservice";
 
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
@@ -15,10 +13,6 @@ import { LiveDataService } from "./live/livedataservice";
          <ion-router-outlet id="content"></ion-router-outlet>
     `,
     standalone: false,
-    providers: [{
-        useClass: LiveDataService,
-        provide: DataService,
-    }],
 })
 export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
 
@@ -31,7 +25,6 @@ export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
         private activatedRoute: ActivatedRoute,
         private service: Service,
         private websocket: Websocket,
-        private dataService: DataService,
     ) { }
 
     public ngOnInit(): void {
@@ -46,9 +39,9 @@ export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
                     .then(() => {
 
                         // Subscribe on these channels for the state in HeaderComponent
-                        this.dataService.getValues([
+                        edge.subscribeChannels(this.websocket, "", [
                             new ChannelAddress("_sum", "State"),
-                        ], edge);
+                        ]);
                     });
             }).catch(() => {
                 this.router.navigate(["index"]);
