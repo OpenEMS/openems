@@ -659,7 +659,9 @@ public final class FeneconHomeComponents {
 			return false;
 		}
 		return switch (hardwareInstance.appId) {
-		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4S", "App.OpenemsHardware.CM4S.Gen2" -> true;
+		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4", "App.OpenemsHardware.CM4S",
+				"App.OpenemsHardware.CM4S.Gen2" ->
+			true;
 		default -> false;
 		};
 	}

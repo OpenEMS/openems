@@ -16,6 +16,7 @@ import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
@@ -135,6 +136,7 @@ public class JSCalendarTest {
 				.setStart("2024-06-17T00:00:00") //
 				.addRecurrenceRule(b -> b //
 						.setFrequency(WEEKLY) //
+						.setUntil(LocalDate.of(2025, 1, 1)) //
 						.addByDay(SATURDAY, SUNDAY)) //
 				.setPayload(new StringPayload("Hello World")) //
 				.build();
@@ -147,6 +149,7 @@ public class JSCalendarTest {
 				  "recurrenceRules": [
 				    {
 				      "frequency": "weekly",
+				      "until": "2025-01-01",
 				      "byDay": [
 				        "sa",
 				        "su"
@@ -217,7 +220,44 @@ public class JSCalendarTest {
 		assertEquals(sessionEnergyMinimum, JsonUtils.getAsInt(ot.payload(), "sessionEnergyMinimum"));
 	}
 
-	public static record StringPayload(String value) {
+	@Test
+	public void testDailyWithUntil() throws OpenemsNamedException {
+		var clock = createDummyClock();
+		var sut = JSCalendar.Task.<JsonObject>create()//
+				.setStart("07:00:00") //
+				.addRecurrenceRule(b -> b.setFrequency(DAILY) //
+						.setUntil(LocalDate.of(2020, 1, 3)))
+				.build();
+
+		var next = sut.getNextOccurence(ZonedDateTime.now(clock));
+		assertEquals("2020-01-01T07:00Z", next.toString());
+
+		next = sut.getNextOccurence(next.plusSeconds(1));
+		assertEquals("2020-01-02T07:00Z", next.toString());
+
+		next = sut.getNextOccurence(next.plusSeconds(1));
+		assertEquals("2020-01-03T07:00Z", next.toString());
+
+		// Should not find any further occurrence after 'until'
+		next = sut.getNextOccurence(next.plusSeconds(1));
+		assertEquals(null, next);
+	}
+
+	@Test
+	public void testUntilDateBeforeStart() throws OpenemsNamedException {
+		var clock = createDummyClock();
+		var sut = JSCalendar.Task.<JsonObject>create() //
+				.setStart("07:00:00") //
+				.addRecurrenceRule(b -> b //
+						.setFrequency(DAILY) //
+						.setUntil(LocalDate.of(2019, 12, 31))) // Before 2020-01-01
+				.build();
+
+		var next = sut.getNextOccurence(ZonedDateTime.now(clock));
+		assertEquals(null, next); // Start is after until => no occurrence at all
+	}
+
+	private static record StringPayload(String value) {
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link StringPayload}.

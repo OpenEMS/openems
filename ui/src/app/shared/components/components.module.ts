@@ -33,9 +33,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         FooterNavigationModule,
         ChartModule,
         PickdateModule,
+        ModalModule,
         ReactiveFormsModule,
         RouterModule,
-        ModalModule,
     ],
     declarations: [
 

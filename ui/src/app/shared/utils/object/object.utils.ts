@@ -8,6 +8,12 @@ export class ObjectUtils {
         return result;
     }
 
+    public static pickProperties<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+        const result = { ...obj };
+        keys.forEach(key => delete result[key]);
+        return result;
+    }
+
     public static hasKeys<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
         return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
     }

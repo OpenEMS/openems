@@ -1,5 +1,5 @@
 <oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
-  <ion-refresher mode="ios" slot="fixed">
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <ion-grid *ngIf="edge && edge.isOnline">

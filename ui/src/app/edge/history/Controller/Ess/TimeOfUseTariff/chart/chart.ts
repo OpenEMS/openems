@@ -125,7 +125,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
 
             tooltip: {
-                formatNumber: "1.1-4",
+                formatNumber: "1.0-4",
             },
             yAxes: [{
                 unit: YAxisType.CURRENCY,

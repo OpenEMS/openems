@@ -1,18 +1,12 @@
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
-import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
 import { environment } from "src/environments";
 
 @Component({
     selector: "oe-help-button",
     templateUrl: "./help-button.html",
-    standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-    ],
+    standalone: false,
 })
 export class HelpButtonComponent {
 

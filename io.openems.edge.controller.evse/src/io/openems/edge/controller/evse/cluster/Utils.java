@@ -22,8 +22,8 @@ import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Profile;
-import io.openems.edge.evse.api.chargepoint.Profile.Command;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
+import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
 
 public class Utils {
 
@@ -40,7 +40,7 @@ public class Utils {
 		}
 	}
 
-	protected static record Result(ControllerEvseSingle ctrl, int current, ImmutableList<Command> commands) {
+	protected static record Result(ControllerEvseSingle ctrl, ChargePointActions actions) {
 	}
 
 	protected static ImmutableList<Result> calculate(DistributionStrategy distributionStrategy, Sum sum,
@@ -63,28 +63,20 @@ public class Utils {
 		for (var input : inputs) {
 			final var ctrl = input.ctrl;
 			final var params = input.params;
+			final var abilities = params.abilities();
 
-			// Handle Profile Commands
-			final var commands = ImmutableList.<Profile.Command>builder();
-			if (params.actualMode() == Mode.Actual.MINIMUM) {
-				params.profiles().stream() //
-						.filter(Profile.PhaseSwitchToSinglePhase.class::isInstance) //
-						.map(Profile.PhaseSwitchToSinglePhase.class::cast) //
-						.findFirst().ifPresent(phaseSwitch -> {
-							// Switch from THREE to SINGLE phase in MINIMUM mode
-							logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
-							commands.add(phaseSwitch.command());
-						});
-
-			} else if (params.actualMode() == Mode.Actual.FORCE) {
-				params.profiles().stream() //
-						.filter(Profile.PhaseSwitchToThreePhase.class::isInstance) //
-						.map(Profile.PhaseSwitchToThreePhase.class::cast) //
-						.findFirst().ifPresent(phaseSwitch -> {
-							// Switch from SINGLE to THREE phase in FORCE mode
-							logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
-							commands.add(phaseSwitch.command());
-						});
+			// Build Actions
+			final var actions = ChargePointActions.from(abilities);
+			if (params.actualMode() == Mode.Actual.MINIMUM
+					&& abilities.phaseSwitch() instanceof PhaseSwitch.Ability.ToSinglePhase) {
+				// Switch from THREE to SINGLE phase in MINIMUM mode
+				logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
+				actions.setPhaseSwitch(PhaseSwitch.Action.TO_SINGLE_PHASE);
+			} else if (params.actualMode() == Mode.Actual.FORCE
+					&& abilities.phaseSwitch() instanceof PhaseSwitch.Ability.ToThreePhase) {
+				// Switch from SINGLE to THREE phase in FORCE mode
+				logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
+				actions.setPhaseSwitch(PhaseSwitch.Action.TO_THREE_PHASE);
 			}
 
 			// Evaluate Charge Current
@@ -106,7 +98,13 @@ public class Utils {
 				current = MIN_CURRENT;
 			}
 
-			outputs.add(new Result(ctrl, current, commands.build()));
+			// TODO apply rounding to unit already during 'distributeSurplusPower'
+			switch (abilities.applySetPoint()) {
+			case AMPERE -> actions.setApplySetPointInAmpere(current / 1000);
+			case MILLI_AMPERE -> actions.setApplySetPointInMilliAmpere(current);
+			}
+
+			outputs.add(new Result(ctrl, actions.build()));
 		}
 
 		return outputs.build();

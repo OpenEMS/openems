@@ -34,6 +34,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	private final Config config;
 	private final long minWaitSecondsBetweenRetries;
 	private Instant lastTry = Instant.MIN;
+	private String debugLog = null;
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent, Config config) {
 		this.parent = parent;
@@ -55,24 +56,24 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		var start = Instant.now();
 		var waitedSeconds = Duration.between(this.lastTry, start).getSeconds();
 		if (waitedSeconds < this.minWaitSecondsBetweenRetries) {
-			this.parent.logInfo(this.log, "Waiting till next WebSocket reconnect ["
-					+ (this.minWaitSecondsBetweenRetries - waitedSeconds) + "s]");
+			this.debugLog = "Waiting till next WebSocket reconnect ["
+					+ (this.minWaitSecondsBetweenRetries - waitedSeconds) + "s]";
 			return;
 		}
 		this.lastTry = start;
 
-		this.parent.logInfo(this.log, "Connecting WebSocket... [" + ws.getReadyState() + "]");
+		this.debugLog = "Connecting WebSocket... [" + ws.getReadyState() + "]";
 
 		if (ws.getReadyState() != ReadyState.NOT_YET_CONNECTED) {
 			// Copy of WebSocketClient#reconnectBlocking.
 			// Do not 'reset' if WebSocket has never been connected before.
-			this.parent.logInfo(this.log, "# Reset WebSocket Client...");
 			resetWebSocketClient(ws, this.parent::createWsData, this.config.connectTimeoutSeconds());
-			this.parent.logInfo(this.log, "# Reset WebSocket Client... done");
 		}
+
+		var success = false;
 		try {
 			this.parent.logInfo(this.log, "# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]...");
-			ws.connectBlocking(this.config.connectTimeoutSeconds(), TimeUnit.SECONDS);
+			success = ws.connectBlocking(this.config.connectTimeoutSeconds(), TimeUnit.SECONDS);
 			this.parent.logInfo(this.log, "# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]... done");
 
 		} catch (IllegalStateException e) {
@@ -84,8 +85,13 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		}
 
 		var end = Instant.now();
-		this.parent.logInfo(this.log,
-				"Connected WebSocket successfully [" + Duration.between(start, end).toSeconds() + "s]");
+		if (success) {
+			this.debugLog = null;
+			this.parent.logInfo(this.log, "Connected successfully [" + Duration.between(start, end).toSeconds() + "s]");
+		} else {
+			this.debugLog = "Connection failed";
+			this.log.info("Connection failed");
+		}
 
 		this.lastTry = end;
 	}
@@ -186,6 +192,18 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	@Override
 	protected int getCycleTime() {
 		return this.config.cycleTime();
+	}
+
+	/**
+	 * Gets some output that is suitable for a continuous Debug log.
+	 *
+	 * @return the debug log output or null
+	 */
+	public String debugLog() {
+		var message = this.debugLog;
+		return message == null //
+				? "" //
+				: message;
 	}
 
 }

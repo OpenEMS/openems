@@ -38,7 +38,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			Consumer<EdgeConfig> onEdgeConfig, //
 			Runnable onChannelChange //
 	) {
-		super(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, proxy,
+		super(name, serverUri, DEFAULT_DRAFT, httpHeaders, proxy, null /* onConnectedChange */,
 				new ClientReconnectorWorker.Config(5, 10, 5, 5 * 1000));
 		this.onOpen = new OnOpen(onStateChange);
 		this.onNotification = new OnNotification(onCurrentData, onEdgeConfig, onChannelChange);
