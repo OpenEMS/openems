@@ -99,6 +99,7 @@ public class TestTranslations {
 					.addProperty("BUCKET", "bucket")//
 					.build()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.hardyBarthEvcsReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcsReadonly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heidelbergEvcsReadOnlyEvcs(t), true, new JsonObject()));

@@ -120,11 +120,9 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
 							.equal(Exp.staticValue(HardwareType.P40)));
 				}))), //
-		READ_ONLY(AppDef.copyOfGeneric(defaultDef())//
-				.setTranslatedLabelWithAppPrefix(".readOnly.label") //
-				.setTranslatedDescriptionWithAppPrefix(".readOnly.description").setDefaultValue(true) //
+		READ_ONLY(EvcsProps.readOnly() //
+				.setDefaultValue(true) //
 				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
 							.equal(Exp.staticValue(HardwareType.P40)));

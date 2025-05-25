@@ -38,6 +38,7 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
@@ -509,7 +510,7 @@ public final class Apps {
 	// Evcs
 
 	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * Test method for creating a {@link DezonyEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
@@ -519,13 +520,23 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * Test method for creating a {@link HardyBarthEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final HardyBarthEvcs hardyBarthEvcs(AppManagerTestBundle t) {
 		return app(t, HardyBarthEvcs::new, "App.Evcs.HardyBarth");
+	}
+	
+	/**
+	 * Test method for creating a {@link AppHardyBarthReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHardyBarthReadOnly hardyBarthEvcsReadOnly(AppManagerTestBundle t) {
+		return app(t, AppHardyBarthReadOnly::new, "App.Evcs.HardyBarth.ReadOnly");
 	}
 
 	/**

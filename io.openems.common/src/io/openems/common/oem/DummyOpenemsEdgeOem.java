@@ -92,6 +92,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Evcs.Alpitronic", "") //
 			.put("App.Evcs.Cluster", "") //
 			.put("App.Evcs.HardyBarth", "") //
+			.put("App.Evcs.HardyBarth.ReadOnly", "") //
 			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Keba", "") //
 			.put("App.Evcs.Keba.ReadOnly", "") //
