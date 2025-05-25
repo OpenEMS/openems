@@ -244,7 +244,6 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 		if (!this.timeFilter.isValid(fromDate, toDate)) {
 			return null;
 		}
-		assertLongDuration(fromDate, toDate);
 
 		final var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
 
@@ -258,7 +257,6 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 		if (!this.timeFilter.isValid(fromDate, toDate)) {
 			return null;
 		}
-		assertLongDuration(fromDate, toDate);
 
 		var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
 
