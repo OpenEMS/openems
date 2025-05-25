@@ -12,12 +12,12 @@ import io.openems.edge.io.gpio.linuxfs.Gpio;
 import io.openems.edge.io.gpio.linuxfs.HardwareFactory;
 import io.openems.edge.io.gpio.linuxfs.LinuxFsDigitalOut;
 
-public abstract class ModBerryX500CM4 implements HardwarePlatform {
+public abstract class ModBerryX500 implements HardwarePlatform {
 
 	private HardwareFactory context;
 	private HashMap<Integer, Gpio> ios;
 
-	public ModBerryX500CM4(HardwareFactory context) {
+	public ModBerryX500(HardwareFactory context) {
 		this.context = context;
 		this.ios = new HashMap<>();
 	}
