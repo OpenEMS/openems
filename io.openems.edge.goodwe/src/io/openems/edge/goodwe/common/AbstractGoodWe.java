@@ -419,7 +419,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				// Registers 36066 to 36120 throw "Illegal Data Address"
 
-				//37000 - DRM Status - DRED only for Australia
+				// 37000 - DRM Status - DRED only for Australia
 				new FC3ReadRegistersTask(37000, Priority.LOW, //
 						m(new BitsWordElement(37000, this) //
 								.bit(0, GoodWe.ChannelId.DRM0)//

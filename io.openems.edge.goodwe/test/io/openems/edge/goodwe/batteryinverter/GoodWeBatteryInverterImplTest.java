@@ -729,9 +729,10 @@ public class GoodWeBatteryInverterImplTest {
 	public void testDoSetBmsVoltage() {
 		final var battery = new DummyBattery("battery0");
 		final var bmsChargeMaxVoltage = new Value<Integer>(null, 123);
+		final var bmsDischargeMinVoltage = new Value<Integer>(null, 456);
 
 		// No battery values
-		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1));
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
 		battery //
 				.withChargeMaxCurrent(234) //
 				.withDischargeMaxCurrent(234);
@@ -739,21 +740,22 @@ public class GoodWeBatteryInverterImplTest {
 		// Battery full
 		battery //
 				.withChargeMaxCurrent(0); //
-		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1));
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
 
 		// Battery empty
 		battery //
 				.withDischargeMaxCurrent(0); //
-		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1));
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 1));
 
 		// Values are already set
 		battery //
 				.withChargeMaxCurrent(234) //
 				.withDischargeMaxCurrent(234);
+		assertFalse(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 456));
 
 		// Values should be updated
-		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1));
-		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123));
+		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 456));
+		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 1));
 	}
 
 	@Test
