@@ -163,6 +163,8 @@
     --ion-color-toggle-active: var(--ion-color-toggle-checked-border);
 
     --ion-color-label: var(--ion-text-color);
+    --ion-color-background-pull-to-refresh: lightgray;
+    --ion-color-pull-to-refresh: var(--ion-text-color);
 }
 
 
@@ -266,4 +268,6 @@
     --ion-card-content: #cccccc;
     --ion-card-content-color: #cccccc;
     --ion-color-label: var(--ion-item-color);
+    --ion-color-background-pull-to-refresh: var(--ion-color-secondary);
+    --ion-color-pull-to-refresh: var(--ion-menu-color);
 }
