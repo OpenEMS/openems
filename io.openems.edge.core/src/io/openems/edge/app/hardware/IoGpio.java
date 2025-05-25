@@ -61,6 +61,7 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 							.toList());
 				}) //
 				.setRequired(true) //
+				.setDefaultValue(GpioHardwareType.MODBERRY_X500_M40804_WB) //
 				.bidirectional(IO_ID, "hardwareType", ComponentManagerSupplier::getComponentManager))), //
 		;
 

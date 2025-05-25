@@ -174,7 +174,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
+				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
 	}
 
 	@Override
