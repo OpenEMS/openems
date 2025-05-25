@@ -309,17 +309,17 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
-		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
+		return List.of(new UserAlertingSettings("demo", 5, 10, 15));
 	}
 
 	@Override
 	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
-		throw new UnsupportedOperationException("DummyMetadata.getEdgeOfflineAlertingSettings() is not implemented");
+		return List.of(new OfflineEdgeAlertingSetting(edgeId, "demo", 5, null));
 	}
 
 	@Override
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
-		throw new UnsupportedOperationException("DummyMetadata.getSumStateAlertingSettings() is not implemented");
+		return List.of(new SumStateAlertingSetting(edgeId, "demo", 10, 15, null));
 	}
 
 	@Override

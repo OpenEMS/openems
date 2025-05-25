@@ -55,6 +55,8 @@ public class PrometheusClient extends AbstractOpenemsBackendComponent implements
 		this.prometheusRegistry.register(PrometheusMetrics.THREAD_POOL_COMPLETED_TASKS);
 		this.prometheusRegistry.register(PrometheusMetrics.THREAD_POOL_CURRENT_SIZE);
 		this.prometheusRegistry.register(PrometheusMetrics.THREAD_POOL_MAX_SIZE);
+		this.prometheusRegistry.register(PrometheusMetrics.ALERTING_MESSAGES_QUEUE);
+		this.prometheusRegistry.register(PrometheusMetrics.ALERTING_MESSAGES_SENT);
 
 		this.startServer(config.port(), config.bearerToken());
 	}
@@ -116,6 +118,8 @@ public class PrometheusClient extends AbstractOpenemsBackendComponent implements
 			case "Completed" -> PrometheusMetrics.THREAD_POOL_COMPLETED_TASKS;
 			case "PoolSize" -> PrometheusMetrics.THREAD_POOL_CURRENT_SIZE;
 			case "MaxPoolSize" -> PrometheusMetrics.THREAD_POOL_MAX_SIZE;
+			case "AlertingMessagesSent" -> PrometheusMetrics.ALERTING_MESSAGES_SENT;
+			case "AlertingMessagesQueue" -> PrometheusMetrics.ALERTING_MESSAGES_QUEUE;
 			default -> null;
 			};
 			if (metricCollector != null) {

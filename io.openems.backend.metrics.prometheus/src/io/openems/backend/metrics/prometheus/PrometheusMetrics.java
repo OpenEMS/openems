@@ -34,4 +34,14 @@ public class PrometheusMetrics {
 			.labelNames("component") //
 			.build();
 
+	public static final Gauge ALERTING_MESSAGES_SENT = Gauge.builder() //
+			.name("alerting_messages_sent") //
+			.labelNames("component") //
+			.build();
+
+	public static final Gauge ALERTING_MESSAGES_QUEUE = Gauge.builder() //
+			.name("alerting_messages_queue") //
+			.labelNames("component") //
+			.build();
+
 }

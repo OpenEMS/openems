@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -853,11 +853,10 @@ public class OdooHandler {
 	 * @param sentAt   TimeStamp for last_notification field
 	 * @param template template to use for mail
 	 * @param params   arguments for the template
-	 * @return {@link Future} of {@link SuccessResponseAndHeaders}
-	 * @throws OpenemsNamedException error
+	 * @return {@link CompletableFuture} of {@link SuccessResponseAndHeaders}
 	 */
-	public Future<SuccessResponseAndHeaders> sendNotificationMailAsync(ZonedDateTime sentAt, String template,
-			JsonElement params) throws OpenemsNamedException {
+	public CompletableFuture<SuccessResponseAndHeaders> sendNotificationMailAsync(ZonedDateTime sentAt, String template,
+			JsonElement params) {
 		return OdooUtils.sendAdminJsonrpcRequestAsync(this.credentials, "/openems_backend/mail/" + template,
 				buildJsonObject() //
 						.add("params", buildJsonObject() //

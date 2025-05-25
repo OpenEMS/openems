@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,20 +222,16 @@ public class OdooUtils {
 	 * @param url         to send the request
 	 * @param request     to send
 	 * @return SuccessResponseAndHeaders response as Future
-	 * @throws OpenemsNamedException on error
 	 */
-	protected static Future<SuccessResponseAndHeaders> sendAdminJsonrpcRequestAsync(Credentials credentials, String url,
-			JsonObject request) throws OpenemsNamedException {
-		var completableFuture = new CompletableFuture<SuccessResponseAndHeaders>();
-		completableFuture.completeAsync(() -> {
+	protected static CompletableFuture<SuccessResponseAndHeaders> sendAdminJsonrpcRequestAsync(Credentials credentials,
+			String url, JsonObject request) {
+		return CompletableFuture.supplyAsync(() -> {
 			try {
 				return sendAdminJsonrpcRequest(credentials, url, request);
 			} catch (OpenemsNamedException e) {
-				completableFuture.completeExceptionally(e);
+				throw new CompletionException(e);
 			}
-			return null;
 		});
-		return completableFuture;
 	}
 
 	/**

@@ -457,11 +457,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
-		try {
-			this.odooHandler.sendNotificationMailAsync(sendAt, template, params);
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
+		this.odooHandler.sendNotificationMailAsync(sendAt, template, params).whenComplete((result, throwable) -> {
+			if (throwable != null) {
+				this.log.error("sendMail failed: {}", throwable.getMessage(), throwable);
+			}
+		});
 	}
 
 	@Override
