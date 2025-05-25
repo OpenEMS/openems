@@ -35,6 +35,7 @@ export class PickDatePopoverComponent implements OnInit {
                 background-color: var(--ion-color-background);
                 color: var(--color);
                 background: var(--ion-color-background);
+                width: inherit !important;
             }
             .dp1 {
                 overflow-x: hidden;
