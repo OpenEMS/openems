@@ -83,6 +83,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	// module number per tower
 	// TODO get from Battery
 	private static final int MODULE_MIN_VOLTAGE = 42;
+	private static final double DEFAULT_VOLTAGE_TOLERANCE = 1.04;
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
@@ -357,7 +358,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 		final int setChargeMaxCurrent;
 		final int setDischargeMaxCurrent;
-		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(210);
+
+		// Higher voltage to avoid reduced batteryCharge by GoodWe's voltage protection
+		var setChargeMaxVoltage = (int) (battery.getChargeMaxVoltage().orElse(210) * DEFAULT_VOLTAGE_TOLERANCE);
 		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(210);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
@@ -425,18 +428,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		 * sending other values multiple times if the voltage registers are not written
 		 * immediately
 		 */
-		if (doSetBmsVoltage(battery, bmsChargeMaxVoltage, setChargeMaxVoltage, bmsDischargeMinVoltage,
-				setDischargeMinVoltage)) {
-			// Update is required
-			this.logInfo(this.log, "Update for BMS Registers." //
-					+ " Voltages" //
-					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
-					+ " [Charge " + bmsChargeMaxVoltage.get() + " -> " + setChargeMaxVoltage
-					+ "]. This can take up to 10 minutes.");
+		if (doSetBmsVoltage(battery, bmsChargeMaxVoltage, setChargeMaxVoltage)) {
 
-			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage);
-			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage);
+			// BMS_CHARGE_MAX_VOLTAGE set by GoodWe automatically
+			this.channel(GoodWe.ChannelId.HAS_UNEXPECTED_MAX_VOLTAGE).setNextValue(true);
+		} else {
+			this.channel(GoodWe.ChannelId.HAS_UNEXPECTED_MAX_VOLTAGE).setNextValue(false);
 		}
+
+		// TODO: Set MaxVoltage once at the beginning if goodwe is not setting it
+		// automatically
 
 		/*
 		 * Regularly write all WBMS Channels.
@@ -444,7 +445,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VERSION, 1);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, setBatteryStrings); // numberOfModulesPerTower
 		// TODO is writing WBMS_STRINGS still required with latest firmware?
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
+
+		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage);
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
 
 				preprocessAmpereValue47900(battery.getChargeMaxCurrent(), setChargeMaxCurrent));
@@ -472,7 +474,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	protected static boolean doSetBmsVoltage(Battery battery, Value<Integer> bmsChargeMaxVoltage,
-			Integer setChargeMaxVoltage, Value<Integer> bmsDischargeMinVoltage, Integer setDischargeMinVoltage) {
+			Integer setChargeMaxVoltage) {
 		if (!battery.getChargeMaxCurrent().isDefined() || !battery.getDischargeMaxCurrent().isDefined()
 				|| !bmsChargeMaxVoltage.isDefined() || !bmsChargeMaxVoltage.isDefined()) {
 			// Do not set channels if input data is missing/not yet available
@@ -482,8 +484,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			// Exclude times with full or empty battery, due to inverter mis-behaviour
 			return false;
 		}
-		if (Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage)
-				&& Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage)) {
+		if (Objects.equals((int) (bmsChargeMaxVoltage.get() * DEFAULT_VOLTAGE_TOLERANCE), setChargeMaxVoltage)) {
 			// Values are already set
 			return false;
 		}
