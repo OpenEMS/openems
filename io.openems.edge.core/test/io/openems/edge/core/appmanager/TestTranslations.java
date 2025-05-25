@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome15;
@@ -110,7 +111,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kmtronic8Channel(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.ioGpio(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.ioGpio(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.heatPump(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
 					.addProperty("OUTPUT_CHANNEL_2", "io0/Relay2") //

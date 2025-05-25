@@ -10,6 +10,7 @@ import org.osgi.service.component.ComponentContext;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
@@ -42,6 +43,7 @@ import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
+import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
@@ -528,7 +530,7 @@ public final class Apps {
 	public static final HardyBarthEvcs hardyBarthEvcs(AppManagerTestBundle t) {
 		return app(t, HardyBarthEvcs::new, "App.Evcs.HardyBarth");
 	}
-	
+
 	/**
 	 * Test method for creating a {@link AppHardyBarthReadOnly}.
 	 * 
@@ -960,6 +962,9 @@ public final class Apps {
 		case "App.FENECON.Home6" -> TestFeneconHome10Gen2.minSettings();
 		case "App.FENECON.Home10.Gen2" -> TestFeneconHome10Gen2.minSettings();
 		case "App.FENECON.Home15" -> TestFeneconHome10Gen2.minSettings();
+		case "App.Hardware.IoGpio" -> JsonUtils.buildJsonObject() //
+				.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+				.build();
 		default -> new JsonObject();
 		};
 	}

@@ -1,7 +1,9 @@
 package io.openems.edge.app.hardware;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -28,6 +30,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -38,6 +41,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 @Component(name = "App.Hardware.IoGpio")
 public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parameter.BundleParameter>
@@ -49,6 +53,15 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 		IO_ID(AppDef.componentId("io1")), //
 
 		ALIAS(alias()), //
+		HARDWARE_TYPE(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".hardwareType.label") //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(Arrays.stream(GpioHardwareType.values()) //
+							.map(Enum::name) //
+							.toList());
+				}) //
+				.setRequired(true) //
+				.bidirectional(IO_ID, "hardwareType", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super IoGpio, ? super Property, ? super BundleParameter> def;
@@ -111,12 +124,13 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 			final var id = this.getId(t, p, Property.IO_ID);
 
 			final var alias = this.getString(p, Property.ALIAS);
+			final var hardwareType = this.getString(p, Property.HARDWARE_TYPE);
 
 			final var components = List.of(//
 					new EdgeConfig.Component(id, alias, "IO.Gpio", JsonUtils.buildJsonObject() //
 							.addProperty("enabled", true) //
 							.addProperty("gpioPath", "/sys/class") //
-							.addProperty("hardwareType", "MODBERRY_X500_M40804_WB") //
+							.addProperty("hardwareType", hardwareType) //
 							.build()));
 
 			return AppConfiguration.create() //
