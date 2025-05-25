@@ -5,6 +5,7 @@ import static io.openems.edge.app.common.props.CommonProps.alias;
 import java.util.Map;
 import java.util.function.Function;
 
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -79,7 +80,17 @@ public class TechbaseCm4 extends AbstractOpenemsAppWithProps<TechbaseCm4, Proper
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			return AppConfiguration.empty();
+			return AppConfiguration.create() //
+					.addDependencies(new DependencyDeclaration("IO_GPIO", //
+							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+							DependencyDeclaration.UpdatePolicy.NEVER, //
+							DependencyDeclaration.DeletePolicy.ALWAYS, //
+							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+							DependencyDeclaration.AppDependencyConfig.create() //
+									.setAppId("App.Hardware.IoGpio") //
+									.build()))
+					.build();
 		};
 	}
 
