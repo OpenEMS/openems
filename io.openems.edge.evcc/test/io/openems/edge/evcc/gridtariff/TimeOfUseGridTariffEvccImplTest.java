@@ -1,4 +1,4 @@
-package io.openems.edge.evcc.api.gridtariff;
+package io.openems.edge.evcc.gridtariff;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.currency.Currency.EUR;
@@ -9,6 +9,7 @@ import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
+import io.openems.edge.evcc.gridtariff.TimeOfUseGridTariffEvccImpl;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 public class TimeOfUseGridTariffEvccImplTest {

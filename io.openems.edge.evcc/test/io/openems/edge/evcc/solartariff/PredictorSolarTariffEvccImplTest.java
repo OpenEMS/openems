@@ -1,4 +1,4 @@
-package io.openems.edge.evcc.api.solartariff;
+package io.openems.edge.evcc.solartariff;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
 
@@ -7,6 +7,7 @@ import org.junit.Test;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.evcc.solartariff.PredictorSolarTariffEvccImpl;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 public class PredictorSolarTariffEvccImplTest {

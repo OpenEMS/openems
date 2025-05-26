@@ -122,7 +122,7 @@
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.samsung',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
-	bnd.identity;id='io.openems.edge.evcc.api',\
+	bnd.identity;id='io.openems.edge.evcc',\
 	bnd.identity;id='io.openems.edge.evcs.alpitronic.hypercharger',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
@@ -310,7 +310,7 @@
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.samsung;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
-	io.openems.edge.evcc.api;version=snapshot,\
+	io.openems.edge.evcc;version=snapshot,\
 	io.openems.edge.evcs.alpitronic.hypercharger;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\

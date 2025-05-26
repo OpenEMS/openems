@@ -1,4 +1,4 @@
-package io.openems.edge.evcc.api.gridtariff;
+package io.openems.edge.evcc.gridtariff;
 
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 

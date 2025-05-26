@@ -1,5 +1,0 @@
-= implements evcc-API for solar and grid tariffs
-
-There are multiple classes available to provide already available information:
-* grid tariff 
-* solar tariff

@@ -1,4 +1,4 @@
-package io.openems.edge.evcc.api.gridtariff;
+package io.openems.edge.evcc.gridtariff;
 
 import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;

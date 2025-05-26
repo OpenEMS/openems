@@ -1,4 +1,4 @@
-package io.openems.edge.evcc.api.gridtariff;
+package io.openems.edge.evcc.gridtariff;
 
 import java.io.IOException;
 import java.time.Duration;

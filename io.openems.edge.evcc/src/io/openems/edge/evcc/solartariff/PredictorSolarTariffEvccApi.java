@@ -1,4 +1,4 @@
-package io.openems.edge.evcc.api.solartariff;
+package io.openems.edge.evcc.solartariff;
 
 import java.io.IOException;
 import java.time.Clock;
