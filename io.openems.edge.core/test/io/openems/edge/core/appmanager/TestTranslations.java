@@ -93,10 +93,11 @@ public class TestTranslations {
 					.addProperty("API_TIMEOUT", 60) //
 					.add("COMPONENT_IDS", new JsonArray()) //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.modbusRtuApiReadOnly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.modbusRtuApiReadOnly(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("PORT_NAME", "port") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.modbusRtuApiReadWrite(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("API_TIMEOUT", 60) //
-					.add("COMPONENT_IDS", new JsonArray()) //
+					.addProperty("PORT_NAME", "port") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadWrite(t), true, JsonUtils.buildJsonObject() //
