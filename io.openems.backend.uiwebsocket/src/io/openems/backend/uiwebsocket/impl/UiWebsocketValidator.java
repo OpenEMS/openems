@@ -15,7 +15,9 @@ import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class UiWebsocketValidator implements Runnable {
 
-	private static final int FAULT_LIMIT = 10;
+	// Set this value to e.g. 10 if you face crashing UiWebsocket-Server in
+	// production
+	private static final int FAULT_LIMIT = -1;
 
 	private final Logger log = LoggerFactory.getLogger(UiWebsocketValidator.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
