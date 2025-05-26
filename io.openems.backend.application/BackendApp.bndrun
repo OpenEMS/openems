@@ -42,7 +42,6 @@
 	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='org.apache.felix.fileinstall',\
 	bnd.identity;id='org.apache.felix.metatype',\
-	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\
 	bnd.identity;id='io.openems.backend.alerting',\
 	bnd.identity;id='io.openems.backend.application',\
 	bnd.identity;id='io.openems.backend.b2brest',\
@@ -54,6 +53,7 @@
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
 	bnd.identity;id='io.openems.backend.metrics.prometheus',\
+	bnd.identity;id='io.openems.backend.simulator',\
 	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
@@ -80,6 +80,7 @@
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
 	io.openems.backend.metrics.prometheus;version=snapshot,\
+	io.openems.backend.simulator;version=snapshot,\
 	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\

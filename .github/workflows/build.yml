@@ -26,7 +26,7 @@ jobs:
         run: ./gradlew checkstyleAll --console=plain --warn
 
       - name: Build all Java packages
-        run: ./gradlew build --console=plain
+        run: ./gradlew build --console=plain --warn
 
       - name: Resolve OpenEMS bundles
         run: ./gradlew resolve --console=plain --warn
