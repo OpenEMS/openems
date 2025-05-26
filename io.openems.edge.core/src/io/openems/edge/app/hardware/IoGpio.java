@@ -124,7 +124,7 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 		return (t, p, l) -> {
 			final var id = this.getId(t, p, Property.IO_ID);
 
-			final var alias = this.getString(p, Property.ALIAS);
+			final var alias = this.getString(p, l, Property.ALIAS);
 			final var hardwareType = this.getString(p, Property.HARDWARE_TYPE);
 
 			final var components = List.of(//
