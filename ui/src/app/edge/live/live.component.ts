@@ -15,7 +15,10 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 })
 export class LiveComponent implements OnDestroy {
 
-  @ViewChild("modal", { read: ElementRef }, NgxMasonryComponent) public modal!: ElementRef;
+  @ViewChild("modal", { read: ElementRef })
+  public modal!: ElementRef;
+
+  @ViewChild(NgxMasonryComponent)
   private masonry: NgxMasonryComponent;
 
   protected edge: Edge | null = null;
