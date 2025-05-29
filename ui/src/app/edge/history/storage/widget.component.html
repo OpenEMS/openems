@@ -1,9 +1,9 @@
-<ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/storagechart">
-    <ion-item lines="full" color="light">
+<ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/storagechart" class="all-edges-shadow">
+    <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
         <ion-icon slot="start" name="oe-storage" color="success" size="large"></ion-icon>
         <ion-label translate>General.storageSystem</ion-label>
     </ion-item>
-    <ion-card-content>
+    <ion-card-content style="color: var(--ion-card-content-color);">
         <ng-container *ngIf="data && edge; else noData">
             <table class="full_width">
                 <tr>

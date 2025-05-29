@@ -22,22 +22,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.session.Role;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
+import io.openems.edge.battery.api.BatteryTimeoutFailure;
+import io.openems.edge.batteryinverter.api.BatteryInverterTimeoutFailure;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.EssTimeoutFailure;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
+import io.openems.edge.ess.generic.jsonrpc.ClearTimeoutFailure;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.power.api.Power;
@@ -51,10 +59,10 @@ import io.openems.edge.ess.power.api.Power;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
-public class EssGenericManagedSymmetricImpl
-		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
-		implements EssGenericManagedSymmetric, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, CycleProvider, EssProtection {
+public class EssGenericManagedSymmetricImpl extends
+		AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter> implements
+		EssGenericManagedSymmetric, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss, OpenemsComponent,
+		EventHandler, StartStoppable, ModbusSlave, CycleProvider, EssProtection, EssTimeoutFailure, ComponentJsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
 	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
@@ -87,7 +95,8 @@ public class EssGenericManagedSymmetricImpl
 				GenericManagedEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
 				EssGenericManagedSymmetric.ChannelId.values(), //
-				EssProtection.ChannelId.values()//
+				EssProtection.ChannelId.values(), //
+				EssTimeoutFailure.ChannelId.values()//
 		);
 	}
 
@@ -157,14 +166,6 @@ public class EssGenericManagedSymmetricImpl
 	}
 
 	@Override
-	public Integer getSurplusPower() {
-		if (this.batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			return ((HybridManagedSymmetricBatteryInverter) this.batteryInverter).getSurplusPower();
-		}
-		return null;
-	}
-
-	@Override
 	protected ComponentManager getComponentManager() {
 		return this.componentManager;
 	}
@@ -192,4 +193,37 @@ public class EssGenericManagedSymmetricImpl
 				.addValue(this.id()) //
 				.toString();
 	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(new ClearTimeoutFailure(), endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			this.clearEssTimeoutFailure();
+			return EmptyObject.INSTANCE;
+		});
+	}
+
+	@Override
+	public void clearEssTimeoutFailure() {
+		try {
+			this._setTimeoutStartBattery(false);
+			this._setTimeoutStartBatteryInverter(false);
+			this._setTimeoutStopBattery(false);
+			this._setTimeoutStopBatteryInverter(false);
+
+			if (this.battery instanceof BatteryTimeoutFailure b) {
+				b.clearBatteryTimeoutFailure();
+			}
+
+			if (this.batteryInverter instanceof BatteryInverterTimeoutFailure bi) {
+				bi.clearBatteryInverterTimeoutFailure();
+			}
+
+			this.stateMachine.forceNextState(UNDEFINED);
+		} catch (Exception e) {
+			this.logError(this.log, e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+	}
+
 }

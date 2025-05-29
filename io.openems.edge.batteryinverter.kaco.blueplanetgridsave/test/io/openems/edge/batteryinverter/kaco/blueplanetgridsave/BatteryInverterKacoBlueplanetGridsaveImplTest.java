@@ -1,5 +1,6 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER;
 import static io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS;
 import static io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave.WATCHDOG_TRIGGER_SECONDS;
@@ -27,7 +28,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TestUtils;
 
 public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 
@@ -49,17 +49,16 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 
 	}
 
-	private static TimeLeapClock clock;
+	private static final TimeLeapClock CLOCK = createDummyClock();
 	private static ComponentTest test;
 
 	@Before
 	public void prepareTest() throws Exception {
-		clock = TestUtils.createDummyClock();
 		var sut = new BatteryInverterKacoBlueplanetGridsaveImpl();
 
 		test = new MyComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0"));
 
 		// TODO implement proper Dummy-Modbus-Bridge with SunSpec support. Till then...
@@ -80,6 +79,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.W_SET_PCT.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.WPARAM_RMP_TMS.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64201.ST_VND.getChannelId());
+		addChannel.invoke(sut, KacoSunSpecModel.S64201.CONTROL_MODE.getChannelId());
 
 		test.activate(MyConfig.create() //
 				.setId("batteryInverter0") //
@@ -97,10 +97,10 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 						.input(MAX_APPARENT_POWER, 50_000) //
 						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
-						.timeleap(clock, 4, SECONDS) //
+						.timeleap(CLOCK, 4, SECONDS) //
 						.output(STATE_MACHINE, State.GO_RUNNING)) //
 				.next(new TestCase() //
-						.timeleap(clock, 1, SECONDS) //
+						.timeleap(CLOCK, 1, SECONDS) //
 						.input(CURRENT_STATE.getChannelId(), S64201CurrentState.GRID_CONNECTED) //
 						.output(WATCHDOG.getChannelId(), WATCHDOG_TIMEOUT_SECONDS)) //
 				.next(new TestCase() //
@@ -114,10 +114,10 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 				.next(new TestCase() //
 						.output(WATCHDOG.getChannelId(), WATCHDOG_TIMEOUT_SECONDS)) //
 				.next(new TestCase() //
-						.timeleap(clock, WATCHDOG_TRIGGER_SECONDS - 1, SECONDS) //
+						.timeleap(CLOCK, WATCHDOG_TRIGGER_SECONDS - 1, SECONDS) //
 						.output(WATCHDOG.getChannelId(), null /* waiting till next watchdog trigger */)) //
 				.next(new TestCase() //
-						.timeleap(clock, 1, SECONDS) //
+						.timeleap(CLOCK, 1, SECONDS) //
 						.output(WATCHDOG.getChannelId(), WATCHDOG_TIMEOUT_SECONDS)) //
 		;
 	}

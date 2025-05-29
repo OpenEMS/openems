@@ -4,8 +4,9 @@ import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { ChartAxis, TimeOfUseTariffUtils } from "src/app/shared/service/utils";
-import { Utils } from "src/app/shared/shared";
+import { ChartConstants, Utils } from "src/app/shared/shared";
 import { SharedModule } from "src/app/shared/shared.module";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
 import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
@@ -17,8 +18,8 @@ import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
         SharedModule,
     ],
     declarations: [
-        FlatComponent,
         ModalComponent,
+        FlatComponent,
         ScheduleStateAndPriceChartComponent,
         SchedulePowerAndSocChartComponent,
     ],
@@ -28,7 +29,7 @@ import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
 })
 export class Controller_Ess_TimeOfUseTariff { }
 
-export namespace Controller_Ess_TimeOfUseTariff {
+export namespace Controller_Ess_TimeOfUseTariffUtils {
 
     export type ScheduleChartData = {
         datasets: ChartDataset[],
@@ -56,7 +57,7 @@ export namespace Controller_Ess_TimeOfUseTariff {
      */
     export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[],
         gridBuy: number[], socArray: number[], translate: TranslateService,
-        controlMode: Controller_Ess_TimeOfUseTariff.ControlMode): Controller_Ess_TimeOfUseTariff.ScheduleChartData {
+        controlMode: Controller_Ess_TimeOfUseTariffUtils.ControlMode): Controller_Ess_TimeOfUseTariffUtils.ScheduleChartData {
 
         const datasets: ChartDataset[] = [];
         const colors: any[] = [];
@@ -101,7 +102,7 @@ export namespace Controller_Ess_TimeOfUseTariff {
         });
 
         // Set dataset for ChargeGrid.
-        if (!barChargeGrid.every(v => v === null) || controlMode == Controller_Ess_TimeOfUseTariff.ControlMode.CHARGE_CONSUMPTION) {
+        if (!barChargeGrid.every(v => v === null) || controlMode == Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION) {
             datasets.push({
                 type: "bar",
                 label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
@@ -145,18 +146,18 @@ export namespace Controller_Ess_TimeOfUseTariff {
 
         datasets.push({
             type: "line",
-            label: translate.instant("General.gridBuy"),
+            label: translate.instant("General.gridBuyAdvanced"),
             data: gridBuy.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
             hidden: true,
             yAxisID: ChartAxis.RIGHT_2,
             order: 2,
         });
         colors.push({
-            backgroundColor: "rgba(0,0,0, 0.2)",
-            borderColor: "rgba(0,0,0, 1)",
+            backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, ChartConstants.Colors.LEGEND_LABEL_BG_OPACITY),
+            borderColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 1),
         });
 
-        const scheduleChartData: Controller_Ess_TimeOfUseTariff.ScheduleChartData = {
+        const scheduleChartData: Controller_Ess_TimeOfUseTariffUtils.ScheduleChartData = {
             colors: colors,
             datasets: datasets,
             labels: labels,

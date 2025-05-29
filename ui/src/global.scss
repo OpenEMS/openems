@@ -10,22 +10,31 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import "~@ionic/angular/css/core.css";
-@import "~@ionic/angular/css/display.css";
-@import "~@ionic/angular/css/flex-utils.css";
-@import "~@ionic/angular/css/float-elements.css";
+@use "node_modules/@ionic/angular/css/core.css" as *;
+@use "node_modules/@ionic/angular/css/display.css" as *;
+@use "node_modules/@ionic/angular/css/flex-utils.css" as *;
+@use "node_modules/@ionic/angular/css/float-elements.css" as *;
 /* Basic CSS for apps built with Ionic */
-@import "~@ionic/angular/css/normalize.css";
+@use "node_modules/@ionic/angular/css/normalize.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
+
 /* Optional CSS utils that can be commented out */
-@import "~@ionic/angular/css/padding.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/text-alignment.css";
-@import "~@ionic/angular/css/text-transformation.css";
-@import "~@ionic/angular/css/typography.css";
+@use "node_modules/@ionic/angular/css/padding.css" as *;
+@use "node_modules/@ionic/angular/css/structure.css" as *;
+@use "node_modules/@ionic/angular/css/text-alignment.css" as *;
+@use "node_modules/@ionic/angular/css/text-transformation.css" as *;
+@use "node_modules/@ionic/angular/css/typography.css" as *;
 /* ngx-spinner */
-@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
-@import "variables";
-@import "./global-ion-custom.scss";
+@use "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css" as *;
+@use "./environments/index.scss" as *;
+@use "variables" as *;
+@use "./global-ion-custom.scss" as *;
+
+ion-alert {
+    color: green;
+    --color: red;
+}
 
 /* Live- and HistoryComponent*/
 ion-refresher-content {
@@ -34,12 +43,20 @@ ion-refresher-content {
     }
 }
 
-.custom-ion-popover {
+ion-card-content {
+    color: var(--ion-card-content-color);
+}
 
-    white-space: inherit;
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    background-color: transparent !important;
+    box-shadow: 0 0 0em 1000em var(--ion-background-color) inset !important;
+    -webkit-text-fill-color: var(--ion-text-color) !important;
+    margin-top: 0.1em;
+}
 
-    // Overwrites default width of popover
-    --min-width: min-content;
+.footer-color {
+    background-color: var(--ion-color-toolbar-secondary) !important;
 }
 
 .hide-empty-list-header {
@@ -53,6 +70,10 @@ ion-refresher-content {
         display: none;
     }
 
+}
+
+.paragraph-space {
+    margin-top: 2rem;
 }
 
 .disabled {
@@ -73,7 +94,7 @@ formly-field-ion-radio {
             white-space: initial;
 
             small {
-                white-space: initial;
+                white-space: nowrap;
             }
         }
 
@@ -86,6 +107,99 @@ formly-field-ion-radio {
 .custom-spinner {
     ion-spinner {
         left: 0 !important;
+    }
+}
+
+.normal-icon {
+    color: var(--ion-color-primary-shade) !important;
+
+    ion-icon {
+        color: var(--ion-color-primary-shade) !important;
+    }
+}
+
+.percentage-style {
+    fill: var(--ion-color-text-percentage-bar);
+    text-shadow: var(--ion-text-shadow);
+}
+
+.ion-card-style {
+    ion-item {
+        --background: var(--ion-color-primary);
+
+        ion-icon {
+            color: var(--ion-color-primary-contrast);
+        }
+    }
+}
+
+.custom-channels-text {
+    color: var(--ion-color-text-channels) !important;
+}
+
+//* Color of Menu button *//
+.custom-menu-button {
+    color: var(--ion-menu-color);
+}
+
+.custom-theme-text {
+    color: var(--ion-color-text-menu) !important;
+}
+
+.custom-menu-text-dark {
+    color: var(--ion-color-text-menu-dark) !important;
+}
+
+.item-devider {
+    border-color: white;
+}
+
+//* Color of arrow down *//
+ion-select::part(icon) {
+    color: var(--ion-color-primary) !important;
+}
+
+.ion-select-border-color-primary {
+    --border-color: var(--ion-color-primary);
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+        border-color: var(--ion-color-primary) !important;
+    }
+}
+
+.custom-ion-popover {
+
+    --background: var(--ion-background-color);
+
+    // Floating label
+    &::part(label) {
+        color: var(--ion-color-primary) !important;
+    }
+
+    // Overwrites default width of popover
+    white-space: inherit;
+    --min-width: min-content;
+
+    [aria-checked="true"] {
+        .alert-radio-label {
+            color: var(--ion-color-text) !important;
+        }
+    }
+
+    .alert-radio-label {
+        color: var(--ion-color-text);
+    }
+
+    // Color of the selected Language from the list.
+    .item-radio-checked {
+        --background: var(--ion-color-primary-tint);
+        --background-opacity: 0.9;
+    }
+
+    ion-list {
+        min-width: fit-content;
     }
 }
 
@@ -106,7 +220,7 @@ formly-field-ion-radio {
 
 .command-textbox {
     font-family: monospace;
-    color: rgb(52, 52, 52);
+    color: var(--ion-color-text);
 }
 
 .margin-top {
@@ -116,7 +230,7 @@ formly-field-ion-radio {
 }
 
 .active {
-    color: $primary-color;
+    color: var(--ion-color-dark);
 }
 
 .primary-color {
@@ -143,9 +257,7 @@ html.md {
     --ion-default-font: $font-family;
 }
 
-//252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content {
-    width: 251px;
     position: center;
     overflow-y: hidden;
     overflow-x: hidden;
@@ -205,16 +317,28 @@ table {
 }
 
 .underline {
-    border-bottom: 1pt solid lightgray;
+    border-bottom: 1pt solid var(--ion-color-medium);
 }
 
 .gray_color {
-    color: gray;
+    color: var(--ion-color-medium);
 }
 
 button.activated {
-    color: black;
-    background-color: lightgreen;
+    color: var(--ion-color-dark);
+    background-color: var(--ion-color-success);
+}
+
+svg::part('container') {
+    --border-color: white;
+    --checkmark-color: red;
+}
+
+ion-item,
+ion-checkbox {
+    .checkbox-icon {
+        display: none;
+    }
 }
 
 #toast-container {
@@ -276,6 +400,27 @@ formly-input-section {
 
 :root {
 
+    ion-text {
+        small {
+            color: var(--ion-card-content-color);
+        }
+    }
+
+    ion-card {
+
+        ion-card-title,
+        ion-card-subtitle {
+            color: var(--ion-text-color);
+        }
+    }
+
+    --ion-color-primary-item: shade($primary-color, #000);
+
+    ion-segment {
+        --color: var(--ion-text-color);
+        color: var(--ion-text-color);
+    }
+
     // Used in IBN, dynamicFeedInLimitation
     formly-field-ion-select {
         ion-select::part(text) {
@@ -307,6 +452,22 @@ formly-input-section {
     ion-select {
         font-family: $font-family;
         font-size: 14px;
+        color: var(--ion-text-color);
+    }
+
+    ion-alert {
+        color: var(--ion-text-color) !important;
+        --color: red;
+
+        [aria-checked="true"] {
+            .alert-radio-label {
+                color: var(--ion-color-primary) !important;
+            }
+        }
+
+        .alert-radio-label {
+            color: var(--ion-text-color);
+        }
     }
 
     .alert-wrapper {
@@ -320,7 +481,24 @@ formly-input-section {
     }
 
     ion-toggle {
-        --background-checked: var(--ion-color-primary-tint);
+        --track-background: var(--ion-color-toggle-background);
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --handle-background-checked: white;
+        --track-background-checked: var(--ion-color-primary);
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
+        padding: 0.8em;
+        padding-right: 0.2em;
+        padding-left: 0.2em;
+        overflow: visible;
+        scale: 0.95;
+    }
+
+    ion-toggle::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
+    }
+
+    ion-toggle.toggle-checked::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-active) !important;
     }
 
     ion-spinner {
@@ -328,6 +506,18 @@ formly-input-section {
         left: 25%;
         width: 50%;
         color: var(--ion-color-primary);
+    }
+
+    // Ensure content is fitting inside tooltip
+    ion-range::part(pin) {
+        width: max-content !important;
+        white-space: nowrap;
+        padding: 0.5em;
+        text-align: center;
+    }
+
+    ion-buttons {
+        color: var(--ion-color-toggle-background) !important;
     }
 }
 

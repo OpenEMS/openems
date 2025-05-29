@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -148,6 +147,47 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	@Override
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException {
 		return this.usingTemporaryApps(user, () -> this.deleteAppInternal(user, instance));
+	}
+
+	@Override
+	public List<AggregateTask.AggregateTaskExecutionConfiguration> getInstallConfiguration(//
+			User user, //
+			OpenemsAppInstance instance, //
+			OpenemsApp app //
+	) throws OpenemsNamedException {
+		return this.getConfigurations(user, () -> this.updateAppInternal(user, null, instance, app));
+	}
+
+	private List<AggregateTask.AggregateTaskExecutionConfiguration> getConfigurations(//
+			User user, //
+			ThrowingSupplier<UpdateValues, OpenemsNamedException> supplier //
+	) throws OpenemsNamedException {
+		Objects.requireNonNull(supplier);
+		// to make sure the temporaryApps get set to null
+		this.resetTasks();
+		this.temporaryApps = new TemporaryApps();
+		OpenemsNamedException exception = null;
+		RuntimeException runtimeException = null;
+		try {
+			supplier.get();
+		} catch (OpenemsNamedException e) {
+			exception = e;
+		} catch (RuntimeException e) {
+			runtimeException = e;
+		}
+		this.temporaryApps = null;
+		if (exception != null) {
+			this.log.error("An Exception occurred during handling the supplier.", exception);
+			throw exception;
+		}
+		if (runtimeException != null) {
+			this.log.error("An RuntimeException occurred during handling the supplier.", runtimeException);
+			throw runtimeException;
+		}
+
+		return this.tasks.stream() //
+				.map(AggregateTask::getExecutionConfiguration) //
+				.toList();
 	}
 
 	private UpdateValues usingTemporaryApps(User user, ThrowingSupplier<UpdateValues, OpenemsNamedException> supplier)
@@ -780,11 +820,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof AppIdKey)) {
+			if (!(other instanceof AppIdKey aik)) {
 				return false;
 			}
 
-			return ((AppIdKey) other).compareTo(this) == 0;
+			return aik.compareTo(this) == 0;
 		}
 
 		@Override
@@ -956,8 +996,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		Function<AppConfiguration, List<Task<?>>> notExistingTask = config -> {
 			return Optional.ofNullable(config) //
 					.map(c -> c.tasks().stream() //
-							.filter(t -> Stream.of(this.tasks) //
-									.anyMatch(ot -> ot.getClass().isAssignableFrom(t.aggregateTaskClass()))) //
+							.filter(t -> this.tasks.stream() //
+									.noneMatch(ot -> ot.getClass().isAssignableFrom(t.aggregateTaskClass()))) //
 							.collect(Collectors.toList()) //
 			).orElse(Lists.newArrayList());
 		};
@@ -1148,6 +1188,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				if (sub != null && appConfig.specificInstanceId != null) {
 					a = this.getInstance(appConfig.specificInstanceId);
 				}
+
 				config = this.getNewAppConfigWithReplacedIds(app, a, //
 						new OpenemsAppInstance(app.getAppId(), appConfig.alias,
 								appConfig.specificInstanceId == null ? UUID.randomUUID() : appConfig.specificInstanceId,

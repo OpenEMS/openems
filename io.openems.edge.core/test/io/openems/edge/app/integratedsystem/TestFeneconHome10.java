@@ -6,14 +6,20 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -26,16 +32,19 @@ public class TestFeneconHome10 {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
+	private SocomecMeter meterApp;
+
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			return Apps.of(t, //
-					Apps::feneconHome10, //
-					Apps::gridOptimizedCharge, //
-					Apps::selfConsumptionOptimization, //
-					Apps::socomecMeter, //
-					Apps::prepareBatteryExtension, //
-					Apps::limiter14a //
+			return List.of(//
+					Apps.feneconHome10(t), //
+					Apps.gridOptimizedCharge(t), //
+					Apps.selfConsumptionOptimization(t), //
+					Apps.socomecMeter(t), //
+					Apps.prepareBatteryExtension(t), //
+					Apps.limiter14a(t), //
+					this.meterApp = Apps.socomecMeter(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -184,6 +193,17 @@ public class TestFeneconHome10 {
 		assertTrue(this.appManagerTestBundle.sut.getInstantiatedApps().stream()
 				.anyMatch(a -> a.appId.equals("App.Ess.Limiter14a")));
 
+	}
+
+	@Test
+	public void testGetMeterDefaultModbusIdValue() throws Exception {
+		createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
+
+		final var modbusIdProperty = Arrays.stream(this.meterApp.getProperties()) //
+				.filter(t -> t.name.equals(SocomecMeter.Property.MODBUS_ID.name())) //
+				.findFirst().orElseThrow();
+
+		assertEquals("modbus1", modbusIdProperty.getDefaultValue(Language.DEFAULT).map(JsonElement::getAsString).get());
 	}
 
 	private final OpenemsAppInstance createFullHome() throws Exception {

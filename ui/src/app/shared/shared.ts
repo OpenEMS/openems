@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+export { ChartConstants } from "./components/chart/chart.constants";
 export { Edge } from "./components/edge/edge";
 export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";
@@ -31,6 +32,16 @@ addIcons({
 });
 
 export class EdgePermission {
+
+  /**
+  * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
+  *
+  * @param edge the edge
+  * @returns true, if user is at least {@link Role.OWNER}
+  */
+  public static isUserAllowedToSetupProtocolDownload(edge: Edge): boolean {
+    return Role.isAtLeast(edge.role, Role.OWNER);
+  }
 
   /**
    * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
@@ -120,6 +131,9 @@ export class UserPermission {
     const isAllowed = edge?.isVersionAtLeast("2024.2.2");
     return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
   }
+}
+
+export enum Producttype {
 }
 
 export namespace Currency {

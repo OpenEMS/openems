@@ -23,6 +23,7 @@ import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
 @Component({
   selector: SingleAppComponent.SELECTOR,
   templateUrl: "./single.component.html",
+  standalone: false,
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
 

@@ -41,6 +41,8 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	@Reference
 	private ConfigurationAdmin cm;
 
+	private Config config;
+
 	@Reference
 	private OpenemsEdgeOem oem;
 
@@ -91,6 +93,13 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	}
 
 	private void applyConfig(Config config) {
+		this.config = config;
 		this._setCurrency(Currency.fromCurrencyConfig(config.currency()));
+		this._setIsEssChargeFromGridAllowed(config.isEssChargeFromGridAllowed());
+	}
+
+	@Override
+	public int getGridConnectionPointFuseLimit() {
+		return this.config.gridConnectionPointFuseLimit();
 	}
 }

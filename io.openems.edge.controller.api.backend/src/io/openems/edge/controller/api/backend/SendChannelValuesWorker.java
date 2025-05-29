@@ -172,7 +172,7 @@ public class SendChannelValuesWorker {
 			List<OpenemsComponent> enabledComponents) {
 		final var endTime = now.truncatedTo(DurationUnit.ofMinutes(AGGREGATION_MINUTES));
 		final var startTime = endTime.minusMinutes(AGGREGATION_MINUTES);
-		
+
 		final var timestamp = startTime.toInstant();
 		if (this.lastSendAggregatedDataTimestamp == null) {
 			this.lastSendAggregatedDataTimestamp = timestamp;

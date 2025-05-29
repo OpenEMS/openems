@@ -1,6 +1,10 @@
 package io.openems.edge.energy.v1.optimizer;
 
+import java.util.function.IntUnaryOperator;
+
 public class TestDataV1 {
+
+	protected static final IntUnaryOperator TO_ENERGY = v -> v / 4;
 
 	// Edge 888; 06.11.2023
 

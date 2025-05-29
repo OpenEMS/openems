@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -160,7 +160,8 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	private static Document downloadConfigXml(InetAddress ip, String filename, String username, String password)
 			throws ParserConfigurationException, SAXException, IOException {
-		var url = new URL(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
+		var uri = URI.create(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
+		var url = uri.toURL();
 		var authStr = String.format("%s:%s", username, password);
 		var bytesEncoded = Base64.getEncoder().encode(authStr.getBytes());
 		var authEncoded = new String(bytesEncoded);
@@ -303,8 +304,8 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public BooleanReadChannel[] digitalInputChannels() {
-		List<BooleanReadChannel> channels = new ArrayList<>();
-		for (FieldbusModule module : this.modules) {
+		var channels = new ArrayList<BooleanReadChannel>();
+		for (var module : this.modules) {
 			Collections.addAll(channels, module.getChannels());
 		}
 		var result = new BooleanReadChannel[channels.size()];
@@ -316,11 +317,11 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public BooleanWriteChannel[] digitalOutputChannels() {
-		List<BooleanWriteChannel> channels = new ArrayList<>();
-		for (FieldbusModule module : this.modules) {
-			for (BooleanReadChannel channel : module.getChannels()) {
-				if (channel instanceof BooleanWriteChannel) {
-					channels.add((BooleanWriteChannel) channel);
+		var channels = new ArrayList<BooleanWriteChannel>();
+		for (var module : this.modules) {
+			for (var channel : module.getChannels()) {
+				if (channel instanceof BooleanWriteChannel bwc) {
+					channels.add(bwc);
 				}
 			}
 		}

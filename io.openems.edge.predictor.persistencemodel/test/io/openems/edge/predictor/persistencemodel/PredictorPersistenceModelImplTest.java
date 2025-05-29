@@ -1,6 +1,6 @@
 package io.openems.edge.predictor.persistencemodel;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.predictor.api.prediction.LogVerbosity.NONE;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static java.time.temporal.ChronoUnit.HOURS;

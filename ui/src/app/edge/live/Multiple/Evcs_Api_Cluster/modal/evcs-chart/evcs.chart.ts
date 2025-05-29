@@ -10,6 +10,7 @@ import { Edge, EdgeConfig } from "src/app/shared/shared";
 @Component({
   selector: EvcsChartComponent.SELECTOR,
   templateUrl: "./evcs.chart.html",
+  standalone: false,
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
 

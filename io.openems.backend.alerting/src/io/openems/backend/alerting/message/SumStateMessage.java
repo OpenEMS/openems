@@ -29,11 +29,7 @@ public class SumStateMessage extends Message {
 		super(edgeId);
 		this.stateSince = stateSince;
 		this.sumState = sumState;
-		this.recipients = recipients;
-	}
-
-	public SumStateMessage(String edgeId, Level sumState, ZonedDateTime stateSince) {
-		this(edgeId, sumState, stateSince, new ArrayList<>());
+		this.recipients = new ArrayList<>(recipients);
 	}
 
 	public Level getSumState() {

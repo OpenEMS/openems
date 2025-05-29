@@ -4,6 +4,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { Language } from "src/app/shared/type/language";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -94,7 +95,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static addSafely(v1: number, v2: number): number {
+  public static addSafely(v1: number | null, v2: number | null): number {
     if (v1 == null) {
       return v2;
     } else if (v2 == null) {
@@ -146,7 +147,7 @@ export class Utils {
    * @param v1
    * @param v2
    */
-  public static multiplySafely(v1: number, v2: number): number {
+  public static multiplySafely(v1: number | null, v2: number | null): number {
     if (v1 == null || v2 == null) {
       return null;
     } else {
@@ -214,7 +215,7 @@ export class Utils {
    * @param orElse the default value
    * @returns      the value or the default value
    */
-  public static orElse(v: number, orElse: number): number {
+  public static orElse(v: number | null, orElse: number): number {
     if (v == null) {
       return orElse;
     } else {
@@ -251,10 +252,11 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_WATT = (value: number | null): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     } else if (value >= 0) {
-      return formatNumber(value, "de", "1.0-0") + " W";
+      return formatNumber(value, locale, "1.0-0") + " W";
     } else {
       return "0 W";
     }
@@ -267,13 +269,14 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     }
     const thisValue: number = (value / 1000);
 
     if (thisValue >= 0) {
-      return formatNumber(thisValue, "de", "1.0-1") + " kW";
+      return formatNumber(thisValue, locale, "1.0-1") + " kW";
     } else {
       return "0 kW";
     }
@@ -306,7 +309,8 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_WATTHOURS = (value: number): string => {
-    return formatNumber(value, "de", "1.0-1") + " Wh";
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    return formatNumber(value, locale, "1.0-1") + " Wh";
   };
 
   /**
@@ -316,7 +320,19 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
-    return formatNumber(Utils.divideSafely(value, 1000), "de", "1.0-1") + " kWh";
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    return formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") + " kWh";
+  };
+
+  /**
+   * Converts a value in DEZIDEGREE_CELSIUS [dC] to DEGREE_CELSIUS [°C]
+   *
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS = (value: number): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    return formatNumber(Utils.divideSafely(value, 10), locale, "1.0-1") + " °C";
   };
 
   /**
@@ -395,8 +411,9 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     return (value: number | null | undefined): string =>
-      (value == null ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
+      (value == null ? "-" : formatNumber(value / 10, locale, "1.0-" + decimal)) + " " + label;
   };
 
   /**
@@ -636,6 +653,8 @@ export enum YAxisType {
   RELAY,
   TIME,
   VOLTAGE,
+  HEAT_PUMP,
+  HEATING_ELEMENT,
 }
 
 export enum ChartAxis {
@@ -664,15 +683,20 @@ export namespace HistoryUtils {
   }
 
   export type InputChannel = {
-
-    /** Must be unique, is used as identifier in {@link ChartData.input} */
     name: string,
-    powerChannel: ChannelAddress,
-    energyChannel?: ChannelAddress
-
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
-  };
+  } & ({
+    powerChannel: ChannelAddress | null,
+    energyChannel?: undefined
+  } | {
+    energyChannel: ChannelAddress,
+    powerChannel?: undefined
+  } | {
+    powerChannel: ChannelAddress | null,
+    energyChannel: ChannelAddress
+  });
+
   export type DisplayValue<T extends CustomOptions = PluginCustomOptions> = {
     name: string,
     /** suffix to the name */
@@ -778,8 +802,12 @@ export namespace HistoryUtils {
     yAxisId: ChartAxis,
     /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
     customTitle?: string
-    /** Default: true */
-    displayGrid?: boolean
+    /** Default: true _> {@link https://www.chartjs.org/docs/latest/axes/styling.html#grid-line-configuration Chartjs Grid Display} */
+    displayGrid?: boolean,
+    scale?: {
+      /** Default: false, if true scale starts at minimum value of all datasets assigned to this yaxis */
+      dynamicScale?: boolean,
+    }
   };
 
   export namespace ValueConverter {
@@ -859,7 +887,7 @@ export namespace TimeOfUseTariffUtils {
    * @returns The formatted label, or exits if the value is not valid.
    */
   export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: Currency.Label): string {
-
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     // Error handling: Return undefined if value is not valid
     if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
       return;
@@ -874,18 +902,18 @@ export namespace TimeOfUseTariffUtils {
     // Switch case to handle different labels
     switch (label) {
       case socLabel:
-        return label + ": " + formatNumber(value, "de", "1.0-0") + " %";
+        return label + ": " + formatNumber(value, locale, "1.0-0") + " %";
 
       case dischargeLabel:
       case chargeConsumptionLabel:
       case balancingLabel:
         // Show floating point number for values between 0 and 1
-        return label + ": " + formatNumber(value, "de", "1.0-4") + " " + currencyLabel;
+        return label + ": " + formatNumber(value, locale, "1.0-4") + " " + currencyLabel;
 
       default:
       case gridBuyLabel:
         // Power values
-        return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
+        return label + ": " + formatNumber(value, locale, "1.0-2") + " kW";
     }
   }
 

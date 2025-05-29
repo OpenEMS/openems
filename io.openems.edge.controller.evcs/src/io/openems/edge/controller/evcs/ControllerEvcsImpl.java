@@ -1,5 +1,8 @@
 package io.openems.edge.controller.evcs;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static java.lang.Math.max;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
@@ -37,7 +40,8 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
+public class ControllerEvcsImpl extends AbstractOpenemsComponent
+		implements Controller, ControllerEvcs, OpenemsComponent, ModbusSlave {
 
 	private static final int CHARGE_POWER_BUFFER = 200;
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
@@ -94,11 +98,12 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		}
 
 		this.config = config;
-		this.evcs._setChargeMode(config.chargeMode());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
 		}
+
+		this.evcs._setChargeMode(config.chargeMode());
 		this.evcs._setMaximumPower(null);
 	}
 
@@ -114,6 +119,11 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
+		if (this.evcs.isReadOnly()) {
+			this.setEvcsIsReadOnlyChannel(true);
+			return;
+		}
+		this.setEvcsIsReadOnlyChannel(false);
 
 		final var isClustered = this.evcs.getIsClustered().orElse(false);
 
@@ -145,21 +155,27 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 				this.resetMinMaxChannels();
 				return;
 			}
-			case CHARGING_REJECTED, READY_FOR_CHARGING, CHARGING_FINISHED -> {
-				this.evcs._setMaximumPower(null);
-			}
-			case CHARGING -> {
-			}
+			case CHARGING_REJECTED, READY_FOR_CHARGING //
+				-> this.evcs._setMaximumPower(null);
+			case CHARGING //
+				-> doNothing();
 			}
 		}
+
+		// Read parameters from Config
+		final var chargeMode = this.config.chargeMode();
+		final var priority = this.config.priority();
+		final var forceChargePower = this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+		final var defaultChargeMinPower = this.config.defaultChargeMinPower();
 
 		/*
 		 * Calculates the next charging power depending on the charge mode and priority
 		 */
-		var nextChargePower = //
-				switch (this.config.chargeMode()) {
+		var nextChargePower = chargeMode == null //
+				? 0 //
+				: switch (chargeMode) {
 				case EXCESS_POWER -> //
-					switch (this.config.priority()) {
+					switch (priority) {
 					case CAR -> calculateChargePowerFromExcessPower(this.sum, this.evcs);
 					case STORAGE -> {
 						// SoC > 97 % or always, when there is no ESS is available
@@ -170,17 +186,18 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 						}
 					}
 					};
-				case FORCE_CHARGE -> this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+				case FORCE_CHARGE -> forceChargePower;
 				};
 
-		var nextMinPower = //
-				switch (this.config.chargeMode()) {
-				case EXCESS_POWER -> this.config.defaultChargeMinPower();
+		var nextMinPower = chargeMode == null //
+				? 0 //
+				: switch (chargeMode) {
+				case EXCESS_POWER -> defaultChargeMinPower;
 				case FORCE_CHARGE -> 0;
 				};
 		this.evcs._setMinimumPower(nextMinPower);
 
-		nextChargePower = Math.max(nextChargePower, nextMinPower);
+		nextChargePower = max(nextChargePower, nextMinPower);
 
 		// Charging under minimum hardware power isn't possible
 		var minimumHardwarePower = this.evcs.getMinimumHardwarePower().orElse(0);
@@ -220,7 +237,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 			}
 		}
 
-		if (this.config.chargeMode().equals(ChargeMode.EXCESS_POWER)) {
+		if (chargeMode == ChargeMode.EXCESS_POWER) {
 			// Apply hysteresis
 			nextChargePower = this.applyHysteresis(nextChargePower);
 		}

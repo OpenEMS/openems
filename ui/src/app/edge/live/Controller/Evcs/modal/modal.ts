@@ -6,6 +6,7 @@ import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 import { AdministrationComponent } from "../administration/administration.component";
@@ -14,6 +15,7 @@ import { PopoverComponent } from "../popover/popover";
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -39,6 +41,7 @@ export class ModalComponent extends AbstractModal {
   protected sessionLimit: number;
   protected helpKey: string;
   protected awaitingHysteresis: boolean;
+  protected isReadWrite: boolean = true;
 
   constructor(
     @Inject(Websocket) protected override websocket: Websocket,
@@ -115,6 +118,7 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress(this.component.id, "MinimumHardwarePower"),
       new ChannelAddress(this.component.id, "MaximumHardwarePower"),
       new ChannelAddress(this.component.id, "SetChargePowerLimit"),
+      new ChannelAddress(this.component.id, "_PropertyReadOnly"),
       new ChannelAddress(this.controller?.id, "_PropertyChargeMode"),
       new ChannelAddress(this.controller?.id, "_PropertyEnabledCharging"),
       new ChannelAddress(this.controller?.id, "_PropertyDefaultChargeMinPower"),
@@ -125,6 +129,7 @@ export class ModalComponent extends AbstractModal {
   protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
     this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
+    this.isReadWrite = !this.component.properties["readOnly"];
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
@@ -198,6 +203,16 @@ export class ModalComponent extends AbstractModal {
   }
 
   /**
+   * Formats the pin value
+   *
+   * @param value the value
+   * @returns a formatted value
+   */
+  protected pinFormatter(value: number): string {
+    return Formatter.FORMAT_WATT(value);
+  }
+
+  /**
      * Updates the Min-Power of force charging
      *
      * @param event
@@ -256,7 +271,7 @@ export class ModalComponent extends AbstractModal {
       if (state == null) {
         return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
       }
-    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && this.chargePower?.value > 450) {
       return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
     }
     switch (state) {
@@ -295,7 +310,7 @@ enum ChargeState {
   ERROR,                    //Error
   AUTHORIZATION_REJECTED,   //Authorization rejected
   ENERGY_LIMIT_REACHED,     //Energy limit reached
-  CHARGING_FINISHED,         //Charging has finished
+  CHARGING_FINISHED,        //Charging has finished
 }
 
 enum ChargePlug {
@@ -304,5 +319,5 @@ enum ChargePlug {
   PLUGGED_ON_EVCS,                          //Plugged on EVCS
   PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
-  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
+  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7, //Plugged on EVCS and on EV and locked
 }

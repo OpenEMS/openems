@@ -13,7 +13,6 @@ export namespace OeTester {
 
       /** Always one value for each channel from a {@link QueryHistoricTimeseriesEnergyResponse} */
       energyChannelWithValues: QueryHistoricTimeseriesEnergyResponse,
-
       /** data from a {@link QueryHistoricTimeseriesEnergyPerPeriodResponse} */
       energyPerPeriodChannelWithValues?: QueryHistoricTimeseriesEnergyPerPeriodResponse,
       /** data from a {@link QueryHistoricTimeseriesDataResponse} */
@@ -22,17 +21,51 @@ export namespace OeTester {
   }
 
   export namespace ChartOptions {
-    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean }, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [k: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean, title?: string }, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
-        "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
+        // Important for point style on chart hover for line chart
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
+        "responsive": true,
+        "maintainAspectRatio": false,
+        "elements": {
+          "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 },
+          "line": { "stepped": false, "fill": true },
+        },
+        "datasets": { "bar": {}, "line": {} },
+        "plugins": {
+          "colors": { "enabled": false },
+          "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true,
+              "textAlign": "center",
+            },
+          },
+          "tooltip": { "usePointStyle": true, "intersect": false, "mode": "index", "callbacks": {}, "enabled": true, "caretSize": 0 },
+          "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
-        }, "scales": {
-          "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } }, "left": {
+        },
+        "scales": {
+          "x": {
+            "stacked": true,
+            "offset": false,
+            "type": "time",
+            "ticks": { "source": "auto", "maxTicksLimit": 31 },
+            "bounds": "ticks",
+            "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } },
+            "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } },
+          },
+          "left": {
             "stacked": false,
-            "beginAtZero": false, ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            "beginAtZero": false,
+            ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
+            "title": { "text": options["left"]?.scale?.title ?? "kW", "display": false, "padding": 5, "font": { "size": 11 } },
+            "position": "left",
+            "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
               "color": "",
@@ -46,16 +79,52 @@ export namespace OeTester {
     export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
-        "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
+        "responsive": true,
+        "maintainAspectRatio": false,
+        "elements": {
+          "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 },
+          "line": { "stepped": false, "fill": true },
+        },
+        "datasets": {
+          "bar": { "barPercentage": 1 },
+          "line": {},
+        },
+        "plugins": {
+          "colors": { "enabled": false },
+          "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true,
+              "textAlign": "center",
+            },
+          },
+          "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 },
+          "annotation": { "annotations": {} },
+          "datalabels": {
             display: false,
           },
-        }, "scales": {
-          "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
+        },
+        "scales": {
+          "x": {
+            "stacked": true,
+            "offset": true,
+            "type": "time",
+            "ticks": { "source": "auto", "maxTicksLimit": 31 },
+            "bounds": "ticks",
+            "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } },
+            "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } },
+          },
           "left": {
             "stacked": true,
+            "beginAtZero": true,
             ...options["left"]?.scale,
-            ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
+            ...(chartType === "line" ? { stacked: false } : {}),
+            "title": { "text": title ?? "kWh", "display": false, "padding": 5, "font": { "size": 11 } },
+            "position": "left",
+            "grid": { "display": true },
             "ticks": {
               ...options["left"]?.ticks,
               "color": "",
@@ -69,16 +138,24 @@ export namespace OeTester {
     export const MULTI_LINE_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} },
         "plugins": {
           "colors": {
             "enabled": false,
           },
           "legend": {
-            "display": true, "position": "bottom", "labels": { "color": "" },
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true, "textAlign": "center",
+            },
           }, "tooltip": {
             "intersect": false, "mode": "index", "callbacks": {},
             "enabled": true,
+            "usePointStyle": true,
+            "caretSize": 0,
           },
           "annotation": {
             "annotations": {},
@@ -117,8 +194,16 @@ export namespace OeTester {
     export const MULTI_BAR_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
+        "interaction": {
+          "mode": "index",  // Detect x-axis alignment
+          "intersect": false,  // Allow hovering over line, not just points
+        },
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true, "textAlign": "center",
+            },
+          }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {

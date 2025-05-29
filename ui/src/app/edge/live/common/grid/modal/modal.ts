@@ -2,15 +2,21 @@ import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { Converter } from "src/app/shared/components/shared/converter";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.component";
+import { LiveDataService } from "../../../livedataservice";
 
 @Component({
   templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+  standalone: false,
+  providers: [
+    { provide: DataService, useClass: LiveDataService },
+  ],
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
@@ -135,6 +141,7 @@ export class ModalComponent extends AbstractFormlyComponent {
           channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
           converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant("General.phase") + " " + phase),
         },
+
         indentation: TextIndentation.SINGLE,
         children: ModalComponent.generatePhasesLineItems(role, phase, component),
       });
@@ -150,7 +157,7 @@ export class ModalComponent extends AbstractFormlyComponent {
       }, {
         type: "item",
         channel: component.id + "/Current" + phase,
-        converter: Converter.CURRENT_IN_MILLIAMPERE_TO_AMPERE,
+        converter: Converter.CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE,
       });
     }
 

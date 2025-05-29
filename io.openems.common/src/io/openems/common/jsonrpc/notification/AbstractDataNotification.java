@@ -11,8 +11,9 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Notification for timestamped or aggregated data sent
- * from Edge to Backend.
+ * Represents a JSON-RPC Notification for timestamped
+ * ({@link TimestampedDataNotification}) or aggregated
+ * ({@link AggregatedDataNotification}) data sent from Edge to Backend.
  *
  * <pre>
  * {
@@ -26,8 +27,8 @@ import io.openems.common.utils.JsonUtils;
  * }
  * </pre>
  */
-// TODO change to sealed class
-public abstract class AbstractDataNotification extends JsonrpcNotification {
+public abstract sealed class AbstractDataNotification extends JsonrpcNotification
+		permits TimestampedDataNotification, AggregatedDataNotification, ResendDataNotification {
 
 	private final TreeBasedTable<Long, String, JsonElement> data;
 

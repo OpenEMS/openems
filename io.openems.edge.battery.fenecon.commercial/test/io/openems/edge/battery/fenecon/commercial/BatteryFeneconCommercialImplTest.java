@@ -1,5 +1,6 @@
 package io.openems.edge.battery.fenecon.commercial;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
 import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MAX_CURRENT;
 import static io.openems.edge.battery.api.Battery.ChannelId.SOC;
@@ -7,7 +8,6 @@ import static io.openems.edge.battery.fenecon.commercial.BatteryFeneconCommercia
 import static io.openems.edge.battery.fenecon.commercial.BatteryFeneconCommercial.ChannelId.RUNNING;
 import static io.openems.edge.battery.fenecon.commercial.BatteryFeneconCommercial.ChannelId.STATE_MACHINE;
 import static io.openems.edge.common.startstop.StartStoppable.ChannelId.START_STOP;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT7;
 
 import org.junit.Test;

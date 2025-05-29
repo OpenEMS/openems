@@ -110,7 +110,8 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 				.setDefaultValue("")//
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> { //
 					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("METER_ID"))); //
-				}))),//
+				}))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		;
 
 		private final AppDef<? super DiscovergyMeter, ? super Property, ? super BundleParameter> def;
@@ -161,6 +162,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 			final var meterId = this.getString(p, Property.DISCOVERGY_METER_ID);
 			final var serialNumber = this.getString(p, Property.SERIAL_NUMBER);
 			final var fullSerialNumber = this.getString(p, Property.FULL_SERIAL_NUMBER);
+			final var invert = this.getBoolean(p, Property.INVERT);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, "Meter.Discovergy", //
@@ -170,6 +172,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 									.addProperty("email", email) //
 									.addProperty("serialNumber", serialNumber) //
 									.addProperty("fullSerialNumber", fullSerialNumber)//
+									.addProperty("invert", invert)//
 									.onlyIf(password != null && !password.equals("xxx"), b -> {
 										b.addProperty("password", password);
 									}) //

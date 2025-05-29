@@ -8,6 +8,7 @@ import { Role } from "src/app/shared/type/role";
 @Component({
     templateUrl: "./modal.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 

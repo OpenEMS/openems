@@ -10,6 +10,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 @Component({
   selector: "sumChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class SumChartDetailsComponent extends AbstractHistoryChart {
 

@@ -1,11 +1,13 @@
 // @ts-strict-ignore
 import { Component, effect } from "@angular/core";
+import { UserService } from "src/app/shared/service/user.service";
 import { environment } from "src/environments";
 import { Edge, Service, UserPermission, Utils } from "../../../shared/shared";
 
 @Component({
   selector: SystemComponent.SELECTOR,
   templateUrl: "./system.component.html",
+  standalone: false,
 })
 export class SystemComponent {
 
@@ -22,10 +24,11 @@ export class SystemComponent {
   constructor(
     protected utils: Utils,
     private service: Service,
+    private userService: UserService,
   ) {
     effect(async () => {
-      const user = this.service.currentUser();
-      this.edge = await this.service.getCurrentEdge();
+      const user = this.userService.currentUser();
+      this.edge = await this.service.currentEdge();
       this.canSeeSystemRestart = UserPermission.isAllowedToSeeSystemRestart(user, this.edge);
     });
   }

@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.ocpp.common;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.type.TypeUtils.getAsType;
 
 import java.util.Arrays;
@@ -279,20 +280,10 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 	private void checkCurrentState() {
 		var state = this.getStatus();
 		switch (state) {
-		case CHARGING:
-		case READY_FOR_CHARGING:
-			break;
-		case CHARGING_FINISHED:
-			this.resetMeasuredChannelValues();
-			break;
-		case CHARGING_REJECTED:
-		case ENERGY_LIMIT_REACHED:
-		case ERROR:
-		case NOT_READY_FOR_CHARGING:
-		case STARTING:
-		case UNDEFINED:
-			this._setActivePower(0);
-			break;
+		case CHARGING, READY_FOR_CHARGING //
+			-> doNothing();
+		case CHARGING_REJECTED, ENERGY_LIMIT_REACHED, ERROR, NOT_READY_FOR_CHARGING, STARTING, UNDEFINED //
+			-> this._setActivePower(0);
 		}
 	}
 
@@ -325,8 +316,8 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 	@Override
 	public String debugLog() {
 		return "P:" + this.getActivePower().orElse(null) //
-			+ "|Limit:" + this.getSetChargePowerLimit().orElse(null) //
-			+ "|" + this.getStatus().getName();
+				+ "|Limit:" + this.getSetChargePowerLimit().orElse(null) //
+				+ "|" + this.getStatus().getName();
 	}
 
 	@Override

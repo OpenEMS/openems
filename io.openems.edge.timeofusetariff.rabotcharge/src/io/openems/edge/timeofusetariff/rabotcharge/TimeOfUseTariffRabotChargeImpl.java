@@ -1,10 +1,13 @@
 package io.openems.edge.timeofusetariff.rabotcharge;
 
+import static io.openems.common.types.HttpStatus.UNAUTHORIZED;
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -29,7 +32,6 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.oem.OpenemsEdgeOem.OAuthClientRegistration;
-import io.openems.common.timedata.DurationUnit;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -68,6 +70,8 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 			.withPath("/hems/v1/day-ahead-prices/limited");
 
 	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
+	private static final double RABOT_SURCHARGE = 1.5;
+	private static final int API_EXECUTE_HOUR = 16;
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffRabotChargeImpl.class);
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
@@ -150,8 +154,11 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 					tokenFuture.complete(token);
 				}, error -> {
 					this.log.error("Unable to get token", error);
-					this._setHttpStatusCode(
-							error instanceof HttpError.ResponseError r ? r.status.code() : INTERNAL_ERROR);
+					this._setHttpStatusCode(//
+							switch (error) {
+							case HttpError.ResponseError re -> re.status.code();
+							default -> INTERNAL_ERROR;
+							});
 					this._setStatusAuthenticationFailed(true);
 				});
 
@@ -176,8 +183,11 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 					}).whenComplete((priceComponent, error) -> {
 						if (priceComponent == null) {
 							this.log.error("Unable to get price components", error);
-							this._setHttpStatusCode(
-									error instanceof HttpError.ResponseError r ? r.status.code() : INTERNAL_ERROR);
+							this._setHttpStatusCode(//
+									switch (error) {
+									case HttpError.ResponseError re -> re.status.code();
+									default -> INTERNAL_ERROR;
+									});
 							return;
 						}
 						this._setHttpStatusCode(HttpStatus.OK.code());
@@ -209,24 +219,36 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 		@Override
 		public Delay onSuccessRunDelay(HttpResponse<String> result) {
-			return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofDays(1)) //
-					.plusRandomDelay(60, ChronoUnit.SECONDS) //
+
+			var now = ZonedDateTime.now(this.clock).truncatedTo(ChronoUnit.HOURS);
+			final ZonedDateTime nextRun;
+
+			if (now.getHour() < API_EXECUTE_HOUR) {
+				nextRun = now.withHour(API_EXECUTE_HOUR);
+			} else {
+				nextRun = now.plusDays(1).withHour(API_EXECUTE_HOUR);
+			}
+
+			return DelayTimeProviderChain.fixedDelay(Duration.between(now, nextRun)) //
+					.plusRandomDelay(10, MINUTES) // safer side not to execute exactly at 4.
+					.plusRandomDelay(60, SECONDS) //
 					.getDelay();
 		}
 
 		@Override
 		public Delay onErrorRunDelay(HttpError error) {
-			if (error instanceof HttpError.ResponseError r && r.status.equals(HttpStatus.UNAUTHORIZED)) {
+			return switch (error) {
+			case HttpError.ResponseError r when r.status.equals(UNAUTHORIZED) -> {
 				// reschedule after authenticated
 				TimeOfUseTariffRabotChargeImpl.this.scheduleRequest();
-				return Delay.infinite();
+				yield Delay.infinite();
 			}
-
-			return DelayTimeProviderChain.fixedDelay(Duration.ofHours(1))//
-					.plusRandomDelay(60, ChronoUnit.SECONDS) //
-					.getDelay();
+			default //
+				-> DelayTimeProviderChain.fixedDelay(Duration.ofHours(1))//
+						.plusRandomDelay(60, SECONDS) //
+						.getDelay();
+			};
 		}
-
 	}
 
 	private Endpoint createRabotChargeEndpoint(String accessToken) {
@@ -257,15 +279,14 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = INTERNAL_ERROR;
-		if (error instanceof HttpError.ResponseError re) {
-			httpStatusCode = re.status.code();
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
 
-			this._setStatusAuthenticationFailed(httpStatusCode == HttpStatus.UNAUTHORIZED.code());
-			this._setStatusBadRequest(httpStatusCode == HttpStatus.BAD_REQUEST.code());
-		}
-
-		this.channel(TimeOfUseTariffRabotCharge.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
+		this._setHttpStatusCode(httpStatusCode);
+		this._setStatusAuthenticationFailed(httpStatusCode == UNAUTHORIZED.code());
+		this._setStatusBadRequest(httpStatusCode == HttpStatus.BAD_REQUEST.code());
 		this.log.error(error.getMessage(), error);
 	}
 
@@ -291,7 +312,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 			// Example: 12 Cent/kWh => 0.12 EUR/kWh * 1000 kWh/MWh = 120 EUR/MWh.
 			final var basePrice = getAsDouble(element, "priceInCentPerKwh") * 10;
 			final var additionalCosts = (priceComponent.taxAndFeeKwHPrice + priceComponent.gridFeeKwHPrice
-					+ priceComponent.gridFeeFixed) * 10;
+					+ RABOT_SURCHARGE) * 10;
 
 			final var marketPrice = basePrice + additionalCosts;
 

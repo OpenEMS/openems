@@ -6,6 +6,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
   selector: "currentVoltageChart",
   templateUrl: "../../../../../components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart {
 
@@ -57,6 +58,9 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
         position: "right",
         yAxisId: ChartAxis.RIGHT,
         displayGrid: false,
+        scale: {
+          dynamicScale: true,
+        },
       },
       {
         unit: YAxisType.CURRENT,

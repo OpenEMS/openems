@@ -74,9 +74,11 @@ public class Prediction extends QuarterlyValues<Integer> {
 		return Prediction.from(result.build());
 	}
 
-	private static record ValueRange(Integer min, Integer max) {
-
+	protected static record ValueRange(Integer min, Integer max) {
 		public Integer fitWithin(Integer value) {
+			if (value == null) {
+				return null;
+			}
 			if (this.max != null && value > this.max) {
 				value = this.max;
 			}

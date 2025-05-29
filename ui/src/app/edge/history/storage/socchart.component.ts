@@ -5,12 +5,13 @@ import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { YAxisType } from "src/app/shared/service/utils";
 
-import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
     selector: "socStorageChart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -82,8 +83,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                             data: data,
                                         });
                                         this.colors.push({
-                                            backgroundColor: "rgba(0,223,0,0.05)",
-                                            borderColor: "rgba(0,223,0,1)",
+                                            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-charge-rgba"),
+                                            borderColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-charge-primary"),
                                         });
                                     }
                                     if (channelAddress.channelId === "Soc" && moreThanOneESS) {
@@ -92,8 +93,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                             data: data,
                                         });
                                         this.colors.push({
-                                            backgroundColor: "rgba(128,128,128,0.05)",
-                                            borderColor: "rgba(128,128,128,1)",
+                                            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-grey-rgba"),
+                                            borderColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-grey-primary"),
                                         });
                                     }
                                 }
@@ -106,13 +107,12 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
                                     });
                                     this.colors.push({
-                                        backgroundColor: "rgba(1, 1, 1,0)",
-                                        borderColor: "rgba(1, 1, 1,1)",
+                                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-emergencyreserve-rgba"),
+                                        borderColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-emergencyreserve-primary"),
                                     });
                                 }
                             });
-
-                            this.datasets = datasets;
+                            this.datasets = datasets.map((el, i) => ({ ...el, ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(this.colors[i]) }));
                             this.loading = false;
                             this.stopSpinner();
                         }).finally(async () => {

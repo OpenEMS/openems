@@ -33,6 +33,7 @@ import io.openems.edge.app.evcs.AlpitronicEvcs.ParentProperty;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -42,6 +43,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -83,8 +85,9 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
  * </pre>
  */
 @Component(name = "App.Evcs.Alpitronic")
-public class AlpitronicEvcs extends
-		AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter> implements OpenemsApp, HostSupplier {
+public class AlpitronicEvcs
+		extends AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter>
+		implements OpenemsApp, HostSupplier, MetaSupplier {
 
 	public static interface ParentProperty extends Type<ParentProperty, AlpitronicEvcs, Parameter.BundleParameter> {
 
@@ -209,6 +212,7 @@ public class AlpitronicEvcs extends
 
 	private final Map<String, ParentProperty> chargePointsDef = new TreeMap<>();
 	private final Host host;
+	private final Meta meta;
 
 	@Activate
 	public AlpitronicEvcs(//
@@ -216,10 +220,12 @@ public class AlpitronicEvcs extends
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
 			@Reference ComponentUtil componentUtil, //
-			@Reference Host host //
+			@Reference Host host, //
+			@Reference Meta meta //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
 		this.host = host;
+		this.meta = meta;
 		for (int i = 0; i < MAX_NUMBER_OF_CHARGEPOINTS; i++) {
 			final var name = EVCS_ALIAS.apply(i);
 			this.chargePointsDef.put(name,
@@ -333,6 +339,11 @@ public class AlpitronicEvcs extends
 	@Override
 	public Host getHost() {
 		return this.host;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
 	}
 
 }

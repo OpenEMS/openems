@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { ViewWillLeave } from "@ionic/angular";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
@@ -11,8 +12,9 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
     <ion-content></ion-content>
          <ion-router-outlet id="content"></ion-router-outlet>
     `,
+    standalone: false,
 })
-export class EdgeComponent implements OnInit, OnDestroy {
+export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
 
     protected latestIncident: { message: string | null, id: string } | null = null;
 
@@ -50,11 +52,15 @@ export class EdgeComponent implements OnInit, OnDestroy {
     public checkMessages(): void {
     }
 
+    public ionViewWillLeave() {
+        this.ngOnDestroy();
+    }
+
     public ngOnDestroy(): void {
+        this.service.currentEdge.set(null);
         if (!this.edge) {
             return;
         }
         this.edge.unsubscribeAllChannels(this.websocket);
-        this.service.currentEdge.next(null);
     }
 }

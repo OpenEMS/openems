@@ -1,8 +1,8 @@
 package io.openems.edge.app.timeofusetariff;
 
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -42,6 +42,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -85,7 +86,22 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(BiddingZone.optionsFactory(), l);
 					field.isRequired(true);
-				}));
+				})),
+
+		RESOLUTION(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".resolution.label") //
+				.setTranslatedDescriptionWithAppPrefix(".resolution.description") //
+				.setRequired(true)//
+				.setDefaultValue(Resolution.HOURLY)//
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(Resolution.optionsFactory(), l);
+					final var isInBiddingZone = Exp
+							.array(Exp.staticValue(BiddingZone.GERMANY), Exp.staticValue(BiddingZone.AUSTRIA))
+							.some(t -> t.equal(Exp.currentModelValue(BIDDING_ZONE)));
+					field.onlyShowIf(isInBiddingZone);
+				}))), //
+		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
+		;
 
 		private final AppDef<? super EntsoE, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -123,11 +139,13 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var biddingZone = this.getString(p, l, Property.BIDDING_ZONE);
+			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
+									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
 							JsonUtils.buildJsonObject() //
@@ -169,7 +187,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
+				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
 	}
 
 	@Override
@@ -193,6 +211,34 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		private final String translationKey;
 
 		private BiddingZone(String translationKey) {
+			this.translationKey = TRANSLATION_PREFIX + translationKey;
+		}
+
+		@Override
+		public final String getTranslation(Language l) {
+			final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
+			return TranslationUtil.getTranslation(bundle, this.translationKey);
+		}
+
+		/**
+		 * Creates a {@link OptionsFactory} of this enum.
+		 * 
+		 * @return the {@link OptionsFactory}
+		 */
+		public static final OptionsFactory optionsFactory() {
+			return OptionsFactory.of(values());
+		}
+	}
+
+	public enum Resolution implements TranslatableEnum {
+		HOURLY("hourly"), //
+		QUARTERLY("quarterly");
+
+		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.resolution.option.";
+
+		private final String translationKey;
+
+		private Resolution(String translationKey) {
 			this.translationKey = TRANSLATION_PREFIX + translationKey;
 		}
 

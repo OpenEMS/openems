@@ -1,9 +1,9 @@
 package io.openems.edge.energy.api.simulation;
 
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyBalancing;
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyChargeGrid;
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyDelayDischarge;
-import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.applyDischargeGrid;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyBalancing;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyChargeGrid;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyDelayDischarge;
+import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyDischargeGrid;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -18,12 +18,45 @@ public class EnergyFlowTest {
 	public void testBalancingAndCharge() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
-				/* consumption */ 500, //
+				/* consumption */ 200, //
 				/* essMaxCharge */ 5000, //
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		m.addConsumption("ctrl0", 300);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
+		var ef = m.solve();
+
+		assertEquals(500, ef.getCons());
+		assertEquals(500, ef.getProdToCons());
+
+		assertEquals(2500, ef.getProd());
+		assertEquals(500, ef.getProdToCons());
+		assertEquals(2000, ef.getProdToEss());
+
+		assertEquals(-2000, ef.getEss());
+		assertEquals(2000, ef.getProdToEss());
+
+		assertEquals(0, ef.getGrid());
+		assertEquals(0, ef.getProdToGrid());
+		assertEquals(0, ef.getGridToCons());
+		assertEquals(0, ef.getEssToCons());
+		assertEquals(0, ef.getGridToEss());
+	}
+
+	@Test
+	public void testBalancingAndAddConsumption() {
+		var m = new EnergyFlow.Model(//
+				/* production */ 2500, //
+				/* consumption */ 200, //
+				/* essMaxCharge */ 5000, //
+				/* essMaxDischarge */ 0, //
+				/* gridMaxBuy */ 4000, //
+				/* gridMaxSell */ 10000);
+		m.addConsumption("ctrl0", 300);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getCons());
@@ -52,7 +85,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(100, ef.getCons());
@@ -83,7 +117,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(2500, ef.getCons());
@@ -112,7 +147,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 1800, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(4500, ef.getCons());
@@ -142,7 +178,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 900, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getCons());
@@ -173,7 +210,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 900, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(2500, ef.getCons());
@@ -204,7 +242,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 2000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(4900, ef.getCons());
@@ -239,7 +278,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyDelayDischarge(m);
+		var consumption = m.finalizeConsumption();
+		applyDelayDischarge(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getCons());
@@ -268,7 +308,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyDelayDischarge(m);
+		var consumption = m.finalizeConsumption();
+		applyDelayDischarge(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(100, ef.getCons());
@@ -299,7 +340,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyDelayDischarge(m);
+		var consumption = m.finalizeConsumption();
+		applyDelayDischarge(m, consumption);
 		var ef = m.solve();
 
 		assertEquals(2500, ef.getCons());
@@ -332,7 +374,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyChargeGrid(m, 2500);
+		var consumption = m.finalizeConsumption();
+		applyChargeGrid(m, consumption, 2500);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getCons());
@@ -363,7 +406,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyChargeGrid(m, 2500);
+		var consumption = m.finalizeConsumption();
+		applyChargeGrid(m, consumption, 2500);
 		var ef = m.solve();
 
 		assertEquals(100, ef.getCons());
@@ -394,7 +438,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 1600, //
 				/* gridMaxSell */ 10000);
-		applyChargeGrid(m, 2500);
+		var consumption = m.finalizeConsumption();
+		applyChargeGrid(m, consumption, 2500);
 		var ef = m.solve();
 
 		assertEquals(2000, ef.getCons());
@@ -417,7 +462,7 @@ public class EnergyFlowTest {
 	}
 
 	/*
-	 * DISCHARGE GRID - just for completeness
+	 * DISCHARGE GRID
 	 */
 
 	@Test
@@ -429,7 +474,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 1600, //
 				/* gridMaxSell */ 10000);
-		applyDischargeGrid(m, 2500);
+		var consumption = m.finalizeConsumption();
+		applyDischargeGrid(m, consumption, 2500);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getCons());
@@ -461,7 +507,8 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		var consumption = m.finalizeConsumption();
+		applyBalancing(m, consumption);
 		m.logConstraints();
 		m.logMinMaxValues();
 	}

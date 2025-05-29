@@ -1,12 +1,10 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
-import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
-import static java.lang.Math.max;
+import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.function.IntSupplier;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,7 +22,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -39,7 +37,6 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 		implements ControllerEssLimitTotalDischarge, EnergySchedulable, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssLimitTotalDischargeImpl.class);
-	private final EnergyScheduleHandler energyScheduleHandler;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -50,6 +47,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	private static final int HYSTERESIS = 5;
 	private Instant lastStateChange = Instant.MIN;
 
+	private EnergyScheduleHandler energyScheduleHandler;
 	private String essId;
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
@@ -62,13 +60,15 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				Controller.ChannelId.values(), //
 				ControllerEssLimitTotalDischarge.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.minSoc);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> new EnergyScheduler.Config(this.isEnabled() //
+						? this.minSoc //
+						: null));
 
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
@@ -219,24 +219,6 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 			this._setAwaitingHysteresisValue(true);
 			return false;
 		}
-	}
-
-	/**
-	 * Builds the {@link EnergyScheduleHandler}.
-	 * 
-	 * <p>
-	 * This is public so that it can be used by the EnergyScheduler integration
-	 * test.
-	 * 
-	 * @param minSoc a supplier for the configured minSoc
-	 * @return a {@link EnergyScheduleHandler}
-	 */
-	public static EnergyScheduleHandler buildEnergyScheduleHandler(IntSupplier minSoc) {
-		return EnergyScheduleHandler.of(//
-				simContext -> socToEnergy(simContext.ess().totalEnergy(), minSoc.getAsInt()), //
-				(simContext, period, energyFlow, minEnergy) -> {
-					energyFlow.setEssMaxDischarge(max(0, simContext.getEssInitial() - minEnergy));
-				});
 	}
 
 	@Override

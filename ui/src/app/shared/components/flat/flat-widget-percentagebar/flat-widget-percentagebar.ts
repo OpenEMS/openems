@@ -4,6 +4,7 @@ import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";
 @Component({
     selector: "oe-flat-widget-percentagebar",
     templateUrl: "./flat-widget-percentagebar.html",
+    standalone: false,
 })
 export class FlatWidgetPercentagebarComponent extends AbstractFlatWidgetLine {
 

@@ -50,6 +50,7 @@ import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.debugcycle.DebugLoggable;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
@@ -71,6 +72,7 @@ import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.types.SemanticVersion;
@@ -319,40 +321,36 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_ONLINE: {
+		case Edge.Events.ON_SET_ONLINE -> {
 			var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
 			var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
 			this.getEdge(edgeId).ifPresent(edge -> {
-				if (edge instanceof MyEdge) {
+				if (edge instanceof MyEdge myEdge) {
 					// Set OpenEMS Is Connected in Odoo/Postgres
-					this.postgresHandler.getPeriodicWriteWorker().onSetOnline((MyEdge) edge, isOnline);
+					this.postgresHandler.getPeriodicWriteWorker().onSetOnline(myEdge, isOnline);
 				}
 			});
 		}
-			break;
 
-		case Edge.Events.ON_SET_CONFIG:
-			this.onSetConfigEvent(reader);
-			break;
+		case Edge.Events.ON_SET_CONFIG //
+			-> this.onSetConfigEvent(reader);
 
-		case Edge.Events.ON_SET_VERSION: {
+		case Edge.Events.ON_SET_VERSION -> {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetVersion.EDGE);
 			var version = (SemanticVersion) reader.getProperty(Edge.Events.OnSetVersion.VERSION);
 
 			// Set Version in Odoo
 			this.odooHandler.writeEdge(edge, new FieldValue<>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		}
-			break;
 
-		case Edge.Events.ON_SET_LASTMESSAGE: {
+		case Edge.Events.ON_SET_LASTMESSAGE -> {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetLastmessage.EDGE);
 			// Set LastMessage timestamp in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onLastMessage(edge);
 		}
-			break;
 
-		case Edge.Events.ON_SET_SUM_STATE: {
+		case Edge.Events.ON_SET_SUM_STATE -> {
 			var edgeId = reader.getString(Edge.Events.OnSetSumState.EDGE_ID);
 			var sumState = (Level) reader.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
 
@@ -360,9 +358,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			// Set Sum-State in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onSetSumState(edge, sumState);
 		}
-			break;
 
-		case Edge.Events.ON_SET_PRODUCTTYPE: {
+		case Edge.Events.ON_SET_PRODUCTTYPE -> {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetProducttype.EDGE);
 			var producttype = reader.getString(Edge.Events.OnSetProducttype.PRODUCTTYPE);
 			// Set Producttype in Odoo/Postgres
@@ -375,8 +372,6 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				}
 			});
 		}
-			break;
-
 		}
 	}
 
@@ -463,11 +458,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
-		try {
-			this.odooHandler.sendNotificationMailAsync(sendAt, template, params);
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
+		this.odooHandler.sendNotificationMailAsync(sendAt, template, params).whenComplete((result, throwable) -> {
+			if (throwable != null) {
+				this.log.error("sendMail failed: {}", throwable.getMessage(), throwable);
+			}
+		});
 	}
 
 	@Override
@@ -560,6 +555,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
+	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		return this.odooHandler.getLatestSetupProtocolCoreInfo(edgeId);
+	}
+
+	@Override
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getSumStateAlertingSettings(edgeId);
 	}
@@ -567,10 +567,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings)
 			throws OpenemsException {
-		if (user instanceof MyUser odooUser) {
-			this.odooHandler.setUserAlertingSettings(odooUser, edgeId, settings);
-		} else {
-			throw new OpenemsException("User information is from foreign source!!");
+		switch (user) {
+		case MyUser odooUser //
+			-> this.odooHandler.setUserAlertingSettings(odooUser, edgeId, settings);
+		default //
+			-> throw new OpenemsException("User information is from foreign source!!");
 		}
 	}
 
@@ -705,6 +706,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 						// TODO implement getId()
 						e -> "metadata0/" + e.getKey(), //
 						e -> new JsonPrimitive(e.getValue())));
+	}
+
+	@Override
+	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		return this.edgeCache.generateUpdateMetadataCacheNotification();
 	}
 
 }

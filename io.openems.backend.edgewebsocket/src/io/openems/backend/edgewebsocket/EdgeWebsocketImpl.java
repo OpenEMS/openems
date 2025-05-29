@@ -3,6 +3,7 @@ package io.openems.backend.edgewebsocket;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -34,7 +35,8 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
-import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
+import io.openems.backend.common.edge.EdgeCache;
+import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
@@ -61,7 +63,7 @@ import io.openems.common.types.ChannelAddress;
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
-		implements EdgeWebsocket, EventHandler, DebugLoggable {
+		implements EdgeManager, EventHandler, DebugLoggable {
 
 	private static final String COMPONENT_ID = "edgewebsocket0";
 
@@ -198,6 +200,23 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public final EdgeCache getEdgeCacheForEdgeId(String edgeId) {
+		var server = this.server;
+		if (server == null) {
+			return null;
+		}
+		return server.getConnections().stream() //
+				.map(ws -> (WsData) ws.getAttachment()) //
+				.filter(wsData -> {
+					var wsEdgeIdOpt = wsData.getEdgeId();
+					return (wsEdgeIdOpt.isPresent() && wsEdgeIdOpt.get().equals(edgeId));
+				}) //
+				.map(wsData -> wsData.edgeCache) //
+				.filter(Objects::nonNull) //
+				.findFirst().orElse(null);
 	}
 
 	@Override

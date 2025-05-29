@@ -1,11 +1,21 @@
-<ion-button (click)="goBackward()" [disabled]="!isBackArrowAllowed">
-    <ion-icon class="ion-padding-start" name="arrow-back-outline" slot="start" ngClass="secondary-color-contrast">
-    </ion-icon>
-</ion-button>
-<ion-button *ngIf="translate" (click)="presentPopover($event)" ngClass="secondary-color-contrast">
-    {{service.historyPeriod.value.getText(translate, service)}}
-</ion-button>
-<ion-button [disabled]="!isForwardArrowAllowed" (click)="goForward()">
-    <ion-icon class="ion-padding-end" slot="end" name="arrow-forward-outline" ngClass="secondary-color-contrast">
-    </ion-icon>
-</ion-button>
+<ion-grid>
+    <ion-row class="ion-justify-content-center ion-align-items-center">
+        <ion-col>
+            <ion-button (click)="goBackward()" [disabled]="!isBackArrowAllowed" class="pickdate-styles ion-no-padding"
+                style="min-width: fit-content !important;">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+            </ion-button>
+        </ion-col>
+        <ion-col>
+            <ion-button *ngIf="translate" (click)="presentPopover($event)" class="pickdate-styles">
+                {{ service.historyPeriod.value.getText(translate, service) }}
+            </ion-button>
+        </ion-col>
+        <ion-col>
+            <ion-button [disabled]="!isForwardArrowAllowed" (click)="goForward()" class="pickdate-styles ion-no-padding"
+                style="min-width: fit-content !important;">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+        </ion-col>
+    </ion-row>
+</ion-grid>

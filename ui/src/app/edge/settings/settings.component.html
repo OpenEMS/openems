@@ -62,7 +62,7 @@
       <ion-col size="12" size-sm="4" *ngIf="isAtLeastOwner">
         <ion-card>
           <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="cloud-download-outline"></ion-icon>
+            <ion-icon slot="start" size="large" color="primary" name="hardware-chip-outline"></ion-icon>
             <ion-label>{{ environment.edgeShortName }} System</ion-label>
           </ion-item>
           <ion-card-content>
@@ -98,7 +98,7 @@
       <ion-col size="12" size-sm="4">
         <ion-card>
           <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="toggle-outline"></ion-icon>
+            <ion-icon slot="start" size="large" class="normal-icon" name="toggle-outline"></ion-icon>
             <ion-label translate>Edge.Config.Index.adjustComponents</ion-label>
           </ion-item>
           <ion-card-content>
@@ -113,7 +113,7 @@
       <ion-col size="12" size-sm="4">
         <ion-card>
           <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="add-outline"></ion-icon>
+            <ion-icon slot="start" size="large" class="normal-icon" name="add-outline"></ion-icon>
             <ion-label translate>Edge.Config.Index.addComponents</ion-label>
           </ion-item>
           <ion-card-content>
@@ -128,7 +128,7 @@
       <ion-col size="12" size-sm="4">
         <ion-card>
           <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="eye-outline"></ion-icon>
+            <ion-icon slot="start" size="large" class="normal-icon" name="eye-outline"></ion-icon>
             <!-- TODO translate -->
             <ion-label>Channels</ion-label>
           </ion-item>
@@ -143,7 +143,21 @@
       <ion-col size="12" size-sm="4">
         <ion-card>
           <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="construct-outline"></ion-icon>
+            <ion-icon slot="start" size="large" class="normal-icon" name="play-outline"></ion-icon>
+            <ion-label translate>Edge.Config.Index.systemExecute</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" color="light" routerLink="/device/{{ edge.id }}/settings/systemexecute">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-sm="4">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" class="normal-icon" name="construct-outline"></ion-icon>
             <ion-label>Power Assistant</ion-label>
           </ion-item>
           <ion-card-content>
@@ -158,7 +172,7 @@
       <ion-col size="12" size-sm="4" *ngIf="canSeeJsonrpcTest">
         <ion-card>
           <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="eye-outline"></ion-icon>
+            <ion-icon slot="start" size="large" class="normal-icon" name="eye-outline"></ion-icon>
             <ion-label>Jsonrpc test</ion-label>
           </ion-item>
           <ion-card-content>
@@ -168,21 +182,6 @@
           </ion-card-content>
         </ion-card>
       </ion-col>
-
-      <ion-col size="12" size-sm="4">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="play-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.systemExecute</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" color="light" routerLink="/device/{{ edge.id }}/settings/systemexecute">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
     </ion-row>
   </ion-grid>
 </ion-content>

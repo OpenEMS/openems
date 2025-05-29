@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -15,12 +16,16 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.session.Language;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
@@ -37,6 +42,42 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 		scope = ServiceScope.SINGLETON //
 )
 public class PersistencePredictorAggregateTaskImpl implements PersistencePredictorAggregateTask {
+
+	private record PersistencePredictorExecutionConfiguration(//
+			Set<String> channelsToAdd, //
+			Set<String> channelsToRemove //
+	) implements AggregateTask.AggregateTaskExecutionConfiguration {
+
+		private PersistencePredictorExecutionConfiguration {
+			Objects.requireNonNull(channelsToAdd);
+			Objects.requireNonNull(channelsToRemove);
+		}
+
+		@Override
+		public String identifier() {
+			return "PersistencePredictor";
+		}
+
+		@Override
+		public JsonElement toJson() {
+			if (this.channelsToAdd.isEmpty() && this.channelsToRemove.isEmpty()) {
+				return JsonNull.INSTANCE;
+			}
+			return JsonUtils.buildJsonObject() //
+					.onlyIf(!this.channelsToAdd.isEmpty(), t -> {
+						t.add("channelsToAdd", this.channelsToAdd.stream() //
+								.map(JsonPrimitive::new) //
+								.collect(JsonUtils.toJsonArray()));
+					}) //
+					.onlyIf(!this.channelsToRemove.isEmpty(), t -> {
+						t.add("channelsToRemove", this.channelsToRemove.stream() //
+								.map(JsonPrimitive::new) //
+								.collect(JsonUtils.toJsonArray()));
+					}) //
+					.build();
+		}
+
+	}
 
 	private ComponentManager componentManager;
 
@@ -98,6 +139,11 @@ public class PersistencePredictorAggregateTaskImpl implements PersistencePredict
 	}
 
 	@Override
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
+		return new PersistencePredictorExecutionConfiguration(this.channelsToAdd, this.channelsToRemove);
+	}
+
+	@Override
 	public String getGeneralFailMessage(Language l) {
 		final var bundle = AppManagerAppHelperImpl.getTranslationBundle(l);
 		return TranslationUtil.getTranslation(bundle, "canNotUpdatePredictor");
@@ -144,7 +190,7 @@ public class PersistencePredictorAggregateTaskImpl implements PersistencePredict
 		existingChannels.removeAll(channelsToRemove);
 
 		componentManager.handleUpdateComponentConfigRequest(user,
-				new UpdateComponentConfigRequest(predictor.id(), List.of(//
+				new UpdateComponentConfig.Request(predictor.id(), List.of(//
 						new UpdateComponentConfigRequest.Property("channelAddresses", existingChannels.stream() //
 								.map(JsonPrimitive::new) //
 								.collect(toJsonArray())) //

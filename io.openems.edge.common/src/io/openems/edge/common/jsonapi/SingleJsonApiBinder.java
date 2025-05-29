@@ -1,5 +1,8 @@
 package io.openems.edge.common.jsonapi;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.concurrent.CompletableFuture.failedFuture;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -83,13 +86,14 @@ public class SingleJsonApiBinder {
 			throw new OpenemsException("No response");
 		}
 
-		if (response instanceof JsonrpcResponseSuccess success) {
-			return CompletableFuture
-					.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), success.getResult()));
-		} else if (response instanceof JsonrpcResponseError error) {
-			return CompletableFuture.failedFuture(error.getOpenemsError().exception(error.getParamsAsObjectArray()));
-		}
-		throw new OpenemsException("Unhandled response");
+		return switch (response) {
+		case JsonrpcResponseSuccess success //
+			-> completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), success.getResult()));
+		case JsonrpcResponseError error //
+			-> failedFuture(error.getOpenemsError().exception(error.getParamsAsObjectArray()));
+		default //
+			-> throw new OpenemsException("Unhandled response");
+		};
 	}
 
 	public void setDebug(boolean debug) {

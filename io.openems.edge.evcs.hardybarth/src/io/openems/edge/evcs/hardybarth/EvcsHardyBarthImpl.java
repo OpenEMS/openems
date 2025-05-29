@@ -45,6 +45,7 @@ import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -94,9 +95,9 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// TODO stop here if not enabled
-		this.config = config;
 		this._setChargingType(AC);
 		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
 		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
@@ -104,17 +105,16 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		this._setPhases(THREE_PHASE);
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		// formerly .setHeartbeat
-		// The internal heartbeat is currently too fast - it is not enough to write
-		// every second by default. We have to disable it to run the evcs
-		// properly.
-		// TODO: The manufacturer must be asked if it is possible to read the heartbeat
-		// status so that we can check if the heartbeat is really disabled and if the
-		// heartbeat time can be increased to be able to use this feature.
-		this.httpBridge.subscribeCycle(1, //
-				this.createEndpoint(PUT, "/api/secc", "{\"salia/heartbeat\":\"off\"}"), //
-				t -> this._setChargingstationCommunicationFailed(false),
-				t -> this._setChargingstationCommunicationFailed(true));
+		
+		if (!this.config.readOnly()) {
+			// The internal heartbeat is currently too fast - it is not enough to write
+			// every second by default. We have to disable it to run the evcs
+			// properly.
+			this.httpBridge.subscribeCycle(1, //
+					this.createEndpoint(PUT, "/api/secc", "{\"salia/heartbeat\":\"off\"}"), //
+					t -> this._setChargingstationCommunicationFailed(false),
+					t -> this._setChargingstationCommunicationFailed(true));
+		}
 		this.httpBridge.subscribeCycle(1, //
 				this.createEndpoint(GET, "/api", null), //
 				t -> {
@@ -134,7 +134,15 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public MeterType getMeterType() {
+		if (this.isReadOnly()) {
+			return MeterType.CONSUMPTION_METERED;
+		}
 		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		return this.config.phaseRotation();
 	}
 
 	private Endpoint getTargetEndpoint(int target) {
@@ -272,25 +280,42 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	 * @return boolean if the target was set
 	 * @throws OpenemsNamedException on error
 	 */
-	private boolean setTarget(int current) {
-		CompletableFuture<HttpResponse<JsonElement>> resultPause = null;
-		if (current > 0) {
-			// Send stop pause request
-			resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(0));
-		} else {
-			resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(1));
-			this.debugLog("Setting HardyBarth " + this.alias() + " to pause");
-		}
+	private boolean setTarget(int current) throws OpenemsNamedException {
+		var resultPause = this.pauseChargeIfNeeded(current);
 
 		// Send charge power limit
 		final var resultLimit = this.httpBridge.requestJson(
 				this.createEndpoint(PUT, "/api/secc", "{\"" + "grid_current_limit" + "\":\"" + current + "\"}"));
 		try {
-			return resultLimit.get().status().equals(HttpStatus.OK) && resultPause.get().status().equals(HttpStatus.OK);
+			return resultLimit.get().status().equals(HttpStatus.OK) && resultPause;
 		} catch (InterruptedException | ExecutionException e) {
 			this.log.error("Unable to set EVCS Target");
 			return false;
 		}
+	}
+
+	private boolean pauseChargeIfNeeded(int current) throws OpenemsNamedException {
+		final var softwareVersion = this.getSoftwareVersion();
+		if (softwareVersion == null || softwareVersion.startsWith("1.")) {
+			CompletableFuture<HttpResponse<JsonElement>> resultPause = null;
+			if (current > 0) {
+				// Send stop pause request
+				resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(0));
+			} else {
+				// Send pause charging request
+				resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(1));
+				this.debugLog("Setting HardyBarth " + this.alias() + " to pause");
+			}
+			try {
+				return resultPause.get().status().equals(HttpStatus.OK);
+			} catch (InterruptedException | ExecutionException e) {
+				this.log.error("Unable to pause charge process");
+				return false;
+			}
+		} else {
+			return true;
+		}
+
 	}
 
 	@Override
@@ -316,5 +341,10 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this.config.readOnly();
 	}
 }

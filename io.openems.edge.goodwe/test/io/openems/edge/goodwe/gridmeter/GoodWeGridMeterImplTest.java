@@ -121,7 +121,7 @@ public class GoodWeGridMeterImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, -1610) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 710)) //
 
-				.next(new TestCase(), 5) // Wait for 36052
+				.next(new TestCase(), 3) // Wait for 36052
 				.next(new TestCase() //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 200_000) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 220_000) //
@@ -147,6 +147,11 @@ public class GoodWeGridMeterImplTest {
 			assertEquals(16, e2cConverter.elementToChannel(16));
 			// negative to positive
 			assertEquals(16, e2cConverter.elementToChannel(-16));
+		}
+		{
+			var e2cConverter = GoodWeGridMeterImpl.createAdjustCurrentSign(() -> new Value<Integer>(null, 5000));
+			// null stays null
+			assertEquals(null, e2cConverter.elementToChannel(null));
 		}
 	}
 
@@ -189,7 +194,7 @@ public class GoodWeGridMeterImplTest {
 						.setExternalMeterRatioValueB(5) //
 						.build()) //
 				.next(new TestCase() //
-						.output(EXTERNAL_METER_RATIO, 3000));
+						.output(EXTERNAL_METER_RATIO, null));
 	}
 
 	@Test

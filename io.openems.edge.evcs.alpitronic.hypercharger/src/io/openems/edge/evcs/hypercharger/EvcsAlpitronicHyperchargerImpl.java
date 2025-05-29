@@ -47,6 +47,7 @@ import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -166,6 +167,12 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	}
 
 	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
+	}
+
+	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
 	}
@@ -234,7 +241,6 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 											this._setEnergySession(0);
 											return;
 										case CHARGING:
-										case CHARGING_FINISHED:
 										case CHARGING_REJECTED:
 										case ENERGY_LIMIT_REACHED:
 										case ERROR:
@@ -306,10 +312,8 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 				-> Status.READY_FOR_CHARGING;
 			case CHARGING, PREPARING_EV_READY //
 				-> Status.CHARGING;
-			case RESERVED, SUSPENDED_EV, SUSPENDED_EV_SE //
+			case RESERVED, SUSPENDED_EV, SUSPENDED_EV_SE, FINISHING //
 				-> Status.CHARGING_REJECTED;
-			case FINISHING //
-				-> Status.CHARGING_FINISHED;
 			case FAULTED, UNAVAILABLE, UNAVAILABLE_CONNECTION_OBJECT //
 				-> Status.ERROR;
 			case UNAVAILABLE_FW_UPDATE, UNDEFINED //

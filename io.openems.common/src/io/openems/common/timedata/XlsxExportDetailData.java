@@ -11,8 +11,7 @@ import io.openems.common.types.CurrencyConfig;
 
 public record XlsxExportDetailData(//
 		EnumMap<XlsxExportCategory, List<XlsxExportDataEntry>> data, //
-		CurrencyConfig currency
-) {
+		CurrencyConfig currency) {
 
 	public Map<HistoricTimedataSaveType, List<ChannelAddress>> getChannelsBySaveType() {
 		return this.data().values().stream().flatMap(List::stream).collect(Collectors.groupingBy(

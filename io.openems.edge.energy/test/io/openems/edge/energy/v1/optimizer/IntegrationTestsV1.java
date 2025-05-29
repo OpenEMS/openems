@@ -37,7 +37,6 @@ public class IntegrationTestsV1 {
 	 */
 	@Ignore
 	@Test
-	// TODO to be updated
 	public void test1() throws Exception {
 		var log = """
 				""";
@@ -81,7 +80,7 @@ public class IntegrationTestsV1 {
 				.setEssInitialEnergy(essInitialEnergy) //
 				.setEssMaxChargeEnergy(sd.essMaxChargeEnergy()) //
 				.setEssMaxDischargeEnergy(sd.essMaxDischargeEnergy()) //
-				.seMaxBuyFromGrid(sd.maxBuyFromGrid()) //
+				.setMaxBuyFromGrid(sd.maxBuyFromGrid()) //
 				.setProductions(sds.stream().mapToInt(ScheduleData::production).toArray()) //
 				.setConsumptions(sds.stream().mapToInt(ScheduleData::consumption).toArray()) //
 				.setPrices(sds.stream().mapToDouble(ScheduleData::price).toArray()) //

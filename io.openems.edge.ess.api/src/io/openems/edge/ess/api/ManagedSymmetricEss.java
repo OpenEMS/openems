@@ -15,6 +15,8 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.filter.DisabledPidFilter;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.power.api.Constraint;
@@ -68,6 +70,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		SET_ACTIVE_POWER_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Write command for a charge power (-) or discharge power (+). Range e.g. [-5000 to 5000]") //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetActivePowerEquals", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS))),
 
@@ -88,25 +91,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 						new PowerConstraint("SetActivePowerEqualsWithPid", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS) {
 							@Override
 							public void accept(ManagedSymmetricEss ess, Integer value) throws OpenemsNamedException {
-								if (value != null) {
-									var power = ess.getPower();
-									var pidFilter = power.getPidFilter();
-
-									// configure PID filter
-									var minPower = power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-									var maxPower = power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-									if (maxPower < minPower) {
-										maxPower = minPower; // avoid rounding error
-									}
-									pidFilter.setLimits(minPower, maxPower);
-
-									int currentActivePower = ess.getActivePower().orElse(0);
-									var pidOutput = pidFilter.applyPidFilter(currentActivePower, value);
-
-									ess.setActivePowerEquals(pidOutput);
-								}
+								setActivePowerEqualsWithPid(ess, value, null);
 							}
 						})),
+
 		/**
 		 * Sets a fixed Reactive Power.
 		 *
@@ -120,6 +108,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		SET_REACTIVE_POWER_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Write command for the reactive power") //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetReactivePowerEquals", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS))), //
 		/**
@@ -135,6 +124,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		SET_ACTIVE_POWER_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Write command for a minimum charge power (-) or maximum discharge power (+). Range e.g. [-5000 to 5000]") //
 				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerLessOrEquals", Phase.ALL, Pwr.ACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
@@ -150,6 +140,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		SET_ACTIVE_POWER_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Write command for a maximum charge power (-) or minimum discharge power (+). Range e.g. [-5000 to 5000]") //
 				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerGreaterOrEquals", Phase.ALL, Pwr.ACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
@@ -165,6 +156,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		SET_REACTIVE_POWER_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Write command for the maximum reactive power") //
 				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerLessOrEquals", Phase.ALL, Pwr.REACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
@@ -180,6 +172,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		SET_REACTIVE_POWER_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Write command for the maximum reactive power") //
 				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerGreaterOrEquals", Phase.ALL, Pwr.REACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
@@ -398,6 +391,42 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	public default void setActivePowerEqualsWithPid(Integer value) throws OpenemsNamedException {
 		this.getSetActivePowerEqualsWithPidChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Sets the {@link ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS} using
+	 * the provided {@link PidFilter}.
+	 * 
+	 * @param ess               the {@link ManagedSymmetricEss}
+	 * @param value             the target value
+	 * @param fallbackPidFilter the fallback PidFilter is used if the
+	 *                          {@link PidFilter} provided by ess is a
+	 *                          {@link DisabledPidFilter}
+	 * @throws OpenemsNamedException on error
+	 */
+	public static void setActivePowerEqualsWithPid(ManagedSymmetricEss ess, Integer value, PidFilter fallbackPidFilter)
+			throws OpenemsNamedException {
+		if (value == null) {
+			return;
+		}
+		final var power = ess.getPower();
+		var pidFilter = power.getPidFilter();
+		if (pidFilter instanceof DisabledPidFilter && fallbackPidFilter != null) {
+			pidFilter = fallbackPidFilter;
+		}
+
+		// configure PID filter
+		var minPower = power.getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+		var maxPower = power.getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+		if (maxPower < minPower) {
+			maxPower = minPower; // avoid rounding error
+		}
+		pidFilter.setLimits(minPower, maxPower);
+
+		int currentActivePower = ess.getActivePower().orElse(0);
+		var pidOutput = pidFilter.applyPidFilter(currentActivePower, value);
+
+		ess.setActivePowerEquals(pidOutput);
 	}
 
 	/**

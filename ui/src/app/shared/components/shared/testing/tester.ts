@@ -9,6 +9,7 @@ import { CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
+import { ButtonLabel } from "../../modal/modal-button/modal-button";
 import { TextIndentation } from "../../modal/modal-line/modal-line";
 import { Converter } from "../converter";
 import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
@@ -148,6 +149,17 @@ export class OeFormlyViewTester {
       case "horizontal-line": {
         return {
           type: field.type,
+        };
+      }
+      /**
+       * {@link OeFormlyField.ButtonsFromFormControlLine}
+       */
+      case "buttons-from-form-control-line": {
+        return {
+          type: "buttons-from-form-control-line",
+          name: field.name,
+          controlName: field.controlName,
+          buttons: field.buttons,
         };
       }
     }
@@ -308,13 +320,8 @@ export class OeChartTester {
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
-    const options = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels);
-
-    chartData.yAxes.filter(axis => axis.unit != null).forEach(axis => {
-      // Remove custom scale calculations from unittest, seperate unittest existing
-      options.scales[axis.yAxisId] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId], ["min", "max"]) as Chart.ScaleOptionsByType<"radialLinear" | keyof Chart.CartesianScaleTypeRegistry>;
-      options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
-    });
+    let options: Chart.ChartOptions = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, config, datasets, xAxisType, labels);
+    options = prepareOptionsForTesting(options, chartData);
 
     return {
       type: "option",
@@ -347,7 +354,9 @@ export namespace OeFormlyViewTester {
     | Field.ChannelLine
     | Field.ChildrenLine
     | Field.HorizontalLine
-    | Field.ValueLine;
+    | Field.ValueLine
+    | Field.ButtonsFromFormControlLine
+    ;
 
   export namespace Field {
 
@@ -384,6 +393,12 @@ export namespace OeFormlyViewTester {
 
     export type HorizontalLine = {
       type: "horizontal-line",
+    };
+    export type ButtonsFromFormControlLine = {
+      type: "buttons-from-form-control-line",
+      name: string,
+      controlName: string,
+      buttons: ButtonLabel[],
     };
   }
 
@@ -431,3 +446,25 @@ export namespace OeFormlyViewTester {
     };
   }
 }
+
+/** Exclude properties that dont need to be tested  */
+function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: HistoryUtils.ChartData): Chart.ChartOptions {
+  options.scales["x"]["ticks"] = ObjectUtils.excludeProperties(options.scales["x"]["ticks"] as Chart.RadialTickOptions, ["color"]);
+  options.elements.point.radius = 0;
+  chartData.yAxes.filter(axis => axis.unit != null).forEach(axis => {
+
+    // Remove custom scale calculations from unittest, seperate unittest existing
+    options.scales[axis.yAxisId] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId], ["min", "max"]) as Chart.ScaleOptionsByType<"radialLinear" | keyof Chart.CartesianScaleTypeRegistry>;
+    options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
+    options.scales[axis.yAxisId]["title"] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId]["title"] as Chart.RadialTickOptions, ["color"]);
+  });
+
+  delete options.plugins.tooltip.caretPadding;
+  delete options.layout;
+  options.plugins.tooltip = ObjectUtils.excludeProperties(options.plugins.tooltip, ["boxHeight", "boxWidth", "boxPadding"]);
+  options.plugins.legend.labels = ObjectUtils.excludeProperties(options.plugins.legend.labels, ["boxHeight", "boxWidth"]);
+
+  return options;
+}
+
+

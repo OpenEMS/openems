@@ -17,6 +17,9 @@ import { FooterComponent } from "./footer/footer";
 import { FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
 import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
 import { ModalModule } from "./modal/modal.module";
+import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
+import { NavigationChipsComponent } from "./navigation/chips/chips";
+import { NavigationPageComponent } from "./navigation/view/view";
 import { PickdateModule } from "./pickdate/pickdate.module";
 import { NotificationComponent } from "./shared/notification/notification";
 
@@ -25,14 +28,14 @@ import { NotificationComponent } from "./shared/notification/notification";
         BrowserModule,
         IonicModule,
         PipeModule,
-        ReactiveFormsModule,
-        RouterModule,
         TranslateModule,
         HistoryDataErrorModule,
         FooterNavigationModule,
         ChartModule,
         PickdateModule,
         ModalModule,
+        ReactiveFormsModule,
+        RouterModule,
     ],
     declarations: [
 
@@ -47,6 +50,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         // Others
         NotificationComponent,
         FooterComponent,
+        NavigationPageComponent,
+        NavigationChipsComponent,
+        NavigationBreadCrumbsComponent,
     ],
     exports: [
         // Flat
@@ -65,6 +71,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         ChartModule,
         PickdateModule,
         ModalModule,
+        NavigationPageComponent,
+        NavigationChipsComponent,
+        NavigationBreadCrumbsComponent,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 

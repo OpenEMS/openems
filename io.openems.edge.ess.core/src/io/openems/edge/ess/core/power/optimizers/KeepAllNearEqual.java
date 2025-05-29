@@ -2,15 +2,13 @@ package io.openems.edge.ess.core.power.optimizers;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.stream.IntStream;
 
 import org.apache.commons.math3.optim.PointValuePair;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.core.power.data.TargetDirection;
-import io.openems.edge.ess.core.power.solver.nearequal.SolveNearEqual;
+import io.openems.edge.ess.core.power.solver.nearequal.SolverBySocOptimization;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
@@ -51,9 +49,8 @@ public class KeepAllNearEqual {
 		var mergedResult = mergeResults(coefficients, esss, activePowerSolved, reactivePowerSolved);
 
 		var result = Arrays.stream(mergedResult)//
-				.map(d -> reverseAbsoluteData.apply(d, direction))//
+				.map(d -> reverseAbsoluteData(d, direction))//
 				.toArray();
-
 		return new PointValuePair(result, 0);
 	}
 
@@ -70,7 +67,6 @@ public class KeepAllNearEqual {
 			TargetDirection direction) {
 		if (Double.isNaN(setPower)) {
 			var defaultResult = new double[essList.size()];
-			Arrays.fill(defaultResult, 0.0);
 			return new PointValuePair(defaultResult, 0);
 		} else {
 			return solvePower(setPower, essList, powerType, direction);
@@ -87,7 +83,7 @@ public class KeepAllNearEqual {
 	 * @param reactivePower the {@link PointValuePair} for Reactive-Power
 	 * @return new {@link PointValuePair}
 	 */
-	private static double[] mergeResults(Coefficients coefficients, List<ManagedSymmetricEss> esss,
+	public static double[] mergeResults(Coefficients coefficients, List<ManagedSymmetricEss> esss,
 			PointValuePair activePower, PointValuePair reactivePower) {
 		try {
 			var values = coefficients.getAll().stream() //
@@ -96,17 +92,17 @@ public class KeepAllNearEqual {
 								.filter(e -> !(e instanceof MetaEss)) //
 								.map(ManagedSymmetricEss::id) //
 								.toList();
-						var indexOpt = IntStream.range(0, nonMetaEss.size()) //
-								.filter(i -> nonMetaEss.get(i) == c.getEssId()) //
-								.findFirst();
-						if (indexOpt.isEmpty()) {
+
+						var index = nonMetaEss.indexOf(c.getEssId());
+						if (index == -1) {
 							return 0;
 						}
-						var map = switch (c.getPwr()) {
+
+						final var pointValuePair = switch (c.getPwr()) {
 						case ACTIVE -> activePower;
 						case REACTIVE -> reactivePower;
 						};
-						return map.getPoint()[indexOpt.getAsInt()];
+						return pointValuePair.getPoint()[index];
 					}).toArray();
 			return values;
 		} catch (Exception e) {
@@ -128,33 +124,28 @@ public class KeepAllNearEqual {
 	private static PointValuePair solvePower(double power, List<ManagedSymmetricEss> essList, Pwr pwr,
 			TargetDirection direction) {
 
-		var selectedFunction = switch (direction) {
-		case CHARGE -> getMinPowerFromEss;
-		case DISCHARGE -> getMaxPowerFromEss;
-		case KEEP_ZERO -> getZero;
-		};
+		if (direction == TargetDirection.KEEP_ZERO) {
+			var defaultResult = new double[essList.size()];
+			return new PointValuePair(defaultResult, 0);
+		}
 
 		var essUpperLimit = essList.stream()//
-				.mapToDouble(ess -> {
-					return selectedFunction.apply(ess, pwr);
-				})//
-				.boxed()//
-				.toList();
+				.mapToDouble(ess -> getMaxPowerFromEss(ess, pwr))//
+				.toArray();
 
-		var size = essUpperLimit.size(); // omitting the cluster
+		var size = essUpperLimit.length; // omitting the cluster
 
 		var essLowerLimit = essList.stream()//
-				.mapToDouble(ess -> {
-					var lowerLimit = selectedFunction.apply(ess, pwr);
-					return (Math.abs(lowerLimit) >= power / size) ? 0.0 : lowerLimit - (lowerLimit * 0.01);
-				})//
-				.boxed()//
-				.toList();
+				.mapToDouble(ess -> getMinPowerFromEss(ess, pwr))//
+				.toArray();
 
-		var model = new SolveNearEqual();
-		model.setUpperBound(getData(essUpperLimit, direction));
-		model.setLowerBound(getData(essLowerLimit, direction));
-		model.setpowerSetValue(power);
+		var model = new SolverBySocOptimization.Builder()//
+				.withUpperBound(essUpperLimit)//
+				.withLowerBound(essLowerLimit)//
+				.withSocs(getSocs(essList))//
+				.withPowerSetValue(power)//
+				.withTargetDirection(direction)//
+				.build();
 
 		try {
 			return model.solve(size);
@@ -163,11 +154,23 @@ public class KeepAllNearEqual {
 		}
 	}
 
+	/**
+	 * Get the Soc array from the esslist.
+	 * 
+	 * @param essList list of {@link ManagedSymmetricEss}
+	 * @return double array of Soc
+	 */
+	private static double[] getSocs(List<ManagedSymmetricEss> essList) {
+		return essList.stream()//
+				.mapToDouble(ess -> ess.getSoc().get())//
+				.toArray();
+	}
+
 	private static double getPowerSetPoint(List<ManagedSymmetricEss> esss, List<Constraint> allConstraints,
 			TargetDirection direction, Pwr pwr) {
 
 		var clusterEssId = esss.stream()//
-				.filter(ess -> ess instanceof MetaEss)//
+				.filter(MetaEss.class::isInstance)//
 				.findFirst().get().id();
 
 		var noPowerSetPoint = Double.NaN;
@@ -178,7 +181,7 @@ public class KeepAllNearEqual {
 				.filter(constraint -> clusterEssId.equals(constraint.getCoefficients()[0].getCoefficient().getEssId()))
 				.filter(constraint -> constraint.getCoefficients()[0].getCoefficient().getPwr() == pwr)
 				.mapToDouble(constraint -> constraint.getValue().get())//
-				.map(c -> absoluteData.apply(c, direction))//
+				.map(c -> absoluteData(c, direction))//
 				.findFirst()//
 				.orElse(noPowerSetPoint);
 	}
@@ -190,62 +193,54 @@ public class KeepAllNearEqual {
 	}
 
 	/**
-	 * Gets data from a list and applies a transformation based on the specified
-	 * target direction.
-	 *
-	 * @param listData  The list of Double data.
-	 * @param direction The {@link TargetDirection}
-	 * @return An array of transformed data.
+	 * Calculate absolute value or zero based on the TargetDirection.
+	 * 
+	 * @param d         the input value to be processed
+	 * @param direction the {@link TargetDirection}
+	 * @return the processed value based on the direction
 	 */
-	private static double[] getData(List<Double> listData, TargetDirection direction) {
-		return listData.stream()//
-				.mapToDouble(d -> absoluteData.apply(d, direction))//
-				.toArray();
-	}
-
-	/**
-	 * Function to calculate absolute value or zero based on the
-	 * {@link TargetDirection}.
-	 */
-	private static BiFunction<Double, TargetDirection, Double> absoluteData = (d, direction) -> {
+	private static double absoluteData(double d, TargetDirection direction) {
 		return switch (direction) {
 		case CHARGE -> Math.abs(d);
 		case DISCHARGE -> d;
 		case KEEP_ZERO -> 0.0;
 		};
-	};
+	}
 
 	/**
-	 * Function to calculate reverse absolute value or zero based on the
-	 * {@link TargetDirection}.
+	 * Calculate reverse absolute value or zero based on the TargetDirection.
+	 * 
+	 * @param d         the input value to be processed
+	 * @param direction the {@link TargetDirection}
+	 * @return the processed value based on the direction
 	 */
-	private static BiFunction<Double, TargetDirection, Double> reverseAbsoluteData = (d, direction) -> {
+	private static double reverseAbsoluteData(double d, TargetDirection direction) {
 		return switch (direction) {
 		case CHARGE -> -d;
 		case DISCHARGE -> d;
 		case KEEP_ZERO -> 0.0;
 		};
-	};
+	}
 
 	/**
-	 * Function to get the maximum power from a {@link ManagedSymmetricEss}.
+	 * Get the maximum power from a {@link ManagedSymmetricEss}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 * @param pwr the {@link Pwr} of power
+	 * @return the maximum available power in watts for the given parameters
 	 */
-	private static BiFunction<ManagedSymmetricEss, Pwr, Integer> getMaxPowerFromEss = (ess, pwr) -> {
+	private static int getMaxPowerFromEss(ManagedSymmetricEss ess, Pwr pwr) {
 		return ess.getPower().getMaxPower(ess, Phase.ALL, pwr);
-	};
+	}
 
 	/**
-	 * Function to get the minimum power from a {@link ManagedSymmetricEss}.
+	 * Get the minimum power from a {@link ManagedSymmetricEss}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss} *
+	 * @param pwr the {@link Pwr} of power
+	 * @return the maximum available power in watts for the given parameters
 	 */
-	private static BiFunction<ManagedSymmetricEss, Pwr, Integer> getMinPowerFromEss = (ess, pwr) -> {
+	private static int getMinPowerFromEss(ManagedSymmetricEss ess, Pwr pwr) {
 		return ess.getPower().getMinPower(ess, Phase.ALL, pwr);
-	};
-
-	/**
-	 * Function to return zero.
-	 */
-	private static BiFunction<ManagedSymmetricEss, Pwr, Integer> getZero = (ess, pwr) -> {
-		return 0;
-	};
-
+	}
 }

@@ -1,5 +1,6 @@
 package io.openems.backend.common.metadata;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.event.BackendEventConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -79,6 +81,15 @@ public interface Metadata {
 	 * @return an {@link EdgeHandler}
 	 */
 	public EdgeHandler edge();
+
+	/**
+	 * Generates a {@link UpdateMetadataCache.Notification}.
+	 * 
+	 * @return the notification
+	 */
+	public default UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		return UpdateMetadataCache.Notification.empty();
+	}
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
@@ -194,8 +205,8 @@ public interface Metadata {
 		var states = new HashMap<Level, HashMultimap<String, Channel>>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
 			var detail = entry.getValue().getDetail();
-			if (detail instanceof ChannelDetailState) {
-				var level = ((ChannelDetailState) detail).getLevel();
+			if (detail instanceof ChannelDetailState cds) {
+				var level = cds.getLevel();
 				var channelsByComponent = states.get(level);
 				if (channelsByComponent == null) {
 					channelsByComponent = HashMultimap.create();
@@ -451,4 +462,15 @@ public interface Metadata {
 	 */
 	public void logGenericSystemLog(GenericSystemLog systemLog);
 
+	/**
+	 * Gets the latest {@link SetupProtocolCoreInfo}.
+	 * 
+	 * @param edgeId the edgeId
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException;
+
+	public record SetupProtocolCoreInfo(int setupProtocolId, ZonedDateTime createDate) {
+	}
 }
