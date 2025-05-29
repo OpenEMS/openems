@@ -19,7 +19,11 @@ export class LiveComponent implements OnDestroy {
   public modal!: ElementRef;
 
   @ViewChild(NgxMasonryComponent)
-  private masonry: NgxMasonryComponent;
+  set masonrySetter(masonry: NgxMasonryComponent) {
+    this.masonry = masonry;
+    if (this.masonry) this.updateMasonryLayout();
+  }
+  protected masonry: NgxMasonryComponent;
 
   protected edge: Edge | null = null;
   protected config: EdgeConfig | null = null;
@@ -55,11 +59,9 @@ export class LiveComponent implements OnDestroy {
       this.service.getConfig().then(config => {
         this.config = config;
         this.widgets = config.widgets;
+        setTimeout(() => this.updateMasonryLayout(), 200);
       });
       this.checkIfRefreshNeeded();
-      setTimeout(() => {
-        this.updateMasonryLayout();
-      }, 100);
     });
   }
 
@@ -80,6 +82,10 @@ export class LiveComponent implements OnDestroy {
   }
 
   protected updateMasonryLayout() {
+    if (!this.masonry) {
+      setTimeout(() => this.updateMasonryLayout(), 200);
+      return;
+    }
     this.masonry.reloadItems();
     this.masonry.layout();
   }
