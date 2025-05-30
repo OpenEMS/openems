@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, effect, ElementRef, OnDestroy, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { NgxMasonryComponent, NgxMasonryOptions } from "ngx-masonry";
@@ -13,17 +13,14 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
   templateUrl: "./live.component.html",
   standalone: false,
 })
-export class LiveComponent implements OnDestroy {
+export class LiveComponent implements OnDestroy, AfterViewInit {
 
   @ViewChild("modal", { read: ElementRef })
   public modal!: ElementRef;
 
-  @ViewChild(NgxMasonryComponent)
-  set masonrySetter(masonry: NgxMasonryComponent) {
-    this.masonry = masonry;
-    if (this.masonry) this.updateMasonryLayout();
-  }
-  protected masonry: NgxMasonryComponent;
+  @ViewChildren('widgetItem', { read: ElementRef })
+  protected widgetItems!: QueryList<ElementRef>;
+  private resizeObservers: ResizeObserver[] = [];
 
   protected edge: Edge | null = null;
   protected config: EdgeConfig | null = null;
@@ -31,6 +28,7 @@ export class LiveComponent implements OnDestroy {
   protected isModbusTcpWidgetAllowed: boolean = false;
   protected showRefreshDragDown: boolean = false;
   protected showNewFooter: boolean = false;
+  protected masonry: NgxMasonryComponent;
   protected masonryOptions: NgxMasonryOptions = {
     itemSelector: ".masonry-item",
     columnWidth: ".masonry-sizer",
@@ -51,7 +49,6 @@ export class LiveComponent implements OnDestroy {
     private router: Router,
     protected navigationService: NavigationService,
   ) {
-
     effect(() => {
       const edge = this.service.currentEdge();
       this.edge = edge;
@@ -59,10 +56,17 @@ export class LiveComponent implements OnDestroy {
       this.service.getConfig().then(config => {
         this.config = config;
         this.widgets = config.widgets;
-        setTimeout(() => this.updateMasonryLayout(), 200);
       });
       this.checkIfRefreshNeeded();
     });
+  }
+
+  @ViewChild(NgxMasonryComponent)
+  set masonrySetter(masonry: NgxMasonryComponent) {
+    this.masonry = masonry;
+    if (this.masonry) {
+      this.updateMasonryLayout();
+    }
   }
 
   public ionViewWillEnter() {
@@ -81,13 +85,33 @@ export class LiveComponent implements OnDestroy {
     this.stopOnDestroy.complete();
   }
 
+  ngAfterViewInit() {
+    this.widgetItems.changes.subscribe(() => {
+      this.observeWidgetSizes();
+      this.updateMasonryLayout();
+    });
+    this.observeWidgetSizes();
+    this.updateMasonryLayout();
+  }
+
+  private observeWidgetSizes() {
+    this.resizeObservers.forEach(obs => obs.disconnect());
+    this.resizeObservers = [];
+
+    this.widgetItems.forEach((element) => {
+      const observer = new ResizeObserver(() => {
+        this.updateMasonryLayout();
+      });
+      observer.observe(element.nativeElement);
+      this.resizeObservers.push(observer);
+    });
+  }
+
   protected updateMasonryLayout() {
-    if (!this.masonry) {
-      setTimeout(() => this.updateMasonryLayout(), 200);
-      return;
+    if (this.masonry) {
+      this.masonry.reloadItems();
+      this.masonry.layout();
     }
-    this.masonry.reloadItems();
-    this.masonry.layout();
   }
 
   protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => this.dataService.refresh(ev);
