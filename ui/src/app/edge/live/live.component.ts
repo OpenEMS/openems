@@ -18,9 +18,8 @@ export class LiveComponent implements OnDestroy, AfterViewInit {
   @ViewChild("modal", { read: ElementRef })
   public modal!: ElementRef;
 
-  @ViewChildren('widgetItem', { read: ElementRef })
+  @ViewChildren("widgetItem", { read: ElementRef })
   protected widgetItems!: QueryList<ElementRef>;
-  private resizeObservers: ResizeObserver[] = [];
 
   protected edge: Edge | null = null;
   protected config: EdgeConfig | null = null;
@@ -39,6 +38,7 @@ export class LiveComponent implements OnDestroy, AfterViewInit {
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private interval: ReturnType<typeof setInterval> | undefined;
+  private resizeObservers: ResizeObserver[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -94,19 +94,6 @@ export class LiveComponent implements OnDestroy, AfterViewInit {
     this.updateMasonryLayout();
   }
 
-  private observeWidgetSizes() {
-    this.resizeObservers.forEach(obs => obs.disconnect());
-    this.resizeObservers = [];
-
-    this.widgetItems.forEach((element) => {
-      const observer = new ResizeObserver(() => {
-        this.updateMasonryLayout();
-      });
-      observer.observe(element.nativeElement);
-      this.resizeObservers.push(observer);
-    });
-  }
-
   protected updateMasonryLayout() {
     if (this.masonry) {
       this.masonry.reloadItems();
@@ -131,5 +118,18 @@ export class LiveComponent implements OnDestroy, AfterViewInit {
       }
       this.showRefreshDragDown = DateTimeUtils.isDifferenceInSecondsGreaterThan(20, new Date(), lastUpdate);
     }, 5000);
+  }
+
+  private observeWidgetSizes() {
+    this.resizeObservers.forEach(obs => obs.disconnect());
+    this.resizeObservers = [];
+
+    this.widgetItems.forEach((element) => {
+      const observer = new ResizeObserver(() => {
+        this.updateMasonryLayout();
+      });
+      observer.observe(element.nativeElement);
+      this.resizeObservers.push(observer);
+    });
   }
 }
