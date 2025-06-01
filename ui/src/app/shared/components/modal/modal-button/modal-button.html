@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup" style="padding-top: 2%;">
+<div [formGroup]="formGroup" style="padding-top: 2%;">
     <ion-segment [formControlName]="controlName">
         <ng-container *ngFor="let button of buttons">
             <ion-segment-button [value]="button.value" (click)="button.callback" [ngStyle]="button.style">
@@ -10,4 +10,4 @@
             </ion-segment-button>
         </ng-container>
     </ion-segment>
-</form>
+</div>

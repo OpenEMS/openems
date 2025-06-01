@@ -8,11 +8,13 @@ import static java.lang.Integer.parseInt;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -48,19 +50,19 @@ public class Utils {
 	 * @param xml                 The XML string to be parsed.
 	 * @param exchangeRate        The exchange rate of user currency to EUR.
 	 * @param preferredResolution The user preferred resolution.
-	 * @return The {@link TimeOfUsePrices}
+	 * @return The {@link ImmutableSortedMap}
 	 * @throws ParserConfigurationException on error.
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static TimeOfUsePrices parsePrices(String xml, double exchangeRate, Resolution preferredResolution)
-			throws ParserConfigurationException, SAXException, IOException {
+	protected static ImmutableSortedMap<ZonedDateTime, Double> parsePrices(String xml, double exchangeRate,
+			Resolution preferredResolution) throws ParserConfigurationException, SAXException, IOException {
 		var root = getXmlRootDocument(xml);
 
-		var allPrices = parseXml(root, exchangeRate);
+		var allPrices = parseXml(root);
 
 		if (allPrices.isEmpty()) {
-			return TimeOfUsePrices.EMPTY_PRICES;
+			return ImmutableSortedMap.of();
 		}
 
 		final var globalTimeInterval = parseTimeInterval(root, "period.timeInterval");
@@ -69,7 +71,7 @@ public class Utils {
 				.distinct() //
 				.toList();
 
-		var result = Stream //
+		return Stream //
 				.iterate(globalTimeInterval.start, //
 						t -> t.isBefore(globalTimeInterval.end), //
 						t -> t.plusMinutes(15)) //
@@ -89,11 +91,47 @@ public class Utils {
 								}) //
 								.filter(Objects::nonNull) //
 								.findFirst().orElse(null)));
-
-		return TimeOfUsePrices.from(result);
 	}
 
-	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root, double exchangeRate) {
+	protected static TimeOfUsePrices processPrices(Clock clock, ImmutableSortedMap<ZonedDateTime, Double> timePriceMap,
+			double exchangeRate, TimeOfUsePrices gridFees) {
+
+		// Filter timePriceMap to include only entries from "now" onward.
+		// filteredMap will have 34 hour data maximum (when called during 14:00).
+		var filteredPrices = timePriceMap.tailMap(ZonedDateTime.now(clock), true);
+
+		if (filteredPrices.isEmpty()) {
+			return TimeOfUsePrices.EMPTY_PRICES; // or handle as appropriate
+		}
+
+		// always consists of 36 hour values.
+		var gridFeesArray = gridFees.asArray();
+		var filterSize = Math.min(filteredPrices.size(), gridFeesArray.length);
+
+		// Trim grid fees
+		gridFeesArray = Arrays.copyOf(gridFeesArray, filterSize);
+
+		// Build the result map with adjusted prices
+		ImmutableSortedMap.Builder<ZonedDateTime, Double> resultBuilder = new ImmutableSortedMap.Builder<>(
+				Comparator.naturalOrder());
+
+		int index = 0;
+		for (var entry : filteredPrices.entrySet()) {
+			if (index >= gridFeesArray.length) {
+				break; // defensive check
+			}
+
+			// converting grid fees from ct/KWh -> EUR/MWh
+			var gridFeesPerMwh = gridFeesArray[index] * 10;
+			var priceWithFee = (entry.getValue() + gridFeesPerMwh) * exchangeRate;
+			resultBuilder.put(entry.getKey(), priceWithFee);
+			index++;
+		}
+
+		return TimeOfUsePrices.from(resultBuilder.build());
+	}
+
+	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root) {
 		var result = ImmutableTable.<Duration, ZonedDateTime, Double>builder();
 		stream(root) //
 				// <TimeSeries>
@@ -104,7 +142,7 @@ public class Utils {
 				// Find Period with correct resolution
 				.forEach(period -> {
 					try {
-						parsePeriod(result, period, exchangeRate);
+						parsePeriod(result, period);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -138,8 +176,8 @@ public class Utils {
 		return new TimeInterval(start, end);
 	}
 
-	protected static void parsePeriod(ImmutableTable.Builder<Duration, ZonedDateTime, Double> result, Node period,
-			double exchangeRate) throws Exception {
+	protected static void parsePeriod(ImmutableTable.Builder<Duration, ZonedDateTime, Double> result, Node period)
+			throws Exception {
 		final var duration = Duration.parse(stream(period) //
 				// <resolution>
 				.filter(n -> n.getNodeName() == "resolution") //
@@ -161,7 +199,7 @@ public class Utils {
 							// <price.amount>
 							.filter(n -> n.getNodeName() == "price.amount") //
 							.map(XmlUtils::getContentAsString) //
-							.map(s -> parseDouble(s) * exchangeRate) //
+							.map(s -> parseDouble(s)) //
 							.findFirst().get();
 					prices.put(position, price);
 				});

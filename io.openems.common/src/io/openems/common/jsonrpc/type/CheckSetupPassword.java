@@ -9,9 +9,11 @@ import io.openems.common.utils.JsonUtils;
 
 public class CheckSetupPassword implements EndpointRequestType<CheckSetupPassword.Request, EmptyObject> {
 
+	public static final String METHOD = "checkSetupPassword";
+
 	@Override
 	public String getMethod() {
-		return "checkSetupPassword";
+		return METHOD;
 	}
 
 	@Override

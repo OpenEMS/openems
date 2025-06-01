@@ -18,3 +18,6 @@ export type TPropType<TObj, TProp extends keyof TObj> = TObj[TProp];
 export type TRange<N extends number, Acc extends number[] = []> = Acc["length"] extends N
     ? Acc[number]
     : TRange<N, [...Acc, Acc["length"]]>;
+
+/** Empty Obj */
+export type EmptyObj = Record<PropertyKey, never>;

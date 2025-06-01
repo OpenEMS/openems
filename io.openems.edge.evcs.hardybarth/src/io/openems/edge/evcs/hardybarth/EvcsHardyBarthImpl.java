@@ -95,9 +95,9 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// TODO stop here if not enabled
-		this.config = config;
 		this._setChargingType(AC);
 		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
 		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
@@ -105,17 +105,16 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		this._setPhases(THREE_PHASE);
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		// formerly .setHeartbeat
-		// The internal heartbeat is currently too fast - it is not enough to write
-		// every second by default. We have to disable it to run the evcs
-		// properly.
-		// TODO: The manufacturer must be asked if it is possible to read the heartbeat
-		// status so that we can check if the heartbeat is really disabled and if the
-		// heartbeat time can be increased to be able to use this feature.
-		this.httpBridge.subscribeCycle(1, //
-				this.createEndpoint(PUT, "/api/secc", "{\"salia/heartbeat\":\"off\"}"), //
-				t -> this._setChargingstationCommunicationFailed(false),
-				t -> this._setChargingstationCommunicationFailed(true));
+		
+		if (!this.config.readOnly()) {
+			// The internal heartbeat is currently too fast - it is not enough to write
+			// every second by default. We have to disable it to run the evcs
+			// properly.
+			this.httpBridge.subscribeCycle(1, //
+					this.createEndpoint(PUT, "/api/secc", "{\"salia/heartbeat\":\"off\"}"), //
+					t -> this._setChargingstationCommunicationFailed(false),
+					t -> this._setChargingstationCommunicationFailed(true));
+		}
 		this.httpBridge.subscribeCycle(1, //
 				this.createEndpoint(GET, "/api", null), //
 				t -> {
@@ -135,6 +134,9 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public MeterType getMeterType() {
+		if (this.isReadOnly()) {
+			return MeterType.CONSUMPTION_METERED;
+		}
 		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
@@ -339,5 +341,10 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this.config.readOnly();
 	}
 }

@@ -805,7 +805,7 @@ export namespace HistoryUtils {
     /** Default: true _> {@link https://www.chartjs.org/docs/latest/axes/styling.html#grid-line-configuration Chartjs Grid Display} */
     displayGrid?: boolean,
     scale?: {
-      /** Default: false, if true scale starts at minimum value of all datasets */
+      /** Default: false, if true scale starts at minimum value of all datasets assigned to this yaxis */
       dynamicScale?: boolean,
     }
   };

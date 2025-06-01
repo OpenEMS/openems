@@ -1,0 +1,19 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+CONF_DIR="/var/opt/openems/config"
+CONF_DIR_DEFAULT="/var/lib/openems-default-config"
+METADATA_DEFAULT="/var/lib/openems-default-metadata/metadata.json"
+METADATA_DEST="/var/opt/openems/metadata.json"
+
+if [ ! -d "$CONF_DIR" ] || [ -z "$(ls -A "$CONF_DIR" 2>/dev/null)" ]; then
+    echo "Copying default configuration files to $CONF_DIR"
+
+    if [ -d "$CONF_DIR_DEFAULT" ]; then
+        mkdir -p "$CONF_DIR"
+        rsync -av "${CONF_DIR_DEFAULT}/" "${CONF_DIR}/"
+        cp "${METADATA_DEFAULT}" "${METADATA_DEST}"
+    else
+        echo "No default configuration files found in $CONF_DIR_DEFAULT"
+    fi
+fi

@@ -4,12 +4,14 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.alerting.Handler;
+import io.openems.backend.alerting.HandlerMetrics;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.message.SumStateMessage;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
@@ -38,6 +40,8 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	private TimedTask initMetadata;
 	private final TimedExecutor timeService;
 
+	private final AtomicLong messagesSent = new AtomicLong();
+
 	public SumStateHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
 			int initialDelay) {
 		this.mailer = mailer;
@@ -46,6 +50,11 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 
 		this.mss = mss;
 		this.msgScheduler = mss.register(this);
+	}
+
+	@Override
+	public String id() {
+		return "alerting_sumstate";
 	}
 
 	@Override
@@ -66,10 +75,10 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 			return;
 		}
 
-		final var params = JsonUtils.generateJsonArray(pack.stream().map(SumStateMessage::getParams).toList());
-		if (!params.isEmpty()) {
-			this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params);
-		}
+		final var params = JsonUtils.generateJsonArray(pack, SumStateMessage::getParams);
+
+		this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params);
+		this.messagesSent.getAndAdd(pack.size());
 
 		final var logStrBuilder = new StringBuilder(pack.size() * 64);
 		pack.forEach(msg -> {
@@ -192,5 +201,10 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	@Override
 	public Class<SumStateMessage> getGeneric() {
 		return SumStateMessage.class;
+	}
+
+	@Override
+	public HandlerMetrics getMetrics() {
+		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
 	}
 }

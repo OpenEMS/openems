@@ -11,8 +11,9 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Represents a JSON-RPC Notification for timestamped or aggregated data sent
- * from Edge to Backend.
+ * Represents a JSON-RPC Notification for timestamped
+ * ({@link TimestampedDataNotification}) or aggregated
+ * ({@link AggregatedDataNotification}) data sent from Edge to Backend.
  *
  * <pre>
  * {

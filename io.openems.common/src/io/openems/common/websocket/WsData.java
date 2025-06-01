@@ -1,11 +1,17 @@
 package io.openems.common.websocket;
 
+import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
+import static io.openems.common.utils.StringUtils.toShortString;
+
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -22,6 +28,8 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
  * connections of WebSocketClient and WebSocketServer.
  */
 public class WsData {
+
+	private final Logger log = LoggerFactory.getLogger(WsData.class);
 
 	/**
 	 * Holds the WebSocket.
@@ -43,10 +51,14 @@ public class WsData {
 	 * blocked resources.
 	 */
 	public void dispose() {
-		final var e = new OpenemsException("Websocket connection closed");
-		// Complete all pending requests
-		this.requestFutures.values().forEach(r -> r.completeExceptionally(e));
-		this.requestFutures.clear();
+		this.debugLog(this.log, () -> "dispose() Futures[" + this.requestFutures.mappingCount() + "]");
+
+		if (!this.requestFutures.isEmpty()) {
+			final var e = new OpenemsException("Websocket connection closed");
+			// Complete all pending requests
+			this.requestFutures.values().forEach(r -> r.completeExceptionally(e));
+			this.requestFutures.clear();
+		}
 	}
 
 	/**
@@ -65,6 +77,7 @@ public class WsData {
 	 * @return a promise for a successful JSON-RPC Response
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) {
+		this.debugLog(this.log, () -> "REQUEST " + request.toString());
 		var future = new CompletableFuture<JsonrpcResponseSuccess>();
 		var existingFuture = this.requestFutures.putIfAbsent(request.getId(), future);
 		if (existingFuture != null) {
@@ -83,6 +96,7 @@ public class WsData {
 	 * @return true if sending was successful; false otherwise
 	 */
 	public boolean send(JsonrpcNotification notification) {
+		this.debugLog(this.log, () -> "NOTIFICATION " + toShortString(notification.toString(), 100));
 		return this.sendMessage(notification);
 	}
 
@@ -120,17 +134,23 @@ public class WsData {
 		}
 		// this was a response on a request
 		switch (response) {
-		case JsonrpcResponseSuccess success ->
+		case JsonrpcResponseSuccess success -> {
 			// Success Response -> complete future
+			this.debugLog(this.log, () -> "SUCCESS RESPONSE " + toShortString(simplifyJsonrpcMessage(response), 200));
 			future.complete(success);
-		case JsonrpcResponseError error ->
+		}
+		case JsonrpcResponseError error -> {
 			// Named OpenEMS-Error Response -> cancel future
+			this.debugLog(this.log, () -> "ERROR RESPONSE " + toShortString(simplifyJsonrpcMessage(response), 200));
 			future.completeExceptionally(
 					new OpenemsNamedException(error.getOpenemsError(), error.getParamsAsObjectArray()));
-		default ->
+		}
+		default -> {
 			// Undefined Error Response -> cancel future
+			this.debugLog(this.log, () -> "UNDEFINED RESPONSE " + toShortString(simplifyJsonrpcMessage(response), 200));
 			future.completeExceptionally(new OpenemsNamedException(OpenemsError.GENERIC,
 					"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString()));
+		}
 		}
 	}
 
@@ -141,5 +161,24 @@ public class WsData {
 	 */
 	protected String toLogString() {
 		return "";
+	}
+
+	private boolean isDebug = false;
+
+	protected void setDebug(boolean isDebug) {
+		this.isDebug = isDebug;
+	}
+
+	/**
+	 * Logs the message if this {@link WsData} has debug mode activated.
+	 * 
+	 * @param log     the {@link Logger}
+	 * @param message a {@link Supplier} for a message
+	 */
+	public void debugLog(Logger log, Supplier<String> message) {
+		if (!this.isDebug) {
+			return;
+		}
+		log.info(this.toLogString() + ": " + message.get());
 	}
 }

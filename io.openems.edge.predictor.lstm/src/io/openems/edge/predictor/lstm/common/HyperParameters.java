@@ -47,7 +47,7 @@ public class HyperParameters implements Serializable {
 	 * learnignRateLowerLimit to allow proper functioning of the dynamic learning
 	 * rate setup. Default value: 0.01
 	 */
-	private double learningRateUpperLimit = 0.01;
+	private double learningRateUpperLimit = 0.02;
 
 	/**
 	 * Lower limit for the learning rate.
@@ -65,7 +65,7 @@ public class HyperParameters implements Serializable {
 	 * enable the proper decreasing trend of the learning rate throughout the
 	 * training process. Default value: 0.0001
 	 */
-	private double learnignRateLowerLimit = 0.0001;
+	private double learnignRateLowerLimit = 0.00005;
 
 	/**
 	 * Proportion of data to be used for training.
@@ -133,7 +133,7 @@ public class HyperParameters implements Serializable {
 	 * of range errors during training.
 	 * </ul>
 	 */
-	private int batchSize = 10;
+	private int batchSize = 1;
 
 	/**
 	 * Counter for tracking batches.
@@ -233,7 +233,7 @@ public class HyperParameters implements Serializable {
 	 * predicting the next 24 hours. - The value can be adjusted up to 14. - Be
 	 * aware that higher values may be computationally intensive.
 	 */
-	private int windowSizeSeasonality = 7;
+	private int windowSizeSeasonality = 10;
 
 	/**
 	 * Window size for analyzing trend.
@@ -245,7 +245,7 @@ public class HyperParameters implements Serializable {
 	 * direction and strength of the trend over recent time periods. Keep the value
 	 * in between 5 to 7
 	 */
-	private int windowSizeTrend = 5;
+	private int windowSizeTrend = 7;
 
 	/**
 	 * Number of iterations for gradient descent.
@@ -268,7 +268,7 @@ public class HyperParameters implements Serializable {
 	 * computation time. - Higher values may improve model accuracy but will also
 	 * increase computation time.
 	 */
-	private int gdIterration = 10;
+	private int gdIterration = 15;
 
 	/**
 	 * Counter for general tracking purposes.
@@ -795,8 +795,16 @@ public class HyperParameters implements Serializable {
 	 *
 	 * @return ArrayList of ArrayLists of ArrayLists of Double representing the last
 	 *         model trend
+	 * @throws IllegalStateException if modelSeasonality is null or empty
 	 */
 	public ArrayList<ArrayList<ArrayList<Double>>> getlastModelSeasonality() {
+		if (this.modelSeasonality == null) {
+			throw new IllegalStateException("modelSeasonality list is not initialized.");
+		}
+		if (this.modelSeasonality.isEmpty()) {
+			throw new IllegalStateException(
+					"modelSeasonality list is empty. Cannot retrieve the last model seasonality.");
+		}
 		return this.modelSeasonality.get(this.modelSeasonality.size() - 1);
 	}
 
