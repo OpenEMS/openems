@@ -11,7 +11,8 @@ import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
-import { Service, UserPermission, Websocket } from "./shared/shared";
+import { Pagination } from "./shared/service/pagination";
+import { Service, UserPermission, Websocket, Edge } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
 @Component({
@@ -47,6 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private appService: PlatFormService,
     private title: Title,
     private stateService: AppStateTracker,
+    private pagination: Pagination,
     public navigationService: NavigationService,
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
@@ -121,6 +123,10 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.title.setTitle(environment.edgeShortName);
+  }
+
+  public onSelectEdge(edge: Edge) {
+    this.pagination.getAndSubscribeEdge(edge);
   }
 
   private checkSmartphoneResolution(init: boolean): void {
