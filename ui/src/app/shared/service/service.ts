@@ -79,6 +79,10 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
+  public get edges() {
+    return this.metadata.value?.edges;
+  }
+
   /**
    * Holds the current Activated Route
    */

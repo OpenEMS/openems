@@ -981,6 +981,7 @@
     "menu": "Menu",
     "name": "Name",
     "overview": "All Systems",
+    "edges": "Edges",
     "settings": "Settings",
     "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energy Management System",
     "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energy Management System",
