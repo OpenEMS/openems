@@ -61,7 +61,7 @@
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.11.0</version>
+			<version>3.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -468,7 +468,7 @@
 			<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.31.0</version>
+			<version>4.31.1</version>
 		</dependency>
 	</dependencies>
 </project>
