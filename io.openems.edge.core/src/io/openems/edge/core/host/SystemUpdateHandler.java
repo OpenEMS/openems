@@ -80,7 +80,7 @@ public class SystemUpdateHandler {
 						}
 						var stdout = response.scr.stdout();
 						if (stdout.length < 1) {
-							result.completeExceptionally(ex /* todo */);
+							result.completeExceptionally(new IOException("Could not read dpkg-query result."));
 							return;
 						}
 						var currentVersion = stdout[0];
