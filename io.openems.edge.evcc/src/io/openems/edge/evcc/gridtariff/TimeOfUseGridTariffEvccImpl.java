@@ -2,8 +2,6 @@ package io.openems.edge.evcc.gridtariff;
 
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 
-import java.time.ZonedDateTime;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -86,8 +84,7 @@ public class TimeOfUseGridTariffEvccImpl extends AbstractOpenemsComponent
 	 */
 	public TimeOfUsePrices getPrices() {
 		if (this.apiClient != null) {
-			return TimeOfUsePrices.from(ZonedDateTime.now(),
-					this.apiClient.getPrices());
+			return this.apiClient.getPrices();
 		}
 		return TimeOfUsePrices.EMPTY_PRICES;
 	}

@@ -7,8 +7,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -29,15 +27,9 @@ import io.openems.edge.predictor.api.prediction.Predictor;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 
-public class PredictorSolarTariffEvccImpl extends AbstractPredictor
-		implements
-			Predictor,
-			OpenemsComponent {
+public class PredictorSolarTariffEvccImpl extends AbstractPredictor implements Predictor, OpenemsComponent {
 
-	private final Logger log = LoggerFactory
-			.getLogger(PredictorSolarTariffEvccImpl.class);
-	
-	private final String[] channelAdresses = {"_sum/ProductionActivePower"};
+	private final String[] channelAdresses = { "_sum/ProductionActivePower" };
 
 	@Reference
 	private ComponentManager componentManager;
@@ -50,16 +42,14 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 	private BridgeHttp httpBridge;
 
 	public PredictorSolarTariffEvccImpl() throws OpenemsNamedException {
-		super(OpenemsComponent.ChannelId.values(),
-				Controller.ChannelId.values(),
+		super(OpenemsComponent.ChannelId.values(), Controller.ChannelId.values(),
 				PredictorSolarTariffEvcc.ChannelId.values());
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config)
-			throws Exception {
-		super.activate(context, config.id(), config.alias(), config.enabled(),
-				this.channelAdresses, config.logVerbosity());
+	private void activate(ComponentContext context, Config config) throws Exception {
+		super.activate(context, config.id(), config.alias(), config.enabled(), this.channelAdresses,
+				config.logVerbosity());
 
 		if (!config.enabled()) {
 			return;
@@ -68,8 +58,8 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 		this.httpBridge = this.httpBridgeFactory.get();
 
 		// Fetch latest solar energy forecast periodically
-		this.solarForecastApi = new PredictorSolarTariffEvccApi(config.url(),
-				this.httpBridge, this.componentManager.getClock());
+		this.solarForecastApi = new PredictorSolarTariffEvccApi(config.url(), this.httpBridge,
+				this.componentManager.getClock());
 	}
 
 	@Override
@@ -85,15 +75,12 @@ public class PredictorSolarTariffEvccImpl extends AbstractPredictor
 	}
 
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
-		this.log.info("SolarForecast.createNewPrediction is called.");
 		if (this.solarForecastApi != null) {
 			Prediction prediction = this.solarForecastApi.getPrediction();
-			if (prediction != Prediction.EMPTY_PREDICTION) {
-				this.channel(PredictorSolarTariffEvcc.ChannelId.PREDICT_ENABLED)
-						.setNextValue(true);
+			if (prediction != Prediction.EMPTY_PREDICTION && prediction != null) {
+				this.channel(PredictorSolarTariffEvcc.ChannelId.PREDICT_ENABLED).setNextValue(true);
 				this.channel(PredictorSolarTariffEvcc.ChannelId.PREDICT)
-						.setNextValue(
-								this.solarForecastApi.getCurrentPrediction());
+						.setNextValue(this.solarForecastApi.getCurrentPrediction());
 				return prediction;
 			}
 		}
