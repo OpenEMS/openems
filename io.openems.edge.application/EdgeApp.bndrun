@@ -43,12 +43,12 @@
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.commercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
+	bnd.identity;id='io.openems.edge.battery.pylontech',\
+	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
-	bnd.identity;id='io.openems.edge.battery.pylontech',\
-	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
 	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
@@ -99,8 +99,8 @@
 	bnd.identity;id='io.openems.edge.controller.io.analog',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
-	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
+	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
 	bnd.identity;id='io.openems.edge.controller.levl',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
