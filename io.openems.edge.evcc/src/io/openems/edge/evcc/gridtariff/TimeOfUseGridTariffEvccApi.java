@@ -3,6 +3,7 @@ package io.openems.edge.evcc.gridtariff;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -30,6 +31,7 @@ public class TimeOfUseGridTariffEvccApi {
 
 	private static final Logger log = LoggerFactory.getLogger(TimeOfUseGridTariffEvccApi.class);
 	private BridgeHttp httpBridge;
+	private Clock clock;
 	private String apiUrl;
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
 
@@ -47,17 +49,19 @@ public class TimeOfUseGridTariffEvccApi {
 		@Override
 		public Delay onSuccessRunDelay(HttpResponse<String> result) {
 			return DelayTimeProviderChain
-					.fixedAtEveryFull(java.time.Clock.systemDefaultZone(), DurationUnit.ofMinutes(15)).getDelay();
+					.fixedAtEveryFull(java.time.Clock.systemUTC(), DurationUnit.ofMinutes(15)).getDelay();
 		}
 	}
 
-	public TimeOfUseGridTariffEvccApi() {
+	public TimeOfUseGridTariffEvccApi(Clock clock) {
 		this.httpBridge = null;
 		this.apiUrl = "";
+		this.clock = clock;
 	}
 
-	public TimeOfUseGridTariffEvccApi(String apiUrl, BridgeHttp httpBridge) {
+	public TimeOfUseGridTariffEvccApi(String apiUrl, BridgeHttp httpBridge, Clock clock) {
 		this.apiUrl = apiUrl;
+		this.clock = clock;
 		this.httpBridge = httpBridge;
 		this.httpBridge.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
 				this::handleError);
@@ -92,7 +96,7 @@ public class TimeOfUseGridTariffEvccApi {
 
 			// prices parsed and not empty
 			if (!newPrices.isEmpty()) {
-				ZonedDateTime now = ZonedDateTime.now();
+				ZonedDateTime now = ZonedDateTime.now(this.clock);
 				ZonedDateTime lastFullHour = now.withMinute(0).withSecond(0).withNano(0);
 				ZonedDateTime utcTime = lastFullHour.withZoneSameInstant(ZoneId.of("UTC"));
 				newPrices = TimeOfUsePrices.from(utcTime, newPrices);
@@ -188,7 +192,8 @@ public class TimeOfUseGridTariffEvccApi {
 
 			return prices;
 		} catch (Exception e) {
-			log.error("Failed to parse API data", e);
+			log.error("Failed to parse API data: {}", e.getMessage());
+			log.debug("Exception:  {}", e);
 			return TimeOfUsePrices.EMPTY_PRICES;
 		}
 	}
@@ -199,7 +204,7 @@ public class TimeOfUseGridTariffEvccApi {
 	 * @return the TimeOfUsePrices object containing tariff information.
 	 */
 	public TimeOfUsePrices getPrices() {
-		ZonedDateTime utcTime = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC"));
+		ZonedDateTime utcTime = ZonedDateTime.now(this.clock).withZoneSameInstant(ZoneId.of("UTC"));
 		TimeOfUsePrices prices = TimeOfUsePrices.from(utcTime, this.prices.get());
 		log.debug("Prices: {}", prices);
 		return prices;

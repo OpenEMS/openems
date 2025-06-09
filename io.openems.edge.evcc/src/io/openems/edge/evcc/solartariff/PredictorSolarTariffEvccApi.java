@@ -3,7 +3,6 @@ package io.openems.edge.evcc.solartariff;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -31,9 +30,9 @@ public class PredictorSolarTariffEvccApi {
 
 	private static final Logger log = LoggerFactory.getLogger(PredictorSolarTariffEvccApi.class);
 	private BridgeHttp httpBridge;
+	private Clock clock;
 	private String apiUrl;
-	private Prediction prediction;
-	private Integer currentPrediction;
+	private Prediction prediction = Prediction.EMPTY_PREDICTION;
 	private ImmutableSortedMap<ZonedDateTime, Integer> solarData = ImmutableSortedMap.of();
 
 	private static class SolarTariffProvider implements DelayTimeProvider {
@@ -53,14 +52,17 @@ public class PredictorSolarTariffEvccApi {
 		}
 	}
 
-	public PredictorSolarTariffEvccApi() {
+	public PredictorSolarTariffEvccApi(Clock clock) {
 		this.httpBridge = null;
 		this.apiUrl = "";
+		this.clock = clock;
+		;
 	}
 
 	public PredictorSolarTariffEvccApi(String apiUrl, BridgeHttp httpBridge, Clock clock) {
 		this.apiUrl = apiUrl;
 		this.httpBridge = httpBridge;
+		this.clock = clock;
 		this.httpBridge.subscribeTime(new SolarTariffProvider(), this::createEndpoint, this::handleResponse,
 				this::handleError);
 	}
@@ -92,75 +94,84 @@ public class PredictorSolarTariffEvccApi {
 			log.info("Received response from Solar Forecast API.");
 			try {
 				log.debug("Raw API Response: {}", response.data());
-				this.prediction = this.parsePrediction(response.data());
-				this.currentPrediction = this.prediction.getFirst().intValue();
+				Prediction prediction = this.parsePrediction(response.data());
+				// only replace if valid values
+				if (!prediction.isEmpty()) {
+					this.prediction = prediction;
+				}
 			} catch (OpenemsNamedException e) {
-				log.warn("Invalid or empty response from Solar Forecast API. Exception: {}", e.getMessage());
-				this.currentPrediction = 0;
-				this.prediction = Prediction.EMPTY_PREDICTION;
+				log.error("Invalid or empty response from Solar Forecast API. Exception: {}", e.getMessage());
+				log.debug("Exception: {}", e);
 			}
 		} else {
 			log.warn("Failed to fetch solar forecast. HTTP status code: {}", response.status().code());
-			this.currentPrediction = 0;
-			this.prediction = Prediction.EMPTY_PREDICTION;
 		}
 	}
 
 	private ImmutableSortedMap<ZonedDateTime, Integer> parseJson(String jsonData) throws OpenemsNamedException {
-		var result = ImmutableSortedMap.<ZonedDateTime, Integer>naturalOrder();
-		var jsonObject = JsonUtils.parseToJsonObject(jsonData);
-		var resultObject = JsonUtils.getAsJsonObject(jsonObject, "result");
-		var dataArray = JsonUtils.getAsJsonArray(resultObject, "rates");
+		try {
 
-		log.debug("Parsing JSON response: {}", jsonObject);
+			var result = ImmutableSortedMap.<ZonedDateTime, Integer>naturalOrder();
+			var jsonObject = JsonUtils.parseToJsonObject(jsonData);
+			var resultObject = JsonUtils.getAsJsonObject(jsonObject, "result");
+			var dataArray = JsonUtils.getAsJsonArray(resultObject, "rates");
 
-		long duration = -1;
+			log.debug("Parsing JSON response: {}", jsonObject);
 
-		for (var element : dataArray) {
-			log.debug("Processing JSON element: {}", element);
+			long duration = -1;
 
-			Integer power = JsonUtils.getAsOptionalInt(element, "value")
-					.orElseGet(() -> JsonUtils.getAsOptionalInt(element, "price").orElse(null));
+			for (var element : dataArray) {
+				log.debug("Processing JSON element: {}", element);
 
-			if (power == null) {
-				log.error("Missing 'value' or 'price' field in JSON data: {}", element);
-				return ImmutableSortedMap.of();
+				Integer power = JsonUtils.getAsOptionalInt(element, "value")
+						.orElseGet(() -> JsonUtils.getAsOptionalInt(element, "price").orElse(null));
+
+				if (power == null) {
+					log.error("Missing 'value' or 'price' field in JSON data: {}", element);
+					return ImmutableSortedMap.of();
+				}
+
+				String startString = JsonUtils.getAsString(element, "start");
+				ZonedDateTime startTime = ZonedDateTime.parse(startString);
+				ZonedDateTime utcStart = startTime.withZoneSameInstant(ZoneId.of("UTC"));
+
+				log.debug("Parsed start time: {}", startTime);
+
+				if (duration < 0) {
+					String endString = JsonUtils.getAsString(element, "end");
+					ZonedDateTime endTime = ZonedDateTime.parse(endString);
+					duration = Duration.between(startTime, endTime).toMinutes();
+
+					log.debug("Parsed end time: {} - Duration: {} minutes", endTime, duration);
+				}
+
+				switch ((int) duration) {
+				case 60:
+					result.put(utcStart, power);
+					result.put(utcStart.plusMinutes(15), power);
+					result.put(utcStart.plusMinutes(30), power);
+					result.put(utcStart.plusMinutes(45), power);
+					break;
+				case 30:
+					result.put(utcStart, power);
+					result.put(utcStart.plusMinutes(15), power);
+					break;
+				case 15:
+					result.put(utcStart, power);
+					break;
+				default:
+					log.error("Unexpected duration for power: {} minutes", duration);
+					return ImmutableSortedMap.of();
+				}
 			}
 
-			String startString = JsonUtils.getAsString(element, "start");
-			ZonedDateTime startTime = ZonedDateTime.parse(startString);
-			log.debug("Parsed start time: {}", startTime);
-
-			if (duration < 0) {
-				String endString = JsonUtils.getAsString(element, "end");
-				ZonedDateTime endTime = ZonedDateTime.parse(endString);
-				duration = Duration.between(startTime, endTime).toMinutes();
-
-				log.debug("Parsed end time: {} - Duration: {} minutes", endTime, duration);
-			}
-
-			switch ((int) duration) {
-			case 60:
-				result.put(startTime, power);
-				result.put(startTime.plusMinutes(15), power);
-				result.put(startTime.plusMinutes(30), power);
-				result.put(startTime.plusMinutes(45), power);
-				break;
-			case 30:
-				result.put(startTime, power);
-				result.put(startTime.plusMinutes(15), power);
-				break;
-			case 15:
-				result.put(startTime, power);
-				break;
-			default:
-				log.error("Unexpected duration for power: {} minutes", duration);
-				return ImmutableSortedMap.of();
-			}
+			log.debug("Final parsed solar data map: {}", result.build());
+			return result.build();
+		} catch (Exception e) {
+			log.error("Unexpected parse exception, exception: {}", e.getMessage());
+			log.debug("Exception: {}", e);
+			return ImmutableSortedMap.of();
 		}
-
-		log.debug("Final parsed solar data map: {}", result.build());
-		return result.build();
 	}
 
 	/**
@@ -184,23 +195,22 @@ public class PredictorSolarTariffEvccApi {
 		this.solarData = this.parseJson(jsonData);
 		log.debug("Parsed solar data: {}", this.solarData);
 
-		LocalDateTime localCurrentHour = LocalDateTime.now().withSecond(0).withNano(0).withMinute(0);
-		ZoneId localZone = ZoneId.systemDefault();
-		ZonedDateTime localZoned = localCurrentHour.atZone(localZone);
-		ZonedDateTime currentHour = localZoned.withZoneSameInstant(ZoneId.of("UTC"));
+		ZonedDateTime localCurrentHour = ZonedDateTime.now(this.clock).withSecond(0).withNano(0).withMinute(0);
+		ZonedDateTime utcHour = localCurrentHour.withZoneSameInstant(ZoneId.of("UTC"));
 
 		var values = new Integer[192];
 		int i = 0;
 
 		for (Entry<ZonedDateTime, Integer> entry : this.solarData.entrySet()) {
-			if (!entry.getKey().isBefore(currentHour) && i < values.length) {
+			if (!entry.getKey().isBefore(utcHour) && i < values.length) {
 				values[i++] = entry.getValue();
 			}
 		}
 
-		Prediction prediction = Prediction.from(currentHour, values);
+		Prediction prediction = Prediction.from(utcHour, values);
 		if (prediction.asArray().length == 0) {
 			log.warn("no future values retrieved");
+			prediction = Prediction.EMPTY_PREDICTION;
 		}
 
 		log.debug("parsed prediction: {}", prediction);
@@ -214,7 +224,16 @@ public class PredictorSolarTariffEvccApi {
 	 * @return the predicted solar tariff value.
 	 */
 	public Prediction getPrediction() {
-		return this.prediction;
+		ZonedDateTime utcTime = ZonedDateTime.now(this.clock).withZoneSameInstant(ZoneId.of("UTC"));
+		Prediction prediction = Prediction.from(utcTime, this.prediction);
+		// TODO remove
+		log.debug("Prediction: {}", prediction);
+		if (prediction.isEmpty()) {
+			return Prediction.EMPTY_PREDICTION;
+		} else {
+			return prediction;
+		}
+
 	}
 
 	/**
@@ -223,7 +242,9 @@ public class PredictorSolarTariffEvccApi {
 	 * @return the current predicted solar value in Wh.
 	 */
 	public Integer getCurrentPrediction() {
-		return this.currentPrediction;
+		ZonedDateTime utcTime = ZonedDateTime.now(this.clock).withZoneSameInstant(ZoneId.of("UTC"));
+		Prediction prediction = Prediction.from(utcTime, this.prediction);
+		return prediction.getFirst();
 	}
 
 	/**

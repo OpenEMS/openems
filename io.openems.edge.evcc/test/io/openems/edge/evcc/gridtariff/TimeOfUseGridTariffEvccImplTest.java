@@ -1,6 +1,10 @@
 package io.openems.edge.evcc.gridtariff;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.edge.common.currency.Currency.EUR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -12,7 +16,7 @@ import org.junit.Test;
 
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.edge.bridge.http.api.UrlBuilder;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -25,119 +29,189 @@ public class TimeOfUseGridTariffEvccImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new TimeOfUseGridTariffEvccImpl();
-		final var api = new TimeOfUseGridTariffEvccApi();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
 		final var clock = createDummyClock();
 		final var dummyMeta = new DummyMeta("foo0") //
 				.withCurrency(EUR);
 
 		// simulate response
-		final ZonedDateTime now = ZonedDateTime.now().withMinute(0).withSecond(0).withNano(0);
+		final ZonedDateTime now = ZonedDateTime.now(clock).withMinute(0).withSecond(0).withNano(0);
+		final String jsonResponse = String.format("""
+				    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
+				""", now, now.plusMinutes(60));
 
+		final var url = "http://evcc:7070/api/tariff/grid";
+		final var endpointFetcher = dummyEndpointFetcher();
+		endpointFetcher.addEndpointHandler(endpoint -> {
+
+			if (endpoint.url().equals(UrlBuilder.parse(url).toEncodedString())) {
+				return HttpResponse.ok(jsonResponse);
+			}
+
+			throw HttpError.ResponseError.notFound();
+		});
+
+		final var executor = dummyBridgeHttpExecutor();
+
+		final var factory = ofBridgeImpl(//
+				() -> cycleSubscriber(), //
+				() -> endpointFetcher, //
+				() -> executor //
+		);
+		final var urlFail = "http://evcc:7070/api/tarif/grid";
+
+		// API error
 		new ComponentTest(sut) //
-				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeFactory", factory) //
 				.addReference("meta", dummyMeta) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId("timeofusetariff0") //
-						.setApiUrl("http://evcc:7070/api/tariff/grid") //
+						.setApiUrl(urlFail) //
 						.setLogVerbosity(LogVerbosity.REQUESTED_PREDICTIONS) //
 						.build()) //
 
-				// Case: Invalid API response
-				.next(new TestCase("Invalid API response") //
-						.onBeforeProcessImage(() -> {
-							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
-							httpTestBundle.triggerNextCycle();
-						}) //
+				// Case: API was called unsuccessfully
+				.next(new TestCase("API error") //
+						.timeleap(clock, 10, ChronoUnit.SECONDS) //
 						.onAfterProcessImage(() -> {
+							executor.update();
 							assertEquals(TimeOfUsePrices.EMPTY_PRICES, sut.getPrices());
 						})) //
-
-				// Case: API Not Found (404)
-				.next(new TestCase("API Not Found") //
-						.onBeforeProcessImage(() -> {
-							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
-							httpTestBundle.triggerNextCycle();
-						}) //
-						.onAfterProcessImage(() -> {
-							assertEquals(TimeOfUsePrices.EMPTY_PRICES, sut.getPrices());
-						})) //
-
-				// Case: API Unknown Error
-				.next(new TestCase("API Unknown Error") //
-						.onBeforeProcessImage(() -> {
-							httpTestBundle.forceNextFailedResult(
-									new HttpError.UnknownError(new Exception("Simulated failure")));
-							httpTestBundle.triggerNextCycle();
-						}) //
-						.onAfterProcessImage(() -> {
-							assertEquals(TimeOfUsePrices.EMPTY_PRICES, sut.getPrices());
-						}))
-
-				// Case: API success
-				.next(new TestCase("API success") //
-						.onBeforeProcessImage(() -> {
-							String jsonResponse = String.format("""
-									    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
-									""", now, now.plusMinutes(60));
-							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(jsonResponse));
-							httpTestBundle.triggerNextCycle();
-						}) //
-						.timeleap(clock, 2, ChronoUnit.MINUTES)
-				// TODO how to check asynchronous httpBridge result?
-				)
-
-				// response handling (manual)
-				.next(new TestCase("API response").onBeforeProcessImage(() -> {
-					// simulate response
-					ZonedDateTime past = ZonedDateTime.now().withMinute(0).withSecond(0).withNano(0);
-					String jsonResponseOld = String.format(
-							"""
-									    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2067 },{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
-									""",
-							past.minusMinutes(60), now, now, now.plusMinutes(60));
-
-					// http response parsing
-					api.handleResponse(HttpResponse.ok(jsonResponseOld));
-					assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, api.getPrices());
-				})) //
-
-				// 60 minutes
-				.next(new TestCase("Successful API response").onBeforeProcessImage(() -> {
-					String jsonResponse = String.format("""
-							    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
-							""", now, now.plusMinutes(60));
-					TimeOfUsePrices prices = api.parsePrices(jsonResponse);
-					assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
-					assertEquals(prices.asArray().length, 4);
-					assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
-				})) //
-
-				// 30 minutes
-				.next(new TestCase("Successful API response").onBeforeProcessImage(() -> {
-					String jsonResponse = String.format("""
-							    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
-							""", now, now.plusMinutes(30));
-
-					TimeOfUsePrices prices = api.parsePrices(jsonResponse);
-					assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
-					assertEquals(prices.asArray().length, 2);
-					assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
-				})) //
-
-				// 15 minutes
-				.next(new TestCase("Successful API response").onBeforeProcessImage(() -> {
-					String jsonResponse = String.format("""
-							    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
-							""", now, now.plusMinutes(15));
-
-					TimeOfUsePrices prices = api.parsePrices(jsonResponse);
-					assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
-					assertEquals(prices.asArray().length, 1);
-					assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
-				}))//
-
 				.deactivate();
+
+		// API success
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", factory) //
+				.addReference("meta", dummyMeta) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.activate(MyConfig.create() //
+						.setId("timeofusetariff0") //
+						.setApiUrl(url) //
+						.setLogVerbosity(LogVerbosity.REQUESTED_PREDICTIONS) //
+						.build()) //
+				// Case: API was called
+				.next(new TestCase("API called") //
+						.timeleap(clock, 10, ChronoUnit.SECONDS) //
+						.onAfterProcessImage(() -> {
+							executor.update();
+							TimeOfUsePrices prices = sut.getPrices();
+							assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+							assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
+						})) //
+				.deactivate();
+
+		// response handling (manual)
+		new ComponentTest(sut) //
+				.next(new TestCase("API response using old data") //
+						.onBeforeProcessImage(() -> {
+							// simulate response (includes invalid old data)
+							ZonedDateTime past = ZonedDateTime.now(clock).withMinute(0).withSecond(0).withNano(0);
+							final String jsonResponseOld = String.format(
+									"""
+											    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2067 },{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
+											""",
+									past.minusMinutes(60), now, now, now.plusMinutes(60));
+
+							final String jsonResponsePast = String.format(
+									"""
+											    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2067 },{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
+											""",
+									past.minusMinutes(120), now.minusMinutes(60), now.minusMinutes(60), now);
+
+							// response parsing, including old and fresh data
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							api.handleResponse(HttpResponse.ok(jsonResponseOld));
+							TimeOfUsePrices prices = api.getPrices();
+							assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+							assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
+
+							// no new data, keep old data cached
+							api.handleResponse(HttpResponse.ok(jsonResponsePast));
+							prices = api.getPrices();
+							assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+							assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
+
+							// only past, never retrieved fresh data
+							api = new TimeOfUseGridTariffEvccApi(clock);
+							api.handleResponse(HttpResponse.ok(jsonResponsePast));
+							prices = api.getPrices();
+							assertEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+						})) //
+
+				// invalid parsing #1
+				.next(new TestCase("invalid API response") //
+						.onBeforeProcessImage(() -> {
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							String jsonResponseFail = String.format("""
+									    { "res": { "rate": [{ "begin": "%s", "end": "%s", "val": 0.2567 }]}}
+									""", now, now.plusMinutes(60));
+
+							TimeOfUsePrices prices = api.parsePrices(jsonResponseFail);
+							assertEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+						})) //
+
+				// invalid parsing #2
+				.next(new TestCase("invalid API response") //
+						.onBeforeProcessImage(() -> {
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							String jsonResponseFail = String.format("""
+									    { "result": { "rate": [{ "begin": "%s", "end": "%s", "val": 0.2567 }]}}
+									""", now, now.plusMinutes(60));
+
+							api.parsePrices(jsonResponseFail);
+							assertEquals(TimeOfUsePrices.EMPTY_PRICES, api.getPrices());
+						})) //
+
+				// invalid parsing #3
+				.next(new TestCase("invalid API response") //
+						.onBeforeProcessImage(() -> {
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							String jsonResponseFail = String.format("""
+									    { "result": { "rates": [{ "begin": "%s", "end": "%s", "val": 0.2567 }]}}
+									""", now, now.plusMinutes(60));
+
+							TimeOfUsePrices prices = api.parsePrices(jsonResponseFail);
+							assertEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+						})) //
+
+				// invalid interval
+				.next(new TestCase("invalid interval") //
+						.onBeforeProcessImage(() -> {
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							String jsonResponse10 = String.format("""
+									    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
+									""", now, now.plusMinutes(10));
+
+							TimeOfUsePrices prices = api.parsePrices(jsonResponse10);
+							assertEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+						})) //
+
+				// 30 minute interval
+				.next(new TestCase("30 minute interval") //
+						.onBeforeProcessImage(() -> {
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							String jsonResponse30 = String.format("""
+									    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
+									""", now, now.plusMinutes(30));
+
+							TimeOfUsePrices prices = api.parsePrices(jsonResponse30);
+							assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+							assertEquals(2, prices.asArray().length);
+							assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
+						})) //
+
+				// 15 minutes interval
+				.next(new TestCase("15 minute interval") //
+						.onBeforeProcessImage(() -> {
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							String jsonResponse15 = String.format("""
+									    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}}
+									""", now, now.plusMinutes(15));
+
+							TimeOfUsePrices prices = api.parsePrices(jsonResponse15);
+							assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+							assertEquals(1, prices.asArray().length);
+							assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
+						}));
 	}
 }

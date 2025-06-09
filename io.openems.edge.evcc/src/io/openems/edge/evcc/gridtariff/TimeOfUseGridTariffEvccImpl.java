@@ -27,10 +27,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 )
 
 public class TimeOfUseGridTariffEvccImpl extends AbstractOpenemsComponent
-		implements
-			TimeOfUseTariff,
-			OpenemsComponent,
-			TimeOfUseGridTariffEvcc {
+		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseGridTariffEvcc {
 
 	@Reference
 	private ComponentManager componentManager;
@@ -46,8 +43,7 @@ public class TimeOfUseGridTariffEvccImpl extends AbstractOpenemsComponent
 	private BridgeHttp httpBridge;
 
 	public TimeOfUseGridTariffEvccImpl() {
-		super(OpenemsComponent.ChannelId.values(),
-				TimeOfUseGridTariffEvcc.ChannelId.values());
+		super(OpenemsComponent.ChannelId.values(), TimeOfUseGridTariffEvcc.ChannelId.values());
 	}
 
 	@Activate
@@ -60,8 +56,8 @@ public class TimeOfUseGridTariffEvccImpl extends AbstractOpenemsComponent
 
 		this.httpBridge = this.httpBridgeFactory.get();
 
-		this.apiClient = new TimeOfUseGridTariffEvccApi(config.apiUrl(),
-				this.httpBridge);
+		this.apiClient = new TimeOfUseGridTariffEvccApi(config.apiUrl(), this.httpBridge,
+				this.componentManager.getClock());
 	}
 
 	@Deactivate
@@ -75,12 +71,12 @@ public class TimeOfUseGridTariffEvccImpl extends AbstractOpenemsComponent
 	 *
 	 * <p>
 	 * This method checks if the API client is available. If so, it fetches the
-	 * prices from the API client and returns a TimeOfUsePrices instance with
-	 * the current timestamp. If the API client is not available, it returns an
-	 * empty TimeOfUsePrices object.
+	 * prices from the API client and returns a TimeOfUsePrices instance with the
+	 * current timestamp. If the API client is not available, it returns an empty
+	 * TimeOfUsePrices object.
 	 *
-	 * @return the current time-of-use prices or an empty instance if the API
-	 *         client is unavailable.
+	 * @return the current time-of-use prices or an empty instance if the API client
+	 *         is unavailable.
 	 */
 	public TimeOfUsePrices getPrices() {
 		if (this.apiClient != null) {
