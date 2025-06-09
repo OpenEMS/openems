@@ -76,7 +76,7 @@
     "@types/node": "^22.15.21",
     "@types/qs": "^6.14.0",
     "@types/range-parser": "^1.2.7",
-    "@types/send": "^0.17.4",
+    "@types/send": "^0.17.5",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
