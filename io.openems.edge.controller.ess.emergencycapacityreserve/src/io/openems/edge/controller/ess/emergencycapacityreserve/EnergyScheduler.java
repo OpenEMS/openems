@@ -1,17 +1,17 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static java.lang.Math.max;
 
 import java.util.function.Supplier;
 
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
 public class EnergyScheduler {
-
-	private static record OptimizationContext(int minSoc) {
-	}
 
 	/**
 	 * Builds the {@link EnergyScheduleHandler}.
@@ -21,25 +21,50 @@ public class EnergyScheduler {
 	 * test.
 	 * 
 	 * @param parent         the parent {@link OpenemsComponent}
-	 * @param minSocSupplier supplier for the configured minSoc
+	 * @param configSupplier supplier for the {@link Config}
 	 * @return a {@link EnergyScheduleHandler}
 	 */
 	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
-			Supplier<Integer> minSocSupplier) {
+			Supplier<Config> configSupplier) {
 		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
+				.setSerializer(Config.serializer(), configSupplier) //
+
 				.setOptimizationContext(gsc -> {
-					var minSoc = minSocSupplier.get();
-					return minSoc != null //
-							? new OptimizationContext(socToEnergy(gsc.ess().totalEnergy(), minSoc)) //
+					var config = configSupplier.get();
+					return config != null //
+							? new OptimizationContext(socToEnergy(gsc.ess().totalEnergy(), config.minSoc)) //
 							: null; //
 				})
 
-				.setSimulator((gsc, coc, ef) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
 					if (coc != null) {
-						ef.setEssMaxDischarge(max(0, gsc.ess.getInitialEnergy() - coc.minSoc));
+						ef.setEssMaxDischarge(max(0, gsc.ess.getInitialEnergy() - coc.minEnergy));
 					}
 				}) //
 
 				.build();
+	}
+
+	private static record OptimizationContext(int minEnergy) {
+	}
+
+	public static record Config(Integer minSoc) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link Config}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<Config> serializer() {
+			return jsonObjectSerializer(Config.class, json -> {
+				return new Config(//
+						json.getOptionalInt("minSoc").orElse(null) //
+				);
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("minSoc", obj.minSoc) //
+						.build();
+			});
+		}
 	}
 }

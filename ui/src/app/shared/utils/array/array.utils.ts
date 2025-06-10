@@ -21,10 +21,10 @@ export namespace ArrayUtils {
   /**
    * Finds the biggest number in a array.
    * null, undefined, NaN, +-Infinity are ignored in this method.
-  *
-  * @param arr the arr
-  * @returns a number if arr not empty, else null
-  */
+   *
+   * @param arr the arr
+   * @returns a number if arr not empty, else null
+   */
   export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
     const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
     return filteredArr.length > 0 ? Math.max(...filteredArr) : null;
@@ -43,13 +43,13 @@ export namespace ArrayUtils {
   }
 
   /**
- * Sort arrays alphabetically, according to the string returned by fn.
- * Elements for which fn returns null or undefined are sorted to the end in an undefined order.
- *
- * @param array to sort
- * @param fn to get a string to sort by
- * @returns sorted array
- */
+   * Sort arrays alphabetically, according to the string returned by fn.
+   * Elements for which fn returns null or undefined are sorted to the end in an undefined order.
+   *
+   * @param array to sort
+   * @param fn to get a string to sort by
+   * @returns sorted array
+   */
   export function sortedAlphabetically<Type>(array: Type[], fn: (arg: Type) => string): Type[] {
     return array.sort((a: Type, b: Type) => {
       const aVal = fn(a);
@@ -64,12 +64,12 @@ export namespace ArrayUtils {
   }
 
   /**
-  * Checks if array contains at least one of the passed strings
-  *
-  * @param strings the strings
-  * @param arr the array
-  * @returns true if arr contains at least one of the strings
-  */
+   * Checks if array contains at least one of the passed strings
+   *
+   * @param strings the strings
+   * @param arr the array
+   * @returns true if arr contains at least one of the strings
+   */
   export function containsStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
     return arr.filter(el => strings.includes(el)).length > 0;
   }

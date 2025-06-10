@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int minHwCurrent;
 		private int maxHwCurrent;
 		private PhaseRotation phaseRotation;
+		private boolean readOnly;
 
 		private Builder() {
 		}
@@ -38,6 +39,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
 			this.phaseRotation = phaseRotation;
+			return this;
+		}
+		
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
 			return this;
 		}
 
@@ -85,5 +91,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public PhaseRotation phaseRotation() {
 		return this.builder.phaseRotation;
+	}
+
+	@Override
+	public boolean readOnly() {
+		return this.builder.readOnly;
 	}
 }

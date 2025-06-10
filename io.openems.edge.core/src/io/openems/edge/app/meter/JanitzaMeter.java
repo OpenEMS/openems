@@ -122,6 +122,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 				.setRequired(true) //
 				.setDefaultValue(6) //
 				.setAutoGenerateField(false)), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
 				SELECTED_MODBUS_ID, SELECTED_MODBUS_ID.def(), //
 				MODBUS_UNIT_ID, MODBUS_UNIT_ID.def(), INTEGRATION_TYPE)), //
@@ -173,6 +174,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 			final var type = this.getEnum(p, MeterType.class, Property.TYPE);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var integrationType = this.getEnum(p, ModbusType.class, Property.INTEGRATION_TYPE);
+			final var invert = this.getBoolean(p, Property.INVERT);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -200,6 +202,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 							.addProperty("modbus.id", modbusId) //
 							.addProperty("modbusUnitId", modbusUnitId) //
 							.addProperty("type", type) //
+							.addProperty("invert", invert)//
 							.build()));
 
 			return AppConfiguration.create() //

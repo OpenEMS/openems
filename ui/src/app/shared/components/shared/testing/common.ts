@@ -21,7 +21,7 @@ export namespace OeTester {
   }
 
   export namespace ChartOptions {
-    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean }, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [k: string]: { scale: { min?: number, max?: number, beginAtZero?: boolean, title?: string }, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
       type: "option",
       options: {
         // Important for point style on chart hover for line chart
@@ -38,12 +38,18 @@ export namespace OeTester {
         "datasets": { "bar": {}, "line": {} },
         "plugins": {
           "colors": { "enabled": false },
-          "legend": { "display": true, "position": "bottom", "labels": { "color": "" } },
-          "tooltip": { "intersect": false, "mode": "index", "callbacks": {}, "enabled": true },
+          "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true,
+              "textAlign": "center",
+            },
+          },
+          "tooltip": { "usePointStyle": true, "intersect": false, "mode": "index", "callbacks": {}, "enabled": true, "caretSize": 0 },
           "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
-        }, "scales": {
+        },
+        "scales": {
           "x": {
             "stacked": true,
             "offset": false,
@@ -57,7 +63,7 @@ export namespace OeTester {
             "stacked": false,
             "beginAtZero": false,
             ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
-            "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } },
+            "title": { "text": options["left"]?.scale?.title ?? "kW", "display": false, "padding": 5, "font": { "size": 11 } },
             "position": "left",
             "grid": { "display": true },
             "ticks": {
@@ -89,8 +95,13 @@ export namespace OeTester {
         },
         "plugins": {
           "colors": { "enabled": false },
-          "legend": { "display": true, "position": "bottom", "labels": { "color": "" } },
-          "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true },
+          "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true,
+              "textAlign": "center",
+            },
+          },
+          "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 },
           "annotation": { "annotations": {} },
           "datalabels": {
             display: false,
@@ -137,10 +148,14 @@ export namespace OeTester {
             "enabled": false,
           },
           "legend": {
-            "display": true, "position": "bottom", "labels": { "color": "" },
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true, "textAlign": "center",
+            },
           }, "tooltip": {
             "intersect": false, "mode": "index", "callbacks": {},
             "enabled": true,
+            "usePointStyle": true,
+            "caretSize": 0,
           },
           "annotation": {
             "annotations": {},
@@ -184,7 +199,11 @@ export namespace OeTester {
           "intersect": false,  // Allow hovering over line, not just points
         },
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true, "textAlign": "center",
+            },
+          }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {

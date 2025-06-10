@@ -570,6 +570,12 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 		final var openemsApp = this.findAppByIdOrError(request.appId());
 
+		if (user != null) {
+			if (!openemsApp.getAppPermissions().canInstall().contains(user.getRole())) {
+				throw new OpenemsException("User Role can't install!");
+			}
+		}
+
 		return this.lockModifyingApps(() -> {
 			// initial check if the app can even be installed
 			final var language = user == null ? Language.DEFAULT : user.getLanguage();

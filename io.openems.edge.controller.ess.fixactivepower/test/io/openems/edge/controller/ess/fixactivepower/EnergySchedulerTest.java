@@ -27,8 +27,9 @@ public class EnergySchedulerTest {
 	@Test
 	public void testEquals() {
 		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"),
-				() -> new OptimizationContext(500, EQUALS));
-		assertEquals("ctrl0", esh.getId());
+				() -> new OptimizationContext(2000, EQUALS));
+		assertEquals("", esh.getParentFactoryPid());
+		assertEquals("ctrl0", esh.getParentId());
 
 		var t = EnergyScheduleTester.from(esh);
 		var t0 = t.simulatePeriod();
@@ -39,7 +40,7 @@ public class EnergySchedulerTest {
 	@Test
 	public void testGreaterOrEquals() {
 		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"),
-				() -> new OptimizationContext(500, GREATER_OR_EQUALS));
+				() -> new OptimizationContext(2000, GREATER_OR_EQUALS));
 		var t = EnergyScheduleTester.from(esh);
 
 		var t0 = t.simulatePeriod();
@@ -51,7 +52,7 @@ public class EnergySchedulerTest {
 	@Test
 	public void testLessOrEquals() {
 		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"),
-				() -> new OptimizationContext(500, LESS_OR_EQUALS));
+				() -> new OptimizationContext(2000, LESS_OR_EQUALS));
 		var t = EnergyScheduleTester.from(esh);
 
 		var t0 = t.simulatePeriod();

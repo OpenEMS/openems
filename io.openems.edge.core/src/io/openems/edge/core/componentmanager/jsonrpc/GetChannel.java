@@ -2,13 +2,13 @@ package io.openems.edge.core.componentmanager.jsonrpc;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannel.Request;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannel.Response;
-import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
 
 public class GetChannel implements EndpointRequestType<Request, Response> {
 

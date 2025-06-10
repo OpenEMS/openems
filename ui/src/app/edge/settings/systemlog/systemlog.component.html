@@ -21,7 +21,7 @@
                 </ion-col>
                 <ion-col *ngIf="isCondensedOutput !== null && isAtLeastGuest">
                   <ion-item lines="none">
-                    <ion-toggle (ionChange)="toggleCondensedOutput($event)" slot="start"
+                    <ion-toggle mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
                       [(ngModel)]="isCondensedOutput">
                     </ion-toggle>
                     <ion-label class="ion-text-wrap" translate>Edge.Config.Log.CONDENSED_OUTPUT</ion-label>

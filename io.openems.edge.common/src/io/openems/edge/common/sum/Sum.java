@@ -816,7 +816,6 @@ public interface Sum extends OpenemsComponent {
 		ESS_TO_GRID_ENERGY(Doc.of(LONG) //
 				.unit(CUMULATED_WATT_HOURS) //
 				.persistencePriority(VERY_HIGH)), //
-
 		/**
 		 * Is there any Component Info/Warning/Fault that is getting ignored/hidden
 		 * because of the 'ignoreStateComponents' configuration setting?.

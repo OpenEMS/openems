@@ -36,7 +36,7 @@ export class AliasUpdateComponent implements OnInit {
             const componentId = this.route.snapshot.params["componentId"];
             this.component = config.components[componentId];
             this.factory = config.factories[this.component.factoryId];
-            this.componentIcon = config.getFactoryIcon(this.factory);
+            this.componentIcon = config.getFactoryIcon(this.factory, this.translate);
             this.formGroup = this.formBuilder.group({
                 alias: new FormControl(this.component.alias),
             });

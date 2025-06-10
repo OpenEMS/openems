@@ -34,6 +34,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
+import io.openems.edge.batteryinverter.api.BatteryInverterTimeoutFailure;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201ControlMode;
@@ -79,7 +80,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 )
 public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		implements BatteryInverterKacoBlueplanetGridsave, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
-		ModbusComponent, ModbusSlave, OpenemsComponent, TimedataProvider, StartStoppable {
+		ModbusComponent, ModbusSlave, OpenemsComponent, TimedataProvider, StartStoppable,
+		BatteryInverterTimeoutFailure {
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -152,6 +154,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				BatteryInverterTimeoutFailure.ChannelId.values(), //
 				BatteryInverterKacoBlueplanetGridsave.ChannelId.values() //
 		);
 		this._setGridMode(ON_GRID);
@@ -553,6 +556,12 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	 */
 	public boolean hasFailure() {
 		return this.hasFaults() || this.getCurrentState() == S64201CurrentState.FAULT;
+	}
+
+	@Override
+	public void clearBatteryInverterTimeoutFailure() {
+		this._setTimeoutStartBatteryInverter(false);
+		this._setTimeoutStopBatteryInverter(false);
 	}
 
 }

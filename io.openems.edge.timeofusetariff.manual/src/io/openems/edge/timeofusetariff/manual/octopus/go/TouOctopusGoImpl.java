@@ -22,7 +22,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
-import io.openems.edge.timeofusetariff.manual.TouManualHelper;
+import io.openems.edge.timeofusetariff.api.TouManualHelper;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -48,8 +48,11 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		final var standardPrice = config.standardPrice();
-		final var lowPrice = config.lowPrice();
+
+		// Cent/kWh -> Currency/MWh
+		// Example: 12 Cent/kWh => 0.12 EUR/kWh * 1000 kWh/MWh = 120 EUR/MWh.
+		final var standardPrice = config.standardPrice() * 10;
+		final var lowPrice = config.lowPrice() * 10;
 
 		if (Double.isNaN(standardPrice) || Double.isNaN(lowPrice)) {
 			this.channel(TouOctopusGo.ChannelId.INVALID_PRICE).setNextValue(true);

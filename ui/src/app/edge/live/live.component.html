@@ -3,13 +3,22 @@
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <ion-grid *ngIf="edge && edge.isOnline">
-    <ion-row class="ion-justify-content-center" *ngIf="widgets">
-      <!-- Energymonitor -->
-      <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-        <ion-col *ngSwitchCase="'Energymonitor'" size="12" size-md="8" size-lg="3" class="ion-no-padding">
-          <energymonitor></energymonitor>
-        </ion-col>
-      </ng-container>
+    <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">
+
+      <!-- Left column -->
+      <ion-col size="12" [attr.size-md]="navigationService.position === 'left' ? 8 : 8"
+        [attr.size-lg]="navigationService.position === 'left' ? 4 : 3" class="ion-no-padding">
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="12">
+              <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+                <!-- Energymonitor -->
+                <energymonitor *ngSwitchCase="'Energymonitor'"></energymonitor>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
 
       <!-- Widgets -->
       <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
@@ -66,10 +75,6 @@
                 <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Evse.Controller.Single'" size="12" size-lg="6" class="ion-no-padding">
-                <oe-controller-evse-single [componentId]="widget.componentId"></oe-controller-evse-single>
-              </ion-col>
-
               <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Channelthreshold [componentId]="widget.componentId"></Controller_Channelthreshold>
               </ion-col>
@@ -98,10 +103,6 @@
 
               <ion-col *ngSwitchCase="'Controller.IO.HeatingElement'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_HeatingElement [componentId]="widget.componentId"></Controller_Io_HeatingElement>
-              </ion-col>
-
-              <ion-col *ngSwitchCase="'Controller.IO.Heating.Room'" size="12" size-lg="6" class="ion-no-padding">
-                <oe-controller-io-heating-room [componentId]="widget.componentId"></oe-controller-io-heating-room>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
@@ -171,5 +172,4 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-
 </oe-refresh-view>

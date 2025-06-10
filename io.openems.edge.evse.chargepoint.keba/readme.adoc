@@ -1,3 +1,5 @@
 = EVSE Charge-Point KEBA KeContact P30 and P40
 
+Provides implementations for both the old UDP and the new Modbus/TCP protocols.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.keba[Source Code icon:github[]]

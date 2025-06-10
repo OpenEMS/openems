@@ -161,4 +161,12 @@ public interface Meta extends ModbusSlave {
 	public default void _setIsEssChargeFromGridAllowed(boolean value) {
 		this.getIsEssChargeFromGridAllowedChannel().setNextValue(value);
 	}
+
+	/**
+	 * Gets the maximum current allowed at the Grid Connection Point (GCP), i.e. the
+	 * rating of the fuses.
+	 * 
+	 * @return the limit in A
+	 */
+	public int getGridConnectionPointFuseLimit();
 }

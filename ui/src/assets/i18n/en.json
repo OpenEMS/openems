@@ -1,6 +1,9 @@
 {
   "About": {
-    "build": "This build",
+    "DESCRIPTION": "Our FENECON Energy Management System (FEMS) is based on OpenEMS, the Open Source Energy Management System. It is a modular platform for energy management applications. It was initiated by FENECON and is now used by a large number of companies, universities and institutes for research and development, as well as for their own energy management systems. The development is coordinated by the OpenEMS Association e.V.",
+    "CONTACT": "If you have any questions or suggestions regarding energy management and our products, please contact our team at <a href=\"mailto:service@fenecon.de\">service&#64;fenecon.de</a>. The <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community Forum</a> is available for questions about OpenEMS.",
+    "BUILD": "This build",
+    "ENERGY_MANAGEMENT": "Energy management system",
     "currentDevelopments": "Current developments",
     "developed": "This user interface is developed as open-source software.",
     "faq": "Frequently asked questions (FAQ)",
@@ -12,7 +15,7 @@
     "Index": {
       "EmergencyReserve": {
         "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "By activating the emergency power reserve, the value can be freely selected between 5% and 100%.",
-        "EMERGENCY_RESERVE": "Emergencyreserve"
+        "EMERGENCY_RESERVE": "Emergency reserve"
       },
       "Energymonitor": {
         "activePower": "Active power",
@@ -28,8 +31,8 @@
         "ERROR_TOO_LONG": ""
       },
       "Widgets": {
-        "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
-        "phasesInfo": "For technical reasons, the sum of the individual phases can be slightly different from the total sum.",
+        "autarchyInfo": "Autarchy indicates the percentage of current power that can be covered by generation and storage discharge.",
+        "phasesInfo": "For technical reasons, the sum of the individual phases can slightly deviate from the total sum.",
         "selfconsumptionInfo": "Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage charging.",
         "twoWayInfoGrid": "Negative values correspond to grid feed-in, Positive values correspond to mains supply",
         "InfoStorageForCharge": "Negative values correspond to storage charging",
@@ -97,20 +100,20 @@
           "medium": "Medium",
           "minimumCharge": "Minimal charge",
           "RiskDescription": {
-            "Low": {
-              "functionDescription": "Comparatively early charging of the storage system",
-              "storageDescription": "Higher chance that the storage system will be fully charged",
-              "pvCurtail": "Lower probability that curtailment of the PV system will be avoided"
+            "LOW": {
+              "functionDescription": "Comparatively early charging of the battery",
+              "storageDescription": "Higher probability that the battery is fully charged",
+              "pvCurtail": "Lower probability that curtailment of the PV installation is avoided"
             },
-            "Medium": {
-              "functionDescription": "Comparatively even charging of the store system",
-              "storageDescription": "High probability that the storage system will be fully charged",
-              "pvCurtail": "High probability that the curtailment of the PV system will be avoided"
+            "MEDIUM": {
+              "functionDescription": "Comparatively uniform charging of the battery",
+              "storageDescription": "High probability that the battery is fully charged",
+              "pvCurtail": "High probability that curtailment of the PV installation is avoided"
             },
-            "High": {
-              "functionDescription": "Comparatively later charging of the storage system",
-              "storageDescription": "Less probability that the storage system will be fully charged",
-              "pvCurtail": "Higher probability that the curtailment of the PV system will be avoided"
+            "HIGH": {
+              "functionDescription": "Comparatively late charging of the battery",
+              "storageDescription": "Lower probability that the battery is fully charged",
+              "pvCurtail": "Higher probability that curtailment of the PV installation is avoided"
             }
           },
           "riskPropensity": "Risk propensity",
@@ -126,7 +129,7 @@
             "passedEndTime": "End time of limited charging exceeded",
             "storageAlreadyFull": "Storage already full"
           },
-          "storageCapacity": "Storagecapacity (only visible for admin)",
+          "storageCapacity": "Storage capacity (only visible for admin)",
           "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximum grid feed-in through charging"
         },
         "CHP": {
@@ -216,9 +219,10 @@
           "minimumRunTime": "Minimum runtime",
           "priority": "Priority",
           "time": "Time",
-          "timeCountdown": "time until start"
+          "timeCountdown": "Time until start"
         },
         "HeatPump": {
+          "HEAT_PUMP": "Heat pump",
           "aboveSoc": "and from the state of charge of",
           "belowSoc": "and below state of charge of",
           "gridBuy": "From grid purchase of",
@@ -242,7 +246,7 @@
           "PRICE": "Current price",
           "STATE": {
             "DELAY_DISCHARGE": "Delayed discharge",
-            "BALANCING": "Self-Consumption optmization",
+            "BALANCING": "Self-consumption optimization",
             "CHARGE_GRID": "Charge from grid allowed"
           },
           "CHART_TITLE": "Planned Schedule",
@@ -266,6 +270,11 @@
       },
       "RETROFITTING": {
         "OPTIMAL": "Capacity expansion",
+        "REFERENCING_OF_STORAGE": {
+          "HEADER": "Please note that the battery must be referenced before expanding the capacity",
+          "CONTENT": "Before a capacity expansion, the battery must be referenced in the days before the capacity expansion takes place. This means that it must be fully discharged (SOC: 0 %) and then fully charged (SOC: 100 %).",
+          "TO_INSTRUCTIONS": "Link to instructions"
+        },
         "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
         "INSTANT_START": "Instant start",
         "PLANNED_EXPANSION": "Planned Expansion",
@@ -317,7 +326,7 @@
       "jul": "Jul",
       "aug": "Aug",
       "sep": "Sep",
-      "oct": "Oxt",
+      "oct": "Oct",
       "nov": "Nov",
       "dec": "Dec",
       "activeDuration": "Active duration",
@@ -342,10 +351,16 @@
         "scheduler": "Applicationplanner",
         "simulator": "Simulator",
         "systemExecute": "Execute system command",
-        "systemProfile": "System Profile",
+        "systemProfile": "System profile",
         "alerting": "Alerting",
-        "networkConfiguration": "Network Configuration",
-        "SYSTEM": "System"
+        "networkConfiguration": "Network configuration",
+        "SYSTEM": "System",
+        "GENERAL_DATA": "General data",
+        "COMMENT": "Comment",
+        "PRODUCT_TYPE": "Product type",
+        "ROLE": "Role",
+        "CONFIGURATION": "Configuration",
+        "EXPORT_CHANNELS": "Export channels"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"
@@ -471,20 +486,24 @@
     }
   },
   "General": {
+    "EDIT": "Edit",
     "THEME_SELECTION": {
       "TITLE": "Lights off, comfort on!",
       "DESCRIPTION": "Our monitoring is now available in <b>dark mode</b>.<hr>Simply switch over and get started!"
     },
     "LIGHT": "Light",
     "DARK": "Dark",
+    "RESET": "Reset",
     "SYSTEM_THEME": "System",
+    "SAVE": "Save",
     "active": "Active",
-    "actualPower": "e-car Charge power",
+    "actualPower": "EV charging power",
     "ALL": "All",
+    "CURRENT_STATUS": "Current status",
     "apply": "Apply",
     "autarchy": "Autarchy",
-    "automatic": "Automatically",
-    "cancel": "cancel",
+    "automatic": "Automatic",
+    "cancel": "Cancel",
     "capacity": "Capacity",
     "changeAccepted": "Change accepted",
     "changeFailed": "Change failed",
@@ -498,9 +517,11 @@
     "currentValue": "current value",
     "dateFormat": "yyyy-MM-dd",
     "digitalInputs": "Digital Inputs",
+    "HEAT_PUMP": "Heat pump",
     "numberOfComponents": "Number of Components",
     "directConsumption": "Direct consumption",
     "fault": "Fault",
+    "FOR": "for",
     "FAILED": "failed",
     "WILL_BE_EXECUTED": "will be executed",
     "grid": "Grid",
@@ -536,7 +557,7 @@
     "reportValue": "Report corrupted data",
     "reset": "Reset",
     "search": "Search",
-    "selfConsumption": "Self Consumption",
+    "selfConsumption": "Self-consumption",
     "soc": "State of charge",
     "state": "State",
     "STATUS": "Status",
@@ -622,6 +643,41 @@
       "AVAILABILITY": "Online access to the energy storage system is currently not available.<br>The data is stored locally and will not be lost.",
       "MORE_INFO": "More Info",
       "EMS_OFFLINE": "{{edgeShortName}} is offline"
+    },
+    "DEFAULT": {
+      "STEP_TEST_WIFI_CONNECTION": {
+        "HEADER": "Check router connection with laptop",
+        "DESCRIPTION": "<p><b>a)</b> Disconnect the LAN cable from the Home-{{edgeShortName}} box ('LAN' interface) and connect it to a laptop/PC (make sure to disable the Wi-Fi adapter). If the laptop/PC successfully establishes an internet connection, proceed to step 3, otherwise proceed to b.</p><p><b>b)</b> If the laptop/PC does not connect to the internet, connect the device directly to the router via a LAN cable to ensure that the router is functioning correctly (without additional cable length and without other network devices in between).</p><p>→ If the router is functioning, the LAN cable, a Wi-Fi repeater, or a powerline adapter may not be forwarding the signal correctly. You can find more information in the product-specific instructions from the respective manufacturer.</p>"
+      },
+      "STEP_FIREWALL": {
+        "HEADER": "Check port forwarding/firewall settings",
+        "DESCRIPTION": "Firewall settings can limit the internet connection to the {{edgeShortName}}. This happens especially when putting the system into service for the first time. Please use the <a href=\"https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal\" target=\"_blank\">instructions</a> to check the ports and services that are active on {{edgeShortName}}."
+      },
+      "STEP_SERVICE": {
+        "HEADER": "Contact FENECON Service",
+        "DESCRIPTION": "If you have already checked all previous steps and the Online Monitoring still does not display any data, please contact our service department:<br>By e-mail: <a href=\"mailto:service@fenecon.de\">service@fenecon.de</a> or via phone: +49 9903 6280-0 (Mon. through Thurs.: 08:00 to 12:00 h | 13:00 to 17:00 h | Fri.: 08:00 to 12:00 h | 13:00 to 17:00 h)"
+      },
+      "STEP_CONTACT_INSTALLER": {
+        "HEADER": "Contact Installer",
+        "DESCRIPTION": "If you have already checked all previous steps and the Online Monitoring still does not display any data, please contact your <b>electrician/installer</b>."
+      },
+      "STEP_EMS_RESTART": {
+        "HEADER": "Restart {{edgeShortName}} and check LAN connection"
+      }
+    },
+    "HOME_10": {
+      "STEP_EMS_RESTART": {
+        "HEADER": "{{edgeShortName}} Restart",
+        "DESCRIPTION": "On the top box of the storage tower, there is a cold device plug (colored in black and blue). Unplug it and wait 15 seconds. Plug the cold device plug back in and wait <b>5 to 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the FENECON Online Monitoring should be visible."
+      }
+    },
+    "HOME_20_30": {
+      "STEP_EMS_RESTART": {
+        "DESCRIPTION": "Restart the {{edgeShortName}} by pressing and holding the button on the top box of the storage tower at the front for 10 seconds. Now wait <b>5 - 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly inserted in the {{edgeShortName}} connection box. Now refresh the browser window of the Online Monitoring: if this action was successful, the error message should now be cancelled and the usual view of the {{edgeLongName}} Energy management system Online Monitoring should be visible."
+      }
+    },
+    "STEP_EMS_RESTART": {
+      "DESCRIPTION": "On the top of the battery storage tower, there is a push button located on the front. Press and hold it for 10 seconds. Now, please wait for 5 to 10 minutes (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the FENECON Online Monitoring should be visible."
     }
   },
   "INSTALLATION": {
@@ -661,17 +717,18 @@
       "FUNCTION_TEST_ERROR": "Functional test completed with errors.",
       "FUNCTION_TEST": "Functional test",
       "GRID_METER": "Grid meter",
-      "GRID_OPTIMIZED_CHARGE": "Grid friendly charging",
+      "GRID_OPTIMIZED_CHARGE": "Grid-optimized charge",
+      "TIME_OF_USE_TARIFF": "Time-of-use tariff",
       "LEGEND": "Legend",
-      "NOT_YET_CONFIGURED": "Not yet configured / checked",
+      "NOT_YET_CONFIGURED": "Not yet configured/checked",
       "PARTIAL_CONFIGURATION": "Not all components could be configured correctly.",
-      "PRE_CONFIGURED": "Preconfigured / Warning",
+      "PRE_CONFIGURED": "Preconfigured/Warning",
       "PROGNOSIS": "Prognosis",
       "RELAY_BOARD": "Relay board",
-      "SELF_CONSUMPTION": "Self-Consumption optmization",
+      "SELF_CONSUMPTION": "Self-consumption optimization",
       "START": "Start configuration",
       "STORAGE_SYSTEM": "Energy storage system",
-      "SUCCESSFULLY_CONFIGURED": "Successfully configured / checked",
+      "SUCCESSFULLY_CONFIGURED": "Successfully configured/checked",
       "SURPLUS_ENERGY_FEEDIN": "Surplus energy feed-in",
       "TITLE": "Configuration",
       "WAITING": "Configuration running...",
@@ -742,7 +799,8 @@
       "MAX": "Please enter a value less than {{ max }}.",
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
-      "POSITIVE_INTEGER": "Only positive integer numbers are allowed."
+      "POSITIVE_INTEGER": "Only positive integer numbers are allowed.",
+      "INVALID_ZIPCODE": "Invalid zip code format"
     },
     "FORWARD": "continue",
     "LOAD": "load",
@@ -761,8 +819,8 @@
       "CONSTANT_VALUE": "Cos φ value",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
       "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
-      "EXTERNAL_CONTROLLER_CHECK": "The external control reciever was installed properly and completely according to the instructions.",
-      "EXTERNAL_LIMITATION_ACTIVATED": "External control reciever activated?",
+      "EXTERNAL_CONTROLLER_CHECK": "The external control receiver was installed properly and completely according to the instructions.",
+      "EXTERNAL_LIMITATION_ACTIVATED": "External control receiver activated?",
       "EXTERNAL_LIMITATION": "External controller (External limitation by the DSO)",
       "FEED_IN_SETTING_DESCRIPTION": "Active power reduction in case of overfrequency",
       "FIXED_POWER_FACTOR": "Constant Cos φ (P)",
@@ -772,7 +830,7 @@
       "QU_ENABLED_CURVE": "Reactive power - Q(U) characteristics",
       "SHADE_MANAGEMENT_DEACTIVATED": "Shade management disabled?",
       "TITLE": "Feed-In management",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever",
+      "EXTERNAL_CONTROLLER_RECEIVER": "Ripple control receiver",
       "PLACE_HOLDER": "Select option",
       "NO_LIMITATION": "No limitation"
     },
@@ -856,7 +914,10 @@
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
       "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Grid connection point",
-      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number."
+      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number.",
+      "BATTERY_TOWER_CLUSTER": "Battery {{ batteryNumber }} Tower {{towerNumber}}",
+      "INVALID_SERIALNUMBER_KEY": "Please check the {{ key }} serialnumber in {{ header }}",
+      "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -923,9 +984,13 @@
     "name": "Name",
     "overview": "All Systems",
     "settings": "Settings",
+    "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energy Management System",
+    "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energy Management System",
+    "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
+    "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
     "user": "User",
     "changelog": "Changelog",
-    "otherUser": "Other Users"
+    "otherUser": "Other users"
   },
   "Notifications": {
     "authenticationFailed": "No Connection: Authentication failed.",
@@ -979,8 +1044,30 @@
     "admin": "Administrator"
   },
   "SETTINGS": {
+    "CATEGORY": {
+      "TITLE": {
+        "METER": "Meter",
+        "SIMULATORS": "Simulators",
+        "STORAGE_SYSTEMS": "Storage systems",
+        "STORAGE_SYSTEM_CONTROL": "Storage systems control",
+        "EXTERNAL_INTERFACES": "External interfaces",
+        "EV_CHARGING_STATION": "EV charging station",
+        "EV_CHARGING_STATION_CONTROL": "EV charging station control",
+        "IOs": "I/Os",
+        "IO-CONTROL": "I/O control",
+        "TEMPERATURE_SENSORS": "Temperature sensors",
+        "CLOUD_INTERFACES": "Cloud interfaces",
+        "DEVICE_INTERFACES": "Device interfaces",
+        "DEDICATED_CONTROLLERS": "Dedicated controllers",
+        "STANDARD_COMPONENTS": "Standard components",
+        "OTHERS": "More"
+      }
+    },
     "SYSTEM_UPDATE": {
       "INSTALLED_VERSION": "Installed version:",
+      "CREATE_COMPONENT": "Create component",
+      "UPDATE_COMPONENT": "Update component",
+      "DELETE_COMPONENT": "Delete component",
       "LATEST_VERISON": "The system is up to date with the latest software",
       "NEW_VERSION_INSTALLING": "Install latest version",
       "NEW_VERSION": "Latest version:",

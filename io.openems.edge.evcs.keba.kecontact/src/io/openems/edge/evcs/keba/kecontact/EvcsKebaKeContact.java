@@ -15,6 +15,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.keba.common.R2Plug;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public interface EvcsKebaKeContact

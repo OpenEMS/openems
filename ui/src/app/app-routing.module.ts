@@ -25,6 +25,10 @@ import { AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/peak
 import { SymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
 import { TimeslotPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
 import { StorageChartOverviewComponent } from "./edge/history/storage/storagechartoverview/storagechartoverview.component";
+import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/Evse/modal/forecast/forecast";
+import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/modal/history/history";
+import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/modal/modal";
+import { ModalComponent as IoHeatingRoomComponent } from "./edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { AlertingComponent as EdgeSettingsAlerting } from "./edge/settings/alerting/alerting.component";
@@ -75,7 +79,15 @@ export const routes: Routes = [
         path: "live", data: { navbarTitle: environment.uiTitle }, providers: [{
           useClass: LiveDataService,
           provide: DataService,
-        }], component: EdgeLiveComponent,
+        }], component: HistoryParentComponent,
+
+        children: [
+          { path: "", component: EdgeLiveComponent },
+          { path: "evse/:componentId", component: EvseSingleComponent },
+          { path: "evse/:componentId/history", component: EvseHistoryComponent },
+          { path: "evse/:componentId/forecast", component: EvseForecastComponent },
+          { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
+        ],
       },
       {
         path: "history", providers: [{

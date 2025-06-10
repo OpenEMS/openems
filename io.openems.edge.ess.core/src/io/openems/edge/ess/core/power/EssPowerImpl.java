@@ -122,7 +122,7 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 			// use a DisabledPidFilter instance, that always just returns the unfiltered
 			// target value
 		} else {
-			this.pidFilter = new DisabledPidFilter();
+			this.pidFilter = DisabledPidFilter.INSTANCE;
 		}
 	}
 

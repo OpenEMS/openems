@@ -14,6 +14,13 @@ import { Edge } from "../../edge/edge";
     selector: "pickdatepopover",
     templateUrl: "./popover.component.html",
     standalone: false,
+    styles: [
+        `
+        :host{
+             --width: fit-content !important;
+        }
+        `,
+    ],
 })
 export class PickDatePopoverComponent implements OnInit {
 
@@ -31,13 +38,14 @@ export class PickDatePopoverComponent implements OnInit {
         stylesData: {
             selector: "dp1",
             styles: `
-            .dp1 {
-                overflow-x: hidden;
-            }
             .myDpSelector{
                 background-color: var(--ion-color-background);
                 color: var(--color);
                 background: var(--ion-color-background);
+                width: inherit !important;
+            }
+            .dp1 {
+                overflow-x: hidden;
             }
             .dp1 .myDpIconLeftArrow, 
             .dp1 .myDpIconRightArrow,
@@ -47,43 +55,42 @@ export class PickDatePopoverComponent implements OnInit {
             .dp1 .myDpHeaderBtn:focus,
             .dp1 .myDpMonthLabel:focus,
             .dp1 .myDpYearLabel:focus {
-                color: #2d8fab;
+                color: var(--ion-color-primary);
              }
             .dp1 .myDpDaycell:focus,
             .dp1 .myDpMonthcell:focus,
             .dp1 .myDpYearcell:focus {
-                box-shadow: inset 0 0 0 1px #66afe9;
+                box-shadow: inset 0 0 0 0.063em var(--ion-color-primary-contrast);
             }
             .dp1 .myDpSelectedDay,
             .dp1 .myDpSelectedMonth,
             .dp1 .myDpSelectedYear {
-                background-color: var(--ion-color-primary);
+                background-color: var(--ion-color-secondary-shade);
+                color: var(--ion-color-primary-contrast);
                 }
             .dp1 .myDpTableSingleDay:hover, 
             .dp1 .myDpTableSingleMonth:hover, 
             .dp1 .myDpTableSingleYear:hover {
-                background-color: #add8e6;
-                color: #3855c1;
+                background-color: var(--ion-color-secondary-shade);
+                color: white !important;
                 }
-            .dp1 .myDpMarkCurrDay, 
-            .dp1 .myDpMarkCurrMonth, 
+            .dp1 .myDpMarkCurrDay,
+            .dp1 .myDpMarkCurrMonth,
             .dp1 .myDpMarkCurrYear {
-                border-bottom: 2px solid #2d8fab;
-                color: var(--ion-color-text);
-             }
+                color: var(--ion-color-text-percentage-bar) !important;
+                border-bottom: 0.125em solid var(--ion-color-text-percentage-bar) !important;
+                }
             .dp1 .myDpRangeColor {
-            background-color: var(--ion-color-primary);
-            }
-
+                background-color: var(--ion-color-primary);
+                }
             .ng-mydp * {
                 background-color: var(--ion-color-background);
                 color: var(--color);
                 border: 0;
             }
-
             .myDpDisabled {
-                color: var(--color);
-                background: repeating-linear-gradient(-45deg, darkgrey 7px, darkgrey 8px, transparent 7px, transparent 14px) !important;
+               color: var(--ion-color-secondary-tint);
+               background: repeating-linear-gradient(-45deg, rgba(88, 87, 87, 0.45) 0.438em, rgba(192, 192, 192, 0.3) 0.5em, transparent 0.438em, transparent 0.875em ) !important;
             }
              `,
         },
@@ -93,10 +100,9 @@ export class PickDatePopoverComponent implements OnInit {
         disableSince: this.toIMyDate(this.TOMORROW),
         disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
         inline: true,
-        selectorHeight: "225px",
-        selectorWidth: "251px",
+        selectorHeight: "14.063em",
+        selectorWidth: "15.688em",
         showWeekNumbers: true,
-
     };
     protected readonly DefaultTypes = DefaultTypes;
     private readonly TODAY = new Date();

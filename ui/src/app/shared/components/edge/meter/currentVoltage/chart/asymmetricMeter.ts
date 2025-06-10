@@ -56,6 +56,9 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
         position: "right",
         yAxisId: ChartAxis.RIGHT,
         displayGrid: false,
+        scale: {
+          dynamicScale: true,
+        },
       },
       {
         unit: YAxisType.CURRENT,

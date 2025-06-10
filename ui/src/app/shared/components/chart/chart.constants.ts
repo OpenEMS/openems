@@ -1,13 +1,14 @@
 // @ts-strict-ignore
+
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
-import { ChartComponentLike, ChartDataset } from "chart.js";
+import { Chart, ChartComponentLike, ChartDataset, ChartOptions, LegendItem, PointStyle } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { RGBColor } from "../../service/defaulttypes";
-import { HistoryUtils, Utils } from "../../service/utils";
+import { ChartAxis, HistoryUtils, Utils } from "../../service/utils";
 import { Language } from "../../type/language";
+import { EmptyObj, TPartialBy } from "../../type/utility";
 import { ArrayUtils } from "../../utils/array/array.utils";
-import { AssertionUtils } from "../../utils/assertions/assertions-utils";
 import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 import { ChartTypes } from "./chart.types";
@@ -20,7 +21,19 @@ export namespace ChartConstants {
 
   export class Plugins {
 
+    public static Legend = class {
+      public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => ChartConstants.Plugins.POINT_STYLE(dataset);
+    };
+
     public static Datasets = class {
+
+      public static POINT_STYLE = (dataset: HistoryUtils.DisplayValue<any>): TPartialBy<Pick<ChartDataset<any>, "pointStyle" | "borderDash">, "borderDash"> | EmptyObj => {
+        const res = ChartConstants.Plugins.POINT_STYLE({ data: [], ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }) });
+        return {
+          pointStyle: res.pointStyle,
+          ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }),
+        };
+      };
 
       /**
        * Enhances the hover effect
@@ -31,7 +44,6 @@ export namespace ChartConstants {
        * @returns chartjs dataset options
        */
       public static HOVER_ENHANCE = (color: ChartTypes.Color) => ({
-        pointStyle: "circle",
         pointHoverRadius: 2,
         pointHoverBorderWidth: 5,
         pointRadius: 0,
@@ -41,6 +53,14 @@ export namespace ChartConstants {
     };
 
     public static ToolTips = class {
+
+      public static POINT_STYLE = (dataset: ChartDataset): { rotation: number, pointStyle: PointStyle } => {
+        return {
+          pointStyle: ChartConstants.Plugins.POINT_STYLE(dataset).pointStyle,
+          rotation: 0,
+        };
+      };
+
       public static HEAT_PUMP_SUFFIX = (translate: TranslateService, value: number | null): string => {
         switch (value) {
           case -1:
@@ -57,6 +77,105 @@ export namespace ChartConstants {
             return "";
         }
       };
+    };
+
+    /**
+     * Places the yAxis above the chart
+     *
+     * @param id the chart axis id
+     * @returns plugin applied features
+     */
+    public static readonly YAXIS_TITLE_POSITION = (id: ChartAxis) => {
+      return ({
+        id: id,
+        afterDraw(chart, args, options: ChartOptions) {
+
+          /**
+           * Calculates the ticks width
+           *
+           * @param currentScale the current scale
+           * @param ctx the canvas rendering context
+           * @returns the ticks width
+           */
+          function calculateTicksWidth(currentScale, ctx): number {
+            let maxTickWidth = 0;
+            currentScale?.ticks?.forEach(tick => {
+              const labelWidth = ctx.measureText(tick.label).width;
+              if (labelWidth > maxTickWidth) {
+                maxTickWidth = labelWidth;
+              }
+            });
+
+            return maxTickWidth;
+          }
+
+          /**
+           * Checks if current axis is left axis
+           *
+           * @param left the margin to the left
+           * @returns true, if left axis
+          */
+          function isLeftAxis(left: number) {
+            return left <= 100;
+          }
+
+          /**
+           * Calculates the x position for the y axis title
+           *
+           * @param scale the current scale
+           * @returns the horizontally centered position for the y axis title
+          */
+          function calculateXPositionForTitle(chart, totalScaleWidth, scale: string): number {
+            if (scale === ChartAxis.RIGHT) {
+
+              // two right axis
+              if ("scales" in chart && ChartAxis.RIGHT_2 in chart.scales) {
+                const { ctx }: { ctx: CanvasRenderingContext2D } = chart;
+                const right2Scale = chart.scales[ChartAxis.RIGHT_2];
+                const right2ScaleWidth = calculateTicksWidth(right2Scale, ctx);
+                return chart.width - right2ScaleWidth - totalScaleWidth;
+              }
+
+              // one right axis
+              return chart.width - totalScaleWidth / 2;
+            }
+
+            // second right axis
+            if (scale === ChartAxis.RIGHT_2) {
+              return chart.width - totalScaleWidth / 4;
+            }
+
+            // Left scale
+            return totalScaleWidth / 2;
+          }
+
+          // Filter invalid objects
+          if ("scales" in chart && id in chart.scales && !("position" in chart.scales[id])) {
+            return;
+          }
+
+          const currentScale = chart.scales[id];
+
+          if (!currentScale) {
+            return;
+          }
+
+          const { ctx }: { ctx: CanvasRenderingContext2D } = chart;
+          const maxTickWidth = calculateTicksWidth(currentScale, ctx);
+
+          const totalChartAreaWidth = maxTickWidth;
+          const marginCurrentScaleToLeft = currentScale?.left ?? 0;
+          const text = currentScale.options.title.text;
+          const textColor = currentScale.options.title.color;
+
+          ctx.save();
+          ctx.font = options.font as string;
+          ctx.textAlign = isLeftAxis(marginCurrentScaleToLeft) ? "start" : "end";
+          ctx.fillStyle = textColor;
+          ctx.fillText(text, calculateXPositionForTitle(chart, totalChartAreaWidth, id), 10);
+          ctx.restore();
+        },
+      });
     };
 
     public static readonly DEFAULT_EMPTY_SCREEN: (text: string) => ChartComponentLike = (text) => ({
@@ -95,7 +214,20 @@ export namespace ChartConstants {
       plugin: ChartDataLabels,
       display: disable,
     });
+
+
+    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => {
+      if ("borderDash" in dataset) {
+        return { pointStyle: "circle", lineDash: [3, 3] };
+      }
+
+      return {
+        pointStyle: "circle",
+        fillStyle: RGBColor.fromString(dataset.backgroundColor.toString()).toString(),
+      };
+    };
   }
+
 
   export namespace Colors {
 
@@ -117,36 +249,41 @@ export namespace ChartConstants {
 
   export class NumberFormat {
     public static NO_DECIMALS: string = "1.0-0";
+    public static ZERO_TO_TWO: string = "1.0-2";
   }
 
   /**
    * Default yScale CartesianScaleTypeRegistry.linear
    *
-   * @param element the yAxis
+   * @param yAxis the yAxis
    * @param translate the translate service
    * @param chartType the chartType
    * @param datasets the chart datasets
    * @returns scale options
    */
-  export const DEFAULT_Y_SCALE_OPTIONS = (element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"],) => {
+  export const DEFAULT_Y_SCALE_OPTIONS = (yAxis: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"],) => {
     const beginAtZero: boolean = ChartConstants.isDataSeriesPositive(datasets);
-    const scaleOptions: ReturnType<typeof getScaleOptions> = getScaleOptions(datasets, element, chartType);
+    const scaleOptions: ReturnType<typeof getScaleOptions> = getScaleOptions(datasets, yAxis, chartType);
+    const yScaleTitle = yAxis.customTitle ?? AbstractHistoryChart.getYAxisTitle(yAxis.unit, translate, chartType, yAxis.customTitle);
+    if (showYAxisTitle) {
+      Chart.register(ChartConstants.Plugins.YAXIS_TITLE_POSITION(yAxis.yAxisId));
+    }
 
     return {
       title: {
-        color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-primary"),
-        text: element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType, element.customTitle),
-        display: false,
         padding: 5,
+        color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-primary"),
+        text: yScaleTitle,
+        display: false,
         font: {
           size: 11,
         },
       },
       stacked: chartType === "line" ? false : true,
       beginAtZero: beginAtZero,
-      position: element.position,
+      position: yAxis.position,
       grid: {
-        display: element.displayGrid ?? true,
+        display: yAxis.displayGrid ?? true,
       },
       ...(scaleOptions?.min !== null && { min: scaleOptions.min }),
       ...(scaleOptions?.max !== null && { max: scaleOptions.max }),
@@ -156,11 +293,11 @@ export namespace ChartConstants {
         maxTicksLimit: ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
         ...(scaleOptions?.stepSize && { stepSize: scaleOptions.stepSize }),
         callback: function (value, index, ticks) {
-          if (index == (ticks.length - 1) && showYAxisTitle) {
-            const upperMostTick = element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType);
-            AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
-            return upperMostTick;
-          }
+          // if (index == (ticks.length - 1) && showYAxisTitle) {
+          //   const upperMostTick = element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType);
+          //   AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
+          //   return upperMostTick;
+          // }
 
           // Formats a value safely
           return Formatter.formatSafely(value, formatNumber);
@@ -220,10 +357,14 @@ export namespace ChartConstants {
         }
 
         const min = Math.floor(Math.min(...[arr.min, currMin].filter(el => el != null))) ?? null;
-        const max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
+        let max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
 
         if (max === null || min === null) {
           return arr;
+        }
+
+        if (max === min) {
+          max += 1;
         }
 
         arr = {

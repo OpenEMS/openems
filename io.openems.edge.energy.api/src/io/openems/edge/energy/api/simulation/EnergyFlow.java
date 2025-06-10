@@ -12,6 +12,7 @@ import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_CONS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_GRID;
 import static java.lang.Double.NaN;
+import static java.lang.Double.isNaN;
 import static java.lang.Math.min;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
@@ -24,7 +25,9 @@ import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.math3.exception.MathIllegalStateException;
@@ -38,6 +41,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
+
 /**
  * Holds the {@link Solution} of an {@link EnergyFlow.Model} and provides helper
  * functions to access the individual {@link Coefficient}s.
@@ -46,12 +51,16 @@ public class EnergyFlow {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EnergyFlow.class);
 
-	private final double[] point;
-	private final int managedConsumption;
+	public final int unmanagedConsumption;
 
-	private EnergyFlow(PointValuePair pvp, int managedConsumption) {
+	private final double[] point;
+	private final ImmutableSortedMap<String, Integer> managedConsumptions;
+
+	private EnergyFlow(int unmanagedConsumption, PointValuePair pvp,
+			ImmutableSortedMap<String, Integer> managedConsumptions) {
+		this.unmanagedConsumption = unmanagedConsumption;
 		this.point = pvp.getPointRef();
-		this.managedConsumption = managedConsumption;
+		this.managedConsumptions = managedConsumptions;
 	}
 
 	/**
@@ -75,10 +84,20 @@ public class EnergyFlow {
 	/**
 	 * Gets the part of {@link Coefficient#CONS} that is actively managed.
 	 * 
-	 * @return the value
+	 * @return the values
 	 */
-	public int getManagedCons() {
-		return this.managedConsumption;
+	public ImmutableSortedMap<String, Integer> getManagedCons() {
+		return this.managedConsumptions;
+	}
+
+	/**
+	 * Gets the part of {@link Coefficient#CONS} that is actively managed.
+	 * 
+	 * @param id an identifier, e.g. the Component-ID
+	 * @return the value or zero
+	 */
+	public int getManagedCons(String id) {
+		return this.managedConsumptions.getOrDefault(id, 0);
 	}
 
 	/**
@@ -194,10 +213,6 @@ public class EnergyFlow {
 		 * @return a new {@link EnergyFlow.Model}
 		 */
 		public static EnergyFlow.Model from(GlobalScheduleContext gsc, GlobalOptimizationContext.Period period) {
-			final var factor = switch (period) {
-			case GlobalOptimizationContext.Period.Hour p -> 4;
-			case GlobalOptimizationContext.Period.Quarter p -> 1;
-			};
 			final var essGlobal = gsc.goc.ess();
 			final var essOne = gsc.ess;
 			final var grid = gsc.goc.grid();
@@ -205,11 +220,14 @@ public class EnergyFlow {
 			return new EnergyFlow.Model(//
 					/* production */ period.production(), //
 					/* unmanagedConsumption */ period.consumption(), //
-					/* essMaxCharge */ min(essGlobal.maxChargeEnergy() * factor,
+					/* essMaxCharge */ min(//
+							period.duration().convertPowerToEnergy(essGlobal.maxChargePower()),
 							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //
-					/* essMaxDischarge */ min(essGlobal.maxDischargeEnergy() * factor, gsc.ess.getInitialEnergy()), //
-					/* gridMaxBuy */ grid.maxBuy() * factor, //
-					/* gridMaxSell */ grid.maxSell() * factor);
+					/* essMaxDischarge */ min(//
+							period.duration().convertPowerToEnergy(essGlobal.maxDischargePower()),
+							gsc.ess.getInitialEnergy()), //
+					/* gridMaxBuy */ period.duration().convertPowerToEnergy(grid.maxBuyPower()), //
+					/* gridMaxSell */ period.duration().convertPowerToEnergy(grid.maxSellPower()));
 		}
 
 		public final int production;
@@ -221,7 +239,7 @@ public class EnergyFlow {
 
 		private final List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
 
-		private int managedConsumption = 0;
+		private final Map<String, Integer> managedConsumptions = new HashMap<>();
 
 		public Model(int production, int unmanagedConsumption, int essMaxCharge, int essMaxDischarge, int gridMaxBuy,
 				int gridMaxSell) {
@@ -363,12 +381,37 @@ public class EnergyFlow {
 		 * Adds {@link Coefficient#CONS} Energy, while making sure the value fits in the
 		 * active constraints.
 		 * 
+		 * @param id    an identifier, e.g. the Component-ID
 		 * @param value the added consumption value
-		 * @return actually set value; {@link Double#NaN} on error
+		 * @return actually set value; 0 on error
 		 */
-		public synchronized double addConsumption(int value) {
-			this.managedConsumption += value;
-			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.managedConsumption);
+		public synchronized int addConsumption(String id, int value) {
+			if (value > 0) {
+				var oldManagedConsumption = this.getManagedConsumption();
+				var newTotalConsumption = this.setFittingCoefficientValue(CONS, GEQ,
+						this.unmanagedConsumption + oldManagedConsumption + value);
+				if (isNaN(newTotalConsumption)) {
+					return 0;
+				}
+				value = (int) (newTotalConsumption - this.unmanagedConsumption - oldManagedConsumption);
+			}
+			this.managedConsumptions.put(id, value);
+			return value;
+		}
+
+		/**
+		 * Finializes the {@link Coefficient#CONS} Energy.
+		 * 
+		 * <p>
+		 * Call this method after all managed Consumptions have been added via
+		 * {@link #addConsumption(String, int)}.
+		 * 
+		 * @return the total Consumption
+		 */
+		public synchronized double finalizeConsumption() {
+			var consumption = this.setExtremeCoefficientValue(CONS, MINIMIZE);
+			this.setFittingCoefficientValue(PROD_TO_CONS, EQ, consumption);
+			return consumption;
 		}
 
 		/**
@@ -377,7 +420,18 @@ public class EnergyFlow {
 		 * @return the Managed Consumption
 		 */
 		public synchronized int getManagedConsumption() {
-			return this.managedConsumption;
+			return this.managedConsumptions.values().stream() //
+					.mapToInt(Integer::valueOf) //
+					.sum();
+		}
+
+		/**
+		 * Gets the cumulated managed and unmanaged Consumption.
+		 * 
+		 * @return the total Consumption
+		 */
+		public synchronized int getTotalConsumption() {
+			return this.unmanagedConsumption + this.getManagedConsumption();
 		}
 
 		/**
@@ -622,8 +676,11 @@ public class EnergyFlow {
 			var coefficients = initializeCoefficients();
 			Arrays.fill(coefficients, 1);
 			try {
-				return new EnergyFlow(solve(MINIMIZE, this.constraints, new LinearObjectiveFunction(coefficients, 0)),
-						this.managedConsumption);
+				return new EnergyFlow(//
+						this.unmanagedConsumption, //
+						solve(MINIMIZE, this.constraints, new LinearObjectiveFunction(coefficients, 0)), //
+						ImmutableSortedMap.copyOf(this.managedConsumptions));
+
 			} catch (MathIllegalStateException e) {
 				LOG.warn("[solve] " //
 						+ "Unable to solve EnergyFlow.Model: " + e.getMessage() + " " //

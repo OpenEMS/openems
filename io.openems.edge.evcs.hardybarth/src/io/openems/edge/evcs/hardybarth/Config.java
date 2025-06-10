@@ -30,6 +30,9 @@ import io.openems.edge.evcs.api.PhaseRotation;
 
 	@AttributeDefinition(name = "Maximum hardware current", description = "Maximum current of the Charger in mA.", required = true)
 	int maxHwCurrent() default 32000;
+	
+	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
+	boolean readOnly() default false;
 
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
 	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
