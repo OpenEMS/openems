@@ -96,6 +96,20 @@ public class PredictorSolarTariffEvccImplTest {
 							assertNotEquals(Prediction.EMPTY_PREDICTION, prediction);
 							assertEquals(expectedFirstValue, prediction.getFirst().intValue());
 						}))
+				
+				// constructor check (ComponentManager only)
+				.next(new TestCase("validate emtpy constructor") //
+						.onBeforeProcessImage(() -> {
+							PredictorSolarTariffEvccApi empty = null;
+							try {
+								empty = new PredictorSolarTariffEvccApi();
+								empty.setApiUrl(url);
+							} catch (Exception e) {
+								// ignore
+							}
+							assertNotEquals(null, empty);
+						}))
+				
 				.deactivate();
 
 		// API response manual

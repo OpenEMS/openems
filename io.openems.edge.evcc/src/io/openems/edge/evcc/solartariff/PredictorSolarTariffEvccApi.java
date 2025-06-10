@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +19,23 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpMethod;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.api.UrlBuilder;
 import io.openems.edge.bridge.http.time.DelayTimeProvider;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.predictor.api.prediction.Prediction;
 
 @Component(name = "PredictorSolarTariffEvccApi", immediate = true)
 public class PredictorSolarTariffEvccApi {
+
+	@Reference
+	private ComponentManager componentManager;
+
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
 
 	private static final Logger log = LoggerFactory.getLogger(PredictorSolarTariffEvccApi.class);
 	private BridgeHttp httpBridge;
@@ -52,11 +61,27 @@ public class PredictorSolarTariffEvccApi {
 		}
 	}
 
+	// this constructor is required for the ComponentManager somehow?
+	public PredictorSolarTariffEvccApi() {
+		this.apiUrl = "";
+		if (this.componentManager != null) {
+			this.clock = this.componentManager.getClock();
+		}
+		if (this.httpBridgeFactory != null) {
+			this.httpBridge = this.httpBridgeFactory.get();
+			this.httpBridge.subscribeTime(new SolarTariffProvider(), this::createEndpoint, this::handleResponse,
+					this::handleError);
+		}
+	}
+
 	public PredictorSolarTariffEvccApi(Clock clock) {
-		this.httpBridge = null;
 		this.apiUrl = "";
 		this.clock = clock;
-		;
+		if (this.httpBridgeFactory != null) {
+			this.httpBridge = this.httpBridgeFactory.get();
+			this.httpBridge.subscribeTime(new SolarTariffProvider(), this::createEndpoint, this::handleResponse,
+					this::handleError);
+		}
 	}
 
 	public PredictorSolarTariffEvccApi(String apiUrl, BridgeHttp httpBridge, Clock clock) {
@@ -213,7 +238,7 @@ public class PredictorSolarTariffEvccApi {
 			prediction = Prediction.EMPTY_PREDICTION;
 		}
 
-		log.debug("parsed prediction: {}", prediction);
+		log.debug("parsed prediction: ", prediction);
 
 		return prediction;
 	}
@@ -226,8 +251,6 @@ public class PredictorSolarTariffEvccApi {
 	public Prediction getPrediction() {
 		ZonedDateTime utcTime = ZonedDateTime.now(this.clock).withZoneSameInstant(ZoneId.of("UTC"));
 		Prediction prediction = Prediction.from(utcTime, this.prediction);
-		// TODO remove
-		log.debug("Prediction: {}", prediction);
 		if (prediction.isEmpty()) {
 			return Prediction.EMPTY_PREDICTION;
 		} else {

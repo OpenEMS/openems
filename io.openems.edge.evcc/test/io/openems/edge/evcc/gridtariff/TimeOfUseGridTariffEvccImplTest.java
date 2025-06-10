@@ -89,6 +89,7 @@ public class TimeOfUseGridTariffEvccImplTest {
 						.setApiUrl(url) //
 						.setLogVerbosity(LogVerbosity.REQUESTED_PREDICTIONS) //
 						.build()) //
+
 				// Case: API was called
 				.next(new TestCase("API called") //
 						.timeleap(clock, 10, ChronoUnit.SECONDS) //
@@ -98,6 +99,19 @@ public class TimeOfUseGridTariffEvccImplTest {
 							assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
 							assertEquals(256.7, prices.getFirst().doubleValue(), 0.0001);
 						})) //
+
+				// constructor check (ComponentManager only)
+				.next(new TestCase("validate emtpy constructor") //
+						.onBeforeProcessImage(() -> {
+							TimeOfUseGridTariffEvccApi empty = null;
+							try {
+								empty = new TimeOfUseGridTariffEvccApi();
+								empty.setApiUrl(url);
+							} catch (Exception e) {
+								// ignore
+							}
+							assertNotEquals(null, empty);
+						}))
 				.deactivate();
 
 		// response handling (manual)

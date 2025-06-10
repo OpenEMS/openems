@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,15 +20,23 @@ import io.openems.common.timedata.DurationUnit;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpMethod;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.api.UrlBuilder;
 import io.openems.edge.bridge.http.time.DelayTimeProvider;
 import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class TimeOfUseGridTariffEvccApi {
+
+	@Reference
+	private ComponentManager componentManager;
+
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
 
 	private static final Logger log = LoggerFactory.getLogger(TimeOfUseGridTariffEvccApi.class);
 	private BridgeHttp httpBridge;
@@ -48,15 +57,31 @@ public class TimeOfUseGridTariffEvccApi {
 
 		@Override
 		public Delay onSuccessRunDelay(HttpResponse<String> result) {
-			return DelayTimeProviderChain
-					.fixedAtEveryFull(java.time.Clock.systemUTC(), DurationUnit.ofMinutes(15)).getDelay();
+			return DelayTimeProviderChain.fixedAtEveryFull(java.time.Clock.systemUTC(), DurationUnit.ofMinutes(15))
+					.getDelay();
+		}
+	}
+
+	public TimeOfUseGridTariffEvccApi() {
+		this.apiUrl = "";
+		if (this.componentManager != null) {
+			this.clock = this.componentManager.getClock();
+		}
+		if (this.httpBridgeFactory != null) {
+			this.httpBridge = this.httpBridgeFactory.get();
+			this.httpBridge.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
+					this::handleError);
 		}
 	}
 
 	public TimeOfUseGridTariffEvccApi(Clock clock) {
-		this.httpBridge = null;
 		this.apiUrl = "";
 		this.clock = clock;
+		if (this.httpBridgeFactory != null) {
+			this.httpBridge = this.httpBridgeFactory.get();
+			this.httpBridge.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
+					this::handleError);
+		}
 	}
 
 	public TimeOfUseGridTariffEvccApi(String apiUrl, BridgeHttp httpBridge, Clock clock) {
@@ -188,7 +213,7 @@ public class TimeOfUseGridTariffEvccApi {
 			}
 
 			TimeOfUsePrices prices = TimeOfUsePrices.from(result.build());
-			log.debug("parsedPrices: {} ", prices);
+			log.debug("parsedPrices: ", prices);
 
 			return prices;
 		} catch (Exception e) {
@@ -206,7 +231,7 @@ public class TimeOfUseGridTariffEvccApi {
 	public TimeOfUsePrices getPrices() {
 		ZonedDateTime utcTime = ZonedDateTime.now(this.clock).withZoneSameInstant(ZoneId.of("UTC"));
 		TimeOfUsePrices prices = TimeOfUsePrices.from(utcTime, this.prices.get());
-		log.debug("Prices: {}", prices);
+		log.debug("Prices: ", prices);
 		return prices;
 	}
 
