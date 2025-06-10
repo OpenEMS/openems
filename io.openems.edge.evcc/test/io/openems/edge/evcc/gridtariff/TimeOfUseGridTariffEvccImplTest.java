@@ -108,7 +108,7 @@ public class TimeOfUseGridTariffEvccImplTest {
 								empty = new TimeOfUseGridTariffEvccApi();
 								empty.setApiUrl(url);
 							} catch (Exception e) {
-								// ignore
+								empty = null;
 							}
 							assertNotEquals(null, empty);
 						}))

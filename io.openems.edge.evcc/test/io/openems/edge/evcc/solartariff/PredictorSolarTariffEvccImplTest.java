@@ -105,7 +105,7 @@ public class PredictorSolarTariffEvccImplTest {
 								empty = new PredictorSolarTariffEvccApi();
 								empty.setApiUrl(url);
 							} catch (Exception e) {
-								// ignore
+								empty = null;
 							}
 							assertNotEquals(null, empty);
 						}))
