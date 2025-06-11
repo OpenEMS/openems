@@ -16,8 +16,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(ControllerApiWebsocketImpl parent, String name, int port, int poolSize) {
-		super(name, port, poolSize);
+	public WebsocketServer(ControllerApiWebsocketImpl parent, String name, String ip, int port, int poolSize) {
+		super(name, ip, port, poolSize);
 		this.parent = parent;
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);

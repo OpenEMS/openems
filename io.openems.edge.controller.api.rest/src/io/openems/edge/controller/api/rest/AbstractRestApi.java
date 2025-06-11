@@ -59,7 +59,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	 * @param connectionlimit    the connection limit
 	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
-			boolean isDebugModeEnabled, int apiTimeout, int port, int connectionlimit) {
+			boolean isDebugModeEnabled, int apiTimeout, String ip, int port, int connectionlimit) {
 		super.activate(context, id, alias, enabled);
 		this.isDebugModeEnabled = isDebugModeEnabled;
 
@@ -78,18 +78,18 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 					UriCompliance.Violation.SUSPICIOUS_PATH_CHARACTERS, //
 					UriCompliance.Violation.ILLEGAL_PATH_CHARACTERS)));
 			final var connector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
+			connector.setHost(ip);
 			connector.setPort(port);
 			this.server.addConnector(connector);
 			this.server.setHandler(new RestHandler(this));
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
 			this.server.addBean(new ConnectionLimit(connectionlimit, this.server));
 			this.server.start();
-			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
+			this.logInfo(this.log, this.implementationName + " started on [" + ip + ":" + port + "].");
 			this._setUnableToStart(false);
-
 		} catch (Exception e) {
 			this.logError(this.log,
-					"Unable to start " + this.implementationName + " on port [" + port + "]: " + e.getMessage());
+					"Unable to start " + this.implementationName + " on [" + ip + ":" + port + "]: " + e.getMessage());
 			this._setUnableToStart(true);
 		}
 		this.getRpcRestHandler().setOnCall(call -> {
