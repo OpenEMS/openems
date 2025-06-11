@@ -108,6 +108,7 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 	/**
 	 * Create and start new server.
 	 *
+	 * @param ip       the ip
 	 * @param port     the port
 	 * @param poolSize number of threads dedicated to handle the tasks
 	 */
