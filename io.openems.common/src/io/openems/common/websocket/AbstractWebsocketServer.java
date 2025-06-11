@@ -46,6 +46,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * Construct an {@link AbstractWebsocketServer}.
 	 *
 	 * @param name     to identify this server
+	 * @param ip       to listen on
 	 * @param port     to listen on
 	 * @param poolSize number of threads dedicated to handle the tasks
 	 */
