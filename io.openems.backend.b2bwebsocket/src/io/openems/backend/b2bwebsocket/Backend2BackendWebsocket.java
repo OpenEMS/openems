@@ -45,6 +45,7 @@ public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent im
 	private static final String COMPONENT_ID = "b2bwebsocket0";
 
 	public static final int DEFAULT_PORT = 8076;
+	public static final String DEFAULT_IP = io.openems.common.websocket.AbstractWebsocketServer.DEFAULT_IP;
 
 	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
 			new ThreadFactoryBuilder().setNameFormat("B2bWebsocket-%d").build());
@@ -88,7 +89,7 @@ public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent im
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize());
+			this.server = new WebsocketServer(this, this.getName(), this.config.ip(), this.config.port(), this.config.poolSize());
 			this.server.start();
 		}
 	}

@@ -20,6 +20,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Port", description = "Port on which the Websocket server should listen.")
 	int port() default 8085;
 
+	@AttributeDefinition(name = "IP Address", description = "The IP address to listen on.")
+	String ip() default io.openems.common.websocket.AbstractWebsocketServer.DEFAULT_IP;
+
 	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
 	int apiTimeout() default 60;
 

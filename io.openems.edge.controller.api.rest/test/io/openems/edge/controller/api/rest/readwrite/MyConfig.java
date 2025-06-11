@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int connectionlimit;
 		private int apiTimeout;
 		private boolean debugMode;
+		private String ip;
 
 		private Builder() {
 		}
@@ -37,6 +38,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setIp(String ip) {
+			this.ip = ip;
 			return this;
 		}
 
@@ -74,6 +80,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean debugMode() {
 		return this.builder.debugMode;
+	}
+	
+	@Override
+	public String ip() {
+		return this.builder.ip;
 	}
 
 }
