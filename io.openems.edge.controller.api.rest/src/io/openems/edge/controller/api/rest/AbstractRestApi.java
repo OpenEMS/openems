@@ -54,6 +54,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 	 * @param enabled            enable component?
 	 * @param isDebugModeEnabled enable debug mode?
 	 * @param apiTimeout         the API timeout in seconds
+	 * @param ip                 the listen ip
 	 * @param port               the port; if '0', the port is automatically
 	 *                           assigned
 	 * @param connectionlimit    the connection limit
