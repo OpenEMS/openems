@@ -56,6 +56,7 @@ public class Backend2BackendRest extends AbstractOpenemsBackendComponent {
 	/**
 	 * Create and start new server.
 	 *
+	 * @param ip the IP address
 	 * @param port the port
 	 * @throws OpenemsException on error
 	 */
