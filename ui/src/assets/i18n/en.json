@@ -638,46 +638,6 @@
     "EDGE": {
       "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Local access currently not possible",
       "DESCRIPTION": "If the {{edgeShortName}} has been restarted, please wait a moment until the restart has been completed."
-    },
-    "GENERAL": {
-      "AVAILABILITY": "Online access to the energy storage system is currently not available.<br>The data is stored locally and will not be lost.",
-      "MORE_INFO": "More Info",
-      "EMS_OFFLINE": "{{edgeShortName}} is offline"
-    },
-    "DEFAULT": {
-      "STEP_TEST_WIFI_CONNECTION": {
-        "HEADER": "Check router connection with laptop",
-        "DESCRIPTION": "<p><b>a)</b> Disconnect the LAN cable from the Home-{{edgeShortName}} box ('LAN' interface) and connect it to a laptop/PC (make sure to disable the Wi-Fi adapter). If the laptop/PC successfully establishes an internet connection, proceed to step 3, otherwise proceed to b.</p><p><b>b)</b> If the laptop/PC does not connect to the internet, connect the device directly to the router via a LAN cable to ensure that the router is functioning correctly (without additional cable length and without other network devices in between).</p><p>→ If the router is functioning, the LAN cable, a Wi-Fi repeater, or a powerline adapter may not be forwarding the signal correctly. You can find more information in the product-specific instructions from the respective manufacturer.</p>"
-      },
-      "STEP_FIREWALL": {
-        "HEADER": "Check port forwarding/firewall settings",
-        "DESCRIPTION": "Firewall settings can limit the internet connection to the {{edgeShortName}}. This happens especially during the first setup. Please check the ports and services that are active on {{edgeShortName}} in the <a href=\"https://openems.io/docs/\" target=\"_blank\">documentation</a>."
-      },
-      "STEP_SERVICE": {
-        "HEADER": "Contact service",
-        "DESCRIPTION": "If you have already checked all previous steps and Online Monitoring still does not display any data, please contact your service provider."
-      },
-      "STEP_CONTACT_INSTALLER": {
-        "HEADER": "Contact Installer",
-        "DESCRIPTION": "If you have already checked all previous steps and the Online Monitoring still does not display any data, please contact your <b>electrician/installer</b>."
-      },
-      "STEP_EMS_RESTART": {
-        "HEADER": "Restart {{edgeShortName}} and check LAN connection"
-      }
-    },
-    "HOME_10": {
-      "STEP_EMS_RESTART": {
-        "HEADER": "{{edgeShortName}} Restart",
-        "DESCRIPTION": "On the top box of the storage tower, there is a cold device plug (colored in black and blue). Unplug it and wait 15 seconds. Plug the cold device plug back in and wait <b>5 to 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the Online Monitoring should be visible."
-      }
-    },
-    "HOME_20_30": {
-      "STEP_EMS_RESTART": {
-        "DESCRIPTION": "Restart the {{edgeShortName}} by pressing and holding the button on the top box of the storage tower at the front for 10 seconds. Now wait <b>5 - 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly inserted in the {{edgeShortName}} connection box. Now refresh the browser window of the Online Monitoring: if this action was successful, the error message should now be cancelled and the usual view of the {{edgeLongName}} Energy management system Online Monitoring should be visible."
-      }
-    },
-    "STEP_EMS_RESTART": {
-      "DESCRIPTION": "On the top of the battery storage tower, there is a push button located on the front. Press and hold it for 10 seconds. Now, please wait for 5 to 10 minutes (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the Online Monitoring should be visible."
     }
   },
   "INSTALLATION": {

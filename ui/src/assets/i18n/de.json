@@ -626,47 +626,7 @@
   "OFFLINE": {
     "EDGE": {
       "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
-      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
-    },
-    "GENERAL": {
-      "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
-      "MORE_INFO": "mehr Infos",
-      "EMS_OFFLINE": "{{edgeShortName}} ist offline"
-    },
-    "DEFAULT": {
-      "STEP_TEST_WIFI_CONNECTION": {
-        "HEADER": "Routerverbindung mit Laptop überprüfen",
-        "DESCRIPTION": "<p><b>a)</b> Stecken Sie das LAN-Kabel von der Home--{{edgeShortName}} Box („LAN“ Schnittstelle) ab und schließen Sie dieses an einem Laptop/PC an (Achtung: WLAN Adapter ausschalten). Wenn der Laptop/PC erfolgreich eine Internetverbindung aufbauen konnte, gehen Sie weiter zu Schritt 3, ansonsten weiter zu b.</p> <p><b>b)</b> Wenn der Laptop/PC keine Internetverbindung aufbaut, schließen Sie das Gerät bitte direkt per LAN-Kabel am Router an, um die Funktionalität des Routers sicherzustellen (also ohne zusätzliche Kabelstrecke und ohne weitere Netzwerkteilnehmer dazwischen).</p> <p> → Wenn die Funktionalität des Routers sichergestellt ist, leitet das LAN-Kabel, ein WLAN Repeater oder ein Powerline Adapter das Signal vermutlich nicht korrekt weiter. In diesem Fall finden Sie in den produktspezifischen Anleitungen des jeweiligen Herstellers weitere Informationen.</p>"
-      },
-      "STEP_FIREWALL": {
-        "HEADER": "Portfreigabe/Firewall prüfen",
-        "DESCRIPTION": "Einstellungen der Firewall können die Internetverbindung zum {{edgeShortName}} begrenzen. Besonders bei der Erstinbetriebnahme ist dies häufig der Fall. Prüfen Sie in der <a href=\"https://openems.io/docs/\" target=\"_blank\">Dokumentation</a> die Ports und Dienste, die auf dem {{edgeShortName}} aktiv sind."
-      },
-      "STEP_SERVICE": {
-        "HEADER": "Service kontaktieren",
-        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben und das Online-Monitoring weiterhin keine Daten anzeigt, wenden Sie sich bitte an Ihren Servicepartner."
-      },
-      "STEP_CONTACT_INSTALLER": {
-        "HEADER": "Installateur kontaktieren",
-        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben, und das Online-Monitoring weiterhin keine Daten anzeigt, bitten wir Sie, sich mit Ihrem <b>Installateur</b> in Verbindung zu setzen."
-      },
-      "STEP_EMS_RESTART": {
-        "HEADER": "{{edgeShortName}} neu starten und LAN-Stecker prüfen"
-      }
-    },
-    "HOME_10": {
-      "STEP_EMS_RESTART": {
-        "HEADER": "{{edgeShortName}} neu starten",
-        "DESCRIPTION": "Starten Sie das {{edgeShortName}} neu, indem Sie an der obersten Box des Speicherturms an der Vorderseite den Taster für 10 Sekunden gedrückt halten. Warten Sie anschließend <b>5&#x2011;10 Minuten</b> (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker korrekt in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie danach das Browser-Fenster des Online-Monitorings: War diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des Online-Monitorings erscheinen."
-      }
-    },
-    "HOME_20_30": {
-      "STEP_EMS_RESTART": {
-        "DESCRIPTION": "An der obersten Box des Speicherturms befindet sich ein Kaltgerätestecker (schwarz-blau). Stecken Sie diesen aus und warten Sie 15 Sekunden ab; Stecken Sie den Kaltgerätestecker wieder ein, und warten Sie nun <b>5-10 Minuten</b> (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker akkurat in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie nun das Browser-Fenster des Online-Monitorings: war diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des {{edgeLongName}} Energiemanagementsystem Online-Monitorings wie gewohnt zu sehen sein."
-      }
-    },
-    "STEP_EMS_RESTART": {
-      "DESCRIPTION": "Im Anschlussbereich des Stromspeichersystems befindet sich ein blauer Steckverbinder, der das {{edgeShortName}} mit einer Hilfsversorgung speist. Ziehen Sie den Stecker heraus und stecken ihn nach 10 Sekunden wieder ein, um das {{edgeShortName}} neu zu starten. Warten Sie anschließend einige Minuten und aktualisieren Sie das Browser-Fenster. Die Fehlermeldung sollte danach verschwunden sein und das Online-Monitoring wieder sichtbar sein. Falls dies nicht der Fall ist, gehen Sie weiter zu Schritt 2."
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart abgeschlossen wurde."
     }
   },
   "Index": {
