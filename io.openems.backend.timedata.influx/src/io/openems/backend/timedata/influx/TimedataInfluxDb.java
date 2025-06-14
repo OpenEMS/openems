@@ -159,7 +159,18 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 
 	@Override
 	public void write(String edgeId, ResendDataNotification data) {
-		// TODO Auto-generated method stub
+		if (this.config.isReadOnly()) {
+			return;
+		}
+
+		// Write data to default location
+		this.writeData(//
+				edgeId, //
+				data, //
+				(influxEdgeId, channel) -> {
+					this.timestampedChannelsForEdge.put(influxEdgeId, channel);
+					return true;
+				});
 	}
 
 	private boolean isTimestampedChannel(int edgeId, String channel) {
