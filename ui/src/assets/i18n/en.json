@@ -713,6 +713,7 @@
       "GRID_OPTIMIZED_CHARGE": "Grid-optimized charge",
       "TIME_OF_USE_TARIFF": "Time-of-use tariff",
       "LEGEND": "Legend",
+      "LEGEND_DESCRIPTION": "Legend operating status",
       "NOT_YET_CONFIGURED": "Not yet configured/checked",
       "PARTIAL_CONFIGURATION": "Not all components could be configured correctly.",
       "PRE_CONFIGURED": "Preconfigured/Warning",

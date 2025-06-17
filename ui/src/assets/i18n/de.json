@@ -720,6 +720,7 @@
       "GRID_OPTIMIZED_CHARGE": "Netzdienliche Beladung",
       "TIME_OF_USE_TARIFF": "Dynamischer Stromtarif",
       "LEGEND": "Legende",
+      "LEGEND_DESCRIPTION": "Legende Betriebszustand",
       "NOT_YET_CONFIGURED": "noch nicht konfiguriert/ausgeführt",
       "PARTIAL_CONFIGURATION": "Es konnten nicht alle Komponenten richtig konfiguriert werden.",
       "PRE_CONFIGURED": "vorkonfiguriert / Warnung",
