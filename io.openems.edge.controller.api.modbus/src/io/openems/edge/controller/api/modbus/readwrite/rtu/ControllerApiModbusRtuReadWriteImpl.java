@@ -43,7 +43,7 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 		io.openems.edge.common.modbusslave.ModbusSlave {
 
 	@Reference
-	private Meta metaComponent = null;
+	private Meta metaComponent;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -87,7 +87,7 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), config.apiTimeout(), config.portName(), config.baudRate(), config.databits(),
 				config.stopbits(), config.parity(), config.maxConcurrentConnections());
-		super.modified(context, this.cm, this.config);
+		super.modified(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Override

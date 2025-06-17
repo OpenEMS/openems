@@ -1,16 +1,11 @@
 package io.openems.edge.controller.evse.cluster;
 
-import static io.openems.edge.controller.evse.cluster.Utils.HYSTERESIS;
 import static io.openems.edge.controller.evse.cluster.Utils.calculate;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -41,7 +36,6 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 		implements OpenemsComponent, ControllerEvseCluster, Controller {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvseClusterImpl.class);
-	private final Map<String, TreeMap<Instant, Integer>> applyHistories = new HashMap<>();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -77,17 +71,9 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() {
-		for (var output : calculate(this.config.distributionStrategy(), this.sum, this.ctrls, this.applyHistories,
-				this::logDebug)) {
+		for (var result : calculate(this.config.distributionStrategy(), this.sum, this.ctrls, this::logDebug)) {
 			// Apply current & commands
-			output.ctrl().apply(output.current(), output.commands());
-
-			// Update apply history
-			var history = this.applyHistories.computeIfAbsent(output.ctrl().id(),
-					id -> new TreeMap<Instant, Integer>());
-			var now = Instant.now();
-			history.put(now, output.current());
-			history.headMap(now.minusSeconds(HYSTERESIS)).clear(); // Clear outdated entries
+			result.ctrl().apply(result.actions());
 		}
 	}
 

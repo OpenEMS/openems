@@ -4,11 +4,9 @@ import java.time.ZonedDateTime;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonElement;
 
 import io.openems.edge.energy.api.handler.OneMode.Simulator;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -24,7 +22,7 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 
 	protected EshWithOnlyOneMode(//
 			String parentFactoryPid, String parentId, //
-			Supplier<JsonElement> serializer, //
+			Serializer<?> serializer, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
 			Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator) {

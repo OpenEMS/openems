@@ -1,3 +1,4 @@
+import { TPartialBy } from "../../type/utility";
 import { Icon } from "../../type/widget";
 
 export enum NavigationId {
@@ -5,21 +6,20 @@ export enum NavigationId {
     HISTORY = "history",
 }
 
+type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "medium" | "light" | "dark" | "warning";
+type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
+
 export class NavigationTree {
 
     constructor(
         public id: NavigationId | string,
         public routerLink: string,
-        public icon: Pick<Icon, "name">,
+        public icon: PartialedIcon,
         public label: string,
         public mode: "icon" | "label",
-        public children: NavigationTree[] | null,
+        public children: NavigationTree[],
         public parent: NavigationTree | null,
     ) { }
-
-    public static of(navigationTree: NavigationTree) {
-        return new NavigationTree(navigationTree.id, navigationTree.routerLink, navigationTree.icon, navigationTree.label, navigationTree.mode, navigationTree.children, navigationTree.parent);
-    }
 
     public getChildren(): NavigationTree[] | null {
         return this.children?.filter(el => el != null) ?? null;
@@ -37,14 +37,32 @@ export class NavigationTree {
             navigationParents.push(root);
         }
 
-        return navigationParents;
+        return navigationParents.reverse();
     }
 
-    public setChild(parentNavigationId: NavigationId, childNavigationTree: NavigationTree) {
+    /**
+     * Sets the child for a given parent navigation id
+     *
+     * @info set parent to null for nested children
+     *
+     * @param parentNavigationId the parent navigation id
+     * @param childNavigationTree the child navigation tree
+     */
+    public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
         this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
+
+        function setParentRecursive(node: NavigationTree, parent: NavigationTree | null): void {
+            node.parent = parent;
+
+            if (node.children) {
+                node.children.forEach(child => setParentRecursive(child, node));
+            }
+        }
+
+        setParentRecursive(this, null);
     }
 
-    public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId, newNavigation: NavigationTree): NavigationTree | null {
+    public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId | string, newNavigation: NavigationTree): NavigationTree | null {
 
         if (!tree) {
             return null;
@@ -84,4 +102,5 @@ export type NavigationNode = {
     mode: "icon" | "label",
 };
 
-export const baseNavigationTree: NavigationTree = new NavigationTree(NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [], null);
+
+export const baseNavigationTree: ConstructorParameters<typeof NavigationTree> = [NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [], null];

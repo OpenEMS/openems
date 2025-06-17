@@ -118,6 +118,7 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false), //
 		FIRST_SETUP_PROTOCOL("first_setup_protocol_date", false), //
+		SETUP_PROTOCOL_IDS("setup_protocol_ids", false), //
 
 		// Hardware
 		PRODUCTTYPE("producttype", true), //
@@ -437,7 +438,8 @@ public interface Field {
 		CUSTOMER("customer_id", true), //
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
-		EDGE("device_id", true);
+		EDGE("device_id", true),
+		CREATE_DATE("create_date", false);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

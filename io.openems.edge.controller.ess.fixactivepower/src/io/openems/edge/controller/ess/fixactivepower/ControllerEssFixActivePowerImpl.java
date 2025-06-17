@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
 import static io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.buildEnergyScheduleHandler;
-import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -69,10 +68,10 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
 				() -> this.config.enabled() && this.config.mode() == Mode.MANUAL_ON //
 						? new OptimizationContext(//
-								toEnergy(switch (this.config.phase()) {
+								switch (this.config.phase()) {
 								case ALL -> this.config.power();
 								case L1, L2, L3 -> this.config.power() * 3;
-								}), //
+								}, //
 								this.config.relationship()) //
 						: null);
 		if (this.applyConfig(context, config)) {

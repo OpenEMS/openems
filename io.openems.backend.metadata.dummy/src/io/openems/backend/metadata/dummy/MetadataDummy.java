@@ -33,6 +33,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
@@ -257,6 +258,11 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
+	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		return Optional.empty();
+	}
+
+	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
 		throw new UnsupportedOperationException("DummyMetadata.submitSetupProtocol() is not implemented");
 	}
@@ -309,17 +315,17 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
-		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
+		return List.of(new UserAlertingSettings("demo", 5, 10, 15));
 	}
 
 	@Override
 	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
-		throw new UnsupportedOperationException("DummyMetadata.getEdgeOfflineAlertingSettings() is not implemented");
+		return List.of(new OfflineEdgeAlertingSetting(edgeId, "demo", 5, null));
 	}
 
 	@Override
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
-		throw new UnsupportedOperationException("DummyMetadata.getSumStateAlertingSettings() is not implemented");
+		return List.of(new SumStateAlertingSetting(edgeId, "demo", 10, 15, null));
 	}
 
 	@Override
@@ -372,4 +378,14 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public void updateUserSettings(User user, JsonObject settings) {
 		this.settings = settings == null ? new JsonObject() : settings;
 	}
+
+	@Override
+	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		var apikeysToEdgeIds = this.edges.values().stream() //
+				.collect(Collectors.toMap(//
+						e -> e.getId(), //
+						e -> e.getApikey()));
+		return new UpdateMetadataCache.Notification(apikeysToEdgeIds);
+	}
+
 }

@@ -46,8 +46,11 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	@AttributeDefinition(name = "Number of max scheduled tasks", description = "Max-Size of Queued tasks.")
 	int maxQueueSize() default 5000;
 
-	@AttributeDefinition(name = "List of blacklisted channels", description = "Blacklisted channels which are not saved by this influx. e.g. \"kacoCore0/Serialnumber\"")
+	@AttributeDefinition(name = "List of blacklisted ChannelAddresses", description = "Blacklisted ChannelAddresses which should not be written to the database. e.g. \"kacoCore0/Serialnumber\"")
 	String[] blacklistedChannels() default {};
+
+	@AttributeDefinition(name = "List of blacklisted ChannelIds", description = "Blacklisted ChannelIds which should not be written to the database. e.g. \"_PropertyAlias\"")
+	String[] blacklistedChannelIds() default {};
 
 	String webconsole_configurationFactory_nameHint() default "Timedata InfluxDB";
 

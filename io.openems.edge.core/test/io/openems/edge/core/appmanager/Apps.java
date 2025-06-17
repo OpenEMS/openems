@@ -10,6 +10,7 @@ import org.osgi.service.component.ComponentContext;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
@@ -38,8 +39,11 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
+import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
@@ -91,6 +95,7 @@ import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Swisspower;
 import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.app.timeofusetariff.manual.OctopusGo;
+import io.openems.edge.app.timeofusetariff.manual.OctopusHeat;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.meta.Meta;
@@ -228,6 +233,16 @@ public final class Apps {
 	 */
 	public static final OctopusGo octopusGo(AppManagerTestBundle t) {
 		return app(t, OctopusGo::new, "App.TimeOfUseTariff.OctopusGo");
+	}
+
+	/**
+	 * Test method for creating a {@link OctopusHeat}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final OctopusHeat octopusHeat(AppManagerTestBundle t) {
+		return app(t, OctopusHeat::new, "App.TimeOfUseTariff.OctopusHeat");
 	}
 
 	/**
@@ -413,7 +428,7 @@ public final class Apps {
 	public static final AppEnerixControl enerixControl(AppManagerTestBundle t) {
 		return app(t, AppEnerixControl::new, "App.Cloud.EnerixControl");
 	}
-	
+
 	/**
 	 * Test method for creating a {@link AppCleverPv}.
 	 * 
@@ -497,7 +512,7 @@ public final class Apps {
 	// Evcs
 
 	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * Test method for creating a {@link DezonyEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
@@ -507,13 +522,23 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * Test method for creating a {@link HardyBarthEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final HardyBarthEvcs hardyBarthEvcs(AppManagerTestBundle t) {
 		return app(t, HardyBarthEvcs::new, "App.Evcs.HardyBarth");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHardyBarthReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHardyBarthReadOnly hardyBarthEvcsReadOnly(AppManagerTestBundle t) {
+		return app(t, AppHardyBarthReadOnly::new, "App.Evcs.HardyBarth.ReadOnly");
 	}
 
 	/**
@@ -524,6 +549,16 @@ public final class Apps {
 	 */
 	public static final KebaEvcs kebaEvcs(AppManagerTestBundle t) {
 		return app(t, KebaEvcs::new, "App.Evcs.Keba");
+	}
+
+	/**
+	 * Test method for creating a {@link KebaEvcsReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KebaEvcsReadOnly kebaEvcsReadonly(AppManagerTestBundle t) {
+		return app(t, KebaEvcsReadOnly::new, "App.Evcs.Keba.ReadOnly");
 	}
 
 	/**
@@ -927,6 +962,9 @@ public final class Apps {
 		case "App.FENECON.Home6" -> TestFeneconHome10Gen2.minSettings();
 		case "App.FENECON.Home10.Gen2" -> TestFeneconHome10Gen2.minSettings();
 		case "App.FENECON.Home15" -> TestFeneconHome10Gen2.minSettings();
+		case "App.Hardware.IoGpio" -> JsonUtils.buildJsonObject() //
+				.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+				.build();
 		default -> new JsonObject();
 		};
 	}
@@ -946,6 +984,11 @@ public final class Apps {
 			String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.host, t.meta);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.host);
 	}
 
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithMeta<T> constructor, String appId) {
@@ -971,6 +1014,13 @@ public final class Apps {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil, Meta meta);
+
+	}
+
+	private static interface DefaultAppConstructorWithHost<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Host host);
 
 	}
 

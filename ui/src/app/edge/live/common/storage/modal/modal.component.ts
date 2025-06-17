@@ -176,7 +176,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
     }
 
-    applyChanges() {
+    async applyChanges() {
         if (this.edge == null) {
             return;
         }
@@ -241,12 +241,16 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                 });
             });
 
-            this.edge.updateComponentConfig(this.websocket, controllerId, properties).then(() => {
+            try {
+                // todo: updateAppConfig for once fixed
+                await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
                 this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 this.formGroup.markAsPristine();
-            }).catch(reason => {
+
+            } catch (reason) {
                 this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
-            });
+            }
+
         }
     }
 
