@@ -4,6 +4,7 @@ import static io.openems.common.utils.EnumUtils.toEnum;
 
 import java.net.Inet4Address;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -344,6 +347,24 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link LocalDate} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_DATE}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, LocalDate value) {
+			if (value != null) {
+				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_LOCAL_DATE));
+			}
+			return this;
+		}
+
+		/**
 		 * Add a {@link Boolean} value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -439,6 +460,24 @@ public final class JsonUtils {
 		 * @return the {@link JsonObjectBuilder}
 		 */
 		public JsonObjectBuilder addPropertyIfNotNull(String property, ZonedDateTime value) {
+			if (value != null) {
+				this.addProperty(property, value);
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link LocalDate} value to the {@link JsonObject} if it is not null.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_DATE}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, LocalDate value) {
 			if (value != null) {
 				this.addProperty(property, value);
 			}
@@ -1439,6 +1478,35 @@ public final class JsonUtils {
 			}
 			if (jP.isNumber()) {
 				var n = jP.getAsNumber();
+
+				var value = switch (n) {
+				case Double d -> d;
+				case Float f -> f;
+				case Integer i -> i;
+				case Long l -> l;
+				default -> null;
+				};
+
+				if (value != null) {
+					return value;
+				}
+
+				final var l = Longs.tryParse(n.toString());
+				if (l != null) {
+					if (l > Integer.MAX_VALUE || l < Integer.MIN_VALUE) {
+						return l;
+					}
+					return n.intValue();
+				}
+
+				final var d = Doubles.tryParse(n.toString());
+				if (d != null) {
+					if (d > Float.MAX_VALUE || d < Float.MIN_VALUE) {
+						return d;
+					}
+					return d.floatValue();
+				}
+
 				return n.intValue();
 			}
 			return j.getAsString();

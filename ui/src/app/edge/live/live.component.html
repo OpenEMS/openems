@@ -1,15 +1,24 @@
 <oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
-  <ion-refresher mode="ios" slot="fixed">
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <ion-grid *ngIf="edge && edge.isOnline">
-    <ion-row class="ion-justify-content-center" *ngIf="widgets">
-      <!-- Energymonitor -->
-      <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-        <ion-col *ngSwitchCase="'Energymonitor'" size="12" size-md="8" size-lg="3" class="ion-no-padding">
-          <energymonitor></energymonitor>
-        </ion-col>
-      </ng-container>
+    <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">
+
+      <!-- Left column -->
+      <ion-col size="12" [attr.size-md]="navigationService.position === 'left' ? 8 : 8"
+        [attr.size-lg]="navigationService.position === 'left' ? 4 : 3" class="ion-no-padding">
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="12">
+              <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+                <!-- Energymonitor -->
+                <energymonitor *ngSwitchCase="'Energymonitor'"></energymonitor>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
 
       <!-- Widgets -->
       <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">

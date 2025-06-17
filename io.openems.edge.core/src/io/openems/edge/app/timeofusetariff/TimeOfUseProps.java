@@ -1,6 +1,7 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -8,6 +9,7 @@ import java.util.function.Consumer;
 import com.google.common.collect.Lists;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.types.CurrencyConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -35,6 +37,23 @@ public final class TimeOfUseProps {
 				.setTranslatedDescription("App.TimeOfUseTariff.zipCode.description") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.NUMBER);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a price.
+	 * 
+	 * @param prefix the field prefix.
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> price(String prefix) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(prefix + ".label") //
+				.setTranslatedDescriptionWithAppPrefix(prefix + ".description") //
+				.setRequired(true)//
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(NUMBER); //
+					field.setUnit(CurrencyConfig.EUR.getUnderPart() + "/kWh");
 				}));
 	}
 

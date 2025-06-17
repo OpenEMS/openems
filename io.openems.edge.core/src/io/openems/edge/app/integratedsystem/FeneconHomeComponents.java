@@ -55,11 +55,31 @@ public final class FeneconHomeComponents {
 			final String modbusIdInternal, //
 			final String batteryStartStop //
 	) {
+		return battery(bundle, batteryId, modbusIdInternal, batteryStartStop, "io0/Relay4");
+	}
+
+	/**
+	 * Creates a default battery component for a FENECON Home or Commercial.
+	 * 
+	 * @param bundle              the translation bundle
+	 * @param batteryId           the id of the battery
+	 * @param modbusIdInternal    the id of the internal modbus bridge
+	 * @param batteryStartStop    the startStop target of the bridge
+	 * @param batteryStartUpRelay the start up relay of the battery
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component battery(//
+			final ResourceBundle bundle, //
+			final String batteryId, //
+			final String modbusIdInternal, //
+			final String batteryStartStop, //
+			final String batteryStartUpRelay //
+	) {
 		return new EdgeConfig.Component(batteryId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.battery0.alias"), "Battery.Fenecon.Home", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
-						.addProperty("batteryStartUpRelay", "io0/Relay4") //
+						.addProperty("batteryStartUpRelay", batteryStartUpRelay) //
 						.addProperty("modbus.id", modbusIdInternal) //
 						.addProperty("modbusUnitId", 1) //
 						.addProperty("startStop", batteryStartStop) //
@@ -639,7 +659,9 @@ public final class FeneconHomeComponents {
 			return false;
 		}
 		return switch (hardwareInstance.appId) {
-		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4S", "App.OpenemsHardware.CM4S.Gen2" -> true;
+		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4", "App.OpenemsHardware.CM4S",
+				"App.OpenemsHardware.CM4S.Gen2" ->
+			true;
 		default -> false;
 		};
 	}

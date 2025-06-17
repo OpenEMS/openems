@@ -22,19 +22,28 @@ import io.openems.common.worker.AbstractWorker;
 
 public class ClientReconnectorWorker extends AbstractWorker {
 
-	private static final int CONNECT_TIMEOUT_SECONDS = 100;
-	private static final int MAX_WAIT_SECONDS = 100;
-	private static final int MIN_WAIT_SECONDS = 10;
+	public record Config(int connectTimeoutSeconds, int maxWaitSeconds, int minWaitSeconds, int cycleTime) {
 
-	private static final long MIN_WAIT_SECONDS_BETWEEN_RETRIES = new Random()
-			.nextInt(ClientReconnectorWorker.MAX_WAIT_SECONDS) + ClientReconnectorWorker.MIN_WAIT_SECONDS;
+	}
+
+	public static final ClientReconnectorWorker.Config DEFAULT_CONFIG = new Config(100, 100, 10,
+			2 * 60 * 1000 /* 2 minutes */);
 
 	private final Logger log = LoggerFactory.getLogger(ClientReconnectorWorker.class);
 	private final AbstractWebsocketClient<?> parent;
+	private final Config config;
+	private final long minWaitSecondsBetweenRetries;
 	private Instant lastTry = Instant.MIN;
+	private String debugLog = null;
+
+	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent, Config config) {
+		this.parent = parent;
+		this.config = config;
+		this.minWaitSecondsBetweenRetries = new Random().nextInt(config.maxWaitSeconds()) + config.minWaitSeconds();
+	}
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent) {
-		this.parent = parent;
+		this(parent, ClientReconnectorWorker.DEFAULT_CONFIG);
 	}
 
 	@Override
@@ -46,38 +55,43 @@ public class ClientReconnectorWorker extends AbstractWorker {
 
 		var start = Instant.now();
 		var waitedSeconds = Duration.between(this.lastTry, start).getSeconds();
-		if (waitedSeconds < ClientReconnectorWorker.MIN_WAIT_SECONDS_BETWEEN_RETRIES) {
-			this.parent.logInfo(this.log, "Waiting till next WebSocket reconnect ["
-					+ (ClientReconnectorWorker.MIN_WAIT_SECONDS_BETWEEN_RETRIES - waitedSeconds) + "s]");
+		if (waitedSeconds < this.minWaitSecondsBetweenRetries) {
+			this.debugLog = "Waiting till next WebSocket reconnect ["
+					+ (this.minWaitSecondsBetweenRetries - waitedSeconds) + "s]";
 			return;
 		}
 		this.lastTry = start;
 
-		this.parent.logInfo(this.log, "Connecting WebSocket... [" + ws.getReadyState() + "]");
+		this.debugLog = "Connecting WebSocket... [" + ws.getReadyState() + "]";
 
 		if (ws.getReadyState() != ReadyState.NOT_YET_CONNECTED) {
 			// Copy of WebSocketClient#reconnectBlocking.
 			// Do not 'reset' if WebSocket has never been connected before.
-			this.parent.logInfo(this.log, "# Reset WebSocket Client...");
-			resetWebSocketClient(ws, this.parent::createWsData);
-			this.parent.logInfo(this.log, "# Reset WebSocket Client... done");
+			resetWebSocketClient(ws, this.parent::createWsData, this.config.connectTimeoutSeconds());
 		}
+
+		var success = false;
 		try {
-			this.parent.logInfo(this.log, "# Connect Blocking [" + CONNECT_TIMEOUT_SECONDS + "]...");
-			ws.connectBlocking(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-			this.parent.logInfo(this.log, "# Connect Blocking [" + CONNECT_TIMEOUT_SECONDS + "]... done");
+			this.parent.logInfo(this.log, "# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]...");
+			success = ws.connectBlocking(this.config.connectTimeoutSeconds(), TimeUnit.SECONDS);
+			this.parent.logInfo(this.log, "# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]... done");
 
 		} catch (IllegalStateException e) {
 			// Catch "WebSocketClient objects are not reuseable" thrown by
 			// WebSocketClient#connect(). Set WebSocketClient#connectReadThread to `null`.
 			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... " + e.getMessage());
-			resetWebSocketClient(ws, this.parent::createWsData);
+			resetWebSocketClient(ws, this.parent::createWsData, this.config.connectTimeoutSeconds());
 			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... done");
 		}
 
 		var end = Instant.now();
-		this.parent.logInfo(this.log,
-				"Connected WebSocket successfully [" + Duration.between(start, end).toSeconds() + "s]");
+		if (success) {
+			this.debugLog = null;
+			this.parent.logInfo(this.log, "Connected successfully [" + Duration.between(start, end).toSeconds() + "s]");
+		} else {
+			this.debugLog = "Connection failed";
+			this.log.info("Connection failed");
+		}
 
 		this.lastTry = end;
 	}
@@ -91,13 +105,14 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	 * Waiting for https://github.com/TooTallNate/Java-WebSocket/pull/1251 to be
 	 * merged.
 	 * 
-	 * @param <T>    the type of the attachment
-	 * @param ws     the {@link WebSocketClient}
-	 * @param wsData {@link Function} to provide a the new attachment
+	 * @param <T>                   the type of the attachment
+	 * @param ws                    the {@link WebSocketClient}
+	 * @param wsData                {@link Function} to provide a the new attachment
+	 * @param connectTimeoutSeconds the max wait time to close the websocket
 	 * @throws Exception on error
 	 */
-	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Function<WebSocket, T> wsData)
-			throws Exception {
+	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Function<WebSocket, T> wsData,
+			int connectTimeoutSeconds) throws Exception {
 		/*
 		 * Get methods and fields via Reflection
 		 */
@@ -140,7 +155,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		try {
 			// closeBlocking(); -> to reflection
 			ws.close();
-			closeLatch.await(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+			closeLatch.await(connectTimeoutSeconds, TimeUnit.SECONDS);
 			// closeBlocking() END
 			if (writeThread != null) {
 				writeThread.interrupt();
@@ -176,7 +191,19 @@ public class ClientReconnectorWorker extends AbstractWorker {
 
 	@Override
 	protected int getCycleTime() {
-		return 2 * 60 * 1000; /* 2 minutes */
+		return this.config.cycleTime();
+	}
+
+	/**
+	 * Gets some output that is suitable for a continuous Debug log.
+	 *
+	 * @return the debug log output or null
+	 */
+	public String debugLog() {
+		var message = this.debugLog;
+		return message == null //
+				? "" //
+				: message;
 	}
 
 }

@@ -1,5 +1,6 @@
-import { Component, effect } from "@angular/core";
-import { NavigationService } from "./navigation.service";
+import { Component, effect, ViewChild } from "@angular/core";
+import { IonModal } from "@ionic/angular/common";
+import { NavigationService } from "./service/navigation.service";
 import { NavigationTree } from "./shared";
 
 @Component({
@@ -8,20 +9,44 @@ import { NavigationTree } from "./shared";
     standalone: false,
 })
 export class NavigationComponent {
-    protected children: NavigationTree[] = [];
-    protected parents: NavigationTree[] = [];
+    public static INITIAL_BREAKPOINT: number = 0.2;
 
-    protected isAllowed = true;
+    @ViewChild("modal") private modal: IonModal | null = null;
+
+    protected initialBreakPoint: number = NavigationComponent.INITIAL_BREAKPOINT;
+    protected children: (NavigationTree | null)[] = [];
+    protected parents: (NavigationTree | null)[] = [];
+    protected isVisible: boolean = true;
 
     constructor(
         public navigationService: NavigationService,
     ) {
         effect(() => {
             const currentNode = navigationService.currentNode();
-            this.children = currentNode?.getChildren() ?? [];
-            this.parents = currentNode?.getParents() ?? [];
 
-            this.isAllowed = this.children.length > 0 || this.parents.length > 0;
+            if (!currentNode) {
+                this.navigationService.position = null;
+            }
+
+            this.isVisible = this.navigationService.position === "bottom";
         });
+    }
+
+    /**
+     * Navigates to passed link
+     *
+     * @param link the link segment to navigate to
+     * @returns
+     */
+    public async navigateTo(node: NavigationTree, shouldNavigate: boolean): Promise<void> {
+        // Skip navigation for last breadcrumb
+        if (!shouldNavigate) {
+            return;
+        }
+
+        if (this.modal) {
+            this.modal.setCurrentBreakpoint(this.initialBreakPoint);
+        }
+        this.navigationService.navigateTo(node);
     }
 }

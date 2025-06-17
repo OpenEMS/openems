@@ -33,6 +33,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class BatteryFeneconHomeImplTest {
@@ -54,6 +55,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0"))//
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -135,6 +137,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -192,6 +195,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0"))//
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -237,6 +241,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -306,6 +311,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -520,6 +526,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -587,6 +594,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -643,6 +651,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0"))//
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -708,6 +717,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegister(18000, (byte) 0x00, (byte) 0x00)) // TOWER_4_BMS_SOFTWARE_VERSION
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
 						.setModbusId("modbus0") //

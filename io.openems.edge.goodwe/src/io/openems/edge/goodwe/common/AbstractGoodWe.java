@@ -419,6 +419,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				// Registers 36066 to 36120 throw "Illegal Data Address"
 
+				// 37000 - DRM Status - DRED only for Australia
 				new FC3ReadRegistersTask(37000, Priority.LOW, //
 						m(new BitsWordElement(37000, this) //
 								.bit(0, GoodWe.ChannelId.DRM0)//
@@ -1205,8 +1206,45 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// TODO reset to individual states
 						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
 						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)) //
-				) //
-		);
+				), //
+
+				// Registers for detailed analysis
+				new FC3ReadRegistersTask(48000, Priority.LOW,
+						m(GoodWe.ChannelId.GW_A_48000_BATTTERY1_CHARGE_MAX, new UnsignedWordElement(48000)), //
+						m(GoodWe.ChannelId.GW_A_48001_PV_LIMIT_POWER, new UnsignedDoublewordElement(48001)), //
+						m(GoodWe.ChannelId.GW_A_48003_INVERTER_MODE_CONTROL, new UnsignedWordElement(48003)), //
+						m(GoodWe.ChannelId.GW_A_48004_AC_LIMIT_POWER, new UnsignedDoublewordElement(48004)), //
+						m(GoodWe.ChannelId.GW_A_48006_BATTERY_MODE, new UnsignedWordElement(48006)), //
+						m(GoodWe.ChannelId.GW_A_48007_BATTERY_CHARGE_POWER, new UnsignedDoublewordElement(48007)), //
+						m(GoodWe.ChannelId.GW_A_48009_BATTERY_DISCHARGE_POWER, new UnsignedDoublewordElement(48009)), //
+						m(GoodWe.ChannelId.GW_A_48011_BMS_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(48011)), //
+						m(GoodWe.ChannelId.GW_A_48012_BMS_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(48012)), //
+						m(GoodWe.ChannelId.GW_A_48013_BATTERY_LEVEL, new UnsignedWordElement(48013)), //
+						m(GoodWe.ChannelId.GW_A_48014_R_PHASE_AC_LIMIT, new UnsignedWordElement(48014)), //
+						m(GoodWe.ChannelId.GW_A_48015_S_PHASE_AC_LIMIT, new UnsignedWordElement(48015)), //
+						m(GoodWe.ChannelId.GW_A_48016_T_PHASE_AC_LIMIT, new UnsignedWordElement(48016)), //
+						m(GoodWe.ChannelId.GW_A_48017_METER_STATUS, new UnsignedWordElement(48017)), //
+						m(GoodWe.ChannelId.GW_A_48018_METER_TOTAL_APPARENT_POWER, new SignedDoublewordElement(48018)), //
+						m(GoodWe.ChannelId.GW_A_48020_METER_TOTAL_ACTIVE_POWER, new SignedDoublewordElement(48020)), //
+						m(GoodWe.ChannelId.GW_A_48022_R_PHASE_LIMIT_INPUT, new SignedWordElement(48022)), //
+						m(GoodWe.ChannelId.GW_A_48023_S_PHASE_LIMIT_INPUT, new SignedWordElement(48023)), //
+						m(GoodWe.ChannelId.GW_A_48024_T_PHASE_LIMIT_INPUT, new SignedWordElement(48024)), //
+						m(GoodWe.ChannelId.GW_A_48025_MAX_BMS_DISCHARGE_CURRENT, new UnsignedWordElement(48025)), //
+						m(GoodWe.ChannelId.GW_A_48026_FEED_POWER_ENABLE, new UnsignedWordElement(48026)), //
+						m(GoodWe.ChannelId.GW_A_48027_BATTERY1_PERCENT_CHARGE, new UnsignedWordElement(48027)), //
+						m(GoodWe.ChannelId.GW_A_48028_BATTERY1_PERCENT_DISCHARGE, new UnsignedWordElement(48028)), //
+						m(GoodWe.ChannelId.GW_A_48029_BATTERY2_PERCENT_CHARGE, new UnsignedWordElement(48029)), //
+						m(GoodWe.ChannelId.GW_A_48030_BATTERY2_PERCENT_DISCHARGE, new UnsignedWordElement(48030)), //
+						m(GoodWe.ChannelId.GW_A_48031_BATTERY2_MODE, new UnsignedWordElement(48031)), //
+						m(GoodWe.ChannelId.GW_A_48032_BATTERY2_CHARGE_POWER, new UnsignedDoublewordElement(48032)), //
+						m(GoodWe.ChannelId.GW_A_48034_BATTERY2_DISCHARGE_POWER, new UnsignedDoublewordElement(48034)), //
+						m(GoodWe.ChannelId.GW_A_48036_BMS2_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(48036)), //
+						m(GoodWe.ChannelId.GW_A_48037_BMS2_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(48037)), //
+						m(GoodWe.ChannelId.GW_A_48038_BATTERY2_LEVEL, new UnsignedWordElement(48038)), //
+						m(GoodWe.ChannelId.GW_A_48039_BATTERY_CHARGE_VOLTAGE_LIMIT, new UnsignedWordElement(48039)), //
+						m(GoodWe.ChannelId.GW_A_48040_MAX_BMS2_DISCHARGE_CURRENT, new UnsignedWordElement(48040)), //
+						m(GoodWe.ChannelId.GW_A_48041_GENERATOR_OPERATING_MODE, new UnsignedWordElement(48041)) //
+				));
 
 		/*
 		 * Handle different GoodWe Types.

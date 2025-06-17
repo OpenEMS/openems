@@ -4,6 +4,7 @@ import static io.openems.common.utils.JsonUtils.buildJsonObject;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -13,6 +14,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
@@ -39,7 +41,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 	protected final String parentFactoryPid;
 	protected final String parentId;
 
-	private final Supplier<JsonElement> serializer;
+	private final Serializer<?> serializer;
 	private final Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction;
 	private final Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction;
 
@@ -49,7 +51,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 	private Consumer<String> onRescheduleCallback;
 
 	public AbstractEnergyScheduleHandler(String parentFactoryPid, String parentId, //
-			Supplier<JsonElement> serializer, //
+			Serializer<?> serializer, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction,
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction) {
 		this.parentFactoryPid = parentFactoryPid;
@@ -80,7 +82,9 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 		this.clock = goc.clock();
 		var coc = this.cocFunction.apply(goc);
 		this.coc = coc;
-		this.sourceLog = this.serializer.get();
+		this.sourceLog = Optional.ofNullable(this.serializer) // Avoid NPE
+				.map(Serializer::serialize) //
+				.orElse(JsonNull.INSTANCE);
 		return coc;
 	}
 
@@ -147,12 +151,28 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 
 	protected abstract void buildToString(MoreObjects.ToStringHelper toStringHelper);
 
+	protected record Serializer<CONFIG>(JsonSerializer<CONFIG> serializer, Supplier<CONFIG> configSupplier) {
+
+		/**
+		 * Serialize the given CONFIG.
+		 * 
+		 * @return a {@link JsonElement}
+		 */
+		public JsonElement serialize() {
+			var config = this.configSupplier.get();
+			if (config == null) {
+				return JsonNull.INSTANCE;
+			}
+			return this.serializer.serialize(config);
+		}
+	}
+
 	protected abstract static class Builder<BUILDER, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
 		protected final String parentFactoryPid;
 		protected final String parentId;
 
-		protected Supplier<JsonElement> serializer = () -> JsonNull.INSTANCE;
+		protected Serializer<?> serializer = null;
 		protected Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction = goc -> null;
 		protected Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction = coc -> null;
 
@@ -183,11 +203,14 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 		/**
 		 * Sets the source serializer for use in RunOptimizerFromLogApp.
 		 * 
-		 * @param serializer a {@link JsonElement} supplier
+		 * @param <CONFIG>       the type of the Config
+		 * @param serializer     a {@link JsonSerializer} for a CONFIG
+		 * @param configSupplier a supplier for a Config
 		 * @return myself
 		 */
-		public final BUILDER setSerializer(Supplier<JsonElement> serializer) {
-			this.serializer = serializer;
+		public final <CONFIG> BUILDER setSerializer(JsonSerializer<CONFIG> serializer,
+				Supplier<CONFIG> configSupplier) {
+			this.serializer = new Serializer<CONFIG>(serializer, configSupplier);
 			return this.self();
 		}
 

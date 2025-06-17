@@ -51,7 +51,9 @@ public class TestFeneconCommercial92 {
 				.filter(t -> t.name.equals(SocomecMeter.Property.MODBUS_ID.name())) //
 				.findFirst().orElseThrow();
 
-		assertEquals("modbus3", modbusIdProperty.getDefaultValue(Language.DEFAULT).map(JsonElement::getAsString).orElseThrow());
+		assertEquals("modbus3", modbusIdProperty.getDefaultValue(Language.DEFAULT) //
+				.map(JsonElement::getAsString) //
+				.orElseThrow());
 	}
 
 	private void createFullCommercial92() throws Exception {

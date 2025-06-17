@@ -2,11 +2,12 @@
 
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
-import { Chart, ChartComponentLike, ChartDataset, ChartOptions } from "chart.js";
+import { Chart, ChartComponentLike, ChartDataset, ChartOptions, LegendItem, PointStyle } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { RGBColor } from "../../service/defaulttypes";
 import { ChartAxis, HistoryUtils, Utils } from "../../service/utils";
 import { Language } from "../../type/language";
+import { EmptyObj, TPartialBy } from "../../type/utility";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
@@ -20,7 +21,19 @@ export namespace ChartConstants {
 
   export class Plugins {
 
+    public static Legend = class {
+      public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => ChartConstants.Plugins.POINT_STYLE(dataset);
+    };
+
     public static Datasets = class {
+
+      public static POINT_STYLE = (dataset: HistoryUtils.DisplayValue<any>): TPartialBy<Pick<ChartDataset<any>, "pointStyle" | "borderDash">, "borderDash"> | EmptyObj => {
+        const res = ChartConstants.Plugins.POINT_STYLE({ data: [], ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }) });
+        return {
+          pointStyle: res.pointStyle,
+          ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }),
+        };
+      };
 
       /**
        * Enhances the hover effect
@@ -31,7 +44,6 @@ export namespace ChartConstants {
        * @returns chartjs dataset options
        */
       public static HOVER_ENHANCE = (color: ChartTypes.Color) => ({
-        pointStyle: "circle",
         pointHoverRadius: 2,
         pointHoverBorderWidth: 5,
         pointRadius: 0,
@@ -41,6 +53,14 @@ export namespace ChartConstants {
     };
 
     public static ToolTips = class {
+
+      public static POINT_STYLE = (dataset: ChartDataset): { rotation: number, pointStyle: PointStyle } => {
+        return {
+          pointStyle: ChartConstants.Plugins.POINT_STYLE(dataset).pointStyle,
+          rotation: 0,
+        };
+      };
+
       public static HEAT_PUMP_SUFFIX = (translate: TranslateService, value: number | null): string => {
         switch (value) {
           case -1:
@@ -59,6 +79,12 @@ export namespace ChartConstants {
       };
     };
 
+    /**
+     * Places the yAxis above the chart
+     *
+     * @param id the chart axis id
+     * @returns plugin applied features
+     */
     public static readonly YAXIS_TITLE_POSITION = (id: ChartAxis) => {
       return ({
         id: id,
@@ -188,7 +214,20 @@ export namespace ChartConstants {
       plugin: ChartDataLabels,
       display: disable,
     });
+
+
+    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => {
+      if ("borderDash" in dataset) {
+        return { pointStyle: "circle", lineDash: [3, 3] };
+      }
+
+      return {
+        pointStyle: "circle",
+        fillStyle: RGBColor.fromString(dataset.backgroundColor.toString()).toString(),
+      };
+    };
   }
+
 
   export namespace Colors {
 
@@ -210,6 +249,7 @@ export namespace ChartConstants {
 
   export class NumberFormat {
     public static NO_DECIMALS: string = "1.0-0";
+    public static ZERO_TO_TWO: string = "1.0-2";
   }
 
   /**
@@ -317,10 +357,14 @@ export namespace ChartConstants {
         }
 
         const min = Math.floor(Math.min(...[arr.min, currMin].filter(el => el != null))) ?? null;
-        const max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
+        let max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
 
         if (max === null || min === null) {
           return arr;
+        }
+
+        if (max === min) {
+          max += 1;
         }
 
         arr = {

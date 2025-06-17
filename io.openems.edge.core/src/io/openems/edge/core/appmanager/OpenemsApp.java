@@ -144,7 +144,8 @@ public interface OpenemsApp {
 		return new Flag[] {};
 	}
 
-	/** Checks whether the app has a passed flag set.
+	/**
+	 * Checks whether the app has a passed flag set.
 	 * 
 	 * @param flag the flag to be checked
 	 * @return is the flag set

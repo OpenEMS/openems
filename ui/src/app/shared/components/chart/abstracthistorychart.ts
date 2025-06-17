@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { v4 as uuidv4 } from "uuid";
 
 import { calculateResolution, ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible } from "src/app/edge/history/shared";
@@ -31,7 +32,9 @@ import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
 import { ChartTypes } from "./chart.types";
 
+
 Chart.Chart.register(annotationPlugin);
+Chart.Chart.register(ChartDataLabels);
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
@@ -296,15 +299,15 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       label: label,
       data: data,
       hidden: !isLabelVisible(element.name, !(element.hiddenOnInit)),
-      ...(stack != null && { stack: stack.toString() }),
-      maxBarThickness: 100,
-      ...(element.borderDash != null && { borderDash: element.borderDash }),
       yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
       order: element.order ?? Number.MAX_VALUE,
-      ...(element.hideShadow && { fill: !element.hideShadow }),
-      ...(element.custom?.type && { type: chartType }),
-      ...colors,
+      maxBarThickness: 100,
       borderWidth: 2,
+      ...(stack != null ? { stack: stack.toString() } : {}),
+      ...(element.borderDash != null ? { borderDash: element.borderDash } : {}),
+      ...(element.hideShadow ? { fill: !element.hideShadow } : {}),
+      ...(element.custom?.type ? { type: chartType } : {}),
+      ...colors,
       ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(colors),
     };
     return dataset;
@@ -375,6 +378,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true, chartObject.tooltip.formatNumber);
     });
 
+    options.plugins.tooltip.callbacks.labelPointStyle = function (context: { dataset: Chart.ChartDataset }) {
+      return ChartConstants.Plugins.ToolTips.POINT_STYLE(context.dataset);
+    };
+
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
       if (tooltipItems?.length === 0) {
         return null;
@@ -406,7 +413,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       return AbstractHistoryChart.getToolTipsSuffix(label, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, translate, config);
     };
 
-    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>): Chart.TooltipLabelStyle | void => {
       let backgroundColor = item.dataset.backgroundColor;
 
       if (Array.isArray(backgroundColor)) {
@@ -437,7 +444,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
         const isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
-        const chartLegendLabelItem = {
+        const chartLegendLabelItem: Chart.LegendItem = {
           text: dataset.label,
           datasetIndex: index,
           fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
@@ -446,6 +453,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           lineWidth: 2,
           ...(dataset.borderColor != null && { strokeStyle: dataset.borderColor.toString() }),
           ...(dataset["borderDash"] != null && { lineDash: dataset["borderDash"] }),
+          ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
         };
 
         const currentDisplayValue = displayValues.find(el => el.name == chartLegendLabelItem.text.split(":")[0]);
@@ -529,9 +537,33 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return arr;
       }, []);
 
+      // Should avoid same datasets in multiple stacks and in legend to be always visible => can be hidden with single legend hide
+      const hasBeenChanged: Map<string, boolean> = new Map();
+
       legendItems.forEach(item => {
-        // original.call(this, event, legendItem1);
-        setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
+
+        /**
+         * Shows or hides datasets
+         *
+         * @info
+         *
+         * @param label the legendItem label
+         * @param chart the chart
+         * @param datasetIndex the dataset index
+         * @returns
+         */
+        function showOrHideLabel(label: string, chart: Chart.Chart, datasetIndex: number) {
+          if (hasBeenChanged.has(label)) {
+            return;
+          }
+
+          const isLabelHidden = !chart.isDatasetVisible(datasetIndex);
+          setLabelVisible(label, isLabelHidden);
+          hasBeenChanged.set(label, isLabelHidden);
+        }
+
+        showOrHideLabel(item.label, chart, legendItem.datasetIndex);
+
         const meta = chart.getDatasetMeta(item.index);
         const currentDisplayValue = displayValues.find(el => el.name == legendItem.text.split(":")[0]);
 

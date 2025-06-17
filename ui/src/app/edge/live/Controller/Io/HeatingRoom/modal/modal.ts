@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, ElementRef, Inject, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -14,11 +14,6 @@ import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
-    @ViewChild("modal2", { read: ElementRef }) public modal!: ElementRef;
-
-    protected showNewFooter: boolean = true;
-    protected label: string | null = null;
-
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
         @Inject(ActivatedRoute) protected override route: ActivatedRoute,
@@ -35,7 +30,6 @@ export class ModalComponent extends AbstractModal {
         return new Promise<void>((res) => {
             this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
                 this.component = config.getComponent(params.componentId);
-                this.label = this.component.alias;
                 res();
             });
         });

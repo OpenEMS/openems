@@ -2,7 +2,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { XAxisType } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
@@ -199,6 +199,7 @@ export abstract class AbstractHistoryChart {
                             lineWidth: 2,
                             ...(dataset["borderDash"] && { lineDash: dataset["borderDash"] }),
                             strokeStyle: color.borderColor,
+                            ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
                         });
                     });
                     return chartLegendLabelItems;
@@ -255,6 +256,7 @@ export abstract class AbstractHistoryChart {
                 options.scales[this.chartAxis]["stacked"] = false;
                 options.scales.x["stacked"] = true;
                 options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
+
             }).then(() => {
                 this.options = options;
                 resolve();

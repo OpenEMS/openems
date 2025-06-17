@@ -29,7 +29,7 @@ public class User extends AbstractUser {
 	 * @param role     the {@link Role}; used as global Role and assigned to
 	 *                 {@link User#DEFAULT_EDGE_ID}.
 	 */
-	protected User(String id, String name, Language language, Role role) {
+	public User(String id, String name, Language language, Role role) {
 		super(id, name, language, role, Maps.newTreeMap(ImmutableSortedMap.of(DEFAULT_EDGE_ID, role)),
 				new JsonObject());
 	}

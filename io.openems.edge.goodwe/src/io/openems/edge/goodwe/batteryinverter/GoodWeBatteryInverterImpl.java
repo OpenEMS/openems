@@ -41,6 +41,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.serialnumber.SerialNumberStorage;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
@@ -86,7 +87,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -102,6 +102,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Reference
 	private Sum sum;
+
+	@Reference
+	private SerialNumberStorage serialNumberStorage;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -144,6 +147,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.serialNumberStorage.createAndAddOnChangeListener(this.channel(GoodWe.ChannelId.SERIAL_NUMBER));
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -227,6 +232,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 * Feed In Power Setting consist of: Installed inverter country, feeding method:
 	 * whether according to the power factor or power and frequency. In addition, it
 	 * consist backup power availability.
+	 * </p>
 	 *
 	 * @param config         Configuration parameters.
 	 * @param onConfigUpdate true when called on activate()/modified(), i.e. not in
@@ -584,7 +590,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
 
 		// Apply Power Set-Point
-		this.applyPowerHandler.apply(this, setActivePower, this.config.controlMode(), this.sum.getGridActivePower(),
+		ApplyPowerHandler.apply(this, setActivePower, this.config.controlMode(), this.sum.getGridActivePower(),
 				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isPidEnabled());
 
 		// Set Battery Limits

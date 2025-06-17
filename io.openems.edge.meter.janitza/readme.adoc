@@ -1,6 +1,9 @@
-= Janitza Meters UMG 96RM-E | UMG 604
+= Janitza Meters
 
-Implemented Natures:
-- ElectricityMeter
+Implemented Meters:
+- UMG 96RM-E
+- UMG 104
+- UMG 511
+- UMG 604
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.janitza[Source Code icon:github[]]

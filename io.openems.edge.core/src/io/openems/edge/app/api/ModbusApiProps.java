@@ -164,7 +164,7 @@ public final class ModbusApiProps {
 	/**
 	 * Creates a {@link AppDef} to select Component Ids for ModbusApi.
 	 * 
-	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <APP>         the type of the {@link OpenemsApp}
 	 * @param componentName the component name
 	 * @return the {@link AppDef}
 	 */

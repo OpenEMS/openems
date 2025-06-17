@@ -11,13 +11,12 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -41,7 +40,7 @@ public class MeterSiemensPac1600Impl extends AbstractOpenemsModbusComponent
 
 	private MeterType meterType = MeterType.GRID;
 	private boolean invert;
-	
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -120,7 +119,7 @@ public class MeterSiemensPac1600Impl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2_AND_INVERT_IF_TRUE(this.invert)),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(29),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2_AND_INVERT_IF_TRUE(this.invert))),
-			
+
 				new FC3ReadRegistersTask(49, Priority.HIGH, // DummyRegisterElement didn`t work here
 						m(ElectricityMeter.ChannelId.FREQUENCY, new SignedDoublewordElement(49),
 								ElementToChannelConverter.SCALE_FACTOR_1),
@@ -134,85 +133,81 @@ public class MeterSiemensPac1600Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(59),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2_AND_INVERT_IF_TRUE(this.invert))));
 		if (!this.invert) {
-			modbusProtocol.addTask(
-					new FC3ReadRegistersTask(6687, Priority.LOW,
+			modbusProtocol
+					.addTask(new FC3ReadRegistersTask(6687, Priority.LOW,
 							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(6687),
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(6689),
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
 									new UnsignedDoublewordElement(6691), ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(6693),
-									ElementToChannelConverter.DIRECT_1_TO_1),
+							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY,
+									new UnsignedDoublewordElement(6693), ElementToChannelConverter.DIRECT_1_TO_1),
 							new DummyRegisterElement(6695, 6706),
-							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, new UnsignedDoublewordElement(6707),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(6709),
-									ElementToChannelConverter.DIRECT_1_TO_1),
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1,
+									new UnsignedDoublewordElement(6707), ElementToChannelConverter.DIRECT_1_TO_1),
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1,
+									new UnsignedDoublewordElement(6709), ElementToChannelConverter.DIRECT_1_TO_1),
 							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L1,
 									new UnsignedDoublewordElement(6711), ElementToChannelConverter.DIRECT_1_TO_1),
 							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L1,
-									new UnsignedDoublewordElement(6713), ElementToChannelConverter.DIRECT_1_TO_1))
-					);
-				modbusProtocol.addTask(
-					new FC3ReadRegistersTask(6727, Priority.LOW, // DummyRegisterElement didn`t work here
-							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(6727),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(6729),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L2,
-									new UnsignedDoublewordElement(6731), ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L2,
-									new UnsignedDoublewordElement(6733), ElementToChannelConverter.DIRECT_1_TO_1),
-							new DummyRegisterElement(6735, 6746),
-							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(6747),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(6749),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L3,
-									new UnsignedDoublewordElement(6751), ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L3,
-									new UnsignedDoublewordElement(6753), ElementToChannelConverter.DIRECT_1_TO_1)));
+									new UnsignedDoublewordElement(6713), ElementToChannelConverter.DIRECT_1_TO_1)));
+			modbusProtocol.addTask(new FC3ReadRegistersTask(6727, Priority.LOW, // DummyRegisterElement didn`t work here
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(6727),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(6729),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(6731),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(6733),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					new DummyRegisterElement(6735, 6746),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(6747),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(6749),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(6751),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(6753),
+							ElementToChannelConverter.DIRECT_1_TO_1)));
 		} else {
-			modbusProtocol.addTask(
-					new FC3ReadRegistersTask(6687, Priority.LOW,
+			modbusProtocol
+					.addTask(new FC3ReadRegistersTask(6687, Priority.LOW,
 							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(6687),
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(6689),
 									ElementToChannelConverter.DIRECT_1_TO_1),
 							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY,
 									new UnsignedDoublewordElement(6691), ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(6693),
-									ElementToChannelConverter.DIRECT_1_TO_1),
+							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
+									new UnsignedDoublewordElement(6693), ElementToChannelConverter.DIRECT_1_TO_1),
 							new DummyRegisterElement(6695, 6706),
-							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(6707),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, new UnsignedDoublewordElement(6709),
-									ElementToChannelConverter.DIRECT_1_TO_1),
+							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1,
+									new UnsignedDoublewordElement(6707), ElementToChannelConverter.DIRECT_1_TO_1),
+							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1,
+									new UnsignedDoublewordElement(6709), ElementToChannelConverter.DIRECT_1_TO_1),
 							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L1,
 									new UnsignedDoublewordElement(6711), ElementToChannelConverter.DIRECT_1_TO_1),
 							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L1,
-									new UnsignedDoublewordElement(6713), ElementToChannelConverter.DIRECT_1_TO_1))
-					);
-				modbusProtocol.addTask(
-					new FC3ReadRegistersTask(6727, Priority.LOW, // DummyRegisterElement didn`t work here
-							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(6727),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(6729),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L2,
-									new UnsignedDoublewordElement(6731), ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L2,
-									new UnsignedDoublewordElement(6733), ElementToChannelConverter.DIRECT_1_TO_1),
-							new DummyRegisterElement(6735, 6746),
-							m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(6747),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(6749),
-									ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L3,
-									new UnsignedDoublewordElement(6751), ElementToChannelConverter.DIRECT_1_TO_1),
-							m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L3,
-									new UnsignedDoublewordElement(6753), ElementToChannelConverter.DIRECT_1_TO_1)));
+									new UnsignedDoublewordElement(6713), ElementToChannelConverter.DIRECT_1_TO_1)));
+			modbusProtocol.addTask(new FC3ReadRegistersTask(6727, Priority.LOW, // DummyRegisterElement didn`t work here
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(6727),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(6729),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(6731),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(6733),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					new DummyRegisterElement(6735, 6746),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(6747),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(6749),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(6751),
+							ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterSiemensPac1600.ChannelId.REACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(6753),
+							ElementToChannelConverter.DIRECT_1_TO_1)));
 		}
 		return modbusProtocol;
 	}

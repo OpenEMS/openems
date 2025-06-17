@@ -11,6 +11,7 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiModbusRtuReadWriteImplTest {
@@ -23,6 +24,7 @@ public class ControllerApiModbusRtuReadWriteImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerApiModbusRtuReadWriteImpl()) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
+				.addReference("metaComponent", new DummyMeta("_meta")) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //

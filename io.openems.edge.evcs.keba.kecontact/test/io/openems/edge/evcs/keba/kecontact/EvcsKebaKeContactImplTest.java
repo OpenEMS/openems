@@ -1,7 +1,7 @@
 package io.openems.edge.evcs.keba.kecontact;
 
 import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
-import static io.openems.edge.evcs.keba.kecontact.R2Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED;
+import static io.openems.edge.evcs.keba.common.R2Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED;
 import static io.openems.edge.evcs.keba.kecontact.R2State.INTERRUPTED;
 
 import org.junit.Test;

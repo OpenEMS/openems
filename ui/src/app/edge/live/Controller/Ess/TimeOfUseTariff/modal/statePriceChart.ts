@@ -14,7 +14,7 @@ import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
-import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
+import { Controller_Ess_TimeOfUseTariffUtils } from "../Ess_TimeOfUseTariff";
 
 @Component({
     selector: "statePriceChart",
@@ -82,7 +82,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
                 socArray: schedule.map(entry => entry.soc),
             };
 
-            const scheduleChartData = Controller_Ess_TimeOfUseTariff.getScheduleChartData(schedule.length, priceArray,
+            const scheduleChartData = Controller_Ess_TimeOfUseTariffUtils.getScheduleChartData(schedule.length, priceArray,
                 stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
 
             this.colors = scheduleChartData.colors;
