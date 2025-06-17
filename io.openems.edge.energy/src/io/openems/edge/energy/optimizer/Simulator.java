@@ -163,11 +163,17 @@ public class Simulator {
 					// Cost for direct Consumption
 					energyFlow.getGridToCons() * price
 							// Cost for future Consumption after storage
-							+ energyFlow.getGridToEss() * price * gsc.goc.riskLevel().efficiencyFactor);
-
-		} else {
-			// Sell-to-Grid -> no cost
+							+ max(0, energyFlow.getGridToEss()) * price * gsc.goc.riskLevel().efficiencyFactor);
 		}
+
+		// Calculate Grid-Sell Revenue
+		if (energyFlow.getGridToEss() < 0) {
+			var price = max(0, period.price());
+			fitness.addGridSellRevenue(//
+					// Revenue for Discharge-to-Grid
+					energyFlow.getGridToEss() * -1 * price);
+		}
+
 		if (bestScheduleCollector != null) {
 			final var srp = SimulationResult.Period.from(period, energyFlow, gsc.ess.getInitialEnergy());
 			bestScheduleCollector.allPeriods.accept(srp);
@@ -278,7 +284,7 @@ public class Simulator {
 	 */
 	public JsonObject toJson() {
 		return buildJsonObject() //
-				.add("GlobalOptimizationContext", this.goc.toJson()) //
+				.add("GlobalOptimizationContext", GlobalOptimizationContext.toJson(this.goc)) //
 				.addProperty("cache", this.cache.stats().toString()) //
 				.build();
 	}

@@ -193,8 +193,6 @@
                             </table>
                             <ng-container
                                 *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
-                                <ng-container *ngTemplateOutlet="batteryReferencing">
-                                </ng-container>
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
@@ -577,8 +575,6 @@
                                     </table>
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
-                                        <ng-container *ngTemplateOutlet="batteryReferencing">
-                                        </ng-container>
                                         <ng-container
                                             *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                             <ng-container
@@ -811,8 +807,6 @@
                             <ng-container
                                 *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
-                                    <ng-container *ngTemplateOutlet="batteryReferencing">
-                                    </ng-container>
                                     <ng-container
                                         *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
                                         <ng-container
@@ -958,26 +952,3 @@
     </ion-fab>
 
 </ion-content>
-
-<ng-template #batteryReferencing>
-    <ng-container *ngIf="environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING">
-        <table class="full_width">
-            <tr>
-                <td class="ion-padding" translate>
-                    <span translate>
-                        Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.HEADER
-                    </span>
-                    <span translate>
-                        (<oe-help-link [link]="environment.links.COMMON_STORAGE_MODAL_BATTERY_REFERENCING"
-                            [label]="'Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.TO_INSTRUCTIONS' | translate"></oe-help-link>):
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="ion-padding" translate>
-                    Edge.Index.RETROFITTING.REFERENCING_OF_STORAGE.CONTENT
-                </td>
-            </tr>
-        </table>
-    </ng-container>
-</ng-template>

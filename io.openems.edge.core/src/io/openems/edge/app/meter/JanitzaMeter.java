@@ -175,7 +175,7 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var integrationType = this.getEnum(p, ModbusType.class, Property.INTEGRATION_TYPE);
 			final var invert = this.getBoolean(p, Property.INVERT);
-			
+
 			final var components = new ArrayList<EdgeConfig.Component>();
 
 			final var modbusId = switch (integrationType) {

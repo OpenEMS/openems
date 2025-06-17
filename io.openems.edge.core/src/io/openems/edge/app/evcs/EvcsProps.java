@@ -40,6 +40,18 @@ public final class EvcsProps {
 	}
 
 	/**
+	 * Creates a {@link AppDef} for configuring the reaad only of a evcs app.
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> readOnly() {
+		return AppDef.copyOfGeneric(defaultDef())//
+				.setTranslatedLabel("App.Evcs.readOnly.label") //
+				.setTranslatedDescription("App.Evcs.readOnly.description") //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
+				.setDefaultValue(false);
+	}
+
+	/**
 	 * Creates a {@link AppDef} for selecting the number of charge points.
 	 * 
 	 * @param maxValue the max number of charge points

@@ -6,14 +6,17 @@ import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
 import static org.junit.Assert.assertEquals;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableTable;
 
 import io.openems.edge.common.currency.Currency;
+import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class ParserTest {
 
@@ -1979,31 +1982,31 @@ public class ParserTest {
 		// Quarterly resolution.
 		var preferredResolution = Resolution.QUARTERLY;
 		var prices = parsePrices(XML, currencyExchangeValue, preferredResolution);
-		var startTime = prices.getFirstTime();
-		assertEquals(109.93, prices.getFirst(), 0.001);
+		var startTime = prices.firstKey();
+		assertEquals(109.93, prices.firstEntry().getValue(), 0.001);
 
-		var secondPrice = prices.getAt(startTime.plusMinutes(15));
+		var secondPrice = prices.get(startTime.plusMinutes(15));
 		assertEquals(85.84, secondPrice, 0.001);
 
-		var thirdPrice = prices.getAt(startTime.plusMinutes(30));
+		var thirdPrice = prices.get(startTime.plusMinutes(30));
 		assertEquals(65.09, thirdPrice, 0.001);
 
 		// Last price
-		assertEquals(65.07, prices.getAt(prices.getLastTime()), 0.001);
+		assertEquals(65.07, prices.get(prices.lastKey()), 0.001);
 
 		// Hourly resolution.
 		preferredResolution = Resolution.HOURLY;
 		prices = parsePrices(XML, currencyExchangeValue, preferredResolution);
-		assertEquals(84.15, prices.getFirst(), 0.001);
+		assertEquals(84.15, prices.firstEntry().getValue(), 0.001);
 
-		secondPrice = prices.getAt(startTime.plusMinutes(15));
+		secondPrice = prices.get(startTime.plusMinutes(15));
 		assertEquals(84.15, secondPrice, 0.001);
 
-		thirdPrice = prices.getAt(startTime.plusMinutes(60));
+		thirdPrice = prices.get(startTime.plusMinutes(60));
 		assertEquals(74.3, thirdPrice, 0.001);
 
 		// Last price
-		assertEquals(86.53, prices.getAt(prices.getLastTime()), 0.001);
+		assertEquals(86.53, prices.get(prices.lastKey()), 0.001);
 	}
 
 	@Test
@@ -2011,8 +2014,8 @@ public class ParserTest {
 		var currencyExchangeValue = 1.0;
 		var preferredResolution = Resolution.QUARTERLY;
 		var prices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, currencyExchangeValue, preferredResolution);
-		assertEquals(192, prices.asArray().length);
-		var array = prices.asArray();
+		assertEquals(192, prices.size());
+		var array = prices.values().toArray(new Double[0]);
 		assertEquals(array[96], array[97], 0.001); // Missing value check
 		assertEquals(array[0], 0, 0.001); // Making sure that Periods are sorted before prices are stored.
 	}
@@ -2022,11 +2025,13 @@ public class ParserTest {
 		var currencyExchangeValue = 1.0;
 		var preferredResolution = Resolution.QUARTERLY;
 		var prices = parsePrices(MISSING_DATA_FOR_QUARTER_DURATION, currencyExchangeValue, preferredResolution);
-		var priceArray = prices.asArray();
+
+		var priceArray = prices.values().toArray(new Double[0]);
 		assertEquals(192, priceArray.length);
 		assertEquals(118.87, priceArray[0], 0.001); // Missing data but added from PT60M duration.
 
 		prices = parsePrices(MISSING_DATA_FOR_HOUR_DURATION, currencyExchangeValue, preferredResolution);
+		priceArray = prices.values().toArray(new Double[0]);
 		assertEquals(192, priceArray.length);
 		assertEquals(107.0, priceArray[191], 0.001); // Missing data, but added from PT15M duration.
 	}
@@ -2048,10 +2053,10 @@ public class ParserTest {
 				.build();
 
 		// Preferred resolution
-		Resolution preferredResolution = Resolution.QUARTERLY;
+		var preferredResolution = Resolution.QUARTERLY;
 
 		// Call the method
-		Duration result = getDuration(table, preferredResolution);
+		var result = getDuration(table, preferredResolution);
 
 		// Assert
 		assertEquals("The preferred resolution should match.", Duration.ofMinutes(15), result);
@@ -2060,19 +2065,50 @@ public class ParserTest {
 	@Test
 	public void testPreferredResolutionDoesNotExist() {
 		// Create sample data
-		ImmutableTable<Duration, ZonedDateTime, Double> table = ImmutableTable
-				.<Duration, ZonedDateTime, Double>builder().put(Duration.ofMinutes(15), ZonedDateTime.now(), 100.0)
+		var table = ImmutableTable.<Duration, ZonedDateTime, Double>builder()
+				.put(Duration.ofMinutes(15), ZonedDateTime.now(), 100.0)
 				.put(Duration.ofMinutes(15), ZonedDateTime.now().plusMinutes(15), 200.0)
 				.put(Duration.ofMinutes(15), ZonedDateTime.now().plusMinutes(30), 300.0).build();
 
 		// Preferred resolution that does not exist
-		Resolution preferredResolution = Resolution.HOURLY;
+		var preferredResolution = Resolution.HOURLY;
 
 		// Call the method
-		Duration result = getDuration(table, preferredResolution);
+		var result = getDuration(table, preferredResolution);
 
 		// Assert
 		assertEquals("The shortest duration should be returned when preferred is unavailable.", Duration.ofMinutes(15),
 				result);
+	}
+
+	@Test
+	public void testProcessPricesNormalCase() {
+		var baseTime = ZonedDateTime.parse("2023-01-01T00:00:00Z");
+		var clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
+
+		var timePriceMap = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder() //
+				.put(baseTime, 10.0)//
+				.put(baseTime.plusMinutes(15), 20.0) //
+				.put(baseTime.plusMinutes(30), 30.0) //
+				.build();
+
+		Double[] gridFees = { 1.0, 2.0, 3.0 }; // Length 3
+		var gridFeesObject = TimeOfUsePrices.from(baseTime, gridFees);
+		var exchangeRate = 1.0;
+
+		var result = Utils.processPrices(clock, timePriceMap, exchangeRate, gridFeesObject);
+
+		assertEquals(3, result.asArray().length);
+		assertEquals(20.0, result.getAt(baseTime), 0.001);
+		assertEquals(40.0, result.getAt(baseTime.plusMinutes(15)), 0.001);
+		assertEquals(60.0, result.getAt(baseTime.plusMinutes(30)), 0.001);
+
+		Double[] gridFees2 = { 1.0, 2.0, 3.0, 4.0, 5.0 }; // Length 5
+		gridFeesObject = TimeOfUsePrices.from(baseTime, gridFees2);
+		result = Utils.processPrices(clock, timePriceMap, exchangeRate, gridFeesObject);
+
+		// Ensures that excess grid fees are truncated when the grid fees array is
+		// longer than the number of price entries.
+		assertEquals(3, result.asArray().length);
 	}
 }

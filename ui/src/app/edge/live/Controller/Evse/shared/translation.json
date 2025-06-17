@@ -1,0 +1,18 @@
+{
+    "de": {
+        "MODE": {
+            "ZERO": "Aus",
+            "MINIMUM": "Minimal",
+            "SURPLUS": "PV",
+            "FORCE": "Schnell"
+        }
+    },
+    "en": {
+        "MODE": {
+            "ZERO": "Off",
+            "MINIMUM": "Minimal",
+            "SURPLUS": "PV",
+            "FORCE": "Fast"
+        }
+    }
+}

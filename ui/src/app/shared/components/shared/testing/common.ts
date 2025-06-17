@@ -38,8 +38,13 @@ export namespace OeTester {
         "datasets": { "bar": {}, "line": {} },
         "plugins": {
           "colors": { "enabled": false },
-          "legend": { "display": true, "position": "bottom", "labels": { "color": "" } },
-          "tooltip": { "intersect": false, "mode": "index", "callbacks": {}, "enabled": true },
+          "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true,
+              "textAlign": "center",
+            },
+          },
+          "tooltip": { "usePointStyle": true, "intersect": false, "mode": "index", "callbacks": {}, "enabled": true, "caretSize": 0 },
           "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
@@ -90,8 +95,13 @@ export namespace OeTester {
         },
         "plugins": {
           "colors": { "enabled": false },
-          "legend": { "display": true, "position": "bottom", "labels": { "color": "" } },
-          "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true },
+          "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true,
+              "textAlign": "center",
+            },
+          },
+          "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 },
           "annotation": { "annotations": {} },
           "datalabels": {
             display: false,
@@ -138,10 +148,14 @@ export namespace OeTester {
             "enabled": false,
           },
           "legend": {
-            "display": true, "position": "bottom", "labels": { "color": "" },
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true, "textAlign": "center",
+            },
           }, "tooltip": {
             "intersect": false, "mode": "index", "callbacks": {},
             "enabled": true,
+            "usePointStyle": true,
+            "caretSize": 0,
           },
           "annotation": {
             "annotations": {},
@@ -185,7 +199,11 @@ export namespace OeTester {
           "intersect": false,  // Allow hovering over line, not just points
         },
         "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-          "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true }, "annotation": { "annotations": {} }, "datalabels": {
+          "colors": { "enabled": false }, "legend": {
+            "display": true, "position": "bottom", "labels": {
+              "color": "", "usePointStyle": true, "textAlign": "center",
+            },
+          }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 }, "annotation": { "annotations": {} }, "datalabels": {
             display: false,
           },
         }, "scales": {

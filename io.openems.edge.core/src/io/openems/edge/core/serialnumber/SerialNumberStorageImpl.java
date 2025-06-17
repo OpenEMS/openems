@@ -86,7 +86,8 @@ public final class SerialNumberStorageImpl extends AbstractOpenemsComponent
 
 		this.executor = Executors.newScheduledThreadPool(0, Thread.ofVirtual().name(SINGLETON_COMPONENT_ID).factory());
 
-		if (OpenemsComponent.validateSingleton(this.configurationAdmin, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+		if (OpenemsComponent.validateSingleton(this.configurationAdmin, SINGLETON_SERVICE_PID,
+				SINGLETON_COMPONENT_ID)) {
 			return;
 		}
 	}
@@ -105,7 +106,8 @@ public final class SerialNumberStorageImpl extends AbstractOpenemsComponent
 		final var diff = ConfigDiff.between(prev, this.dataFromConfig);
 		diff.applyTo(this.data);
 
-		if (OpenemsComponent.validateSingleton(this.configurationAdmin, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+		if (OpenemsComponent.validateSingleton(this.configurationAdmin, SINGLETON_SERVICE_PID,
+				SINGLETON_COMPONENT_ID)) {
 			return;
 		}
 	}

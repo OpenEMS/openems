@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, Currency, CurrentData, EdgeConfig } from "src/app/shared/shared";
-import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
+import { Controller_Ess_TimeOfUseTariffUtils } from "../Ess_TimeOfUseTariff";
 
 @Component({
     templateUrl: "./modal.html",
@@ -18,7 +18,7 @@ export class ModalComponent extends AbstractModal {
         return this.formBuilder.group({
             mode: new FormControl(this.component.properties.mode),
             controlMode: new FormControl(this.component.properties.controlMode),
-            chargeConsumptionIsActive: new FormControl(this.component.properties.controlMode === Controller_Ess_TimeOfUseTariff.ControlMode.CHARGE_CONSUMPTION ? true : false),
+            chargeConsumptionIsActive: new FormControl(this.component.properties.controlMode === Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION ? true : false),
         });
     }
 
@@ -33,9 +33,9 @@ export class ModalComponent extends AbstractModal {
             this.formGroup?.get("chargeConsumptionIsActive")
                 .valueChanges
                 .subscribe(isActive => {
-                    const controlMode: Controller_Ess_TimeOfUseTariff.ControlMode = isActive
-                        ? Controller_Ess_TimeOfUseTariff.ControlMode.CHARGE_CONSUMPTION
-                        : Controller_Ess_TimeOfUseTariff.ControlMode.DELAY_DISCHARGE;
+                    const controlMode: Controller_Ess_TimeOfUseTariffUtils.ControlMode = isActive
+                        ? Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION
+                        : Controller_Ess_TimeOfUseTariffUtils.ControlMode.DELAY_DISCHARGE;
                     this.formGroup.controls["controlMode"].setValue(controlMode);
                     this.formGroup.controls["controlMode"].markAsDirty();
                 }));

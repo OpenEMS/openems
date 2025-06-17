@@ -7,7 +7,7 @@ import { filter, take, takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
-import { AssertionUtils } from "../../utils/assertions/assertions-utils";
+import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";

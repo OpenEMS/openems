@@ -37,6 +37,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final WebSocketServer ws;
 	private final Collection<WebSocket> connections = ConcurrentHashMap.newKeySet();
 
+	private boolean isStarted = false;
+
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
 	 *
@@ -142,10 +144,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @return the debug log string
 	 */
 	public String debugLog() {
-		return new StringBuilder("[monitor] ") //
-				.append("Connections: ").append(this.connections.size()).append(", ") //
-				.append(ThreadPoolUtils.debugLog(this.executor)) //
-				.toString();
+		var b = new StringBuilder("[").append(this.getName()).append("] [monitor] ");
+		if (this.isStarted) {
+			b //
+					.append("Connections: ").append(this.connections.size()).append(", ") //
+					.append(ThreadPoolUtils.debugLog(this.executor));
+		} else {
+			b.append("NOT STARTED");
+		}
+		return b.toString();
 	}
 
 	/**
@@ -221,7 +228,11 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * Starts the {@link WebSocketServer}.
 	 */
 	@Override
-	public void start() {
+	public synchronized void start() {
+		if (this.isStarted) {
+			return;
+		}
+		this.isStarted = true;
 		super.start();
 		this.logInfo(this.log, "Starting websocket server [port=" + this.port + "]");
 		this.ws.start();
@@ -234,14 +245,24 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 */
 	@Override
 	protected void execute(Runnable command) {
-		this.executor.execute(command);
+		if (this.executor.isShutdown()) {
+			// Avoid rejectedExecution during shutdown
+			command.run();
+		} else {
+			this.executor.execute(command);
+		}
 	}
 
 	/**
 	 * Stops the {@link WebSocketServer}.
 	 */
 	@Override
-	public void stop() {
+	public synchronized void stop() {
+		if (!this.isStarted) {
+			return;
+		}
+		this.isStarted = false;
+
 		// Shutdown executors
 		shutdownAndAwaitTermination(this.executor, 5);
 

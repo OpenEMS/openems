@@ -8,14 +8,11 @@ import static java.lang.Math.max;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toCollection;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.TreeMap;
 import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableList;
@@ -23,110 +20,63 @@ import com.google.common.collect.ImmutableList;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
+import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Profile;
-import io.openems.edge.evse.api.chargepoint.Profile.Command;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
+import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
 
 public class Utils {
-
-	protected static final int HYSTERESIS = 300; // [s]
 
 	private Utils() {
 	}
 
-	protected static record Input(ControllerEvseSingle ctrl, Params params, TreeMap<Instant, Integer> applyHistory,
-			Hysteresis hysteresis) {
-		public Input(ControllerEvseSingle ctrl, Params params, TreeMap<Instant, Integer> applyHistory) {
-			this(ctrl, params, applyHistory, Hysteresis.from(applyHistory));
-		}
-
+	protected static record Input(ControllerEvseSingle ctrl, Params params) {
 		@Override
 		public final String toString() {
 			return toStringHelper(Input.class) //
 					.add("ctrl", this.ctrl.id()) //
 					.add("params", this.params) //
-					.add("applyHistory", this.applyHistory) //
 					.toString();
 		}
-
-		protected static enum Hysteresis {
-			INACTIVE, KEEP_CHARGING, KEEP_ZERO;
-
-			public static Hysteresis from(TreeMap<Instant, Integer> applyHistory) {
-				return from(Instant.now(), applyHistory);
-			}
-
-			public static Hysteresis from(Instant now, TreeMap<Instant, Integer> applyHistory) {
-				if (applyHistory == null || applyHistory.isEmpty()) {
-					return Hysteresis.INACTIVE;
-				}
-				var lastValue = applyHistory.lastEntry().getValue();
-				if (lastValue == 0) {
-					if (applyHistory.values().stream() //
-							.allMatch(v -> v == 0)) {
-						return Hysteresis.INACTIVE; // Hysteresis finished
-					} else {
-						return Hysteresis.KEEP_ZERO;
-					}
-
-				} else {
-					if (applyHistory.values().stream() //
-							.allMatch(v -> v != 0)) {
-						return Hysteresis.INACTIVE; // Hysteresis finished
-					} else {
-						return Hysteresis.KEEP_CHARGING;
-					}
-				}
-			}
-		}
 	}
 
-	protected static record Output(ControllerEvseSingle ctrl, int current, ImmutableList<Command> commands) {
+	protected static record Result(ControllerEvseSingle ctrl, ChargePointActions actions) {
 	}
 
-	protected static ImmutableList<Output> calculate(DistributionStrategy distributionStrategy, Sum sum,
-			List<ControllerEvseSingle> ctrls, Map<String, TreeMap<Instant, Integer>> applyHistories,
-			Consumer<String> logDebug) {
+	protected static ImmutableList<Result> calculate(DistributionStrategy distributionStrategy, Sum sum,
+			List<ControllerEvseSingle> ctrls, Consumer<String> logDebug) {
 		var inputs = ctrls.stream() //
 				.map(ctrl -> {
 					var params = ctrl.getParams();
 					if (params == null) {
 						return null;
 					}
-					return new Input(ctrl, params, applyHistories.get(ctrl.id()));
+					return new Input(ctrl, params);
 				}) //
 				.filter(Objects::nonNull) //
 				.collect(toImmutableList());
 
-		final var outputs = ImmutableList.<Output>builder();
+		final var outputs = ImmutableList.<Result>builder();
 
 		var surplusDistribution = distributeSurplusPower(distributionStrategy, inputs, sum);
 
 		for (var input : inputs) {
 			final var ctrl = input.ctrl;
 			final var params = input.params;
+			final var abilities = params.abilities();
 
-			// Handle Profile Commands
-			final var commands = ImmutableList.<Profile.Command>builder();
-			if (params.actualMode() == Mode.Actual.MINIMUM) {
-				params.profiles().stream() //
-						.filter(Profile.PhaseSwitchToSinglePhase.class::isInstance) //
-						.map(Profile.PhaseSwitchToSinglePhase.class::cast) //
-						.findFirst().ifPresent(phaseSwitch -> {
-							// Switch from THREE to SINGLE phase in MINIMUM mode
-							logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
-							commands.add(phaseSwitch.command());
-						});
-
-			} else if (params.actualMode() == Mode.Actual.FORCE) {
-				params.profiles().stream() //
-						.filter(Profile.PhaseSwitchToThreePhase.class::isInstance) //
-						.map(Profile.PhaseSwitchToThreePhase.class::cast) //
-						.findFirst().ifPresent(phaseSwitch -> {
-							// Switch from SINGLE to THREE phase in FORCE mode
-							logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
-							commands.add(phaseSwitch.command());
-						});
+			// Build Actions
+			final var actions = ChargePointActions.from(abilities);
+			if (params.actualMode() == Mode.Actual.MINIMUM
+					&& abilities.phaseSwitch() instanceof PhaseSwitch.Ability.ToSinglePhase) {
+				// Switch from THREE to SINGLE phase in MINIMUM mode
+				logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
+				actions.setPhaseSwitch(PhaseSwitch.Action.TO_SINGLE_PHASE);
+			} else if (params.actualMode() == Mode.Actual.FORCE
+					&& abilities.phaseSwitch() instanceof PhaseSwitch.Ability.ToThreePhase) {
+				// Switch from SINGLE to THREE phase in FORCE mode
+				logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
+				actions.setPhaseSwitch(PhaseSwitch.Action.TO_THREE_PHASE);
 			}
 
 			// Evaluate Charge Current
@@ -137,8 +87,24 @@ public class Utils {
 			case FORCE -> params.limit().maxCurrent();
 			};
 
-			logDebug.accept(ctrl.id() + ": Mode [" + params.actualMode() + "] set current [" + current + "]");
-			outputs.add(new Output(ctrl, current, commands.build()));
+			logDebug.accept(ctrl.id() + ": " //
+					+ "Mode [" + params.actualMode() + "] " //
+					+ "Set Current [" + current + "]. " //
+					+ "Params: " + params);
+
+			// Apply MIN_CURRENT if car appears to be fully charged. Makes no difference in
+			// power, but allows the car to start pre-heating, etc.
+			if (params.appearsToBeFullyCharged()) {
+				current = MIN_CURRENT;
+			}
+
+			// TODO apply rounding to unit already during 'distributeSurplusPower'
+			switch (abilities.applySetPoint()) {
+			case AMPERE -> actions.setApplySetPointInAmpere(current / 1000);
+			case MILLI_AMPERE -> actions.setApplySetPointInMilliAmpere(current);
+			}
+
+			outputs.add(new Result(ctrl, actions.build()));
 		}
 
 		return outputs.build();
@@ -222,15 +188,18 @@ public class Utils {
 		var powers = new int[surplusInputs.length];
 		var remaining = totalDistributablePower;
 		var noOfNonZeroPowers = 0;
-		// TODO apply Hysteresis
 		for (var i = 0; i < surplusInputs.length; i++) {
 			var input = surplusInputs[i];
 			var param = input.params;
-			if (!param.isReadyForCharging()) {
+			if (!param.isReadyForCharging() || param.appearsToBeFullyCharged()) {
+				continue;
+			}
+			var hysteresis = param.hysteresis();
+			if (hysteresis == Hysteresis.KEEP_ZERO) {
 				continue;
 			}
 			var power = param.limit().getMinPower();
-			if (power > remaining) {
+			if (hysteresis != Hysteresis.KEEP_CHARGING && power > remaining) {
 				continue;
 			}
 			noOfNonZeroPowers++;
@@ -270,7 +239,7 @@ public class Utils {
 	protected static int calculateTotalFixedPower(ImmutableList<Input> inputs) {
 		return inputs.stream() //
 				.map(Input::params) //
-				.filter(p -> p.isReadyForCharging()) //
+				.filter(p -> p.isReadyForCharging() && !p.appearsToBeFullyCharged()) //
 				.map(p -> switch (p.actualMode()) {
 				case FORCE -> p.limit().getMaxPower();
 				case MINIMUM -> p.limit().getMinPower();

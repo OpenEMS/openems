@@ -57,7 +57,7 @@ public class MeterCamillebauerAplusImpl extends AbstractOpenemsModbusComponent i
 	private CalculateEnergyFromPower calculateConsumptionEnergy;
 	@Reference
 	private ConfigurationAdmin cm;
-	
+
 	@Reference
 	private ComponentManager cma;
 
@@ -87,8 +87,8 @@ public class MeterCamillebauerAplusImpl extends AbstractOpenemsModbusComponent i
 		this.config = config;
 		this.metertype = this.config.type();
 		this.calculateProductionEnergy = new CalculateEnergyFromPower(this,
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, this.cma.getClock());
-		this.calculateConsumptionEnergy  = new CalculateEnergyFromPower(this,
+				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, this.cma.getClock());
+		this.calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, this.cma.getClock());
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {

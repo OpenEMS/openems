@@ -1,5 +1,8 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.JsonUtils.buildJsonArray;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
 import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
@@ -11,7 +14,6 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestPermissions;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig;
@@ -30,7 +32,7 @@ public class AppPropertyPermissionsTest {
 			);
 		});
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.testPermissions.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
+				new AddAppInstance.Request(this.testPermissions.getAppId(), "key", "alias", buildJsonObject() //
 						.addProperty(TestPermissions.Property.ID.name(), "id0")
 						.addProperty(TestPermissions.Property.ADMIN_ONLY.name(), "val0") //
 						.addProperty(TestPermissions.Property.INSTALLER_ONLY.name(), "val0") //
@@ -70,11 +72,15 @@ public class AppPropertyPermissionsTest {
 	}
 
 	private UpdateAppConfig.Request request(String val) {
-		final var ja = JsonUtils.buildJsonArray().add("val3").add("val4").build();
-		final var jo = JsonUtils.buildJsonObject().add(val, JsonUtils.getAsJsonElement("val1"))
-				.add("UPDATE_ARRAY", ja)
+		final var ja = buildJsonArray() //
+				.add("val3") //
+				.add("val4") //
 				.build();
-		
+		final var jo = buildJsonObject() //
+				.add(val, getAsJsonElement("val1")) //
+				.add("UPDATE_ARRAY", ja) //
+				.build();
+
 		final var req = new UpdateAppConfig.Request("id0", jo);
 		return req;
 	}

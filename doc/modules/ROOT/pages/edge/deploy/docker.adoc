@@ -1,0 +1,153 @@
+= Deploy OpenEMS Edge to Docker
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../../assets/images
+
+This chapter explains how OpenEMS can be deployed using our official https://hub.docker.com/r/openems/edge[Docker image].
+
+Prerequisites:
+
+* A amd64 or arm64 device running Linux. You need the IP address and SSH access.
+* A working docker environment. To setup follow instruction from https://docs.docker.com/engine/install/[docs.docker.com].
+
+== Prepare system
+
+=== Connect to the device
+
+[source,bash]
+----
+ssh admin@raspi5
+----
+
+=== Check docker installation
+
+[source,bash]
+----
+admin@raspi5:~$ docker --version
+Docker version 27.3.1, build ce12230
+----
+
+__if not already installed, follow <<Setup docker>>__
+
+=== Setup docker
+
+To setup docker follow the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
+
+== Start Container 
+
+=== Create a Docker compose
+
+Paste content into a `docker-compose.yml`
+
+[source,yaml]
+----
+services:
+  openems-edge:
+    image: openems/edge:latest
+    container_name: openems_edge
+    hostname: openems_edge
+    restart: unless-stopped
+    volumes:
+      - openems-edge-conf:/var/opt/openems/config:rw
+      - openems-edge-data:/var/opt/openems/data:rw
+    ports:
+      - 8080:8080 # Apache-Felix
+
+volumes:
+  openems-edge-conf:
+  openems-edge-data:
+----
+
+=== Run compose file
+
+To start the previously created `docker-compose.yml` run the command:
+
+[source,bash]
+----
+docker compose up -d
+----
+
+=== Check logs
+
+To check if the container is up and running, check `docker ps`:
+
+[source,bash]
+----
+admin@raspi5:~$ docker ps
+CONTAINER ID  IMAGE                 COMMAND   CREATED               STATUS            
+0b2d32fe6203  openems/edge:latest   "/init"   About a minute ago    Up About a minute
+----
+
+or read its logs with:
+
+[source,bash]
+----
+docker logs openems_edge
+----
+
+== OpenEMS Edge UI
+
+If you want to add the OpenEMS Edge UI to your setup, you can do so by adjusting your `docker-compose.yml` file to look like this:
+
+[source,yaml]
+----
+services:
+  openems-edge:
+    image: openems/edge:latest
+    container_name: openems_edge
+    hostname: openems_edge
+    restart: unless-stopped
+    volumes:
+      - openems-edge-conf:/var/opt/openems/config:rw
+      - openems-edge-data:/var/opt/openems/data:rw
+    ports:
+      - 8080:8080 # Apache-Felix
+      - 8085:8085 # UI-Websocket
+
+  openems-ui:
+    image: openems/ui-edge:latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - UI_WEBSOCKET=ws://<hostname>:8085
+    ports:
+      - 80:80
+      - 443:443
+
+volumes:
+  openems-edge-conf:
+  openems-edge-data:
+  openems-ui-conf:
+  openems-ui-log:
+----
+
+summary of the changes:
+
+1. Open a Port for UI Websocket (8085) on the `openems-edge` service
+2. Added a new service `openems-ui` to the docker-compose file
+3. Added the volumes `openems-ui-conf` and `openems-ui-log`
+
+NOTE: The `UI_WEBSOCKET` environment variable must be set to the hostname of the OpenEMS Edge container. This URL is used by the UI to connect to the OpenEMS Edge Websocket. Make sure it is reachable from any device you want to use the UI on.
+
+=== Update docker-compose
+
+Update the compose running with: `docker compose up -d`
+
+==== Check container status
+
+[source,bash]
+----
+admin@ubuntu:~$ docker ps
+CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS            
+018187f444b1  openems/ui-edge:latest  "/init"   About a minute ago    Up About a minute
+0b2d32fe6203  openems/edge:latest     "/init"   About a minute ago    Up About a minute
+----

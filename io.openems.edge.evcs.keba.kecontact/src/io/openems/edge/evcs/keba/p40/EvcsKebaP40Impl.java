@@ -118,27 +118,30 @@ public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements E
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws UnknownHostException, OpenemsException {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 
+		this.activateOrModified();
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
+		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
+
+		this.activateOrModified();
+	}
+
+	private void activateOrModified() {
 		this._setPowerPrecision(0.23);
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
 		this.clock = this.componentManager.getClock();
-	}
-
-	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
-		this._setPowerPrecision(0.23);
-		this._setChargingType(ChargingType.AC);
-		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
-		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
 	}
 
 	@Override
@@ -269,8 +272,9 @@ public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements E
 		// all registers are Priority.low except ActivePower because only one register
 		// can be read at a time and only one readtask can be executed every 0.5 seconds
 		final var phaseRotated = this.getPhaseRotation();
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, new FC3ReadRegistersTask(1000, Priority.LOW, //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, new FC3ReadRegistersTask(1000, Priority.HIGH, //
 				m(Evcs.ChannelId.STATUS, new UnsignedDoublewordElement(1000), new ElementToChannelConverter(t -> {
+					this.logDebug("Keba Reading Status: " + TypeUtils.<Integer>getAsType(INTEGER, t));
 					return switch (TypeUtils.<Integer>getAsType(INTEGER, t)) {
 					case 0 -> Status.STARTING;
 					case 1 -> Status.NOT_READY_FOR_CHARGING;

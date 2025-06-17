@@ -12,6 +12,7 @@ import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_CONS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_ESS;
 import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_GRID;
 import static java.lang.Double.NaN;
+import static java.lang.Double.isNaN;
 import static java.lang.Math.min;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
@@ -212,10 +213,6 @@ public class EnergyFlow {
 		 * @return a new {@link EnergyFlow.Model}
 		 */
 		public static EnergyFlow.Model from(GlobalScheduleContext gsc, GlobalOptimizationContext.Period period) {
-			final var factor = switch (period) {
-			case GlobalOptimizationContext.Period.Hour p -> 4;
-			case GlobalOptimizationContext.Period.Quarter p -> 1;
-			};
 			final var essGlobal = gsc.goc.ess();
 			final var essOne = gsc.ess;
 			final var grid = gsc.goc.grid();
@@ -223,11 +220,14 @@ public class EnergyFlow {
 			return new EnergyFlow.Model(//
 					/* production */ period.production(), //
 					/* unmanagedConsumption */ period.consumption(), //
-					/* essMaxCharge */ min(essGlobal.maxChargeEnergy() * factor,
+					/* essMaxCharge */ min(//
+							period.duration().convertPowerToEnergy(essGlobal.maxChargePower()),
 							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //
-					/* essMaxDischarge */ min(essGlobal.maxDischargeEnergy() * factor, gsc.ess.getInitialEnergy()), //
-					/* gridMaxBuy */ grid.maxBuy() * factor, //
-					/* gridMaxSell */ grid.maxSell() * factor);
+					/* essMaxDischarge */ min(//
+							period.duration().convertPowerToEnergy(essGlobal.maxDischargePower()),
+							gsc.ess.getInitialEnergy()), //
+					/* gridMaxBuy */ period.duration().convertPowerToEnergy(grid.maxBuyPower()), //
+					/* gridMaxSell */ period.duration().convertPowerToEnergy(grid.maxSellPower()));
 		}
 
 		public final int production;
@@ -383,14 +383,35 @@ public class EnergyFlow {
 		 * 
 		 * @param id    an identifier, e.g. the Component-ID
 		 * @param value the added consumption value
-		 * @return actually set value; {@link Double#NaN} on error
+		 * @return actually set value; 0 on error
 		 */
-		public synchronized double addConsumption(String id, int value) {
-			this.managedConsumptions.put(id, value);
-			if (value == 0) {
-				return this.getManagedConsumption();
+		public synchronized int addConsumption(String id, int value) {
+			if (value > 0) {
+				var oldManagedConsumption = this.getManagedConsumption();
+				var newTotalConsumption = this.setFittingCoefficientValue(CONS, GEQ,
+						this.unmanagedConsumption + oldManagedConsumption + value);
+				if (isNaN(newTotalConsumption)) {
+					return 0;
+				}
+				value = (int) (newTotalConsumption - this.unmanagedConsumption - oldManagedConsumption);
 			}
-			return this.setFittingCoefficientValue(CONS, GEQ, this.unmanagedConsumption + this.getManagedConsumption());
+			this.managedConsumptions.put(id, value);
+			return value;
+		}
+
+		/**
+		 * Finializes the {@link Coefficient#CONS} Energy.
+		 * 
+		 * <p>
+		 * Call this method after all managed Consumptions have been added via
+		 * {@link #addConsumption(String, int)}.
+		 * 
+		 * @return the total Consumption
+		 */
+		public synchronized double finalizeConsumption() {
+			var consumption = this.setExtremeCoefficientValue(CONS, MINIMIZE);
+			this.setFittingCoefficientValue(PROD_TO_CONS, EQ, consumption);
+			return consumption;
 		}
 
 		/**
@@ -402,6 +423,15 @@ public class EnergyFlow {
 			return this.managedConsumptions.values().stream() //
 					.mapToInt(Integer::valueOf) //
 					.sum();
+		}
+
+		/**
+		 * Gets the cumulated managed and unmanaged Consumption.
+		 * 
+		 * @return the total Consumption
+		 */
+		public synchronized int getTotalConsumption() {
+			return this.unmanagedConsumption + this.getManagedConsumption();
 		}
 
 		/**
