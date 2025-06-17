@@ -3,6 +3,7 @@ package io.openems.edge.evcs.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -15,14 +16,14 @@ import io.openems.edge.common.channel.value.Value;
 public interface ManagedEvcsCluster extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER)
-				.unit(Unit.WATT)
-				.accessMode(AccessMode.READ_WRITE)
-				.text("Maximum power allowed to distribute, for all given Evcss.")),
-		EVCS_COUNT(Doc.of(OpenemsType.INTEGER)
-				.unit(Unit.NONE)
-				.text("Connect EVCS on this cluster.")
-				),
+		MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.text("Maximum power allowed to distribute for all evcs in this cluster.")),
+		EVCS_COUNT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE) //
+				.text("Connect EVCS on this cluster.")),
 		;
 
 		private final Doc doc;
