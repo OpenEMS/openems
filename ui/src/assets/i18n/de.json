@@ -455,7 +455,10 @@
         "successDelete": "App erfolgreich entfernt",
         "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
         "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
-        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden.",
+        "technicalName": "Technischer Name",
+        "category": "Kategorie",
+        "cardinality": "Kardinalität"
       }
     },
     "Service": {

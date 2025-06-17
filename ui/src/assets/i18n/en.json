@@ -457,7 +457,10 @@
         "successDelete": "Successfully deleted App",
         "failDelete": "Error deleting App '{{error}}'",
         "DELETE_CONFIRM_HEADLINE": "Are you sure you wish to uninstall the app?",
-        "DELETE_CONFIRM_DESCRIPTION": "Uninstalling the app will remove all of its components and delete all settings made by it."
+        "DELETE_CONFIRM_DESCRIPTION": "Uninstalling the app will remove all of its components and delete all settings made by it.",
+        "technicalName": "Technical name",
+        "category": "Category",
+        "cardinality": "Cardinality"
       }
     },
     "Service": {
