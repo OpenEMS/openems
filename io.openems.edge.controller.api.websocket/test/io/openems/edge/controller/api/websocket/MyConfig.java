@@ -10,33 +10,39 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int port;
 		private int apiTimeout;
 		private boolean debugMode;
+		private int compressionLevel;
 
 		private Builder() {
-		}
+	}
 
 		public Builder setId(String id) {
-			this.id = id;
-			return this;
-		}
+	this.id = id;
+	return this;
+	}
 
 		public Builder setApiTimeout(int apiTimeout) {
 			this.apiTimeout = apiTimeout;
 			return this;
-		}
+			}
 
 		public Builder setPort(int port) {
 			this.port = port;
 			return this;
-		}
+			}
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
 			return this;
+	}
+
+			public Builder setCompressionLevel(int compressionLevel) {
+			this.compressionLevel = compressionLevel;
+	return this;
 		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
-		}
+			}
 	}
 
 	/**
@@ -56,18 +62,23 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int port() {
-		return this.builder.port;
+		public int port() {
+			return this.builder.port;
 	}
 
 	@Override
-	public int apiTimeout() {
-		return this.builder.apiTimeout;
+		public int apiTimeout() {
+			return this.builder.apiTimeout;
 	}
 
 	@Override
-	public boolean debugMode() {
-		return this.builder.debugMode;
+		public boolean debugMode() {
+			return this.builder.debugMode;
+	}
+
+	@Override
+		public int compressionLevel() {
+		return this.builder.compressionLevel;
 	}
 
 }

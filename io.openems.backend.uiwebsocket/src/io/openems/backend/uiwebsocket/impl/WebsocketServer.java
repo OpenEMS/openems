@@ -1,6 +1,7 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import org.java_websocket.WebSocket;
+import java.util.zip.Deflater;
 import org.slf4j.Logger;
 
 import io.openems.common.websocket.AbstractWebsocketServer;
@@ -15,7 +16,11 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnError onError;
 
 	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize) {
-		super(name, port, poolSize);
+		this(parent, name, port, poolSize, Deflater.BEST_SPEED);
+	}
+
+	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, int compressionLevel) {
+		super(name, port, poolSize, compressionLevel);
 		this.parent = parent;
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
