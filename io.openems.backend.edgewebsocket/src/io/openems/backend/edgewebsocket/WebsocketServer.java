@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.java_websocket.WebSocket;
+import java.util.zip.Deflater;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonElement;
@@ -25,12 +26,16 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnClose onClose;
 
 	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port, int poolSize) {
-		super(name, port, poolSize);
+		this(parent, name, port, poolSize, Deflater.BEST_SPEED);
+	}
+
+	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port, int poolSize, int compressionLevel) {
+		super(name, port, poolSize, compressionLevel);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(//
-				() -> parent.appCenterMetadata, //
-				this::logWarn);
+			() -> parent.appCenterMetadata, //
+			this::logWarn);
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = new OnClose(parent);
