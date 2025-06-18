@@ -89,10 +89,10 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 
 		this.onRequest = this.onRequestFactory.get();
 		this.onRequest.setOnCall(call -> {
-			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
+		call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
 		});
 		this.onRequest.setDebug(config.debugMode());
-		this.startServer(config.port(), POOL_SIZE);
+		this.startServer(config.port(), POOL_SIZE, config.compressionLevel());
 
 	}
 
@@ -106,13 +106,14 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Create and start new server.
-	 *
-	 * @param port     the port
-	 * @param poolSize number of threads dedicated to handle the tasks
-	 */
-	private synchronized void startServer(int port, int poolSize) {
-		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize);
+	* Create and start new server.
+	*
+	* @param port            the port
+	* @param poolSize        number of threads dedicated to handle the tasks
+	* @param compressionLevel compression level for permessage-deflate
+	*/
+	private synchronized void startServer(int port, int poolSize, int compressionLevel) {
+		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize, compressionLevel);
 		this.server.start();
 	}
 

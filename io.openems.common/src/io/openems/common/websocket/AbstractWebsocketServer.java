@@ -13,8 +13,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Predicate;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
@@ -35,6 +40,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 	private final int port;
 	private final WebSocketServer ws;
+	private final int compressionLevel;
 	private final Collection<WebSocket> connections = ConcurrentHashMap.newKeySet();
 
 	private boolean isStarted = false;
@@ -47,15 +53,20 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @param poolSize number of threads dedicated to handle the tasks
 	 */
 	protected AbstractWebsocketServer(String name, int port, int poolSize) {
+		this(name, port, poolSize, Deflater.BEST_SPEED);
+	}
+
+	protected AbstractWebsocketServer(String name, int port, int poolSize, int compressionLevel) {
 		super(name);
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
-				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
+			new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		this.port = port;
+		this.compressionLevel = compressionLevel;
 		this.ws = new WebSocketServer(new InetSocketAddress(port),
-				/* AVAILABLE_PROCESSORS */ Runtime.getRuntime().availableProcessors(), //
-				/* drafts, no filter */ List.of(new MyDraft6455()), //
-				this.connections) {
+			/* AVAILABLE_PROCESSORS */ Runtime.getRuntime().availableProcessors(), //
+			List.of(new MyDraft6455(createPerMessageDeflateExtension(compressionLevel))),/* enable perMessageDeflate */
+		this.connections) {
 
 			@Override
 			public void onStart() {
@@ -259,7 +270,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	@Override
 	public synchronized void stop() {
 		if (!this.isStarted) {
-			return;
+		return;
 		}
 		this.isStarted = false;
 
@@ -269,19 +280,26 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		var tries = 3;
 		while (tries-- > 0) {
 			try {
-				this.ws.stop();
-				return;
+			this.ws.stop();
+			return;
 			} catch (NullPointerException | InterruptedException e) {
-				this.logWarn(this.log,
-						"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			this.logWarn(this.log,
+				"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 				try {
-					Thread.sleep(100);
+				Thread.sleep(100);
 				} catch (InterruptedException e1) {
-					/* ignore */
+				/* ignore */
 				}
 			}
 		}
 		this.logError(this.log, "Stopping websocket server failed too often.");
 		super.stop();
+	}
+
+	private static PerMessageDeflateExtension createPerMessageDeflateExtension(int compressionLevel) {
+		var ext = new PerMessageDeflateExtension();
+			ext.setDeflater(new Deflater(compressionLevel, true));
+			ext.setInflater(new Inflater(true));
+			return ext;
 	}
 }

@@ -1,6 +1,7 @@
 package io.openems.common.websocket;
 
 import org.java_websocket.WebSocket;
+import java.util.zip.Deflater;
 import org.slf4j.Logger;
 
 public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implements AutoCloseable {
@@ -87,7 +88,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 	private final DummyWebsocketServer.Builder builder;
 
 	private DummyWebsocketServer(DummyWebsocketServer.Builder builder) {
-		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */);
+		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */, Deflater.BEST_SPEED);
 		this.builder = builder;
 	}
 
