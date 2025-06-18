@@ -106,12 +106,12 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	* Create and start new server.
-	*
-	* @param port            the port
-	* @param poolSize        number of threads dedicated to handle the tasks
-	* @param compressionLevel compression level for permessage-deflate
-	*/
+	 * Create and start new server.
+	 *
+	 * @param port            the port
+	 * @param poolSize        number of threads dedicated to handle the tasks
+	 * @param compressionLevel compression level for permessage-deflate
+	 */
 	private synchronized void startServer(int port, int poolSize, int compressionLevel) {
 		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize, compressionLevel);
 		this.server.start();

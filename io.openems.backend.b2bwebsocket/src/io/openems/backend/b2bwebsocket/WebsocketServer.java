@@ -23,8 +23,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		super(name, port, poolSize, compressionLevel);
 		this.parent = parent;
 		this.onOpen = new OnOpen(//
-			() -> parent.metadata, //
-			this::logInfo);
+				() -> parent.metadata, //
+				this::logInfo);
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
