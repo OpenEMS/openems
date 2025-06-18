@@ -59,13 +59,13 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	protected AbstractWebsocketServer(String name, int port, int poolSize, int compressionLevel) {
 		super(name);
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
-			new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
+				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		this.port = port;
 		this.compressionLevel = compressionLevel;
 		this.ws = new WebSocketServer(new InetSocketAddress(port),
-			/* AVAILABLE_PROCESSORS */ Runtime.getRuntime().availableProcessors(), //
-			List.of(new MyDraft6455(createPerMessageDeflateExtension(compressionLevel))),/* enable perMessageDeflate */
+				/* AVAILABLE_PROCESSORS */ Runtime.getRuntime().availableProcessors(), //
+				List.of(new MyDraft6455(createPerMessageDeflateExtension(compressionLevel))),/* enable perMessageDeflate */
 		this.connections) {
 
 			@Override
@@ -280,15 +280,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		var tries = 3;
 		while (tries-- > 0) {
 			try {
-			this.ws.stop();
-			return;
+				this.ws.stop();
+				return;
 			} catch (NullPointerException | InterruptedException e) {
-			this.logWarn(this.log,
-				"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+				this.logWarn(this.log,
+					"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 				try {
-				Thread.sleep(100);
+					Thread.sleep(100);
 				} catch (InterruptedException e1) {
-				/* ignore */
+					/* ignore */
 				}
 			}
 		}
