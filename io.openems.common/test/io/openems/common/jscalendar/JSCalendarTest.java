@@ -55,6 +55,18 @@ public class JSCalendarTest {
 		next = sut.getNextOccurence(next.plusSeconds(1));
 		assertEquals("2020-01-03T07:00Z", next.toString());
 	}
+	@Test
+	public void testParseSingleTask() throws OpenemsNamedException {
+		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+				[
+				   {
+				      "@type":"Task",
+				      "start":"2025-06-18T15:00:00",
+				      "duration":"PT12H"
+				   }
+				]""");
+		assertEquals(1, sut.size());
+	}
 
 	@Test
 	public void testDailyParse() throws OpenemsNamedException {
@@ -72,6 +84,22 @@ public class JSCalendarTest {
 				   }
 				]""");
 		assertEquals(1, sut.size());
+	}
+	@Test
+	public void testSingle() throws OpenemsNamedException {
+		var sut = JSCalendar.Task.<StringPayload>create() //
+				.setStart("2024-06-17T00:00:00") //
+				.setPayload(new StringPayload("Hello World")) //
+				.build();
+		var json = TASK_SERIALIZER.serialize(sut);
+		assertEquals("""
+				{
+				  "@type": "Task",
+				  "start": "2024-06-17T00:00:00",
+				  "openems.io:payload": {
+				    "value": "Hello World"
+				  }
+				}""", prettyToString(json));
 	}
 
 	@Test
