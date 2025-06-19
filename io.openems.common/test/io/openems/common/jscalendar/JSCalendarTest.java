@@ -55,6 +55,7 @@ public class JSCalendarTest {
 		next = sut.getNextOccurence(next.plusSeconds(1));
 		assertEquals("2020-01-03T07:00Z", next.toString());
 	}
+	
 	@Test
 	public void testParseSingleTask() throws OpenemsNamedException {
 		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
@@ -85,6 +86,7 @@ public class JSCalendarTest {
 				]""");
 		assertEquals(1, sut.size());
 	}
+	
 	@Test
 	public void testSingle() throws OpenemsNamedException {
 		var sut = JSCalendar.Task.<StringPayload>create() //
