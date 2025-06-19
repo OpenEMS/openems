@@ -57,6 +57,10 @@ export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
     }
 
     public ngOnDestroy(): void {
+        const nextUrl = this.router.url;
+        if (nextUrl.startsWith("/user")) {
+          return;
+        }
         this.service.currentEdge.set(null);
         if (!this.edge) {
             return;
