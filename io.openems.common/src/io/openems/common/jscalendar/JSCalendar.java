@@ -194,9 +194,9 @@ public class JSCalendar<PAYLOAD> {
 						.setStart(json.getString("start")) //
 						.setDuration(json.getStringOrNull("duration")); //
 
-				json.getNullableJsonArrayPath("recurrenceRules")
-						.mapIfPresent(t -> t.getAsList(RecurrenceRule.serializer()))
-						.forEach(rr -> b.addRecurrenceRule(rr));
+				json.getNullableJsonArrayPath("recurrenceRules") //
+						.getAsOptionalList(RecurrenceRule.serializer()) //
+						.ifPresent(rrs -> rrs.forEach(rr -> b.addRecurrenceRule(rr))); //
 
 				var payload = json.getObjectOrNull(PROPERTY_PAYLOAD, payloadSerializer);
 				if (payload != null) {
