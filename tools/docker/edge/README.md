@@ -18,10 +18,7 @@
 
 3. **Access OpenEMS in your browser.**
    
-    |       |                                                |
-    | ----- | ---------------------------------------------- |
-    | Edge: | http://localhost:8080/system/console/configMgr |
-    | UI    | http://localhost:80/                           |
+   Open `http://localhost:80/` in your web browser to open the UI.
 
 ## Build your own OpenEMS Edge docker image
 
