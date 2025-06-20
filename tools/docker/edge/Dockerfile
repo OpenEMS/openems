@@ -35,6 +35,8 @@ FROM base_container
 COPY --from=build_edge /opt/root/ /
 COPY --from=build_edge /opt/openems-edge.jar /opt/openems/openems-edge.jar
 
+RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
+
 VOLUME /var/opt/openems/config
 VOLUME /var/opt/openems/data
 

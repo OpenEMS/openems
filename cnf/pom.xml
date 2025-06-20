@@ -61,7 +61,7 @@
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.11.0</version>
+			<version>3.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -231,7 +231,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.0.32</version>
+			<version>1.0.34</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -284,14 +284,14 @@
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.80</version>
+			<version>1.81</version>
 		</dependency>
 		<dependency>
 			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.80</version>
+			<version>1.81</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
@@ -435,7 +435,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.5</version>
+			<version>42.7.7</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
@@ -468,7 +468,7 @@
 			<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.31.0</version>
+			<version>4.31.1</version>
 		</dependency>
 	</dependencies>
 </project>
