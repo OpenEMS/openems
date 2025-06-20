@@ -18,7 +18,7 @@
 
 3. **Access OpenEMS in your browser.**
    
-   Open `http://localhost:80/` in your web browser to open the UI.
+   Open `http://localhost:80/` in your web browser to open the UI. Log in as user "guest" by leaving the standard password and clicking the login button. Alternatively type "admin" in the password field to log in with extended permissions. You can then use the menu at the top left to start configuring OpenEMS via *settings*.
 
 ## Build your own OpenEMS Edge docker image
 
