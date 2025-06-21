@@ -11,4 +11,6 @@ Compatible with
 - https://www.shelly.com/de/products/shop/shelly-plus-1-pm[Shelly Plus 1PM]
 - https://www.shelly.com/de/products/shop/shelly-pro-3-1[Shelly Pro 3]
 
+_Hint:_ Connecting to devices having a password set in their UI is currently not supported.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.shelly[Source Code icon:github[]]
