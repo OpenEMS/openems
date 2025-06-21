@@ -70,7 +70,7 @@ public interface IoShellyPro3Em extends OpenemsComponent {
 		 * </ul>
 		 */
 		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.text("Communication with slave device failed."));
+				.text("Communication with slave device failed. Check network connection and ensure that the device has no password set in the UI."));
 
 		private final Doc doc;
 
