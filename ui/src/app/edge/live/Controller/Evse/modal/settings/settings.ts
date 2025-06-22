@@ -53,7 +53,10 @@ export class ModalComponent extends AbstractFormlyComponent {
             {
                 type: "range-button-from-form-control-line",
                 controlName: "manualEnergySessionLimit",
-                properties: { tickMin: 0, tickMax: 100000, step: 1000, tickFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val), pinFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val) },
+                properties: {
+                    tickMin: 0, tickMax: 100000, step: 1000, tickFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val),
+                    pinFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val),
+                },
             }];
 
         return {

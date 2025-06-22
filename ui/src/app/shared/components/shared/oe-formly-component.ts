@@ -277,10 +277,6 @@ export namespace OeFormlyField {
     converter: Converter,
   };
 
-  //   <oe-modal-line [formGroup]="formGroup" controlName="manualEnergySessionLimit"
-  //     [control]="{type: 'RANGE', properties: {min: 1, max: 100, unit: 'kWh ', step:1}}">
-  // </oe-modal-line>
-
   export type HorizontalLine = {
     type: "horizontal-line",
   };
