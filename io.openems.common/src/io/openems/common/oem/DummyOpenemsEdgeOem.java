@@ -105,6 +105,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //
 			.put("App.Heat.HeatingElement", "") //
+			.put("App.Heat.Askoma.ReadOnly", "") //
+			.put("App.Heat.MyPv.ReadOnly", "") //
 			.put("App.PvSelfConsumption.GridOptimizedCharge", "") //
 			.put("App.PvSelfConsumption.SelfConsumptionOptimization", "") //
 			.put("App.LoadControl.ManualRelayControl", "") //

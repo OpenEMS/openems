@@ -65,10 +65,10 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
  * </pre>
  */
 @Component(name = "App.Heat.Askoma.ReadOnly")
-public class HeatAskoma extends AbstractOpenemsAppWithProps<HeatAskoma, HeatAskoma.Property, BundleParameter>
+public class HeatAskomaReadOnly extends AbstractOpenemsAppWithProps<HeatAskomaReadOnly, HeatAskomaReadOnly.Property, BundleParameter>
 		implements OpenemsApp, HostSupplier {
 
-	public static enum Property implements Type<Property, HeatAskoma, BundleParameter>, Nameable {
+	public static enum Property implements Type<Property, HeatAskomaReadOnly, BundleParameter>, Nameable {
 		// Component-IDs
 		HEAT_ID(AppDef.componentId("heat0")), //
 		MODBUS_ID(AppDef.componentId("modbus0")), //
@@ -79,24 +79,24 @@ public class HeatAskoma extends AbstractOpenemsAppWithProps<HeatAskoma, HeatAsko
 				.setRequired(true)), //
 		;
 
-		private final AppDef<? super HeatAskoma, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super HeatAskomaReadOnly, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super HeatAskoma, ? super Property, ? super BundleParameter> def) {
+		private Property(AppDef<? super HeatAskomaReadOnly, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, HeatAskoma, BundleParameter> self() {
+		public Type<Property, HeatAskomaReadOnly, BundleParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super HeatAskoma, ? super Property, ? super BundleParameter> def() {
+		public AppDef<? super HeatAskomaReadOnly, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<HeatAskoma>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<HeatAskomaReadOnly>, BundleParameter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 
@@ -105,7 +105,7 @@ public class HeatAskoma extends AbstractOpenemsAppWithProps<HeatAskoma, HeatAsko
 	private final Host host;
 
 	@Activate
-	public HeatAskoma(//
+	public HeatAskomaReadOnly(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
@@ -165,7 +165,7 @@ public class HeatAskoma extends AbstractOpenemsAppWithProps<HeatAskoma, HeatAsko
 	}
 
 	@Override
-	protected HeatAskoma getApp() {
+	protected HeatAskomaReadOnly getApp() {
 		return this;
 	}
 

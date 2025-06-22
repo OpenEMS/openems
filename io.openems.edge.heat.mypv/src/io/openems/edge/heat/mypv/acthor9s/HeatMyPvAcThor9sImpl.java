@@ -49,7 +49,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=GRID" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE  //
 })
 public class HeatMyPvAcThor9sImpl extends AbstractOpenemsModbusComponent implements HeatMyPvAcThor9s, ModbusComponent,
 		OpenemsComponent, Heat, ElectricityMeter, ManagedHeatElement, TimedataProvider, EventHandler {
@@ -143,12 +143,7 @@ public class HeatMyPvAcThor9sImpl extends AbstractOpenemsModbusComponent impleme
 
 	@Override
 	public String debugLog() {
-		return "Power: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER).value() //
-				+ " | Power L1: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L1).value() //
-				+ " | Power L2: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L2).value() //
-				+ " | Power L3: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L3).value() //
-				+ " | Temp: " + this.channel(Heat.ChannelId.TEMPERATURE).value() //
-				+ " | Status: " + this.channel(Heat.ChannelId.STATUS).value() //
+		return "Status: " + this.channel(Heat.ChannelId.STATUS).value() //
 				+ " | Read Only: " + this.config.readOnly(); //
 	}
 

@@ -47,7 +47,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=GRID" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements HeatAskoma, ModbusComponent,
 		OpenemsComponent, ElectricityMeter, Heat, ManagedHeatElement, TimedataProvider, EventHandler {
@@ -55,6 +55,8 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements He
 	// gets the total energy consumption in kWh
 	private final CalculateEnergyFromPower totalEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	
+	private Config config = null;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -86,6 +88,7 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements He
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+		this.config = config;
 	}
 
 	@Override
@@ -122,18 +125,8 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements He
 
 	@Override
 	public String debugLog() {
-		return "Power: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER).value() //
-				+ " | Power L1: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L1).value() //
-				+ " | Power L2: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L2).value() //
-				+ " | Power L3: " + this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L3).value() //
-				+ " | Temp0: " + this.channel(Heat.ChannelId.TEMPERATURE).value() //
-				+ " | HEATER_1_2_3_CURRENT_FLOW: "
-				+ this.channel(HeatAskoma.ChannelId.HEATER_1_2_3_CURRENT_FLOW).value() //
-				+ " | TEMPERATURE_LIMIT_REACHED: "
-				+ this.channel(HeatAskoma.ChannelId.TEMPERATURE_LIMIT_REACHED).value() //
-				+ " | ANY_ERROR_OCCURRED: " + this.channel(HeatAskoma.ChannelId.ANY_ERROR_OCCURRED).value() //
-		;
-
+		return "ANY_ERROR_OCCURRED: " + this.channel(HeatAskoma.ChannelId.ANY_ERROR_OCCURRED).value() //
+				+ " | Read Only: " + this.config.readOnly(); //
 	}
 
 	@Override
@@ -143,31 +136,35 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements He
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
 			this.totalEnergy.update(this.getActivePower().orElse(0));
 
-			this.setStatus();
+			this.updateStatus();
 		}
 		}
 	}
 
-	protected void setStatus() {
-		Status status = Status.NO_CONTROL_SIGNAL;
-
-		if (getHeaterCurrentFlow().orElse(false)) {
-			// heating
-			status = Status.EXCESS;
-		} else {
-			if (getTemperatureLimiteReached().orElse(false)) {
-				// Temperature limit reached
-				status = Status.TEMPERATURE_REACHED;
-			} else {
-				// no heating
-				status = Status.NO_CONTROL_SIGNAL;
-			}
-		}
+	protected void updateStatus() {
+		Status status = this.calculateStatus();
+		
 		this.channel(Heat.ChannelId.STATUS).setNextValue(status);
+	}
+	
+	private Status calculateStatus() {
+		if (this.getHeaterCurrentFlow().orElse(false)) {
+			// heating
+			return Status.EXCESS;
+		}
+		if (this.getTemperatureLimiteReached().orElse(false)) {
+			// Temperature limit reached
+			return Status.TEMPERATURE_REACHED;
+		}
+		// no heating
+		return Status.NO_CONTROL_SIGNAL;
 	}
 
 	@Override
