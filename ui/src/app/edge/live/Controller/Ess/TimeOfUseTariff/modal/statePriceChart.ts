@@ -14,7 +14,7 @@ import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/utils/utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
-import { Controller_Ess_TimeOfUseTariffUtils } from "../Ess_TimeOfUseTariff";
+import { Controller_Ess_TimeOfUseTariffUtils } from "../utils";
 
 @Component({
     selector: "statePriceChart",

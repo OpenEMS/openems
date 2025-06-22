@@ -10,7 +10,6 @@ import { FormlyIonicModule } from "@ngx-formly/ionic";
 import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { appRoutingProviders } from "../app-routing.module";
 import { ComponentsModule } from "./components/components.module";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
@@ -159,7 +158,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   ],
   providers: [
     AppStateTracker,
-    appRoutingProviders,
     Logger,
     RouteService,
     Service,
