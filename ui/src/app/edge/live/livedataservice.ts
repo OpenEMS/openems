@@ -1,9 +1,7 @@
 // @ts-strict-ignore
 import { Directive, Inject, OnDestroy } from "@angular/core";
-import { RefresherCustomEvent } from "@ionic/angular";
 import { filter, take, takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
-import { PlatFormService } from "src/app/platform.service";
 import { DataService } from "../../shared/components/shared/dataservice";
 import { ChannelAddress, CurrentData, Edge, Service, Websocket } from "../../shared/shared";
 
@@ -17,13 +15,7 @@ export class LiveDataService extends DataService implements OnDestroy {
         @Inject(Websocket) protected websocket: Websocket,
         @Inject(Service) protected service: Service,
     ) {
-        super();
-
-        this.service.getCurrentEdge().then((edge) => {
-            this.edge = edge;
-            edge.currentData.pipe(takeUntil(this.stopOnDestroy))
-                .subscribe(() => this.lastUpdated.set(new Date()));
-        });
+        super(service);
     }
 
     public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
@@ -62,8 +54,12 @@ export class LiveDataService extends DataService implements OnDestroy {
         this.edge.unsubscribeFromChannels(this.websocket, channels);
     }
 
-    public override refresh(ev: RefresherCustomEvent) {
-        PlatFormService.handleRefresh();
+    public override refresh(ev: CustomEvent) {
+        this.currentValue.next({ allComponents: {} });
+        this.edge.subscribeChannels(this.websocket, this.subscribeId, this.subscribedChannelAddresses);
+        setTimeout(() => {
+            (ev.target as HTMLIonRefresherElement).complete();
+        }, 1000);
     }
 
     /**

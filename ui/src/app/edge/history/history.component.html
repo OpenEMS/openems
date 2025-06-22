@@ -1,5 +1,5 @@
 <ion-content>
-  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
