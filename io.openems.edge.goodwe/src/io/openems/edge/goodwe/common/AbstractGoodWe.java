@@ -1264,6 +1264,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		readElementsOnce(FC3, protocol, ModbusUtils::doNotRetry, elementsToRead) //
 				.thenAccept((rsr) -> {
 
+					if (rsr.values().stream().allMatch(Objects::isNull)) {
+						return;
+					}
+
 					var modbusElements = new ArrayList<ModbusElement>();
 					IntStream.range(0, elementsToRead.length).forEach(i -> {
 						var address = elementsToRead[i].startAddress;
