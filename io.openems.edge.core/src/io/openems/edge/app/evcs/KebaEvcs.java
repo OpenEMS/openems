@@ -101,6 +101,9 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(HardwareType.class), l);
 				})//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.readonlyIf(Exp.currentModelValue(EVCS_ID).notNull());
+				})//
 				.setRequired(true)//
 				.setDefaultValue(HardwareType.P30)),
 
