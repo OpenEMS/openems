@@ -1,8 +1,9 @@
+import { Location } from "@angular/common";
 import { Directive, effect, signal, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { RouteService } from "src/app/shared/service/route.service";
 import { Role } from "src/app/shared/type/role";
-import { RouteService } from "../../../service/route.service";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../shared";
 import { ArrayUtils } from "../../../utils/array/array.utils";
 import { AssertionUtils } from "../../../utils/assertions/assertions.utils";
@@ -14,13 +15,13 @@ export class NavigationService {
 
     public navigationNodes: WritableSignal<NavigationTree | null> = signal(null);
     public currentNode: WritableSignal<NavigationTree | null> = signal(null);
-    public headerOptions: { showBackButton: boolean } = { showBackButton: false };
     public position: "left" | "bottom" | null = null;
 
     constructor(
         private service: Service,
         private routeService: RouteService,
         private router: Router,
+        private location: Location,
         private websocket: Websocket,
         private translate: TranslateService,
     ) {
@@ -64,6 +65,16 @@ export class NavigationService {
     }
 
     /**
+     * Navigates back to the previous page.
+     *
+     * Uses Angular's Location service to go back one step in the browser history.
+     *
+     */
+    public goBack(): void {
+        this.location.back();
+    }
+
+    /**
      * Initializes the navigation service
      *
      * @param currentUrl the current url
@@ -78,7 +89,6 @@ export class NavigationService {
             this.position = null;
         }
 
-        this.headerOptions.showBackButton = activeNode == null;
         this.currentNode.set(NavigationTree.of(activeNode));
     }
 

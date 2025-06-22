@@ -28,6 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = true;
+    protected showBackButton: boolean = false;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
