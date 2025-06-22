@@ -5,7 +5,6 @@
         <ng-container *ngFor="let line of entry.lines">
             <ng-container [ngSwitch]="line.type">
 
-
                 <!-- OeFormlyField.ChannelLine -->
                 <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
                     [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
@@ -52,15 +51,6 @@
                 <oe-modal-line *ngSwitchCase="'range-button-from-form-control-line'" [controlName]="line.controlName"
                     [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
                 </oe-modal-line>
-
-                <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
-                <ion-fab *ngIf="form?.dirty" vertical="bottom" style="position: fixed"
-                    [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
-                    <ion-fab-button (click)="onSubmit()">
-                        <ion-icon size="large" name="checkmark-circle-outline">
-                        </ion-icon>
-                    </ion-fab-button>
-                </ion-fab>
 
             </ng-container>
         </ng-container>

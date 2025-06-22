@@ -18,6 +18,10 @@ export enum WorkMode {
     NONE = "NONE",
     TEMPERATURE = "TEMPERATURE",
 }
+export enum EnabledDisabledState {
+    DISABLED = 0,
+    ENABLED = 1,
+}
 export enum OverrideStatus {
     ACTIVE = 0,
     INACTIVE = 1,

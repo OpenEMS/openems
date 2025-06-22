@@ -2,10 +2,10 @@
     *ngIf="isInitialized">
     <ion-grid class="ion-padding ion-margin-right">
         <ion-row class="ion-justify-content-center ion-align-items-center ion-padding">
-            <ion-col size-md="3" size-xs="9">
+            <ion-col size-md="2" size-xs="9">
                 <img src="assets/img/evse/keba.png">
             </ion-col>
-            <ion-col size-md="6" size-xs="9">
+            <ion-col size-md="4" size-xs="9">
                 <oe-modal-line [name]="'Modus'" [converter]="CONVERT_TO_MODE"
                     [channelAddress]="component.id + '/_PropertyMode'">
                 </oe-modal-line>
@@ -16,16 +16,18 @@
                     [channelAddress]="component.id + '/SessionEnergy'">
                 </oe-modal-line>
             </ion-col>
-            <ion-col size-md="3" size-xs="0">
+        </ion-row>
+        <ion-row class="ion-justify-content-center ion-padding">
+            <ion-col size-md="6" size-xs="9">
+                <oe-modal-buttons class="ion-font-size-x-small" [formGroup]="formGroup" controlName="mode"
+                    [component]="component" [buttons]="[
+                { name: 'Aus', value: 'ZERO', icon: {color:'primary', name: 'close-circle-outline'}},
+                { name: 'PV', value: 'SURPLUS', icon: {color:'primary', name: 'sunny-outline'}},
+                { name: 'Schnell', value: 'FORCE', icon: {color:'primary', name: 'rocket-outline'}}]">
+                </oe-modal-buttons>
             </ion-col>
         </ion-row>
     </ion-grid>
 
-    <oe-modal-buttons class="ion-font-size-x-small" [formGroup]="formGroup" controlName="mode" [component]="component"
-        [buttons]="[
-    { name: 'Aus', value: 'ZERO', icon: {color:'primary', name: 'close-circle-outline'}},
-    { name: 'Minimal', value: 'MINIMUM', icon: {color:'primary', name: 'radio-button-off-outline'}},
-    { name: 'PV', value: 'SURPLUS', icon: {color:'primary', name: 'sunny-outline'}},
-    { name: 'Schnell', value: 'FORCE', icon: {color:'primary', name: 'rocket-outline'}}]">
-    </oe-modal-buttons>
+
 </oe-navigation-view>
