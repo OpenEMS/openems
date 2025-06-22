@@ -89,8 +89,10 @@ public final class IntegratedSystemProps {
 							.onlyPositiveNumbers() //
 							.setMin(0);
 					if (nameableToBeChecked != null) {
-						final var exp = Exp.currentModelValue(nameableToBeChecked) //
-								.equal(Exp.staticValue(FeedInType.DYNAMIC_LIMITATION));
+						final var exp = Exp
+								.array(Exp.staticValue(FeedInType.DYNAMIC_LIMITATION),
+										Exp.staticValue(FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION))
+								.some(t -> t.equal(Exp.currentModelValue(nameableToBeChecked)));
 						field.onlyShowIf(additionalShowChecks.apply(exp));
 					}
 				}));
