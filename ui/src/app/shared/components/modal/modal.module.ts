@@ -7,6 +7,7 @@ import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
 import { PipeComponentsModule } from "../../pipe/pipe.module";
+import { HelpButtonComponent } from "./help-button/help-button";
 import { HelpLinkComponent } from "./help-link/help-link";
 import { ModalComponent } from "./modal";
 import { ModalButtonsComponent } from "./modal-button/modal-button";
@@ -18,7 +19,7 @@ import { ModalValueLineComponent } from "./modal-value-line/modal-value-line";
 import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-horizontal-line";
 
 @NgModule({
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, IonicModule, PipeComponentsModule, TranslateModule],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, IonicModule, PipeComponentsModule, TranslateModule, HelpButtonComponent],
   declarations: [
     ModalButtonsComponent,
     ModalInfoLineComponent,
