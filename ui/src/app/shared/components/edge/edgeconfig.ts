@@ -1,6 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChannelAddress, Widgets } from "../../shared";
-import { NavigationTree } from "../navigation/shared";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -40,8 +39,6 @@ export class EdgeConfig {
      * UI-Widgets.
      */
     public readonly widgets: Widgets;
-
-    public readonly navigation: NavigationTree;
 
     constructor(edge: Edge, source?: EdgeConfig) {
 
