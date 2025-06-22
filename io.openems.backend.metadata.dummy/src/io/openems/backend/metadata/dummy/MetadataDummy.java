@@ -3,6 +3,7 @@ package io.openems.backend.metadata.dummy;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -258,8 +259,13 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
-		return Optional.empty();
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		return null;
+	}
+
+	@Override
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException {
+		return Collections.emptyList();
 	}
 
 	@Override

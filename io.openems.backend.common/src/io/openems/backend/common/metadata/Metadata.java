@@ -469,8 +469,51 @@ public interface Metadata {
 	 * @return the latest {@link SetupProtocolCoreInfo}
 	 * @throws OpenemsNamedException on error
 	 */
-	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException;
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException;
 
-	public record SetupProtocolCoreInfo(int setupProtocolId, ZonedDateTime createDate) {
+	/**
+	 * Gets the latest {@link SetupProtocolCoreInfo}.
+	 * 
+	 * @param edgeId the edgeId
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException;
+
+	public record SetupProtocolCoreInfo(int setupProtocolId, ProtocolType type, ZonedDateTime createDate) {
+	}
+
+	public enum ProtocolType {
+		SETUP_PROTOCOL("setup-protocol"), //
+		EMS_EXCHANGE("ems-exchange"), //
+		CAPACITY_EXTENSION("capacity-extension"), //
+		;
+
+		private final String text;
+
+		/**
+		 * (non-Javadoc).
+		 * 
+		 * @param text the string
+		 */
+		ProtocolType(final String text) {
+			this.text = text;
+		}
+
+		/**
+		 * Gets the ProtocolType from a given string.
+		 * 
+		 * @param input        the input string
+		 * @param defaultValue the default value
+		 * @return the protocol type if found, else the default value
+		 */
+		public static ProtocolType fromStringOrDefault(String input, ProtocolType defaultValue) {
+			for (var type : ProtocolType.values()) {
+				if (type.text.equals(input)) {
+					return type;
+				}
+			}
+			return defaultValue;
+		}
 	}
 }
