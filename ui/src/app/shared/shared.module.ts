@@ -23,6 +23,7 @@ import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/forml
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
 import { FormlyFieldRadioWithImageComponent } from "./components/formly/formly-field-radio-with-image/formly-field-radio-with-image";
+import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
@@ -90,6 +91,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "select", component: FormlySelectComponent },
         { name: "checkbox-button", component: CheckboxButtonTypeComponent },
         { name: "radio", component: FormlyRadioTypeComponent },
+        { name: "range", component: FormlyRangeTypeComponent },
       ],
       validators: [
         { name: "ip", validation: IpValidator },
@@ -136,6 +138,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlySelectComponent,
     CheckboxButtonTypeComponent,
     FormlyRadioTypeComponent,
+    FormlyRangeTypeComponent,
   ],
   exports: [
     AppHeaderComponent,
