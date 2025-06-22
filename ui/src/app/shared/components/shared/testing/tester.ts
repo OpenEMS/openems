@@ -467,4 +467,3 @@ function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: Histor
   return options;
 }
 
-

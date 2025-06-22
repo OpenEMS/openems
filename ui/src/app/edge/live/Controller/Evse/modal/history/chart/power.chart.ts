@@ -41,4 +41,3 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 }
 
-

@@ -1,4 +1,3 @@
-
 import { Directive, effect, signal, WritableSignal } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";

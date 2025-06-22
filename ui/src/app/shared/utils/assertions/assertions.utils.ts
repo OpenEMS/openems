@@ -1,4 +1,3 @@
-
 export namespace AssertionUtils {
 
     /**
