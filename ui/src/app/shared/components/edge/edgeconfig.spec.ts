@@ -221,6 +221,17 @@ export namespace DummyConfig {
             ],
         };
 
+        export const Heat_MYPV_ACTHOR = {
+            id: "HeatMyPv",
+            natureIds: [
+                "io.openems.edge.heat.mypv.acthor9s.HeatMyPvAcThor9s",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.heat.api.ManagedHeatElement",
+                "io.openems.edge.heat.api.Heat",
+            ],
+        };
+
         export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
             id: "Controller.Io.FixDigitalOutput",
             natureIds: [
@@ -359,6 +370,19 @@ export namespace DummyConfig {
             properties: {
                 invert: false,
                 modbusUnitId: 5,
+                // TODO
+                type: "CONSUMPTION_METERED",
+            },
+            channels: {},
+        });
+
+        export const Heat_MYPV_ACTHOR = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.Heat_MYPV_ACTHOR,
+            properties: {
+                enabled: "true",
+                modbusUnitId: 1,
                 // TODO
                 type: "CONSUMPTION_METERED",
             },

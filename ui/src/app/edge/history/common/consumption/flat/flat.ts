@@ -11,6 +11,7 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../shared/s
 export class FlatComponent extends AbstractFlatWidget {
 
     protected evcsComponents: EdgeConfig.Component[] = [];
+    protected heatComponents: EdgeConfig.Component[] = [];
     protected consumptionMeterComponents: EdgeConfig.Component[] = [];
     protected totalOtherEnergy: number;
 
@@ -26,9 +27,20 @@ export class FlatComponent extends AbstractFlatWidget {
             channels.push(new ChannelAddress(component.id, "ActiveConsumptionEnergy"));
         });
 
+        this.heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+            .filter(component =>
+                !(component.factoryId === "Controller.Heat.Heatingelement") &&
+                !component.isEnabled === false);
+        channels.push(
+            ...this.heatComponents.map(
+                (component) => new ChannelAddress(component.id, "ActiveProductionEnergy")
+            )
+        );
+
         this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
             .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component)
-                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs"));
+                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs")
+                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.heat.api.Heat"));
         this.consumptionMeterComponents.forEach((component) => {
             channels.push(new ChannelAddress(component.id, "ActiveProductionEnergy"));
         });
@@ -47,14 +59,19 @@ export class FlatComponent extends AbstractFlatWidget {
      * @returns the total other Energy
      */
     private getTotalOtherEnergy(currentData: CurrentData): number {
+
         let otherEnergy: number = 0;
-        this.evcsComponents.forEach(component => {
+
+        [...this.evcsComponents, ...this.heatComponents].forEach(component => {
             otherEnergy += currentData.allComponents[component.id + "/ActiveConsumptionEnergy"] ?? 0;
         });
+
         this.consumptionMeterComponents.forEach(component => {
             otherEnergy += currentData.allComponents[component.id + "/ActiveProductionEnergy"] ?? 0;
         });
+
         return currentData.allComponents["_sum/ConsumptionActiveEnergy"] - otherEnergy;
+
     }
 }
 

@@ -341,6 +341,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return "V";
       case YAxisType.CURRENT:
         return "A";
+      case YAxisType.TEMPERATURE:
+        return "°C";
       case YAxisType.NONE:
         return "";
       default:
@@ -645,6 +647,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
+      case YAxisType.TEMPERATURE:
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          stacked: false,
+          type: "linear",
+          ticks: {
+            ...baseConfig.ticks,
+            stepSize: 4,
+          },
+        };
+        break;
+
       case YAxisType.TIME:
         options.scales[element.yAxisId] = {
           ...baseConfig,
@@ -744,6 +758,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(Language.DE.key));
             return baseName + ": " + pipe.transform(suffix);
           }
+          case YAxisType.TEMPERATURE:
+            return baseName + ": " + formatNumber(suffix / 10, locale, "1.0-1") + " °C";
           default:
             return baseName;
         }
@@ -783,6 +799,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         break;
       case YAxisType.CURRENT:
         suffix = "A";
+        break;
+      case YAxisType.TEMPERATURE:
+        suffix = "°C";
         break;
       case YAxisType.POWER:
         suffix = "W";
@@ -890,6 +909,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return "V";
       case YAxisType.CURRENT:
         return "A";
+      case YAxisType.TEMPERATURE:
+        return "°C";
       case YAxisType.REACTIVE:
         return "var";
       case YAxisType.ENERGY:

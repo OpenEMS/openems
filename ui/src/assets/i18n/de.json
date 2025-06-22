@@ -220,6 +220,16 @@
           "time": "Zeit",
           "timeCountdown": "Spätester Start"
         },
+        "HEAT": {
+          "TEMPERATURE": "Wassertemperatur",
+          "TEMPERATURE_UNIT": "Wassertemperatur in °C",
+          "NO_HEATING": "heizt nicht",
+          "HEATING": "heizt",
+          "HEATING_OUTPUT": "Heizleistung",
+          "HEATING_ENERGY": "Heizenergie",
+          "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen Ihres AC-Thor Heizstabes können Sie in der MyPV-App vornehmen.",
+          "TARGET_TEMPERATURE_REACHED": "Zieltemperatur erreicht"
+        },
         "HeatPump": {
           "aboveSoc": "und ab Ladezustand von",
           "belowSoc": "und unter Ladezustand von",

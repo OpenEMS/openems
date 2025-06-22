@@ -221,6 +221,16 @@
           "time": "Time",
           "timeCountdown": "Time until start"
         },
+        "HEAT": {
+          "TEMPERATURE": "Current temperature",
+          "TEMPERATURE_UNIT": "Temperature in °C",
+          "NO_HEATING": "no Heating",
+          "HEATING": "Heating is running",
+          "HEATING_OUTPUT": "Heating output",
+          "HEATING_ENERGY": "Heating energy",
+          "CHANGES_MY_PV_INFO": "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
+          "TARGET_TEMPERATURE_REACHED": "Target temperature reached"
+        },
         "HeatPump": {
           "HEAT_PUMP": "Heat pump",
           "aboveSoc": "and from the state of charge of",

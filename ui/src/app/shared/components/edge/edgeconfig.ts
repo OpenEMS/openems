@@ -174,6 +174,7 @@ export class EdgeConfig {
                         "Controller.IO.ChannelSingleThreshold",
                         "Controller.Io.FixDigitalOutput",
                         "Controller.IO.HeatingElement",
+                        "Controller.Heat.Heatingelement",
                         "Controller.IO.Heating.Room",
                         "Controller.Io.HeatPump.SgReady",
                     ]),
@@ -573,6 +574,7 @@ export class EdgeConfig {
         if (component.properties["type"] == "CONSUMPTION_METERED") {
             return true;
         }
+
         switch (component.factoryId) {
             case "GoodWe.EmergencyPowerMeter":
             case "Controller.IO.Heating.Room":
