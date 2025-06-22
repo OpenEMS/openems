@@ -152,10 +152,11 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 					return new JsonPrimitive(parameter.defaultValues().rippleControlReceiverActiv());
 				}) //
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
-		FEED_IN_TYPE(AppDef.copyOfGeneric(feedInType(FeedInType.EXTERNAL_LIMITATION), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
-				}))), //
+		FEED_IN_TYPE(AppDef.copyOfGeneric(
+				feedInType(FeedInType.EXTERNAL_LIMITATION, FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION), def -> def //
+						.wrapField((app, property, l, parameter, field) -> {
+							field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
+						}))), //
 		MAX_FEED_IN_POWER(AppDef.copyOfGeneric(
 				maxFeedInPower(FEED_IN_TYPE, t -> t.and(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull())),
 				def -> def //
