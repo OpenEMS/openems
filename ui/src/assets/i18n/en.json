@@ -802,7 +802,9 @@
       "TITLE": "Feed-In management",
       "EXTERNAL_CONTROLLER_RECEIVER": "Ripple control receiver",
       "PLACE_HOLDER": "Select option",
-      "NO_LIMITATION": "No limitation"
+      "NO_LIMITATION": "No limitation",
+      "NA_PROTECTION": "Activate remote shutdown (central NS protection)",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "Typically, the grid operator specifies a fixed power factor of '1'"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",

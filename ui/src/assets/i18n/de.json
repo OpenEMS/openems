@@ -810,7 +810,8 @@
       "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
       "NO_LIMITATION": "Kein Einspeisemanagement",
-      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)"
+      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
