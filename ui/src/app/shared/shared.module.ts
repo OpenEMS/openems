@@ -10,7 +10,8 @@ import { FormlyIonicModule } from "@ngx-formly/ionic";
 import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { appRoutingProviders } from "../app-routing.module";
+import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/formly/formly-current-user-alerting";
+import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
@@ -20,7 +21,9 @@ import { FormlyWrapperFormFieldComponent } from "./components/formly/form-field.
 import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox-with-button/formly-checkbox-with-button";
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
+import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
 import { FormlyFieldRadioWithImageComponent } from "./components/formly/formly-field-radio-with-image/formly-field-radio-with-image";
+import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
@@ -37,12 +40,11 @@ import { PercentageBarComponent } from "./components/percentagebar/percentagebar
 import { DirectiveModule } from "./directive/directive";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
 import { AppStateTracker } from "./ngrx-store/states";
-import { PipeModule } from "./pipe/pipe";
+import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
-import { RouteService } from "./service/previousRouteService";
+import { RouteService } from "./service/route.service";
 import { Service } from "./service/service";
-import { Utils } from "./service/utils";
-import { Websocket } from "./shared";
+import { Utils, Websocket } from "./shared";
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { "ip": true };
@@ -77,7 +79,10 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "formly-wrapper-default-of-cases", component: FormlyWrapperDefaultValueWithCasesComponent },
         { name: "panel", component: PanelWrapperComponent },
         { name: "formly-field-modal", component: FormlyFieldModalComponent },
+        { name: "formly-field-navigation", component: FormlyFieldNavigationComponent },
         { name: "formly-field-checkbox-with-image", component: FormlyFieldCheckboxWithImageComponent },
+        { name: "formly-current-user-alerting", component: FormlyCurrentUserAlertingComponent },
+        { name: "formly-other-users-alerting", component: FormlyOtherUsersAlertingComponent },
       ],
       types: [
         { name: "input", component: InputTypeComponent },
@@ -86,6 +91,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "select", component: FormlySelectComponent },
         { name: "checkbox-button", component: CheckboxButtonTypeComponent },
         { name: "radio", component: FormlyRadioTypeComponent },
+        { name: "range", component: FormlyRangeTypeComponent },
       ],
       validators: [
         { name: "ip", validation: IpValidator },
@@ -115,6 +121,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyCheckBoxHyperlinkWrapperComponent,
     FormlyFieldCheckboxWithImageComponent,
     FormlyFieldModalComponent,
+    FormlyFieldNavigationComponent,
     FormlyFieldMultiStepComponent,
     FormlyFieldRadioWithImageComponent,
     FormlyFieldWithLoadingAnimationComponent,
@@ -131,6 +138,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlySelectComponent,
     CheckboxButtonTypeComponent,
     FormlyRadioTypeComponent,
+    FormlyRangeTypeComponent,
   ],
   exports: [
     AppHeaderComponent,
@@ -157,7 +165,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   ],
   providers: [
     AppStateTracker,
-    appRoutingProviders,
     Logger,
     RouteService,
     Service,

@@ -105,6 +105,11 @@
                 <Controller_Io_HeatingElement [componentId]="widget.componentId"></Controller_Io_HeatingElement>
               </ion-col>
 
+              <ion-col size="12" *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'" size-lg="6"
+                class="ion-no-padding">
+                <Controller_Heat [componentId]="widget.componentId"></Controller_Heat>
+              </ion-col>
+
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_Heatpump [componentId]="widget.componentId"></Controller_Io_Heatpump>
               </ion-col>

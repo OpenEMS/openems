@@ -14,7 +14,8 @@
         </ng-container>
 
         <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
-        <ion-fab *ngIf="formGroup?.dirty" vertical="bottom" horizontal="end" style="display: flex">
+        <ion-fab *ngIf="formGroup?.dirty" vertical="bottom" class="ion-padding-bottom"
+            [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'" style="display: flex">
             <ion-fab-button (click)="applyChanges()">
                 <ion-icon size="large" name="checkmark-circle-outline">
                 </ion-icon>

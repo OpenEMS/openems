@@ -67,7 +67,7 @@ export class ModalComponent extends AbstractModal {
       case "Evcs.Keba.KeContact":
         return "EVCS_KEBA_KECONTACT";
       case "Evcs.HardyBarth":
-        return "EVCS_KEBA_KECONTACT";
+        return "EVCS_HARDY_BARTH";
       case "Evcs.IesKeywattSingle":
         return "EVCS_OCPP_IESKEYWATTSINGLE";
       default:

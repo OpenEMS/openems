@@ -3,9 +3,9 @@ import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "controller-evse-history-chart",
@@ -20,9 +20,7 @@ export class ChartComponent extends AbstractHistoryChart {
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
                     name: translate.instant("General.power"),
-                    converter: () => {
-                        return data["ActivePower"];
-                    },
+                    converter: () => data["ActivePower"],
                     color: ChartConstants.Colors.YELLOW,
                 }];
             },
@@ -42,5 +40,4 @@ export class ChartComponent extends AbstractHistoryChart {
         return ChartComponent.getChartData(meter, this.translate);
     }
 }
-
 

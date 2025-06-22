@@ -115,7 +115,7 @@
             [converter]="Utils.CONVERT_TO_WATT">
           </oe-modal-line>
           <oe-modal-line [formGroup]="formGroup" controlName="defaultChargeMinPower"
-            [control]="{type: 'RANGE', properties: {min: minChargePower, max: maxChargePower, unit: 'W', step: 100 }}">
+            [control]="{type: 'RANGE', properties: {tickMin: minChargePower, tickMax: maxChargePower, unit: 'W', step: 100 }}">
           </oe-modal-line>
         </ng-container>
 
@@ -147,7 +147,7 @@
 
           <!-- Using "kWh " (with space) to not use the default unitvalue pipe conversion -->
           <oe-modal-line [formGroup]="formGroup" controlName="energySessionLimitKwh"
-            [control]="{type: 'RANGE', properties: {min: 1, max: 100, unit: 'kWh ', step:1}}">
+            [control]="{type: 'RANGE', properties: {tickMin: 1, tickMax: 100, unit: 'kWh ', step:1}}">
           </oe-modal-line>
         </ng-container>
       </ng-container>

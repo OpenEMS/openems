@@ -18,6 +18,8 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
+import io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.GoodWeTypeAndVersionSpecific;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public class GoodWeGridMeterImplTest {
@@ -91,12 +93,44 @@ public class GoodWeGridMeterImplTest {
 	}
 
 	@Test
+	public void testGetGoodweTypeSpecificReluts() throws Exception {
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(false /* handleDspVersion4 */, false /* extendedPowerValues */),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 3));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(false, false),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 0));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, false),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 6));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 10));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(false, false),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, null));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.FENECON_FHI_29_9_DAH, 3));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.UNDEFINED, 0));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				GoodWeGridMeterImpl.getGoodweTypeSpecificResults(GoodWeType.UNDEFINED, null));
+
+	}
+
+	@Test
 	public void testReadFromModbus() throws Exception {
 		new ComponentTest(new GoodWeGridMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(36003, 0, 1) // States
 						.withRegisters(35123, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) // F_GRID_R etc.
+						.withRegisters(35011, // Deprecated GoodWe type register as String
+								new int[] { 0, 0x4757, 0x354B, 0x2D42, 0x5400 })
+
 						.withRegister(35016, 4) // DSP Version
 						.withRegisters(36005, //
 								/* ACTIVE_POWER */ -1000 /* L1 */, -1320 /* L2 */, 1610 /* L3 */, //
@@ -114,6 +148,7 @@ public class GoodWeGridMeterImplTest {
 						.setExternalMeterRatioValueB(0) //
 						.build()) //
 
+				.next(new TestCase(), 2) //
 				.next(new TestCase() //
 						.output(GoodWeGridMeter.ChannelId.HAS_NO_METER, false) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1000) // inverted

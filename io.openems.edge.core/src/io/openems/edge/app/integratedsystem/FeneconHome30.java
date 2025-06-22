@@ -288,9 +288,10 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 
 			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
-			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
-					? this.getInt(p, Property.MAX_FEED_IN_POWER)
-					: 0;
+			final var maxFeedInPower = (feedInType == FeedInType.DYNAMIC_LIMITATION
+					|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION)
+							? this.getInt(p, Property.MAX_FEED_IN_POWER)
+							: 0;
 
 			final var gridMeterCategory = this.getEnum(p, GoodWeGridMeterCategory.class, Property.GRID_METER_CATEGORY);
 			final Integer ctRatioFirst;

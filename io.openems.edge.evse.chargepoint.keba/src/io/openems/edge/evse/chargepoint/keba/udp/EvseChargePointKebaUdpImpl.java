@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,6 +45,7 @@ import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.chargepoint.keba.common.CommonConfig;
 import io.openems.edge.evse.chargepoint.keba.common.EvseChargePointKeba;
 import io.openems.edge.evse.chargepoint.keba.common.Utils;
+import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -148,15 +150,30 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 			this.utils.onBeforeProcessImage();
 		}
 		case TOPIC_CYCLE_EXECUTE_WRITE -> {
-			this.setCurrent(this.getSetEnableChannel().getNextWriteValueAndReset(),
-					this.getSetChargingCurrentChannel().getNextWriteValueAndReset());
+			this.setCurrent(//
+					this.getSetEnableChannel().getNextWriteValueAndReset() //
+							.map(ena -> OptionsEnum.getOption(SetEnable.class, ena)) //
+							.orElse(SetEnable.UNDEFINED), //
+					this.getSetChargingCurrentChannel().getNextWriteValueAndReset().orElse(null));
 			this.setDisplayText(Optional.empty()); // TODO
 		}
 		}
 	}
 
-	private void setCurrent(Optional<Integer> setEnable, Optional<Integer> setChargingCurrent) {
-		setChargingCurrent.ifPresent(current -> this.send("currtime " + current + " 1"));
+	private void setCurrent(SetEnable setEnable, Integer setChargingCurrent) {
+		final var current = switch (setEnable) {
+		case DISABLE -> 0;
+		case ENABLE -> setChargingCurrent;
+		case UNDEFINED -> null;
+		};
+
+		if (current == null) {
+			return;
+		}
+
+		final var command = "currtime " + current + " 1";
+		var success = this.send(command);
+		this.logDebug("Sent [" + command + "] " + (success ? "successfully" : "-> FAILED"));
 	}
 
 	private void setDisplayText(Optional<String> setText) {

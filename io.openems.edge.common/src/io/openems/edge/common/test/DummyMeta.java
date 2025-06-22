@@ -1,16 +1,20 @@
 package io.openems.edge.common.test;
 
+import java.util.Optional;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
+import io.openems.edge.common.meta.Coordinates;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implements Meta {
 
 	private final OpenemsEdgeOem oem = new DummyOpenemsEdgeOem();
+	private Optional<Coordinates> coordinates = Optional.empty();
 
 	public DummyMeta(String id) {
 		super(id, //
@@ -54,5 +58,22 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	@Override
 	public int getGridConnectionPointFuseLimit() {
 		return 32; // [A]
+	}
+
+	@Override
+	public Optional<Coordinates> getCoordinates() {
+		return this.coordinates;
+	}
+
+	/**
+	 * Sets the coordinates for this {@link DummyMeta} instance and returns the
+	 * instance itself.
+	 *
+	 * @param coordinates the optional coordinates
+	 * @return the current {@link DummyMeta} instance with updated coordinates
+	 */
+	public DummyMeta withCoordinates(Coordinates coordinates) {
+		this.coordinates = Optional.of(coordinates);
+		return this.self();
 	}
 }

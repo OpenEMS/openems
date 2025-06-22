@@ -439,6 +439,7 @@ public interface Field {
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
 		EDGE("device_id", true),
+		TYPE("type", true),
 		CREATE_DATE("create_date", false);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol";

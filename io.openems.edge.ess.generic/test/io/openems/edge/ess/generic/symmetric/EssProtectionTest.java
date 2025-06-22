@@ -6,8 +6,8 @@ import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MAX_CURREN
 import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MIN_VOLTAGE;
 import static io.openems.edge.battery.api.Battery.ChannelId.SOC;
 import static io.openems.edge.battery.api.Battery.ChannelId.VOLTAGE;
-import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
 import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_CHARGE_MAX_CURRENT;
+import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
