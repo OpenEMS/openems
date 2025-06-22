@@ -17,8 +17,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.debugcycle.MetricsConsumer;
 import io.openems.backend.common.debugcycle.DebugLoggable;
+import io.openems.backend.common.debugcycle.MetricsConsumer;
 import io.openems.common.utils.ThreadPoolUtils;
 
 @Component(//
