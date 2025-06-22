@@ -234,15 +234,16 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 
 			var appConfig = AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.schedulerByCentralOrder(
-							new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()))) //
 					.throwingOnlyIf(ip.startsWith("192.168.25."),
 							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
 									.addIp("Evcs", "192.168.25.10/24"))));
 
 			if (!readOnly) {
-				appConfig.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
-						maxHardwarePowerPerPhase, evcsId));
+				appConfig
+						.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+								maxHardwarePowerPerPhase, evcsId))
+						.addTask(Tasks.schedulerByCentralOrder(
+								new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId())));
 			}
 
 			return appConfig.build();
