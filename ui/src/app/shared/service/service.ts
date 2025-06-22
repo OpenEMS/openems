@@ -276,7 +276,7 @@ export class Service extends AbstractService {
           for (const source of mergedRequests) {
 
             // Jump to next request for empty channelAddresses
-            if (source.channels.length === 0) {
+            if (!source?.channels?.length) {
               continue;
             }
 

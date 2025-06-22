@@ -499,6 +499,16 @@ export class EdgeConfig {
     }
 
     /**
+     * Determines if component has factory id
+     *
+     * @param nature the given Nature.
+     * @param componentId the Component-ID
+     */
+    public hasComponentFactory(factoryId: string, component: EdgeConfig.Component) {
+        return component.factoryId === factoryId;
+    }
+
+    /**
      * Determines if Edge has a Storage device
      */
     public hasStorage(): boolean {
@@ -734,7 +744,19 @@ export class EdgeConfig {
         return component?.properties[property] ?? null;
     }
 
-
+    /**
+     * Safely gets a property from a component, if it exists, else returns false.
+     *
+     * @param component The component from which to retrieve the property.
+     * @param property The property name to retrieve.
+     * @returns The property value if it exists, otherwise null.
+     */
+    public hasComponentPropertyValue<T>(component: EdgeConfig.Component | null, property: string, value: T): boolean {
+        if (component == null) {
+            return false;
+        }
+        return component.hasPropertyValue<T>(property, value);
+    }
 }
 
 export enum PersistencePriority {
@@ -788,6 +810,10 @@ export namespace EdgeConfig {
             public readonly channels?: { [channelId: string]: ComponentChannel },
         ) { }
 
+        public static of(component: EdgeConfig.Component) {
+            return new EdgeConfig.Component(component.factoryId, component.properties, component.channels ?? {});
+        }
+
         /* Safely gets a property from a component, if it exists, else returns null.
         *
         * @param component The component from which to retrieve the property.
@@ -796,6 +822,21 @@ export namespace EdgeConfig {
         */
         public getPropertyFromComponent<T>(property: string): T | null {
             return this.properties[property] ?? null;
+        }
+
+        /**
+         * Checks if property has a given value
+         *
+         *@param propertyName - The name of the property to check.
+         *@param value - The value to compare against.
+         *@returns True if the property exists and has the given value; otherwise, false.
+         */
+        public hasPropertyValue<T>(propertyName: string, value: T): boolean {
+            const propertyValue = this.getPropertyFromComponent<T>(propertyName);
+            if (!propertyValue) {
+                return false;
+            }
+            return propertyValue === value;
         }
     }
 

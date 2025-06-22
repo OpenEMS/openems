@@ -574,6 +574,8 @@
     "storageSystem": "Storage System",
     "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
+    "TOTAL_CHARGE": "Total charge",
+    "TOTAL_DISCHARGE": "Total discharge",
     "totalState": "Total state",
     "VISIBLE_FOR_ADMINS_ONLY": "Visible for Service & Administration only",
     "warning": "Warning",

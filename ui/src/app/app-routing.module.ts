@@ -25,7 +25,6 @@ import { HistoryParentComponent } from "./edge/history/historyparent.component";
 import { AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component";
 import { SymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
 import { TimeslotPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
-import { StorageChartOverviewComponent } from "./edge/history/storage/storagechartoverview/storagechartoverview.component";
 import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/Evse/modal/forecast/forecast";
 import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/modal/history/history";
 import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/modal/modal";
@@ -120,7 +119,7 @@ export const routes: Routes = [
           { path: "productionchart/:componentId", component: DetailsOverviewComponent },
           { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
           { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
-          { path: "storagechart", component: StorageChartOverviewComponent },
+          { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },
 
           // Controllers
           { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },

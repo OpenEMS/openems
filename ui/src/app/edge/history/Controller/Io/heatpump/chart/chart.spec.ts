@@ -31,7 +31,7 @@ describe("History Heatpump", () => {
                         ],
                         labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
                         options: OeTester.ChartOptions.LINE_CHART_OPTIONS("hour", "line", {
-                            [ChartAxis.LEFT]: { scale: { beginAtZero: true, title: "Zustand" } },
+                            [ChartAxis.LEFT]: { scale: { beginAtZero: true }, title: "Zustand" },
                         }),
                     },
                 });

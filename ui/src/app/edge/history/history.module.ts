@@ -4,6 +4,7 @@ import { SharedModule } from "../../shared/shared.module";
 import { ChpSocChartComponent } from "./chpsoc/chart.component";
 import { ChpSocWidgetComponent } from "./chpsoc/widget.component";
 import { Common } from "./common/common";
+import { FlatComponent as StorageFlatComponent } from "./common/storage/flat/flat";
 import { Controller } from "./Controller/controller.module";
 import { FlatComponent as HeatpumpFlatComponent } from "./Controller/Io/heatpump/flat/flat";
 import { DelayedSellToGridChartComponent } from "./delayedselltogrid/chart.component";
@@ -20,13 +21,6 @@ import { SymmetricPeakshavingWidgetComponent } from "./peakshaving/symmetric/wid
 import { TimeslotPeakshavingChartComponent } from "./peakshaving/timeslot/chart.component";
 import { TimeslotPeakshavingChartOverviewComponent } from "./peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
 import { TimeslotPeakshavingWidgetComponent } from "./peakshaving/timeslot/widget.component";
-import { StorageChargerChartComponent } from "./storage/chargerchart.component";
-import { StorageESSChartComponent } from "./storage/esschart.component";
-import { StorageSingleChartComponent } from "./storage/singlechart.component";
-import { SocStorageChartComponent } from "./storage/socchart.component";
-import { StorageChartOverviewComponent } from "./storage/storagechartoverview/storagechartoverview.component";
-import { StorageTotalChartComponent } from "./storage/totalchart.component";
-import { StorageComponent } from "./storage/widget.component";
 
 @NgModule({
   imports: [
@@ -45,15 +39,9 @@ import { StorageComponent } from "./storage/widget.component";
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
     HeatpumpFlatComponent,
+    StorageFlatComponent,
     HistoryComponent,
     HistoryParentComponent,
-    SocStorageChartComponent,
-    StorageChargerChartComponent,
-    StorageChartOverviewComponent,
-    StorageComponent,
-    StorageESSChartComponent,
-    StorageSingleChartComponent,
-    StorageTotalChartComponent,
     SymmetricPeakshavingChartComponent,
     SymmetricPeakshavingChartOverviewComponent,
     SymmetricPeakshavingWidgetComponent,
