@@ -168,7 +168,11 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 		try {
 			final var image = imageFuture.get();
 			final var status = statusFuture.get();
-
+			final var permissions = app.getAppPermissions();
+			var permissionJson = JsonUtils.buildJsonObject()//
+					.addProperty("canSee", permissions.canSee())//
+					.addProperty("canDelete", permissions.canDelete())//
+					.build();
 			return JsonUtils.buildJsonObject() //
 					.add("categorys", Arrays.stream(app.getCategories()) //
 							.map(cat -> cat.toJsonObject(language)) //
@@ -178,6 +182,7 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 					.addProperty("name", app.getName(language)) //
 					.addProperty("shortName", app.getShortName(language)) //
 					.addPropertyIfNotNull("image", image) //
+					.add("permissions", permissionJson)//
 					.add("flags", Arrays.stream(app.flags()) //
 							.map(Flag::toJson) //
 							.collect(JsonUtils.toJsonArray()))
