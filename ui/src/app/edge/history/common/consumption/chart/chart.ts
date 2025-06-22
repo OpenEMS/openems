@@ -5,8 +5,8 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "consumptionchart",

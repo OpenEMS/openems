@@ -20,6 +20,7 @@ export class LiveDataService extends DataService implements OnDestroy {
         super();
 
         this.service.getCurrentEdge().then((edge) => {
+            this.edge = edge;
             edge.currentData.pipe(takeUntil(this.stopOnDestroy))
                 .subscribe(() => this.lastUpdated.set(new Date()));
         });

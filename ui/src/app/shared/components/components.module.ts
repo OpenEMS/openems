@@ -5,7 +5,7 @@ import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
-import { PipeModule } from "../pipe/pipe";
+import { PipeModule } from "../pipe/pipe.module";
 import { ChartModule } from "./chart/chart.module";
 import { FlatWidgetComponent } from "./flat/flat";
 import { FlatWidgetHorizontalLineComponent } from "./flat/flat-widget-horizontal-line/flat-widget-horizontal-line";

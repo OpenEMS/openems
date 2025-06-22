@@ -1,7 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChannelAddress, Widgets } from "../../shared";
-import { baseNavigationTree, NavigationId, NavigationTree } from "../navigation/shared";
-import { Name } from "../shared/name";
+import { NavigationTree } from "../navigation/shared";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -45,12 +44,11 @@ export class EdgeConfig {
     public readonly navigation: NavigationTree;
 
     constructor(edge: Edge, source?: EdgeConfig) {
+
         if (source) {
             this.components = source.components;
             this.factories = source.factories;
         }
-
-        this.navigation = this.createNavigationTree(this.components, this.factories);
 
         // initialize Components
         for (const componentId in this.components) {
@@ -571,6 +569,7 @@ export class EdgeConfig {
      * @returns true for CONSUMPTION_METERED
      */
     public isTypeConsumptionMetered(component: EdgeConfig.Component) {
+
         if (component.properties["type"] == "CONSUMPTION_METERED") {
             return true;
         }
@@ -731,41 +730,6 @@ export class EdgeConfig {
      */
     public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
         return component?.properties[property] ?? null;
-    }
-
-    /**
-     * Creates a navigation Tree
-     *
-     * @param components the edgeconfig components
-     * @param factories the edgeconfig factories
-     * @returns a navigationTree
-     */
-    private createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory; }): NavigationTree {
-
-        // Create copy of navigationTree, avoid call by reference
-        const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree.slice() as ConstructorParameters<typeof NavigationTree>;
-        const navigationTree: NavigationTree = new NavigationTree(..._baseNavigationTree);
-
-        const baseMode: NavigationTree["mode"] = "label";
-        for (const [componentId, component] of Object.entries(components)) {
-            switch (component.factoryId) {
-                case "Evse.Controller.Single":
-                    navigationTree.setChild(NavigationId.LIVE,
-                        new NavigationTree(
-                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
-                            new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, "Historie", baseMode, [], null),
-                            new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, "Prognose", baseMode, [], null),
-                        ], navigationTree));
-                    break;
-                case "Controller.IO.Heating.Room":
-                    navigationTree.setChild(NavigationId.LIVE,
-                        new NavigationTree(
-                            componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
-                            navigationTree,));
-                    break;
-            }
-        }
-        return navigationTree;
     }
 
 

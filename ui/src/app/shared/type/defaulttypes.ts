@@ -4,8 +4,8 @@ import { differenceInDays, endOfMonth, endOfYear, format, getDay, getMonth, getY
 
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Service } from "../shared";
-import { TRange } from "../type/utility";
 import { StringUtils } from "../utils/string/string.utils";
+import { TRange } from "./utility";
 
 export namespace DefaultTypes {
 

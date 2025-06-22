@@ -5,7 +5,7 @@ import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
-import { PipeModule } from "../../pipe/pipe";
+import { PipeModule } from "../../pipe/pipe.module";
 import { HelpButtonComponent } from "./help-button/help-button";
 import { HelpLinkComponent } from "./help-link/help-link";
 import { ModalComponent } from "./modal";

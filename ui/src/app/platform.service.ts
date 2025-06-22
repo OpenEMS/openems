@@ -11,7 +11,7 @@ import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
 import { GetSetupProtocolRequest } from "./shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "./shared/jsonrpc/response/base64PayloadResponse";
-import { RouteService } from "./shared/service/previousRouteService";
+import { RouteService } from "./shared/service/route.service";
 import { Websocket } from "./shared/shared";
 import { ArrayUtils } from "./shared/utils/array/array.utils";
 

@@ -108,7 +108,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         });
     }
 
-    updateComponent(config: EdgeConfig) {
+    protected updateComponent(config: EdgeConfig) {
         return;
     }
 

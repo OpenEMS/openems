@@ -3,13 +3,16 @@ import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Currency, EdgeConfig } from "../shared";
 
+/**
+ * @deprecated use seperate utils class
+ */
 export class Utils {
 
   constructor() { }

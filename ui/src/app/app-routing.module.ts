@@ -28,6 +28,7 @@ import { StorageChartOverviewComponent } from "./edge/history/storage/storagecha
 import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/Evse/modal/forecast/forecast";
 import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/modal/history/history";
 import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/modal/modal";
+import { ModalComponent as EvseSettingsComponent } from "./edge/live/Controller/Evse/modal/settings/settings";
 import { ModalComponent as IoHeatingRoomComponent } from "./edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
 import { LiveDataService } from "./edge/live/livedataservice";
@@ -85,6 +86,7 @@ export const routes: Routes = [
           { path: "", component: EdgeLiveComponent },
           { path: "evse/:componentId", component: EvseSingleComponent },
           { path: "evse/:componentId/history", component: EvseHistoryComponent },
+          { path: "evse/:componentId/settings", component: EvseSettingsComponent },
           { path: "evse/:componentId/forecast", component: EvseForecastComponent },
           { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
         ],

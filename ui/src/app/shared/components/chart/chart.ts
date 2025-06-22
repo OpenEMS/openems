@@ -5,8 +5,8 @@ import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
 import { ChartOptionsPopoverComponent } from "../../legacy/chartoptions/popover/popover.component";
-import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
+import { DefaultTypes } from "../../type/defaulttypes";
 
 @Component({
   selector: "oe-chart",

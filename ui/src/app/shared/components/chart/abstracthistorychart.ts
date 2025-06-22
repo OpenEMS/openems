@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { calculateResolution, ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { JsonrpcResponseError } from "../../jsonrpc/base";
 import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { QueryHistoricTimeseriesDataRequest } from "../../jsonrpc/request/queryHistoricTimeseriesDataRequest";
@@ -20,7 +20,6 @@ import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/quer
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
-import { ChartAxis, HistoryUtils, YAxisType } from "../../service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
@@ -28,6 +27,7 @@ import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
+import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
 import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
 import { ChartTypes } from "./chart.types";
@@ -1204,21 +1204,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    */
   protected beforeSetChartLabel(): void { }
 
-  /**
-   * Gets the ChannelAddresses that should be queried.
-   */
-  private getChannelAddresses(): Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }> {
-    return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
-      if (this.chartObject?.input) {
-        resolve({
-          powerChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.powerChannel)),
-          energyChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.energyChannel)),
-        });
-      }
-    });
-  }
-
-  private loadLineChart(unit: ChronoUnit.Type) {
+  protected loadLineChart(unit: ChronoUnit.Type) {
     return new Promise<void>((resolve) => {
       Promise.all([
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
@@ -1239,7 +1225,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     });
   }
 
-  private loadBarChart(unit: ChronoUnit.Type): Promise<void> {
+  protected loadBarChart(unit: ChronoUnit.Type): Promise<void> {
     return new Promise((resolve) => {
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
@@ -1260,6 +1246,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.setChartLabel();
         resolve();
       }).finally(() => resolve());
+    });
+  }
+
+
+  /**
+   * Gets the ChannelAddresses that should be queried.
+   */
+  private getChannelAddresses(): Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }> {
+    return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
+      if (this.chartObject?.input) {
+        resolve({
+          powerChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.powerChannel)),
+          energyChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.energyChannel)),
+        });
+      }
     });
   }
 

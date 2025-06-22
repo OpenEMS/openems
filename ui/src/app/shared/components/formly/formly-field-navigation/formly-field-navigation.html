@@ -1,4 +1,5 @@
-<oe-modal [title]="props.attributes.title" *ngIf="props">
+<oe-navigation-view [formGroup]="form" [component]="props.options[0].component"
+    *ngIf="props && props.options[0].component">
     <ngx-spinner name="formly-field-modal"></ngx-spinner>
     <ng-container *ngFor="let entry of props.options">
         <ng-container *ngFor="let line of entry.lines">
@@ -34,12 +35,23 @@
                     [valueCallback]="line.value" [filter]="line.filter" [name]="line.name"></oe-modal-value-line>
 
                 <!-- FormGrouped -->
+                <ng-container *ngSwitchCase="'value-from-form-control-line'">
+                    <oe-modal-line [controlName]="line.controlName" [formGroup]="form" [name]="line.name"
+                        [control]="{type: 'TEXT', valueConverter: line.converter}">
+                    </oe-modal-line>
+                </ng-container>
+
                 <ng-container *ngSwitchCase="'buttons-from-form-control-line'">
                     <oe-modal-buttons *ngIf="form.controls[line.controlName] !== null" [formGroup]="form"
                         [controlName]="line.controlName" [component]="component" [buttons]="line.buttons"
                         [channelAddress]="line.channel?.toString() ?? null">
                     </oe-modal-buttons>
                 </ng-container>
+
+                <!-- OeFormlyField.RangeButtonFromFormControlLine -->
+                <oe-modal-line *ngSwitchCase="'range-button-from-form-control-line'" [controlName]="line.controlName"
+                    [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
+                </oe-modal-line>
 
                 <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
                 <ion-fab *ngIf="form?.dirty" vertical="bottom" style="position: fixed"
@@ -53,4 +65,4 @@
             </ng-container>
         </ng-container>
     </ng-container>
-</oe-modal>
+</oe-navigation-view>

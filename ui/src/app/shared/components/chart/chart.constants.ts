@@ -4,11 +4,11 @@ import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import { Chart, ChartComponentLike, ChartDataset, ChartOptions, LegendItem, PointStyle } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { RGBColor } from "../../service/defaulttypes";
-import { ChartAxis, HistoryUtils, Utils } from "../../service/utils";
+import { RGBColor } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { EmptyObj, TPartialBy } from "../../type/utility";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { ChartAxis, HistoryUtils, Utils } from "../../utils/utils";
 import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 import { ChartTypes } from "./chart.types";
@@ -239,6 +239,7 @@ export namespace ChartConstants {
     export const PURPLE: string = new RGBColor(91, 92, 214).toString();
     export const YELLOW: string = new RGBColor(255, 206, 0).toString();
     export const BLUE_GREY: string = new RGBColor(77, 106, 130).toString();
+    export const TURQUOISE: string = new RGBColor(0, 204, 204).toString();
     export const DARK_GREY: string = new RGBColor(169, 169, 169).toString();
     export const GREY: string = new RGBColor(189, 189, 189).toString();
 

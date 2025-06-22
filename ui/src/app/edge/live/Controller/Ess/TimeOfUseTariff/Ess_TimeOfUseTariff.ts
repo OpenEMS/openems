@@ -3,10 +3,11 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
-import { ChartAxis, TimeOfUseTariffUtils } from "src/app/shared/service/utils";
+import { ModalModule } from "src/app/shared/components/modal/modal.module";
 import { ChartConstants, Utils } from "src/app/shared/shared";
 import { SharedModule } from "src/app/shared/shared.module";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { ChartAxis, TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
 import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
@@ -16,9 +17,11 @@ import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
     imports: [
         BrowserModule,
         SharedModule,
+        ModalModule,
     ],
     declarations: [
         ModalComponent,
+
         FlatComponent,
         ScheduleStateAndPriceChartComponent,
         SchedulePowerAndSocChartComponent,

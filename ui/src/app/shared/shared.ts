@@ -4,20 +4,19 @@ export { Edge } from "./components/edge/edge";
 export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";
 export { Service } from "./service/service";
-export { Utils } from "./service/utils";
 export { Websocket } from "./service/websocket";
 export { ChannelAddress } from "./type/channeladdress";
 export { CurrentData } from "./type/currentdata";
 export { GridMode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
-
+export { Utils } from "./utils/utils";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addIcons } from "ionicons";
 import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
-import { DefaultTypes } from "./service/defaulttypes";
+import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
 
 addIcons({

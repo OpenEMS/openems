@@ -2,7 +2,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Cumulated } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryWidget } from "../abstracthistorywidget";
 

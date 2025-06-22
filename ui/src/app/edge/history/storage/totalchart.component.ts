@@ -4,12 +4,12 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
-
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ChartAxis, Utils, YAxisType } from "src/app/shared/utils/utils";
+
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
