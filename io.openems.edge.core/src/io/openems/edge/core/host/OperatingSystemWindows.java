@@ -15,6 +15,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
+import io.openems.edge.common.update.Updateable;
 
 /**
  * OperatingSystem implementation for Windows.
@@ -66,6 +67,11 @@ public class OperatingSystemWindows implements OperatingSystem {
 
 	public CompletableFuture<String> getOperatingSystemVersion() {
 		return CompletableFuture.completedFuture(System.getProperty("os.name"));
+	}
+
+	@Override
+	public Updateable getSystemUpdateable() {
+		return null;
 	}
 
 }

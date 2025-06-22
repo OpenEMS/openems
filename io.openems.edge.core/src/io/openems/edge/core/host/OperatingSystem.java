@@ -14,6 +14,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
+import io.openems.edge.common.update.Updateable;
 
 public interface OperatingSystem {
 
@@ -86,5 +87,13 @@ public interface OperatingSystem {
 	 * @return a future with the result
 	 */
 	public CompletableFuture<String> getOperatingSystemVersion();
+
+	/**
+	 * Returns the {@link Updateable} to update the current operating system.
+	 * 
+	 * @return the {@link Updateable} for the current operating system or null if
+	 *         not implemented
+	 */
+	public Updateable getSystemUpdateable();
 
 }

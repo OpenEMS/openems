@@ -130,6 +130,17 @@ export class UserPermission {
     const isAllowed = edge?.isVersionAtLeast("2024.2.2");
     return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
   }
+
+  /**
+  * Checks if user is allowed to see additional updates.
+  *
+  * @param edge the current {@link Edge}
+  * @returns true, if user has access to see additional updates
+  */
+  public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
+    return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
+  }
+
 }
 
 export enum Producttype {

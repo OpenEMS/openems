@@ -52,6 +52,7 @@ import io.openems.common.utils.InetAddressUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.update.Updateable;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.NetworkInterface.IpMasqueradeSetting;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
@@ -751,6 +752,11 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					.completeExceptionally(new OpenemsException("OS-Version name not found in /etc/os-release")));
 		}, versionFuture::completeExceptionally);
 		return versionFuture;
+	}
+
+	@Override
+	public Updateable getSystemUpdateable() {
+		return null;
 	}
 
 }

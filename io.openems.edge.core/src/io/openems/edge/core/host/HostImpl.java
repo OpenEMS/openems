@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Hashtable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -35,6 +37,7 @@ import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.EdgeGuards;
 import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.update.Updateable;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
@@ -59,6 +62,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private final Logger log = LoggerFactory.getLogger(HostImpl.class);
 
 	protected final OperatingSystem operatingSystem;
+	private ServiceRegistration<Updateable> operatingSystemUpdateable;
 
 	private final DiskSpaceWorker diskSpaceWorker;
 	private final NetworkConfigurationWorker networkConfigurationWorker;
@@ -116,6 +120,12 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.networkConfigurationWorker.activate(this.id());
 		this.usbConfigurationWorker.activate(this.id());
 
+		final var operatingSystemUpdateable = this.operatingSystem.getSystemUpdateable();
+		if (operatingSystemUpdateable != null) {
+			this.operatingSystemUpdateable = bundleContext.registerService(Updateable.class, operatingSystemUpdateable,
+					new Hashtable<>());
+		}
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
@@ -145,6 +155,11 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.usbConfigurationWorker.deactivate();
 
 		this.systemUpdateHandler.deactivate();
+
+		final var operatingSystemUpdateable = this.operatingSystemUpdateable;
+		if (operatingSystemUpdateable != null) {
+			operatingSystemUpdateable.unregister();
+		}
 
 		super.deactivate();
 	}
