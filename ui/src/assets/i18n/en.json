@@ -932,7 +932,9 @@
     "passwordReset": "Reset Password",
     "authenticationFailed": "Authentication Failed",
     "user": "User",
-    "REQUEST_TIMEOUT": "Request timed out. Try again later."
+    "REQUEST_TIMEOUT": "Request timed out. Try again later.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "Menu": {
     "accessLevel": "Access Level",
@@ -984,6 +986,10 @@
       "email": "E-Mail",
       "password": "Password",
       "confirmPassword": "Confirm password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "showConfirmPassword": "Show confirm password",
+      "hideConfirmPassword": "Hide confirm password",
       "company": "Company",
       "confirmEmail": "confirm E-Mail",
       "PRIVATE": "Private"
@@ -1095,6 +1101,12 @@
   "GENERAL": {
     "FORMLY": {
       "REQUIRED": "Is required"
+    }
+  },
+  "ADMIN": {
+    "PASSWORD": {
+      "SHOW": "Show password",
+      "HIDE": "Hide password"
     }
   }
 }

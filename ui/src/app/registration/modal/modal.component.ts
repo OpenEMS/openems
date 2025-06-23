@@ -18,6 +18,8 @@ export class RegistrationModalComponent implements OnInit {
   protected formGroup: FormGroup;
   protected activeSegment: string = "installer";
   protected readonly countries = COUNTRY_OPTIONS(this.translate);
+  protected showPassword: boolean = false;
+  protected showConfirmPassword: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -136,6 +138,14 @@ export class RegistrationModalComponent implements OnInit {
         confirmPassword: new FormControl("", Validators.required),
       });
     }
+  }
+
+  protected togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  protected toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
 }

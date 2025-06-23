@@ -29,6 +29,7 @@ export class SystemExecuteComponent implements OnInit {
   public stdout: string[] = [];
   public stderr: string[] = [];
   public commandLogs: ExecuteSystemCommandRequest[] = [];
+  protected showPassword: boolean = false;
 
   public form: FormGroup;
 
@@ -141,6 +142,10 @@ export class SystemExecuteComponent implements OnInit {
         });
       this.commandLogs.unshift(executeSystemCommandRequest);
     });
+  }
+
+  protected togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
 }
