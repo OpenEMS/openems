@@ -27,6 +27,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -194,10 +195,9 @@ public class JSCalendar<PAYLOAD> {
 						.setStart(json.getString("start")) //
 						.setDuration(json.getStringOrNull("duration")); //
 
-				json.getNullableJsonArrayPath("recurrenceRules") //
-						.getAsOptionalList(RecurrenceRule.serializer()) //
-						.ifPresent(rrs -> rrs.forEach(rr -> b.addRecurrenceRule(rr))); //
-
+				json.getOptionalList("recurrenceRules", RecurrenceRule.serializer()).orElse(Collections.emptyList()) //
+				.forEach(rr -> b.addRecurrenceRule(rr));
+				
 				var payload = json.getObjectOrNull(PROPERTY_PAYLOAD, payloadSerializer);
 				if (payload != null) {
 					b.setPayload(payload);
