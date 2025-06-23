@@ -4,7 +4,6 @@ import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
 import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
-import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedCurrentChannel;
 import static io.openems.edge.evcs.api.PhaseRotation.Phase.L1;
 import static io.openems.edge.evcs.api.PhaseRotation.Phase.L2;
 import static io.openems.edge.evcs.api.PhaseRotation.Phase.L3;
@@ -225,12 +224,9 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L2)), //
 						m(new UnsignedDoublewordElement(210)).build() //
 								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L3)), //
-						m(new UnsignedDoublewordElement(212)).build() //
-								.onUpdateCallback(mapLongToPhaseRotatedCurrentChannel(this, L1)), //
-						m(new UnsignedDoublewordElement(214)).build() //
-								.onUpdateCallback(mapLongToPhaseRotatedCurrentChannel(this, L2)), //
-						m(new UnsignedDoublewordElement(216)).build() //
-								.onUpdateCallback(mapLongToPhaseRotatedCurrentChannel(this, L3))), //
+						m(this.getPhaseRotation().channelCurrentL1(), new UnsignedDoublewordElement(212)), //
+						m(this.getPhaseRotation().channelCurrentL2(), new UnsignedDoublewordElement(214)), //
+						m(this.getPhaseRotation().channelCurrentL3(), new UnsignedDoublewordElement(216))), //
 				// TODO Voltages are missing
 				new FC3ReadRegistersTask(1000, Priority.LOW,
 						m(EvcsMennekes.ChannelId.EMS_CURRENT_LIMIT, new UnsignedWordElement(1000))),
