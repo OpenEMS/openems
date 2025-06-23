@@ -19,6 +19,8 @@ export class RegistrationModalComponent implements OnInit {
   protected activeSegment: string = "installer";
   protected readonly countries = COUNTRY_OPTIONS(this.translate);
   protected docsLink: string | null = null;
+  protected showPassword: boolean = false;
+  protected showConfirmPassword: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -147,6 +149,14 @@ export class RegistrationModalComponent implements OnInit {
       return null;
     }
     return link.replace("{language}", this.service.getDocsLang());
+  }
+
+  protected togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  protected toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
 }

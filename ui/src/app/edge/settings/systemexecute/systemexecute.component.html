@@ -30,7 +30,11 @@
                 </ion-input>
               </ion-item>
               <ion-item>
-                <ion-input formControlName="password" type="password" label="Password"></ion-input>
+                <ion-input formControlName="password" [type]="showPassword ? 'text' : 'password'" label="Password"></ion-input>
+                <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()" 
+                  [attr.aria-label]="(showPassword ? 'ADMIN.PASSWORD.HIDE' : 'ADMIN.PASSWORD.SHOW') | translate">
+                  <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </ion-button>
               </ion-item>
               <ion-item>
                 <ion-input formControlName="timeoutSeconds" type="number" label="Timeout"></ion-input>

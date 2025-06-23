@@ -29,8 +29,12 @@
                   </ion-item>
                   <ion-item>
                     <ion-label position="floating" translate>Login.passwordLabel</ion-label>
-                    <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
+                    <ion-input #password required [type]="showPassword ? 'text' : 'password'" [placeholder]="'Login.passwordLabel' | translate"
                       value="user"></ion-input>
+                    <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()"
+                        [attr.aria-label]="(showPassword ? 'Login.hidePassword' : 'Login.showPassword') | translate">
+                        <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                    </ion-button>
                   </ion-item>
 
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
@@ -53,9 +57,13 @@
                   </ion-input>
                 </ion-item>
                 <ion-item>
-                  <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
+                  <ion-input #password required [type]="showPasswordBackend ? 'text' : 'password'" [placeholder]="'Login.passwordLabel' | translate"
                     label-placement="floating" [label]="'Login.passwordLabel' | translate">
                   </ion-input>
+                  <ion-button slot="end" fill="clear" (click)="togglePasswordVisibilityBackend()"
+                    [attr.aria-label]="(showPasswordBackend ? 'Login.hidePassword' : 'Login.showPassword') | translate">
+                    <ion-icon [name]="showPasswordBackend ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                  </ion-button>
                 </ion-item>
 
                 <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->

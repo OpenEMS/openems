@@ -30,6 +30,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
   protected showPassword: boolean = false;
+  protected showPasswordBackend: boolean = false;
   protected readonly operatingSystem = PlatFormService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -160,6 +161,14 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+  }
+
+  protected togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  protected togglePasswordVisibilityBackend() {
+    this.showPasswordBackend = !this.showPasswordBackend;
   }
 
   protected async showPopoverOrRedirectToStore(operatingSystem: "android" | "ios") {
