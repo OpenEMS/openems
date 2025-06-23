@@ -1,5 +1,6 @@
 package io.openems.edge.batteryinverter.sunspec;
 
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -22,6 +23,12 @@ public abstract class AbstractSunSpecBatteryInverter extends AbstractOpenemsSunS
 	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecBatteryInverter.class);
 
 	public AbstractSunSpecBatteryInverter(Map<SunSpecModel, Priority> activeModels,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public AbstractSunSpecBatteryInverter(List<SunSpecModelEntry> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);

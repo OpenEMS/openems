@@ -7,7 +7,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 
-import { PipeComponentsModule, PipeModule } from "../../pipe/pipe";
+import { PipeComponentsModule, PipeModule } from "../../pipe/pipe.module";
 import { HistoryDataErrorModule } from "../history-data-error/history-data-error.module";
 import { PickdateComponentModule, PickdateModule } from "../pickdate/pickdate.module";
 import { ChartComponent } from "./chart";

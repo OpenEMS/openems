@@ -46,6 +46,10 @@ public record OpenemsAppPermissions(//
 			return this;
 		}
 
+		public Builder setCanInstall(Role... canInstall) {
+			return this.setCanInstall(List.of(canInstall));
+		}
+
 		public OpenemsAppPermissions build() {
 			return new OpenemsAppPermissions(//
 					this.canSee, //

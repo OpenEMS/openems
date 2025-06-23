@@ -4,8 +4,8 @@ import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from "@nodro7/angular-mydatepicker";
 import { addDays, endOfMonth, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfMonth, startOfWeek, startOfYear } from "date-fns";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { EdgePermission, Service, Utils } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 import { Language } from "src/app/shared/type/language";
 import { Edge } from "../../edge/edge";

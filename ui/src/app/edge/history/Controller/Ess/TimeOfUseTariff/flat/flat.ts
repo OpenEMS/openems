@@ -1,8 +1,8 @@
 import { Component, Input } from "@angular/core";
 
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 @Component({
     selector: "timeOfUseTariffWidget",

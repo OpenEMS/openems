@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
-import { TimeOfUseTariffUtils } from "src/app/shared/service/utils";
+import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 
 export namespace ControllerEvseSingleShared {
 

@@ -170,6 +170,7 @@
           "starting": "Startet",
           "status": "Status",
           "totalCharge": "Gesamte Beladung",
+          "totalDischarge": "Gesamte Entladung",
           "totalChargingPower": "Gesamte Ladeleistung",
           "unknown": "Unbekannt",
           "unplugged": "Ausgesteckt",
@@ -219,6 +220,16 @@
           "priority": "Priorität",
           "time": "Zeit",
           "timeCountdown": "Spätester Start"
+        },
+        "HEAT": {
+          "TEMPERATURE": "Wassertemperatur",
+          "TEMPERATURE_UNIT": "Wassertemperatur in °C",
+          "NO_HEATING": "heizt nicht",
+          "HEATING": "heizt",
+          "HEATING_OUTPUT": "Heizleistung",
+          "HEATING_ENERGY": "Heizenergie",
+          "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen Ihres AC-Thor Heizstabes können Sie in der MyPV-App vornehmen.",
+          "TARGET_TEMPERATURE_REACHED": "Zieltemperatur erreicht"
         },
         "HeatPump": {
           "aboveSoc": "und ab Ladezustand von",
@@ -561,6 +572,8 @@
     "storageSystem": "Speichersystem",
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
+    "TOTAL_CHARGE": "Gesamte Beladung",
+    "TOTAL_DISCHARGE": "Gesamte Entladung",
     "totalState": "Gesamtstatus",
     "VISIBLE_FOR_ADMINS_ONLY": "Sichtbar nur für Service & Administration",
     "warning": "Warnung",
@@ -800,7 +813,8 @@
       "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
       "NO_LIMITATION": "Kein Einspeisemanagement",
-      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)"
+      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",

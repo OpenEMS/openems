@@ -1,4 +1,3 @@
-
 import { Directive, effect, signal, WritableSignal } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";
@@ -100,6 +99,11 @@ export class UserService {
         if (validTheme === UserTheme.SYSTEM) {
             attr = window.matchMedia("(prefers-color-scheme: dark)").matches ? UserTheme.DARK : UserTheme.LIGHT;
         }
+
+        // Provide color to set before angular app inits
+        const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-background-color");
+        localStorage.setItem("THEME_COLOR", backgroundColor);
+
         document.documentElement.setAttribute("data-theme", attr);
     }
 

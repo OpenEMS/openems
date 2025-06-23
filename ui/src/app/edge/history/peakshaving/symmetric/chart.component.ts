@@ -2,7 +2,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service, Utils } from "../../../../shared/shared";
 import { AbstractHistoryChart } from "../../abstracthistorychart";

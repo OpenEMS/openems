@@ -5,7 +5,7 @@ import static io.openems.edge.common.sum.GridMode.ON_GRID;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -122,16 +121,27 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	/**
 	 * Active SunSpec models for KACO blueplanet gridsave. Commented models are
 	 * available but not used currently.
+	 *
+	 * <p>
+	 * KACOs that do not yet have Modbus fully configured still have a Modbus table
+	 * containing only the default models. To avoid triggering SunSpec completion,
+	 * some entries are marked as required.
+	 * </p>
 	 */
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
-			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_103, Priority.HIGH) //
-			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
-			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
-			.build();
+	private static final List<SunSpecModelEntry> ACTIVE_MODELS = List.of(
+			SunSpecModelEntry.create(DefaultSunSpecModel.S_1).build(), //
+			SunSpecModelEntry.create(DefaultSunSpecModel.S_103) //
+					.setPriority(Priority.HIGH) //
+					.setRequired(true) //
+					.build(), //
+			SunSpecModelEntry.create(DefaultSunSpecModel.S_121).build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64201) //
+					.setPriority(Priority.HIGH) //
+					.setRequired(true) //
+					.build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64202).build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64203).build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64204).build());
 
 	// Further available SunSpec blocks provided by KACO blueplanet are:
 	// .put(SunSpecModel.S_113, Priority.LOW) //
@@ -187,7 +197,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Stop early if initialization is not finished
-		if (!this.isSunSpecInitializationCompleted()) {
+		if (!(this.isSunSpecInitializationCompleted() && this.areRequiredModelsRead())) {
 			return;
 		}
 
@@ -393,6 +403,16 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	 */
 	@Override
 	protected void onSunSpecInitializationCompleted() {
+		/**
+		 * KACOs do have during configuration only common blocks available which may
+		 * result in completing too early without all needed models/channels. Therefore,
+		 * we just reinitialize it until we have all required channels.
+		 */
+		if (!this.areRequiredModelsRead()) {
+			this.reinitializeSunSpecChannels();
+			return;
+		}
+
 		this.addCopyListener(//
 				this.getSunSpecChannel(DefaultSunSpecModel.S121.W_MAX).get(), //
 				SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER //

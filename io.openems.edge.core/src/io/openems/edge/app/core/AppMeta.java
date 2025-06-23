@@ -89,6 +89,22 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				}) //
 				.bidirectional("_meta", "gridConnectionPointFuseLimit",
 						ComponentManagerSupplier::getComponentManager))), //
+		LATITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".latitude.label")
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.NUMBER);
+					field.setStep(0.0000001);
+					field.setUnit(Unit.DECIMAL_DEGREE, l);
+				}) //
+				.bidirectional("_meta", "latitude", ComponentManagerSupplier::getComponentManager))), //
+		LONGITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".longitude.label")
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.NUMBER);
+					field.setStep(0.0000001);
+					field.setUnit(Unit.DECIMAL_DEGREE, l);
+				}) //
+				.bidirectional("_meta", "longitude", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -130,6 +146,8 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 			final var currency = this.getEnum(p, CurrencyConfig.class, Property.CURRENCY);
 			final var isEssChargeFromGridAllowed = this.getBoolean(p, Property.IS_ESS_CHARGE_FROM_GRID_ALLOWED);
 			final var gridConnectionPointFuseLimit = this.getInt(p, Property.GRID_CONNECTION_POINT_FUSE_LIMIT);
+			final var latitude = this.getDouble(p, Property.LATITUDE);
+			final var longitude = this.getDouble(p, Property.LONGITUDE);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -138,6 +156,8 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.addProperty("currency", currency) //
 							.addProperty("isEssChargeFromGridAllowed", isEssChargeFromGridAllowed) //
 							.addProperty("gridConnectionPointFuseLimit", gridConnectionPointFuseLimit) //
+							.addProperty("latitude", latitude) //
+							.addProperty("longitude", longitude) //
 							.build()));
 
 			return AppConfiguration.create() //

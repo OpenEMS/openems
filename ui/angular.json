@@ -12,9 +12,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "allowedCommonJsDependencies": [
-              "chart.js"
-            ],
+            "allowedCommonJsDependencies": ["chart.js"],
             "baseHref": "/",
             "budgets": [
               {
@@ -67,12 +65,15 @@
                   "glob": "**/*.svg",
                   "input": "node_modules/ionicons/dist/ionicons/svg",
                   "output": "./svg"
+                },
+                {
+                  "glob": "**/*.js",
+                  "input": "src/themes/shared",
+                  "output": ""
                 }
               ],
               "stylePreprocessorOptions": {
-                "includePaths": [
-                  "src/themes/openems/scss"
-                ]
+                "includePaths": ["src/themes/openems/scss"]
               },
               "styles": [
                 "src/themes/openems/scss/variables.scss",
@@ -192,10 +193,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         },
         "test": {
