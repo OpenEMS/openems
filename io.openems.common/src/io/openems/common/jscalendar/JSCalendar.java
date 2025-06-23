@@ -18,6 +18,7 @@ import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -27,7 +28,6 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -195,9 +195,10 @@ public class JSCalendar<PAYLOAD> {
 						.setStart(json.getString("start")) //
 						.setDuration(json.getStringOrNull("duration")); //
 
-				json.getOptionalList("recurrenceRules", RecurrenceRule.serializer()).orElse(Collections.emptyList()) //
-				.forEach(rr -> b.addRecurrenceRule(rr));
-				
+				json.getOptionalList("recurrenceRules", RecurrenceRule.serializer()) //
+						.orElse(emptyList()) //
+						.forEach(rr -> b.addRecurrenceRule(rr));
+
 				var payload = json.getObjectOrNull(PROPERTY_PAYLOAD, payloadSerializer);
 				if (payload != null) {
 					b.setPayload(payload);
