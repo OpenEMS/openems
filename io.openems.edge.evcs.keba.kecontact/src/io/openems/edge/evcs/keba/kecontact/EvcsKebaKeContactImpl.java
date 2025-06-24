@@ -6,6 +6,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -55,6 +60,14 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 
 	private final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
+	
+	private final BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
+	private final ScheduledExecutorService sendExecutor = Executors.newSingleThreadScheduledExecutor();
+	// Send commands need to have a delay of at least 200ms
+	private long lastSendTimestamp = 0;
+	private static final long MIN_SEND_INTERVAL_MS = 300;
+	
+	private DatagramSocket persistentSocket;	
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -98,12 +111,15 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
+		
+
 
 		/*
 		 * subscribe on replies to report queries
 		 */
 		this.kebaKeContactCore.onReceive((ip, message) -> {
 			if (ip.equals(this.ip)) { // same IP -> handle message
+				logInfoInDebugmode(this.log,"[KEBA] Antwort von " + ip.getHostAddress() + ": " + message);				
 				this.readHandler.accept(message);
 				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
 			}
@@ -111,12 +127,26 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 
 		// start queryWorker
 		this.readWorker.activate(this.id() + "query");
+		
+        this.sendExecutor.scheduleWithFixedDelay(() -> {
+            try {
+                String command = sendQueue.poll();
+                if (command != null) {
+                    this.sendImmediately(command);
+                }
+            } catch (Exception e) {
+                log.error("Send-Worker Fehler: " + e.getMessage(), e);
+            }
+        }, 0, MIN_SEND_INTERVAL_MS, TimeUnit.MILLISECONDS);		
 
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
+	    if (this.persistentSocket != null && !this.persistentSocket.isClosed()) {
+	        this.persistentSocket.close();
+	    }		
 		super.deactivate();
 		this.readWorker.deactivate();
 	}
@@ -152,14 +182,98 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 	public PhaseRotation getPhaseRotation() {
 		return this.config.phaseRotation();
 	}
+	
+	private void initUdpSocket_old() {
+	    if (this.persistentSocket == null || this.persistentSocket.isClosed()) {
+	        try {
+	            // Lokalen festen Quellport wählen (NICHT 7090)
+	            this.persistentSocket = new DatagramSocket(EvcsKebaKeContactImpl.UDP_SENDER_PORT);
+	            this.persistentSocket.setReuseAddress(true);
+	            this.log.info("KEBA UDP-Socket geöffnet auf Port " + EvcsKebaKeContactImpl.UDP_SENDER_PORT + " (persistent)");
+	        } catch (SocketException e) {
+	            this.log.error("Fehler beim Öffnen des persistenten UDP-Sockets: " + e.getMessage());
+	        }
+	    }
+	}	
 
+	private void initUdpSocket() {
+	    if (this.persistentSocket == null || this.persistentSocket.isClosed()) {
+	        final int START_PORT = EvcsKebaKeContactImpl.UDP_SENDER_PORT;
+	        final int MAX_PORT = EvcsKebaKeContactImpl.UDP_SENDER_PORT + 100; // max. 100 KEBAs
+
+	        for (int port = START_PORT; port <= MAX_PORT; port++) {
+	            try {
+	                this.persistentSocket = new DatagramSocket(port);
+	                this.persistentSocket.setReuseAddress(true);
+	                logInfoInDebugmode(this.log,"KEBA UDP-Socket geöffnet auf Port " + port + " (persistent)");
+	                return;
+	            } catch (SocketException e) {
+	            	logInfoInDebugmode(this.log,"UDP-Port " + port + " bereits belegt – versuche nächsten...");
+	                // try next
+	            }
+	        }
+
+	        // Wenn kein Port gefunden wurde
+	        this.log.error("Kein freier UDP-Sendeport im Bereich " + START_PORT + "–" + MAX_PORT + " gefunden!");
+	    }
+	}	
+
+	
+	protected boolean send_old(String s) {
+	    this.initUdpSocket();
+	    if (this.persistentSocket == null) return false;
+
+	    long now = System.currentTimeMillis();
+	    long sinceLast = now - lastSendTimestamp;
+
+	    if (sinceLast < MIN_SEND_INTERVAL_MS) {
+	        this.log.warn("send interval too short [" + s + "] skipping command");
+	        return false;
+	    }
+
+	    byte[] raw = s.getBytes();
+	    DatagramPacket packet = new DatagramPacket(raw, raw.length, this.ip, UDP_PORT);
+
+	    try {
+	        this.persistentSocket.send(packet);
+	        this.lastSendTimestamp = now;
+	        logInfoInDebugmode(this.log,"UDP gesendet an KEBA " + this.ip.getHostAddress() + ": [" + s + "]");
+	        return true;
+	    } catch (IOException e) {
+	    	logInfoInDebugmode(this.log,"error while sending [" + s + "] to " + this.ip.getHostAddress() + ": " + e.getMessage());
+	        return false;
+	    }
+	}	
+	
+    protected boolean send(String s) {
+        this.initUdpSocket();
+        if (this.persistentSocket == null) return false;
+        this.sendQueue.offer(s);
+        logInfoInDebugmode(this.log,"Befehl zur Warteschlange hinzugefügt: [" + s + "]");
+        return true;
+    }
+
+    
+    private void sendImmediately(String s) {
+        byte[] raw = s.getBytes();
+        DatagramPacket packet = new DatagramPacket(raw, raw.length, this.ip, UDP_PORT);
+        try {
+            this.persistentSocket.send(packet);
+            this.lastSendTimestamp = System.currentTimeMillis();
+            log.debug("UDP gesendet an KEBA " + this.ip.getHostAddress() + ": [" + s + "]");
+        } catch (IOException e) {
+            logError(log, "Fehler beim Senden [" + s + "] an " + this.ip.getHostAddress() + ": " + e.getMessage());
+        }
+    }    
+    
+    
 	/**
 	 * Send UDP message to KEBA KeContact. Returns true if sent successfully
 	 *
 	 * @param s Message to send
 	 * @return true if sent
 	 */
-	protected boolean send(String s) {
+	protected boolean send_old_old(String s) {
 		var raw = s.getBytes();
 		var packet = new DatagramPacket(raw, raw.length, this.ip, EvcsKebaKeContactImpl.UDP_PORT);
 		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
@@ -243,7 +357,10 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 		if (current < 6000) {
 			current = 0;
 		}
-		log.info(">>>> kecontact/applyChargePowerLimit Sende PowerLimit: " + current + "mA fuer " + this.alias() );
+		//log.info(">>>> kecontact/applyChargePowerLimit Sende PowerLimit: " + current + "mA fuer " + this.alias() );
+		logInfoInDebugmode(this.log,"[KEBA] Sende Ladeleistung: " + (current / 1000.0f) + " A (" + power + " W), " +
+		         "Phasen: " + phases + ", Befehl: currtime " + current + " 1");
+		
 		// currtime sets allowed charge current (6A-63A) after delay (here: 1)
 		if (this.send("currtime " + current + " 1")) {
 			log.debug("\n-Erfolgreich gesendet");
@@ -259,6 +376,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 		if (!this.config.useDisplay()) {
 			return false;
 		}
+		
 		if (text.length() > 23) {
 			text = text.substring(0, 23);
 		}

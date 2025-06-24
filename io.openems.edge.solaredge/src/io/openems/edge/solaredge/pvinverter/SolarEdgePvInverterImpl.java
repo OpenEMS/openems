@@ -55,21 +55,21 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_101, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_102, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_111, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_112, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_125, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_127, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_128, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_145, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_111, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_112, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_113, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_120, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_121, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_122, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_123, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_124, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_125, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_127, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_128, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_145, Priority.LOW) //
 			.build();
 
 	@Reference

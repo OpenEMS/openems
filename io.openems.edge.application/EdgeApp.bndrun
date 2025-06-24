@@ -211,7 +211,8 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.thresholdpeakshaver',\
 	bnd.identity;id='io.openems.edge.predictor.pv.weather.forecast',\
 	bnd.identity;id='io.openems.edge.thermometer.esera.onewire',\
-	bnd.identity;id='io.openems.edge.solaredge.ess'
+	bnd.identity;id='io.openems.edge.solaredge.ess',\
+	bnd.identity;id='io.openems.edge.batteryinverter.deye'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	bcpkix;version='[1.80.0,1.80.1)',\
@@ -473,4 +474,5 @@
 	io.openems.edge.predictor.pv.weather.forecast;version=snapshot,\
 	io.openems.edge.thermometer.esera.onewire;version=snapshot,\
 	io.openems.edge.controller.symmetric.thresholdpeakshaver;version=snapshot,\
-	io.openems.edge.solaredge.ess;version=latest
+	io.openems.edge.solaredge.ess;version=snapshot,\
+	io.openems.edge.batteryinverter.deye;version=snapshot

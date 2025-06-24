@@ -4,11 +4,15 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,11 +37,34 @@ public interface SolarEdgeEss extends OpenemsComponent {
 				.text("Storage Control Mode is not set to Remote Control. Please configure inverter using SetApp/LCD")),
 		AC_CHARGE_NOT_ENABLED(Doc.of(Level.WARNING) //
 				.text("Storage AC Charge Policy is not set to Always allowed. Please configure inverter using SetApp/LCD")),
+		PV_EXPORT_LIMIT_FAILED(Doc.of(Level.FAULT) //
+				.text("PV-Export Limit failed")), //
+		DISABLED_PV_EXPORT_LIMIT_FAILED(Doc.of(Level.WARNING) //
+				.text("PV-Export Limit is disabled: PV-Export Limit failed")), //
 		
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.HIGH)),	
 		
-		// StorEdge
+		/**
+		 * Read/Set Active Export Power Limit.
+		 *
+		 * <ul>
+		 * <li>Interface: FeedToGridLimitEss
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		ACTIVE_EXPORT_POWER_LIMIT(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.persistencePriority(PersistencePriority.MEDIUM) //
+				.onInit(channel -> { //
+					// on each Write to the channel -> set the value
+					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
+						channel.setNextValue(value);
+					});
+				})),		
+		
 		/**
 		 * Storage Control Mode is used to set the StorEdge system operating mode: 0 –
 		 * Disabled 1 – Maximize Self Consumption – requires a SolarEdge Electricity
@@ -127,7 +154,6 @@ public interface SolarEdgeEss extends OpenemsComponent {
 		 */
 		DEBUG_REMOTE_CONTROL_COMMAND_TIMEOUT(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)), //
 		REMOTE_CONTROL_COMMAND_TIMEOUT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).unit(Unit.SECONDS) //
-				.persistencePriority(PersistencePriority.HIGH)
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_REMOTE_CONTROL_COMMAND_TIMEOUT)), //), //
 
 		/**
@@ -395,9 +421,95 @@ public interface SolarEdgeEss extends OpenemsComponent {
 		 */
 		BATTERY1_STATUS(Doc.of(BatteryStatus.values()).accessMode(AccessMode.READ_ONLY)),		
 		
+		/**
+		 * Inverter Max Apparent Power
+		 *
+		 * <ul>
+		 * <li>Interface: SolarEdgeEss
+		 * <li>Type: Float
+		 * <li>Unit: Percent
+		 * <li>
+		 * </ul>
+		 */
+		INVERTER_MAX_APPARENT_POWER(Doc.of(OpenemsType.FLOAT) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.LOW)),	
+
+		/**
+		 * Power Control Fixed Power Limit
+		 *
+		 * <ul>
+		 * <li>Interface: SolarEdgeEss
+		 * <li>Type: Float
+		 * <li>Unit: Percent
+		 * <li>
+		 * </ul>
+		 */
+		INVERTER_POWER_LIMIT(Doc.of(OpenemsType.FLOAT) //
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.LOW)),	
+
+		/**
+		 * Advanced Power Control Enabled
+		 *
+		 * <ul>
+		 * <li>Interface: SolarEdgeEss
+		 * <li>Type: Integer
+		 * <li>
+		 * </ul>
+		 */
+		ADVANCED_PWR_CONTROL_EN(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),		
 		
+		/**
+		 * Export Control Mode
+		 *
+		 * <ul>
+		 * <li>Interface: SolarEdgeEss
+		 * <li>Type: Integer
+		 * <li>
+		 * </ul>
+		 */
+		EXPORT_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
 		
+		/**
+		 * Export Control Limit Mode
+		 *
+		 * <ul>
+		 * <li>Interface: SolarEdgeEss
+		 * <li>Type: Integer
+		 * <li>
+		 * </ul>
+		 */		
+		EXPORT_CONTROL_LIMIT_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),	
 		
+		/**
+		 * Export Control Site Limit
+		 *
+		 * <ul>
+		 * <li>Interface: SolarEdgeEss
+		 * <li>Type: Float
+		 * <li>Unit: Watt
+		 * <li>
+		 * </ul>
+		 */
+		EXPORT_CONTROL_SITE_LIMIT(Doc.of(OpenemsType.FLOAT) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)
+				.accessMode(AccessMode.READ_WRITE)),	
+
+		/**
+		 * Active Production Energy.
+		 *
+		 * <ul>
+		 * <li>Interface: SolarEdgeEss
+		 * <li>Type: Long
+		 * <li>Unit: CUMULATED_WATT_HOURS
+		 * <li>Range: only positive values
+		 * </ul>
+		 */
+		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),		
 		
 		
 		
@@ -639,6 +751,44 @@ public interface SolarEdgeEss extends OpenemsComponent {
 		}
 
 	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getActiveExportPowerLimitChannel() {
+		return this.channel(ChannelId.ACTIVE_EXPORT_POWER_LIMIT);
+	}
+	
+	/**
+	 * Gets the Active Export Power Limit in [W]. See {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActiveExportPowerLimit() {
+		return this.getActiveExportPowerLimitChannel().value();
+	}
+
+	/**
+	 * Sets the Active Export Power Limit in [W]. See {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
+	 *
+	 * @param value the Integer value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActiveExportPowerLimit(Integer value) throws OpenemsNamedException {
+		this.getActiveExportPowerLimitChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Sets the Active Export Power Limit in [W]. See {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
+	 *
+	 * @param value the int value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActiveExportPowerLimit(int value) throws OpenemsNamedException {
+		this.getActiveExportPowerLimitChannel().setNextWriteValue(value);
+	}	
 
 	/**
 	 * Gets the Channel for {@link ChannelId#STORAGE_CONTROL_MODE}.
@@ -857,7 +1007,42 @@ public interface SolarEdgeEss extends OpenemsComponent {
 	public default Value<Long> getBattery1LifetimeImportEnergy() {
 		return this.getBattery1LifetimeImportEnergyChannel().value();
 	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#INVERTER_POWER_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default FloatReadChannel getInverterPowerLimitChannel() {
+		return this.channel(ChannelId.INVERTER_POWER_LIMIT);
+	}
+
+	/**
+	 * See {@link ChannelId#INVERTER_POWER_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Float> getInverterPowerLimit() {
+		return this.getInverterPowerLimitChannel().value();
+	}
 	
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveProductionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	}
+
+	/**
+	 * See {@link ChannelId#ACTIVE_PRODUCION_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveProductionEnergy() {
+		return this.getActiveProductionEnergyChannel().value();
+	}	
 	
 	
 	

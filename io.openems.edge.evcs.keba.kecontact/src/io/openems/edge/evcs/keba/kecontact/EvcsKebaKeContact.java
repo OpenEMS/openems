@@ -21,6 +21,7 @@ public interface EvcsKebaKeContact
 		extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int UDP_PORT = 7090;
+	public static final int UDP_SENDER_PORT = 7093;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/*

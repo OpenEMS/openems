@@ -42,15 +42,19 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S1;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S101;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S102;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S103;
+import io.openems.edge.common.channel.FloatReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
@@ -86,7 +90,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 )
 @EventTopics({ //
 	EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss, ManagedSinglePhaseEss, SinglePhaseEss,
 				ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
@@ -106,6 +111,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);	
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
+	private final SetPvExportLimitHandler setPvExportLimitHandler = new SetPvExportLimitHandler(this);
 	
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 	protected final Set<SolarEdgeCharger> chargers = new HashSet<>();
@@ -220,7 +226,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 				SymmetricEss.ChannelId.REACTIVE_POWER, //
 				DIRECT_1_TO_1, //
 				S101.V_AR, S102.V_AR, S103.V_AR);
-
+		
 		// Individual Phases Power
 		switch (this.inverterType) {
 			case SINGLE_PHASE -> {
@@ -231,6 +237,12 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 				SolarEdgeEssImpl.calculatePhasesFromReactivePower(this);
 			}
 		}		
+		
+		// Energy
+		this.mapFirstPointToChannel(//
+				SolarEdgeEss.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				DIRECT_1_TO_1, //
+				S101.WH, S102.WH, S103.WH);
 		
 		// Voltage
 		this.mapFirstPointToChannel(//
@@ -314,7 +326,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 						m(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT,
 								new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW))));		
 		
-		// StorEdge Battery 1 Status and Information Block register
+		// StorEdge Battery 1 Status and Information Block register (Task 1)
 		protocol.addTask(//
 				new FC3ReadRegistersTask(0xE144, Priority.HIGH, //
 						m(SolarEdgeEss.ChannelId.BATTERY1_MAX_CHARGE_CONTINUES_POWER, // feeds AllowedChargeDischargeHandler
@@ -342,8 +354,11 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 						m(SolarEdgeEss.ChannelId.BATTERY1_LIFETIME_EXPORT_ENERGY, //
 								new UnsignedQuadruplewordElement(0xE176).wordOrder(WordOrder.LSWMSW)),
 						m(SolarEdgeEss.ChannelId.BATTERY1_LIFETIME_IMPORT_ENERGY, //
-								new UnsignedQuadruplewordElement(0xE17A).wordOrder(WordOrder.LSWMSW)),
-
+								new UnsignedQuadruplewordElement(0xE17A).wordOrder(WordOrder.LSWMSW))));
+		
+		// StorEdge Battery 1 Status and Information Block register (Task 2)
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0xE17E, Priority.LOW,
 						m(SolarEdgeEss.ChannelId.BATTERY1_MAX_CAPACITY, //
 								new FloatDoublewordElement(0xE17E).wordOrder(WordOrder.LSWMSW)),
 						m(SymmetricEss.ChannelId.CAPACITY, // Available capacity or "real" capacity
@@ -353,22 +368,34 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 						m(SymmetricEss.ChannelId.SOC, //
 								new FloatDoublewordElement(0xE184).wordOrder(WordOrder.LSWMSW)),
 						m(SolarEdgeEss.ChannelId.BATTERY1_STATUS, //
-								new UnsignedDoublewordElement(0xE186).wordOrder(WordOrder.LSWMSW))
-				));		
+								new UnsignedDoublewordElement(0xE186).wordOrder(WordOrder.LSWMSW))));		
 		
 		// Smart Meter register
 		protocol.addTask(//
 				new FC3ReadRegistersTask(40121, Priority.LOW, //
-						m(SolarEdgeEss.ChannelId.METER_COMMUNICATE_STATUS, new UnsignedWordElement(40121))
-						));
+						m(SolarEdgeEss.ChannelId.METER_COMMUNICATE_STATUS, new UnsignedWordElement(40121))));
 		
+		// Power Control Block Register
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0xF140, Priority.LOW, //
+						m(SolarEdgeEss.ChannelId.INVERTER_POWER_LIMIT, // Power Reduction (e.g. 70%)
+								new FloatDoublewordElement(0xF140).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeEss.ChannelId.ADVANCED_PWR_CONTROL_EN, // AdvacedPwrControlEn
+								new SignedDoublewordElement(0xF142).wordOrder(WordOrder.LSWMSW))));
+	
 		// Enhanced Power Control Block register
 		protocol.addTask(//
 				new FC3ReadRegistersTask(0xF304, Priority.LOW, //
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER,
-								new FloatDoublewordElement(0xF304).wordOrder(WordOrder.LSWMSW))));		
-		
-		/*
+						m(SolarEdgeEss.ChannelId.INVERTER_MAX_APPARENT_POWER,
+								new FloatDoublewordElement(0xF304).wordOrder(WordOrder.LSWMSW))));
+
+		// Export Limit Control Block		
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0xE000, Priority.LOW, //
+						m(SolarEdgeEss.ChannelId.EXPORT_CONTROL_MODE, new UnsignedWordElement(0xE000)),
+						m(SolarEdgeEss.ChannelId.EXPORT_CONTROL_LIMIT_MODE, new UnsignedWordElement(0xE001)),
+						m(SolarEdgeEss.ChannelId.EXPORT_CONTROL_SITE_LIMIT, new FloatDoublewordElement(0xE002).wordOrder(WordOrder.LSWMSW))));		
+
 		// StorEdge Control Block register
 		protocol.addTask(//
 				new FC16WriteRegistersTask(0xE00B,
@@ -379,9 +406,13 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 						m(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_CHARGE_LIMIT,
 								new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),
 						m(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT,
-								new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW))
-				));
-		*/
+								new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW))));
+		
+		// Export Limit Control Block
+		protocol.addTask(//
+				new FC16WriteRegistersTask(0xE002,
+						m(SolarEdgeEss.ChannelId.EXPORT_CONTROL_SITE_LIMIT,
+								new FloatDoublewordElement(0xE002).wordOrder(WordOrder.LSWMSW))));
 	}	
 	
 	@Override
@@ -391,10 +422,6 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		// For Test/Debug
 		this.setChargePowerWanted(activePower);
 		
-		if(this.config.readOnly()) {
-			return;
-		}
-				
 		// Apply Power Set-Point
 		this.applyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),
 				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isPidEnabled());
@@ -445,10 +472,13 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString()
+				+ "|PowerLimit:" + this.getInverterPowerLimit().asString()
 				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
 				+ this.getAllowedDischargePower().asString()
 				+ "|" + this.getGridModeChannel().value().asOptionString()				
-				+ "|SN:" + this.channel(SolarEdgeEss.ChannelId.SERIAL_NUMBER).value().get()
+				//+ "|SN:" + this.channel(SolarEdgeEss.ChannelId.SERIAL_NUMBER).value().get()
+				+ "|MaxAcImport:" + this.channel(SolarEdgeEss.ChannelId.MAX_AC_IMPORT).value().get()
+				+ "|MaxAcExport:" + this.channel(SolarEdgeEss.ChannelId.MAX_AC_EXPORT).value().get()
 				+ "|SmartMeter:" + this.channel(SolarEdgeEss.ChannelId.METER_COMMUNICATE_STATUS).value().asOptionString()
 				+ "|ACCharge:" + this.channel(SolarEdgeEss.ChannelId.STORAGE_AC_CHARGE_POLICY).value().asOptionString()
 				+ "|ControlMode:" + this.channel(SolarEdgeEss.ChannelId.STORAGE_CONTROL_MODE).value().asOptionString()
@@ -473,13 +503,37 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.updateMaxApparentPowerChannel();
 			this.updateDcDischargePowerChannel();
 			this.updateEnergyChannels();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.allowedChargeDischargeHandler.accept(this.componentManager);
 			break;
-		}		
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			// Get ActiveExportPowerLimit that should be applied
+			var activeExportPowerLimitChannel = (IntegerWriteChannel) this
+					.channel(SolarEdgeEss.ChannelId.ACTIVE_EXPORT_POWER_LIMIT);
+			var activeExportPowerLimitOpt = activeExportPowerLimitChannel.getNextWriteValueAndReset();
+			
+			// Set warning if pvExportLimit mode is disabled but a PV export limit was requested
+			this.channel(SolarEdgeEss.ChannelId.DISABLED_PV_EXPORT_LIMIT_FAILED)
+					.setNextValue(!this.config.pvExportLimit() && activeExportPowerLimitOpt.isPresent());
+	
+			// If pvExportLimit mode is disabled: stop here
+			if (!this.config.pvExportLimit()) {
+				return;
+			}
+	
+			try {
+				this.setPvExportLimitHandler.accept(activeExportPowerLimitOpt);
+	
+				this.channel(SolarEdgeEss.ChannelId.PV_EXPORT_LIMIT_FAILED).setNextValue(false);
+			} catch (OpenemsNamedException e) {
+				this.channel(SolarEdgeEss.ChannelId.PV_EXPORT_LIMIT_FAILED).setNextValue(true);
+			}
+			break;
+		}
 	}	
 	
 
@@ -548,7 +602,19 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		}
 		return productionPower;
 	}	
-	
+
+	protected void updateMaxApparentPowerChannel() {
+		
+		/*
+		 * Fill MaxApparentPower Channel
+		 */
+		FloatReadChannel inverterMaxApparentPowerChannel = this.channel(SolarEdgeEss.ChannelId.INVERTER_MAX_APPARENT_POWER);
+		var inverterMaxApparentPower = inverterMaxApparentPowerChannel.value();
+		var inverterPowerLimit = this.getInverterPowerLimit();
+		if(inverterMaxApparentPower != null && inverterPowerLimit != null) {
+			this._setMaxApparentPower(Math.round(TypeUtils.multiply(inverterMaxApparentPower.get(), inverterPowerLimit.get(), 0.01f)));
+		}
+	}
 	
 	protected void updateDcDischargePowerChannel() {
 		
@@ -560,7 +626,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			this._setDcDischargePower(dcBatteryActualPower * -1);
 		}
 	}
-	
+
 	protected void updateEnergyChannels() {
 
 		/*

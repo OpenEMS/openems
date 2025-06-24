@@ -41,6 +41,7 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 	private int powerLimit30Percent = 0;
 	private int powerLimit60Percent = 0;
+	
 
 	private ChannelAddress inputChannelAddress0Percent = null;
 	private ChannelAddress inputChannelAddress30Percent = null;
@@ -63,6 +64,7 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 		this.powerLimit30Percent = (int) Math.round(config.powerLimit100() * 0.3);
 		this.powerLimit60Percent = (int) Math.round(config.powerLimit100() * 0.6);
+		
 
 		try {
 			this.inputChannelAddress0Percent = ChannelAddress.fromString(config.inputChannelAddress0Percent());
@@ -141,8 +143,8 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 		Optional<Boolean> value60PercentOpt = this.getChannelValue(this.inputChannelAddress60Percent);
 		Optional<Boolean> value100PercentOpt = this.getChannelValue(this.inputChannelAddress100Percent);
 
-		this.logDebug(this.log, "\nInput 0%->" + value0PercentOpt + "\nInput 30%->" + value30PercentOpt + "\nInput 60%->"
-				+ value60PercentOpt + "\nInput 100%->" + value100PercentOpt);
+		this.logDebug(this.log, "\nInput 0%->" + value0PercentOpt + "\nInput 30%->" + value30PercentOpt
+				+ "\nInput 60%->" + value60PercentOpt + "\nInput 100%->" + value100PercentOpt);
 		try {
 
 			if (!value0PercentOpt.isPresent() || !value30PercentOpt.isPresent() || !value60PercentOpt.isPresent()
@@ -164,7 +166,7 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 				this.setPvLimit(this.powerLimit30Percent);
 			} else if (value60Percent && !value30Percent && !value100Percent) {
 				this.setPvLimit(this.powerLimit60Percent);
-			} else if (value100Percent) {
+			} else if (!value30Percent && !value60Percent && value100Percent) {
 				this.setPvLimit(null);
 			} else {
 				this.setPvLimit(0);
@@ -172,7 +174,7 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 		} catch (Exception e) {
 			this.log.error("No values from modbus channels yet", e);
-			this.setPvLimit(0);			
+			this.setPvLimit(0);
 			return;
 		}
 

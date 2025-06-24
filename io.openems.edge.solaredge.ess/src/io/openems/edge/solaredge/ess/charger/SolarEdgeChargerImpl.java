@@ -33,7 +33,6 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.solaredge.ess.SolarEdgeEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -47,10 +46,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 })
 public class SolarEdgeChargerImpl extends AbstractOpenemsComponent
 		implements SolarEdgeCharger, EssDcCharger, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
-
-	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
-			EssDcCharger.ChannelId.ACTUAL_ENERGY);	
-	
+		
 	private SolarEdgeListener powerListener;
 	private SolarEdgeListener voltageListener;
 	private SolarEdgeListener chargeCurrentListener;
@@ -128,7 +124,7 @@ public class SolarEdgeChargerImpl extends AbstractOpenemsComponent
 			this.calculateAndSetActualPower();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
+			this.updateActualEnergy();
 			break;
 		}
 	}
@@ -174,20 +170,12 @@ public class SolarEdgeChargerImpl extends AbstractOpenemsComponent
 
 		return pvProduction;
 	}	
-		
+	
 	/**
-	 * Calculate the Energy values from ActivePower.
+	 * Update the Energy values using data from SolarEdgeEssChannel.
 	 */
-	private void calculateEnergy() {
-		var actualPower = this.getActualPower().get();
-		if (actualPower == null) {
-			// Not available
-			this.calculateActualEnergy.update(null);
-		} else if (actualPower > 0) {
-			this.calculateActualEnergy.update(actualPower);
-		} else {
-			this.calculateActualEnergy.update(0);
-		}
+	private void updateActualEnergy() {
+		this._setActualEnergy(this.essInverter.getActiveProductionEnergy().get());
 	}
 	
 	@Override
@@ -224,6 +212,6 @@ public class SolarEdgeChargerImpl extends AbstractOpenemsComponent
 		public void accept(Value<Integer> t) {
 			this.mirrorChannel.setNextValue(t);
 		}
-	}	
-
+	}
+	
 }

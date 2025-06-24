@@ -46,6 +46,10 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		
 		// Maximum SOC = 100%
 		if(parent.getSoc().orElse(0) == 100) batteryAllowedChargePower = 0;
+		
+		// Set Maximum Allowed Charger Power
+		batteryAllowedChargePower = TypeUtils.subtract(batteryAllowedChargePower,
+			TypeUtils.min(batteryAllowedChargePower /* avoid negative number for `subtract` */, pvProduction));			
 			
 		// Apply AllowedChargePower and AllowedDischargePower
 		this.parent._setAllowedChargePower(batteryAllowedChargePower * -1 /* invert charge power */);

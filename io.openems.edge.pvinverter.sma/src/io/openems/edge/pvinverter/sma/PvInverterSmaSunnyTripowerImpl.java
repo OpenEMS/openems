@@ -37,7 +37,11 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S123_WMaxLim_Ena;
+import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -195,6 +199,50 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		
 		
 
+	}
+	
+	/**
+	 * Overrides because SMA needs value of S123_WMaxLim_Ena to be set every
+	 * time a new value is given.
+	 *
+	 * @param int value - the new limit value
+	 * @throws OpenemsException on error
+	 */
+	@Override
+	public void setActivePowerLimit(Integer value) throws OpenemsNamedException {
+		if (!this.isSunSpecInitializationCompleted()) {
+			this.log.info("SunSpec model not completely initialized. Skipping PV Limiter");
+			return;
+		}
+
+		if(value == null)  {
+			this.log.info("Value for Limiter is NULL. Skipping PV Limiter");
+			return;
+		}
+
+		EnumWriteChannel wMaxLimEnaChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA);
+		FloatWriteChannel wMaxPercentChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT);
+		IntegerWriteChannel wMaxPercentTimeoutChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
+
+		
+		Integer maxApparentPower;
+		maxApparentPower = this.getMaxApparentPower().get();
+		if (maxApparentPower == null || maxApparentPower <= 0) {
+			this.log.warn("maxApparentPower is zero or negative; disabling PV limiter.");
+			wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.DISABLED);
+			return;
+		}
+
+		float targetPercent = (float) value * 100f / maxApparentPower;
+
+		this.getActivePowerLimitChannel().setNextWriteValue(value);
+		wMaxPercentChannel.setNextWriteValue(targetPercent);
+		wMaxPercentTimeoutChannel.setNextWriteValue(60);
+		wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
+	}
+
+	public void setActivePowerLimit(int value) throws OpenemsNamedException {
+	    this.setActivePowerLimit(Integer.valueOf(value));
 	}
 
 	// Active Power channel is not available (yet)

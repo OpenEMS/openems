@@ -109,7 +109,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 			case MANUAL_ON -> {
 				// Apply Active-Power Set-Point
 				var acPower = getAcPower(this.ess, this.config.hybridEssMode(), this.config.power());
-				PowerConstraint.apply(this.ess, this.id(), //
+ 				PowerConstraint.apply(this.ess, this.id(), //
 						this.config.phase(), Pwr.ACTIVE, this.config.relationship(), acPower);
 				yield true; // is active
 			}

@@ -3,8 +3,12 @@ package io.openems.edge.controller.evcs;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.edge.evcs.api.ManagedEvcs;
+
 
 public class ChargingLowerThanTargetHandler {
 
@@ -14,15 +18,17 @@ public class ChargingLowerThanTargetHandler {
 	 * reduced to the actually used charge power so that there is power left to be
 	 * distributed to other EVCS.
 	 */
-	private static final int MAXIMUM_OUT_OF_RANGE_TRIES = 3;
+	private static final int MAXIMUM_OUT_OF_RANGE_TRIES = 5;
 	private int outOfRangeCounter = 0;
-	private static final double CHARGING_TARGET_MAX_DIFFERENCE_PERCENT = 0.15; // 10%
-	private static final int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 45; // sec
+	private static final double CHARGING_TARGET_MAX_DIFFERENCE_PERCENT = 0.25; // 10%
+	private static final int CHECK_CHARGING_TARGET_DIFFERENCE_TIME = 60; // sec
 
 	private final Clock clock;
 
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 	private Integer maximumChargePower = null; // W
+	
+	private final Logger log = LoggerFactory.getLogger(ChargingLowerThanTargetHandler.class);	
 
 	public ChargingLowerThanTargetHandler(Clock clock) {
 		this.clock = clock;
@@ -68,6 +74,7 @@ public class ChargingLowerThanTargetHandler {
 		int chargePowerTarget = evcs.getSetChargePowerLimit().orElse(evcs.getMaximumHardwarePower().getOrError());
 
 		if (chargePowerTarget - chargePower > chargePowerTarget * CHARGING_TARGET_MAX_DIFFERENCE_PERCENT) {
+			log.info("[EVCS] Ladeleistung zu niedrig: Ziel=" + chargePowerTarget + " W, Ist=" + chargePower + " W");
 			this.maximumChargePower = this.calculateMaximumPower(chargePower);
 			this.lastChargingCheck = LocalDateTime.now();
 			return true;

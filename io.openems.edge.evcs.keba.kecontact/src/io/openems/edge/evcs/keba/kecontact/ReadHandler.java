@@ -142,6 +142,11 @@ public class ReadHandler implements Consumer<String> {
 			this.setBoolean(EvcsKebaKeContact.ChannelId.INPUT, j, "Input");
 			this.setInt(EvcsKebaKeContact.ChannelId.MAX_CURR, j, "Curr HW");
 			this.setInt(EvcsKebaKeContact.ChannelId.CURR_USER, j, "Curr user");
+			
+		    if (r2Plug == R2Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && r2State == R2State.NOT_READY) {
+		        this.log.info("[KEBA] Wake-up Trigger: Plug=7, State=NOT_READY → sende currtime");
+		        keba.send("currtime 16000 1");
+		    }			
 		}
 
 		/*

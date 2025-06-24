@@ -195,7 +195,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Gets BatteryInverter limits. Keep in mind that these may differ from battery
+	 * Gets BatteryInverter limits. Keep in mind that these may differ  battery
 	 * limits.
 	 *
 	 */

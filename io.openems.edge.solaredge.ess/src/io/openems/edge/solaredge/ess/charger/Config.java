@@ -17,6 +17,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 	
+	@AttributeDefinition(name = "PV Limit?", description = "Send power-limitation commands to the inverter.")
+	boolean pvLimit() default false;
+	
+	@AttributeDefinition(name = "PV-Export Limit?", description = "Send the export power site limit to the inverter.")
+	boolean pvExportLimit() default false;	
+	
 	@AttributeDefinition(name = "SolarEdge ESS-Inverter", description = "ID of SolarEdge Energy Storage System.")
 	String essInverter_id() default "ess0";
 	

@@ -20,8 +20,8 @@ import io.openems.edge.solaredge.ess.enums.ControlMode;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read-Only mode", description = "In Read-Only mode no commands are sent to the ESS")
-	boolean readOnly() default true;
+	@AttributeDefinition(name = "PV-Export Limit?", description = "Send the export power site limit to the inverter.")
+	boolean pvExportLimit() default false;
 	
 	@AttributeDefinition(name = "Control mode", description = "Sets the Control mode")
 	ControlMode controlMode() default ControlMode.INTERNAL;	

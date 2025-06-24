@@ -70,10 +70,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		this.builder = builder;
 	}
 
-	@Override
-	public boolean readOnly() {
-		return this.builder.readOnly;
-	}
 	
 	@Override
 	public String modbus_id() {
@@ -98,6 +94,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Phase phase() {
 		return this.builder.phase;
+	}
+
+
+	@Override
+	public boolean pvExportLimit() {
+		// TODO Auto-generated method stub
+		return false;
 	}	
 
 }
