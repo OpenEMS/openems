@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Component, effect, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket, Widgets } from "src/app/shared/shared";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
@@ -11,13 +12,16 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
   templateUrl: "./live.component.html",
   standalone: false,
 })
-export class LiveComponent implements OnInit, OnDestroy {
+export class LiveComponent implements OnDestroy {
+
+  @ViewChild("modal", { read: ElementRef }) public modal!: ElementRef;
 
   protected edge: Edge | null = null;
   protected config: EdgeConfig | null = null;
   protected widgets: Widgets | null = null;
   protected isModbusTcpWidgetAllowed: boolean = false;
   protected showRefreshDragDown: boolean = false;
+  protected showNewFooter: boolean = false;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private interval: ReturnType<typeof setInterval> | undefined;
@@ -28,18 +32,31 @@ export class LiveComponent implements OnInit, OnDestroy {
     protected utils: Utils,
     protected websocket: Websocket,
     private dataService: DataService,
-  ) { }
+    private router: Router,
+    protected navigationService: NavigationService,
+  ) {
 
-  public ngOnInit() {
-    this.service.currentEdge.subscribe((edge) => {
+    effect(() => {
+      const edge = this.service.currentEdge();
       this.edge = edge;
       this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
+
+      this.service.getConfig().then(config => {
+        this.config = config;
+        this.widgets = config.widgets;
+      });
+      this.checkIfRefreshNeeded();
     });
-    this.service.getConfig().then(config => {
-      this.config = config;
-      this.widgets = config.widgets;
-    });
-    this.checkIfRefreshNeeded();
+  }
+
+  public ionViewWillEnter() {
+    if (this.widgets?.list) {
+      this.showNewFooter = this.widgets?.list.filter(item => item.name == "Evse.Controller.Single" || item.name == "Controller.IO.Heating.Room")?.length > 0;
+    }
+  }
+
+  ionViewWillLeave() {
+    this.ngOnDestroy();
   }
 
   public ngOnDestroy() {

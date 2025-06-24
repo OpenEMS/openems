@@ -32,7 +32,7 @@ switch (process.env.NODE_ENV as Theme) {
   //   config = {
   //     ...baseConfig,
   //     appId: 'io.openems.ui',
-  //     appName: 'EXAMPL',
+  //     appName: 'EXAMPLE',
   //     server: {
   //       ...baseConfig.server,
   //       hostname: 'portal.openems.io'

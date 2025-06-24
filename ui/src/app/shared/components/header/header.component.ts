@@ -6,7 +6,9 @@ import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
+import { RouteService } from "../../service/route.service";
 import { Edge, Service, Websocket } from "../../shared";
+import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
 
@@ -26,6 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = true;
+    protected showBackButton: boolean = false;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -35,8 +38,10 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public menu: MenuController,
         public modalCtrl: ModalController,
         public router: Router,
+        public routeService: RouteService,
         public service: Service,
         public websocket: Websocket,
+        protected navigationService: NavigationService,
     ) { }
 
     @Input() public set customBackUrl(url: string | null) {
@@ -100,7 +105,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
         // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge.value;
+        const currentEdge: Edge = this.service.currentEdge();
         if (url === "/user" && currentEdge != null) {
             this.backUrl = "/device/" + currentEdge.id + "/live";
             return;
@@ -177,14 +182,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/live"], { replaceUrl: true });
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
 
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
             // this.router.navigate(["../history"], { relativeTo: this.route });
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/history"]);
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
             this.cdRef.detectChanges();
         }
     }

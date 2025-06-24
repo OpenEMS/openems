@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.api.utils;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -101,9 +102,16 @@ public class CalculateEnergyFromPower {
 	 */
 	private Integer lastPower = null;
 
+	private final Clock clock;
+
 	public CalculateEnergyFromPower(TimedataProvider component, ChannelId channelId) {
+		this(component, channelId, Clock.systemDefaultZone());
+	}
+
+	public CalculateEnergyFromPower(TimedataProvider component, ChannelId channelId, Clock clock) {
 		this.component = component;
 		this.channelId = channelId;
+		this.clock = clock;
 	}
 
 	/**
@@ -127,7 +135,7 @@ public class CalculateEnergyFromPower {
 		}
 
 		// keep last data for next run
-		this.lastTimestamp = Instant.now();
+		this.lastTimestamp = Instant.now(this.clock);
 		this.lastPower = power;
 	}
 
@@ -172,7 +180,7 @@ public class CalculateEnergyFromPower {
 
 		} else {
 			// calculate duration since last value
-			var duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now()).toMillis();
+			var duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now(this.clock)).toMillis();
 
 			// calculate energy since last run in [Wmsec]
 			var continuousEnergy /* [Wmsec] */ = this.lastPower /* [W] */ * duration /* [msec] */;

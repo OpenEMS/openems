@@ -135,7 +135,8 @@ public class FieldTypeConflictHandler {
 		if (!jValue.isJsonPrimitive()) {
 			return null;
 		}
-		if (JsonUtils.isNumber(jValue)) {
+		if (JsonUtils.isNumber(jValue)
+				&& !jValue.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
 			return jValue.getAsNumber().longValue();
 		}
 		final var string = jValue.getAsString().replace("\"", "");

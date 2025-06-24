@@ -65,13 +65,14 @@ public class SetNetworkConfig implements EndpointRequestType<Request, EmptyObjec
 		 */
 		public static JsonSerializer<SetNetworkConfig.Request> serializer() {
 			return jsonObjectSerializer(SetNetworkConfig.Request.class, json -> {
-				return new SetNetworkConfig.Request(json.collectStringKeys(mapping(t -> {
-					return NetworkInterface.serializer(t.getKey()).deserializePath(t.getValue());
-				}, toList())));
+				return new SetNetworkConfig.Request(
+						json.getJsonObjectPath("interfaces").collectStringKeys(mapping(t -> {
+							return NetworkInterface.serializer(t.getKey()).deserializePath(t.getValue());
+						}, toList())));
 			}, obj -> {
 				return JsonUtils.buildJsonObject() //
 						.add("interfaces", obj.networkInterfaces().stream() //
-								.collect(toJsonObject(i -> i.getName(), i -> i.toJson()))) //
+								.collect(toJsonObject(NetworkInterface::getName, NetworkInterface::toJson))) //
 						.build();
 			});
 		}

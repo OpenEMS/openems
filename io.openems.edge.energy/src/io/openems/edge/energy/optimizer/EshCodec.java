@@ -2,11 +2,8 @@ package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.util.ISeq.toISeq;
 import static java.lang.Math.min;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -41,6 +38,10 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
  * </ul>
  */
 public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
+
+	public final GlobalOptimizationContext goc;
+	public final SimulationResult previousResult;
+	public final boolean isFirstPeriodFixed;
 
 	private final Genotype<IntegerGene> gtf;
 	private final Function<Genotype<IntegerGene>, int[][]> decoder;
@@ -115,16 +116,23 @@ public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
 										.collect(toISeq()));
 							}) //
 							.collect(toISeq()));
-				});
+				}, //
+				goc, previousResult, isFirstPeriodFixed);
 	}
 
 	private EshCodec(//
 			Genotype<IntegerGene> gtf, //
 			Function<Genotype<IntegerGene>, int[][]> decoder, //
-			Function<int[][], Genotype<IntegerGene>> encoder) {
+			Function<int[][], Genotype<IntegerGene>> encoder, //
+			GlobalOptimizationContext goc, //
+			SimulationResult previousResult, //
+			boolean isFirstPeriodFixed) {
 		this.gtf = gtf;
 		this.decoder = decoder;
 		this.encoder = encoder;
+		this.goc = goc;
+		this.previousResult = previousResult;
+		this.isFirstPeriodFixed = isFirstPeriodFixed;
 	}
 
 	@Override
@@ -140,41 +148,5 @@ public class EshCodec implements InvertibleCodec<int[][], IntegerGene> {
 	@Override
 	public Function<int[][], Genotype<IntegerGene>> encoder() {
 		return this.encoder;
-	}
-
-	/**
-	 * Converts a Schedule to a human readable String.
-	 * 
-	 * @param schedule the Schedule
-	 * @return the String
-	 */
-	public static String scheduleToString(int[][] schedule) {
-		return "[" + Arrays.stream(schedule) //
-				.map(arr -> "[" + Arrays.stream(arr).mapToObj(Integer::toString).collect(joining(",")) + "]") //
-				.collect(joining(",")) + "]";
-	}
-
-	/**
-	 * Converts a Collection of Schedules to a human readable String.
-	 * 
-	 * @param schedules Collection of Schedules
-	 * @return the String
-	 */
-	public static String schedulesToString(Collection<int[][]> schedules) {
-		return schedules.stream() //
-				.map(EshCodec::scheduleToString) //
-				.collect(joining("\n"));
-	}
-
-	/**
-	 * Converts a Collection of Schedules to an array of human readable Strings.
-	 * 
-	 * @param schedules Collection of Schedules
-	 * @return the String array
-	 */
-	public static String[] schedulesToStringArray(Collection<int[][]> schedules) {
-		return schedules.stream() //
-				.map(EshCodec::scheduleToString) //
-				.toArray(String[]::new);
 	}
 }

@@ -1,7 +1,6 @@
 package io.openems.shared.influxdb.proxy;
 
 import java.time.ZonedDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -19,8 +18,6 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 public abstract class QueryProxy {
 
 	public static final String CHANNEL_TAG = "channel";
-	public static final String AVAILABLE_SINCE_MEASUREMENT = "availableSince";
-	public static final String AVAILABLE_SINCE_COLUMN_NAME = "available_since";
 
 	/**
 	 * Builds a {@link QueryProxy} from a {@link QueryLanguageConfig}.
@@ -192,20 +189,6 @@ public abstract class QueryProxy {
 	) throws OpenemsNamedException;
 
 	/**
-	 * Queries the available since fields from the database.
-	 * 
-	 * @param influxConnection a Influx-Connection
-	 * @param bucket           the bucket name; 'database/retentionPolicy' for
-	 *                         InfluxDB v1
-	 * @return the map where the key is the edgeId and the value the timestamp of
-	 *         available since
-	 */
-	public abstract Map<Integer, Map<String, Long>> queryAvailableSince(//
-			InfluxConnection influxConnection, //
-			String bucket //
-	) throws OpenemsNamedException;
-
-	/**
 	 * Queries the first values before the given date.
 	 * 
 	 * @param bucket           the bucket name; 'database/retentionPolicy' for
@@ -324,10 +307,6 @@ public abstract class QueryProxy {
 			Set<ChannelAddress> channels, //
 			Resolution resolution //
 	) throws OpenemsException;
-
-	protected abstract String buildFetchAvailableSinceQuery(//
-			String bucket //
-	);
 
 	protected abstract String buildFetchFirstValueBefore(//
 			String bucket, //

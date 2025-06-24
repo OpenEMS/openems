@@ -18,6 +18,9 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.hardware.GpioHardwareType;
+import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.openemshardware.TechbaseCm3.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -89,6 +92,10 @@ public class TechbaseCm3 extends AbstractOpenemsAppWithProps<TechbaseCm3, Proper
 							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 							DependencyDeclaration.AppDependencyConfig.create() //
 									.setAppId("App.Hardware.IoGpio") //
+									.setInitialProperties(JsonUtils.buildJsonObject() //
+											.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
+													GpioHardwareType.MODBERRY_X500_M3) //
+											.build())
 									.build()))
 					.build();
 		};

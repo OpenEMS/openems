@@ -1,0 +1,29 @@
+<oe-modal [title]="this.component.alias" [component]="controller" *ngIf="isInitialized">
+
+    <oe-modal-line [name]="'General.STATUS' | translate" [value]="status | translate"
+        [converter]="CONVERT_POWER_2_HEAT_STATE">
+    </oe-modal-line>
+
+    <oe-modal-line [name]="'Edge.Index.Widgets.HEAT.HEATING_OUTPUT' | translate"
+        [channelAddress]="component.id + '/ActivePower'" [converter]="Utils.CONVERT_TO_WATT">
+    </oe-modal-line>
+
+    <oe-modal-line [name]="'Edge.Index.Widgets.HEAT.TEMPERATURE' | translate"
+        [channelAddress]="component.id + '/Temperature'"
+        [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS">
+    </oe-modal-line>
+
+    <table class="full_width" *ngIf="isMyPV" style="margin-top: 5%">
+        <tr>
+            <td style="width: 10%" translate>
+                <ion-icon size="large" style="margin-right: 5%" color="normal" name="information-outline">
+                </ion-icon>
+            </td>
+            <td style="width: 90%">
+                <oe-modal-line style="font-style: italic;" leftColumnWidth="100"
+                    [name]="'Edge.Index.Widgets.HEAT.CHANGES_MY_PV_INFO' | translate">
+                </oe-modal-line>
+            </td>
+        </tr>
+    </table>
+</oe-modal>

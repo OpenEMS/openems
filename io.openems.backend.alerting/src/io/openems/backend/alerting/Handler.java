@@ -9,6 +9,13 @@ import io.openems.common.event.EventReader;
 public interface Handler<T extends Message> {
 
 	/**
+	 * unique identifier name as lower snake_case.
+	 * 
+	 * @return string id
+	 */
+	String id();
+
+	/**
 	 * Stop the Handler.
 	 */
 	void stop();
@@ -35,4 +42,11 @@ public interface Handler<T extends Message> {
 	 * @return {@link Consumer} to be scheduled in executor
 	 */
 	Consumer<EventReader> getEventHandler(String eventTopic);
+
+	/**
+	 * Get Metrics about Messages.
+	 * 
+	 * @return message metrics
+	 */
+	HandlerMetrics getMetrics();
 }

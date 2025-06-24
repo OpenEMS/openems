@@ -1,0 +1,7 @@
+<ng-container *ngIf="isInitialized">
+  <oe-flat-widget (click)="presentModal()" [title]="component.alias"
+    [icon]="{name: 'power-outline', size: 'large', color: 'normal'}">
+
+    <oe-flat-widget-line [name]="'General.CURRENT_STATUS' | translate" [value]="state"></oe-flat-widget-line>
+  </oe-flat-widget>
+</ng-container>

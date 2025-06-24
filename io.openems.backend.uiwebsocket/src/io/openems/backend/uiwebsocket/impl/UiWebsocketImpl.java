@@ -26,8 +26,8 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
-import io.openems.backend.common.edgewebsocket.EdgeCache;
-import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
+import io.openems.backend.common.edge.EdgeCache;
+import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.jsonrpc.SimulationEngine;
 import io.openems.backend.common.metadata.Metadata;
@@ -56,6 +56,8 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	private static final String COMPONENT_ID = "uiwebsocket0";
 
+	private final UiWebsocketValidator uiWebsocketValidator = new UiWebsocketValidator();
+
 	protected WebsocketServer server = null;
 
 	@Reference
@@ -65,7 +67,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	protected volatile Metadata metadata;
 
 	@Reference
-	protected volatile EdgeWebsocket edgeWebsocket;
+	protected volatile EdgeManager edgeManager;
 
 	@Reference
 	protected volatile TimedataManager timedataManager;
@@ -100,6 +102,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 		if (this.server == null) {
 			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize());
 			this.server.start();
+			this.uiWebsocketValidator.start(this.server);
 		}
 	}
 
@@ -107,6 +110,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 * Stop existing websocket server.
 	 */
 	private synchronized void stopServer() {
+		this.uiWebsocketValidator.stop();
 		if (this.server == null) {
 			return;
 		}

@@ -98,7 +98,9 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 				.setTranslatedLabelWithAppPrefix(".meteringCode.label") //
 				.setTranslatedDescriptionWithAppPrefix(".meteringCode.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput)));
+				.setField(JsonFormlyUtil::buildInput))), //
+		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
+		;
 
 		private final AppDef<? super Swisspower, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -137,11 +139,13 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
 			final var meteringCode = this.getString(p, l, Property.METERING_CODE);
+			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
+									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Swisspower",
 							JsonUtils.buildJsonObject() //

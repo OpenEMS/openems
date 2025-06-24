@@ -1,6 +1,7 @@
 package io.openems.common.jsonrpc.serialization;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserChannelAddress;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserEnum;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserLocalDate;
+import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserLocalTime;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserSemanticVersion;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserString;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserUuid;
@@ -120,6 +122,27 @@ public interface JsonPrimitivePath extends JsonPath {
 	 */
 	public default StringPath<LocalDate> getAsStringPathLocalDate() {
 		return this.getAsStringPath(new StringParserLocalDate());
+	}
+
+	/**
+	 * Gets the current {@link JsonPrimitivePath} as a {@link StringPath} which
+	 * contains a {@link LocalTime} as its parsed value.
+	 * 
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the current element as a {@link StringPath}
+	 */
+	public default StringPath<LocalTime> getAsStringPathLocalTime(DateTimeFormatter formatter) {
+		return this.getAsStringPath(new StringParserLocalTime(formatter));
+	}
+
+	/**
+	 * Gets the current {@link JsonPrimitivePath} as a {@link StringPath} which
+	 * contains a {@link LocalTime} as its parsed value.
+	 * 
+	 * @return the current element as a {@link StringPath}
+	 */
+	public default StringPath<LocalTime> getAsStringPathLocalTime() {
+		return this.getAsStringPath(new StringParserLocalTime());
 	}
 
 	/**

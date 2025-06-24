@@ -100,33 +100,34 @@ public class MeterJanitzaUmg96rmeImpl extends AbstractOpenemsModbusComponent
 		 * reachable within one ReadMultipleRegistersRequest.
 		 */
 		var modbusProtocol = new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(800, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800), SCALE_FACTOR_3),
-						new DummyRegisterElement(802, 807), //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(808), SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(810), SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(812), SCALE_FACTOR_3),
-						new DummyRegisterElement(814, 859), //
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(860), SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(862), SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(864), SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT, new FloatDoublewordElement(866), SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868),
+				new FC3ReadRegistersTask(19000, Priority.HIGH, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(19000), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004), SCALE_FACTOR_3),
+						new DummyRegisterElement(19006, 19011), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(19016), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.CURRENT, new FloatDoublewordElement(19018), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(19020),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(19022),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(872),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(19024),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(874),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(19026),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876),
+						new DummyRegisterElement(19028, 19035), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(19036),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(19038),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(19040),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
-								INVERT_IF_TRUE(this.invert))));
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(19042),
+								INVERT_IF_TRUE(this.invert)),
+						new DummyRegisterElement(19044, 19049), //
+						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050), SCALE_FACTOR_3)));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //

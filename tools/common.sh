@@ -132,18 +132,56 @@ common_build_android_app() {
     fi
 
     case "${THEME^^}" in
-        "FENECON") NODE_ENV="FENECON";;
-        "HECKERT") NODE_ENV="Heckert";;
+        "EXAMPLE") NODE_ENV="EXAMPLE";;
     esac
 
     # Install depencencies for capacitor
-    NODE_ENV=${NODE_ENV} ionic cap build android -c "${THEME},${THEME}-backend-deploy-app"
+    NODE_ENV=${NODE_ENV} ionic cap build android -c "${THEME},${THEME}-backend-prod" --no-open
 
     # Build App
     cd android
     THEME=${THEME} ./gradlew buildThemeRelease
 
     cd ../..
+}
+
+common_build_ios_app() {
+
+    CONFIGURATION="Release"
+    echo "Building ios app with $THEME and for $CONFIGURATION"
+    cd ui
+
+    # Install dependencies from package.json
+    npm ci
+
+    # Schemes respresent targets
+    case "${THEME:u}" in
+    "EXAMPLE") NODE_ENV="EXAMPLE" SCHEME="App" ;;
+    esac
+
+    # Build app
+    NODE_ENV=${NODE_ENV} ./node_modules/.bin/ionic cap build ios -c "${THEME},${THEME}-backend-prod" --no-open
+    cd ios/App
+
+    # Install capacitor deps
+    pod install
+
+    # Update marketing version
+    ruby ../../../tools/deploy/ios/update_marketing_version.rb $SCHEME
+
+    # Unlock security keychain to access signing certificates and provisioning profiles
+    security unlock-keychain -p $KEYCHAIN_PASSWORD login.keychain
+
+    echo "\n======Building & Archiving=====\n"
+    xcodebuild -scheme $SCHEME -workspace App.xcworkspace -configuration $CONFIGURATION clean archive -archivePath App/output/$SCHEME.xcarchive -destination 'generic/platform=iOS' -allowProvisioningUpdates \
+        -authenticationKeyID $AUTHENTICATION_KEY_ID \
+        -authenticationKeyIssuerID $AUTHENTICATION_KEY_ISSUER_ID \
+        -authenticationKeyPath $AUTHENTICATION_KEY_PATH \
+        -quiet
+
+    echo "\n=====Exporting/Upload=====\n"
+    xcodebuild -exportArchive -archivePath App/output/$SCHEME.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath $SCHEME.ipa -quiet
+    echo "\nVersion is ready to be used for a release\n"
 }
 
 common_save_environment() {

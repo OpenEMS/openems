@@ -1,5 +1,5 @@
 import { endOfMonth, endOfWeek, endOfYear, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from "date-fns";
-import { DefaultTypes } from "../../service/defaulttypes";
+import { DefaultTypes } from "../../type/defaulttypes";
 import { TestContext, TestingUtils } from "../shared/testing/utils.spec";
 
 import { PickDateComponent } from "./pickdate.component";

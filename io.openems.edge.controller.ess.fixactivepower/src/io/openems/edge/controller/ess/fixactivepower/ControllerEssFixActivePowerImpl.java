@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
 import static io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.buildEnergyScheduleHandler;
-import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -42,7 +41,6 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 
 	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
 			ControllerEssFixActivePower.ChannelId.CUMULATED_ACTIVE_TIME);
-	private final EnergyScheduleHandler energyScheduleHandler;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -50,10 +48,11 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	private Config config;
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	private Config config;
+	private EnergyScheduleHandler energyScheduleHandler;
 
 	public ControllerEssFixActivePowerImpl() {
 		super(//
@@ -61,21 +60,20 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				ControllerEssFixActivePower.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.id(), //
-				() -> this.config.enabled() && this.config.mode() == Mode.MANUAL_ON //
-						? new OptimizationContext(//
-								toEnergy(switch (this.config.phase()) {
-								case ALL -> this.config.power();
-								case L1, L2, L3 -> this.config.power() * 3;
-								}), //
-								this.config.relationship()) //
-						: null);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> this.config.enabled() && this.config.mode() == Mode.MANUAL_ON //
+						? new OptimizationContext(//
+								switch (this.config.phase()) {
+								case ALL -> this.config.power();
+								case L1, L2, L3 -> this.config.power() * 3;
+								}, //
+								this.config.relationship()) //
+						: null);
 		if (this.applyConfig(context, config)) {
 			return;
 		}

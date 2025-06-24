@@ -7,22 +7,22 @@ import { FieldType } from "@ngx-formly/core";
   template: `
     <ion-select
         [id]="id"
-        [label]="props.label"
+        [label]="props.label + (to.required ? '*' : '')"
         interface="alert"
         [interfaceOptions]="{ cssClass: 'custom-ion-alert' }"
-        labelPlacement="start"
         justify="space-between"
         [placeholder]="to.placeholder"
         [formControl]="formControl"
         [formlyAttributes]="field"
         [multiple]="props.multiple ?? false"
-      >
-                  <ng-container *ngFor="let option of props.options">
-                  <ion-select-option [value]="option.value">
-                  {{ option.label }}
-                  </ion-select-option>
-                  </ng-container>
-      </ion-select>
+    >
+      <ng-container *ngFor="let option of props.options">
+        <ion-select-option [value]="option.value">
+          {{ option.label }}
+        </ion-select-option>
+      </ng-container>
+    </ion-select>
+    <p *ngIf="to.description" style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">{{ to.description }}</p>
   `,
   standalone: false,
   styles: [`

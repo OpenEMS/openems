@@ -1,5 +1,8 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.time.Duration;
@@ -12,23 +15,14 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Automatic;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Manual;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
 public class EnergyScheduler {
-
-	public sealed interface Config {
-		public static record Manual(LocalTime targetTime) implements Config {
-		}
-
-		public static record Automatic() implements Config {
-		}
-	}
-
-	public static record OptimizationContext(ImmutableSortedMap<ZonedDateTime, OptionalInt> limits) {
-		// TODO Should be LocalDateTime to avoid compare issues
-	}
 
 	/**
 	 * Builds the {@link EnergyScheduleHandler}.
@@ -37,14 +31,14 @@ public class EnergyScheduler {
 	 * This is public so that it can be used by the EnergyScheduler integration
 	 * test.
 	 * 
-	 * @param componentId    supplier for parent Component-ID
+	 * @param parent         the parent {@link OpenemsComponent}
 	 * @param configSupplier supplier for {@link Config}
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(Supplier<String> componentId,
+	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<Config> configSupplier) {
-		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create() //
-				.setComponentId(componentId.get()) //
+		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent) //
+				.setSerializer(Config.serializer(), configSupplier) //
 
 				.setOptimizationContext(goc -> {
 					// TODO try to reuse existing logic for parsing, calculating limits, etc.; for
@@ -86,6 +80,9 @@ public class EnergyScheduler {
 
 							// Calculate actual charge limit
 							var noOfQuarters = (int) Duration.between(firstExcessEnergy, targetTime).toMinutes() / 15;
+							if (noOfQuarters == 0) {
+								continue;
+							}
 							final var totalEnergy = midnight == firstDayMignight //
 									? // use actual data for first day
 									goc.ess().totalEnergy() - goc.ess().currentEnergy()
@@ -100,7 +97,7 @@ public class EnergyScheduler {
 					return new OptimizationContext(limits.build());
 				})
 
-				.setSimulator((period, gsc, coc, csc, ef) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
 					var limitEntry = coc.limits.floorEntry(period.time());
 					if (limitEntry == null) {
 						return;
@@ -112,5 +109,68 @@ public class EnergyScheduler {
 				}) //
 
 				.build();
+	}
+
+	public sealed interface Config {
+
+		public static record Manual(LocalTime targetTime) implements Config {
+
+			/**
+			 * Returns a {@link JsonSerializer} for a {@link Manual}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<Manual> serializer() {
+				return jsonObjectSerializer(json -> {
+					return new Manual(json.getLocalTime("targetTime"));
+				}, obj -> {
+					return buildJsonObject() //
+							.addProperty("class", obj.getClass().getSimpleName()) //
+							.addProperty("targetTime", obj.targetTime().toString()) //
+							.build();
+				});
+			}
+
+		}
+
+		public static record Automatic() implements Config {
+
+			/**
+			 * Returns a {@link JsonSerializer} for a {@link Automatic}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<Automatic> serializer() {
+				return jsonObjectSerializer(json -> {
+					return new Automatic();
+				}, obj -> {
+					return buildJsonObject() //
+							.addProperty("class", obj.getClass().getSimpleName()) //
+							.build();
+				});
+			}
+		}
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link Config}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<Config> serializer() {
+			final var polymorphicSerializer = PolymorphicSerializer.<Config>create()//
+					.add(Manual.class, Manual.serializer(), Manual.class.getSimpleName()) //
+					.add(Automatic.class, Automatic.serializer(), Automatic.class.getSimpleName()) //
+					.build();
+
+			return jsonSerializer(Config.class, json -> {
+				return json.polymorphic(polymorphicSerializer, t -> t.getAsJsonObjectPath().getStringPath("class"));
+			}, obj -> {
+				return polymorphicSerializer.serialize(obj);
+			});
+		}
+	}
+
+	public static record OptimizationContext(ImmutableSortedMap<ZonedDateTime, OptionalInt> limits) {
+		// TODO Should be LocalDateTime to avoid compare issues
 	}
 }

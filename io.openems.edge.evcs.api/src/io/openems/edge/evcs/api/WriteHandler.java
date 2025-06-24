@@ -129,6 +129,10 @@ public class WriteHandler implements Runnable {
 	 * @param power Power that should be applied
 	 */
 	protected void applyChargePower(int power) {
+		if (this.parent.isReadOnly()) {
+			this.logDebug("Failed to set charge Power because EVCS is read only");
+			return;
+		}
 		try {
 
 			boolean sent = false;

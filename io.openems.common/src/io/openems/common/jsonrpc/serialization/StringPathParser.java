@@ -1,6 +1,7 @@
 package io.openems.common.jsonrpc.serialization;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -131,6 +132,32 @@ public final class StringPathParser {
 		@Override
 		public ExampleValues<LocalDate> getExample() {
 			final var timestamp = LocalDate.now();
+			return new ExampleValues<>(timestamp.format(this.formatter), timestamp);
+		}
+
+	}
+
+	public static class StringParserLocalTime implements StringParser<LocalTime> {
+
+		private final DateTimeFormatter formatter;
+
+		public StringParserLocalTime(DateTimeFormatter formatter) {
+			super();
+			this.formatter = formatter;
+		}
+
+		public StringParserLocalTime() {
+			this(DateTimeFormatter.ISO_LOCAL_TIME);
+		}
+
+		@Override
+		public LocalTime parse(String value) {
+			return LocalTime.parse(value, this.formatter);
+		}
+
+		@Override
+		public ExampleValues<LocalTime> getExample() {
+			final var timestamp = LocalTime.now();
 			return new ExampleValues<>(timestamp.format(this.formatter), timestamp);
 		}
 

@@ -162,6 +162,18 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 							return;
 						}
 
+						if (i.getIpMasquerade() != null
+								&& !i.getIpMasquerade().equals(existingInterface.getIpMasquerade().getValue())) {
+							errors.add("Property 'IPMasquerade' on interface '" + i.interfaceName + "' should be '"
+									+ i.getIpMasquerade() + "'");
+						}
+
+						if (i.getIpv4Forwarding() != null
+								&& !i.getIpv4Forwarding().equals(existingInterface.getIpv4Forwarding().getValue())) {
+							errors.add("Property 'IPv4Forwarding' on interface '" + i.interfaceName + "' should be '"
+									+ i.getIpv4Forwarding() + "'");
+						}
+
 						var missingIps = i.getIps().stream() //
 								.filter(ip -> {
 									if (existingInterface.getAddresses().getValue().stream() //

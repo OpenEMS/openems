@@ -6,7 +6,8 @@ public enum StateMachine implements OptionsEnum {
 	OFF(-1, "Off"), 
 	DELAY_DISCHARGE(0, "Delay discharge"), //
 	BALANCING(1, "Self-consumption optimization"), //
-	CHARGE_GRID(3, "Charge from grid") //
+	CHARGE_GRID(3, "Charge from grid"), //
+	DISCHARGE_GRID(4, "Discharge to grid") //
 	;
 
 	private final int value;

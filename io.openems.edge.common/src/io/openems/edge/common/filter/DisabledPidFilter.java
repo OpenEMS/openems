@@ -6,7 +6,12 @@ package io.openems.edge.common.filter;
  * maximum limits. It is used when {@link PowerComponent} is configured to
  * disable PID filter.
  */
-public class DisabledPidFilter extends PidFilter {
+public final class DisabledPidFilter extends PidFilter {
+
+	public static final DisabledPidFilter INSTANCE = new DisabledPidFilter();
+
+	private DisabledPidFilter() {
+	}
 
 	@Override
 	public int applyPidFilter(int input, int target) {

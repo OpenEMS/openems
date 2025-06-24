@@ -7,7 +7,7 @@ import io.openems.edge.io.gpio.api.ReadChannelId;
 import io.openems.edge.io.gpio.api.WriteChannelId;
 import io.openems.edge.io.gpio.linuxfs.HardwareFactory;
 
-public final class ModberryX500M40804Wb extends ModBerryX500CM4 {
+public final class ModberryX500M40804Wb extends ModBerryX500 {
 
 	private final List<ChannelId> channels = List.of(//
 			new ReadChannelId(18, "DIGITAL_INPUT_1"), //

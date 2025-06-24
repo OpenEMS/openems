@@ -64,7 +64,7 @@ export class TimeUtils {
     return Utils.floorSafely(Utils.divideSafely(ms, 60 * 60 * 1000));
   }
   public static getMinutesFromMilliSeconds(ms: number) {
-    return Utils.floorSafely(Utils.divideSafely(ms, 60 * 1000));
+    return Utils.roundSafely(Utils.divideSafely(ms, 60 * 1000));
   }
 
   public static getDurationText(ms: number, translate: TranslateService, singular: string, plural: string) {

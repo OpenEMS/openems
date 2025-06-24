@@ -1,7 +1,7 @@
+import { WebsocketInterface } from "../../interface/websocketInterface";
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
 import { AuthenticateWithPasswordRequest } from "../../jsonrpc/request/authenticateWithPasswordRequest";
 import { AuthenticateWithTokenRequest } from "../../jsonrpc/request/authenticateWithTokenRequest";
-import { WebsocketInterface } from "../websocketInterface";
 
 export class DummyWebsocket implements WebsocketInterface {
 

@@ -5,12 +5,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.alerting.Handler;
+import io.openems.backend.alerting.HandlerMetrics;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
@@ -43,6 +45,8 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private TimedTask initMetadata;
 	private final TimedExecutor timeService;
 
+	private final AtomicLong messagesSent = new AtomicLong();
+
 	public OfflineEdgeHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
 			int initialDelay) {
 		this.mailer = mailer;
@@ -55,6 +59,11 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		if (this.metadata.isInitialized()) {
 			this.handleMetadataAfterInitialize(null);
 		}
+	}
+
+	@Override
+	public String id() {
+		return "alerting_offline";
 	}
 
 	@Override
@@ -77,6 +86,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		final var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
 
 		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params);
+		this.messagesSent.getAndAdd(pack.size());
 
 		final var logStr = new StringBuilder(pack.size() * 64);
 		pack.forEach(msg -> {
@@ -265,5 +275,10 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	@Override
 	public Class<OfflineEdgeMessage> getGeneric() {
 		return OfflineEdgeMessage.class;
+	}
+
+	@Override
+	public HandlerMetrics getMetrics() {
+		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
 	}
 }

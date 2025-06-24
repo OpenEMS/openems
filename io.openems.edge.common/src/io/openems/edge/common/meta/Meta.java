@@ -7,6 +7,8 @@ import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.types.OpenemsType.STRING;
 
+import java.util.Optional;
+
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.oem.OpenemsEdgeOem;
@@ -161,4 +163,19 @@ public interface Meta extends ModbusSlave {
 	public default void _setIsEssChargeFromGridAllowed(boolean value) {
 		this.getIsEssChargeFromGridAllowedChannel().setNextValue(value);
 	}
+
+	/**
+	 * Gets the maximum current allowed at the Grid Connection Point (GCP), i.e. the
+	 * rating of the fuses.
+	 * 
+	 * @return the limit in A
+	 */
+	public int getGridConnectionPointFuseLimit();
+
+	/**
+	 * Returns the geographical coordinates of the system, if available.
+	 *
+	 * @return an Optional containing the coordinates, or empty if not available
+	 */
+	public Optional<Coordinates> getCoordinates();
 }

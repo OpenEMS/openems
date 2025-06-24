@@ -133,7 +133,7 @@
                       <ion-label translate>CHANNELS.SET_VALUE</ion-label>
                       <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
                         <!-- show Toggle for boolean value  -->
-                        <ion-toggle #valueToggle></ion-toggle>
+                        <ion-toggle mode="md" #valueToggle></ion-toggle>
                         <ion-button (click)="setChannelValue(component.key, channel.key, valueToggle.checked)"
                           slot="end" color="light">
                           <ion-icon slot="icon-only" name="send-outline"></ion-icon>

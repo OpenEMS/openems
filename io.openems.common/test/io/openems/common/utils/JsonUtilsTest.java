@@ -630,6 +630,12 @@ public class JsonUtilsTest {
 		assertEquals(true, getAsBestType(JSON_BOOLEAN));
 		assertEquals(123, getAsBestType(JSON_NUMBER));
 		assertEquals("192.168.1.2", getAsBestType(JSON_INET4ADDRESS));
+		assertEquals(32.56, getAsBestType(new JsonPrimitive(32.56)));
+		assertEquals(32.56f, getAsBestType(JsonUtils.parse("32.56")));
+		assertEquals(21474836478L, getAsBestType(new JsonPrimitive(21474836478L)));
+		assertEquals(1.79E308, getAsBestType(new JsonPrimitive(1.79E308)));
+		assertEquals(1.4E-45f, getAsBestType(new JsonPrimitive(1.4E-45f)));
+		assertEquals(789, getAsBestType(JsonUtils.parse("789")));
 	}
 
 	@Test

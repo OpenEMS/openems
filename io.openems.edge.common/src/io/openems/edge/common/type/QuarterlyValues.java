@@ -200,4 +200,13 @@ public abstract class QuarterlyValues<T> {
 	protected T[] asArray(IntFunction<T[]> generator) {
 		return this.valuePerQuarter.values().toArray(generator);
 	}
+
+	/**
+	 * Returns the internal non-nullable value-map.
+	 * 
+	 * @return the internal non-nullable value-map
+	 */
+	public NavigableMap<ZonedDateTime, T> toMap() {
+		return this.valuePerQuarter;
+	}
 }

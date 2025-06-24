@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
@@ -81,7 +80,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 	private List<DigitalOutput> infraredRelayComponents;
 
 	private Config config = null;
-	private ImmutableList<Task<JsonObject>> schedule = ImmutableList.of();
+	private ImmutableList<Task<Void>> schedule = ImmutableList.of();
 	private final List<ChannelAddress> floorRelays = new ArrayList<>();
 	private final List<ChannelAddress> infraredRelays = new ArrayList<>();
 
@@ -410,7 +409,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 					this.infraredRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
 		}
 
-		this.schedule = JSCalendar.Task.fromStringOrEmpty(config.schedule(), j -> j);
+		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(config.schedule());
 		this.updateHighPeriod();
 	}
 

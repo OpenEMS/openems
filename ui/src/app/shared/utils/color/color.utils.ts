@@ -1,4 +1,4 @@
-import { RGBColor } from "../../service/defaulttypes";
+import { RGBColor } from "../../type/defaulttypes";
 
 export namespace ColorUtils {
 

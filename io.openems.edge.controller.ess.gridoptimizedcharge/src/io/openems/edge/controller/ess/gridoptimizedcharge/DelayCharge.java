@@ -285,7 +285,7 @@ public class DelayCharge {
 		soc -= 1;
 
 		// Remaining capacity of the battery in Ws till target point.
-		var remainingCapacity = Math.round(capacity * (100 - soc) * 36);
+		var remainingCapacity = capacity * (100L - soc) * 36;
 
 		// Remaining time in seconds till the target point.
 		var remainingTime = DelayCharge.calculateRemainingTime(clock, targetMinute);
@@ -320,7 +320,7 @@ public class DelayCharge {
 		/*
 		 * Calculate the power limit depending on the specified parameters.
 		 */
-		Integer calculatedPower = DelayCharge.getCalculatedPowerLimit(remainingCapacity, remainingTime,
+		var calculatedPower = DelayCharge.getCalculatedPowerLimit(remainingCapacity, remainingTime,
 				quarterHourlyProduction, quarterHourlyConsumption, clock, riskLevel, maxApparentPower, targetMinute,
 				minimumPower, this.parent);
 
@@ -393,24 +393,21 @@ public class DelayCharge {
 	 * @return the calculated charging power limit or null if no limit should be
 	 *         applied
 	 */
-	protected static Integer getCalculatedPowerLimit(int remainingCapacity, int remainingTime,
+	protected static Integer getCalculatedPowerLimit(long remainingCapacity, int remainingTime,
 			Integer[] quarterHourlyProduction, Integer[] quarterHourlyConsumption, Clock clock,
 			DelayChargeRiskLevel riskLevel, int maxApparentPower, int targetMinute, double minimumChargePower,
 			ControllerEssGridOptimizedChargeImpl parent) {
-
-		Integer calculatedPower = null;
-
 		// Do not divide by zero
 		if (remainingTime <= 0) {
 			return null;
 		}
 		// Calculate charge power limit
-		calculatedPower = remainingCapacity / remainingTime;
+		var calculatedPower = remainingCapacity / remainingTime;
 
 		// Minimum power for more efficiency during a day (Avoid charging with low
 		// power.
 		if (calculatedPower < minimumChargePower) {
-			calculatedPower = 0;
+			calculatedPower = 0L;
 		}
 
 		/**
@@ -440,7 +437,10 @@ public class DelayCharge {
 			return maxApparentPower;
 		}
 
-		return calculatedPower;
+		if (calculatedPower > Integer.MAX_VALUE) {
+			return Integer.MAX_VALUE;
+		}
+		return (int) calculatedPower;
 	}
 
 	/**

@@ -125,7 +125,7 @@ public class EdgeRpcRequestHandler {
 
 		if (resultFuture == null) {
 			// Request not handled delegate to edge
-			resultFuture = this.parent.edgeWebsocket.send(edgeId, user, request);
+			resultFuture = this.parent.edgeManager.send(edgeId, user, request);
 		}
 
 		// Wrap reply in EdgeRpcResponse

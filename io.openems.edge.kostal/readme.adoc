@@ -1,0 +1,14 @@
+= KOSTAL
+
+== KOSTAL PLENTICORE
+
+* hybrid inverter with battery control and PV production
+* KSEM device
+
+== KOSTAL PIKO
+
+- SymmetricEss
+- ElectricityMeter (for Grid meter)
+- EssDcCharger (for PV)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kostal[Source Code icon:github[]]

@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.core.host.NetworkInterface.IpMasqueradeSetting;
 
 public class OperatingSystemDebianSystemdTest {
 
@@ -249,6 +250,38 @@ public class OperatingSystemDebianSystemdTest {
 	}
 
 	@Test
+	public void testParseIpV4Forwarding() throws OpenemsNamedException {
+		final var lines = List.of(//
+				"[Match]", //
+				"Name=eth0", //
+				"", //
+				"[Network]", //
+				"IPv4Forwarding=yes" //
+		);
+
+		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+
+		assertEquals("eth0", n.getName());
+		assertTrue(n.getIpv4Forwarding().getValue());
+	}
+
+	@Test
+	public void testParseIpMasquerade() throws OpenemsNamedException {
+		final var lines = List.of(//
+				"[Match]", //
+				"Name=eth0", //
+				"", //
+				"[Network]", //
+				"IPMasquerade=ipv4" //
+		);
+
+		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+
+		assertEquals("eth0", n.getName());
+		assertEquals(IpMasqueradeSetting.IP_V4, n.getIpMasquerade().getValue());
+	}
+
+	@Test
 	public void testUpdate() throws OpenemsNamedException {
 		var n1 = parseSystemdNetworkdConfigurationFile(Lists.newArrayList(//
 				"[Match]", //
@@ -272,13 +305,18 @@ public class OperatingSystemDebianSystemdTest {
 				"[Network]", //
 				"DHCP=no", //
 				"LinkLocalAddressing=yes", //
+				"IPv4Forwarding=yes", //
+				"IPMasquerade=ipv4", //
 				"", //
 				"[Address]", //
 				"Address=192.168.100.100/24", //
 				"Label=normal" //
 		), null);
-		n1.updateFrom(n2);
+
+		assertTrue(n1.updateFrom(n2));
 
 		assertFalse(n1.getDhcp().getValue());
+		assertTrue(n1.getIpv4Forwarding().getValue());
+		assertEquals(IpMasqueradeSetting.IP_V4, n1.getIpMasquerade().getValue());
 	}
 }

@@ -2,7 +2,7 @@
 import { ChartDataset } from "chart.js";
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 
-import { ChartAxis, HistoryUtils, YAxisType } from "../../service/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
 import { ChartConstants } from "./chart.constants";
 
 describe("Chart constants", () => {

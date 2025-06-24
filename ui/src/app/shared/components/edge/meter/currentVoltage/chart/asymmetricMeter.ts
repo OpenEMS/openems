@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { Phase } from "src/app/shared/components/shared/phase";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "currentVoltageAsymmetricChart",
@@ -56,6 +56,9 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
         position: "right",
         yAxisId: ChartAxis.RIGHT,
         displayGrid: false,
+        scale: {
+          dynamicScale: true,
+        },
       },
       {
         unit: YAxisType.CURRENT,

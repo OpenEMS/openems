@@ -8,7 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.java_websocket.WebSocket;
 
-import io.openems.backend.common.edgewebsocket.EdgeCache;
+import io.openems.backend.common.edge.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;

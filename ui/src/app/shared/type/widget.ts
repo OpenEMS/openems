@@ -17,6 +17,7 @@ export enum WidgetClass {
 
 export enum WidgetNature {
     "io.openems.edge.evcs.api.Evcs",
+    "io.openems.edge.heat.api.ManagedHeatElement",
     "io.openems.impl.controller.channelthreshold.ChannelThresholdController", // TODO deprecated
     "io.openems.edge.io.api.DigitalInput",
 }
@@ -38,6 +39,7 @@ export enum WidgetFactory {
     "Controller.IO.HeatingElement",
     "Controller.IO.Heating.Room",
     "Controller.Io.HeatPump.SgReady",
+    "Controller.Heat.Heatingelement",
     "Controller.Symmetric.PeakShaving",
     "Controller.TimeslotPeakshaving",
     "Controller.ThresholdPeakshaving",
@@ -59,6 +61,7 @@ export type ImageIcon = {
 export class Widget {
     public name: WidgetNature | WidgetFactory | string;
     public componentId: string;
+    public alias: string;
 }
 
 export class Widgets {
@@ -128,15 +131,17 @@ export class Widgets {
                 if (nature === "io.openems.edge.io.api.DigitalInput" && list.some(e => e.name === "io.openems.edge.io.api.DigitalInput")) {
                     continue;
                 }
-                if (config.getComponent(componentId).isEnabled) {
-                    list.push({ name: nature, componentId: componentId });
+                const component = config.getComponent(componentId);
+                if (component.isEnabled) {
+                    list.push({ name: nature, componentId: componentId, alias: component.alias });
                 }
             }
         }
         for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
             for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
-                if (config.getComponent(componentId).isEnabled) {
-                    list.push({ name: factory, componentId: componentId });
+                const component = config.getComponent(componentId);
+                if (component.isEnabled) {
+                    list.push({ name: factory, componentId: componentId, alias: component.alias });
                 }
             }
         }

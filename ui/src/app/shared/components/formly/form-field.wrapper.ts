@@ -14,4 +14,9 @@ import { FieldWrapper } from "@ngx-formly/core";
             }
     `],
 })
-export class FormlyWrapperFormFieldComponent extends FieldWrapper { }
+export class FormlyWrapperFormFieldComponent extends FieldWrapper {
+
+    get itemLines(): "none" | "inset" {
+        return this.props.description ? "none" : "inset";
+    }
+}

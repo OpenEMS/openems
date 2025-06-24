@@ -5,6 +5,7 @@ import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
 import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL;
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
 import static org.junit.Assert.assertEquals;
 
@@ -63,6 +64,46 @@ public class PowerComponentTest {
 		ess0.addPowerConstraint("", Phase.ALL, ACTIVE, EQUALS, 5000);
 		ess0.addPowerConstraint("", Phase.ALL, REACTIVE, EQUALS, 3000);
 		componentTest.next(new TestCase());
+	}
+
+	@Test
+	public void testOnlyOneEssInClusterDistribution() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-12000) //
+				.withAllowedDischargePower(12000) //
+				.withMaxApparentPower(10000) //
+				.withSoc(60);
+
+		var ess0 = new DummyMetaEss("ess0", ess1) //
+				.setPower(powerComponent);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()); //
+
+		expect("#1.1", ess1, 10000, 0);
+
+		ess0.setActivePowerEquals(10000);
+		componentTest.next(new TestCase("#1"));
+
+		expect("#2.1", ess1, 10000, 0);
+
+		ess0.setActivePowerEquals(12000);
+		componentTest.next(new TestCase("#2"));
 	}
 
 	@Test
@@ -646,11 +687,240 @@ public class PowerComponentTest {
 
 	}
 
+	@Test
+	public void testNearEqualStrategy() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(9);
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(9);
+		var ess3 = new DummyManagedSymmetricEss("ess3") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(8);
+		var ess4 = new DummyManagedSymmetricEss("ess4") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(13);
+		var ess5 = new DummyManagedSymmetricEss("ess5") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(9);
+		var ess6 = new DummyManagedSymmetricEss("ess6") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(17);
+		var ess7 = new DummyManagedSymmetricEss("ess7") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(7);
+		var ess8 = new DummyManagedSymmetricEss("ess8") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-92000) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(17);
+
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2, ess3, ess4, ess5, ess6, ess7, ess8) //
+				.setPower(powerComponent);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.addReference("addEss", ess3) //
+				.addReference("addEss", ess4) //
+				.addReference("addEss", ess5) //
+				.addReference("addEss", ess6) //
+				.addReference("addEss", ess7) //
+				.addReference("addEss", ess8) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()); //
+
+		expect("#2.1", ess1, -1024, 0);
+		expect("#2.2", ess2, -1024, 0);
+		expect("#2.3", ess3, -1036, 0);
+		expect("#2.4", ess4, -979, 0);
+		expect("#2.5", ess5, -1024, 0);
+		expect("#2.6", ess6, -934, 0);
+		expect("#2.7", ess7, -1047, 0);
+		expect("#2.8", ess8, -934, 0);
+
+		ess0.setActivePowerEquals(-8000);
+		componentTest.next(new TestCase("#1"));
+
+		ess1._setAllowedChargePower(-24999);
+		ess2._setAllowedChargePower(-24999);
+		ess3._setAllowedChargePower(-24999);
+		ess4._setAllowedChargePower(-24999);
+		ess5._setAllowedChargePower(-24999);
+		ess6._setAllowedChargePower(-24999);
+		ess7._setAllowedChargePower(-24999);
+		ess8._setAllowedChargePower(-24999);
+
+		ess1._setAllowedDischargePower(0);
+		ess2._setAllowedDischargePower(0);
+		ess3._setAllowedDischargePower(0);
+		ess4._setAllowedDischargePower(0);
+		ess5._setAllowedDischargePower(0);
+		ess6._setAllowedDischargePower(0);
+		ess7._setAllowedDischargePower(0);
+		ess8._setAllowedDischargePower(0);
+
+		expect("#3.1", ess1, -1024, 0);
+		expect("#3.2", ess2, -1024, 0);
+		expect("#3.3", ess3, -1036, 0);
+		expect("#3.4", ess4, -979, 0);
+		expect("#3.5", ess5, -1024, 0);
+		expect("#3.6", ess6, -934, 0);
+		expect("#3.7", ess7, -1047, 0);
+		expect("#3.8", ess8, -934, 0);
+
+		ess0.setActivePowerEquals(-8000);
+		componentTest.next(new TestCase("#3"));
+
+		ess1._setAllowedChargePower(-92000);
+		ess2._setAllowedChargePower(-92000);
+		ess3._setAllowedChargePower(-92000);
+		ess4._setAllowedChargePower(-92000);
+		ess5._setAllowedChargePower(-92000);
+		ess6._setAllowedChargePower(-92000);
+		ess7._setAllowedChargePower(-92000);
+		ess8._setAllowedChargePower(-92000);
+
+		ess1._setAllowedDischargePower(92000);
+		ess2._setAllowedDischargePower(92000);
+		ess3._setAllowedDischargePower(92000);
+		ess4._setAllowedDischargePower(92000);
+		ess5._setAllowedDischargePower(92000);
+		ess6._setAllowedDischargePower(92000);
+		ess7._setAllowedDischargePower(92000);
+		ess8._setAllowedDischargePower(92000);
+
+		expect("#4.1", ess1, -91999, 0);
+		expect("#4.2", ess2, -91999, 0);
+		expect("#4.3", ess3, -92000, 0);
+		expect("#4.4", ess4, -92000, 0);
+		expect("#4.5", ess5, -91999, 0);
+		expect("#4.6", ess6, -92000, 0);
+		expect("#4.7", ess7, -91999, 0);
+		expect("#4.8", ess8, -91999, 0);
+
+		// charging with 1 MW
+		ess0.setActivePowerEquals(-1000000);
+		componentTest.next(new TestCase("#4"));
+
+		expect("#5.1", ess1, -91999, 0);
+		expect("#5.2", ess2, -91999, 0);
+		expect("#5.3", ess3, -92000, 0);
+		expect("#5.4", ess4, -92000, 0);
+		expect("#5.5", ess5, -91999, 0);
+		expect("#5.6", ess6, -92000, 0);
+		expect("#5.7", ess7, -91999, 0);
+		expect("#5.8", ess8, -91999, 0);
+
+		// Charging with 4 W less the maximum
+		ess0.setActivePowerEquals(-735996);
+		componentTest.next(new TestCase("#5"));
+
+		expect("#6.1", ess1, -91999, 0);
+		expect("#6.2", ess2, -91999, 0);
+		expect("#6.3", ess3, -92000, 0);
+		expect("#6.4", ess4, -92000, 0);
+		expect("#6.5", ess5, -91999, 0);
+		expect("#6.6", ess6, -92000, 0);
+		expect("#6.7", ess7, -91999, 0);
+		expect("#6.8", ess8, -91999, 0);
+
+		// Charging with maximum power
+		ess0.setActivePowerEquals(-736000);
+		componentTest.next(new TestCase("#4"));
+
+		expect("#7.1", ess1, 92000, 0);
+		expect("#7.2", ess2, 92000, 0);
+		expect("#7.3", ess3, 92000, 0);
+		expect("#7.4", ess4, 92000, 0);
+		expect("#7.5", ess5, 92000, 0);
+		expect("#7.6", ess6, 92000, 0);
+		expect("#7.7", ess7, 92000, 0);
+		expect("#7.8", ess8, 92000, 0);
+
+		// Discharging Charging with maximum power
+		ess0.setActivePowerEquals(736000);
+		componentTest.next(new TestCase("#7"));
+
+		expect("#8.1", ess1, 92000, 0);
+		expect("#8.2", ess2, 92000, 0);
+		expect("#8.3", ess3, 92000, 0);
+		expect("#8.4", ess4, 92000, 0);
+		expect("#8.5", ess5, 92000, 0);
+		expect("#8.6", ess6, 92000, 0);
+		expect("#8.7", ess7, 92000, 0);
+		expect("#8.8", ess8, 92000, 0);
+
+		// Discharging with more than maximum power
+		ess0.setActivePowerEquals(1000000);
+		componentTest.next(new TestCase("#7"));
+
+		expect("#9.1", ess1, 90857, 0);
+		expect("#9.2", ess2, 90857, 0);
+		expect("#9.3", ess3, 80761, 0);
+		expect("#9.4", ess4, 92000, 0);
+		expect("#9.5", ess5, 90857, 0);
+		expect("#9.6", ess6, 92000, 0);
+		expect("#9.7", ess7, 70666, 0);
+		expect("#9.8", ess8, 92000, 0);
+
+		// Discharging with maximum power
+		ess0.setActivePowerEquals(700000);
+		componentTest.next(new TestCase("#7"));
+
+		expect("#10.1", ess1, 92000, 0);
+		expect("#10.2", ess2, 92000, 0);
+		expect("#10.3", ess3, 92000, 0);
+		expect("#10.4", ess4, 92000, 0);
+		expect("#10.5", ess5, 92000, 0);
+		expect("#10.6", ess6, 92000, 0);
+		expect("#10.7", ess7, 91996, 0);
+		expect("#10.8", ess8, 92000, 0);
+
+		// Discharging with 4 W less then maximum power
+		ess0.setActivePowerEquals(735996);
+		componentTest.next(new TestCase("#7"));
+
+	}
+
 	private static void expect(String description, DummyManagedSymmetricEss ess, int p, int q) {
 		openCallbacks.incrementAndGet();
 		ess.withSymmetricApplyPowerCallback(record -> {
 			openCallbacks.decrementAndGet();
-			// System.out.println(description + " for " + ess.id() + ": " + activePower);
 			assertEquals(description + " for " + ess.id(), p, record.activePower());
 			assertEquals(description + " for " + ess.id(), q, record.reactivePower());
 		});

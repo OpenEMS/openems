@@ -3,6 +3,7 @@ package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.batteryinverter.api.BatteryInverterTimeoutFailure;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
@@ -20,7 +21,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
 public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricBatteryInverter,
-		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, StartStoppable {
+		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, StartStoppable, BatteryInverterTimeoutFailure {
 
 	/**
 	 * Sets the KACO watchdog timeout to 60 seconds.

@@ -8,7 +8,7 @@ Bundle-Description: \
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
-	io.openems.edge.common
+	io.openems.edge.common,\
 
 -testpath: \
 	${testpath}

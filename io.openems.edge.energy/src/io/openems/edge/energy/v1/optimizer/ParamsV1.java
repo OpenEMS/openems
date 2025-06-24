@@ -133,7 +133,7 @@ public record ParamsV1(//
 			return this;
 		}
 
-		protected Builder seMaxBuyFromGrid(int maxBuyFromGrid) {
+		protected Builder setMaxBuyFromGrid(int maxBuyFromGrid) {
 			this.maxBuyFromGrid = maxBuyFromGrid;
 			return this;
 		}

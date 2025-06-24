@@ -6,6 +6,7 @@ public enum Mode {
 	SMART(null), //
 	ZERO(Actual.ZERO), //
 	MINIMUM(Actual.MINIMUM), //
+	SURPLUS(Actual.SURPLUS), //
 	FORCE(Actual.FORCE);
 
 	public final Mode.Actual actual;
@@ -17,6 +18,7 @@ public enum Mode {
 	public enum Actual implements OptionsEnum {
 		ZERO(0, "Zero"), //
 		MINIMUM(1, "Minimum charge"), // Avoid interrupting of old EVs
+		SURPLUS(2, "Surplus charge"), //
 		FORCE(3, "Force charge") //
 		;
 

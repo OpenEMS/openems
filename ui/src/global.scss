@@ -55,14 +55,6 @@ input:-webkit-autofill:focus {
     margin-top: 0.1em;
 }
 
-.custom-ion-popover {
-
-    white-space: inherit;
-
-    // Overwrites default width of popover
-    --min-width: min-content;
-}
-
 .footer-color {
     background-color: var(--ion-color-toolbar-secondary) !important;
 }
@@ -78,6 +70,10 @@ input:-webkit-autofill:focus {
         display: none;
     }
 
+}
+
+.paragraph-space {
+    margin-top: 2rem;
 }
 
 .disabled {
@@ -158,9 +154,23 @@ formly-field-ion-radio {
     border-color: white;
 }
 
+//* Color of arrow down *//
+ion-select::part(icon) {
+    color: var(--ion-color-primary) !important;
+}
+
+.ion-select-border-color-primary {
+    --border-color: var(--ion-color-primary);
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+        border-color: var(--ion-color-primary) !important;
+    }
+}
+
 .custom-ion-popover {
 
-    --border-width: 0;
     --background: var(--ion-background-color);
 
     // Floating label
@@ -186,6 +196,10 @@ formly-field-ion-radio {
     .item-radio-checked {
         --background: var(--ion-color-primary-tint);
         --background-opacity: 0.9;
+    }
+
+    ion-list {
+        min-width: fit-content;
     }
 }
 
@@ -243,9 +257,7 @@ html.md {
     --ion-default-font: $font-family;
 }
 
-//252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content {
-    width: 251px;
     position: center;
     overflow-y: hidden;
     overflow-x: hidden;
@@ -265,6 +277,16 @@ html.md {
 
 .white-space-initial {
     white-space: initial !important;
+}
+
+formly-range-type {
+    display: block;
+    width: 100%;
+}
+
+ion-range {
+    --bar-background: var(--ion-color-background-pull-to-refresh);
+    --bar-background-active: var(--ion-color-primary);
 }
 
 ion-label {
@@ -290,6 +312,10 @@ mat-card.single_top {
 
 table.full_width {
     width: 100%;
+}
+
+.full_height {
+    height: 100%;
 }
 
 .bold {
@@ -326,19 +352,6 @@ ion-item,
 ion-checkbox {
     .checkbox-icon {
         display: none;
-    }
-}
-
-#theme-switcher {
-    --transition: checkmark-color 5s ease-in-out;
-
-    :host {
-        --checkmark-color: red;
-    }
-
-    ion-checkbox::part('mark') {
-        --border-color: white;
-        --checkmark-color: red;
     }
 }
 
@@ -483,7 +496,23 @@ formly-input-section {
 
     ion-toggle {
         --track-background: var(--ion-color-toggle-background);
-        --track-background-checked: var(--ion-color-toggle-background);
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --handle-background-checked: white;
+        --track-background-checked: var(--ion-color-primary);
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
+        padding: 0.8em;
+        padding-right: 0.2em;
+        padding-left: 0.2em;
+        overflow: visible;
+        scale: 0.95;
+    }
+
+    ion-toggle::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
+    }
+
+    ion-toggle.toggle-checked::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-active) !important;
     }
 
     ion-spinner {
@@ -499,6 +528,10 @@ formly-input-section {
         white-space: nowrap;
         padding: 0.5em;
         text-align: center;
+    }
+
+    ion-buttons {
+        color: var(--ion-color-toggle-background) !important;
     }
 }
 

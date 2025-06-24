@@ -45,7 +45,7 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	private static final ChannelAddress GRID = new ChannelAddress("_sum", "GridActivePower");
 	private static final ChannelAddress PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 	private static final ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
-	private static final ChannelAddress ESS_POWER = new ChannelAddress("_sum", "EssActivePower");
+	private static final ChannelAddress ESS_POWER = new ChannelAddress("_sum", "EssDischargePower");
 
 	protected static enum PowerStorageState {
 		IDLE(0), CHARGING(1), DISABLED(2), DISCHARGING(3);

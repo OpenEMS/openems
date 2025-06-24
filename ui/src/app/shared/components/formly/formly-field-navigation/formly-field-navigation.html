@@ -1,0 +1,58 @@
+<oe-navigation-view [formGroup]="form" [component]="props.options[0].component"
+    *ngIf="props && props.options[0].component">
+    <ngx-spinner name="formly-field-modal"></ngx-spinner>
+    <ng-container *ngFor="let entry of props.options">
+        <ng-container *ngFor="let line of entry.lines">
+            <ng-container [ngSwitch]="line.type">
+
+                <!-- OeFormlyField.ChannelLine -->
+                <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
+                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
+                    [converter]="line.converter">
+                </oe-modal-line>
+
+                <!-- OeFormlyField.ChildrenLine -->
+                <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
+                    [textIndent]="line.indentation ?? '0%'" [name]="line.name">
+                    <ng-container *ngFor="let lineItem of line.children">
+                        <!-- OeFormlyField.Item -->
+                        <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
+                            [converter]="lineItem.converter">
+                        </oe-modal-line-item>
+                    </ng-container>
+                </oe-modal-line>
+
+                <!-- OeFormlyField.InfoLine -->
+                <oe-modal-info-line *ngSwitchCase="'info-line'" [info]="line.name">
+                </oe-modal-info-line>
+
+                <!-- OeFormlyField.HorizontalLine -->
+                <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
+
+                <oe-modal-value-line *ngSwitchCase="'value-from-channels-line'"
+                    [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'"
+                    [valueCallback]="line.value" [filter]="line.filter" [name]="line.name"></oe-modal-value-line>
+
+                <!-- FormGrouped -->
+                <ng-container *ngSwitchCase="'value-from-form-control-line'">
+                    <oe-modal-line [controlName]="line.controlName" [formGroup]="form" [name]="line.name"
+                        [control]="{type: 'TEXT', valueConverter: line.converter}">
+                    </oe-modal-line>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'buttons-from-form-control-line'">
+                    <oe-modal-buttons *ngIf="form.controls[line.controlName] !== null" [formGroup]="form"
+                        [controlName]="line.controlName" [component]="component" [buttons]="line.buttons"
+                        [channelAddress]="line.channel?.toString() ?? null">
+                    </oe-modal-buttons>
+                </ng-container>
+
+                <!-- OeFormlyField.RangeButtonFromFormControlLine -->
+                <oe-modal-line *ngSwitchCase="'range-button-from-form-control-line'" [controlName]="line.controlName"
+                    [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
+                </oe-modal-line>
+
+            </ng-container>
+        </ng-container>
+    </ng-container>
+</oe-navigation-view>

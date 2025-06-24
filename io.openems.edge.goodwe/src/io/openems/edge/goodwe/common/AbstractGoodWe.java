@@ -7,16 +7,20 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.osgi.service.event.Event;
@@ -27,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -44,8 +49,11 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
@@ -55,6 +63,8 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoString;
+import io.openems.edge.goodwe.common.GoodWeStateDefinitions.GwState;
+import io.openems.edge.goodwe.common.GoodWeStateDefinitions.GwStateTask;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
@@ -419,6 +429,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 				// Registers 36066 to 36120 throw "Illegal Data Address"
 
+				// 37000 - DRM Status - DRED only for Australia
 				new FC3ReadRegistersTask(37000, Priority.LOW, //
 						m(new BitsWordElement(37000, this) //
 								.bit(0, GoodWe.ChannelId.DRM0)//
@@ -1087,6 +1098,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.C_EXT_TWOSSTEPF_FLG, new UnsignedWordElement(45522))//
 				), //
 
+				new FC16WriteRegistersTask(47500, //
+						// Internal GoodWe Battery Protection
+						m(GoodWe.ChannelId.STOP_SOC_PROTECT, new UnsignedWordElement(47500))), //
+
 				new FC16WriteRegistersTask(47505, //
 						// If using EMS, must set to "2"
 						m(GoodWe.ChannelId.MANUFACTURE_CODE, new UnsignedWordElement(47505)), //
@@ -1201,8 +1216,75 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// TODO reset to individual states
 						m(GoodWe.ChannelId.WBMS_STATUS, new UnsignedWordElement(47915)), //
 						m(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, new UnsignedWordElement(47916)) //
-				) //
-		);
+				), //
+
+				// Registers for detailed analysis
+				new FC3ReadRegistersTask(48000, Priority.LOW,
+						m(GoodWe.ChannelId.GW_A_48000_BATTTERY1_CHARGE_MAX, new UnsignedWordElement(48000)), //
+						m(GoodWe.ChannelId.GW_A_48001_PV_LIMIT_POWER, new UnsignedDoublewordElement(48001)), //
+						m(GoodWe.ChannelId.GW_A_48003_INVERTER_MODE_CONTROL, new UnsignedWordElement(48003)), //
+						m(GoodWe.ChannelId.GW_A_48004_AC_LIMIT_POWER, new UnsignedDoublewordElement(48004)), //
+						m(GoodWe.ChannelId.GW_A_48006_BATTERY_MODE, new UnsignedWordElement(48006)), //
+						m(GoodWe.ChannelId.GW_A_48007_BATTERY_CHARGE_POWER, new UnsignedDoublewordElement(48007)), //
+						m(GoodWe.ChannelId.GW_A_48009_BATTERY_DISCHARGE_POWER, new UnsignedDoublewordElement(48009)), //
+						m(GoodWe.ChannelId.GW_A_48011_BMS_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(48011)), //
+						m(GoodWe.ChannelId.GW_A_48012_BMS_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(48012)), //
+						m(GoodWe.ChannelId.GW_A_48013_BATTERY_LEVEL, new UnsignedWordElement(48013)), //
+						m(GoodWe.ChannelId.GW_A_48014_R_PHASE_AC_LIMIT, new UnsignedWordElement(48014)), //
+						m(GoodWe.ChannelId.GW_A_48015_S_PHASE_AC_LIMIT, new UnsignedWordElement(48015)), //
+						m(GoodWe.ChannelId.GW_A_48016_T_PHASE_AC_LIMIT, new UnsignedWordElement(48016)), //
+						m(GoodWe.ChannelId.GW_A_48017_METER_STATUS, new UnsignedWordElement(48017)), //
+						m(GoodWe.ChannelId.GW_A_48018_METER_TOTAL_APPARENT_POWER, new SignedDoublewordElement(48018)), //
+						m(GoodWe.ChannelId.GW_A_48020_METER_TOTAL_ACTIVE_POWER, new SignedDoublewordElement(48020)), //
+						m(GoodWe.ChannelId.GW_A_48022_R_PHASE_LIMIT_INPUT, new SignedWordElement(48022)), //
+						m(GoodWe.ChannelId.GW_A_48023_S_PHASE_LIMIT_INPUT, new SignedWordElement(48023)), //
+						m(GoodWe.ChannelId.GW_A_48024_T_PHASE_LIMIT_INPUT, new SignedWordElement(48024)), //
+						m(GoodWe.ChannelId.GW_A_48025_MAX_BMS_DISCHARGE_CURRENT, new UnsignedWordElement(48025)), //
+						m(GoodWe.ChannelId.GW_A_48026_FEED_POWER_ENABLE, new UnsignedWordElement(48026)), //
+						m(GoodWe.ChannelId.GW_A_48027_BATTERY1_PERCENT_CHARGE, new UnsignedWordElement(48027)), //
+						m(GoodWe.ChannelId.GW_A_48028_BATTERY1_PERCENT_DISCHARGE, new UnsignedWordElement(48028)), //
+						m(GoodWe.ChannelId.GW_A_48029_BATTERY2_PERCENT_CHARGE, new UnsignedWordElement(48029)), //
+						m(GoodWe.ChannelId.GW_A_48030_BATTERY2_PERCENT_DISCHARGE, new UnsignedWordElement(48030)), //
+						m(GoodWe.ChannelId.GW_A_48031_BATTERY2_MODE, new UnsignedWordElement(48031)), //
+						m(GoodWe.ChannelId.GW_A_48032_BATTERY2_CHARGE_POWER, new UnsignedDoublewordElement(48032)), //
+						m(GoodWe.ChannelId.GW_A_48034_BATTERY2_DISCHARGE_POWER, new UnsignedDoublewordElement(48034)), //
+						m(GoodWe.ChannelId.GW_A_48036_BMS2_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(48036)), //
+						m(GoodWe.ChannelId.GW_A_48037_BMS2_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(48037)), //
+						m(GoodWe.ChannelId.GW_A_48038_BATTERY2_LEVEL, new UnsignedWordElement(48038)), //
+						m(GoodWe.ChannelId.GW_A_48039_BATTERY_CHARGE_VOLTAGE_LIMIT, new UnsignedWordElement(48039)), //
+						m(GoodWe.ChannelId.GW_A_48040_MAX_BMS2_DISCHARGE_CURRENT, new UnsignedWordElement(48040)), //
+						m(GoodWe.ChannelId.GW_A_48041_GENERATOR_OPERATING_MODE, new UnsignedWordElement(48041)) //
+				));
+
+		UnsignedWordElement[] elementsToRead = GoodWeStateDefinitions.GOODWE_STATE_REGISTER_TASKS.stream()
+				.map(GwStateTask::register) //
+				.map(UnsignedWordElement::new) //
+				.toArray(UnsignedWordElement[]::new);
+
+		readElementsOnce(FC3, protocol, ModbusUtils::doNotRetry, elementsToRead) //
+				.thenAccept((rsr) -> {
+
+					if (rsr.values().stream().allMatch(Objects::isNull)) {
+						return;
+					}
+
+					var modbusElements = new ArrayList<ModbusElement>();
+					IntStream.range(0, elementsToRead.length).forEach(i -> {
+						var address = elementsToRead[i].startAddress;
+						var gwStates = GoodWeStateDefinitions.GOODWE_STATE_REGISTER_TASKS.get(i).gwStates();
+						Integer registerValue = TypeUtils.getAsType(OpenemsType.INTEGER, rsr.values().get(i));
+
+						if (registerValue == null || registerValue == 0xffff || gwStates.isEmpty()) {
+							modbusElements.add(new DummyRegisterElement(address));
+							return;
+						}
+						var element = this.generateElementsAndChannels(address, gwStates);
+						modbusElements.add(this.m(element));
+					});
+
+					protocol.addTasks(new FC3ReadRegistersTask(32000, Priority.LOW,
+							modbusElements.toArray(ModbusElement[]::new)));
+				});
 
 		/*
 		 * Handle different GoodWe Types.
@@ -2168,4 +2250,42 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 */
 	public abstract Integer getSurplusPower();
 
+	/**
+	 * Generates a Channel-ID for channels that are specific to a State.
+	 *
+	 * <p>
+	 * Generated ChannelName e.g. "GW_STATE_32007_B_10"
+	 * </p>
+	 *
+	 * @param register            register of the state
+	 * @param bit                 bit of the state
+	 * @param openemsType         specified type e.g. "INTEGER"
+	 * @param additionalDocConfig the additional doc configuration
+	 * @param channelConsumer     the additional configuration on the created
+	 *                            channel
+	 * @return the Channel-ID
+	 */
+	private ChannelIdImpl generateStateChannel(int register, int bit, OpenemsType openemsType,
+			Consumer<OpenemsTypeDoc<?>> additionalDocConfig, Consumer<Channel<?>> channelConsumer) {
+		final var doc = Doc.of(openemsType);
+		if (additionalDocConfig != null) {
+			additionalDocConfig.accept(doc);
+		}
+		var channelId = new ChannelIdImpl("GW_STATE_" + register + "_B_" + bit, doc);
+		final var channel = this.addChannel(channelId);
+
+		channelConsumer.accept(channel);
+
+		return channelId;
+	}
+
+	private BitsWordElement generateElementsAndChannels(int address, List<GwState> gwStates) {
+		var bitsElement = new BitsWordElement(address, this);
+		for (var state : gwStates) {
+			var channelId = this.generateStateChannel(address, state.bit(), OpenemsType.BOOLEAN,
+					t -> t.text(state.description()), FunctionUtils::doNothing);
+			bitsElement.bit(state.bit(), channelId);
+		}
+		return bitsElement;
+	}
 }

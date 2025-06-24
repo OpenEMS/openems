@@ -1,0 +1,19 @@
+Bundle-Name: OpenEMS Backend Prometheus Client
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.backend.common,\
+	io.openems.common,\
+	io.prometheus.metrics-config,\
+	io.prometheus.metrics-core,\
+	io.prometheus.metrics-exporter-common,\
+	io.prometheus.metrics-exporter-httpserver,\
+	io.prometheus.metrics-exposition-formats,\
+	io.prometheus.metrics-instrumentation-jvm,\
+	io.prometheus.metrics-model,\
+
+-testpath: \
+	${testpath}

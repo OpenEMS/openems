@@ -31,3 +31,13 @@ export function hasPredefinedKey(edge: Edge, user: User): boolean {
 export function hasKeyModel(edge: Edge): boolean {
     return edge.isVersionAtLeast("2023.1.2");
 }
+
+/**
+ * Checks if the edge has a version that has the UpdateAppConfig jsonrpc request.
+ *
+ * @param edge the edge to be checked.
+ * @returns true if the version is atleast '2025.1.2', false otherwise
+ */
+export function hasUpdateAppVersion(edge: Edge): boolean {
+    return edge.isVersionAtLeast("2025.1.2");
+}

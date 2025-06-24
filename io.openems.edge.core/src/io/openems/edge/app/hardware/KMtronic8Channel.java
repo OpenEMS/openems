@@ -1,5 +1,7 @@
 package io.openems.edge.app.hardware;
 
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -33,7 +35,6 @@ import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
@@ -75,8 +76,7 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 						.setDefaultValue("192.168.1.199") //
 						.setRequired(true))), //
 		CHECK(AppDef.copyOfGeneric(CommonProps.installationHint((app, property, l, parameter) -> {
-			return TranslationUtil.getTranslation(parameter.bundle, //
-					"App.Hardware.KMtronic8Channel.installationHint");
+			return translate(parameter.bundle(), "App.Hardware.KMtronic8Channel.installationHint");
 		})) //
 				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {

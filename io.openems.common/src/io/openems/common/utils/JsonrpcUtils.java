@@ -10,15 +10,11 @@ public class JsonrpcUtils {
 	 * Simplifies a {@link JsonrpcMessage} by recursively removing unnecessary
 	 * elements "jsonrpc" and "id".
 	 * 
-	 * <p>
-	 * Be aware that this actually changes the JsonObject. It does not work on a
-	 * copy of the object!
-	 *
 	 * @param message the {@link JsonrpcMessage}
 	 * @return the simplified {@link JsonObject}
 	 */
 	public static JsonObject simplifyJsonrpcMessage(JsonrpcMessage message) {
-		return simplifyJsonrpcMessage(message.toJsonObject());
+		return simplifyJsonrpcMessage(message.toJsonObject().deepCopy());
 	}
 
 	private static JsonObject simplifyJsonrpcMessage(JsonObject j) {

@@ -1,11 +1,13 @@
 package io.openems.backend.alerting;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -31,6 +33,7 @@ import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.event.EventReader;
+import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -122,17 +125,37 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Override
 	public String debugLog() {
+		final var sb = new StringBuilder("[Alerting] ");
+
 		final int queueSize = this.executor.getQueue().size();
 		if (queueSize >= THREAD_QUEUE_WARNING_THRESHOLD) {
-			return "%d tasks in the EventHandlerQueue!".formatted(queueSize);
-		} else {
+			sb.append("%d tasks in the EventHandlerQueue! ".formatted(queueSize));
+		}
+		final String handlerStr = this.handler.stream().map(handler -> {
+			final var metrics = handler.getMetrics();
+			return "%s{MessagesSent: %d, MessagesQueue: %d}" //
+					.formatted(handler.getClass().getSimpleName(), metrics.messagesSent(), metrics.messagesQueue());
+		}).collect(Collectors.joining(", "));
+		sb.append(handlerStr);
+
+		if (sb.isEmpty()) {
 			return null;
 		}
+		return sb.toString();
 	}
 
 	@Override
 	public Map<String, JsonElement> debugMetrics() {
-		return null;
+		final var map = new HashMap<String, JsonElement>();
+
+		for (var handler : this.handler) {
+			final var id = handler.id();
+			final var metrics = handler.getMetrics();
+			map.put(id + "/AlertingMessagesSent", JsonUtils.toJson(metrics.messagesSent()));
+			map.put(id + "/AlertingMessagesQueue", JsonUtils.toJson(metrics.messagesQueue()));
+		}
+
+		return map;
 	}
 
 }

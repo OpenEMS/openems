@@ -3,12 +3,14 @@ import { ChannelThreshold } from "./ChannelThreshold/channelThreshold.module";
 import { ControllerEss } from "./Ess/ess.module";
 import { GridOptimizeCharge } from "./Ess/GridoptimizedCharge/gridOptimizeCharge.module";
 import { TimeOfUseTariff } from "./Ess/TimeOfUseTariff/timeOfUseTariff.module";
+import { ControllerHeat } from "./Heat/heat.module";
 import { ControllerIo } from "./Io/Io.module";
 import { ModbusTcpApi } from "./ModbusTcpApi/modbusTcpApi.module";
 
 @NgModule({
   imports: [
     ControllerEss,
+    ControllerHeat,
     ControllerIo,
     ChannelThreshold,
     TimeOfUseTariff,
@@ -17,6 +19,7 @@ import { ModbusTcpApi } from "./ModbusTcpApi/modbusTcpApi.module";
   ],
   exports: [
     ControllerEss,
+    ControllerHeat,
     ControllerIo,
     ChannelThreshold,
     TimeOfUseTariff,

@@ -99,7 +99,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					.thenByFactoryId("Controller.Ess.Limiter14a") //
 					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
-					.thenByFactoryId("Controller.Ess.FixStateOfCharge")//
+					.thenByFactoryId("Controller.Ess.FixStateOfCharge") //
 					.thenByFactoryId("Controller.Ess.EmergencyCapacityReserve") //
 					.thenBy(new SchedulerOrderDefinition() //
 							.filterByFactoryId("Controller.Api.ModbusTcp.ReadWrite") //
@@ -107,6 +107,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 							.rest()) //
 					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") //
 					.thenByFactoryId("Controller.Api.Rest.ReadWrite") //
+					.thenByFactoryId("Controller.Clever-PV") //
 					.thenByFactoryId("Controller.Ess.GridOptimizedCharge") //
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
 					.thenByFactoryId("Controller.Evcs") //

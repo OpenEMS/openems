@@ -73,7 +73,7 @@ public class UtilsV1Test {
 								.withGridActivePower(100), //
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
-						/* essChargeInChargeGrid */ 1000, //
+						/* essChargeInChargeGrid */ 1500, //
 						/* maxChargePowerFromGrid */ 2000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
 						CHARGE_GRID));
@@ -126,7 +126,7 @@ public class UtilsV1Test {
 								.withGridActivePower(100), //
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
-						/* essChargeInChargeGrid */ 6000, //
+						/* essChargeInChargeGrid */ 7000, //
 						/* maxChargePowerFromGrid */ 7000, //
 						/* limitChargePowerFor14aEnWG */ Integer.MIN_VALUE, //
 						CHARGE_GRID));

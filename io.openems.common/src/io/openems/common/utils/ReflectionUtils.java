@@ -12,11 +12,15 @@ public class ReflectionUtils {
 		private static final long serialVersionUID = -8001364348945297741L;
 
 		protected static ReflectionException from(Exception e) {
-			return new ReflectionException(e.getClass().getSimpleName() + ": " + e.getMessage());
+			return new ReflectionException(e.getClass().getSimpleName() + ": " + e.getMessage(), e);
 		}
 
 		public ReflectionException(String message) {
 			super(message);
+		}
+
+		public ReflectionException(String message, Throwable cause) {
+			super(message, cause);
 		}
 	}
 

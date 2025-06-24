@@ -94,6 +94,7 @@ public class TestEvcsCluster {
 								.addProperty(KebaEvcs.Property.EVCS_ID.name(), "evcs0") //
 								.addProperty(KebaEvcs.Property.CTRL_EVCS_ID.name(), "ctrlEvcs0") //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.1") //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()) //
 						.build()) //
 				.add(JsonUtils.buildJsonObject() //
@@ -104,6 +105,7 @@ public class TestEvcsCluster {
 								.addProperty(KebaEvcs.Property.EVCS_ID.name(), "evcs1") //
 								.addProperty(KebaEvcs.Property.CTRL_EVCS_ID.name(), "ctrlEvcs1") //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.2") //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()) //
 						.build())
 				.build().toString();
@@ -218,6 +220,7 @@ public class TestEvcsCluster {
 						JsonUtils.buildJsonObject() //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.2") //
 								.addProperty(KebaEvcs.Property.MAX_HARDWARE_POWER.name(), hardwarePower) //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()));
 		final var clusterComponent = this.appManagerTestBundle.componentManger.getComponent("evcsCluster0");
 		final var hardwarePowerPerPhase = (int) clusterComponent.getComponentContext().getProperties()
@@ -283,6 +286,7 @@ public class TestEvcsCluster {
 				new AddAppInstance.Request(this.kebaEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
 								.addProperty(KebaEvcs.Property.IP.name(), ip) //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()));
 
 		final var evcsId = response.instance().properties.get(KebaEvcs.Property.EVCS_ID.name()).getAsString();

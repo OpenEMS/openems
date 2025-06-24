@@ -7,6 +7,23 @@ import { IonicModule } from "@ionic/angular";
 
 import { DirectiveModule } from "../../../directive/directive";
 import { FooterNavigationComponent } from "./footerNavigation";
+@NgModule({
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+  ],
+  declarations: [
+    FooterNavigationComponent,
+  ],
+  exports: [
+    FooterNavigationComponent,
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class FooterNavigationComponentsModule { }
 
 @NgModule({
   imports: [
@@ -17,12 +34,12 @@ import { FooterNavigationComponent } from "./footerNavigation";
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
+    FooterNavigationComponentsModule,
   ],
   declarations: [
-    FooterNavigationComponent,
   ],
   exports: [
-    FooterNavigationComponent,
+    FooterNavigationComponentsModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

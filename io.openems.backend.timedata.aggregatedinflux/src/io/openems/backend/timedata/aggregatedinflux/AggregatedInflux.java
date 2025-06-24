@@ -1,6 +1,7 @@
 package io.openems.backend.timedata.aggregatedinflux;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySortedMap;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -15,12 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,9 +29,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +41,9 @@ import com.influxdb.client.write.WriteParameters;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
-import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.timedata.InternalTimedataException;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.aggregatedinflux.AllowedChannels.ChannelType;
-import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AbstractDataNotification;
@@ -56,11 +51,10 @@ import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.oem.OpenemsBackendOem;
+import io.openems.common.timedata.DbDataUtils;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.SemanticVersion;
-import io.openems.shared.influxdb.DbDataUtils;
 import io.openems.shared.influxdb.InfluxConnector;
 
 @Designate(ocd = Config.class, factory = false)
@@ -68,12 +62,9 @@ import io.openems.shared.influxdb.InfluxConnector;
 		name = "Timedata.AggregatedInfluxDB", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-@EventTopics({ //
-		Edge.Events.ON_SET_VERSION //
-})
-public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata, DebugLoggable, EventHandler {
+public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata, DebugLoggable {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(AggregatedInflux.class);
 
 	private WriteParameters writeParametersAvgPoints;
 	private WriteParameters writeParametersMaxPoints;
@@ -82,9 +73,6 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 	private InfluxConnector influxConnector;
 
 	private final Map<ZoneId, String> zoneToMeasurement = new HashMap<>();
-
-	// map from edgeId to channelName and availableSince time stamp
-	private final Map<Integer, Map<String, Long>> availableSinceForEdge = new ConcurrentHashMap<>();
 
 	@Reference
 	private OpenemsBackendOem oem;
@@ -126,31 +114,11 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 					this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
 							+ ": " + throwable.getMessage());
 				}, true /* enable safe write */, this.writeParametersAvgPoints, this.writeParametersMaxPoints);
-
-		// load available since for edges which already wrote in the new database
-		this.availableSinceForEdge.clear();
-		this.availableSinceForEdge.putAll(this.influxConnector.queryAvailableSince().entrySet().stream().map(entry -> {
-			return Map.entry(entry.getKey(), new ConcurrentHashMap<>(entry.getValue()));
-		}).collect(toMap(Entry::getKey, Entry::getValue)));
 	}
 
 	@Deactivate
 	private void deactivate() {
 		this.influxConnector.deactivate();
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		final var reader = new EventReader(event);
-		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_VERSION -> {
-			this.handleEdgeVersionUpdateEvent(//
-					reader.<Edge>getProperty(Edge.Events.OnSetVersion.EDGE).getId(), //
-					reader.getProperty(Edge.Events.OnSetVersion.OLD_VERSION), //
-					reader.getProperty(Edge.Events.OnSetVersion.VERSION) //
-			);
-		}
-		}
 	}
 
 	@Override
@@ -163,10 +131,10 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 	) throws OpenemsNamedException {
 		var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
 
-		this.checkDataAvailable(influxEdgeId, fromDate, channels);
+		final var availableChannels = this.getPossibleChannels(influxEdgeId, channels, fromDate);
 
 		return this.influxConnector.queryHistoricData(Optional.of(influxEdgeId), //
-				fromDate, toDate, channels, resolution,
+				fromDate, toDate, availableChannels, resolution,
 				this.config.retentionPolicyAvg() + "." + this.config.measurementAvg());
 	}
 
@@ -181,17 +149,22 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 			return new TreeMap<>();
 		}
 		var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
-		this.checkDataAvailable(influxEdgeId, fromDate, channels);
+
+		final var availableChannels = this.getPossibleChannels(influxEdgeId, channels, fromDate);
+
+		if (availableChannels.isEmpty()) {
+			return emptySortedMap();
+		}
 
 		if (isTodayOrAfter(toDate)) {
 			if (this.queryWithCurrentData == null) {
 				throw new InternalTimedataException("Missing 'queryWithCurrentData' object");
 			}
-			return this.queryWithCurrentData.queryHistoricEnergy(edgeId, fromDate, toDate, channels);
+			return this.queryWithCurrentData.queryHistoricEnergy(edgeId, fromDate, toDate, availableChannels);
 		}
 		final var measurement = this.getMeasurement(fromDate.getZone());
 		return this.influxConnector.queryHistoricEnergySingleValueInDay(Optional.of(influxEdgeId), //
-				fromDate, toDate, channels, this.config.retentionPolicyMax() + "." + measurement);
+				fromDate, toDate, availableChannels, this.config.retentionPolicyMax() + "." + measurement);
 	}
 
 	@Override
@@ -204,19 +177,21 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 	) throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
-		this.checkDataAvailable(influxEdgeId, fromDate, channels);
+
+		final var availableChannels = this.getPossibleChannels(influxEdgeId, channels, fromDate);
+
 		final var measurement = this.getMeasurement(fromDate.getZone());
 		final var rawData = this.influxConnector.queryRawHistoricEnergyPerPeriodSinglePerDay(Optional.of(influxEdgeId), //
-				fromDate, toDate, channels, resolution, this.config.retentionPolicyMax() + "." + measurement);
+				fromDate, toDate, availableChannels, resolution, this.config.retentionPolicyMax() + "." + measurement);
 		if (isTodayOrAfter(toDate)) {
 			if (this.queryWithCurrentData == null) {
 				throw new InternalTimedataException("Missing 'queryWithCurrentData' object");
 			}
-			return this.queryWithCurrentData.queryHistoricEnergyPerPeriod(edgeId, fromDate, toDate, channels,
+			return this.queryWithCurrentData.queryHistoricEnergyPerPeriod(edgeId, fromDate, toDate, availableChannels,
 					resolution, rawData);
 		}
 		final var result = DbDataUtils.calculateLastMinusFirst(rawData, fromDate);
-		return DbDataUtils.normalizeTable(result, channels, resolution, fromDate, toDate);
+		return DbDataUtils.normalizeTable(result, availableChannels, resolution, fromDate, toDate);
 	}
 
 	@Override
@@ -226,10 +201,13 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 			final Set<ChannelAddress> channels //
 	) throws OpenemsNamedException {
 		var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
+
+		final var availableChannels = this.getPossibleChannels(influxEdgeId, channels, date);
+
 		final var measurement = this.getMeasurement(date.getZone());
 		// TODO determine measurement based on channel or separate in two methods
 		return this.influxConnector.queryFirstValueBefore(Optional.of(influxEdgeId), //
-				date, channels, this.config.retentionPolicyMax() + "." + measurement);
+				date, availableChannels, this.config.retentionPolicyMax() + "." + measurement);
 	}
 
 	@Override
@@ -284,14 +262,6 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 			record AddValuesToPoint(String channel, JsonElement value) {
 			}
 
-			// update available-since values
-			channelPerType.getOrDefault(ChannelType.AVG, emptyList()).forEach(entry -> {
-				this.setMissingAvailableSince(influxEdgeId, entry.getKey(), timestampSeconds);
-			});
-			channelPerType.getOrDefault(ChannelType.MAX, emptyList()).forEach(entry -> {
-				this.setMissingAvailableSince(influxEdgeId, entry.getKey(), timestampSeconds - 86400 /* 1 day */);
-			});
-
 			BiConsumer<AddValuesToPoint, Point> addEntryToPoint = (entry, point) -> {
 				AllowedChannels.addWithSpecificChannelType(point, entry.channel(), entry.value());
 			};
@@ -325,13 +295,6 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 		}
 	}
 
-	private final void setMissingAvailableSince(int influxEdgeId, String channel, long timestmap) {
-		if (this.hasAvailableSince(influxEdgeId, channel)) {
-			return;
-		}
-		this.setAvailableSince(influxEdgeId, channel, timestmap);
-	}
-
 	private Map<ZoneId, String> getDayChangeMeasurements(long timestamp) {
 		final var instant = Instant.ofEpochMilli(timestamp);
 		return this.zoneToMeasurement.entrySet().stream() //
@@ -342,78 +305,20 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 				.collect(toMap(Entry::getKey, Entry::getValue));
 	}
 
-	private void setAvailableSince(int influxEdgeId, String channelName, long availableSince) {
-		this.influxConnector.write(InfluxConnector.buildUpdateAvailableSincePoint(this.oem.getInfluxdbTag(),
-				influxEdgeId, channelName, availableSince));
-		this.availableSinceForEdge.computeIfAbsent(influxEdgeId, key -> new ConcurrentHashMap<>()) //
-				.put(channelName, availableSince);
-	}
-
-	private void checkDataAvailable(//
+	private Set<ChannelAddress> getPossibleChannels(//
 			int influxEdgeId, //
-			ZonedDateTime time, //
-			Set<ChannelAddress> channels //
-	) throws OpenemsNamedException {
-		final var errorMessage = this.checkDataAvailableOrErrorMessage(influxEdgeId, time, channels);
-		if (errorMessage == null) {
-			return;
-		}
-		throw new InternalTimedataException(errorMessage);
-	}
-
-	/**
-	 * Checks if the data is available. If true returns null otherwise returns the
-	 * reason why the data is not available.
-	 * 
-	 * @param influxEdgeId the id of the edge
-	 * @param time         the requested time
-	 * @param channels     the requested channels
-	 * @return the reason why no data is available or null if the data is available
-	 */
-	private String checkDataAvailableOrErrorMessage(//
-			int influxEdgeId, //
-			ZonedDateTime time, //
-			Set<ChannelAddress> channels //
+			Set<ChannelAddress> channels, //
+			ZonedDateTime time //
 	) {
-		final var edgeChannels = this.availableSinceForEdge.get(influxEdgeId);
-		if (edgeChannels == null) {
-			return null;
-		}
-		final var seconds = time.toEpochSecond();
-		for (var channel : channels) {
-			var availableSince = edgeChannels.get(channel.toString());
-			if (availableSince == null) {
-				return "No availableSince %5d for %sdefined channel %s".formatted(//
-						influxEdgeId, AllowedChannels.isChannelDefined(channel.toString()) ? "" : "un",
-						channel.toString());
-			}
-			// TODO remove
-			// available since is in milliseconds
-			if (availableSince > 999_999_999_999L) {
-				availableSince /= 1_000;
-			}
-			if (seconds < availableSince) {
-				return "AvailableSince %5d for channel %s too early got: %d, needed %d".formatted(//
-						influxEdgeId, channel.toString(), availableSince, seconds);
-			}
-		}
-		return null;
-	}
+		return channels.stream().filter(channel -> {
+			final var channelType = AllowedChannels.getChannelType(channel.toString());
 
-	private OptionalLong getAvailableSince(int influxEdgeId, String channelName) {
-		final var channelMap = this.availableSinceForEdge.get(influxEdgeId);
-		if (channelMap == null) {
-			return OptionalLong.empty();
-		}
-		final var value = channelMap.get(channelName);
-		if (value == null) {
-			return OptionalLong.empty();
-		}
-		return OptionalLong.of(value);
-	}
+			if (channelType == ChannelType.UNDEFINED) {
+				return false;
+			}
 
-	private boolean hasAvailableSince(int influxEdgeId, String channelName) {
-		return this.getAvailableSince(influxEdgeId, channelName).isPresent();
+			return true;
+		}).collect(Collectors.toSet());
 	}
 
 	private String getMeasurement(ZoneId zoneId) throws OpenemsNamedException {
@@ -512,30 +417,6 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 	@Override
 	public Map<String, JsonElement> debugMetrics() {
 		return null;
-	}
-
-	private void handleEdgeVersionUpdateEvent(//
-			final String edgeId, //
-			final SemanticVersion lastVersion, //
-			final SemanticVersion currentVersion //
-	) {
-		// Version ZERO indicates that this edge got connected for the first time
-		if (!lastVersion.equals(SemanticVersion.ZERO)) {
-			return;
-		}
-		Integer influxEdgeId;
-		try {
-			influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
-		} catch (OpenemsException e) {
-			return;
-		}
-
-		for (var channel : AllowedChannels.ALLOWED_AVERAGE_CHANNELS.keySet()) {
-			this.setAvailableSince(influxEdgeId, channel, 0);
-		}
-		for (var channel : AllowedChannels.ALLOWED_CUMULATED_CHANNELS.keySet()) {
-			this.setAvailableSince(influxEdgeId, channel, 0);
-		}
 	}
 
 }

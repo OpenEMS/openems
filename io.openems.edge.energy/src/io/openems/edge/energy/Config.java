@@ -3,6 +3,7 @@ package io.openems.edge.energy;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.Version;
 

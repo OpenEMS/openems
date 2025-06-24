@@ -28,9 +28,10 @@ export class GlobalRouteChangeHandler {
           data = route.data || data;
           route = route.firstChild;
         }
+
         return data;
       }),
-    ).subscribe(e => {
+    ).subscribe(async e => {
 
       if (e.navbarTitle != null && e.navbarTitleToBeTranslated != null) {
         throw new Error("Either use navbarTitle or navbarTitleToBeTranslated");

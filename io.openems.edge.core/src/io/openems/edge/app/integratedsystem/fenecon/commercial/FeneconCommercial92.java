@@ -1,14 +1,12 @@
 package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
-import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -48,7 +46,6 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 @Component(name = "App.FENECON.Commercial.92")
 public class FeneconCommercial92
@@ -66,13 +63,7 @@ public class FeneconCommercial92
 
 		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 
-		BATTERY_TARGET(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setLabel("Battery Start/Stop Target") //
-				.setDefaultValue("AUTO") //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
-					field.setOptions(List.of("START", "AUTO"));
-				}) //
-				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)))), //
+		BATTERY_TARGET(FeneconCommercialProps.batteryStartStopTarget()), //
 		;
 
 		private final AppDef<? super FeneconCommercial92, ? super Property, ? super BundleParameter> def;

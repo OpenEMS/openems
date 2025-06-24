@@ -31,6 +31,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -40,6 +41,7 @@ import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
@@ -53,6 +55,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -133,9 +136,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 		var protocol = new ModbusProtocol(this, //
 				// States
 				new FC3ReadRegistersTask(36003, Priority.LOW,
-						m(new UnsignedWordElement(36003)).build().onUpdateCallback((value) -> {
-							this.convertMeterConnectStatus(value);
-						}),
+						m(new UnsignedWordElement(36003)).build().onUpdateCallback(this::convertMeterConnectStatus),
 
 						m(GoodWeGridMeter.ChannelId.HAS_NO_METER, new UnsignedWordElement(36004),
 								new ElementToChannelConverter(value -> {
@@ -161,30 +162,39 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
 								this.ignoreZeroAndScaleFactorMinus2), //
 						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
-								this.ignoreZeroAndScaleFactorMinus2)), //
+								this.ignoreZeroAndScaleFactorMinus2)) //
+		);
 
-				// Active and reactive power, Power factor and frequency
-				// Voltage, current and Grid Frequency of each phase
-				new FC3ReadRegistersTask(36005, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
-								this.ignoreZeroAndInvert), //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
-								this.ignoreZeroAndInvert), //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
-								this.ignoreZeroAndInvert), //
-						new DummyRegisterElement(36008, 36012), //
-						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
-								this.ignoreZeroAndScaleFactorMinus2), //
-						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								this.ignoreZeroAndScaleFactor1)));
+		/*
+		 * Handle different GoodWe Types & versions.
+		 *
+		 * GoodweType Firmware & version is differing from Type ET-Plus to ETT. Register
+		 * 35011: GoodWeType as String (Not supported for GoodWe 20 & 30 - ETT) (Notes
+		 * in the Modbus protocol e.g. valid for DSP > 9 only apply to ET-Plus)
+		 */
+		readElementOnce(FC3, protocol, ModbusUtils::retryOnNull, new StringWordElement(35011, 5)) //
+				.thenAccept(value -> //
+				readElementOnce(FC3, protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016))
+						.thenAccept(dspVersion -> {
 
-		// Handles different DSP versions
-		readElementOnce(FC3, protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016))
-				.thenAccept(dspVersion -> {
-					if (dspVersion >= 4 || dspVersion == 0) {
-						this.handleDspVersion4(protocol);
-					}
-				});
+							final var typeFromString = getGoodWeTypeFromStringValue(
+									TypeUtils.getAsType(OpenemsType.STRING, value));
+
+							GoodWeTypeAndVersionSpecific result = getGoodweTypeSpecificResults(typeFromString,
+									dspVersion);
+
+							if (result.extendedPowerValues) {
+								this.addExtendedPowerValues(protocol);
+								this.channel(GoodWeGridMeter.ChannelId.EXTENDED_POWER_VALUES).setNextValue(true);
+							} else {
+								this.addDefaultPowerValues(protocol);
+								this.channel(GoodWeGridMeter.ChannelId.EXTENDED_POWER_VALUES).setNextValue(false);
+							}
+
+							if (result.handleDspVersion4) {
+								this.handleDspVersion4(protocol);
+							}
+						}));
 
 		switch (this.config.goodWeMeterCategory()) {
 		case COMMERCIAL_METER -> this.handleExternalMeter(protocol);
@@ -197,7 +207,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	/**
 	 * Adds Registers that are available from DSP version 4.
-	 * 
+	 *
 	 * @param protocol the {@link ModbusProtocol}
 	 */
 	private void handleDspVersion4(ModbusProtocol protocol) {
@@ -264,10 +274,10 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	/**
 	 * Calculate a ratio value.
-	 * 
+	 *
 	 * <p>
 	 * Ignore impossible values.
-	 * 
+	 *
 	 * @param valueA value A e.g. 3000A
 	 * @param valueB value B e.g. 5A
 	 * @return ratio value e.g. 600
@@ -329,11 +339,11 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * <p>
 	 * The information of each phase connection is part of a hex. The part of the
 	 * given phase will be returned.
-	 * 
+	 *
 	 * <p>
 	 * For example: 0x0124 means Phase R connect incorrectly，Phase S connect
 	 * reverse, Phase T connect correctly
-	 * 
+	 *
 	 * @param phase Phase
 	 * @param value Original value with all phase information
 	 * @return connection information of the given phase
@@ -349,10 +359,10 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	/**
 	 * Update the connect state of the given phase.
-	 * 
+	 *
 	 * <p>
 	 * 1: connect correctly, 2: connect reverse（CT）, 4:connect incorrectly,
-	 * 
+	 *
 	 * @param correctlyChannel   correctlyChannel
 	 * @param incorrectlyChannel incorrectlyChannel
 	 * @param reverseChannel     reverseChannel
@@ -415,7 +425,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * {@link ElectricityMeter.ChannelId#CURRENT_L2} and
 	 * {@link ElectricityMeter.ChannelId#CURRENT_L3} that adjusts the sign to that
 	 * given by a supplier.
-	 * 
+	 *
 	 * @param getActivePowerNextValue {@link Supplier} for a value with a sign that
 	 *                                should be copied
 	 * @return the {@link ElementToChannelConverter}
@@ -424,11 +434,88 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 			Supplier<Value<Integer>> getActivePowerNextValue) {
 		return new ElementToChannelConverter(value -> {
 			if (value == null) {
-				return value;
+				return null;
 			}
 			var activePower = getActivePowerNextValue.get().orElse(0);
 			Integer intValue = TypeUtils.getAsType(INTEGER, value);
 			return Math.abs(intValue) * Integer.signum(activePower);
 		});
+	}
+
+	/**
+	 * Get GoodWe type from the GoodWe string representation.
+	 *
+	 * @param stringValue GoodWe type as String
+	 * @return type as {@link GoodWeType}
+	 */
+	protected static GoodWeType getGoodWeTypeFromStringValue(String stringValue) {
+		return switch (stringValue) {
+		case "GW10K-BT" -> GoodWeType.GOODWE_10K_BT;
+		case "GW8K-BT" -> GoodWeType.GOODWE_8K_BT;
+		case "GW5K-BT" -> GoodWeType.GOODWE_5K_BT;
+		case "GW10K-ET" -> GoodWeType.GOODWE_10K_ET;
+		case "GW8K-ET" -> GoodWeType.GOODWE_8K_ET;
+		case "GW5K-ET" -> GoodWeType.GOODWE_5K_ET;
+		case "FHI-10-DAH" -> GoodWeType.FENECON_FHI_10_DAH;
+		case null, default -> GoodWeType.UNDEFINED;
+		};
+	}
+
+	public record GoodWeTypeAndVersionSpecific(boolean handleDspVersion4, boolean extendedPowerValues) {
+	}
+
+	/**
+	 * Get results depending on the GoodWe type & version.
+	 *
+	 * <p>
+	 * Notes in the Modbus protocol e.g. valid for DSP > 9 only apply to ET-Plus.
+	 * Depending on the type & version each inverter has different modbus registers
+	 * available.
+	 * </p>
+	 *
+	 * @param type       GoodWe type
+	 * @param dspVersion DSP version
+	 * @return GoodWeTypeAndVersionSpecific
+	 */
+	public static GoodWeTypeAndVersionSpecific getGoodweTypeSpecificResults(GoodWeType type, Integer dspVersion) {
+		return switch (type) {
+		case GOODWE_10K_BT, GOODWE_8K_BT, GOODWE_5K_BT, GOODWE_10K_ET, GOODWE_8K_ET, GOODWE_5K_ET,
+				FENECON_FHI_10_DAH -> {
+
+			if (dspVersion == null || dspVersion < 4) {
+				yield new GoodWeTypeAndVersionSpecific(false, false);
+			}
+			yield dspVersion >= 9 ? new GoodWeTypeAndVersionSpecific(true, true)
+					: new GoodWeTypeAndVersionSpecific(true, false);
+
+		}
+		default -> new GoodWeTypeAndVersionSpecific(true, true);
+		};
+	}
+
+	private void addDefaultPowerValues(ModbusProtocol protocol) {
+		protocol.addTask(new FC3ReadRegistersTask(36005, Priority.HIGH, //
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005), this.ignoreZeroAndInvert), //
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006), this.ignoreZeroAndInvert), //
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007), this.ignoreZeroAndInvert), //
+				new DummyRegisterElement(36008, 36012), //
+				m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
+						this.ignoreZeroAndScaleFactorMinus2), //
+				m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
+						this.ignoreZeroAndScaleFactor1)));
+	}
+
+	private void addExtendedPowerValues(ModbusProtocol protocol) {
+		protocol.addTask(new FC3ReadRegistersTask(36013, Priority.HIGH, //
+				m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
+						this.ignoreZeroAndScaleFactorMinus2), //
+				m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014), this.ignoreZeroAndScaleFactor1),
+				new DummyRegisterElement(36015, 36018),
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(36019),
+						this.ignoreZeroAndInvert), //
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(36021),
+						this.ignoreZeroAndInvert), //
+				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(36023),
+						this.ignoreZeroAndInvert)));
 	}
 }

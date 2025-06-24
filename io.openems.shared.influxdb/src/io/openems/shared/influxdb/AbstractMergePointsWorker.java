@@ -42,7 +42,7 @@ public abstract class AbstractMergePointsWorker<T> extends AbstractImmediateWork
 
 	@Override
 	public void activate() {
-		this.activate("TimescaleDB-MergePoints" + this.name);
+		this.activate("InfluxDB-MergePoints" + this.name);
 	}
 
 	@Override

@@ -17,7 +17,7 @@
     </ng-container>
       <oe-modal-info-line [info]="'MODBUS_TCP_API_READ_WRITE.INFO_TEXT' | translate" [icon]="{name: 'information-outline', size: 'large'}"  style="font-size: small;"></oe-modal-info-line>
       <div style="display: flex; justify-content: flex-end;">
-        <ion-button (click)="getModbusProtocol(component.id)" size="small" style="font-size: small;">{{ 'MODBUS_TCP_API_READ_WRITE.DOWNLOAD_PROTOCOL' | translate }} </ion-button>
+        <ion-button (click)="getModbusProtocol(component.id, 'tcp')" size="small" style="font-size: small;">{{ 'MODBUS_TCP_API_READ_WRITE.DOWNLOAD_PROTOCOL' | translate }} </ion-button>
       </div>
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
 </oe-modal>  

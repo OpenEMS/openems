@@ -5,7 +5,7 @@ import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 
-import { DefaultTypes } from "../../service/defaulttypes";
+import { DefaultTypes } from "../../type/defaulttypes";
 
 @Directive()
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {

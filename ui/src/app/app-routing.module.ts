@@ -13,6 +13,7 @@ import { OverviewComponent as SelfconsumptionChartOverviewComponent } from "./ed
 import { OverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/history/Controller/ChannelThreshold/overview/overview";
 import { OverviewComponent as GridOptimizedChargeChartOverviewComponent } from "./edge/history/Controller/Ess/GridoptimizedCharge/overview/overview";
 import { OverviewComponent as TimeOfUseTariffOverviewComponent } from "./edge/history/Controller/Ess/TimeOfUseTariff/overview/overview";
+import { OverviewComponent as HeatchartOverviewComponent, OverviewComponent as HeatmypvchartOverviewComponent } from "./edge/history/Controller/Heat/overview/overview";
 import { DetailsOverviewComponent as DigitalOutputDetailsOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/details/details.overview";
 import { OverviewComponent as DigitalOutputChartOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/overview/overview";
 import { OverviewComponent as HeatingelementChartOverviewComponent } from "./edge/history/Controller/Io/heatingelement/overview/overview";
@@ -25,10 +26,13 @@ import { AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/peak
 import { SymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
 import { ThresholdPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/threshold/thresholdpeakshavingchartoverview/thresholdpeakshavingchartoverview.component";
 import { TimeslotPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
-import { StorageChartOverviewComponent } from "./edge/history/storage/storagechartoverview/storagechartoverview.component";
+import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/Evse/modal/forecast/forecast";
+import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/modal/history/history";
+import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/modal/modal";
+import { ModalComponent as EvseSettingsComponent } from "./edge/live/Controller/Evse/modal/settings/settings";
+import { ModalComponent as IoHeatingRoomComponent } from "./edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
 import { LiveDataService } from "./edge/live/livedataservice";
-import { AlertingComponent as EdgeSettingsAlerting } from "./edge/settings/alerting/alerting.component";
 import { IndexComponent as EdgeSettingsAppIndex } from "./edge/settings/app/index.component";
 import { InstallAppComponent as EdgeSettingsAppInstall } from "./edge/settings/app/install.component";
 import { SingleAppComponent as EdgeSettingsAppSingle } from "./edge/settings/app/single.component";
@@ -76,7 +80,16 @@ export const routes: Routes = [
         path: "live", data: { navbarTitle: environment.uiTitle }, providers: [{
           useClass: LiveDataService,
           provide: DataService,
-        }], component: EdgeLiveComponent,
+        }], component: HistoryParentComponent,
+
+        children: [
+          { path: "", component: EdgeLiveComponent },
+          { path: "evse/:componentId", component: EvseSingleComponent },
+          { path: "evse/:componentId/history", component: EvseHistoryComponent },
+          { path: "evse/:componentId/settings", component: EvseSettingsComponent },
+          { path: "evse/:componentId/forecast", component: EvseForecastComponent },
+          { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
+        ],
       },
       {
         path: "history", providers: [{
@@ -89,6 +102,8 @@ export const routes: Routes = [
           { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
           { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
           { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
+          { path: ":componentId/heatmypvchart", component: HeatmypvchartOverviewComponent },
+          { path: ":componentId/heatchart", component: HeatchartOverviewComponent },
           { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
           { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
           { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
@@ -106,7 +121,7 @@ export const routes: Routes = [
           { path: "productionchart/:componentId", component: DetailsOverviewComponent },
           { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
           { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
-          { path: "storagechart", component: StorageChartOverviewComponent },
+          { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },
 
           // Controllers
           { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },
@@ -131,7 +146,7 @@ export const routes: Routes = [
       { path: "settings/app/install/:appId", component: EdgeSettingsAppInstall, canActivate: [hasEdgeRole(Role.OWNER)] },
       { path: "settings/app/update/:appId", component: EdgeSettingsAppUpdate, canActivate: [hasEdgeRole(Role.OWNER)] },
       { path: "settings/app/single/:appId", component: EdgeSettingsAppSingle, canActivate: [hasEdgeRole(Role.OWNER)] },
-      { path: "settings/alerting", component: EdgeSettingsAlerting, canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.alerting" } },
+      { path: "settings/alerting", loadChildren: () => import("./edge/settings/alerting/alerting.module").then(m => m.AlertingModule), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.alerting" } },
       { path: "settings/jsonrpctest", component: JsonrpcTestComponent, data: { navbarTitle: "Jsonrpc Test" } },
       { path: "settings/powerAssistant", component: PowerAssistantComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Power-Assistant" } },
       { path: "settings/app", data: { navbarTitle: environment.edgeShortName + "Apps" }, component: EdgeSettingsAppIndex },

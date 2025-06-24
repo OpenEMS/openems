@@ -1,8 +1,8 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, Output } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { TKeyValue } from "src/app/shared/service/defaulttypes";
 import { Utils } from "src/app/shared/shared";
+import { TKeyValue } from "src/app/shared/type/utility";
 import { environment } from "src/environments";
 import { SUM_STATES } from "../shared/sumState";
 

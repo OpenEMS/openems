@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 @Component({
     selector: TimeslotPeakshavingWidgetComponent.SELECTOR,

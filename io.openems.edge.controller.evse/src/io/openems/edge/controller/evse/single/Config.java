@@ -29,9 +29,12 @@ import io.openems.edge.evse.api.chargepoint.Mode;
 	String electricVehicle_id() default "evseElectricVehicle0";
 
 	// TODO implement
-	@AttributeDefinition(name = "JSON Configuration for SMART mode", description = "")
+	@AttributeDefinition(name = "Smart mode: JSON Configuration", description = "")
 	String smartConfig() default "";
-	
+
+	@AttributeDefinition(name = "Manual mode: Session Energy limit in [Wh]", description = "The charging station will only charge till this limit; '0' is no limit.")
+	int manualEnergySessionLimit() default 0;
+
 	// TODO replace with logVerbosity
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;

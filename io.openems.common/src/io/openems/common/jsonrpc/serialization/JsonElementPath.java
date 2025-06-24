@@ -3,6 +3,7 @@ package io.openems.common.jsonrpc.serialization;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -156,6 +158,27 @@ public interface JsonElementPath extends JsonPath {
 	}
 
 	/**
+	 * Gets the current {@link JsonElementPath} as a {@link StringPath} containing a
+	 * {@link LocalTime}.
+	 * 
+	 * @param formatter the {@link DateTimeFormatter} to use to parse the string
+	 * @return the current element as a {@link StringPath}
+	 */
+	public default StringPath<LocalTime> getAsStringPathLocalTime(DateTimeFormatter formatter) {
+		return this.getAsJsonPrimitivePath().getAsStringPathLocalTime(formatter);
+	}
+
+	/**
+	 * Gets the current {@link JsonElementPath} as a {@link StringPath} containing a
+	 * {@link LocalTime}.
+	 * 
+	 * @return the current element as a {@link StringPath}
+	 */
+	public default StringPath<LocalTime> getAsStringPathLocalTime() {
+		return this.getAsJsonPrimitivePath().getAsStringPathLocalTime();
+	}
+
+	/**
 	 * Gets the current {@link JsonElementPath} as a {@link String}.
 	 * 
 	 * @return the current element as a {@link String}
@@ -174,6 +197,33 @@ public interface JsonElementPath extends JsonPath {
 	 */
 	public default <T> T getAsStringParsed(StringParser<T> parser) {
 		return this.getAsStringPath(parser).get();
+	}
+
+	/**
+	 * Gets the current {@link JsonElementPath} as a parsed {@link String} with the
+	 * {@link StringParser}.
+	 *
+	 * @param <T>                   the actual type of the string value
+	 * @param stringParser          the parser from string to object
+	 * @param exampleValuesSupplier a supplier for
+	 *                              {@link io.openems.common.jsonrpc.serialization.StringParser.ExampleValues}
+	 * @return the current string parsed to the expected element
+	 */
+	public default <T> T getAsStringParsed(//
+			final Function<String, T> stringParser, //
+			final Supplier<StringParser.ExampleValues<T>> exampleValuesSupplier //
+	) {
+		return this.getAsStringParsed(new StringParser<>() {
+			@Override
+			public T parse(String value) {
+				return stringParser.apply(value);
+			}
+
+			@Override
+			public ExampleValues<T> getExample() {
+				return exampleValuesSupplier.get();
+			}
+		});
 	}
 
 	/**

@@ -16,8 +16,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 
 import io.jenetics.util.RandomRegistry;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
@@ -85,20 +83,23 @@ public final class Utils {
 	 * @param error       a callback for a error string
 	 * @throws InterruptedException on interrupted sleep
 	 */
-	public static synchronized void createSimulator(
-			ThrowingSupplier<GlobalOptimizationContext, OpenemsException> gocSupplier, Consumer<Simulator> simulator,
-			Consumer<Supplier<String>> error) throws InterruptedException {
-		final GlobalOptimizationContext goc;
+	public static synchronized void createSimulator(Supplier<GlobalOptimizationContext> gocSupplier,
+			Consumer<Simulator> simulator, Consumer<Supplier<String>> error) throws InterruptedException {
+		GlobalOptimizationContext goc;
 		try {
 			// Create GlobalOptimizationContext -> this might fail a few times during
 			// initialization of OpenEMS
 			goc = gocSupplier.get();
 
-		} catch (OpenemsException | IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
+			goc = null;
+			e.printStackTrace();
+		}
+
+		if (goc == null) {
 			simulator.accept(null);
-			error.accept(() -> "Unable to create GlobalOptimizationContext. " + e.getClass().getSimpleName() + ": "
-					+ e.getMessage());
-			Thread.sleep(10 * 1000);
+			error.accept(() -> "Unable to create GlobalOptimizationContext");
+			Thread.sleep(60 * 1000);
 			return;
 		}
 
@@ -110,10 +111,8 @@ public final class Utils {
 
 		// None. Freeze till interrupt
 		simulator.accept(null);
-		error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> freeze till interrupt");
-		while (true) {
-			Thread.sleep(5 * 60 * 1000);
-		}
+		error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> sleep 15 minutes");
+		Thread.sleep(15 * 60 * 1000);
 	}
 
 	/**
@@ -170,7 +169,7 @@ public final class Utils {
 	 */
 	public static void logSimulationResult(Simulator simulator, SimulationResult simulationResult) {
 		final var prefix = "OPTIMIZER ";
-		System.out.println(simulator.toLogString(prefix));
+		System.out.println(prefix + simulator.toJson().toString());
 		System.out.println(simulationResult.toLogString(prefix));
 	}
 

@@ -1,4 +1,3 @@
-
 import { Directive, effect, signal, WritableSignal } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";
@@ -8,7 +7,6 @@ import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { UpdateUserSettingsRequest } from "../jsonrpc/request/updateUserSettingsRequest";
 import { User } from "../jsonrpc/shared";
 import { Service } from "./service";
-
 
 @Directive()
 export class UserService {
@@ -46,6 +44,17 @@ export class UserService {
 
         currentUser.settings = { ...currentUser.settings, theme: theme };
         this.finalizeThemeSelection(theme);
+    }
+
+    public getValidBrowserTheme(userTheme: UserTheme | null): UserTheme {
+
+        const theme = userTheme === UserTheme.SYSTEM
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? UserTheme.DARK
+                : UserTheme.LIGHT
+            : userTheme;
+
+        return theme ?? UserService.DEFAULT_THEME;
     }
 
     /**
@@ -90,6 +99,11 @@ export class UserService {
         if (validTheme === UserTheme.SYSTEM) {
             attr = window.matchMedia("(prefers-color-scheme: dark)").matches ? UserTheme.DARK : UserTheme.LIGHT;
         }
+
+        // Provide color to set before angular app inits
+        const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-background-color");
+        localStorage.setItem("THEME_COLOR", backgroundColor);
+
         document.documentElement.setAttribute("data-theme", attr);
     }
 
@@ -107,9 +121,9 @@ export class UserService {
         await modal.present();
 
         const { data } = await modal.onDidDismiss();
-        if (data?.selectedTheme) {
-            this.finalizeThemeSelection(data.selectedTheme);
-        }
+
+        const selectedTheme = data?.selectedTheme ?? UserService.DEFAULT_THEME;
+        this.finalizeThemeSelection(selectedTheme);
     }
 
     /**
@@ -158,9 +172,5 @@ export class UserService {
                 localStorage.setItem("THEME", theme);
                 this.updateTheme(theme);
             });
-    }
-
-    private getValidBrowserTheme(userTheme: UserTheme | null): UserTheme {
-        return userTheme ?? UserService.DEFAULT_THEME;
     }
 }

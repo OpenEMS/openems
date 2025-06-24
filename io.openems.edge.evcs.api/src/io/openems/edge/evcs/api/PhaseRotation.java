@@ -71,6 +71,90 @@ public enum PhaseRotation {
 	}
 
 	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for CURRENT_L1 after applying the
+	 * {@link PhaseRotation}.
+	 *
+	 * @return the mapped ChannelId for CURRENT_L1
+	 */
+	public final ElectricityMeter.ChannelId channelCurrentL1() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.CURRENT_L1;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.CURRENT_L2;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.CURRENT_L3;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for CURRENT_L2 after applying the
+	 * {@link PhaseRotation}.
+	 *
+	 * @return the mapped ChannelId for CURRENT_L2
+	 */
+	public final ElectricityMeter.ChannelId channelCurrentL2() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.CURRENT_L2;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.CURRENT_L3;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.CURRENT_L1;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for CURRENT_L3 after applying the
+	 * {@link PhaseRotation}.
+	 *
+	 * @return the mapped ChannelId for CURRENT_L3
+	 */
+	public final ElectricityMeter.ChannelId channelCurrentL3() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.CURRENT_L3;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.CURRENT_L1;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.CURRENT_L2;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for VOLTAGE_L1 after applying the
+	 * {@link PhaseRotation}.
+	 *
+	 * @return the mapped ChannelId for VOLTAGE_L1
+	 */
+	public final ElectricityMeter.ChannelId channelVoltageL1() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.VOLTAGE_L1;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.VOLTAGE_L2;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.VOLTAGE_L3;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for VOLTAGE_L2 after applying the
+	 * {@link PhaseRotation}.
+	 *
+	 * @return the mapped ChannelId for VOLTAGE_L2
+	 */
+	public final ElectricityMeter.ChannelId channelVoltageL2() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.VOLTAGE_L2;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.VOLTAGE_L3;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.VOLTAGE_L1;
+		};
+	}
+
+	/**
+	 * Gets the {@link ElectricityMeter.ChannelId} for VOLTAGE_L3 after applying the
+	 * {@link PhaseRotation}.
+	 *
+	 * @return the mapped ChannelId for VOLTAGE_L3
+	 */
+	public final ElectricityMeter.ChannelId channelVoltageL3() {
+		return switch (this) {
+		case L1_L2_L3 -> ElectricityMeter.ChannelId.VOLTAGE_L3;
+		case L2_L3_L1 -> ElectricityMeter.ChannelId.VOLTAGE_L1;
+		case L3_L1_L2 -> ElectricityMeter.ChannelId.VOLTAGE_L2;
+		};
+	}
+
+	/**
 	 * Sets one of {@link ElectricityMeter.ChannelId#VOLTAGE_L1},
 	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L2} or
 	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L3} channels based on the
@@ -179,23 +263,6 @@ public enum PhaseRotation {
 	}
 
 	/**
-	 * Maps a read value of type {@link Long} to the phase rotated
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L1},
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L2} or
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L3} channel.
-	 *
-	 * @param evcs  the {@link Evcs}
-	 * @param phase the phase of the EVCS, where the voltage was measured
-	 * @return a float consumer.
-	 */
-	public static Consumer<Long> mapLongToPhaseRotatedVoltageChannel(Evcs evcs, Phase phase) {
-		return value -> {
-			var intValue = value != null ? Math.round(value) : null;
-			setPhaseRotatedVoltageChannel(evcs, phase, intValue);
-		};
-	}
-
-	/**
 	 * Maps a read value of type {@link Float} to the phase rotated
 	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L1},
 	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L2} or
@@ -204,6 +271,7 @@ public enum PhaseRotation {
 	 * @param evcs  the {@link Evcs}
 	 * @param phase the phase of the EVCS, where the voltage was measured
 	 * @return a float consumer.
+	 * @deprecated Should instead use channelVoltageL1,2,3()
 	 */
 	public static Consumer<Float> mapFloatToPhaseRotatedVoltageChannel(Evcs evcs, Phase phase) {
 		return value -> {
@@ -213,23 +281,6 @@ public enum PhaseRotation {
 	}
 
 	/**
-	 * Maps a read value of type {@link Float} to the phase rotated
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L1},
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L2} or
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L3} channel.
-	 *
-	 * @param evcs  the {@link Evcs}
-	 * @param phase the phase of the EVCS, where the current was measured
-	 * @return a float consumer.
-	 */
-	public static Consumer<Float> mapFloatToPhaseRotatedCurrentChannel(Evcs evcs, Phase phase) {
-		return value -> {
-			var intValue = value != null ? Math.round(value) : null;
-			setPhaseRotatedCurrentChannel(evcs, phase, intValue);
-		};
-	}
-
-	/**
 	 * Maps a read value of type {@link Long} to the phase rotated
 	 * {@link ElectricityMeter.ChannelId#CURRENT_L1},
 	 * {@link ElectricityMeter.ChannelId#CURRENT_L2} or
@@ -237,9 +288,12 @@ public enum PhaseRotation {
 	 *
 	 * @param evcs  the {@link Evcs}
 	 * @param phase the phase of the EVCS, where the current was measured
-	 * @return a float consumer.
+	 * @return a Long consumer.
+	 * @deprecated Should instead use channelCurrentL1,2,3()
 	 */
 	public static Consumer<Long> mapLongToPhaseRotatedCurrentChannel(Evcs evcs, Phase phase) {
+		// TODO to be removed, when Consumer<Object > mapToPhaseRotatedCurrentChannel is
+		// accepted
 		return value -> {
 			var intValue = value != null ? Math.round(value) : null;
 			setPhaseRotatedCurrentChannel(evcs, phase, intValue);
@@ -254,7 +308,7 @@ public enum PhaseRotation {
 	 *
 	 * @param evcs  the {@link Evcs}
 	 * @param phase the phase of the EVCS, where the active power was measured
-	 * @return a float consumer.
+	 * @return a Long consumer.
 	 */
 	public static Consumer<Long> mapLongToPhaseRotatedActivePowerChannel(Evcs evcs, Phase phase) {
 		return value -> {

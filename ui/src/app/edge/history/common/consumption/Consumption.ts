@@ -7,6 +7,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { ChartComponent } from "./chart/chart";
 import { ConsumptionMeterChartDetailsComponent } from "./details/chart/consumptionMeter";
 import { EvcsChartDetailsComponent } from "./details/chart/evcs";
+import { HeatChartDetailComponent } from "./details/chart/heat";
 import { SumChartDetailsComponent } from "./details/chart/sum";
 import { DetailsOverviewComponent } from "./details/details.overview";
 import { FlatComponent } from "./flat/flat";
@@ -30,6 +31,7 @@ import { OverviewComponent } from "./overview/overview";
     ConsumptionMeterChartDetailsComponent,
     EvcsChartDetailsComponent,
     SumChartDetailsComponent,
+    HeatChartDetailComponent,
   ],
   exports: [
     // consumptionChart
@@ -42,6 +44,7 @@ import { OverviewComponent } from "./overview/overview";
     ConsumptionMeterChartDetailsComponent,
     EvcsChartDetailsComponent,
     SumChartDetailsComponent,
+    HeatChartDetailComponent,
   ],
 })
 export class Common_Consumption { }

@@ -207,6 +207,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     protected getChannelAddresses(): ChannelAddress[] {
         return [];
     }
+
     protected getFormGroup(): FormGroup {
         return;
     }

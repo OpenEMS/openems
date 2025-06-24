@@ -10,6 +10,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.GoodWeConstants;
@@ -66,6 +67,7 @@ public class GoodWeChargerMpptTwoStringImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("sum", new DummySum()) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(charger1) //
 				.addComponent(charger2) //
 				.addComponent(charger3) //

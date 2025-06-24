@@ -18,6 +18,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.alerting.Dummy.TimeLeapMinuteTimer;
 import io.openems.backend.alerting.Handler;
+import io.openems.backend.alerting.HandlerMetrics;
 import io.openems.backend.alerting.Message;
 import io.openems.common.event.EventReader;
 
@@ -256,6 +257,11 @@ public class SchedulerTest {
 
 	private static class DummyHandler implements Handler<DummyMessage> {
 		@Override
+		public String id() {
+			return "alerting_dummy";
+		}
+
+		@Override
 		public Consumer<EventReader> getEventHandler(String eventTopic) {
 			throw new UnsupportedOperationException();
 		}
@@ -272,6 +278,11 @@ public class SchedulerTest {
 		@Override
 		public Class<DummyMessage> getGeneric() {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public HandlerMetrics getMetrics() {
+			return new HandlerMetrics(0, 0);
 		}
 	}
 }

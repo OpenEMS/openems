@@ -1,12 +1,15 @@
 package io.openems.common.jsonrpc.serialization;
 
 import java.lang.reflect.Array;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.JsonArray;
 
 public interface JsonArrayPathNullable extends JsonPath {
@@ -59,6 +62,28 @@ public interface JsonArrayPathNullable extends JsonPath {
 	}
 
 	/**
+	 * Maps the current value to a {@link ImmutableList} using the provided mapper.
+	 *
+	 * @param <T>    the type of the mapping result
+	 * @param mapper the mapper to convert the elements
+	 * @return a {@link Optional} of the result {@link ImmutableList}
+	 */
+	public default <T> Optional<ImmutableList<T>> getAsOptionalImmutableList(Function<JsonElementPath, T> mapper) {
+		return this.mapToOptional(t -> t.getAsImmutableList(mapper));
+	}
+
+	/**
+	 * Maps the current value to a {@link ImmutableList} using the provided mapper.
+	 *
+	 * @param <T>        the type of the mapping result
+	 * @param serializer the {@link JsonSerializer} to convert elements
+	 * @return a {@link Optional} of the result {@link ImmutableList}
+	 */
+	public default <T> Optional<ImmutableList<T>> getAsOptionalImmutableList(JsonSerializer<T> serializer) {
+		return this.mapToOptional(t -> t.getAsImmutableList(serializer));
+	}
+
+	/**
 	 * Maps the current value to a {@link Array} using the provided mapper.
 	 * 
 	 * @param <T>       the type of the mapping result
@@ -105,6 +130,34 @@ public interface JsonArrayPathNullable extends JsonPath {
 	 */
 	public default <T> Optional<Set<T>> getAsOptionalSet(JsonSerializer<T> serializer) {
 		return this.mapToOptional(t -> t.getAsSet(serializer));
+	}
+
+	/**
+	 * Maps the current value to a {@link ImmutableSortedSet} using the provided
+	 * mapper.
+	 *
+	 * @param <T>        the type of the mapping result
+	 * @param mapper     the mapper to convert the elements
+	 * @param comparator the {@link Comparator} for the {@link ImmutableSortedSet}
+	 * @return a {@link Optional} of the result {@link ImmutableSortedSet}
+	 */
+	public default <T> Optional<ImmutableSortedSet<T>> getAsOptionalImmutableSortedSet(
+			Function<JsonElementPath, T> mapper, Comparator<? super T> comparator) {
+		return this.mapToOptional(t -> t.getAsImmutableSortedSet(mapper, comparator));
+	}
+
+	/**
+	 * Maps the current value to a {@link ImmutableSortedSet} using the provided
+	 * mapper.
+	 *
+	 * @param <T>        the type of the mapping result
+	 * @param serializer the {@link JsonSerializer} to convert elements
+	 * @param comparator the {@link Comparator} for the {@link ImmutableSortedSet}
+	 * @return a {@link Optional} of the result {@link ImmutableSortedSet}
+	 */
+	public default <T> Optional<ImmutableSortedSet<T>> getAsOptionalImmutableSortedSet(JsonSerializer<T> serializer,
+			Comparator<? super T> comparator) {
+		return this.mapToOptional(t -> t.getAsImmutableSortedSet(serializer, comparator));
 	}
 
 	/**

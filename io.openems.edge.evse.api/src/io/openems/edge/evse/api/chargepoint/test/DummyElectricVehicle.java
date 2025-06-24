@@ -4,8 +4,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
 /**
- * Provides a simple, simulated {@link EvseElectricVehicle} component that can be
- * used together with the OpenEMS Component test framework.
+ * Provides a simple, simulated {@link EvseElectricVehicle} component that can
+ * be used together with the OpenEMS Component test framework.
  */
 public class DummyElectricVehicle extends AbstractDummyElectricVehicle<DummyElectricVehicle>
 		implements EvseElectricVehicle, OpenemsComponent {

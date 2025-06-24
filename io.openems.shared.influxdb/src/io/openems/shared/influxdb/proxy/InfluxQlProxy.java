@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,12 +30,11 @@ import com.influxdb.query.InfluxQLQueryResult.Series;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.DbDataUtils;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.CollectorUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.shared.influxdb.DbDataUtils;
 import io.openems.shared.influxdb.InfluxConnector.InfluxConnection;
 
 /**
@@ -213,16 +211,6 @@ public class InfluxQlProxy extends QueryProxy {
 
 	private static JsonElement last(JsonElement first, JsonElement second) {
 		return second;
-	}
-
-	@Override
-	public Map<Integer, Map<String, Long>> queryAvailableSince(//
-			InfluxConnection influxConnection, //
-			String bucket //
-	) throws OpenemsNamedException {
-		final var query = this.buildFetchAvailableSinceQuery(bucket);
-		final var queryResult = this.executeQuery(influxConnection, bucket, query);
-		return convertAvailableSinceResult(queryResult, this.tag);
 	}
 
 	@Override
@@ -420,21 +408,6 @@ public class InfluxQlProxy extends QueryProxy {
 				.append(res) //
 				.append("s) fill(none)"); //
 		return b.toString();
-	}
-
-	@Override
-	protected String buildFetchAvailableSinceQuery(//
-			String bucket //
-	) {
-		return new StringBuilder("SELECT ") //
-				.append(this.tag) //
-				.append(", ") //
-				.append(QueryProxy.CHANNEL_TAG) //
-				.append(", ") //
-				.append(QueryProxy.AVAILABLE_SINCE_COLUMN_NAME) //
-				.append(" FROM ") //
-				.append(QueryProxy.AVAILABLE_SINCE_MEASUREMENT) //
-				.toString();
 	}
 
 	@Override
@@ -755,23 +728,6 @@ public class InfluxQlProxy extends QueryProxy {
 		}
 
 		return map;
-	}
-
-	private static Map<Integer, Map<String, Long>> convertAvailableSinceResult(InfluxQLQueryResult queryResult,
-			String tag) throws OpenemsNamedException {
-		if (queryResult == null || queryResult.getResults() == null || queryResult.getResults().isEmpty()) {
-			return new TreeMap<>();
-		}
-		return queryResult.getResults().stream() //
-				.flatMap(result -> result.getSeries().stream()) //
-				.flatMap(series -> series.getValues().stream()) //
-				.collect(CollectorUtils.toDoubleMap(//
-						record -> Integer.parseInt((String) record.getValueByKey(tag)), //
-						record -> (String) record.getValueByKey(QueryProxy.CHANNEL_TAG), //
-						record -> Long.parseLong(//
-								(String) record.getValueByKey(QueryProxy.AVAILABLE_SINCE_COLUMN_NAME) //
-						)) //
-				);
 	}
 
 	private static SortedMap<ChannelAddress, JsonElement> mergeEnergyValues(//

@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -75,10 +75,10 @@ public class SumStateAlertingTest {
 			edge.setOnline(online);
 			this.edges.put(id, edge);
 
-			var list = new ArrayList<SumStateAlertingSetting>(5);
-			for (var set : settings) {
-				list.add(new SumStateAlertingSetting(id, set.user, set.faultDelay, set.warningDelay, lastMessage));
-			}
+			var list = Stream.of(settings) //
+					.map(set -> new SumStateAlertingSetting(id, set.user, set.faultDelay, set.warningDelay,
+							lastMessage)) //
+					.toList();
 
 			this.settings.put(edge.getId(), list);
 		}

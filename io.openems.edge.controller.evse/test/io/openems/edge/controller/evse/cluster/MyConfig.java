@@ -9,6 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
+		private DistributionStrategy distributionStrategy;
 		private boolean debugMode;
 		private String[] ctrlIds;
 
@@ -17,6 +18,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setDistributionStrategy(DistributionStrategy distributionStrategy) {
+			this.distributionStrategy = distributionStrategy;
 			return this;
 		}
 
@@ -49,6 +55,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public DistributionStrategy distributionStrategy() {
+		return this.builder.distributionStrategy;
 	}
 
 	@Override

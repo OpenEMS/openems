@@ -1,4 +1,4 @@
-<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+<oe-navigation-view [title]="component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
 
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
     { name: ('General.off' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}},
@@ -37,4 +37,4 @@
     <oe-modal-line [channelAddress]="component.id + '/_PropertySchedule'">
     </oe-modal-line>
     }
-</oe-modal>
+</oe-navigation-view>

@@ -4,7 +4,8 @@ import java.util.Arrays;
 
 import io.openems.edge.common.meta.Meta;
 
-public abstract class AbstractModbusConfig {
+public abstract sealed class AbstractModbusConfig
+		permits AbstractModbusTcpApi.TcpConfig, AbstractModbusRtuApi.RtuConfig {
 	private final String id;
 	private final String alias;
 	private final boolean enabled;
@@ -41,7 +42,7 @@ public abstract class AbstractModbusConfig {
 	public String alias() {
 		return this.alias;
 	}
-	
+
 	/**
 	 * Is this controller enabled?.
 	 *
@@ -98,10 +99,9 @@ public abstract class AbstractModbusConfig {
 		AbstractModbusConfig config = (AbstractModbusConfig) other;
 		return this.enabled == config.enabled //
 				&& this.apiTimeout == config.apiTimeout //
-				&& this.maxConcurrentConnections == config.maxConcurrentConnections 
+				&& this.maxConcurrentConnections == config.maxConcurrentConnections //
 				&& this.id.equals(config.id) //
-				&& this.alias.equals(config.alias) 
-				&& this.metaComponent.equals(config.metaComponent) //
+				&& this.alias.equals(config.alias) && this.metaComponent.equals(config.metaComponent) //
 				&& Arrays.equals(this.componentIds, config.componentIds);
 	}
 

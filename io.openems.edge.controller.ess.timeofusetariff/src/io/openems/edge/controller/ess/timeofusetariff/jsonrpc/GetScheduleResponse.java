@@ -11,7 +11,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_ESS_DISCH
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_ESS_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_PRODUCTION;
-import static io.openems.edge.energy.api.EnergyUtils.toPower;
 import static java.lang.Math.round;
 import static java.util.Optional.ofNullable;
 
@@ -22,6 +21,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -186,15 +186,16 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 		return schedule.entrySet().stream() //
 				.map(e -> {
 					var p = e.getValue();
+					final IntUnaryOperator convertEnergyToPower = i -> p.duration().convertEnergyToPower(i);
 
 					return buildJsonObject() //
 							.addProperty("timestamp", e.getKey()) //
 							.addProperty("price", p.price()) //
 							.addProperty("state", p.mode().getValue()) //
-							.addProperty("grid", toPower(p.energyFlow().getGrid())) //
-							.addProperty("production", toPower(p.energyFlow().getProd())) //
-							.addProperty("consumption", toPower(p.energyFlow().getCons())) //
-							.addProperty("ess", toPower(p.energyFlow().getEss())) //
+							.addProperty("grid", convertEnergyToPower.applyAsInt(p.energyFlow().getGrid())) //
+							.addProperty("production", convertEnergyToPower.applyAsInt(p.energyFlow().getProd())) //
+							.addProperty("consumption", convertEnergyToPower.applyAsInt(p.energyFlow().getCons())) //
+							.addProperty("ess", convertEnergyToPower.applyAsInt(p.energyFlow().getEss())) //
 							.addProperty("soc", round(fitWithin(0F, 100F, //
 									p.essInitialEnergy() * 100F / essTotalEnergy))) //
 							.build();

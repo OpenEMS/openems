@@ -1,6 +1,6 @@
 package io.openems.edge.controller.evse.cluster;
 
-import static io.openems.edge.evse.api.EvseConstants.MIN_CURRENT;
+import static io.openems.edge.controller.evse.cluster.Utils.calculate;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -19,16 +19,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
-import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ApplyCharge;
-import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Profile;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -43,6 +39,9 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private Sum sum;
 
 	// TODO sort by configuration
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
@@ -71,49 +70,16 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void run() throws OpenemsNamedException {
-		for (var ctrl : this.ctrls) {
-			var params = ctrl.getParams();
-			if (params == null) {
-				continue;
-			}
-
-			// Handle Profile Commands
-			final var commands = ImmutableList.<Profile.Command>builder();
-			if (params.actualMode() == Mode.Actual.MINIMUM) {
-				params.profiles().stream() //
-						.filter(Profile.PhaseSwitchToSinglePhase.class::isInstance) //
-						.map(Profile.PhaseSwitchToSinglePhase.class::cast) //
-						.findFirst().ifPresent(phaseSwitch -> {
-							// Switch from THREE to SINGLE phase in MINIMUM mode
-							this.logDebug(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
-							commands.add(phaseSwitch.command());
-						});
-
-			} else if (params.actualMode() == Mode.Actual.FORCE) {
-				params.profiles().stream() //
-						.filter(Profile.PhaseSwitchToThreePhase.class::isInstance) //
-						.map(Profile.PhaseSwitchToThreePhase.class::cast) //
-						.findFirst().ifPresent(phaseSwitch -> {
-							// Switch from SINGLE to THREE phase in FORCE mode
-							this.logDebug(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
-							commands.add(phaseSwitch.command());
-						});
-			}
-
-			// Evaluate Charge Current
-			var ac = switch (params.actualMode()) {
-			case ZERO -> ApplyCharge.ZERO;
-			case MINIMUM -> new ApplyCharge.SetCurrent(MIN_CURRENT);
-			case FORCE -> new ApplyCharge.SetCurrent(params.limit().maxCurrent());
-			};
-
-			ctrl.apply(ac, commands.build());
+	public void run() {
+		for (var result : calculate(this.config.distributionStrategy(), this.sum, this.ctrls, this::logDebug)) {
+			// Apply current & commands
+			result.ctrl().apply(result.actions());
 		}
 	}
 
 	protected void logDebug(String message) {
 		if (this.config.debugMode()) {
+			// TODO LogVerbosity
 			this.logInfo(this.log, message);
 		}
 	}

@@ -19,6 +19,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.openemshardware.TechbaseCm4sGen2.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -92,7 +93,8 @@ public class TechbaseCm4sGen2 extends AbstractOpenemsAppWithProps<TechbaseCm4sGe
 							DependencyDeclaration.AppDependencyConfig.create() //
 									.setAppId("App.Hardware.IoGpio") //
 									.setInitialProperties(JsonUtils.buildJsonObject() //
-											.addProperty(IoGpio.Property.IO_ID.name(), "io1") //
+											.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
+													GpioHardwareType.MODBERRY_X500_M4S_F) //
 											.build())
 									.build()))
 					.build();

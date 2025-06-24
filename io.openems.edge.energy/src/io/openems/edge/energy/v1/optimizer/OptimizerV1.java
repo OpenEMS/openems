@@ -26,7 +26,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
-import io.openems.edge.energy.LogVerbosity;
+import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 
 /**

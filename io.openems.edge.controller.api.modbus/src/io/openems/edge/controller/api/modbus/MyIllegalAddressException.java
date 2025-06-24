@@ -1,7 +1,6 @@
 package io.openems.edge.controller.api.modbus;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Consumer;
 
 import com.ghgande.j2mod.modbus.procimg.IllegalAddressException;
 
@@ -9,11 +8,19 @@ public class MyIllegalAddressException extends IllegalAddressException {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Logger log = LoggerFactory.getLogger(MyIllegalAddressException.class);
-
-	public MyIllegalAddressException(MyProcessImage parent, String message) {
-		super(message);
-		parent.parent.logWarn(this.log, message);
+	/**
+	 * Builds a {@link MyIllegalAddressException} and logs the message.
+	 * 
+	 * @param logWarn {@link Consumer} for logging a warning message
+	 * @param message the message text
+	 * @return a new {@link MyIllegalAddressException}
+	 */
+	public static MyIllegalAddressException fromWithLog(Consumer<String> logWarn, String message) {
+		logWarn.accept(message);
+		return new MyIllegalAddressException(message);
 	}
 
+	private MyIllegalAddressException(String message) {
+		super(message);
+	}
 }

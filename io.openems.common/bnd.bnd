@@ -8,6 +8,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	Java-WebSocket,\
 	io.openems.wrapper.fastexcel,\
 	io.openems.wrapper.opczip,\
+	org.apache.felix.http.jetty12,\
+	org.apache.felix.http.servlet-api,\
 	org.ops4j.pax.logging.pax-logging-api,\
 
 -testpath: \

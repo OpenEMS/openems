@@ -189,7 +189,11 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		case WATT -> TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l), "watt");
 		default -> unit.symbol;
 		};
-		this.templateOptions.addProperty("unit", unitString);
+		return this.setUnit(unitString);
+	}
+
+	public InputBuilder setUnit(String unit) {
+		this.templateOptions.addProperty("unit", unit);
 		this.addWrapper(Wrappers.INPUT_WITH_UNIT);
 		return this;
 	}
@@ -223,6 +227,14 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		}
 		return this;
 	}
+	
+	public InputBuilder setStep(double step) {
+		if (this.type != InputType.NUMBER) {
+			throw new IllegalArgumentException("Step can only be set on Number inputs");
+		}
+		this.templateOptions.addProperty("step", step);
+		return this;
+	}
 
 	@Override
 	protected String getType() {
@@ -236,5 +248,4 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		}
 		return super.build();
 	}
-
 }

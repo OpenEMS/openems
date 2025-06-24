@@ -34,7 +34,7 @@ public class SetChannelValue implements EndpointRequestType<Request, EmptyObject
 
 	@Override
 	public String getMethod() {
-		return "updateComponentConfig";
+		return "setChannelValue";
 	}
 
 	@Override

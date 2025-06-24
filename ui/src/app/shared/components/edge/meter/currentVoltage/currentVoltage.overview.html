@@ -1,4 +1,4 @@
-<oe-chart [title]="component.alias +  '&nbsp;-&nbsp;' + ('Edge.History.PHASE_ACCURATE' | translate) +'&nbsp;-&nbsp;' + ('Edge.History.CURRENT_AND_VOLTAGE' | translate)"
+<oe-chart [title]="component.alias +  '&nbsp;-&nbsp;' + ('Edge.History.CURRENT_AND_VOLTAGE' | translate)"
   [showPhases]="showPhases" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
   (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized && isMeterAsymmetric !== null"
   [period]="service.historyPeriod.value">

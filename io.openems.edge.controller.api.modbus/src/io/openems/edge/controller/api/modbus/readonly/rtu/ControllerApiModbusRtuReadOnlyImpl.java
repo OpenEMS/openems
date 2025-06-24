@@ -21,6 +21,7 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
@@ -38,10 +39,13 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 		implements ControllerApiModbusRtuReadOnly, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi {
 
 	@Reference
-	private Meta metaComponent = null;
+	private Meta metaComponent;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	private RtuConfig config;
 
@@ -60,6 +64,7 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 		super.addComponent(component);
 	}
 
+	@Override
 	protected void removeComponent(OpenemsComponent component) {
 		super.removeComponent(component);
 	}
@@ -69,7 +74,7 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), 0 /* no timeout */, config.portName(), config.baudRate(), config.databits(),
 				config.stopbits(), config.parity(), config.maxConcurrentConnections());
-		super.activate(context, this.cm, this.config);
+		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Modified
@@ -77,7 +82,7 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
 				config.component_ids(), 0 /* no timeout */, config.portName(), config.baudRate(), config.databits(),
 				config.stopbits(), config.parity(), config.maxConcurrentConnections());
-		super.modified(context, this.cm, this.config);
+		super.modified(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Override

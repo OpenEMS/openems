@@ -18,6 +18,9 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.hardware.GpioHardwareType;
+import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.openemshardware.TechbaseCm4.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -34,6 +37,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 
 @Component(name = "App.OpenemsHardware.CM4")
 public class TechbaseCm4 extends AbstractOpenemsAppWithProps<TechbaseCm4, Property, Parameter.BundleParameter>
@@ -79,7 +83,21 @@ public class TechbaseCm4 extends AbstractOpenemsAppWithProps<TechbaseCm4, Proper
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			return AppConfiguration.empty();
+			return AppConfiguration.create() //
+					.addDependencies(new DependencyDeclaration("IO_GPIO", //
+							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+							DependencyDeclaration.UpdatePolicy.NEVER, //
+							DependencyDeclaration.DeletePolicy.ALWAYS, //
+							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+							DependencyDeclaration.AppDependencyConfig.create() //
+									.setAppId("App.Hardware.IoGpio") //
+									.setInitialProperties(JsonUtils.buildJsonObject() //
+											.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
+													GpioHardwareType.MODBERRY_X500_M40804_WB) //
+											.build())
+									.build()))
+					.build();
 		};
 	}
 

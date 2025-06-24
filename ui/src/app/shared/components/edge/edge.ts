@@ -2,6 +2,7 @@
 import { compareVersions } from "compare-versions";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
+import { hasUpdateAppVersion } from "src/app/edge/settings/app/permissions";
 import { SumState } from "src/app/index/shared/sumState";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
 import { CurrentDataNotification } from "../../jsonrpc/notification/currentDataNotification";
@@ -17,6 +18,7 @@ import { GetEdgeConfigRequest } from "../../jsonrpc/request/getEdgeConfigRequest
 import { GetPropertiesOfFactoryRequest } from "../../jsonrpc/request/getPropertiesOfFactoryRequest";
 import { SubscribeChannelsRequest } from "../../jsonrpc/request/subscribeChannelsRequest";
 import { SubscribeSystemLogRequest } from "../../jsonrpc/request/subscribeSystemLogRequest";
+import { UpdateAppConfigRequest } from "../../jsonrpc/request/updateAppConfigRequest";
 import { UpdateComponentConfigRequest } from "../../jsonrpc/request/updateComponentConfigRequest";
 import { GetChannelResponse } from "../../jsonrpc/response/getChannelResponse";
 import { Channel, GetChannelsOfComponentResponse } from "../../jsonrpc/response/getChannelsOfComponentResponse";
@@ -322,6 +324,31 @@ export class Edge {
         reject(reason);
       });
     });
+  }
+
+  /**
+   * Updates the configuration of a OpenEMS Edge App.
+   *
+   * @param ws          the Websocket
+   * @param componentId the OpenEMS Edge Component-ID that the app is searched by
+   * @param properties  the properties to be updated.
+   */
+  public updateAppConfig(ws: Websocket, componentId: string, properties: { name: string, value: string | number | boolean }[]): Promise<JsonrpcResponseSuccess> {
+    let request;
+    if (!hasUpdateAppVersion(this)) {
+      request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
+    } else {
+      const jsonObject = properties.reduce((acc, current) => {
+        acc[current.name] = current.value;
+        return acc;
+      }, {});
+      const payload = new UpdateAppConfigRequest({ componentId: componentId, properties: jsonObject });
+      request = new ComponentJsonApiRequest({
+        componentId: "_appManager",
+        payload: payload,
+      });
+    }
+    return this.sendRequest(ws, request);
   }
 
   /**

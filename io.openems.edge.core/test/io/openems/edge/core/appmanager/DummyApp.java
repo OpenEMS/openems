@@ -245,7 +245,7 @@ public class DummyApp implements OpenemsApp {
 	public String mapPropName(String prop, String componentId, OpenemsAppInstance instance) {
 		return this.propName.apply(prop, componentId, instance);
 	}
-	
+
 	@Override
 	public boolean assertCanEdit(String prop, User user) {
 		return true;

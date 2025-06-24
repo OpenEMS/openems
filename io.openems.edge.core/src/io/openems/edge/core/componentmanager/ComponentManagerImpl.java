@@ -37,7 +37,6 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonNull;
 
 import io.openems.common.OpenemsConstants;
@@ -45,7 +44,11 @@ import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent;
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord;
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.GetStateChannelsOfComponent;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.jsonrpc.serialization.EmptyObject;
@@ -74,11 +77,8 @@ import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 import io.openems.edge.core.componentmanager.jsonrpc.GetAllComponentFactories;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannel;
-import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent;
-import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
 import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents;
 import io.openems.edge.core.componentmanager.jsonrpc.GetPropertiesOfFactory;
-import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent;
 import io.openems.edge.io.api.DigitalInput;
 
 @Designate(ocd = Config.class, factory = false)
@@ -402,7 +402,14 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 			final var user = call.get(EdgeKeys.USER_KEY);
 			final var lang = user.getLanguage();
-			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
+
+			final OpenemsComponent component;
+			if (call.getRequest().requireEnabled()) {
+				component = this.getComponent(call.getRequest().componentId());
+			} else {
+				component = this.getPossiblyDisabledComponent(call.getRequest().componentId());
+			}
+			final var channels = component.channels().stream() //
 					.map(channel -> ComponentManagerImpl.toChannelRecord(channel, lang)) //
 					.toList();
 			return new GetChannelsOfComponent.Response(channels);
@@ -481,7 +488,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				channel.channelDoc().getUnit(), //
 				channel.channelDoc().getChannelCategory(), //
 				channel.channelDoc() instanceof StateChannelDoc c ? c.getLevel() : null, //
-				channel.channelDoc() instanceof EnumDoc c ? Lists.newArrayList(c.getOptions()) : null);
+				channel.channelDoc() instanceof EnumDoc c ? Stream.of(c.getOptions()) //
+						.map(OptionsEnumEntry::from) //
+						.toList() : null);
 	}
 
 	/**

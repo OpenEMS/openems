@@ -2,7 +2,6 @@
 import { Location } from "@angular/common";
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
-import { filter, take } from "rxjs/operators";
 import { Service } from "../shared";
 import { Role } from "../type/role";
 
@@ -17,7 +16,7 @@ export const hasEdgeRole = (role: Role) => {
     return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
         const location = inject(Location);
         const service = inject(Service);
-        service.currentEdge.pipe(filter(edge => !!edge), take(1)).subscribe((edge) => {
+        service.getCurrentEdge().then(edge => {
             if (edge) {
                 const roleIsAtLeast = Role.isAtLeast(edge.role, role);
 

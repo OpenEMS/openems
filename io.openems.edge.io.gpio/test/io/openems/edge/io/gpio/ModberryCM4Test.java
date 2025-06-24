@@ -1,6 +1,6 @@
 package io.openems.edge.io.gpio;
 
-import static io.openems.edge.io.gpio.hardware.HardwareType.MODBERRY_X500_M40804_W;
+import static io.openems.edge.io.gpio.hardware.HardwareType.MODBERRY_X500_M40804_WB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -95,7 +95,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 		IoGpio modberryComponent = new IoGpioImpl();
 		new ComponentTest(modberryComponent).activate(config);
@@ -109,7 +109,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config);
@@ -122,7 +122,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config) //
@@ -145,7 +145,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 		new ComponentTest(new IoGpioImpl()) //
 				.activate(config) //
@@ -173,7 +173,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 
 		new ComponentTest(new IoGpioImpl()) //
@@ -213,7 +213,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 		var componentManager = new DummyComponentManager();
 		var componentTest = new ComponentTest(new IoGpioImpl()) //
@@ -234,7 +234,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 		var componentManager = new DummyComponentManager();
 		var componentTest = new ComponentTest(new IoGpioImpl()) //
@@ -252,7 +252,7 @@ public class ModberryCM4Test {
 				.setAlias("io0") //
 				.setEnabled(true) //
 				.setGpioPath(this.folder.getRoot().getAbsolutePath()) //
-				.setHardwareType(MODBERRY_X500_M40804_W) //
+				.setHardwareType(MODBERRY_X500_M40804_WB) //
 				.build();
 		var componentManager = new DummyComponentManager();
 		var componentTest = new ComponentTest(new IoGpioImpl()) //

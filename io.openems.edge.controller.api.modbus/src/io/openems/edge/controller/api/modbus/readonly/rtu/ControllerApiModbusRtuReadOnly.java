@@ -20,4 +20,3 @@ public interface ControllerApiModbusRtuReadOnly extends OpenemsComponent {
 		}
 	}
 }
-

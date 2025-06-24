@@ -15,9 +15,9 @@ export class ModalButtonsComponent extends AbstractModalLine {
 export type ButtonLabel = {
     /** Name of Label, displayed below the icon */
     name: string;
-    value: string;
+    value: string | number | boolean;
     /** Icons for Button, displayed above the corresponding name */
-    icons?: Icon;
+    icon?: Icon;
     callback?: () => void;
     style?: { [key: string]: string };
 };

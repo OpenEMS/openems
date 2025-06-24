@@ -67,7 +67,7 @@ export class ModalComponent extends AbstractModal {
       case "Evcs.Keba.KeContact":
         return "EVCS_KEBA_KECONTACT";
       case "Evcs.HardyBarth":
-        return "EVCS_KEBA_KECONTACT";
+        return "EVCS_HARDY_BARTH";
       case "Evcs.IesKeywattSingle":
         return "EVCS_OCPP_IESKEYWATTSINGLE";
       default:
@@ -271,7 +271,7 @@ export class ModalComponent extends AbstractModal {
       if (state == null) {
         return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
       }
-    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && this.chargePower?.value > 450) {
       return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
     }
     switch (state) {
@@ -310,7 +310,7 @@ enum ChargeState {
   ERROR,                    //Error
   AUTHORIZATION_REJECTED,   //Authorization rejected
   ENERGY_LIMIT_REACHED,     //Energy limit reached
-  CHARGING_FINISHED,         //Charging has finished
+  CHARGING_FINISHED,        //Charging has finished
 }
 
 enum ChargePlug {
@@ -319,5 +319,5 @@ enum ChargePlug {
   PLUGGED_ON_EVCS,                          //Plugged on EVCS
   PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
-  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
+  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7, //Plugged on EVCS and on EV and locked
 }

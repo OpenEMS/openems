@@ -24,7 +24,7 @@ public class DictionaryUtilsTest {
 		dict.put("8", false);
 		dict.put("9", "");
 		dict.put("10", new Hashtable<Object, Object>());
-		
+
 		assertEquals(1, (int) DictionaryUtils.getAsInteger(dict, "1"));
 		assertEquals(2, (int) DictionaryUtils.getAsInteger(dict, "2"));
 		assertEquals(Integer.MAX_VALUE, (int) DictionaryUtils.getAsInteger(dict, "3"));
@@ -35,12 +35,12 @@ public class DictionaryUtilsTest {
 		assertEquals(0, (int) DictionaryUtils.getAsInteger(dict, "8"));
 		assertNull(DictionaryUtils.getAsInteger(dict, "9"));
 		assertNull(DictionaryUtils.getAsInteger(dict, "10"));
-		
+
 		assertTrue(DictionaryUtils.getAsOptionalInteger(dict, "1").isPresent());
 		assertTrue(DictionaryUtils.getAsOptionalInteger(dict, "10").isEmpty());
 		assertTrue(DictionaryUtils.getAsOptionalInteger(dict, "100").isEmpty());
 	}
-	
+
 	@Test
 	public void testGetAsBoolean() {
 		final var dict = new Hashtable<String, Object>();
@@ -53,7 +53,7 @@ public class DictionaryUtilsTest {
 		dict.put("7", "error");
 		dict.put("8", "");
 		dict.put("9", new Hashtable<Object, Object>());
-		
+
 		assertEquals(true, DictionaryUtils.getAsBoolean(dict, "1"));
 		assertEquals(false, DictionaryUtils.getAsBoolean(dict, "2"));
 		assertEquals(true, DictionaryUtils.getAsBoolean(dict, "3"));
@@ -63,12 +63,12 @@ public class DictionaryUtilsTest {
 		assertNull(DictionaryUtils.getAsBoolean(dict, "7"));
 		assertNull(DictionaryUtils.getAsBoolean(dict, "8"));
 		assertNull(DictionaryUtils.getAsBoolean(dict, "9"));
-		
+
 		assertTrue(DictionaryUtils.getAsOptionalBoolean(dict, "1").isPresent());
 		assertTrue(DictionaryUtils.getAsOptionalBoolean(dict, "9").isEmpty());
 		assertTrue(DictionaryUtils.getAsOptionalBoolean(dict, "100").isEmpty());
 	}
-	
+
 	@Test
 	public void testGetAsString() {
 		final var dict = new Hashtable<String, Object>();
@@ -77,24 +77,24 @@ public class DictionaryUtilsTest {
 		dict.put("3", true);
 		dict.put("4", false);
 		dict.put("5", "test");
-		
+
 		assertEquals("1", DictionaryUtils.getAsString(dict, "1"));
 		assertEquals("0.76", DictionaryUtils.getAsString(dict, "2"));
 		assertEquals("true", DictionaryUtils.getAsString(dict, "3"));
 		assertEquals("false", DictionaryUtils.getAsString(dict, "4"));
 		assertEquals("test", DictionaryUtils.getAsString(dict, "5"));
-		
+
 		assertTrue(DictionaryUtils.getAsOptionalString(dict, "1").isPresent());
 		assertTrue(DictionaryUtils.getAsOptionalString(dict, "100").isEmpty());
 	}
-	
+
 	@Test
 	public void testContainsAnyKey() {
 		final var empty = new Hashtable<String, Object>();
 		final var dict = new Hashtable<String, Object>();
 		dict.put("1", 1);
 		dict.put("2", 0.76);
-		
+
 		assertTrue(DictionaryUtils.containsAnyKey(dict, "1", "2"));
 		assertTrue(DictionaryUtils.containsAnyKey(dict, "1"));
 		assertTrue(DictionaryUtils.containsAnyKey(dict, "1", "no"));

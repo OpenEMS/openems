@@ -81,6 +81,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 */
 	public synchronized EdgeConfig getEdgeConfig() {
 		var wasConfigUpdated = false;
+		var wasChannelUpdated = false;
 
 		if (this.cache != null) {
 			// Use Cache
@@ -91,13 +92,14 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				wasConfigUpdated |= this.updateCacheFromEvent(event);
 			}
 			// Update Cache Channels
-			this.updateChannels(this.cache);
+			wasChannelUpdated = this.updateChannels(this.cache);
 
 		} else {
 
 			// No cache
 			this.cache = this.buildNewEdgeConfig();
 			wasConfigUpdated = true;
+			wasChannelUpdated = true;
 		}
 
 		var result = this.cache.buildEdgeConfig();
@@ -105,6 +107,11 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		if (wasConfigUpdated) {
 			EventBuilder.from(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CONFIG_UPDATE) //
 					.addArg(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, result) //
+					.send();
+		}
+
+		if (wasChannelUpdated) {
+			EventBuilder.from(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CHANNEL_UPDATE) //
 					.send();
 		}
 
@@ -170,12 +177,35 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				this.log.warn("Component [" + component.id() + "] was missing!");
 				continue;
 			}
-			if (comp.getChannels().size() != component.channels().size()) {
-				comp.setChannels(this.getChannels(component));
-				wasConfigUpdated = true;
+
+			final var newChannels = this.getChannels(component);
+			if (!hasChannelsChanged(comp.getChannels(), newChannels)) {
+				continue;
 			}
+
+			comp.setChannels(newChannels);
+			wasConfigUpdated = true;
 		}
 		return wasConfigUpdated;
+	}
+
+	private static boolean hasChannelsChanged(Map<String, EdgeConfig.Component.Channel> currentChannels,
+			Map<String, EdgeConfig.Component.Channel> newChannels) {
+		if (currentChannels.size() != newChannels.size()) {
+			return true;
+		}
+
+		for (var entry : newChannels.entrySet()) {
+			final var existingChannel = currentChannels.get(entry.getKey());
+			if (existingChannel == null) {
+				return true;
+			}
+
+			if (!existingChannel.equals(entry.getValue())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

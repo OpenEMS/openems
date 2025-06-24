@@ -6,6 +6,7 @@
         <ion-label style="white-space: initial" class="ion-no-margin">
           <!-- Use short name if existing otherwise use normal name -->
           {{ app.shortName ?? app.name }}
+          <span *ngIf="edge.roleIsAtLeast('admin') && app.permissions">({{ app.permissions.canSee }})</span>
         </ion-label>
       </ion-item>
       <ion-card-content>

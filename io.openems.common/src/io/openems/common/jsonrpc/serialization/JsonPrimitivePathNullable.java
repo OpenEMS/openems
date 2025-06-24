@@ -1,6 +1,7 @@
 package io.openems.common.jsonrpc.serialization;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserChannelAddress;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserEnum;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserLocalDate;
+import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserLocalTime;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserSemanticVersion;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserString;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserUuid;
@@ -152,6 +154,29 @@ public interface JsonPrimitivePathNullable extends JsonPath {
 	 */
 	public default StringPathNullable<LocalDate> getAsStringPathNullableLocalDate() {
 		return this.getAsStringPathNullable(new StringParserLocalDate());
+	}
+
+	/**
+	 * Gets the current {@link JsonPrimitivePathNullable} as a
+	 * {@link StringPathNullable} which contains a {@link LocalTime} as its parsed
+	 * value.
+	 * 
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the current element as a {@link StringPathNullable}
+	 */
+	public default StringPathNullable<LocalTime> getAsStringPathNullableLocalTime(DateTimeFormatter formatter) {
+		return this.getAsStringPathNullable(new StringParserLocalTime(formatter));
+	}
+
+	/**
+	 * Gets the current {@link JsonPrimitivePathNullable} as a
+	 * {@link StringPathNullable} which contains a {@link LocalTime} as its parsed
+	 * value.
+	 * 
+	 * @return the current element as a {@link StringPathNullable}
+	 */
+	public default StringPathNullable<LocalTime> getAsStringPathNullableLocalTime() {
+		return this.getAsStringPathNullable(new StringParserLocalTime());
 	}
 
 	/**

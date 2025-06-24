@@ -24,6 +24,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.evcs.IesKeywattEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -31,6 +32,7 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -66,7 +68,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  */
 @Component(name = "App.Evcs.IesKeywatt")
 public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp {
+		implements OpenemsApp, MetaSupplier {
 
 	public static enum Property implements Type<Property, IesKeywattEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -116,10 +118,18 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 
 	}
 
+	private final Meta meta;
+
 	@Activate
-	public IesKeywattEvcs(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public IesKeywattEvcs(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Meta meta //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.meta = meta;
 	}
 
 	@Override
@@ -187,6 +197,11 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 	@Override
 	protected IesKeywattEvcs getApp() {
 		return this;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
 	}
 
 }

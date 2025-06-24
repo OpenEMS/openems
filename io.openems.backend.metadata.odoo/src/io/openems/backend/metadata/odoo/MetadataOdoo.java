@@ -50,6 +50,7 @@ import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.debugcycle.DebugLoggable;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
@@ -457,11 +458,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
-		try {
-			this.odooHandler.sendNotificationMailAsync(sendAt, template, params);
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
+		this.odooHandler.sendNotificationMailAsync(sendAt, template, params).whenComplete((result, throwable) -> {
+			if (throwable != null) {
+				this.log.error("sendMail failed: {}", throwable.getMessage(), throwable);
+			}
+		});
 	}
 
 	@Override
@@ -551,6 +552,16 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getOfflineAlertingSettings(edgeId);
+	}
+
+	@Override
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		return this.odooHandler.getLatestSetupProtocolCoreInfo(edgeId);
+	}
+
+	@Override
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException {
+		return this.odooHandler.getProtocolsCoreInfo(edgeId);
 	}
 
 	@Override
@@ -700,6 +711,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 						// TODO implement getId()
 						e -> "metadata0/" + e.getKey(), //
 						e -> new JsonPrimitive(e.getValue())));
+	}
+
+	@Override
+	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		return this.edgeCache.generateUpdateMetadataCacheNotification();
 	}
 
 }

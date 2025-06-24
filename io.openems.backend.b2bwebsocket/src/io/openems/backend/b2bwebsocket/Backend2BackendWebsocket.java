@@ -25,7 +25,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
-import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
+import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -59,7 +59,7 @@ public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent im
 	protected volatile TimedataManager timedataManager;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile EdgeWebsocket edgeWebsocket;
+	protected volatile EdgeManager edgeManager;
 
 	private WebsocketServer server = null;
 	private Config config;

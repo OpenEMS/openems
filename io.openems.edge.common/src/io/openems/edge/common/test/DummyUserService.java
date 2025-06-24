@@ -2,6 +2,7 @@ package io.openems.edge.common.test;
 
 import java.util.Optional;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.user.User;
 import io.openems.edge.common.user.UserService;
 
@@ -34,6 +35,12 @@ public class DummyUserService implements UserService {
 			}
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public void registerAdminUser(String setupKey, String username, String password)
+			throws OpenemsError.OpenemsNamedException {
+		throw new OpenemsError.OpenemsNamedException(OpenemsError.COMMON_AUTHENTICATION_FAILED);
 	}
 
 }

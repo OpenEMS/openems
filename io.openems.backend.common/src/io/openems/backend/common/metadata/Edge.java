@@ -1,5 +1,6 @@
 package io.openems.backend.common.metadata;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public class Edge {
 	 * ON_SET_LASTMESSAGE event; but only max one event per Minute.
 	 */
 	public void setLastmessage() {
-		this.setLastmessage(ZonedDateTime.now());
+		this.setLastmessage(ZonedDateTime.now(Clock.systemUTC()));
 	}
 
 	/**

@@ -37,7 +37,7 @@ export class ComponentUpdateComponent implements OnInit {
     const config = await this.service.getConfig();
     this.componentId = componentId;
     const component = config.components[componentId];
-    this.componentIcon = config.getFactoryIcon(this.factory);
+    this.componentIcon = config.getFactoryIcon(this.factory, this.service.translate);
     const fields: FormlyFieldConfig[] = [];
     const model = {};
 

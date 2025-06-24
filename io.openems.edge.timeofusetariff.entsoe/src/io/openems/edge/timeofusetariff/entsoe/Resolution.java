@@ -7,18 +7,16 @@ public enum Resolution {
 	/**
 	 * Prices every Hour.
 	 */
-	HOURLY("PT60M"), //
+	HOURLY(Duration.ofMinutes(60)), //
 	/**
 	 * Prices every Quarter.
 	 */
-	QUARTERLY("PT15M");
+	QUARTERLY(Duration.ofMinutes(15));
 
-	public final String resolutionCode;
 	public final Duration duration;
 
-	private Resolution(String resolutionCode) {
-		this.resolutionCode = resolutionCode;
-		this.duration = Duration.parse(resolutionCode);
+	private Resolution(Duration duration) {
+		this.duration = duration;
 	}
 
 }

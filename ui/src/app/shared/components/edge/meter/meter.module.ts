@@ -5,7 +5,7 @@ import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { PipeModule } from "src/app/shared/pipe/pipe";
+import { PipeModule } from "src/app/shared/pipe/pipe.module";
 
 import { HistoryDataErrorModule } from "../../history-data-error/history-data-error.module";
 import { ModalModule } from "../../modal/modal.module";

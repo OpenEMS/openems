@@ -1,8 +1,7 @@
 // @ts-strict-ignore
 import { Injectable, WritableSignal, signal } from "@angular/core";
-import { RefresherCustomEvent } from "@ionic/angular";
-import { BehaviorSubject, Subject } from "rxjs";
-import { ChannelAddress, Edge } from "../../shared";
+import { BehaviorSubject, Subject, takeUntil } from "rxjs";
+import { ChannelAddress, Edge, Service } from "../../shared";
 
 @Injectable()
 export abstract class DataService {
@@ -14,6 +13,14 @@ export abstract class DataService {
   protected edge: Edge | null = null;
   protected stopOnDestroy: Subject<void> = new Subject<void>();
   protected timestamps: string[] = [];
+
+  constructor(service: Service) {
+    service.getCurrentEdge().then((edge) => {
+      this.edge = edge;
+      edge.currentData.pipe(takeUntil(this.stopOnDestroy))
+        .subscribe(() => this.lastUpdated.set(new Date()));
+    });
+  }
 
   /**
    * Gets the values from passed channelAddresses
@@ -31,5 +38,5 @@ export abstract class DataService {
    */
   public abstract unsubscribeFromChannels(channels: ChannelAddress[]);
 
-  public abstract refresh(ev: RefresherCustomEvent);
+  public abstract refresh(ev: CustomEvent);
 }

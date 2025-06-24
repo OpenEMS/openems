@@ -18,6 +18,7 @@ public class RootRequestHandler implements JsonApi {
 
 	private final MultipleJsonApiBinder apiBinder = new MultipleJsonApiBinder();
 	private final BindingRoutesJsonApiHandler routesJsonApiHandler;
+	private final ReplaceUserJsonApiHandler replaceUserJsonApiHandler;
 
 	@Reference(//
 			cardinality = ReferenceCardinality.MULTIPLE, //
@@ -28,16 +29,22 @@ public class RootRequestHandler implements JsonApi {
 	protected void bindJsonApi(JsonApi jsonApi) {
 		this.apiBinder.bindJsonApi(jsonApi);
 		this.routesJsonApiHandler.setBuilder(this.apiBinder.getJsonApiBuilder());
+		this.replaceUserJsonApiHandler.setBuilder(this.apiBinder.getJsonApiBuilder());
 	}
 
 	protected void unbindJsonApi(JsonApi jsonApi) {
 		this.apiBinder.unbindJsonApi(jsonApi);
 		this.routesJsonApiHandler.setBuilder(null);
+		this.replaceUserJsonApiHandler.setBuilder(null);
 	}
 
 	@Activate
-	public RootRequestHandler(@Reference BindingRoutesJsonApiHandler routesJsonApiHandler) {
+	public RootRequestHandler(//
+			@Reference BindingRoutesJsonApiHandler routesJsonApiHandler, //
+			@Reference ReplaceUserJsonApiHandler replaceUserJsonApiHandler //
+	) {
 		this.routesJsonApiHandler = routesJsonApiHandler;
+		this.replaceUserJsonApiHandler = replaceUserJsonApiHandler;
 	}
 
 	@Override

@@ -9,7 +9,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.IntFunction;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsRuntimeException;
+import io.openems.common.utils.JsonUtils;
 
 public interface JsonSerializer<T> {
 
@@ -38,6 +44,21 @@ public interface JsonSerializer<T> {
 	public T deserializePath(JsonElementPath json);
 
 	/**
+	 * Deserializes from a {@link String} to the object.
+	 * 
+	 * @param string the {@link String} to deserialize into a object
+	 * @return the deserialized object from the {@link JsonElement}
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public default T deserialize(String string) throws OpenemsNamedException {
+		try {
+			return this.deserialize(JsonUtils.parse(string));
+		} catch (OpenemsRuntimeException e) {
+			throw new OpenemsException(e);
+		}
+	}
+
+	/**
 	 * Deserializes from a {@link JsonElement} to the object.
 	 * 
 	 * @param json the {@link JsonElement} to deserialize into a object
@@ -56,6 +77,21 @@ public interface JsonSerializer<T> {
 	public default JsonSerializer<List<T>> toListSerializer() {
 		return jsonSerializer(//
 				json -> json.getAsJsonArrayPath().getAsList(this), //
+				obj -> obj.stream() //
+						.map(this::serialize) //
+						.collect(toJsonArray()));
+	}
+
+	/**
+	 * Creates a new {@link JsonSerializer} which is able to serialize
+	 * {@link ImmutableList ImmutableLists} with their generic type of the current
+	 * {@link JsonSerializer}.
+	 *
+	 * @return the new {@link JsonSerializer} of a {@link ImmutableList}
+	 */
+	public default JsonSerializer<ImmutableList<T>> toImmutableListSerializer() {
+		return jsonSerializer(//
+				json -> json.getAsJsonArrayPath().getAsImmutableList(this), //
 				obj -> obj.stream() //
 						.map(this::serialize) //
 						.collect(toJsonArray()));

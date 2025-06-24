@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { AfterContentChecked, ChangeDetectorRef, Component, effect, OnDestroy, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
@@ -45,10 +45,11 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     private cdref: ChangeDetectorRef,
     protected modalCtrl: ModalController,
     private userService: UserService,
-  ) { }
-
-  public static getPreferedColorSchemeFromTheme(theme: UserTheme) {
-    return theme === UserTheme.SYSTEM ? window.matchMedia("(prefers-color-scheme: dark)").matches ? UserTheme.DARK : UserTheme.LIGHT : theme;
+  ) {
+    effect(() => {
+      const user = this.userService.currentUser();
+      this.currentThemeMode = userService.getValidBrowserTheme(user?.getThemeFromSettings() ?? localStorage.getItem("THEME") as UserTheme);
+    });
   }
 
   public static getCurrentTheme(user: User): UserTheme {

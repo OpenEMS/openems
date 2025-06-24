@@ -1,12 +1,14 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
+import { RouteService } from "../../service/route.service";
 import { Edge, Service, Websocket } from "../../shared";
+import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
 
@@ -26,6 +28,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = false;
+    protected showBackButton: boolean = false;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -37,7 +40,23 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public router: Router,
         public service: Service,
         public websocket: Websocket,
-    ) { }
+        protected navigationService: NavigationService,
+        public routeService: RouteService,
+
+    ) {
+
+        effect(() => {
+            const currentNode = navigationService.currentNode();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const _currentUrl = routeService.currentUrl();
+
+            if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
+                this.showBackButton = false;
+            } else {
+                this.showBackButton = true;
+            }
+        });
+    }
 
     @Input() public set customBackUrl(url: string | null) {
         if (!url) {
@@ -101,7 +120,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
         // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge.value;
+        const currentEdge: Edge = this.service.currentEdge();
         if (url === "/user" && currentEdge != null) {
             this.backUrl = "/device/" + currentEdge.id + "/live";
             return;
@@ -178,14 +197,14 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/live"], { replaceUrl: true });
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
 
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
             // this.router.navigate(["../history"], { relativeTo: this.route });
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/history"]);
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
             this.cdRef.detectChanges();
         }
     }

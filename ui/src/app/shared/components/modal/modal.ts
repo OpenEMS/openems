@@ -27,16 +27,14 @@ export enum Status {
 export class ModalComponent {
 
     /** Title in Header */
-    @Input({ required: true }) public title!: string;
+    @Input({ required: true }) public title!: string | null;
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
-
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
         callback: () =>
             {}, icon: Icon
     } | null = null;
-
     @Input() protected helpKey: string | null = null;
     public readonly Role = Role;
 
@@ -52,7 +50,7 @@ export class ModalComponent {
     }
 
     // Changes applied together
-    public applyChanges() {
+    public async applyChanges() {
         const updateComponentArray: { name: string, value: any }[] = [];
         this.service.startSpinner("spinner");
         for (const key in this.formGroup.controls) {

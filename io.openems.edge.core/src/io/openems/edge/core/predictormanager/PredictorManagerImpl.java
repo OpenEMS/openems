@@ -3,9 +3,11 @@ package io.openems.edge.core.predictormanager;
 import static io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static io.openems.edge.predictor.api.prediction.Prediction.sum;
+import static java.util.Collections.emptyList;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,8 +23,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedSet;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.ComparatorUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -45,16 +50,35 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 	private final Logger log = LoggerFactory.getLogger(PredictorManagerImpl.class);
 
 	@Reference
-	private ConfigurationAdmin cm;
+	private ConfigurationAdmin configurationAdmin;
 
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
+	private List<String> configPredictorIds = emptyList();
+	private final List<Predictor> rawPredictors = new ArrayList<>();
+	private final AtomicReference<ImmutableSortedSet<Predictor>> rankedPredictors = new AtomicReference<>(
+			ImmutableSortedSet.of());
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(enabled=true)")
-	private volatile List<Predictor> predictors = new CopyOnWriteArrayList<>();
+			target = "(enabled=true)" //
+	)
+	protected void bindPredictor(Predictor predictor) {
+		synchronized (this.rawPredictors) {
+			this.rawPredictors.add(predictor);
+			this.updatePredictors();
+		}
+	}
+
+	protected void unbindPredictor(Predictor predictor) {
+		synchronized (this.rawPredictors) {
+			this.rawPredictors.remove(predictor);
+			this.updatePredictors();
+		}
+	}
 
 	public PredictorManagerImpl() {
 		super(//
@@ -64,10 +88,13 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 	}
 
 	@Activate
-	private void activate(ComponentContext context) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, PredictorManager.SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+		this.setAndUpdatePredictors(config.predictor_ids());
+
+		if (OpenemsComponent.validateSingleton(this.configurationAdmin, SINGLETON_SERVICE_PID,
+				SINGLETON_COMPONENT_ID)) {
 			return;
 		}
 	}
@@ -76,7 +103,10 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+		this.setAndUpdatePredictors(config.predictor_ids());
+
+		if (OpenemsComponent.validateSingleton(this.configurationAdmin, SINGLETON_SERVICE_PID,
+				SINGLETON_COMPONENT_ID)) {
 			return;
 		}
 	}
@@ -87,27 +117,51 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 		super.deactivate();
 	}
 
+	private void setAndUpdatePredictors(String[] predictorIds) {
+		synchronized (this.rawPredictors) {
+			this.configPredictorIds = List.of(predictorIds);
+			this.updatePredictors();
+		}
+	}
+
+	private void updatePredictors() {
+		var comparator = ComparatorUtils.comparatorIdList(this.configPredictorIds, Predictor::id);
+		this.rankedPredictors.set(ImmutableSortedSet.copyOf(comparator, this.rawPredictors));
+	}
+
 	@Override
 	public Prediction getPrediction(ChannelAddress channelAddress) {
-		var predictor = this.getPredictorBestMatch(channelAddress);
-		if (predictor != null) {
-			return predictor.getPrediction(channelAddress);
-		}
-		// No explicit predictor found
-		if (channelAddress.getComponentId().equals(Sum.SINGLETON_COMPONENT_ID)) {
-			// This is a Sum-Channel. Try to get predictions for each source channel.
-			try {
-				return this.getPredictionSum(//
-						Sum.ChannelId.valueOf(channelIdCamelToUpper(channelAddress.getChannelId())));
+		for (var predictor : this.rankedPredictors.get()) {
+			for (var pattern : predictor.getChannelAddresses()) {
+				// Skip if channel address does not match pattern (including wildcards)
+				var matchValue = ChannelAddress.match(channelAddress, pattern);
+				if (matchValue == -1) {
+					continue;
+				}
 
+				// Attempt to get prediction from matching predictor
+				var prediction = predictor.getPrediction(channelAddress);
+				if (prediction == null || Prediction.EMPTY_PREDICTION.equals(prediction)) {
+					break; // Try next predictor
+				}
+				return prediction;
+			}
+		}
+
+		// No predictor matched; check if this is a Sum channel
+		if (channelAddress.getComponentId().equals(Sum.SINGLETON_COMPONENT_ID)) {
+			try {
+				// Attempt to compute prediction by summing source channel predictions
+				return this
+						.getPredictionSum(Sum.ChannelId.valueOf(channelIdCamelToUpper(channelAddress.getChannelId())));
 			} catch (IllegalArgumentException e) {
 				this.logWarn(this.log, "Unable to find ChannelId for " + channelAddress);
 				return EMPTY_PREDICTION;
 			}
-
-		} else {
-			return EMPTY_PREDICTION;
 		}
+
+		// No prediction available
+		return EMPTY_PREDICTION;
 	}
 
 	/**
@@ -186,31 +240,4 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent implements Pr
 			);
 		};
 	}
-
-	/**
-	 * Gets the best matching {@link Predictor} for the given
-	 * {@link ChannelAddress}.
-	 *
-	 * @param channelAddress the {@link ChannelAddress}
-	 * @return the {@link Predictor} - or null if none matches
-	 */
-	private synchronized Predictor getPredictorBestMatch(ChannelAddress channelAddress) {
-		var bestMatchValue = -1;
-		Predictor bestPredictor = null;
-		for (var predictor : this.predictors) {
-			for (var pattern : predictor.getChannelAddresses()) {
-				var matchValue = ChannelAddress.match(channelAddress, pattern);
-				if (matchValue == 0) {
-					// Exact match
-					return predictor;
-				}
-				if (matchValue > bestMatchValue) {
-					bestMatchValue = matchValue;
-					bestPredictor = predictor;
-				}
-			}
-		}
-		return bestPredictor;
-	}
-
 }

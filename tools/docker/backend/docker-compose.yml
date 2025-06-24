@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   openems_backend:
     image: openems/backend:latest

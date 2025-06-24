@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 import com.google.gson.JsonObject;
 
@@ -42,8 +43,15 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 	 */
 	public static QueryHistoricTimeseriesExportXlxsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		var p = r.getParams();
-		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
+		final ZoneId timezone;
+		if (jTimezone.isNumber()) {
+			// For UI version before 2022.4.0
+			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
+		} else {
+			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(jTimezone)).toZoneId();
+		}
+		
 		var fromDate = JsonUtils.getAsZonedDateWithZeroTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateWithZeroTime(p, "toDate", timezone).plusDays(1);
 		return new QueryHistoricTimeseriesExportXlxsRequest(r, fromDate, toDate);

@@ -94,6 +94,17 @@ public class DummySum extends AbstractDummyOpenemsComponent<DummySum> implements
 	}
 
 	/**
+	 * Set {@link Sum.ChannelId#ESS_DISCHARGE_POWER}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummySum withEssDischargePower(Integer value) {
+		withValue(this, Sum.ChannelId.ESS_DISCHARGE_POWER, value);
+		return this.self();
+	}
+
+	/**
 	 * Set {@link Sum.ChannelId#ESS_MIN_DISCHARGE_POWER}.
 	 *
 	 * @param value the value

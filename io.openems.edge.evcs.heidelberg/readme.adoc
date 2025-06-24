@@ -1,0 +1,14 @@
+= Heidelberg Wallbox Energy Control Charging Station
+
+Implementation of the Heidelberg electric vehicle charging station.
+
+== Compatibility
+
+** Wallbox Energy Control
+
+=== Technical Data
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.heidelberg[Source Code icon:github[]]

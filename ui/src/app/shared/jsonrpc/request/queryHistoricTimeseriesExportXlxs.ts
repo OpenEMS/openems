@@ -27,7 +27,7 @@ export class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
         private toDate: Date,
     ) {
         super(QueryHistoricTimeseriesExportXlxsRequest.METHOD, {
-            timezone: new Date().getTimezoneOffset() * 60,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fromDate: format(fromDate, "yyyy-MM-dd"),
             toDate: format(toDate, "yyyy-MM-dd"),
         });

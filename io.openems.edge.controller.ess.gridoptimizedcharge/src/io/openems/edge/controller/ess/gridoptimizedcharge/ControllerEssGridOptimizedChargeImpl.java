@@ -61,7 +61,6 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	protected final RampFilter rampFilter = new RampFilter();
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssGridOptimizedChargeImpl.class);
-	private final EnergyScheduleHandler energyScheduleHandler;
 
 	/*
 	 * Time counter for the important states
@@ -76,6 +75,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 			ControllerEssGridOptimizedCharge.ChannelId.NO_LIMITATION_TIME);
 
 	protected Config config = null;
+	private EnergyScheduleHandler energyScheduleHandler;
 
 	/** Delay Charge logic. */
 	private DelayCharge delayCharge;
@@ -111,8 +111,12 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 				Controller.ChannelId.values(), //
 				ControllerEssGridOptimizedCharge.ChannelId.values() //
 		);
-		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(//
-				() -> this.id(), //
+	}
+
+	@Activate
+	private void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(this, //
 				() -> this.config.enabled() //
 						? switch (this.config.mode()) {
 						case AUTOMATIC -> new EnergyScheduler.Config.Automatic();
@@ -121,11 +125,6 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 						case OFF -> null;
 						} //
 						: null);
-	}
-
-	@Activate
-	private void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.updateConfig(config);
 	}
 

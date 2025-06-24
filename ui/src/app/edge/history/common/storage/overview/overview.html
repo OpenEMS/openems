@@ -1,6 +1,7 @@
 <oe-chart [title]="'General.storageSystem' | translate" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
-    (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized" [period]="service.historyPeriod.value" []>
-    <storageTotalChart [essComponents]="essComponents" [showPhases]="showPhases" [isOnlyChart]="true">
-    </storageTotalChart>
+    (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized" [period]="service.historyPeriod.value">
+    <common-storage-total-chart [isOnlyChart]="true">
+    </common-storage-total-chart>
 </oe-chart>
-<oe-footer-subnavigation *ngIf="isInitialized" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+<oe-footer-subnavigation *ngIf="isInitialized && navigationButtons?.length > 0"
+    [navigationOptions]="navigationButtons"></oe-footer-subnavigation>

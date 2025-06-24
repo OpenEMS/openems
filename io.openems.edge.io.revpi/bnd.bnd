@@ -12,7 +12,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.io.api,\
-	lib/librevpi-dio-java.jar;version=file
+	lib/librevpi-dio-java.jar;version=file,\
 
 -testpath: \
 	${testpath}

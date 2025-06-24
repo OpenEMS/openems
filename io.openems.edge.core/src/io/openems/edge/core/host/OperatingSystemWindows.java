@@ -9,12 +9,13 @@ import java.util.concurrent.CompletableFuture;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.edge.common.update.Updateable;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 /**
  * OperatingSystem implementation for Windows.
@@ -32,7 +33,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 
 	@Override
 	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
-			SetNetworkConfigRequest request) throws OpenemsNamedException {
+			SetNetworkConfig.Request request) throws OpenemsNamedException {
 		throw new NotImplementedException("SetNetworkConfigRequest is not implemented for Windows");
 	}
 
@@ -66,6 +67,11 @@ public class OperatingSystemWindows implements OperatingSystem {
 
 	public CompletableFuture<String> getOperatingSystemVersion() {
 		return CompletableFuture.completedFuture(System.getProperty("os.name"));
+	}
+
+	@Override
+	public Updateable getSystemUpdateable() {
+		return null;
 	}
 
 }

@@ -10,10 +10,11 @@ coverage:
     project:
       default:
         target: auto
-        threshold: 1%
+        threshold: 0.3%
     patch:
       default:
         target: 75%
+        threshold: 0%
 
 comment:
   layout: "condensed_header, diff"
@@ -28,6 +29,7 @@ component_management:
     statuses:
       - type: project
         target: auto
+        threshold: 0.1%
         branches:
           - "!main"
   individual_components:

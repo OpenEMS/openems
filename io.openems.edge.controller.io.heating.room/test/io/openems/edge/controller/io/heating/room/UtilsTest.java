@@ -14,7 +14,7 @@ public class UtilsTest {
 
 	@Test
 	public void test() {
-		var schedule = JSCalendar.Task.fromStringOrEmpty("""
+		var schedule = JSCalendar.Tasks.fromStringOrEmpty("""
 				[
 				   {
 				      "@type":"Task",
@@ -64,7 +64,7 @@ public class UtilsTest {
 				         }
 				      ]
 				   }
-				]""", j -> j);
+				]""");
 
 		assertEquals("HighPeriod[from=2025-01-06T04:30:00Z, to=2025-01-06T07:00:00Z]", getNextHighPeriod(//
 				ZonedDateTime.of(2025, 1, 6, 5, 29, 0, 0, ZoneId.of("Europe/Berlin")), schedule).toString());

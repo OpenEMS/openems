@@ -4,7 +4,7 @@
       <ion-col size="12" size-xl="8">
         <ion-card>
           <ion-item>
-            <ion-icon slot="start" name="stats-outline" color="primary"></ion-icon>
+            <ion-icon slot="start" [name]="componentIcon" color="primary"></ion-icon>
             <ion-label>
               <ion-card-title style="color: var(--ion-text-color-reverse)" class="ion-text-wrap">{{ factory.name }}
               </ion-card-title>
@@ -16,7 +16,8 @@
             <form [formGroup]="form" (ngSubmit)="submit()">
               <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
               <ion-item>
-                <ion-button type="submit" color="primary">Komponente anlegen</ion-button>
+                <ion-button type="submit" color="primary" translate>SETTINGS.SYSTEM_UPDATE.CREATE_COMPONENT
+                </ion-button>
               </ion-item>
             </form>
           </ion-card-content>
