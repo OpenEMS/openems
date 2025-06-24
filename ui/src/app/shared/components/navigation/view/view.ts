@@ -39,9 +39,9 @@ export class NavigationPageComponent implements AfterViewChecked {
 
     constructor(
         public modalController: ModalController,
-        private websocket: Websocket,
-        private service: Service,
+        protected service: Service,
         protected navigationService: NavigationService,
+        private websocket: Websocket,
         private translate: TranslateService,
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);

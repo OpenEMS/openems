@@ -1,19 +1,17 @@
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { Injectable, signal, WritableSignal } from "@angular/core";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { AlertController, ToastController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { saveAs } from "file-saver-es";
 import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
 import { GetSetupProtocolRequest } from "./shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "./shared/jsonrpc/response/base64PayloadResponse";
-import { RouteService } from "./shared/service/previousRouteService";
 import { Websocket } from "./shared/shared";
-import { ArrayUtils } from "./shared/utils/array/array.utils";
 
 @Injectable()
 export class PlatFormService {
@@ -21,17 +19,16 @@ export class PlatFormService {
   public static readonly platform: string = Capacitor.getPlatform();
 
   public static isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
-  public static lastActive: Subject<Date> = new Subject();
   public static deviceInfo: DeviceInfo;
   public static notifications: Map<string, { subscribe: JsonrpcRequest, unsubscribe: JsonrpcRequest }> = new Map();
-
   private static isMobile: boolean = false;
+
+  public isActiveAgain: WritableSignal<boolean> = signal(false);
 
   constructor(
     private alertCtrl: AlertController,
     private translate: TranslateService,
     private deviceService: DeviceDetectorService,
-    private routeService: RouteService,
     private toaster: ToastController,
   ) {
     PlatFormService.deviceInfo = this.deviceService.getDeviceInfo();
@@ -168,7 +165,7 @@ export class PlatFormService {
 
   private async updateState() {
     const { isActive } = await App.getState();
-    this.reloadBehavior(isActive);
+    this.setIsActiveAgain(isActive);
     PlatFormService.isActive.next(isActive);
   }
 
@@ -177,18 +174,14 @@ export class PlatFormService {
    *
    * @param isAppCurrentlyActive is app currently active
    */
-  private reloadBehavior(isAppCurrentlyActive: boolean) {
-
-    const route = this.routeService.getCurrentUrl();
-    const isForbiddenToReload: boolean = ArrayUtils.containsStrings(route.split("/"), FORBIDDEN_ROUTES_TO_RELOAD);
+  private setIsActiveAgain(isAppCurrentlyActive: boolean) {
 
     if (isAppCurrentlyActive === true
-      && PlatFormService.isActive?.getValue() === false
-      && !isForbiddenToReload) {
-      window.location.reload();
+      && PlatFormService.isActive?.getValue() === false) {
+      this.isActiveAgain.set(true);
+      return;
     }
+    this.isActiveAgain.set(false);
   }
-
 }
 
-export const FORBIDDEN_ROUTES_TO_RELOAD: string[] = ["login", "installation", "index"];

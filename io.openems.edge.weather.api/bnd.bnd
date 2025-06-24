@@ -1,0 +1,28 @@
+<<<<<<<< HEAD:io.openems.edge.kostal/bnd.bnd
+Bundle-Name: OpenEMS Edge ESS KOSTAL PIKO
+Bundle-Vendor: FENECON GmbH, OpenEMS Association e.V.
+========
+Bundle-Name: OpenEMS Edge Weather Api
+Bundle-Vendor: FENECON GmbH
+>>>>>>>> develop:io.openems.edge.weather.api/bnd.bnd
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	com.squareup.okio,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+<<<<<<<< HEAD:io.openems.edge.kostal/bnd.bnd
+	io.openems.edge.ess.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.pvinverter.api,\
+	io.openems.edge.timedata.api,\
+	io.openems.j2mod,\
+
+========
+			
+>>>>>>>> develop:io.openems.edge.weather.api/bnd.bnd
+-testpath: \
+	${testpath}

@@ -3,6 +3,7 @@ package io.openems.edge.core.meta;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,7 @@ import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
+import io.openems.edge.common.meta.Coordinates;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -90,6 +92,16 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return Meta.getModbusSlaveTable(accessMode, this.oem);
+	}
+
+	@Override
+	public int getGridConnectionPointFuseLimit() {
+		return this.config.gridConnectionPointFuseLimit();
+	}
+
+	@Override
+	public Optional<Coordinates> getCoordinates() {
+		return Coordinates.of(this.config.latitude(), this.config.longitude());
 	}
 
 	private void applyConfig(Config config) {

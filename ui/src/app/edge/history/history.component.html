@@ -1,5 +1,5 @@
 <ion-content>
-  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
@@ -14,7 +14,7 @@
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
         <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
-          <storageWidget [period]="service.historyPeriod.value"></storageWidget>
+          <common-storage-widget></common-storage-widget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Production'" size="12" size-md="6" size-lg="4" size-xl="3">
           <productionWidget></productionWidget>
@@ -83,6 +83,13 @@
           <controller-io-heatingelement-widget [componentId]="widget.componentId">
           </controller-io-heatingelement-widget>
         </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
+          *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'">
+          <controller-heat-widget [componentId]="widget.componentId">
+          </controller-heat-widget>
+        </ion-col>
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
           <controller-io-heatpump-widget [componentId]="widget.componentId">
           </controller-io-heatpump-widget>

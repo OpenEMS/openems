@@ -3,13 +3,16 @@ import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Currency, EdgeConfig } from "../shared";
 
+/**
+ * @deprecated use seperate utils class
+ */
 export class Utils {
 
   constructor() { }
@@ -581,11 +584,17 @@ export class Utils {
  * @param consumptionMeterComponents the consumptionMeterComponents
  * @returns the other consumption
  */
-  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
 
     let totalEvcsConsumption: number = 0;
+    let totalHeatConsumption: number = 0;
     let totalMeteredConsumption: number = 0;
-    evcsComponents.forEach(component => {
+
+    [...heatComponents].forEach(component => {
+      totalHeatConsumption = this.addSafely(totalHeatConsumption, energyValues.result.data[component.id + "/ActiveProductionEnergy"]);
+    });
+
+    [...evcsComponents].forEach(component => {
       totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + "/ActiveConsumptionEnergy"]);
     });
 
@@ -596,8 +605,9 @@ export class Utils {
     return Utils.roundSlightlyNegativeValues(
       Utils.subtractSafely(
         Utils.subtractSafely(
-          energyValues.result.data["_sum/ConsumptionActiveEnergy"], totalEvcsConsumption),
-        totalMeteredConsumption));
+          Utils.subtractSafely(
+            energyValues.result.data["_sum/ConsumptionActiveEnergy"], totalEvcsConsumption),
+          totalMeteredConsumption), totalHeatConsumption));
   }
 
   /**
@@ -610,14 +620,21 @@ export class Utils {
    * @param consumptionMeterComponents the consumptionMeterComponents
    * @returns the other consumption
    */
-  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
 
     const totalEvcsConsumption: number[] = [];
+    const totalHeatConsumption: number[] = [];
     const totalMeteredConsumption: number[] = [];
 
     evcsComponents.forEach(component => {
       channelData[component.id + "/ChargePower"]?.forEach((value, index) => {
         totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
+      });
+    });
+
+    heatComponents.forEach(component => {
+      channelData[component.id + "/ActivePower"]?.forEach((value, index) => {
+        totalHeatConsumption[index] = Utils.addSafely(totalHeatConsumption[index], value);
       });
     });
 
@@ -635,8 +652,10 @@ export class Utils {
       return Utils.roundSlightlyNegativeValues(
         Utils.subtractSafely(
           Utils.subtractSafely(
-            value, totalEvcsConsumption[index]),
-          totalMeteredConsumption[index]));
+            Utils.subtractSafely(
+              value, totalEvcsConsumption[index]),
+            totalMeteredConsumption[index]),
+          totalHeatConsumption[index]));
     });
   }
 }
@@ -644,6 +663,7 @@ export class Utils {
 export enum YAxisType {
   CURRENCY,
   CURRENT,
+  TEMPERATURE,
   ENERGY,
   LEVEL,
   NONE,

@@ -3,10 +3,10 @@ import * as Chart from "chart.js";
 import { ChartDataset } from "chart.js";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { HistoryUtils } from "src/app/shared/service/utils";
 import { CurrentData, EdgeConfig } from "src/app/shared/shared";
-
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { HistoryUtils } from "src/app/shared/utils/utils";
+
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
 import { ButtonLabel } from "../../modal/modal-button/modal-button";
@@ -466,5 +466,4 @@ function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: Histor
 
   return options;
 }
-
 

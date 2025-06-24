@@ -1,7 +1,7 @@
 <ion-header #appHeader *ngIf="isHeaderAllowed">
   <ion-toolbar style="--background: var(--ion-color-toolbar-primary);" mode="md">
     <ion-buttons *ngIf="backUrl" slot="start">
-      <ion-button *ngIf="navigationService.headerOptions.showBackButton" [routerLink]="backUrl" replaceUrl="true">
+      <ion-button *ngIf="showBackButton" (click)="navigationService.goBack()">
         <ion-icon [ngStyle]="{'color': 'var(--ion-menu-color)'}" name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>

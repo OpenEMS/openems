@@ -6,6 +6,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/query
 import { ChannelAddress, Service } from "../shared";
 import { TRange } from "../type/utility";
 import { StringUtils } from "../utils/string/string.utils";
+import { TRange } from "./utility";
 
 export namespace DefaultTypes {
 

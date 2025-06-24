@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Filter } from "src/app/index/filter/filter.component";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export { environment } from "./dummy";
 
 export type Theme = "OpenEMS";

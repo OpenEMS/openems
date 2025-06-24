@@ -49,6 +49,8 @@ import io.openems.edge.app.hardware.KMtronic8Channel;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
+import io.openems.edge.app.heat.HeatAskomaReadOnly;
+import io.openems.edge.app.heat.HeatMyPvReadOnly;
 import io.openems.edge.app.integratedsystem.FeneconHome10;
 import io.openems.edge.app.integratedsystem.FeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.FeneconHome15;
@@ -945,6 +947,26 @@ public final class Apps {
 	 */
 	public static final Limiter14a limiter14a(AppManagerTestBundle t) {
 		return app(t, Limiter14a::new, "App.Ess.Limiter14a");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatMyPvReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatMyPvReadOnly heatMyPvReadOnly(AppManagerTestBundle t) {
+		return app(t, HeatMyPvReadOnly::new, "App.Heat.MyPv.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatMyPvReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatAskomaReadOnly heatAskoma(AppManagerTestBundle t) {
+		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
 	}
 
 	/**

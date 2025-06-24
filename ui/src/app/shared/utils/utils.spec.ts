@@ -25,6 +25,7 @@ describe("Utils", () => {
     DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", "Wallbox 2"),
     DummyConfig.Component.EVCS_HARDY_BARTH("evcs0", "Charging Station"),
     DummyConfig.Component.EVCS_HARDY_BARTH("evcs1", "Charging Station 2"),
+    DummyConfig.Component.Heat_MYPV_ACTHOR("heat0", "Heatingelement")
   );
 
   const channelData: HistoryUtils.ChannelData = {
@@ -33,6 +34,7 @@ describe("Utils", () => {
     "evcs1/ChargePower": [null, null, null, 0, 0, 0, 0],
     "meter0/ActivePower": [124, 0, null, 0, 173, 0, 100],
     "meter1/ActivePower": [124, 0, null, 0, 173, 0, 0],
+    "heat1/ActivePower": [null, null, null, 0, 0, 0, 100],
   };
 
   const evcsComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
@@ -41,24 +43,37 @@ describe("Utils", () => {
       component.factoryId == "Evcs.Cluster.PeakShaving" ||
       component.factoryId == "Evcs.Cluster.SelfConsumption"));
 
+  const heatComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+    .filter(component =>
+      !(component.factoryId === "Controller.Heat.Heatingelement") &&
+      !component.isEnabled === false);
+
   const consumptionMeterComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
     .filter(component => component.isEnabled && dummyConfig.isTypeConsumptionMetered(component));
 
   it("+calculateOtherConsumption - evcs + consumptionMeters", () => {
     const expectedResult = [null, null, null, 565, 214, 561, 373];
-    expect(Utils.calculateOtherConsumption(channelData, evcsComponents, consumptionMeterComponents)).toEqual(expectedResult);
+    expect(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, consumptionMeterComponents)).toEqual(expectedResult);
   });
   it("+calculateOtherConsumption - only consumptionMeters", () => {
     const expectedResult2 = [null, null, null, 565, 214, 561, 473];
-    expect(Utils.calculateOtherConsumption(channelData, [], consumptionMeterComponents)).toEqual(expectedResult2);
+    expect(Utils.calculateOtherConsumption(channelData, [], [], consumptionMeterComponents)).toEqual(expectedResult2);
   });
   it("+calculateOtherConsumption - only evcs", () => {
     const expectedResult3 = [null, null, null, 565, 560, 561, 473];
-    expect(Utils.calculateOtherConsumption(channelData, evcsComponents, [])).toEqual(expectedResult3);
+    expect(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, [])).toEqual(expectedResult3);
   });
   it("+calculateOtherConsumption - no evcs + no consumptionMeters", () => {
     const expectedResult4 = [null, null, null, 565, 560, 561, 573];
-    expect(Utils.calculateOtherConsumption(channelData, [], [])).toEqual(expectedResult4);
+    expect(Utils.calculateOtherConsumption(channelData, [], [], [])).toEqual(expectedResult4);
+  });
+  it("+calculateOtherConsumption - heat + consumptionMeters", () => {
+    const expectedResult = [null, null, null, 565, 214, 561, 473];
+    expect(Utils.calculateOtherConsumption(channelData, [], heatComponents, consumptionMeterComponents)).toEqual(expectedResult);
+  });
+  it("+calculateOtherConsumption - only heat", () => {
+    const expectedResult4 = [null, null, null, 565, 560, 561, 573];
+    expect(Utils.calculateOtherConsumption(channelData, [], heatComponents, [])).toEqual(expectedResult4);
   });
 
   it("+CONVERT_PRICE_TO_CENT_PER_KWH", () => {
