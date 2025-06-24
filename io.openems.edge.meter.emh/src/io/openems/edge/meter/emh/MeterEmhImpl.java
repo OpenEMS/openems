@@ -28,6 +28,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.common.types.MeterType;
 import io.openems.edge.meter.api.ElectricityMeter;
 
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Meter.EMH", //

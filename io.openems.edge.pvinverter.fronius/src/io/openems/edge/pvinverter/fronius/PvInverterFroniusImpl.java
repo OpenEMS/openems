@@ -1,5 +1,4 @@
 package io.openems.edge.pvinverter.fronius;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +48,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

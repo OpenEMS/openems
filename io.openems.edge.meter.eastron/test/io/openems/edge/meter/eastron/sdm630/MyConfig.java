@@ -78,9 +78,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.type;
 	}
 
-	@Override
-	public boolean invert() {
-		return this.builder.invert;
-	}
 
 }

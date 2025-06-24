@@ -36,6 +36,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.thermometer.api.Thermometer;
 import io.openems.edge.thermometer.esera.onewire.enums.OwdStatus;
 
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Thermometer.Esera.OneWire", //

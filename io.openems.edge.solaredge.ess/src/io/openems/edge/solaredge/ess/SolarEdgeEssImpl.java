@@ -1,5 +1,6 @@
 package io.openems.edge.solaredge.ess;
 
+
 import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
 
 import java.util.HashSet;

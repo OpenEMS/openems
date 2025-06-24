@@ -12,7 +12,13 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.meter.sunspec,\
 	io.openems.edge.pvinverter.api,\
 	io.openems.edge.pvinverter.sunspec,\
-
+	io.openems.j2mod,\
+	io.openems.edge.batteryinverter.sunspec,\
+	io.openems.edge.timedata.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.controller.ess.chargedischargelimiter,\
+	io.openems.edge.controller.ess.limittotaldischarge,\
+	io.openems.edge.controller.ess.emergencycapacityreserve
 -testpath: \
 	${testpath},\
 	io.openems.j2mod
