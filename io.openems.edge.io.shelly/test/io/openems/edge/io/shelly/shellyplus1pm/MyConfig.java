@@ -2,6 +2,7 @@ package io.openems.edge.io.shelly.shellyplus1pm;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
+import io.openems.edge.io.shelly.common.Utils.ShellyModel;
 import io.openems.edge.meter.api.SinglePhase;
 
 @SuppressWarnings("all")
@@ -12,6 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String ip;
 		private MeterType type;
 		private SinglePhase phase;
+		private ShellyModel shellyModel;
 
 		private Builder() {
 		}
@@ -33,6 +35,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setType(MeterType type) {
 			this.type = type;
+			return this;
+		}
+
+		public Builder setShellyModel(ShellyModel shellyModel) {
+			this.shellyModel = shellyModel;
 			return this;
 		}
 
@@ -70,5 +77,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public SinglePhase phase() {
 		return this.builder.phase;
+	}
+
+	@Override
+	public ShellyModel shellyModel() {
+		// TODO Auto-generated method stub
+		return this.builder.shellyModel;
 	}
 }
