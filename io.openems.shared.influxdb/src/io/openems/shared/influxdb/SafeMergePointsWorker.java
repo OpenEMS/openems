@@ -1,7 +1,7 @@
 package io.openems.shared.influxdb;
 
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.influxdb.client.write.Point;
@@ -13,7 +13,7 @@ import io.openems.shared.influxdb.SafeMergePointsWorker.WritePoint;
 public class SafeMergePointsWorker extends AbstractMergePointsWorker<WritePoint> implements MergePointsWorker {
 
 	public SafeMergePointsWorker(InfluxConnector parent, String name, WriteParameters writeParameters,
-			Consumer<BadRequestException> onWriteError) {
+			Predicate<BadRequestException> onWriteError) {
 		super(parent, name, writeParameters, onWriteError);
 	}
 
@@ -39,12 +39,13 @@ public class SafeMergePointsWorker extends AbstractMergePointsWorker<WritePoint>
 	}
 
 	@Override
-	protected void onWriteError(Throwable t, List<WritePoint> points) {
-		super.onWriteError(t, points);
+	protected boolean onWriteError(Throwable t, List<WritePoint> points) {
+		boolean ret = super.onWriteError(t, points);
 		points.stream() //
 				.peek(w -> w.failedCountDown--) //
 				.filter(w -> w.failedCountDown > 0) //
 				.forEach(this::offer);
+		return ret;
 	}
 
 }

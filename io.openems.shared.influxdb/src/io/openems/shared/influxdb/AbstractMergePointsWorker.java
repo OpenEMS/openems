@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +28,12 @@ public abstract class AbstractMergePointsWorker<T> extends AbstractImmediateWork
 	private final String name;
 	protected final InfluxConnector parent;
 	protected final WriteParameters writeParameters;
-	private final Consumer<BadRequestException> onWriteError;
+	private final Predicate<BadRequestException> onWriteError;
 
 	private final BlockingQueue<T> pointsQueue = new LinkedBlockingQueue<>(POINTS_QUEUE_SIZE);
 
 	public AbstractMergePointsWorker(InfluxConnector parent, String name, WriteParameters writeParameters,
-			Consumer<BadRequestException> onWriteError) {
+			Predicate<BadRequestException> onWriteError) {
 		this.parent = parent;
 		this.name = name;
 		this.writeParameters = writeParameters;
@@ -64,8 +64,9 @@ public abstract class AbstractMergePointsWorker<T> extends AbstractImmediateWork
 				this.parent.getInfluxConnection().writeApi.writePoints(this.writePoints(points), this.writeParameters);
 				this.parent.queryProxy.queryLimit.decrease();
 			} catch (Throwable t) {
-				this.parent.queryProxy.queryLimit.increase();
-				this.onWriteError(t, points);
+				if (!this.onWriteError(t, points)) {
+					this.parent.queryProxy.queryLimit.increase();
+				}
 			}
 		});
 	}
@@ -88,11 +89,12 @@ public abstract class AbstractMergePointsWorker<T> extends AbstractImmediateWork
 
 	protected abstract List<Point> writePoints(List<T> points);
 
-	protected void onWriteError(Throwable t, List<T> points) {
+	protected boolean onWriteError(Throwable t, List<T> points) {
 		this.log.warn("Unable to write to InfluxDB. " + t.getClass().getSimpleName() + ": " + t.getMessage());
 		if (t instanceof BadRequestException) {
-			this.onWriteError.accept((BadRequestException) t);
+			return this.onWriteError.test((BadRequestException) t);
 		}
+		return false;
 	}
 
 	/**

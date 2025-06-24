@@ -113,6 +113,7 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 				(throwable) -> {
 					this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
 							+ ": " + throwable.getMessage());
+					return false;
 				}, true /* enable safe write */, this.writeParametersAvgPoints, this.writeParametersMaxPoints);
 	}
 
