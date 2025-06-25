@@ -79,9 +79,6 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
-  public get edges() {
-    return this.metadata.value?.edges;
-  }
 
   /**
    * Holds the current Activated Route
@@ -116,6 +113,10 @@ export class Service extends AbstractService {
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.setLang(Language.getByKey(event.lang));
     });
+  }
+
+  public get edges() {
+    return this.metadata.value?.edges;
   }
 
   public setLang(language: Language) {
