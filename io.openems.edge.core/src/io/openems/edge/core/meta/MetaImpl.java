@@ -110,8 +110,4 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 		this._setIsEssChargeFromGridAllowed(config.isEssChargeFromGridAllowed());
 	}
 
-	@Override
-	public int getGridConnectionPointFuseLimit() {
-		return this.config.gridConnectionPointFuseLimit();
-	}
 }
