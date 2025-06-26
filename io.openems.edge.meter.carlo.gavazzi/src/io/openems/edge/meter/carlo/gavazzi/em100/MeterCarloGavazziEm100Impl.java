@@ -96,14 +96,14 @@ public class MeterCarloGavazziEm100Impl extends AbstractOpenemsModbusComponent
 		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
 		 */
 
-		final ElectricityMeter.ChannelId energyChannelId300019;
-		final ElectricityMeter.ChannelId energyChannelId300035;
+		final ElectricityMeter.ChannelId energyChannelId300017;
+		final ElectricityMeter.ChannelId energyChannelId300033;
 		if (this.config.invert()) {
-			energyChannelId300019 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
-			energyChannelId300035 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+			energyChannelId300017 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+			energyChannelId300033 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
 		} else {
-			energyChannelId300019 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
-			energyChannelId300035 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+			energyChannelId300017 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+			energyChannelId300033 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
 		}
 
 		return new ModbusProtocol(this, //
@@ -127,13 +127,12 @@ public class MeterCarloGavazziEm100Impl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(300016 - offset, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300016 - offset),
 								SCALE_FACTOR_2),
-						new DummyRegisterElement(300017 - offset, 300018 - offset), //
-						m(energyChannelId300019,
-								new SignedDoublewordElement(300019 - offset).wordOrder(WordOrder.LSWMSW),
+						m(energyChannelId300017,
+								new SignedDoublewordElement(300017 - offset).wordOrder(WordOrder.LSWMSW),
 								SCALE_FACTOR_2),
-						new DummyRegisterElement(300021 - offset, 300034 - offset), //
-						m(energyChannelId300035,
-								new SignedDoublewordElement(300035 - offset).wordOrder(WordOrder.LSWMSW),
+						new DummyRegisterElement(300019 - offset, 300032 - offset),
+						m(energyChannelId300033,
+								new SignedDoublewordElement(300033 - offset).wordOrder(WordOrder.LSWMSW),
 								SCALE_FACTOR_2)));
 	}
 
