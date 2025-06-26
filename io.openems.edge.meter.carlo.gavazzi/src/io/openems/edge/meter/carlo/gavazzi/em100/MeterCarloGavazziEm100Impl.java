@@ -93,7 +93,7 @@ public class MeterCarloGavazziEm100Impl extends AbstractOpenemsModbusComponent
 		final var offset = 300000 + 1;
 		/**
 		 * See Modbus definition PDF-file in doc directory and
-		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
+		 * https://www.gavazziautomation.com/fileadmin/images/PIM/OTHERSTUFF/COMPRO/EM111_EM112_ET112_CP.pdf
 		 */
 
 		final ElectricityMeter.ChannelId energyChannelId300017;
