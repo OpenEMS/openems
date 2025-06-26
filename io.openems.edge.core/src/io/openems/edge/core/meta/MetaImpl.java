@@ -109,4 +109,5 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 		this._setCurrency(Currency.fromCurrencyConfig(config.currency()));
 		this._setIsEssChargeFromGridAllowed(config.isEssChargeFromGridAllowed());
 	}
+
 }
