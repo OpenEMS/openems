@@ -18,7 +18,7 @@ public interface IoShellyPlusPmMini
 		 * Indicates whether the Shelly needs a restart.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlus1PM
+		 * <li>Interface: ShellyPlusPMMini
 		 * <li>Type: Boolean
 		 * <li>Level: WARN
 		 * </ul>
@@ -29,7 +29,7 @@ public interface IoShellyPlusPmMini
 		 * Slave Communication Failed Fault.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlus1PM
+		 * <li>Interface: ShellyPlusPMMini
 		 * <li>Type: State
 		 * </ul>
 		 */
