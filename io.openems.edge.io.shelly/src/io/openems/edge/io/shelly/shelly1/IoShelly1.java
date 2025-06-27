@@ -41,6 +41,15 @@ public interface IoShelly1
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
+		 * Holds writes to Relay Output 2 for debugging.
+		 *
+		 * <ul>
+		 * <li>Interface: Shelly1
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		/**
 		 * Slave Communication Failed Fault.
 		 *
 		 * <ul>

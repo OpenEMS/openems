@@ -1,6 +1,7 @@
 package io.openems.edge.io.shelly.shelly1;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 
@@ -27,6 +28,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -82,7 +84,7 @@ public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1
 			return;
 		}
 
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
+		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
 	}
 
 	@Override
@@ -116,31 +118,39 @@ public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1
 			-> this.executeWrite(this.getRelayChannel(), 0);
 		}
 	}
+	
+	private record RelayState(Boolean relayIsOn) {
+		private static RelayState from(JsonElement relay) throws OpenemsNamedException {
+			var relayIsOn = getAsBoolean(relay, "ison");
+			return new RelayState(relayIsOn);
+		}
 
-	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
-		this._setSlaveCommunicationFailed(result == null);
+		private void applyChannels(IoShelly1 component, IoShelly1.ChannelId relayChannel) {
+			component.channel(relayChannel).setNextValue(this.relayIsOn);
+		}
+	}
 
-		Boolean relay0 = null;
+
+	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
+		var slaveCommunicationFailed = result == null;
+		var relay1State = new RelayState(null);
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
 
 		} else {
 			try {
-				var jsonResponse = getAsJsonObject(result.data());
-				
-				if (jsonResponse.has("relay")) {
-					var relayChannel = getAsJsonObject(jsonResponse, "relay");
-						relay0 = getAsBoolean(relayChannel, "0");
-					
-				}
+				final var relays = getAsJsonArray(result.data(), "relays");
+				relay1State = RelayState.from(getAsJsonObject(relays.get(0)));
 
-			} catch (OpenemsNamedException e) {
+			} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
 				this.logDebug(this.log, e.getMessage());
+				slaveCommunicationFailed = true;
 			}
 		}
 
-			this._setRelay(relay0);
+		this._setSlaveCommunicationFailed(slaveCommunicationFailed);
+		relay1State.applyChannels(this, IoShelly1.ChannelId.RELAY);
 	}
 
 	/**
