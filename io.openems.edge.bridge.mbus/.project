@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-<<<<<<<< HEAD:io.openems.edge.bridge.mbus/.project
 	<name>io.openems.edge.bridge.mbus</name>
-========
-	<name>io.openems.edge.battery.nuvationbms</name>
->>>>>>>> d1865b7ff9 ([Edge] Nuvation BMS + Code cleanups (#2037)):io.openems.edge.battery.nuvationbms/.project
 	<comment></comment>
 	<projects>
 	</projects>
