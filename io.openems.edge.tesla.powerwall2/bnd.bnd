@@ -1,23 +1,16 @@
-<<<<<<<< HEAD:io.openems.edge.tesla.powerwall2/bnd.bnd
 Bundle-Name: OpenEMS Edge Tesla Powerwall 2
-========
-Bundle-Name: OpenEMS Edge Battery via Nuvation BMS
->>>>>>>> d1865b7ff9 ([Edge] Nuvation BMS + Code cleanups (#2037)):io.openems.edge.battery.nuvationbms/bnd.bnd
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.battery.api,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
-<<<<<<<< HEAD:io.openems.edge.tesla.powerwall2/bnd.bnd
 	io.openems.edge.ess.api,\
-========
->>>>>>>> d1865b7ff9 ([Edge] Nuvation BMS + Code cleanups (#2037)):io.openems.edge.battery.nuvationbms/bnd.bnd
+	io.openems.j2mod,\
 
 -testpath: \
 	${testpath}
