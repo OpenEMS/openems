@@ -26,11 +26,11 @@ public final class ApplySetPoint {
 	/**
 	 * Min Power in [W] in SINGLE_PHASE.
 	 */
-	public static final int MIN_POWER_SINGLE_PHASE = convertAmpereToWatt(SINGLE_PHASE, MIN_CURRENT);
+	public static final int MIN_POWER_SINGLE_PHASE = convertMilliAmpereToWatt(SINGLE_PHASE, MIN_CURRENT);
 	/**
 	 * Min Power in [W] in THREE_PHASE.
 	 */
-	public static final int MIN_POWER_THREE_PHASE = convertAmpereToWatt(THREE_PHASE, MIN_CURRENT);
+	public static final int MIN_POWER_THREE_PHASE = convertMilliAmpereToWatt(THREE_PHASE, MIN_CURRENT);
 
 	/**
 	 * Converts MilliAmpere [mA] to Watt [W].
@@ -114,6 +114,12 @@ public final class ApplySetPoint {
 	}
 
 	public sealed interface Ability {
+
+		/**
+		 * Empty Ability, in case there is no reliable information available. Sets min
+		 * and max to zero.
+		 */
+		public static Watt EMPTY_APPLY_SET_POINT_ABILITY = new ApplySetPoint.Ability.Watt(THREE_PHASE, 0, 0);
 
 		/**
 		 * The minimum value.

@@ -4,6 +4,7 @@ import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.convertMilliAmpereToWatt;
+import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
@@ -25,8 +26,8 @@ public final class Profile {
 
 		public static final class Builder {
 
-			private ApplySetPoint.Ability.Watt singlePhaseLimit = null;
-			private ApplySetPoint.Ability.Watt threePhaseLimit = null;
+			private ApplySetPoint.Ability.Watt singlePhaseLimit = EMPTY_APPLY_SET_POINT_ABILITY;
+			private ApplySetPoint.Ability.Watt threePhaseLimit = EMPTY_APPLY_SET_POINT_ABILITY;
 
 			/**
 			 * EV does not support interrupting a charging session. Instead charge current

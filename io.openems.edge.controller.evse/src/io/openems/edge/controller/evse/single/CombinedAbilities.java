@@ -1,6 +1,7 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.edge.controller.evse.single.Utils.combineAbilities;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
@@ -37,7 +38,7 @@ public record CombinedAbilities(//
 		}
 
 		public CombinedAbilities build() {
-			final var applySetPoint = Utils.combineAbilities(this.chargePointAbilities, this.electricVehicleAbilities);
+			final var applySetPoint = combineAbilities(this.chargePointAbilities, this.electricVehicleAbilities);
 			final var isReadyForCharging = this.chargePointAbilities == null || this.electricVehicleAbilities == null //
 					? false //
 					: this.isReadyForCharging == null //

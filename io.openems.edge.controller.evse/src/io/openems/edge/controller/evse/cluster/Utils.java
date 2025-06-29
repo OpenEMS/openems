@@ -65,7 +65,9 @@ public class Utils {
 						.addValue(this.params) //
 						.add("activePower", this.activePower) //
 						.add("setPointInWatt", this.setPointInWatt) //
-						.add("actions", this.actions.build()) //
+						.add("actions", this.actions.getApplySetPoint() == null //
+								? "UNDEFINED" //
+								: this.actions.build()) //
 						.toString();
 			}
 		}
@@ -111,7 +113,7 @@ public class Utils {
 		 */
 		public final Stream<Entry> streamWithParams() {
 			return this.streamEntries() //
-					.filter(e -> e.params != null);
+					.filter(e -> e.params != null && e.params.combinedAbilities().applySetPoint() != null);
 		}
 
 		/**
@@ -391,6 +393,15 @@ public class Utils {
 		final var ctrl = e.ctrl;
 		final var params = e.params;
 		final var combinedAbilities = params.combinedAbilities();
+		final var chargePointAbilities = combinedAbilities.chargePointAbilities();
+
+		if (chargePointAbilities == null) {
+			logDebug.accept(ctrl.id() + ": " //
+					+ "Mode [" + params.actualMode() + "] " //
+					+ "ChargePointCapability is null " //
+					+ params);
+			return;
+		}
 
 		var value = params.combinedAbilities().chargePointAbilities().applySetPoint().fromPower(e.setPointInWatt);
 

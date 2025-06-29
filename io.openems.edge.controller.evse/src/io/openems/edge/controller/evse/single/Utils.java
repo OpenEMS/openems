@@ -3,6 +3,7 @@ package io.openems.edge.controller.evse.single;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.calculatePowerStep;
+import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -27,29 +28,29 @@ public final class Utils {
 	protected static final ApplySetPoint.Ability.Watt combineAbilities(ChargePointAbilities chargePointAbilities,
 			ElectricVehicleAbilities electricVehicleAbilities) {
 		if (chargePointAbilities == null || electricVehicleAbilities == null) {
-			// TODO if EV is single-phase and CP is three-phase, this should still produce a
-			// non-null result
-			return null;
+			return EMPTY_APPLY_SET_POINT_ABILITY;
 		}
 		final var cp = chargePointAbilities.applySetPoint();
+		final var cpMin = cp.toPower(cp.min());
+		final var cpMax = cp.toPower(cp.max());
 		return switch (cp.phase()) {
 		case SINGLE_PHASE -> {
 			if (electricVehicleAbilities.singlePhaseLimit() != null) {
 				var ev = electricVehicleAbilities.singlePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
-						min(cp.toPower(cp.min()), ev.min()), //
-						min(cp.toPower(cp.max()), ev.max()), //
+						max(cpMin, ev.min()), //
+						min(cpMax, ev.max()), //
 						step);
 			} else if (electricVehicleAbilities.threePhaseLimit() != null) {
 				var ev = electricVehicleAbilities.threePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
-						min(cp.toPower(cp.min()), ev.min()) / 3, //
-						min(cp.toPower(cp.max()), ev.max()) / 3, //
+						max(cpMin, ev.min()) / 3, //
+						min(cpMax, ev.max()) / 3, //
 						step);
 			} else {
-				yield null;
+				yield EMPTY_APPLY_SET_POINT_ABILITY;
 			}
 		}
 		case THREE_PHASE -> {
@@ -57,18 +58,18 @@ public final class Utils {
 				var ev = electricVehicleAbilities.threePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(THREE_PHASE, //
-						min(cp.toPower(cp.min()), ev.min()), //
-						min(cp.toPower(cp.max()), ev.max()), //
+						max(cpMin, ev.min()), //
+						min(cpMax, ev.max()), //
 						step);
 			} else if (electricVehicleAbilities.singlePhaseLimit() != null) {
 				var ev = electricVehicleAbilities.singlePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
-						min(cp.toPower(cp.min()), ev.min()), //
-						min(cp.toPower(cp.max()), ev.max()), //
+						max(cpMin, ev.min()), //
+						min(cpMax, ev.max()), //
 						step);
 			} else {
-				yield null;
+				yield EMPTY_APPLY_SET_POINT_ABILITY;
 			}
 		}
 		};

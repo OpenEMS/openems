@@ -3,6 +3,7 @@ package io.openems.edge.controller.evse.cluster;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
+import static io.openems.edge.controller.evse.cluster.Utils.calculate;
 import static io.openems.edge.controller.evse.single.PhaseSwitching.DISABLE;
 import static io.openems.edge.controller.evse.single.Types.Hysteresis.INACTIVE;
 import static io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE;
@@ -96,7 +97,7 @@ public class UtilsTest {
 		}
 
 		protected PowerDistributionTester execute(DistributionStrategy distributionStrategy) {
-			return new PowerDistributionTester(Utils.calculate(//
+			return new PowerDistributionTester(calculate(//
 					distributionStrategy, //
 					this.sum, //
 					this.ctrls.stream() //
@@ -262,7 +263,7 @@ public class UtilsTest {
 						.setActualMode(MINIMUM)) //
 				.execute(DistributionStrategy.EQUAL_POWER);
 
-		assertArrayEquals(new int[] { 6000, 6, 6000, 1000, 6000 }, sut.getApplySetPoints());
+		assertArrayEquals(new int[] { 6000, 6, 6000, 1380, 6000 }, sut.getApplySetPoints());
 	}
 
 	@Test
@@ -300,5 +301,20 @@ public class UtilsTest {
 
 		assertEquals(PhaseSwitch.TO_THREE_PHASE, sut.get(0).getPhaseSwitch());
 		assertNull(sut.get(1).getPhaseSwitch());
+	}
+
+	@Test
+	public void test6() {
+		var combinedAbilities = CombinedAbilities.createFrom(null, null).build();
+		var params = new Params(Mode.Actual.FORCE, null, null, null, false, combinedAbilities);
+		var ctrl = new DummyControllerEvseSingle("ctrl0") //
+				.withParams(params);
+		var sum = new DummySum();
+		var powerDistribution = calculate(DistributionStrategy.EQUAL_POWER, sum, List.of(ctrl), log -> doNothing());
+		assertEquals("PowerDistribution{totalActivePower=0, entries=\n" //
+				+ "Entry{ctrl0, Params[actualMode=FORCE, activePower=null, hysteresis=null, phaseSwitching=null, appearsToBeFullyCharged=false, combinedAbilities=CombinedAbilities[" //
+				+ "chargePointAbilities=null, electricVehicleAbilities=null, isReadyForCharging=false, applySetPoint=Watt" //
+				+ "[phase=THREE_PHASE, min=0, max=0, step=1], phaseSwitch=null]], activePower=null, setPointInWatt=0, actions=UNDEFINED}}",
+				powerDistribution.toString());
 	}
 }

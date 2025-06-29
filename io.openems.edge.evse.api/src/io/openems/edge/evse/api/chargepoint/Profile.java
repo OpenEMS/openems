@@ -2,6 +2,7 @@ package io.openems.edge.evse.api.chargepoint;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY;
 
 import com.google.gson.JsonNull;
 
@@ -21,7 +22,7 @@ public final class Profile {
 
 		public static final class Builder {
 
-			private ApplySetPoint.Ability applySetPoint = null;
+			private ApplySetPoint.Ability applySetPoint = EMPTY_APPLY_SET_POINT_ABILITY;
 			private PhaseSwitch phaseSwitch = null;
 			private boolean isReadyForCharging = false;
 
@@ -32,6 +33,9 @@ public final class Profile {
 			 * @return the {@link Builder}
 			 */
 			public Builder setApplySetPoint(ApplySetPoint.Ability ability) {
+				if (ability == null) {
+					ability = EMPTY_APPLY_SET_POINT_ABILITY;
+				}
 				this.applySetPoint = ability;
 				return this;
 			}
@@ -175,6 +179,10 @@ public final class Profile {
 						"ApplySetPoint action must be of type [" + this.abilities.applySetPoint + "]");
 				};
 				return this;
+			}
+
+			public ApplySetPoint.Action getApplySetPoint() {
+				return this.applySetPoint;
 			}
 
 			public Builder setPhaseSwitch(PhaseSwitch phaseSwitch) {
