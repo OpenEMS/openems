@@ -151,4 +151,15 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
+	/**
+	 * Returns the Open-Meteo API key, if available.
+	 * 
+	 * <p>
+	 * The API can also be used without a key for non-commercial use.
+	 *
+	 * @return the API key, or null if not set
+	 */
+	public default String getOpenMeteoApiKey() {
+		return null;
+	}
 }
