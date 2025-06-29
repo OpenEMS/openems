@@ -1,5 +1,8 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -15,8 +18,6 @@ import io.openems.edge.controller.ess.cycle.HybridEssMode;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class Context extends AbstractContext<ControllerEssCycleImpl> {
 
@@ -38,8 +39,8 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 		this.startTime = startTime;
 
 		// get max charge/discharge power
-		this.allowedDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-		this.allowedChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		this.allowedDischargePower = this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE);
+		this.allowedChargePower = this.ess.getPower().getMinPower(this.ess, ALL, ACTIVE);
 	}
 
 	/**

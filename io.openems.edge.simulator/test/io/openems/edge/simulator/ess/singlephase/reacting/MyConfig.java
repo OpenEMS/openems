@@ -3,7 +3,7 @@ package io.openems.edge.simulator.ess.singlephase.reacting;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

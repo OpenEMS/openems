@@ -2,12 +2,12 @@ package io.openems.edge.evcs.mennekes;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
 import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
 import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedCurrentChannel;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L1;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L2;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L3;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumActivePowerFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
 

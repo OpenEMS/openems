@@ -7,6 +7,9 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L3;
 
 import java.util.function.Supplier;
 
@@ -53,8 +56,8 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -318,19 +321,19 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 				GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L1, //
 				GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L1, //
 				GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L1, //
-				GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L1, value));
+				getPhaseConnectionValue(L1, value));
 
 		this.updateMeterConnectStatus(//
 				GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L2, //
 				GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L2, //
 				GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L2, //
-				GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L2, value));
+				getPhaseConnectionValue(L2, value));
 
 		this.updateMeterConnectStatus(//
 				GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L3, //
 				GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L3, //
 				GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L3, //
-				GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L3, value));
+				getPhaseConnectionValue(L3, value));
 	}
 
 	/**
@@ -344,11 +347,11 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * For example: 0x0124 means Phase R connect incorrectly，Phase S connect
 	 * reverse, Phase T connect correctly
 	 *
-	 * @param phase Phase
+	 * @param phase the {@link SingleOrAllPhase}
 	 * @param value Original value with all phase information
 	 * @return connection information of the given phase
 	 */
-	protected static Integer getPhaseConnectionValue(Phase phase, int value) {
+	protected static Integer getPhaseConnectionValue(SingleOrAllPhase phase, int value) {
 		return switch (phase) {
 		case L1 -> value & 0xF;
 		case L2 -> value >> 4 & 0xF;
