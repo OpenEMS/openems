@@ -109,7 +109,7 @@ public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements 
 
 	@Override
 	public String debugLog() {
-		return this.getPhase()+":" + this.getActivePowerChannel().value().asString();
+		return this.getPhase() + ":" + this.getActivePowerChannel().value().asString();
 	}
 
 	@Override
