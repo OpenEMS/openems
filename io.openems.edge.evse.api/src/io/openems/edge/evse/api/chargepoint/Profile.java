@@ -1,44 +1,88 @@
 package io.openems.edge.evse.api.chargepoint;
 
-import io.openems.edge.evse.api.Limit;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 
-public interface Profile {
+import com.google.gson.JsonNull;
+
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.edge.evse.api.common.ApplySetPoint;
+
+public final class Profile {
+
+	private Profile() {
+	}
 
 	/**
 	 * Declares the Abilities of an {@link EvseChargePoint}.
 	 */
-	public static record ChargePointAbilities(ApplySetPoint.Ability applySetPoint, PhaseSwitch.Ability phaseSwitch) {
+	public static record ChargePointAbilities(ApplySetPoint.Ability applySetPoint, PhaseSwitch phaseSwitch,
+			boolean isReadyForCharging) {
 
 		public static final class Builder {
 
 			private ApplySetPoint.Ability applySetPoint = null;
-			private PhaseSwitch.Ability phaseSwitch = null;
+			private PhaseSwitch phaseSwitch = null;
+			private boolean isReadyForCharging = false;
 
 			/**
-			 * Defines the {@link Profile.ApplySetPoint.Ability}.
+			 * Defines the {@link ApplySetPoint.Ability}.
 			 * 
 			 * @param ability the ability
 			 * @return the {@link Builder}
 			 */
-			public Builder applySetPointIn(ApplySetPoint.Ability ability) {
+			public Builder setApplySetPoint(ApplySetPoint.Ability ability) {
 				this.applySetPoint = ability;
 				return this;
 			}
 
 			/**
-			 * Defines the {@link Profile.PhaseSwitch.Ability}.
+			 * Defines the Ready-For-Charging state.
 			 * 
-			 * @param ability the ability
+			 * @param isReadyForCharging the state
 			 * @return the {@link Builder}
 			 */
-			public Builder phaseSwitch(PhaseSwitch.Ability ability) {
-				this.phaseSwitch = ability;
+			public Builder setIsReadyForCharging(boolean isReadyForCharging) {
+				this.isReadyForCharging = isReadyForCharging;
+				return this;
+			}
+
+			/**
+			 * Defines the {@link Profile.PhaseSwitch} Ability.
+			 * 
+			 * @param phaseSwitch the ability
+			 * @return the {@link Builder}
+			 */
+			public Builder setPhaseSwitch(PhaseSwitch phaseSwitch) {
+				this.phaseSwitch = phaseSwitch;
 				return this;
 			}
 
 			public ChargePointAbilities build() {
-				return new ChargePointAbilities(this.applySetPoint, this.phaseSwitch);
+				return new ChargePointAbilities(this.applySetPoint, this.phaseSwitch, this.isReadyForCharging);
 			}
+		}
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link ChargeParams}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<ChargePointAbilities> serializer() {
+			return jsonObjectSerializer(ChargePointAbilities.class, json -> {
+				return new ChargePointAbilities(//
+						json.getObject("applySetPoint", ApplySetPoint.Ability.serializer()), //
+						json.getEnumOrNull("phaseSwitch", PhaseSwitch.class), //
+						json.getBoolean("isReadyForCharging"));
+			}, obj -> {
+				return obj == null //
+						? JsonNull.INSTANCE //
+						: buildJsonObject() //
+								.add("applySetPoint", ApplySetPoint.Ability.serializer().serialize(obj.applySetPoint)) //
+								.addProperty("phaseSwitch", obj.phaseSwitch) //
+								.addProperty("isReadyForCharging", obj.isReadyForCharging) //
+								.build();
+			});
 		}
 
 		/**
@@ -54,7 +98,8 @@ public interface Profile {
 	/**
 	 * Declares the Actions for an {@link EvseChargePoint}.
 	 */
-	public static record ChargePointActions(ApplySetPoint.Action applySetPoint, PhaseSwitch.Action phaseSwitch) {
+	public static record ChargePointActions(ChargePointAbilities abilities, ApplySetPoint.Action applySetPoint,
+			PhaseSwitch phaseSwitch) {
 
 		/**
 		 * Gets the {@link ApplySetPoint} in [A].
@@ -86,41 +131,59 @@ public interface Profile {
 
 			private final ChargePointAbilities abilities;
 			private ApplySetPoint.Action applySetPoint = null;
-			private PhaseSwitch.Action phaseSwitch = null;
+			private PhaseSwitch phaseSwitch = null;
 
 			private Builder(ChargePointAbilities abilities) {
 				this.abilities = abilities;
 			}
 
+			private Builder(ChargePointActions actions) {
+				this(actions.abilities);
+				this.applySetPoint = actions.applySetPoint;
+				this.phaseSwitch = actions.phaseSwitch;
+			}
+
 			public Builder setApplySetPointInMilliAmpere(int value) throws IllegalArgumentException {
-				return this.setApplySetPoint(new Profile.ApplySetPoint.Action.MilliAmpere(value));
+				return this.setApplySetPoint(new ApplySetPoint.Action.MilliAmpere(value));
 			}
 
 			public Builder setApplySetPointInAmpere(int value) throws IllegalArgumentException {
-				return this.setApplySetPoint(new Profile.ApplySetPoint.Action.Ampere(value));
+				return this.setApplySetPoint(new ApplySetPoint.Action.Ampere(value));
+			}
+
+			public Builder setApplySetPointInWatt(int value) throws IllegalArgumentException {
+				return this.setApplySetPoint(new ApplySetPoint.Action.Watt(value));
+			}
+
+			public Builder setApplyZeroSetPoint() throws IllegalArgumentException {
+				return this.setApplySetPoint(switch (this.abilities.applySetPoint) {
+				case ApplySetPoint.Ability.MilliAmpere ma -> new ApplySetPoint.Action.MilliAmpere(0);
+				case ApplySetPoint.Ability.Ampere a -> new ApplySetPoint.Action.Ampere(0);
+				case ApplySetPoint.Ability.Watt w -> new ApplySetPoint.Action.Watt(0);
+				});
 			}
 
 			public Builder setApplySetPoint(ApplySetPoint.Action applySetPoint) throws IllegalArgumentException {
 				this.applySetPoint = switch (applySetPoint) {
-				case ApplySetPoint.Action.MilliAmpere ma when this.abilities.applySetPoint == ApplySetPoint.Ability.MILLI_AMPERE //
+				case ApplySetPoint.Action.MilliAmpere ma when this.abilities.applySetPoint instanceof ApplySetPoint.Ability.MilliAmpere //
 					-> ma;
-				case ApplySetPoint.Action.Ampere a when this.abilities.applySetPoint == ApplySetPoint.Ability.AMPERE //
+				case ApplySetPoint.Action.Ampere a when this.abilities.applySetPoint instanceof ApplySetPoint.Ability.Ampere //
 					-> a;
+				case ApplySetPoint.Action.Watt w when this.abilities.applySetPoint instanceof ApplySetPoint.Ability.Watt //
+					-> w;
 				case null, default -> throw new IllegalArgumentException(
 						"ApplySetPoint action must be of type [" + this.abilities.applySetPoint + "]");
 				};
 				return this;
 			}
 
-			public Builder setPhaseSwitch(PhaseSwitch.Action phaseSwitch) {
-				this.phaseSwitch = switch (this.abilities.phaseSwitch) {
-				case PhaseSwitch.Ability.ToSinglePhase tsp when phaseSwitch == PhaseSwitch.Action.TO_SINGLE_PHASE //
-					-> phaseSwitch;
-				case PhaseSwitch.Ability.ToThreePhase ttp when phaseSwitch == PhaseSwitch.Action.TO_THREE_PHASE //
-					-> phaseSwitch;
-				case null, default -> throw new IllegalArgumentException(
-						"PhaseSwitch action must be [" + this.abilities.phaseSwitch.getClass().getSimpleName() + "]");
-				};
+			public Builder setPhaseSwitch(PhaseSwitch phaseSwitch) {
+				if (phaseSwitch != null && phaseSwitch != this.abilities.phaseSwitch) {
+					throw new IllegalArgumentException("PhaseSwitch not possible. " //
+							+ "Ability [" + this.abilities.phaseSwitch.name() + "] " //
+							+ "Actual [" + phaseSwitch + "]");
+				}
+				this.phaseSwitch = phaseSwitch;
 				return this;
 			}
 
@@ -128,7 +191,7 @@ public interface Profile {
 				if (this.applySetPoint == null) {
 					throw new IllegalArgumentException("ApplySetPoint is always required");
 				}
-				return new ChargePointActions(this.applySetPoint, this.phaseSwitch);
+				return new ChargePointActions(this.abilities, this.applySetPoint, this.phaseSwitch);
 			}
 		}
 
@@ -141,57 +204,23 @@ public interface Profile {
 		public static Builder from(ChargePointAbilities abilities) {
 			return new Builder(abilities);
 		}
-	}
 
-	/**
-	 * Different types of applying a set-point.
-	 */
-	public static final class ApplySetPoint {
-
-		private ApplySetPoint() {
-		}
-
-		public static enum Ability {
-			MILLI_AMPERE, AMPERE;
-		}
-
-		public sealed interface Action {
-
-			/**
-			 * Gets the value.
-			 * 
-			 * @return the value in the unit defined by its class
-			 */
-			public int value();
-
-			public static record MilliAmpere(int value) implements ApplySetPoint.Action {
-			}
-
-			public static record Ampere(int value) implements ApplySetPoint.Action {
-			}
+		/**
+		 * Factory.
+		 *
+		 * @param actions the {@link ChargePointActions}
+		 * @return a {@link Builder}
+		 */
+		public static Builder copy(ChargePointActions actions) {
+			return new Builder(actions);
 		}
 	}
 
 	/**
-	 * Different types of applying a set-point.
+	 * Different types of applying a phase-switch.
 	 */
-	public static final class PhaseSwitch {
-
-		private PhaseSwitch() {
-		}
-
-		public sealed interface Ability {
-
-			public static record ToSinglePhase(Limit singlePhaseLimit) implements PhaseSwitch.Ability {
-			}
-
-			public static record ToThreePhase(Limit threePhaseLimit) implements PhaseSwitch.Ability {
-			}
-		}
-
-		public static enum Action {
-			TO_SINGLE_PHASE, TO_THREE_PHASE;
-		}
-
+	public static enum PhaseSwitch { // TODO NOT_AVAILABLE instead of null
+		TO_SINGLE_PHASE, //
+		TO_THREE_PHASE;
 	}
 }

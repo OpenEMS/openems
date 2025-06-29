@@ -31,4 +31,15 @@ public final class Phase {
 			this.symbol = toSingleOrAllPhase.symbol;
 		}
 	}
+
+	public enum SingleOrThreePhase {
+		SINGLE_PHASE(1), //
+		THREE_PHASE(3);
+
+		public final int count;
+
+		private SingleOrThreePhase(int count) {
+			this.count = count;
+		}
+	}
 }

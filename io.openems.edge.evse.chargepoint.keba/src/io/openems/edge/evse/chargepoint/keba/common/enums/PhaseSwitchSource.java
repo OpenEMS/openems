@@ -30,6 +30,6 @@ public enum PhaseSwitchSource implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return NONE;
+		return UNDEFINED;
 	}
 }

@@ -1,5 +1,8 @@
 package io.openems.edge.controller.evse.single;
 
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
+import static io.openems.edge.evse.api.common.ApplySetPoint.calculatePowerStep;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -8,10 +11,10 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
-import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
+import io.openems.edge.evse.api.common.ApplySetPoint;
+import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
 
 public final class Utils {
 
@@ -21,21 +24,54 @@ public final class Utils {
 	private Utils() {
 	}
 
-	protected static final Limit mergeLimits(EvseChargePoint.ChargeParams chargePoint,
-			EvseElectricVehicle.ChargeParams electricVehicle) {
-		// TODO if EV is single-phase and CP is three-phase, this should still produce a
-		// non-null result
-		if (chargePoint == null || electricVehicle == null) {
+	protected static final ApplySetPoint.Ability.Watt combineAbilities(ChargePointAbilities chargePointAbilities,
+			ElectricVehicleAbilities electricVehicleAbilities) {
+		if (chargePointAbilities == null || electricVehicleAbilities == null) {
+			// TODO if EV is single-phase and CP is three-phase, this should still produce a
+			// non-null result
 			return null;
 		}
-		var cp = chargePoint.limit();
-		return electricVehicle.limits().stream() //
-				.filter(ev -> ev.phase() == cp.phase()) //
-				.findFirst() //
-				.map(ev -> new Limit(cp.phase(), //
-						max(cp.minCurrent(), ev.minCurrent()), //
-						min(cp.maxCurrent(), ev.maxCurrent()))) //
-				.orElse(null);
+		final var cp = chargePointAbilities.applySetPoint();
+		return switch (cp.phase()) {
+		case SINGLE_PHASE -> {
+			if (electricVehicleAbilities.singlePhaseLimit() != null) {
+				var ev = electricVehicleAbilities.singlePhaseLimit();
+				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
+				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
+						min(cp.toPower(cp.min()), ev.min()), //
+						min(cp.toPower(cp.max()), ev.max()), //
+						step);
+			} else if (electricVehicleAbilities.threePhaseLimit() != null) {
+				var ev = electricVehicleAbilities.threePhaseLimit();
+				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
+				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
+						min(cp.toPower(cp.min()), ev.min()) / 3, //
+						min(cp.toPower(cp.max()), ev.max()) / 3, //
+						step);
+			} else {
+				yield null;
+			}
+		}
+		case THREE_PHASE -> {
+			if (electricVehicleAbilities.threePhaseLimit() != null) {
+				var ev = electricVehicleAbilities.threePhaseLimit();
+				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
+				yield new ApplySetPoint.Ability.Watt(THREE_PHASE, //
+						min(cp.toPower(cp.min()), ev.min()), //
+						min(cp.toPower(cp.max()), ev.max()), //
+						step);
+			} else if (electricVehicleAbilities.singlePhaseLimit() != null) {
+				var ev = electricVehicleAbilities.singlePhaseLimit();
+				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
+				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
+						min(cp.toPower(cp.min()), ev.min()), //
+						min(cp.toPower(cp.max()), ev.max()), //
+						step);
+			} else {
+				yield null;
+			}
+		}
+		};
 	}
 
 	protected static boolean getSessionLimitReached(Mode mode, Integer energy, int limit) {
