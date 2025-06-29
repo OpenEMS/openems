@@ -67,8 +67,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public MeterType type() {
-		return MeterType.CONSUMPTION_METERED;
+	public String Modbus_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 }
