@@ -35,7 +35,7 @@
                     <ion-label translate>Menu.overview </ion-label>
                   </ion-item>
                 </ng-container>
-                <ng-container *ngIf="isUserAllowedToSeeSidebarEdgeList && service.edges as edges">
+                  <ng-container *ngIf="environment.enableSidebarEdgeList && isUserAllowedToSeeSidebarEdgeList && service.edges as edges">
                   <ion-accordion-group>
                     <ion-accordion>
                       <ion-item slot="header" lines="full">
