@@ -2,7 +2,7 @@
 
 This implementation uses the ENTSO-E transparency platform to receive day-ahead prices in European power grids.
 
-To request a (free) authentication token, please see chapter "2. Authentication and Authorisation" in the official API documentation: https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_authentication_and_authorisation
+To request a (free) authentication token, please see chapter "1.5. How to get security token" in the official API documentation: https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token
 
 Prices retrieved from ENTSO-E are subsequently converted to the user's currency (defined in Core.Meta Component) using the Exchange Rates API.
 
