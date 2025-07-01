@@ -21,4 +21,9 @@ import io.openems.common.types.CurrencyConfig;
 	@AttributeDefinition(name = "Grid Connection Point Fuse Limit", description = "Maximum current allowed at the Grid Connection Point (GCP), i.e. the rating of the fuses [A]")
 	int gridConnectionPointFuseLimit() default 32;
 
+	@AttributeDefinition(name = "Latitude", description = "Specifies the latitude coordinate of the system in degrees, ranging from -90.0 to 90.0")
+	double latitude() default -999.0;
+
+	@AttributeDefinition(name = "Longitude", description = "Specifies the longitude coordinate of the system in degrees, ranging from -180.0 to 180.0")
+	double longitude() default -999.0;
 }

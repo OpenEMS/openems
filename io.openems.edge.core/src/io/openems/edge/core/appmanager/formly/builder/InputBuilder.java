@@ -227,6 +227,14 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		}
 		return this;
 	}
+	
+	public InputBuilder setStep(double step) {
+		if (this.type != InputType.NUMBER) {
+			throw new IllegalArgumentException("Step can only be set on Number inputs");
+		}
+		this.templateOptions.addProperty("step", step);
+		return this;
+	}
 
 	@Override
 	protected String getType() {
@@ -240,5 +248,4 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		}
 		return super.build();
 	}
-
 }

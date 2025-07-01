@@ -3,9 +3,9 @@ import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "controller-evse-history-status-chart",
@@ -13,6 +13,8 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
+
+
     public static getChartData(component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {
         AssertionUtils.assertIsDefined(component);
         return {
@@ -27,19 +29,19 @@ export class ChartComponent extends AbstractHistoryChart {
                 return [{
                     name: "No Charge",
                     converter: () => this.getDataset(data, 0),
-                    color: "rgba(0,0,0,0.9)",
+                    color: ChartConstants.Colors.BLUE_GREY,
                 }, {
                     name: "Minimum",
                     converter: () => this.getDataset(data, 1),
-                    color: "rgba(25, 19, 82, 0.8)",
+                    color: ChartConstants.Colors.GREEN,
                 }, {
                     name: "Surplus PV",
                     converter: () => this.getDataset(data, 2),
-                    color: "rgba(51,102,0,0.8)",
+                    color: ChartConstants.Colors.BLUE,
                 }, {
                     name: "Force Charge",
                     converter: () => this.getDataset(data, 3),
-                    color: "rgba(0, 204, 204,0.7)",
+                    color: ChartConstants.Colors.RED,
                 }];
             },
             tooltip: {
@@ -54,12 +56,12 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     /**
-      * Returns only the desired state data extracted from the whole dataset.
-      *
-      * @param data The historic data.
-      * @param desiredState The desired state data from the whole dataset.
-      * @returns the desired state array data.
-      */
+     * Returns only the desired state data extracted from the whole dataset.
+    *
+    * @param data The historic data.
+    * @param desiredState The desired state data from the whole dataset.
+    * @returns the desired state array data.
+    */
     private static getDataset(data: HistoryUtils.ChannelData, desiredState: number): any[] {
         const prices = data["QuarterlyPrice"]
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
@@ -92,6 +94,10 @@ export class ChartComponent extends AbstractHistoryChart {
         }
 
         return dataset;
+    }
+
+    protected override beforeSetChartLabel(): void {
+        this.chartType = "bar";
     }
 
     protected override getChartData(): HistoryUtils.ChartData {

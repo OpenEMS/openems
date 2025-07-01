@@ -70,8 +70,11 @@
 
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-        <oe-modal-line [name]="'Edge.Index.Widgets.Heatingelement.minimumRunTime'| translate"></oe-modal-line>
-        <oe-modal-line controlName="minTime" [control]="{type: 'RANGE', properties: {min: 1, max: 10, unit: 'H'}}"
+        <oe-modal-line [name]="'Edge.Index.Widgets.Heatingelement.minimumRunTime'| translate"
+            [value]="formGroup.value['minTime']" [converter]="Converter.CONVERT_TO_HOUR"></oe-modal-line>
+
+        <oe-modal-line controlName="minTime"
+            [control]="{type: 'RANGE', properties: {tickMin: 1, tickMax: 10, unit: 'h', pinFormatter: pinFormatter}}"
             [formGroup]="formGroup">
         </oe-modal-line>
     </ng-container>

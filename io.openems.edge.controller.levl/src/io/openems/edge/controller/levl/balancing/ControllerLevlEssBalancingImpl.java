@@ -2,6 +2,7 @@ package io.openems.edge.controller.levl.balancing;
 
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.controller.levl.common.Utils.HUNDRED_PERCENT;
 import static io.openems.edge.controller.levl.common.Utils.MILLISECONDS_PER_SECOND;
 import static io.openems.edge.controller.levl.common.Utils.SECONDS_PER_HOUR;
@@ -10,7 +11,9 @@ import static io.openems.edge.controller.levl.common.Utils.calculateLevlBatteryP
 import static io.openems.edge.controller.levl.common.Utils.calculatePucBatteryPower;
 import static io.openems.edge.controller.levl.common.Utils.calculatePucSoc;
 import static io.openems.edge.controller.levl.common.Utils.generateResponse;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static java.lang.Math.round;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -19,7 +22,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -42,15 +44,13 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.levl.common.LogVerbosity;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Levl.Ess.Balancing", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
 		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
@@ -172,8 +172,8 @@ public class ControllerLevlEssBalancingImpl extends AbstractOpenemsComponent
 		var gridPower = this.meter.getActivePower().getOrError();
 		var essPower = this.ess.getActivePower().getOrError();
 		var essCapacity = this.ess.getCapacity().getOrError();
-		var minEssPower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-		var maxEssPower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		var minEssPower = this.ess.getPower().getMinPower(this.ess, ALL, ACTIVE);
+		var maxEssPower = this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE);
 
 		// levl request specific values
 		var levlSocWs = this.getLevlSoc().getOrError();

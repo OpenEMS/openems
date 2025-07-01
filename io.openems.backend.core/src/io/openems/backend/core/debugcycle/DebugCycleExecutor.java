@@ -17,8 +17,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.debugcycle.MetricsConsumer;
 import io.openems.backend.common.debugcycle.DebugLoggable;
+import io.openems.backend.common.debugcycle.MetricsConsumer;
 import io.openems.common.utils.ThreadPoolUtils;
 
 @Component(//
@@ -81,7 +81,7 @@ public class DebugCycleExecutor implements Runnable {
 			// handle database metrics
 			final var metrics = debugCycle.debugMetrics();
 			if (metrics == null || metrics.isEmpty())  {
-				return;
+				continue;
 			}
 			
 			for (var consumer : this.debugCycleConsumer) {

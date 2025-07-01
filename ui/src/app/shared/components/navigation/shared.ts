@@ -18,8 +18,23 @@ export class NavigationTree {
         public label: string,
         public mode: "icon" | "label",
         public children: NavigationTree[],
+
+        /** Use null for nested node */
         public parent: NavigationTree | null,
     ) { }
+
+    /**
+     * Creates new navigation tree instance from existing navigation tree object
+     *
+     * @param navigationTree
+     * @returns the new navigationTree
+     */
+    public static of(navigationTree: NavigationTree | null): NavigationTree | null {
+        if (!navigationTree) {
+            return null;
+        }
+        return new NavigationTree(navigationTree.id, navigationTree.routerLink, navigationTree.icon, navigationTree.label, navigationTree.mode, navigationTree.children, navigationTree.parent);
+    }
 
     public getChildren(): NavigationTree[] | null {
         return this.children?.filter(el => el != null) ?? null;
@@ -102,5 +117,3 @@ export type NavigationNode = {
     mode: "icon" | "label",
 };
 
-
-export const baseNavigationTree: ConstructorParameters<typeof NavigationTree> = [NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [], null];

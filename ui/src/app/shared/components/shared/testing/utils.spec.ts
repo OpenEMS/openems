@@ -1,4 +1,3 @@
-
 import { registerLocaleData } from "@angular/common";
 import localDE from "@angular/common/locales/de";
 import localeDeExtra from "@angular/common/locales/extra/de";

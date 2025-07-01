@@ -152,9 +152,10 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 			final var emergencyReserveEnabled = this.getBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
 
 			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
-			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
-					? this.getInt(p, Property.MAX_FEED_IN_POWER)
-					: 0;
+			final var maxFeedInPower = (feedInType == FeedInType.DYNAMIC_LIMITATION
+					|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION)
+							? this.getInt(p, Property.MAX_FEED_IN_POWER)
+							: 0;
 
 			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
 

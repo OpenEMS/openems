@@ -7,8 +7,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private int maxCurrentSinglePhase;
-		private int maxCurrentThreePhase;
+		private int maxPowerSinglePhase;
+		private int maxPowerThreePhase;
 		private boolean canInterrupt;
 
 		private Builder() {
@@ -19,13 +19,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMaxCurrentSinglePhase(int maxCurrentSinglePhase) {
-			this.maxCurrentSinglePhase = maxCurrentSinglePhase;
+		public Builder setMaxPowerSinglePhase(int maxPowerSinglePhase) {
+			this.maxPowerSinglePhase = maxPowerSinglePhase;
 			return this;
 		}
 
-		public Builder setMaxCurrentThreePhase(int maxCurrentThreePhase) {
-			this.maxCurrentThreePhase = maxCurrentThreePhase;
+		public Builder setMaxPowerThreePhase(int maxPowerThreePhase) {
+			this.maxPowerThreePhase = maxPowerThreePhase;
 			return this;
 		}
 
@@ -56,13 +56,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int maxCurrentSinglePhase() {
-		return this.builder.maxCurrentSinglePhase;
+	public int maxPowerSinglePhase() {
+		return this.builder.maxPowerSinglePhase;
 	}
 
 	@Override
-	public int maxCurrentThreePhase() {
-		return this.builder.maxCurrentThreePhase;
+	public int maxPowerThreePhase() {
+		return this.builder.maxPowerThreePhase;
 	}
 
 	@Override

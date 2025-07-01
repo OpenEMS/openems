@@ -2,7 +2,7 @@
 import { ChangeDetectorRef, Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { ModalController, PopoverController } from "@ionic/angular";
+import { IonRange, ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
@@ -67,7 +67,7 @@ export class ModalComponent extends AbstractModal {
       case "Evcs.Keba.KeContact":
         return "EVCS_KEBA_KECONTACT";
       case "Evcs.HardyBarth":
-        return "EVCS_KEBA_KECONTACT";
+        return "EVCS_HARDY_BARTH";
       case "Evcs.IesKeywattSingle":
         return "EVCS_OCPP_IESKEYWATTSINGLE";
       default:
@@ -75,7 +75,10 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
-  async presentPopover() {
+  protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.TO_KILO_WATT_HOURS(val);
+  protected readonly WATT_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.POWER_IN_WATT(val);
+
+  protected async presentPopover() {
     const popover = await this.popoverctrl.create({
       component: PopoverComponent,
       componentProps: {
@@ -85,7 +88,7 @@ export class ModalComponent extends AbstractModal {
     return await popover.present();
   }
 
-  async presentModal() {
+  protected async presentModal() {
     const modal = await this.detailViewController.create({
       component: AdministrationComponent,
       componentProps: {
@@ -129,7 +132,7 @@ export class ModalComponent extends AbstractModal {
   protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
     this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
-    this.isReadWrite = !this.component.properties["readOnly"];
+    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", false);
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);

@@ -1,5 +1,13 @@
 package io.openems.edge.controller.io.heatingelement;
 
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -7,13 +15,9 @@ import java.time.LocalTime;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +32,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
-import io.openems.edge.controller.io.heatingelement.enums.Phase;
 import io.openems.edge.controller.io.heatingelement.enums.Status;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.timedata.api.Timedata;
@@ -41,7 +45,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 @Component(//
 		name = "Controller.IO.HeatingElement", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		implements ControllerIoHeatingElement, Controller, OpenemsComponent, TimedataProvider {
@@ -71,7 +75,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	@Reference
 	private Sum sum;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	/** Holds the minimum time the phases should be switch on in [Ws]. */
@@ -88,9 +92,9 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				ControllerIoHeatingElement.ChannelId.values() //
 		);
-		this.phase1 = new PhaseDef(this, Phase.L1);
-		this.phase2 = new PhaseDef(this, Phase.L2);
-		this.phase3 = new PhaseDef(this, Phase.L3);
+		this.phase1 = new PhaseDef(this, L1);
+		this.phase2 = new PhaseDef(this, L2);
+		this.phase3 = new PhaseDef(this, L3);
 	}
 
 	@Activate
@@ -383,12 +387,12 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 *
-	 * @param phase {@link Phase}
+	 * @param phase {@link SinglePhase}
 	 * @param value The boolean value which must set on the output channel address.
 	 * @throws OpenemsNamedException    on error.
 	 * @throws IllegalArgumentException on error.
 	 */
-	protected void setOutput(Phase phase, boolean value) throws IllegalArgumentException, OpenemsNamedException {
+	protected void setOutput(SinglePhase phase, boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		var channelAddress = this.getChannelAddressForPhase(phase);
 		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(channelAddress);
 		var currentValueOpt = outputChannel.value().asOptional();
@@ -401,11 +405,11 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	/**
 	 * Gets the Output ChannelAddress for a given Phase.
 	 *
-	 * @param phase the Phase
+	 * @param phase the {@link SinglePhase}
 	 * @return the Output ChannelAddress
 	 * @throws OpenemsNamedException on error
 	 */
-	private ChannelAddress getChannelAddressForPhase(Phase phase) throws OpenemsNamedException {
+	private ChannelAddress getChannelAddressForPhase(SinglePhase phase) throws OpenemsNamedException {
 		return ChannelAddress.fromString(//
 				switch (phase) {
 				case L1 -> this.config.outputChannelPhaseL1();

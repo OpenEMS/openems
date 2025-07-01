@@ -1,4 +1,4 @@
-<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame', color: 'danger'}" button
+<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
     routerLink="/device/{{edge.id}}/history/{{componentId}}/heatpumpchart">
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.HeatPump.normalOperation' | translate"
         [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/RegularStateTime'"

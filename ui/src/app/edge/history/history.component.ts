@@ -2,7 +2,7 @@
 import { Component, effect, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { PlatFormService } from "src/app/platform.service";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
 import { environment } from "src/environments";
@@ -38,6 +38,7 @@ export class HistoryComponent implements OnInit {
     public service: Service,
     public translate: TranslateService,
     private route: ActivatedRoute,
+    private dataService: DataService,
   ) {
 
     effect(() => {
@@ -79,7 +80,7 @@ export class HistoryComponent implements OnInit {
     ) + "px";
   }
 
-  protected handleRefresh: () => void = () => PlatFormService.handleRefresh();
+  protected handleRefresh: (ev: CustomEvent) => void = (ev) => this.dataService.refresh(ev);
 
   protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
     this.errorResponse = errorResponse;

@@ -204,6 +204,8 @@ public class TestTranslations {
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("INPUT_CHANNEL_ADDRESS", "io0/Relay1") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}

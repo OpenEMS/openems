@@ -11,6 +11,11 @@ import io.openems.common.exceptions.OpenemsException;
  */
 public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 
+	private String openMeteoApiKey = null;
+
+	public DummyOpenemsEdgeOem() {
+	}
+
 	@Override
 	public String getManufacturer() {
 		return "OpenEMS Association e.V.";
@@ -105,6 +110,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //
 			.put("App.Heat.HeatingElement", "") //
+			.put("App.Heat.Askoma.ReadOnly", "") //
+			.put("App.Heat.MyPv.ReadOnly", "") //
 			.put("App.PvSelfConsumption.GridOptimizedCharge", "") //
 			.put("App.PvSelfConsumption.SelfConsumptionOptimization", "") //
 			.put("App.LoadControl.ManualRelayControl", "") //
@@ -158,5 +165,22 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 		if (!missing.isEmpty()) {
 			throw new OpenemsException("Missing Website-URLs in Edge-OEM for [" + String.join(", ", missing) + "]");
 		}
+	}
+
+	@Override
+	public String getOpenMeteoApiKey() {
+		return this.openMeteoApiKey;
+	}
+
+	/**
+	 * Sets the Open-Meteo API key to be used by this {@link DummyOpenemsEdgeOem}
+	 * instance.
+	 *
+	 * @param apiKey the Open-Meteo API key
+	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
+	 */
+	public DummyOpenemsEdgeOem withOpenMeteoApiKey(String apiKey) {
+		this.openMeteoApiKey = apiKey;
+		return this;
 	}
 }

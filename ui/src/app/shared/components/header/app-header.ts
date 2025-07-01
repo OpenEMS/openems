@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
+import { RouteService } from "../../service/route.service";
 import { Edge, Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -27,6 +28,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = false;
+    protected showBackButton: boolean = false;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -39,7 +41,22 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public service: Service,
         public websocket: Websocket,
         protected navigationService: NavigationService,
-    ) { }
+        public routeService: RouteService,
+
+    ) {
+
+        effect(() => {
+            const currentNode = navigationService.currentNode();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const _currentUrl = routeService.currentUrl();
+
+            if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
+                this.showBackButton = false;
+            } else {
+                this.showBackButton = true;
+            }
+        });
+    }
 
     @Input() public set customBackUrl(url: string | null) {
         if (!url) {
