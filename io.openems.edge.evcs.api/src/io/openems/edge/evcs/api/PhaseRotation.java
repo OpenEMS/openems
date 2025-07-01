@@ -1,13 +1,14 @@
 package io.openems.edge.evcs.api;
 
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L1;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L2;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L3;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 
 import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public enum PhaseRotation {
@@ -20,7 +21,7 @@ public enum PhaseRotation {
 	 * <li>EVCS L3 is connected to Grid L3
 	 * </ul>
 	 */
-	L1_L2_L3(ImmutableMap.<Phase, Phase>builder() //
+	L1_L2_L3(ImmutableMap.<SinglePhase, SinglePhase>builder()//
 			.put(L1, L1) //
 			.put(L2, L2) //
 			.put(L3, L3) //
@@ -34,7 +35,7 @@ public enum PhaseRotation {
 	 * <li>EVCS L3 is connected to Grid L1
 	 * </ul>
 	 */
-	L2_L3_L1(ImmutableMap.<Phase, Phase>builder() //
+	L2_L3_L1(ImmutableMap.<SinglePhase, SinglePhase>builder()//
 			.put(L1, L2) //
 			.put(L2, L3) //
 			.put(L3, L1) //
@@ -48,15 +49,15 @@ public enum PhaseRotation {
 	 * <li>EVCS L3 is connected to Grid L2
 	 * </ul>
 	 */
-	L3_L1_L2(ImmutableMap.<Phase, Phase>builder() //
+	L3_L1_L2(ImmutableMap.<SinglePhase, SinglePhase>builder()//
 			.put(L1, L3) //
 			.put(L2, L1) //
 			.put(L3, L2) //
 			.build());
 
-	private final ImmutableMap<Phase, Phase> rotation;
+	private final ImmutableMap<SinglePhase, SinglePhase> rotation;
 
-	private PhaseRotation(ImmutableMap<Phase, Phase> rotation) {
+	private PhaseRotation(ImmutableMap<SinglePhase, SinglePhase> rotation) {
 		this.rotation = rotation;
 	}
 
@@ -66,7 +67,7 @@ public enum PhaseRotation {
 	 * @param phase the input phase.
 	 * @return the rotated phase.
 	 */
-	public Phase get(Phase phase) {
+	public SinglePhase get(SinglePhase phase) {
 		return this.rotation.get(phase);
 	}
 
@@ -164,7 +165,7 @@ public enum PhaseRotation {
 	 * @param phase the phase of the EVCS, where the voltage was measured
 	 * @param value the voltage value
 	 */
-	public static void setPhaseRotatedVoltageChannel(Evcs evcs, Phase phase, Integer value) {
+	public static void setPhaseRotatedVoltageChannel(Evcs evcs, SinglePhase phase, Integer value) {
 		switch (evcs.getPhaseRotation().get(phase)) {
 		case L1 -> evcs._setVoltageL1(value);
 		case L2 -> evcs._setVoltageL2(value);
@@ -200,7 +201,7 @@ public enum PhaseRotation {
 	 * @param phase the phase to set the value for
 	 * @param value the current value
 	 */
-	public static void setPhaseRotatedCurrentChannel(Evcs evcs, Phase phase, Integer value) {
+	public static void setPhaseRotatedCurrentChannel(Evcs evcs, SinglePhase phase, Integer value) {
 		switch (evcs.getPhaseRotation().get(phase)) {
 		case L1 -> evcs._setCurrentL1(value);
 		case L2 -> evcs._setCurrentL2(value);
@@ -236,7 +237,7 @@ public enum PhaseRotation {
 	 * @param phase the phase of the EVCS, where the active power was measured
 	 * @param value the voltage value
 	 */
-	public static void setPhaseRotatedActivePowerChannel(Evcs evcs, Phase phase, Integer value) {
+	public static void setPhaseRotatedActivePowerChannel(Evcs evcs, SinglePhase phase, Integer value) {
 		switch (evcs.getPhaseRotation().get(phase)) {
 		case L1 -> evcs._setActivePowerL1(value);
 		case L2 -> evcs._setActivePowerL2(value);
@@ -263,44 +264,6 @@ public enum PhaseRotation {
 	}
 
 	/**
-	 * Maps a read value of type {@link Float} to the phase rotated
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L1},
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L2} or
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L3} channel.
-	 *
-	 * @param evcs  the {@link Evcs}
-	 * @param phase the phase of the EVCS, where the voltage was measured
-	 * @return a float consumer.
-	 * @deprecated Should instead use channelVoltageL1,2,3()
-	 */
-	public static Consumer<Float> mapFloatToPhaseRotatedVoltageChannel(Evcs evcs, Phase phase) {
-		return value -> {
-			var intValue = value != null ? Math.round(value) : null;
-			setPhaseRotatedVoltageChannel(evcs, phase, intValue);
-		};
-	}
-
-	/**
-	 * Maps a read value of type {@link Long} to the phase rotated
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L1},
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L2} or
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L3} channel.
-	 *
-	 * @param evcs  the {@link Evcs}
-	 * @param phase the phase of the EVCS, where the current was measured
-	 * @return a Long consumer.
-	 * @deprecated Should instead use channelCurrentL1,2,3()
-	 */
-	public static Consumer<Long> mapLongToPhaseRotatedCurrentChannel(Evcs evcs, Phase phase) {
-		// TODO to be removed, when Consumer<Object > mapToPhaseRotatedCurrentChannel is
-		// accepted
-		return value -> {
-			var intValue = value != null ? Math.round(value) : null;
-			setPhaseRotatedCurrentChannel(evcs, phase, intValue);
-		};
-	}
-
-	/**
 	 * Maps a read value of type {@link Long} to the phase rotated
 	 * {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L1},
 	 * {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L2} or
@@ -310,16 +273,10 @@ public enum PhaseRotation {
 	 * @param phase the phase of the EVCS, where the active power was measured
 	 * @return a Long consumer.
 	 */
-	public static Consumer<Long> mapLongToPhaseRotatedActivePowerChannel(Evcs evcs, Phase phase) {
+	public static Consumer<Long> mapLongToPhaseRotatedActivePowerChannel(Evcs evcs, SinglePhase phase) {
 		return value -> {
 			var intValue = value != null ? Math.round(value) : null;
 			setPhaseRotatedActivePowerChannel(evcs, phase, intValue);
 		};
-	}
-
-	public static enum Phase {
-		L1, //
-		L2, //
-		L3 //
 	}
 }

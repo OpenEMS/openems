@@ -1,6 +1,8 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl.DEFAULT_POWER_BUFFER;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static java.lang.Math.min;
 import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
 
@@ -27,8 +29,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class DelayCharge {
 
@@ -274,7 +274,7 @@ public class DelayCharge {
 		var capacity = this.parent.ess.getCapacity().getOrError();
 
 		// No remaining capacity
-		var minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, Phase.ALL, Pwr.ACTIVE);
+		var minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, ALL, ACTIVE);
 		if (minPower >= 0 && soc > 95) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
 			return null;

@@ -351,4 +351,9 @@ export namespace Converter {
     return IF_NUMBER(raw, value =>
       EnabledDisabledState[value]);
   };
+
+  export const CONVERT_TO_HOUR: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_HOUR(value));
+  };
 }

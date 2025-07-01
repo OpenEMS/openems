@@ -33,7 +33,7 @@ public class DummyPredictor extends AbstractPredictor implements Predictor {
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true, channelAddresses, LogVerbosity.NONE);
+		super.activate(null, id, "", true, LogVerbosity.NONE, channelAddresses);
 		this.clockProvider = clockProvider;
 		this.prediction = prediction;
 	}
