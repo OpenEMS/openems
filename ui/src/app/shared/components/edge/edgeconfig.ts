@@ -43,7 +43,16 @@ export class EdgeConfig {
     constructor(edge: Edge, source?: EdgeConfig) {
 
         if (source) {
-            this.components = source.components;
+            this.components = Object.entries(source.components).reduce((obj, [k, v]) => {
+                const component = EdgeConfig.Component.of(v);
+                if (component == null) {
+                    return obj;
+                }
+
+                obj[k] = component;
+                return obj;
+            }, {} as { [id: string]: EdgeConfig.Component });
+
             this.factories = source.factories;
         }
 
@@ -800,18 +809,20 @@ export namespace EdgeConfig {
     }
 
     export class Component {
-        public id: string = "";
-        public alias: string = "";
-        public isEnabled: boolean = false;
-
         constructor(
+            public id: string = "",
+            public alias: string = "",
+            public isEnabled: boolean = false,
             public readonly factoryId: string = "",
             public readonly properties: { [key: string]: any } = {},
             public readonly channels?: { [channelId: string]: ComponentChannel },
         ) { }
 
-        public static of(component: EdgeConfig.Component) {
-            return new EdgeConfig.Component(component.factoryId, component.properties, component.channels ?? {});
+        public static of(component: EdgeConfig.Component | null): EdgeConfig.Component | null {
+            if (component == null) {
+                return null;
+            }
+            return new EdgeConfig.Component(component.id, component.alias, component.isEnabled, component.factoryId, component.properties, component.channels ?? {});
         }
 
         /* Safely gets a property from a component, if it exists, else returns null.

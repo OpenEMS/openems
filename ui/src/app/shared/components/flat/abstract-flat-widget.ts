@@ -53,7 +53,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
-                this.component = config.components[this.componentId];
+                this.component = EdgeConfig.Component.of(config.components[this.componentId]);
 
                 // announce initialized
                 this.isInitialized = true;
