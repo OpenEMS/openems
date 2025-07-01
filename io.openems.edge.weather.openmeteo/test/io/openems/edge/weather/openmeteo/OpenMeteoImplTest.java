@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
+import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.HttpError.ResponseError;
@@ -56,6 +57,7 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem())//
 				.activate(MyConfig.create()//
 						.setId(WEATHER_ID)//
 						.build()//
@@ -121,6 +123,50 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem())//
+				.activate(MyConfig.create()//
+						.setId(WEATHER_ID)//
+						.build()//
+				);
+
+		sut.getHistoricalWeather(//
+				ZonedDateTime.of(2025, 4, 8, 12, 0, 0, 0, ZoneId.of("UTC")), //
+				ZonedDateTime.of(2025, 4, 8, 12, 0, 0, 0, ZoneId.of("UTC"))//
+		);
+	}
+
+	@Test
+	public void testGetHistoricalWeather_BuildsCorrectUrlForHistoricalData_WithApiKey() throws Exception {
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+
+		final var coordinates = new Coordinates(48.8409, 12.9607);
+
+		fetcher.addEndpointHandler(t -> {
+			final var expectedBaseUrl = "https://customer-historical-forecast-api.open-meteo.com/v1/forecast";
+			final var expectedApiKeyParam = "apikey=dummyApiKey";
+
+			var url = t.url().toString();
+			assertTrue("Base URL is incorrect", url.contains(expectedBaseUrl));
+			assertTrue("API Key is incorrect or missing", url.contains(expectedApiKeyParam));
+
+			return HttpResponse.ok(null);
+		});
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+
+		final var factory = ofBridgeImpl(//
+				() -> cycleSubscriber(), //
+				() -> fetcher, //
+				() -> executor//
+		);
+
+		final var sut = new WeatherOpenMeteoImpl();
+		new ComponentTest(sut)//
+				.addReference("httpBridgeFactory", factory)//
+				.addReference("componentManager", new DummyComponentManager(clock))//
+				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem() //
+						.withOpenMeteoApiKey("dummyApiKey"))//
 				.activate(MyConfig.create()//
 						.setId(WEATHER_ID)//
 						.build()//
@@ -154,6 +200,7 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem())//
 				.activate(MyConfig.create()//
 						.setId(WEATHER_ID)//
 						.build()//
@@ -188,6 +235,7 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem())//
 				.activate(MyConfig.create()//
 						.setId(WEATHER_ID)//
 						.build())//
@@ -243,6 +291,7 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem())//
 				.activate(MyConfig.create()//
 						.setId(WEATHER_ID)//
 						.build())//
@@ -289,6 +338,7 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem())//
 				.activate(MyConfig.create()//
 						.setId(WEATHER_ID)//
 						.build())//
@@ -342,6 +392,48 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem()).activate(MyConfig.create()//
+						.setId(WEATHER_ID)//
+						.build())//
+				.next(new TestCase()//
+						.onBeforeProcessImage(() -> {
+							executor.update();
+						})//
+				);
+	}
+
+	@Test
+	public void testGetWeatherForecast_BuildsCorrectUrlForForecastedData_WithApiKey() throws Exception {
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+
+		final var coordinates = new Coordinates(48.8409, 12.9607);
+
+		fetcher.addEndpointHandler(t -> {
+			final var expectedBaseUrl = "https://customer-api.open-meteo.com/v1/forecast?";
+			final var expectedApiKeyParam = "apikey=dummyApiKey";
+
+			var url = t.url().toString();
+			assertTrue("Base URL is incorrect", url.contains(expectedBaseUrl));
+			assertTrue("API Key is incorrect or missing", url.contains(expectedApiKeyParam));
+
+			return HttpResponse.ok(null);
+		});
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+
+		final var factory = ofBridgeImpl(//
+				() -> cycleSubscriber(), //
+				() -> fetcher, //
+				() -> executor//
+		);
+
+		final var sut = new WeatherOpenMeteoImpl();
+		new ComponentTest(sut)//
+				.addReference("httpBridgeFactory", factory)//
+				.addReference("componentManager", new DummyComponentManager(clock))//
+				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates))//
+				.addReference("oem", new DummyOpenemsEdgeOem() //
+						.withOpenMeteoApiKey("dummyApiKey"))//
 				.activate(MyConfig.create()//
 						.setId(WEATHER_ID)//
 						.build())//
@@ -375,6 +467,7 @@ public class OpenMeteoImplTest {
 				.addReference("httpBridgeFactory", factory) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("meta", new DummyMeta("meta0").withCoordinates(coordinates)) //
+				.addReference("oem", new DummyOpenemsEdgeOem())//
 				.activate(MyConfig.create() //
 						.setId(WEATHER_ID) //
 						.build()) //

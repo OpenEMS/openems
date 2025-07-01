@@ -134,7 +134,7 @@ export const routes: Routes = [
       { path: "settings/component.install/:factoryId", component: EdgeSettingsComponentInstallComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.addComponents" } },
       { path: "settings/component.update", component: EdgeSettingsComponentUpdateIndexComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.adjustComponents" } },
       { path: "settings/component.update/:componentId", component: EdgeSettingsComponentUpdateComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.adjustComponents" } },
-      { path: "settings/network", component: EdgeSettingsNetworkComponent, canActivate: [hasEdgeRole(Role.INSTALLER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.networkConfiguration" } },
+      { path: "settings/network", component: EdgeSettingsNetworkComponent, canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.networkConfiguration" } },
       { path: "settings/profile", component: EdgeSettingsProfileComponent, data: { navbarTitleToBeTranslated: "Edge.Config.Index.systemProfile" } },
       { path: "settings/profile/:componentId", component: AliasUpdateComponent, data: { navbarTitleToBeTranslated: "Edge.Config.Index.renameComponents" } },
       { path: "settings/systemexecute", component: EdgeSettingsSystemExecuteComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.systemExecute" } },

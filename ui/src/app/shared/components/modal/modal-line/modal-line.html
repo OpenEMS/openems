@@ -73,8 +73,7 @@
                 <ion-range style="width: 100%" color="dark" pin="true" [min]="control.properties.tickMin ?? 1"
                     [max]="control.properties.tickMax ?? 100" [step]="control.properties.step ?? 1"
                     style="padding-top: 8px;" [formControlName]="controlName" debounce="500"
-                    [pinFormatter]="control.properties.pinFormatter ?? DEFAULT_PIN_FORMATTER"
-                    [pin]="control.properties.pinFormatter !== null && control.properties.pinFormatter !== undefined">
+                    [pinFormatter]="control.properties.pinFormatter ?? DEFAULT_PIN_FORMATTER" [pin]="true">
                     <ion-label slot="start">
                         @if(control.properties.unit){
                         {{ control.properties.tickMin| unitvalue:control.properties.unit}}

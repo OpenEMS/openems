@@ -17,11 +17,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Maximum Current in Single-Phase charging [mA]", description = "")
-	int maxCurrentSinglePhase() default 32000;
+	@AttributeDefinition(name = "Maximum Power in Single-Phase charging [W]", description = "3680 W for 16 A, 7360 W for 32 A")
+	int maxPowerSinglePhase() default 7360;
 
-	@AttributeDefinition(name = "Maximum Current in Three-Phase charging [mA]", description = "0 if Three-Phase charging is not available")
-	int maxCurrentThreePhase() default 0;
+	@AttributeDefinition(name = "Maximum Power in Three-Phase charging [W]", description = "11040 W for 16 A, 22080 W for 32 A, 0 if Three-Phase charging is not available")
+	int maxPowerThreePhase() default 11040;
 
 	@AttributeDefinition(name = "Does this EV support interrupting a charging session?", description = "Some elder EVs do not support interrupting")
 	boolean canInterrupt() default true;

@@ -2,25 +2,26 @@ package io.openems.edge.evcs.mennekes;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
 import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L1;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L2;
-import static io.openems.edge.evcs.api.PhaseRotation.Phase.L3;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumActivePowerFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -45,7 +46,6 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.evcs.api.ChargeStateHandler;
 import io.openems.edge.evcs.api.ChargingType;
@@ -62,10 +62,9 @@ import io.openems.edge.meter.api.ElectricityMeter;
 @Component(//
 		name = "Evcs.Mennekes", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 		implements Evcs, ElectricityMeter, ManagedEvcs, OpenemsComponent, ModbusComponent, EventHandler, EvcsMennekes {
@@ -107,11 +106,10 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 		calculateUsedPhasesFromCurrent(this);
 		calculateSumCurrentFromPhases(this);
 		calculateSumActivePowerFromPhases(this);
-
 	}
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -169,7 +167,7 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
+		case TOPIC_CYCLE_EXECUTE_WRITE -> {
 			if (!this.isReadOnly()) {
 				this.writeHandler.run();
 			}
@@ -241,22 +239,29 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 
 	private void addStatusListener() {
 		this.channel(EvcsMennekes.ChannelId.OCPP_CP_STATUS).onSetNextValue(s -> {
-			var currentStatus = Status.UNDEFINED;
 			MennekesOcppState rawState = s.asEnum();
-			/**
-			 * Maps the raw state into a {@link Status}.
-			 */
-			currentStatus = switch (rawState) {
-			case CHARGING, FINISHING -> Status.CHARGING;
-			case FAULTED -> Status.ERROR;
-			case PREPARING -> Status.READY_FOR_CHARGING;
-			case RESERVED -> Status.NOT_READY_FOR_CHARGING;
-			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE -> Status.CHARGING_REJECTED;
-			case OCCUPIED -> this.getActivePower().orElse(0) > 0 ? Status.CHARGING : Status.CHARGING_REJECTED;
-			case UNAVAILABLE -> Status.ERROR;
-			case UNDEFINED -> currentStatus;
-			};
-			this._setStatus(currentStatus);
+
+			// Maps the raw state into a {@link Status}.
+			this._setStatus(switch (rawState) {
+			case CHARGING, FINISHING //
+				-> Status.CHARGING;
+			case FAULTED //
+				-> Status.ERROR;
+			case PREPARING //
+				-> Status.READY_FOR_CHARGING;
+			case RESERVED //
+				-> Status.NOT_READY_FOR_CHARGING;
+			case AVAILABLE, SUSPENDEDEV, SUSPENDEDEVSE //
+				-> Status.CHARGING_REJECTED;
+			case OCCUPIED //
+				-> this.getActivePower().orElse(0) > 0 //
+						? Status.CHARGING //
+						: Status.CHARGING_REJECTED;
+			case UNAVAILABLE //
+				-> Status.ERROR;
+			case UNDEFINED //
+				-> Status.UNDEFINED;
+			});
 		});
 	}
 
@@ -382,7 +387,6 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 	}
 
 	protected static String parseSoftwareVersion(int registerValue) {
-
 		byte[] bytes = new byte[4];
 		bytes[0] = (byte) ((registerValue >> 24) & 0xFF);
 		bytes[1] = (byte) ((registerValue >> 16) & 0xFF);

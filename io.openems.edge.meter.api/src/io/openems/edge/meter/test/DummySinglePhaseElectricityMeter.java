@@ -1,8 +1,8 @@
 package io.openems.edge.meter.test;
 
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 /**

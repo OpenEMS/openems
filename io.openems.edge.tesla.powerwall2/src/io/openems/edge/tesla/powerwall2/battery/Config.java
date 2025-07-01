@@ -3,7 +3,7 @@ package io.openems.edge.tesla.powerwall2.battery;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(name = "Tesla Powerwall 2 Battery", //
 		description = "Implements the Tesla Powerwall 2 Battery.")

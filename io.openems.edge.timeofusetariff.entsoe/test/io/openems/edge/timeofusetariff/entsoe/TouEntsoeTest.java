@@ -22,10 +22,6 @@ import io.openems.edge.timeofusetariff.api.TouManualHelper;
 
 public class TouEntsoeTest {
 
-	private static final Double STANDARD_TARIFF = 8.75;
-	private static final Double LOW_TARIFF = 0.88;
-	private static final Double HIGH_TARIFF = 11.58;
-
 	@Test
 	public void test() throws Exception {
 		var entsoe = new TouEntsoeImpl();
@@ -62,7 +58,7 @@ public class TouEntsoeTest {
 	public void testStandardTariffOnJuly15At14PM() throws OpenemsNamedException {
 		var helper = this.buildHelper("BAYERNWERK", "2025-07-15T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 7, 15), LocalTime.of(14, 0), ZoneId.systemDefault());
-		assertEquals(STANDARD_TARIFF, helper.getPrices().getAt(testTime), 0.01);
+		assertEquals(8.75, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
@@ -70,7 +66,27 @@ public class TouEntsoeTest {
 		var helper = this.buildHelper("BAYERNWERK", "2025-10-20T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(3, 0), ZoneId.systemDefault());
 
-		assertEquals(LOW_TARIFF, helper.getPrices().getAt(testTime), 0.01);
+		assertEquals(0.88, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("NETZE_BW", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(3, 0), ZoneId.systemDefault());
+
+		assertEquals(11.58, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("MIT_NETZ", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(3, 0), ZoneId.systemDefault());
+
+		assertEquals(8.95, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("E_DIS", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(3, 0), ZoneId.systemDefault());
+
+		assertEquals(0.79, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("LEW", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(3, 0), ZoneId.systemDefault());
+
+		assertEquals(6.99, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
@@ -78,14 +94,43 @@ public class TouEntsoeTest {
 		var helper = this.buildHelper("BAYERNWERK", "2025-10-20T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(17, 0), ZoneId.systemDefault());
 
-		assertEquals(HIGH_TARIFF, helper.getPrices().getAt(testTime), 0.01);
+		assertEquals(11.58, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("NETZE_BW", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(17, 0), ZoneId.systemDefault());
+
+		assertEquals(17.09, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("MIT_NETZ", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(17, 0), ZoneId.systemDefault());
+
+		assertEquals(17.9, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("WEST_NETZ", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(17, 0), ZoneId.systemDefault());
+
+		assertEquals(17.75, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("AVACON", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(17, 0), ZoneId.systemDefault());
+
+		assertEquals(15.01, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
 	public void testStandardTariffOnApril10At12PM() throws OpenemsNamedException {
 		var helper = this.buildHelper("BAYERNWERK", "2025-04-10T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), ZoneId.systemDefault());
-		assertEquals(STANDARD_TARIFF, helper.getPrices().getAt(testTime), 0.01);
+		assertEquals(8.75, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("NETZE_BW", "2025-04-10T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), ZoneId.systemDefault());
+		assertEquals(4.63, helper.getPrices().getAt(testTime), 0.01);
+		
+		helper = this.buildHelper("NETZE_BW", "2025-04-09T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(0, 0), ZoneId.systemDefault());
+		
+		assertEquals(11.58, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
