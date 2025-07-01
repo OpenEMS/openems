@@ -264,44 +264,6 @@ public enum PhaseRotation {
 	}
 
 	/**
-	 * Maps a read value of type {@link Float} to the phase rotated
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L1},
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L2} or
-	 * {@link ElectricityMeter.ChannelId#VOLTAGE_L3} channel.
-	 *
-	 * @param evcs  the {@link Evcs}
-	 * @param phase the phase of the EVCS, where the voltage was measured
-	 * @return a float consumer.
-	 * @deprecated Should instead use channelVoltageL1,2,3()
-	 */
-	public static Consumer<Float> mapFloatToPhaseRotatedVoltageChannel(Evcs evcs, SinglePhase phase) {
-		return value -> {
-			var intValue = value != null ? Math.round(value) : null;
-			setPhaseRotatedVoltageChannel(evcs, phase, intValue);
-		};
-	}
-
-	/**
-	 * Maps a read value of type {@link Long} to the phase rotated
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L1},
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L2} or
-	 * {@link ElectricityMeter.ChannelId#CURRENT_L3} channel.
-	 *
-	 * @param evcs  the {@link Evcs}
-	 * @param phase the phase of the EVCS, where the current was measured
-	 * @return a Long consumer.
-	 * @deprecated Should instead use channelCurrentL1,2,3()
-	 */
-	public static Consumer<Long> mapLongToPhaseRotatedCurrentChannel(Evcs evcs, SinglePhase phase) {
-		// TODO to be removed, when Consumer<Object > mapToPhaseRotatedCurrentChannel is
-		// accepted
-		return value -> {
-			var intValue = value != null ? Math.round(value) : null;
-			setPhaseRotatedCurrentChannel(evcs, phase, intValue);
-		};
-	}
-
-	/**
 	 * Maps a read value of type {@link Long} to the phase rotated
 	 * {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L1},
 	 * {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L2} or

@@ -181,6 +181,7 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 		// TODO: Distinguish between firmware version. For firmware version >= 5.22
 		// there are several new registers, e.g. Power is given by the charger since
 		// firmware 5.22
+		final var phaseRotated = this.getPhaseRotation();
 		var modbusProtocol = new ModbusProtocol(this,
 				new FC3ReadRegistersTask(104, Priority.HIGH,
 						m(EvcsMennekes.ChannelId.OCPP_CP_STATUS, new UnsignedWordElement(104))),
@@ -222,9 +223,9 @@ public class EvcsMennekesImpl extends AbstractOpenemsModbusComponent
 								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L2)), //
 						m(new UnsignedDoublewordElement(210)).build() //
 								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L3)), //
-						m(this.getPhaseRotation().channelCurrentL1(), new UnsignedDoublewordElement(212)), //
-						m(this.getPhaseRotation().channelCurrentL2(), new UnsignedDoublewordElement(214)), //
-						m(this.getPhaseRotation().channelCurrentL3(), new UnsignedDoublewordElement(216))), //
+						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(212)), //
+						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(214)), //
+						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(216))), //
 				// TODO Voltages are missing
 				new FC3ReadRegistersTask(1000, Priority.LOW,
 						m(EvcsMennekes.ChannelId.EMS_CURRENT_LIMIT, new UnsignedWordElement(1000))),
