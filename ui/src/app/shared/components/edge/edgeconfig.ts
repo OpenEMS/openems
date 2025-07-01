@@ -836,6 +836,23 @@ export namespace EdgeConfig {
             if (!propertyValue) {
                 return false;
             }
+
+            if (typeof value === "boolean" && typeof propertyValue === "string") {
+                return propertyValue.toLowerCase() === String(value);
+            }
+
+            if (typeof value === "string" && typeof propertyValue === "boolean") {
+                return String(propertyValue) === value.toLowerCase();
+            }
+
+            if (typeof value === "number" && typeof propertyValue === "string") {
+                return Number(propertyValue) === value;
+            }
+
+            if (typeof value === "string" && typeof propertyValue === "number") {
+                return propertyValue === Number(value);
+            }
+
             return propertyValue === value;
         }
     }
