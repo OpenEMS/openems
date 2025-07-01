@@ -3,19 +3,22 @@ package io.openems.edge.io.shelly.shelly1;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -33,7 +36,6 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -42,24 +44,24 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @Component(//
 		name = "IO.Shelly1", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1, DigitalOutput,
-		OpenemsComponent, TimedataProvider, EventHandler {
+public class IoShelly1Impl extends AbstractOpenemsComponent
+		implements IoShelly1, DigitalOutput, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(IoShelly1.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private String baseUrl;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(cardinality = MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
 
@@ -79,7 +81,7 @@ public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
-		
+
 		if (!this.isEnabled()) {
 			return;
 		}
@@ -104,8 +106,8 @@ public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1
 
 	@Override
 	public String debugLog() {
-			return generateDebugLog(this.digitalOutputChannels);			
-		}
+		return generateDebugLog(this.digitalOutputChannels);
+	}
 
 	@Override
 	public void handleEvent(Event event) {
@@ -114,11 +116,11 @@ public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		case TOPIC_CYCLE_EXECUTE_WRITE //
 			-> this.executeWrite(this.getRelayChannel(), 0);
 		}
 	}
-	
+
 	private record RelayState(Boolean relayIsOn) {
 		private static RelayState from(JsonElement relay) throws OpenemsNamedException {
 			var relayIsOn = getAsBoolean(relay, "ison");
@@ -129,7 +131,6 @@ public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1
 			component.channel(relayChannel).setNextValue(this.relayIsOn);
 		}
 	}
-
 
 	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
 		var slaveCommunicationFailed = result == null;
@@ -160,29 +161,27 @@ public class IoShelly1Impl extends AbstractOpenemsComponent implements IoShelly1
 	 * @param index   index
 	 */
 	private void executeWrite(BooleanWriteChannel channel, int index) {
-			var readValue = channel.value().get();
-			var writeValue = channel.getNextWriteValueAndReset();
-			if (writeValue.isEmpty()) {
-				// no write value
-				return;
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
+		if (writeValue.isEmpty()) {
+			// no write value
+			return;
+		}
+		if (Objects.equals(readValue, writeValue.get())) {
+			// read value equals write value, so no need to write
+			return;
+		}
+		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		this.httpBridge.get(url).whenComplete((response, error) -> {
+			if (error != null) {
+				this.logError(this.log, "HTTP request failed: " + error.getMessage());
+				this._setSlaveCommunicationFailed(true);
+			} else {
+				// Optionally log success or handle response
+				this._setSlaveCommunicationFailed(false);
 			}
-			if (Objects.equals(readValue, writeValue.get())) {
-				// read value equals write value, so no need to write
-				return;
-			}
-			final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-			this.httpBridge.get(url).whenComplete((response, error) -> {
-				if (error != null) {
-					this.logError(this.log, "HTTP request failed: " + error.getMessage());
-					this._setSlaveCommunicationFailed(true);
-				} else {
-					// Optionally log success or handle response
-					this._setSlaveCommunicationFailed(false);
-				}
-			});
-		
+		});
 	}
-
 
 	@Override
 	public Timedata getTimedata() {

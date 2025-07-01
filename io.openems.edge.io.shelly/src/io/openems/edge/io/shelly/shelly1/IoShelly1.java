@@ -1,11 +1,12 @@
 package io.openems.edge.io.shelly.shelly1;
 
+import static io.openems.common.channel.AccessMode.READ_WRITE;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+
 import org.osgi.service.event.EventHandler;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
@@ -14,8 +15,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
 
-public interface IoShelly1
-		extends DigitalOutput, OpenemsComponent, EventHandler {
+public interface IoShelly1 extends DigitalOutput, OpenemsComponent, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -27,7 +27,7 @@ public interface IoShelly1
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY(Doc.of(OpenemsType.BOOLEAN)), //
+		DEBUG_RELAY(Doc.of(BOOLEAN)), //
 		/**
 		 * Relay Output.
 		 *
@@ -37,18 +37,9 @@ public interface IoShelly1
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
+		RELAY(new BooleanDoc()//
+				.accessMode(READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
-		/**
-		 * Holds writes to Relay Output 2 for debugging.
-		 *
-		 * <ul>
-		 * <li>Interface: Shelly1
-		 * <li>Type: Boolean
-		 * <li>Range: On/Off
-		 * </ul>
-		 */
 		/**
 		 * Slave Communication Failed Fault.
 		 *
