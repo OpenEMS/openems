@@ -28,7 +28,7 @@ export class ModalLineComponent extends AbstractModalLine {
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
-    protected readonly DEFAULT_PIN_FORMATTER = (val: number) => val;
+    protected readonly DEFAULT_PIN_FORMATTER: IonRange["pinFormatter"] = (val: number) => val;
 }
 
 export enum TextIndentation {

@@ -17,6 +17,7 @@ import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_CONSUMPTION
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_ESS_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_GRID_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.UNMANAGED_PRODUCTION_ACTIVE_POWER;
 
 import org.junit.Test;
 
@@ -60,6 +61,7 @@ public class SumImplTest {
 				.onBeforeProcessImage(() -> sut.updateChannelsBeforeProcessImage()) //
 				.output(GRID_ACTIVE_POWER, -1000) //
 				.output(PRODUCTION_ACTIVE_POWER, 5555) //
+				.output(UNMANAGED_PRODUCTION_ACTIVE_POWER, 5555) //
 				.output(ESS_ACTIVE_POWER, null) //
 				.output(ESS_DISCHARGE_POWER, null) //
 				.output(CONSUMPTION_ACTIVE_POWER, 4555) //
@@ -76,6 +78,7 @@ public class SumImplTest {
 				.onBeforeProcessImage(() -> sut.updateChannelsBeforeProcessImage()) //
 				.output(GRID_ACTIVE_POWER, -2000) //
 				.output(PRODUCTION_ACTIVE_POWER, 6666) //
+				.output(UNMANAGED_PRODUCTION_ACTIVE_POWER, 6666) //
 				.output(ESS_ACTIVE_POWER, null) //
 				.output(ESS_DISCHARGE_POWER, null) //
 				.output(CONSUMPTION_ACTIVE_POWER, 4666) //
@@ -91,6 +94,7 @@ public class SumImplTest {
 				.onBeforeProcessImage(() -> sut.updateChannelsBeforeProcessImage()) //
 				.output(GRID_ACTIVE_POWER, 3000) //
 				.output(PRODUCTION_ACTIVE_POWER, 6666) //
+				.output(UNMANAGED_PRODUCTION_ACTIVE_POWER, 6666) //
 				.output(ESS_ACTIVE_POWER, null) //
 				.output(ESS_DISCHARGE_POWER, null) //
 				.output(CONSUMPTION_ACTIVE_POWER, 9666) //

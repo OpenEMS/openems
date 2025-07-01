@@ -2,6 +2,7 @@ package io.openems.edge.core.host;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.InetAddressUtils.parseOrNull;
 import static java.lang.Runtime.getRuntime;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -62,6 +61,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemComm
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoAddress;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoWrapper;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Route;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
@@ -611,7 +611,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		var reqIpShow = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
 		try {
 			var resultIpShow = this.handleExecuteSystemCommandRequest(reqIpShow).get().getResult().toString();
-			return parseShowJson(resultIpShow).stream().flatMap(t -> t.ips().stream().map(d -> d.getInet4Address()))
+			return parseShowJson(resultIpShow).stream() //
+					.flatMap(t -> t.ips().stream() //
+							.map(d -> d.ip().getInet4Address())) //
 					.toList();
 		} catch (InterruptedException | ExecutionException e) {
 			return Collections.emptyList();
@@ -654,37 +656,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		if (networkData == null) {
 			return Collections.emptyList();
 		}
-		return networkData.stream().map(t -> routeSerializer().deserialize(t)).toList();
-	}
-
-	private static JsonSerializer<GetNetworkInfo.Route> routeSerializer() {
-		return jsonObjectSerializer(GetNetworkInfo.Route.class, json -> {
-			Inet4Address prefsrc;
-			try {
-				// TODO: use inet4 method
-				prefsrc = (Inet4Address) Inet4Address.getByName(json.getString("prefsrc"));
-			} catch (UnknownHostException e) {
-				prefsrc = null;
-			}
-			return new GetNetworkInfo.Route(//
-					json.getString("dst"), //
-					json.getString("dev"), //
-					json.getString("protocol"), //
-					// TODO: use orElse in JsonPath once available
-					JsonUtils.getAsOptionalString(json.get(), "scope").orElse("link"), //
-					prefsrc, //
-					// TODO: use orElse in JsonPath once available and int method
-					JsonUtils.getAsOptionalInt(json.get(), "metric").orElse(DEFAULT_METRIC));
-		}, obj -> {
-			return JsonUtils.buildJsonObject() //
-					.addProperty("dst", obj.dst())//
-					.addProperty("dev", obj.dev())//
-					.addProperty("protocol", obj.protocol())//
-					.addProperty("scope", obj.scope())//
-					.addProperty("prefsrc", obj.prefsrc().getHostAddress())//
-					.addProperty("metric", obj.metric())//
-					.build();
-		});
+		return networkData.stream() //
+				.map(t -> Route.serializer().deserialize(t)) //
+				.toList();
 	}
 
 	/**
@@ -700,27 +674,72 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			return Collections.emptyList();
 		}
 
-		final var networkDataRaw = networkInterfaces.stream()
-				.collect(Collectors.toMap(t -> t.get("ifname").getAsString(), interfaceObject -> {
-					var addrInfoArray = interfaceObject.getAsJsonArray("addr_info");
-					return JsonUtils.stream(addrInfoArray)//
-							.map(JsonElement::getAsJsonObject)//
-							.filter(addrInfoObject -> "inet".equals(addrInfoObject.get("family").getAsString())) //
-							.toList(); //
-				}));
-		return networkDataRaw.entrySet().stream().map(entry -> {
-			var ipsForKey = entry.getValue().stream().<Inet4AddressWithSubnetmask>mapMulti((t, u) -> {
-				try {
-					Inet4Address i4Address = (Inet4Address) Inet4Address.getByName(t.get("local").getAsString());
-					int subnetmask = t.get("prefixlen").getAsInt();
-					String family = t.get("family").getAsString();
-					u.accept(new Inet4AddressWithSubnetmask(family, i4Address, subnetmask));
-				} catch (Exception e) {
-					// do nothing
-				}
-			}).toList();
-			return new NetworkInfoWrapper(entry.getKey(), ipsForKey);
-		}).toList();
+		return networkInterfaces.stream() //
+				.map(SystemdInterface.serializer()::deserialize) //
+				.map(t -> {
+					return new NetworkInfoWrapper(t.ifname(), t.addressInfos.stream() //
+							.map(address -> {
+								return new NetworkInfoAddress(//
+										new Inet4AddressWithSubnetmask(address.label(), parseOrNull(address.local()),
+												address.prefixlen),
+										address.dynamic);
+							}) //
+							.toList());
+				}) //
+				.toList();
+	}
+
+	private record SystemdInterface(String ifname, List<SystemdAddressInfo> addressInfos) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link SystemdInterface}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<SystemdInterface> serializer() {
+			return jsonObjectSerializer(SystemdInterface.class, json -> {
+				return new SystemdInterface(//
+						json.getString("ifname"), //
+						json.getList("addr_info", SystemdAddressInfo.serializer()) //
+				);
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("ifname", obj.ifname()) //
+						.add("addr_info", SystemdAddressInfo.serializer().toListSerializer() //
+								.serialize(obj.addressInfos())) //
+						.build();
+			});
+		}
+
+	}
+
+	private record SystemdAddressInfo(String family, String local, int prefixlen, String label, boolean dynamic) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link SystemdAddressInfo}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<SystemdAddressInfo> serializer() {
+			return jsonObjectSerializer(SystemdAddressInfo.class, json -> {
+				return new SystemdAddressInfo(//
+						json.getString("family"), //
+						json.getString("local"), //
+						json.getInt("prefixlen"), //
+						json.getStringOrNull("label"), //
+						json.getOptionalBoolean("dynamic").orElse(false) //
+				);
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("family", obj.family()) //
+						.addProperty("local", obj.local()) //
+						.addProperty("prefixlen", obj.prefixlen()) //
+						.addProperty("label", obj.label()) //
+						.onlyIf(obj.dynamic(), b -> b//
+								.addProperty("dynamic", obj.dynamic()))
+						.build();
+			});
+		}
 
 	}
 

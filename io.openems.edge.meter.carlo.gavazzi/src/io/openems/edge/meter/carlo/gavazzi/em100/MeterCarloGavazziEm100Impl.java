@@ -28,8 +28,8 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 @Designate(ocd = Config.class, factory = true)

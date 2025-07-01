@@ -56,7 +56,7 @@ export class HistoryDataService extends DataService {
                     allComponents[key] = value;
                   }
 
-                  this.currentValue.next({ allComponents: allComponents });
+                  this.currentValue.set({ allComponents: allComponents });
                   this.timestamps = response.result["timestamps"] ?? [];
                 }
               })
