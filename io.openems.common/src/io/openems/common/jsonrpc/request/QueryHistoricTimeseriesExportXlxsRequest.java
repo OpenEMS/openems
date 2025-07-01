@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -51,7 +50,7 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 		} else {
 			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(jTimezone)).toZoneId();
 		}
-		
+
 		var fromDate = JsonUtils.getAsZonedDateWithZeroTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateWithZeroTime(p, "toDate", timezone).plusDays(1);
 		return new QueryHistoricTimeseriesExportXlxsRequest(r, fromDate, toDate);
@@ -60,7 +59,6 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
 	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	private final int timezoneDiff;
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
 
@@ -68,8 +66,6 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 			ZonedDateTime toDate) throws OpenemsNamedException {
 		super(request, QueryHistoricTimeseriesExportXlxsRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 	}
@@ -78,8 +74,6 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 			throws OpenemsNamedException {
 		super(QueryHistoricTimeseriesExportXlxsRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 	}
@@ -87,7 +81,6 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("timezone", this.timezoneDiff) //
 				.addProperty("fromDate", QueryHistoricTimeseriesExportXlxsRequest.FORMAT.format(this.fromDate)) //
 				.addProperty("toDate", QueryHistoricTimeseriesExportXlxsRequest.FORMAT.format(this.toDate)) //
 				.build();

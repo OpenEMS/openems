@@ -1,8 +1,8 @@
 package io.openems.edge.evse.chargepoint.keba.modbus;
 
-import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.chargepoint.PhaseRotation.L2_L3_L1;
-import static io.openems.edge.evse.chargepoint.keba.common.enums.P30S10PhaseSwitching.NOT_AVAILABLE;
+import static io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity.DEBUG_LOG;
 import static io.openems.edge.evse.chargepoint.keba.modbus.EvseChargePointKebaModbusImpl.CONVERT_FIRMWARE_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -71,9 +71,11 @@ public class EvseChargePointKebaImplTest {
 				.activate(MyConfig.create() //
 						.setId("evseChargePoint0") //
 						.setModbusId("modbus0") //
-						.setWiring(THREE_PHASE) //
-						.setP30S10PhaseSwitching(NOT_AVAILABLE) //
+						.setWiring(
+								THREE_PHASE) //
+						.setP30hasS10PhaseSwitching(false) //
 						.setPhaseRotation(L2_L3_L1) //
+						.setLogVerbosity(DEBUG_LOG) //
 						.build()) //
 				.next(new TestCase(), 15) //
 				.next(new TestCase() //

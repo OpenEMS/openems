@@ -1,5 +1,8 @@
 package io.openems.edge.controller.ess.fastfrequencyreserve.statemachine;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -8,8 +11,6 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.fastfrequencyreserve.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class BufferedTimeBeforeRecoveryHandler extends StateHandler<State, Context> {
 
@@ -38,7 +39,6 @@ public class BufferedTimeBeforeRecoveryHandler extends StateHandler<State, Conte
 		this.bufferedTimeBeforeRecoveryStartTime = now;
 		this.bufferedTimeBeforeRecoveryState = new BufferedTimeBeforeRecoveryState(
 				SubState.HOLD_BUFFERED_TIME_BEFORE_RECOVERY, now);
-
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class BufferedTimeBeforeRecoveryHandler extends StateHandler<State, Conte
 	}
 
 	private int calculateMinPower(ManagedSymmetricEss ess) {
-		return (int) (ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE) * EIGHTEENX_PERCENT_OF_MAX_POWER);
+		return (int) (ess.getPower().getMinPower(ess, ALL, ACTIVE) * EIGHTEENX_PERCENT_OF_MAX_POWER);
 	}
 
 	@Override
