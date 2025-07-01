@@ -10,7 +10,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
             "allowedCommonJsDependencies": ["chart.js"],
             "baseHref": "/",
@@ -22,24 +22,30 @@
               }
             ],
             "index": "src/index.html",
-            "main": "src/main.ts",
             "namedChunks": false,
-            "outputPath": "target",
-            "polyfills": "src/polyfills.ts",
+            "outputPath": {
+              "base": "target"
+            },
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "scripts": [],
             "tsConfig": "tsconfig.app.json",
-            "vendorChunk": false,
             "aot": false,
-            "buildOptimizer": false,
             "extractLicenses": false,
             "optimization": false,
             "outputHashing": "none",
-            "sourceMap": true
+            "sourceMap": true,
+            "browser": "src/main.ts",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "."
+              ]
+            }
           },
           "configurations": {
             "prod": {
               "aot": true,
-              "buildOptimizer": true,
               "extractLicenses": true,
               "optimization": {
                 "scripts": true,
@@ -168,7 +174,7 @@
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
             "buildTarget": "app:build:openems,openems-edge-dev"
           },
@@ -197,7 +203,7 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:karma",
           "options": {
             "main": "src/test.ts",
             "polyfills": "src/polyfills.ts",
@@ -216,5 +222,31 @@
   },
   "cli": {
     "analytics": false
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
   }
 }
