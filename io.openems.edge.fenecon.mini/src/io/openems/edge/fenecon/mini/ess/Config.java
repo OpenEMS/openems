@@ -3,7 +3,7 @@ package io.openems.edge.fenecon.mini.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(//
 		name = "FENECON Mini ESS", //

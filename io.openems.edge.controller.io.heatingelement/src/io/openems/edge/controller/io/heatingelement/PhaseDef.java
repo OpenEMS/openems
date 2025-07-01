@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.controller.io.heatingelement.enums.Phase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 /**
  * PhaseDef represents one Phase of the Heating Element.
@@ -18,7 +18,7 @@ import io.openems.edge.controller.io.heatingelement.enums.Phase;
 public class PhaseDef {
 
 	private final ControllerIoHeatingElementImpl parent;
-	private final Phase phase;
+	private final SinglePhase phase;
 
 	/**
 	 * keeps the total summed up Duration of the current day; it is updated on
@@ -36,7 +36,7 @@ public class PhaseDef {
 	 */
 	private LocalTime lastSwitchOn = null;
 
-	public PhaseDef(ControllerIoHeatingElementImpl parent, Phase phase) {
+	public PhaseDef(ControllerIoHeatingElementImpl parent, SinglePhase phase) {
 		this.parent = parent;
 		this.phase = phase;
 	}

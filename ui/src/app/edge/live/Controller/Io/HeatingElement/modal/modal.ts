@@ -1,8 +1,10 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { IonRange } from "@ionic/angular";
 import { BehaviorSubject } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { Mode, WorkMode } from "src/app/shared/type/general";
 
@@ -22,9 +24,11 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected readonly Mode = Mode;
     protected readonly WorkMode = WorkMode;
 
+    protected readonly pinFormatter: IonRange["pinFormatter"] = (val) => Formatter.FORMAT_HOUR(val);
+
     // allowMinimumHeating == workMode: none
     // TODO remove when outputting of event is errorless possible
-    switchAllowMinimumHeating(event: CustomEvent) {
+    protected switchAllowMinimumHeating(event: CustomEvent) {
         if (event.detail.checked == true) {
             this.formGroup.controls["workMode"].setValue("TIME");
             this.formGroup.controls["workMode"].markAsDirty();
@@ -85,5 +89,4 @@ export class ModalComponent extends AbstractModal implements OnInit {
             mode: new FormControl(this.mode),
         });
     }
-
 }

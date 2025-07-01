@@ -1,10 +1,11 @@
 package io.openems.edge.sma.sunnyisland;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
 public class EssSmaSunnyIslandImplTest {
@@ -17,7 +18,7 @@ public class EssSmaSunnyIslandImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setModbusId("modbus0") //
-						.setPhase(Phase.L1) //
+						.setPhase(L1) //
 						.build()) //
 		;
 	}

@@ -488,7 +488,11 @@
       "addIP": "Add static IP addresses",
       "validAddressWarning": "In 'Add static IP addresses', Please enter valid ip address with subnetmask e.g. 10.4.1.6/24",
       "advancedMode": "Advanced Mode",
-      "submit": "Submit"
+      "submit": "Submit",
+      "DHCP": {
+        "INFO": "The displayed IP address was dynamically assigned via DHCP (Dynamic Host Configuration Protocol). It is not permanent and may change when the device or router is restarted.",
+        "ADDRESS": "DHCP Adress"
+      }
     },
     "title": "{{ edgeShortName }}",
     "FOOTER": {

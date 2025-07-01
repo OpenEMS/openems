@@ -125,3 +125,12 @@
 .ion-background-transparent {
     --background: transparent !important;
 }
+
+.ion-max-width-max-content {
+    max-width: max-content !important;
+}
+
+.ion-item-label-min-content {
+    @extend .ion-max-width-max-content;
+    white-space: pre-wrap;
+}

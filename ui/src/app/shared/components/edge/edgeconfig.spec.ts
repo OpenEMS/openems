@@ -906,3 +906,28 @@ describe("PersistencePriority", () => {
         expect(PersistencePriority.isLessThan(undefined, null)).toBe(false);
     });
 });
+
+describe("hasPropertyValue", () => {
+
+    const component = new EdgeConfig.Component("component0", "", true, "factoryId", {
+        "booleanValue": true,
+        "booleanValueString": "true",
+        "numberValueStrng": "42",
+    });
+
+    it("#booleanValue", () => {
+        expect(component.hasPropertyValue("booleanValue", true)).toBeTrue();
+    });
+
+    it("#booleanValueString", () => {
+        expect(component.hasPropertyValue("booleanValueString", true)).toBeTrue();
+    });
+
+    it("#wrongEquals", () => {
+        expect(component.hasPropertyValue("booleanValueString", false)).toBeFalse();
+    });
+
+    it("#compareWrongTypes", () => {
+        expect(component.hasPropertyValue("numberValueStrng", 42)).toBeTrue();
+    });
+});

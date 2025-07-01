@@ -34,9 +34,9 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -185,5 +185,4 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	public SinglePhase getPhase() {
 		return this.phase;
 	}
-
 }

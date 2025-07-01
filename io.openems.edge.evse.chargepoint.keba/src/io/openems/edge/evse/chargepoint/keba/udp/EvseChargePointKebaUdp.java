@@ -8,77 +8,90 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.chargepoint.keba.common.EvseChargePointKeba;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvseChargePointKebaUdp extends EvseChargePoint, ElectricityMeter, OpenemsComponent {
+public interface EvseChargePointKebaUdp
+		extends EvseChargePointKeba, EvseChargePoint, ElectricityMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Communication to wallbox Failed " //
-						+ "| Keine Verbindung zur Ladestation " //
+		COMMUNICATION_FAILED(Doc.of(Level.FAULT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Communication to wallbox Failed "//
+						+ "| Keine Verbindung zur Ladestation "//
 						+ "| Bitte überprüfen Sie die Kommunikationsverbindung zu der Ladestation")), //
 
-		// copied from evcs keba
-
-		ERROR_1(Doc.of(OpenemsType.INTEGER) //
-				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-		ERROR_2(Doc.of(OpenemsType.INTEGER) //
-				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-		DIP_SWITCH_1(Doc.of(OpenemsType.STRING) //
-				.text("The first eight dip switch settings as binary")),
-		DIP_SWITCH_2(Doc.of(OpenemsType.STRING) //
-				.text("The second eight dip switch settings as binary")),
-		DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("The raw maximum limit configured by the dip switches")),
-		PRODUCT(Doc.of(OpenemsType.STRING) //
+		// Report 1
+		PRODUCT(Doc.of(OpenemsType.STRING)//
 				.text("Model name (variant)")), //
 		SERIAL(Doc.of(OpenemsType.STRING)), //
-		COM_MODULE(Doc.of(OpenemsType.STRING) //
-				.text("Communication module is installed; KeContact P30 only")),
-		ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
-		ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Enable condition via UDP")), //
-		MAX_CURR(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current preset value via Control pilot")), //
-		MAX_CURR_PERCENT(Doc.of(OpenemsType.INTEGER) //
+		COM_MODULE(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Communication module is installed")),
+		BACKEND(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Backend communication is present.")),
+		// timeQ
+
+		// Report 2
+		ERROR_1(Doc.of(OpenemsType.INTEGER)//
+				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
+		ERROR_2(Doc.of(OpenemsType.INTEGER)//
+				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
+		AUTH_ON(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Authorization function is activated/deactivated")),
+		AUTH_REQ(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Authorization via RFID card is required")),
+		// AUTH_REQ=false means: Authorization via RFID card is not required OR The
+		// authorization
+		// via RFID card was already performed
+		ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Charging state can be enabled")), //
+		ENABLE_USER(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Device is enabled")), //
+		MAX_CURR(Doc.of(OpenemsType.INTEGER)//
+				.text("Current value in mA offered to the vehicle")), //
+		MAX_CURR_PERCENT(Doc.of(OpenemsType.INTEGER)//
 				.text("Current preset value via Control pilot in 0,1% of the PWM value")), //
-		CURR_USER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
+		CURR_HW(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.text("Current preset value via Control pilot")), //
+		CURR_USER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
 				.text("Current preset value of the user via UDP; Default = 63000mA")), //
-		CURR_FAILSAFE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
+		CURR_FAILSAFE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
 				.text("Current preset value for the Failsafe function")), //
-		TIMEOUT_FAILSAFE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		TIMEOUT_FAILSAFE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.text("Communication timeout before triggering the Failsafe function")), //
-		CURR_TIMER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
+		CURR_TIMER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
 				.text("Shows the current preset value of currtime")), //
-		TIMEOUT_CT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		TIMEOUT_CT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.text("Shows the remaining time until the current value is accepted")), //
-		OUTPUT(Doc.of(OpenemsType.BOOLEAN) //
-				.unit(Unit.ON_OFF) //
-				.text("State of the output X2")), //
-		INPUT(Doc.of(OpenemsType.BOOLEAN) //
-				.unit(Unit.ON_OFF) //
-				.text("State of the potential free Enable input X1. When using the input, "
-						+ "please pay attention to the information in the installation manual.")), //
+		SETENERGY(Doc.of(OpenemsType.INTEGER)//
+				.text("Energy value in 0.1 Wh defined by the last setenergy command")), //
+		OUTPUT(Doc.of(OpenemsType.INTEGER)//
+				.text("Show the setting of the UDP command output")), //
+		INPUT(Doc.of(OpenemsType.BOOLEAN)//
+				.unit(Unit.ON_OFF)//
+				.text("State of the input X1; For further information concerning the input X1, see the \"installation manual\"")), //
+
+		DIP_SWITCH_1(Doc.of(OpenemsType.STRING)//
+				.text("The first eight dip switch settings as binary")),
+		DIP_SWITCH_2(Doc.of(OpenemsType.STRING)//
+				.text("The second eight dip switch settings as binary")),
+		DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.text("The raw maximum limit configured by the dip switches")),
 
 		/*
 		 * Report 3
 		 */
-		COS_PHI(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.text("Power factor")), //
-		DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //
-				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
-				.text("Dip-Switch 1.3. for communication must be on")), //
+		DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT)//
+				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
+				.text("Dip-Switch 1.3. for communication must be on")),
 		DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP(Doc.of(Level.FAULT) //
 				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 				.text("A static ip is configured. The Dip-Switch 2.6. must be on")), //

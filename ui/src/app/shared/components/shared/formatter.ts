@@ -55,5 +55,9 @@ export namespace Formatter {
 
     return formatNumber(parseFloat(value.toString()), locale, format);
   };
+
+  export const FORMAT_HOUR = (value: number) => {
+    return formatNumber(value, locale, "1.0-0") + " h";
+  };
 }
 

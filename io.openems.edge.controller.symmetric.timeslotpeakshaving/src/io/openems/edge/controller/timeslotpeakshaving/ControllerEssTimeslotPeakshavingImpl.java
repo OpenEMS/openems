@@ -1,5 +1,9 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -10,7 +14,6 @@ import java.util.Calendar;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -27,15 +30,13 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.TimeslotPeakshaving", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
+		configurationPolicy = REQUIRE //
 )
 public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsComponent
 		implements ControllerEssTimeslotPeakshaving, Controller, OpenemsComponent {
@@ -153,7 +154,7 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 					stateChanged = this.changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
 				}
 
-				var minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+				var minPower = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 				if (ess.getSoc().orElse(0) == 100 || minPower >= 0) {
 					// no need to charge anymore, the soc would be 100 %
 					stateChanged = this.changeState(ChargeState.HYSTERESIS);

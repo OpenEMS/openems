@@ -5,12 +5,13 @@ import static io.openems.edge.common.test.TestUtils.withValue;
 import io.openems.common.types.MeterType;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.meter.test.AbstractDummyElectricityMeter;
 
 public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvseChargePoint<?>>
 		extends AbstractDummyElectricityMeter<SELF> implements EvseChargePoint {
 
-	private ChargeParams chargeParams;
+	private ChargePointAbilities chargePointAbilities;
 	private PhaseRotation phaseRotation;
 
 	protected AbstractDummyEvseChargePoint(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
@@ -24,19 +25,19 @@ public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvs
 	}
 
 	/**
-	 * Set the {@link ChargeParams}.
+	 * Set the {@link ChargePointAbilities}.
 	 * 
-	 * @param chargeParams the {@link ChargeParams}
+	 * @param chargePointAbilities the {@link ChargePointAbilities}
 	 * @return myself
 	 */
-	public SELF withChargeParams(ChargeParams chargeParams) {
-		this.chargeParams = chargeParams;
+	public SELF withChargePointAbilities(ChargePointAbilities chargePointAbilities) {
+		this.chargePointAbilities = chargePointAbilities;
 		return this.self();
 	}
 
 	@Override
-	public ChargeParams getChargeParams() {
-		return this.chargeParams;
+	public ChargePointAbilities getChargePointAbilities() {
+		return this.chargePointAbilities;
 	}
 
 	/**
