@@ -1,10 +1,7 @@
 package io.openems.edge.evse.chargepoint.keba.common;
 
-import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
-import static io.openems.edge.evse.api.SingleThreePhase.SINGLE_PHASE;
-import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
-import static io.openems.edge.evse.api.chargepoint.Profile.ApplySetPoint.Ability.MILLI_AMPERE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -12,16 +9,21 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
 import io.openems.common.types.Tuple;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.SingleThreePhase;
+import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.EvseChargePoint.ChargeParams;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
+import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
+import io.openems.edge.evse.chargepoint.keba.modbus.EvseChargePointKebaModbus;
+import io.openems.edge.evse.chargepoint.keba.udp.EvseChargePointKebaUdp;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
@@ -54,33 +56,64 @@ public class Utils {
 	private Tuple<Instant, Integer> previousCurrent = null;
 
 	/**
-	 * Applies a Charging Current.
+	 * Applies a {@link ChargePointActions}.
 	 * 
+	 * @param config  the {@link CommonConfig}
 	 * @param actions the {@link ChargePointActions}
 	 */
-	public void handleApplyCharge(ChargePointActions actions) {
-		// TODO this apply method should use a StateMachine. Consider having the
-		// StateMachine inside EVSE Single-Controller
+	public void handleChargePointActions(CommonConfig config, ChargePointActions actions) {
+		if (config.readOnly()) {
+			return;
+		}
+		this.applyPhaseSwitch(actions.phaseSwitch());
+		this.applySetPoint(actions.getApplySetPointInMilliAmpere().value());
+	}
 
-		// TODO Phase Switch Three-to-Single is always possible without interruption
-		// TODO Allow Phase Switch always if no car is connected
-		// final var p = EvseChargePointKebaImpl.this;
+	private void applyPhaseSwitch(PhaseSwitch phaseSwitch) {
+		if (phaseSwitch == null) {
+			return;
+		}
 
 		final var keba = this.parent;
-		final var current = actions.getApplySetPointInMilliAmpere().value();
+		try {
+			// Set correct PhaseSwitchSource
+			final var setPhaseSwitchSource = keba.getSetPhaseSwitchSourceChannel();
+			if (keba instanceof EvseChargePointKebaModbus
+					&& keba.getPhaseSwitchSource() != PhaseSwitchSource.VIA_MODBUS) {
+				setPhaseSwitchSource.setNextWriteValue(PhaseSwitchSource.VIA_MODBUS);
+			} else if (keba instanceof EvseChargePointKebaUdp
+					&& keba.getPhaseSwitchSource() != PhaseSwitchSource.VIA_UDP) {
+				setPhaseSwitchSource.setNextWriteValue(PhaseSwitchSource.VIA_UDP);
+			}
+
+			// Apply Phase Switch
+			final var setPhaseSwitchState = keba.getSetPhaseSwitchStateChannel();
+			setPhaseSwitchState.setNextWriteValue(switch (phaseSwitch) {
+			case TO_SINGLE_PHASE -> PhaseSwitchState.SINGLE;
+			case TO_THREE_PHASE -> PhaseSwitchState.THREE;
+			});
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void applySetPoint(int setPointInMilliAmpere) {
+		final var keba = this.parent;
+
+		// Apply Charge Current
 		final var now = Instant.now();
 		if (this.previousCurrent != null && Duration.between(this.previousCurrent.a(), now).getSeconds() < 5) {
 			return;
 		}
-		this.previousCurrent = Tuple.of(now, current);
+		this.previousCurrent = Tuple.of(now, setPointInMilliAmpere);
 
 		try {
 			var setEnable = keba.getSetEnableChannel();
-			if (current == 0) {
+			if (setPointInMilliAmpere == 0) {
 				setEnable.setNextWriteValue(SetEnable.DISABLE);
 			} else {
 				setEnable.setNextWriteValue(SetEnable.ENABLE);
-				keba.getSetChargingCurrentChannel().setNextWriteValue(current);
+				keba.getSetChargingCurrentChannel().setNextWriteValue(setPointInMilliAmpere);
 			}
 
 		} catch (OpenemsNamedException e) {
@@ -108,7 +141,7 @@ public class Utils {
 	 * @param config the {@link CommonConfig}
 	 * @return the value
 	 */
-	public ChargeParams getChargeParams(CommonConfig config) {
+	public ChargePointAbilities getChargePointAbilities(CommonConfig config) {
 		if (config == null || config.readOnly()) {
 			return null;
 		}
@@ -117,35 +150,56 @@ public class Utils {
 			return null;
 		}
 
-		var singlePhaseLimit = new Limit(SINGLE_PHASE, 6000, 32000);
-		var threePhaseLimit = new Limit(THREE_PHASE, 6000, 32000);
-
-		var limit = switch (phases) {
-		case SINGLE_PHASE -> singlePhaseLimit;
-		case THREE_PHASE -> threePhaseLimit;
-		};
-
-		var abilities = ChargePointAbilities.create() //
-				.applySetPointIn(MILLI_AMPERE) //
-				.build();
-
 		final var keba = this.parent;
-		return new ChargeParams(keba.getIsReadyForCharging(), limit, abilities);
+		return ChargePointAbilities.create() //
+				// TODO apply actual hardware limit from protocol and/or config
+				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, 32000)) //
+				.setIsReadyForCharging(keba.getIsReadyForCharging()) //
+				.setPhaseSwitch(this.getPhaseSwitchAbility(config)) //
+				.build();
 	}
 
-	private SingleThreePhase getWiring(CommonConfig config) {
+	private PhaseSwitch getPhaseSwitchAbility(CommonConfig config) {
+		final var keba = this.parent;
+
+		// Set Phase-Switching Ability
+		final var phaseSwitchState = keba.getPhaseSwitchState().actual;
+		final var phaseSwitchSource = keba.getPhaseSwitchSource();
+		if (!config.p30hasS10PhaseSwitching() || config.wiring() == SINGLE_PHASE
+				|| phaseSwitchState == null || phaseSwitchSource == PhaseSwitchSource.UNDEFINED) {
+			// Phase-Switching not available or still waiting for all required channels
+			return null;
+		}
+
+		// TODO When switching between the parameters, a cool down time of 5 minutes is
+		// required
+
+		// Query and Set correct PhaseSwitchSource
+		final var requiredPhaseSwitchSource = keba.getRequiredPhaseSwitchSource();
+		if (phaseSwitchSource != requiredPhaseSwitchSource) {
+			final var setPhaseSwitchSource = keba.getSetPhaseSwitchSourceChannel();
+			try {
+				// TODO during manual test it was required to switch to "0" before switching to
+				// "3" or "4". Tested successfully via Modbus/TCP with QModMaster
+				setPhaseSwitchSource.setNextWriteValue(requiredPhaseSwitchSource);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		return switch (phaseSwitchState) {
+		case SINGLE_PHASE -> PhaseSwitch.TO_THREE_PHASE;
+		case THREE_PHASE -> PhaseSwitch.TO_SINGLE_PHASE;
+		};
+	}
+
+	private SingleOrThreePhase getWiring(CommonConfig config) {
 		final var keba = this.parent;
 
 		// Handle P30 with S10
-		switch (config.p30s10PhaseSwitching()) {
-		case NOT_AVAILABLE -> doNothing();
-		case FORCE_SINGLE_PHASE, FORCE_THREE_PHASE -> {
-			var phaseSwitchState = keba.getPhaseSwitchState().actual;
-			if (phaseSwitchState == null) {
-				return null;
-			}
-			return phaseSwitchState;
-		}
+		if (config.p30hasS10PhaseSwitching()) {
+			return keba.getPhaseSwitchState().actual;
 		}
 
 		return config.wiring();
@@ -182,5 +236,26 @@ public class Utils {
 		case PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED, UNDEFINED, UNPLUGGED //
 			-> false;
 		};
+	}
+
+	/**
+	 * Called by {@link OpenemsComponent#debugLog()}.
+	 * 
+	 * @param config the {@link CommonConfig}
+	 * @return the debugLog string
+	 */
+	public String debugLog(CommonConfig config) {
+		final var keba = this.parent;
+
+		var b = new StringBuilder() //
+				.append("L:").append(keba.getActivePower().asString());
+		if (!config.readOnly()) {
+			b //
+					.append("|SetCurrent:") //
+					.append(keba.channel(EvseChargePointKeba.ChannelId.DEBUG_SET_CHARGING_CURRENT).value().asString()) //
+					.append("|SetEnable:") //
+					.append(keba.channel(EvseChargePointKeba.ChannelId.DEBUG_SET_ENABLE).value().asString());
+		}
+		return b.toString();
 	}
 }

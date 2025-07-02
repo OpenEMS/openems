@@ -33,7 +33,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;

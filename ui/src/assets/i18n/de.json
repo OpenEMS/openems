@@ -487,7 +487,11 @@
       "addIP": "Statische IP-Adressen hinzufügen",
       "validAddressWarning": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24",
       "advancedMode": "erweiterte Ansicht",
-      "submit": "Anwenden"
+      "submit": "Anwenden",
+      "DHCP": {
+        "INFO": "Die angezeigte IP-Adresse wurde dynamisch über DHCP (Dynamic Host Configuration Protocol) vergeben. Sie ist nicht dauerhaft und kann sich bei einem Neustart des Geräts oder Routers ändern.",
+        "ADDRESS": "DHCP Adresse"
+      }
     },
     "title": "{{ edgeShortName }}",
     "FOOTER": {

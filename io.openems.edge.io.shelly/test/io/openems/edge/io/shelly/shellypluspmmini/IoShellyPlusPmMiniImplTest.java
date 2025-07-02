@@ -1,7 +1,7 @@
 package io.openems.edge.io.shelly.shellypluspmmini;
 
 import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
-import static io.openems.edge.meter.api.SinglePhase.L1;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class IoShellyPlusPmMiniImplTest {
 						.setId("io0") //
 						.setIp("127.0.0.1") //
 						.setType(CONSUMPTION_METERED) //
-						.setPhase(L1) //
+						.setPhase(SinglePhase.L1) //
 						.build()) //
 
 				.next(new TestCase("Successful read response") //

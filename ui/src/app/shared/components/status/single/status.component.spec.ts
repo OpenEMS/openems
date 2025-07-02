@@ -9,7 +9,7 @@ import { DummyModalController } from "../../shared/testing/DummyModalController"
 import { StatusSingleComponent } from "./status.component";
 
 describe("StatusComponent", () => {
-    const testComponent = new EdgeConfig.Component("test", {}, {
+    const testComponent = new EdgeConfig.Component("component0", "", true, "test", {}, {
         "testChannel": {
             accessMode: "RO",
             category: "STATE",
