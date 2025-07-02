@@ -8,7 +8,7 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(//
 		name = "IO Shelly Plus PM Mini", //
-		description = "Implements the Shelly Plus PM Mini 2ndGen")
+		description = "Implements the Shelly Plus PM Mini 2nd and 3rd Gen")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
