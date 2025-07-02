@@ -374,7 +374,10 @@
         "deleteApp": "アプリを削除します",
         "updateApp": "アプリを更新します",
         "errorInstallable": "インストールエラー",
-        "errorCompatible": "互換性エラー"
+        "errorCompatible": "互換性エラー",
+        "technicalName": "技術名",
+        "category": "カテゴリ",
+        "cardinality": "カーディナリティ"
       }
     },
     "Service": {
