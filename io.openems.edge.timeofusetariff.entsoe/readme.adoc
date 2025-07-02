@@ -8,4 +8,11 @@ Prices retrieved from ENTSO-E are subsequently converted to the user's currency 
 
 For detailed information about the Exchange Rates API, please refer to: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
 
+The component expexts a *bidding zone*, and *ancillary costs* as a `json` string. For Germany these are defined in https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.timeofusetariff.entsoe/src/io/openems/edge/timeofusetariff/entsoe/GermanDSO.java[`GermanDSO.java`]. If the DSO is already in the list with current data, it can be activated with:
+
+- biddingZone: GERMANY
+- ancillaryCosts: {"dso":"BAYERNWERK"}
+
+A manual definition of the ancillary costs is not recommendet, and currently not yet implemented. See: https://github.com/OpenEMS/openems/blob/001db411727cf48cfc560d336cd14d90be8725b4/io.openems.edge.timeofusetariff.entsoe/src/io/openems/edge/timeofusetariff/entsoe/AncillaryCosts.java#L262-L264
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.entsoe[Source Code icon:github[]]
