@@ -345,7 +345,7 @@ public enum GermanDSO {
 		  .addDateRange(dr -> dr //
 				.setStart(2025, 1, 1) //
 				.setEnd(2025, 3, 31) //
-				setStandardTariff(7.63) //
+				.setStandardTariff(7.63) //
 				.addTimeRange(tr -> tr //
 					      .setFullDay() //
 					      .setTariff(STANDARD))) //
