@@ -375,6 +375,13 @@ public enum GermanDSO {
 					      .setStart(22, 0) //
 					      .setEnd(0, 0) //
 					      .setTariff(HIGH))) //
+		  .addDateRange(dr -> dr //
+				.setStart(2025, 1, 10) //
+				.setEnd(2025, 12, 31) //
+				.setStandardTariff(7.63) //
+				.addTimeRange(tr -> tr //
+					      .setFullDay() //
+					      .setTariff(STANDARD))) //
 	);
 
 	public final GridFee gridFee;
