@@ -55,9 +55,10 @@ public class TouEntsoeTest {
 	}
 
 	@Test
-	public void testStandardTariffOnJuly15At14PM() throws OpenemsNamedException {
+	public void testStandardTariffOnJuly15At2PM() throws OpenemsNamedException {
 		var helper = this.buildHelper("BAYERNWERK", "2025-07-15T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 7, 15), LocalTime.of(14, 0), ZoneId.systemDefault());
+		
 		assertEquals(8.75, helper.getPrices().getAt(testTime), 0.01);
 	}
 
@@ -121,6 +122,7 @@ public class TouEntsoeTest {
 	public void testStandardTariffOnApril10At12PM() throws OpenemsNamedException {
 		var helper = this.buildHelper("BAYERNWERK", "2025-04-10T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), ZoneId.systemDefault());
+		
 		assertEquals(8.75, helper.getPrices().getAt(testTime), 0.01);
 		
 		helper = this.buildHelper("NETZE_BW", "2025-04-10T00:00:00Z");
