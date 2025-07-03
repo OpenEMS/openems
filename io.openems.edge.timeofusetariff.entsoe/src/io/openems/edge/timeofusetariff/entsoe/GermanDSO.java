@@ -342,7 +342,7 @@ public enum GermanDSO {
 	),
 	
 	NETZE_ODR(GridFee.create() //
-		  .addDateRange(dr -> //
+		  .addDateRange(dr -> dr //
 				.setStart(2025, 1, 1) //
 				.setEnd(2025, 3, 31) //
 				setStandardTariff(7.63) //
