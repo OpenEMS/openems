@@ -7,6 +7,7 @@ export const theme = {
     edgeShortName: "OpenEMS",
     edgeLongName: "Open Energy Management System",
     defaultLanguage: "de",
+    enableSidebarEdgeList: false,
 
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     links: {

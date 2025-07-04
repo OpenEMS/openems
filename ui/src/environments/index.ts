@@ -19,6 +19,8 @@ export interface Environment {
     readonly production: boolean;
     debugMode: boolean;
 
+    readonly enableSidebarEdgeList: boolean;
+
     readonly docsUrlPrefix: string;
     readonly links: {
 

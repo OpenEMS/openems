@@ -11,7 +11,8 @@ import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
-import { Service, UserPermission, Websocket } from "./shared/shared";
+import { Pagination } from "./shared/service/pagination";
+import { Service, UserPermission, Websocket, Edge } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
 @Component({
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public isSystemLogEnabled: boolean = false;
 
   protected isUserAllowedToSeeOverview: boolean = false;
+  protected isUserAllowedToSeeSidebarEdgeList: boolean = false;
   protected isUserAllowedToSeeFooter: boolean = false;
   protected isHistoryDetailView: boolean = false;
   protected position: WritableSignal<"left" | "bottom" | null> = signal(null);
@@ -47,6 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private appService: PlatFormService,
     private title: Title,
     private stateService: AppStateTracker,
+    private pagination: Pagination,
     public navigationService: NavigationService,
     protected navCtrl: NavController
   ) {
@@ -56,6 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
         this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
         this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
+        this.isUserAllowedToSeeSidebarEdgeList = UserPermission.isUserAllowedToSeeSidebarEdgeList(metadata.user);
       }));
 
     this.subscription.add(
@@ -122,6 +126,10 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.title.setTitle(environment.edgeShortName);
+  }
+
+  public onSelectEdge(edge: Edge) {
+    this.pagination.getAndSubscribeEdge(edge);
   }
 
   private checkSmartphoneResolution(init: boolean): void {
