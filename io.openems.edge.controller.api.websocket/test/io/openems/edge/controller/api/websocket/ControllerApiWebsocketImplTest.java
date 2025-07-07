@@ -18,6 +18,7 @@ public class ControllerApiWebsocketImplTest {
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
 						.setApiTimeout(60) //
+						.setIp("127.0.0.1") //
 						.setPort(DEFAULT_PORT) //
 						.build()) //
 				.next(new TestCase()) //

@@ -87,6 +87,7 @@ public class ControllerApiRestReadWriteImplTest {
 						.setApiTimeout(60) //
 						.setConnectionlimit(5) //
 						.setDebugMode(false) //
+						.setIp("127.0.0.1") //
 						.setPort(port) //
 						.build());
 
