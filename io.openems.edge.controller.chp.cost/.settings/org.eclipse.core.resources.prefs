@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/controller/chp/cost/Config.java=UTF-8
+encoding//src/io/openems/edge/controller/chp/cost/ControllerChpCostOptimization.java=UTF-8
+encoding//src/io/openems/edge/controller/chp/cost/ControllerChpCostOptimizationImpl.java=UTF-8
+encoding//test/io/openems/edge/controller/chp/cost/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/controller/chp/cost/MyControllerTest.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8
