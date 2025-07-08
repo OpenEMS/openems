@@ -88,7 +88,7 @@
     "eslint-plugin-jsdoc": "50.6.17",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-unused-imports": "^4.1.4",
-    "globals": "^16.1.0",
+    "globals": "^16.3.0",
     "jasmine-core": "~5.7.1",
     "jasmine-spec-reporter": "~7.0.0",
     "karma": "~6.4.4",
