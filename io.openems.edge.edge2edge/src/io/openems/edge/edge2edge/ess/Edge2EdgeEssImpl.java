@@ -32,6 +32,9 @@ import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,13 +43,20 @@ import io.openems.edge.ess.power.api.Power;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmetricEss, AsymmetricEss, SymmetricEss,
-		Edge2EdgeEss, Edge2Edge, ModbusComponent, OpenemsComponent {
+		Edge2EdgeEss, Edge2Edge, ModbusComponent, TimedataProvider, OpenemsComponent {
 
+	private final CalculateEnergyFromPower calculateActiveChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateActiveDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	@Reference
 	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
+	
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null; //oEMS
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -131,8 +141,26 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+		this.calculateEnergy();
 		this.setRemoteActivePowerEquals((float) activePower);
 		this.setRemoteReactivePowerEquals((float) reactivePower);
+	}
+	
+	private void calculateEnergy() {
+		var activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateActiveChargeEnergy.update(null);
+			this.calculateActiveDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Discharge
+			this.calculateActiveChargeEnergy.update(0);
+			this.calculateActiveDischargeEnergy.update(activePower);
+		} else {
+			// Charge
+			this.calculateActiveChargeEnergy.update(activePower * -1);
+			this.calculateActiveDischargeEnergy.update(0);
+		}
 	}
 
 	@Override
@@ -140,4 +168,8 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 		return 1;
 	}
 
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }
