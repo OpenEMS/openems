@@ -67,7 +67,7 @@
 	com.google.guava;version='[33.4.8,33.4.9)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
 	com.google.protobuf;version='[4.31.1,4.31.2)',\
-	com.squareup.okio;version='[3.12.0,3.12.1)',\
+	com.squareup.okio;version='[3.14.0,3.14.1)',\
 	com.zaxxer.HikariCP;version='[6.3.0,6.3.1)',\
 	io.openems.backend.alerting;version=snapshot,\
 	io.openems.backend.application;version=snapshot,\
@@ -131,7 +131,7 @@
 	org.apache.felix.scr;version='[2.2.12,2.2.13)',\
 	org.apache.felix.webconsole;version='[5.0.12,5.0.13)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.1.21,2.1.22)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.2.0,2.2.1)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.0,2.3.1)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.0,2.3.1)',\

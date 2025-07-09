@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.cluster;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Phases.TWO_PHASE;
 import static java.lang.Math.round;
@@ -39,8 +41,6 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
@@ -599,7 +599,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			// Read maximum ESS Discharge power at the current position in the Cycle
 			this.maxEssDischargePower = switch (this.ess) {
 			case ManagedSymmetricEss e //
-				-> e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+				-> e.getPower().getMaxPower(e, ALL, ACTIVE);
 			case SymmetricEss e //
 				-> e.getMaxApparentPower().orElse(0);
 			};

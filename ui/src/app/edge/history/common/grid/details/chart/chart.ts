@@ -4,9 +4,9 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { Phase } from "src/app/shared/components/shared/phase";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "gridDetailsChart",

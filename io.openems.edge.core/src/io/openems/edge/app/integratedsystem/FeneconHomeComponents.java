@@ -121,14 +121,21 @@ public final class FeneconHomeComponents {
 								hasEmergencyReserve ? "ENABLE" : "DISABLE") //
 						.addProperty("controlMode", "SMART") //
 						.addProperty("feedPowerEnable",
-								feedInType == FeedInType.DYNAMIC_LIMITATION ? "ENABLE" : "DISABLE") //
+								(feedInType == FeedInType.DYNAMIC_LIMITATION
+										|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION) //
+												? "ENABLE"
+												: "DISABLE") //
 						.addProperty("feedPowerPara", maxFeedInPower) //
 						.addProperty("modbus.id", modbusIdExternal) //
 						.addProperty("modbusUnitId", 247) //
 						.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLE" : "ENABLE") //
 						.addProperty("safetyCountry", safetyCountry) //
 						.addProperty("setfeedInPowerSettings", feedInSetting) //
-						.addProperty("rcrEnable", feedInType == FeedInType.EXTERNAL_LIMITATION ? "ENABLE" : "DISABLE") //
+						.addProperty("rcrEnable",
+								(feedInType == FeedInType.EXTERNAL_LIMITATION
+										|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION) //
+												? "ENABLE"
+												: "DISABLE") //
 						.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 						.build());
 	}
@@ -515,10 +522,12 @@ public final class FeneconHomeComponents {
 						.setAppId("App.PvSelfConsumption.GridOptimizedCharge") //
 						.setProperties(JsonUtils.buildJsonObject() //
 								.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
-										feedInType == FeedInType.DYNAMIC_LIMITATION) //
+										(feedInType == FeedInType.DYNAMIC_LIMITATION
+												|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION)) //
 								.onlyIf(t == ConfigurationTarget.ADD, //
 										j -> j.addProperty(GridOptimizedCharge.Property.MODE.name(), "AUTOMATIC")) //
-								.onlyIf(feedInType == FeedInType.DYNAMIC_LIMITATION,
+								.onlyIf((feedInType == FeedInType.DYNAMIC_LIMITATION
+										|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION),
 										b -> b.addProperty(
 												GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(),
 												maxFeedInPower)) //

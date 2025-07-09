@@ -3,6 +3,7 @@
 This bundle implements Shelly WiFi Relay Switches and Meters.
 
 Compatible with
+- https://www.shelly.com/de/products/shelly-1-gen4[Shelly 1]
 - https://www.shelly.com/de/products/shop/1xs25[Shelly 2.5]
 - https://www.shelly.com/en/products/shop/shelly-3-em[Shelly 3EM]
 - Shelly Plug S

@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { differenceInSeconds } from "date-fns";
 import { environment } from "src/environments";
 import { Pagination } from "../service/pagination";
-import { RouteService } from "../service/previousRouteService";
+import { RouteService } from "../service/route.service";
 import { Websocket } from "../shared";
 
 export enum States {

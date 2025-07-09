@@ -857,7 +857,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			endpoint.setDescription("""
 					Deletes a AppInstance.
 					""".stripIndent()) //
-					.setGuards(EdgeGuards.roleIsAtleast(Role.INSTALLER));
+					.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
 
 		}, call -> this.handleDeleteAppInstanceRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
 

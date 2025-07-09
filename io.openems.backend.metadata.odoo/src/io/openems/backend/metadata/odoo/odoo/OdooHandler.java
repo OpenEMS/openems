@@ -38,6 +38,7 @@ import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
+import io.openems.backend.common.metadata.Metadata.ProtocolType;
 import io.openems.backend.common.metadata.Metadata.SetupProtocolCoreInfo;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.Config;
@@ -421,7 +422,7 @@ public class OdooHandler {
 	 * @return the latest {@link SetupProtocolCoreInfo}
 	 * @throws OpenemsNamedException on error
 	 */
-	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
 		final var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
 		if (edge == null) {
 			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
@@ -429,20 +430,52 @@ public class OdooHandler {
 
 		final var setupProtocolFilter = new Domain[] {
 				new Domain(Field.SetupProtocol.EDGE, Operator.EQ, edge.getOdooId()) };
-		final var setupProtocol = OdooUtils.searchRead(this.credentials, Field.SetupProtocol.ODOO_MODEL,
-				new Field[] { Field.SetupProtocol.CREATE_DATE }, Map.of("order", "id desc", "limit", 1),
-				setupProtocolFilter);
+		final var setupProtocolCoreInfo = OdooUtils.searchRead(this.credentials, Field.SetupProtocol.ODOO_MODEL,
+				new Field[] { Field.SetupProtocol.CREATE_DATE, Field.SetupProtocol.TYPE },
+				Map.of("order", "id desc", "limit", 1), setupProtocolFilter);
 
-		if (setupProtocol.length != 1) {
-			return Optional.empty();
+		if (setupProtocolCoreInfo.length != 1) {
+			return null;
 		}
 
-		final var latestSetupProtocol = setupProtocol[0];
+		final var latestSetupProtocol = setupProtocolCoreInfo[0];
 		final var setupProtocolId = JsonUtils.getAsInt(JsonUtils.getAsJsonElement(latestSetupProtocol.get("id")));
+		final var setupProtocolType = JsonUtils
+				.getAsString(JsonUtils.getAsJsonElement(latestSetupProtocol.get("type")));
 		final var createDate = DateTime.stringToDateTime(
 				JsonUtils.getAsString(JsonUtils.getAsJsonElement(latestSetupProtocol.get("create_date"))));
 
-		return Optional.of(new SetupProtocolCoreInfo(setupProtocolId, createDate));
+		return new SetupProtocolCoreInfo(setupProtocolId,
+				ProtocolType.fromStringOrDefault(setupProtocolType, ProtocolType.SETUP_PROTOCOL), createDate);
+	}
+
+	/**
+	 * Returns the latest {@link SetupProtocolCoreInfo}.
+	 *
+	 * @param edgeId the edge id
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException {
+		final var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
+		if (edge == null) {
+			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
+		}
+
+		final var setupProtocolFilter = new Domain[] {
+				new Domain(Field.SetupProtocol.EDGE, Operator.EQ, edge.getOdooId()) };
+		final var setupProtocolCoreInfos = OdooUtils.searchRead(this.credentials, Field.SetupProtocol.ODOO_MODEL,
+				new Field[] { Field.SetupProtocol.CREATE_DATE, Field.SetupProtocol.TYPE },
+				Map.of("order", "create_date desc"), setupProtocolFilter);
+
+		return Stream.of(setupProtocolCoreInfos).map(el -> {
+			var setupProtocolId = JsonUtils.getAsJsonElement(el.get("id")).getAsInt();
+			var type = ProtocolType.fromStringOrDefault(JsonUtils.getAsJsonElement(el.get("type")).getAsString(),
+					ProtocolType.SETUP_PROTOCOL);
+			var dateTime = DateTime.stringToDateTime(
+					JsonUtils.getAsOptionalString(JsonUtils.getAsJsonElement(el.get("create_date"))).orElseThrow());
+			return new SetupProtocolCoreInfo(setupProtocolId, type, dateTime);
+		}).toList();
 	}
 
 	/**

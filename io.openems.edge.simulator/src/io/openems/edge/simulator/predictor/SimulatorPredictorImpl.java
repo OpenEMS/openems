@@ -60,8 +60,8 @@ public class SimulatorPredictorImpl extends AbstractPredictor
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses(),
-				config.logVerbosity());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.channelAddresses());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
