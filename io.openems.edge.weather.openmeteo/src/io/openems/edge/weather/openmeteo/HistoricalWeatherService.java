@@ -65,7 +65,7 @@ public class HistoricalWeatherService {
 				.withPath("/" + API_VERSION + "/forecast")//
 				.withQueryParam("minutely_15", String.join(",", this.weatherVariables));
 
-		if (this.apiKey != null && !this.apiKey.isBlank()) {
+		if (this.apiKey != null) {
 			builder = builder.withQueryParam("apikey", this.apiKey);
 		}
 
