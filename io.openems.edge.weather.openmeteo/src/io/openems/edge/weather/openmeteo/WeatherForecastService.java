@@ -112,18 +112,21 @@ public class WeatherForecastService {
 	}
 
 	private UrlBuilder buildBaseUrl() {
-		return UrlBuilder.create()//
+		var builder = UrlBuilder.create()//
 				.withScheme(API_SCHEME)//
 				.withHost(this.apiKey != null //
 						? API_HOST_COMMERCIAL //
 						: API_HOST)//
 				.withPath("/" + API_VERSION + "/forecast")//
-				.withQueryParam("apikey", this.apiKey != null //
-						? this.apiKey //
-						: "")//
 				.withQueryParam("forecast_days", String.valueOf(this.forecastDays))//
 				.withQueryParam("past_days", PAST_DAYS)//
 				.withQueryParam("minutely_15", String.join(",", this.weatherVariables));
+
+		if (this.apiKey != null && !this.apiKey.isBlank()) {
+			builder = builder.withQueryParam("apikey", this.apiKey);
+		}
+
+		return builder;
 	}
 
 	private String buildForecastUrl(Coordinates coordinates, ZoneId zone) {
