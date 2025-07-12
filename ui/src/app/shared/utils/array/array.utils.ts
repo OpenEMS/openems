@@ -30,8 +30,8 @@ export namespace ArrayUtils {
     return filteredArr.length > 0 ? Math.max(...filteredArr) : null;
   }
 
-  export function summarizeValuesByIndex(data: { [name: string]: number[] }): number[] {
-    const result: number[] = [];
+  export function summarizeValuesByIndex(data: { [name: string]: number[] }): (number | null)[] {
+    const result: (number | null)[] = [];
 
     for (const key in data) {
       data[key].forEach((value, index) => {

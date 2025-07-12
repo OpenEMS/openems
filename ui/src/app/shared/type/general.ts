@@ -16,6 +16,7 @@ export const ChartAnnotationState = {
 export enum WorkMode {
     TIME = "TIME",
     NONE = "NONE",
+    ENERGY = "ENERGY",
     TEMPERATURE = "TEMPERATURE",
 }
 export enum EnabledDisabledState {
@@ -26,4 +27,5 @@ export enum OverrideStatus {
     ACTIVE = 0,
     INACTIVE = 1,
     ERROR = 2,
+    DONE = 3,
 }

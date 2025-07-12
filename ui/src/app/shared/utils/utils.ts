@@ -93,19 +93,23 @@ export class Utils {
   }
 
   /**
-   * Safely adds two - possibly 'null' - values: v1 + v2
+   *  Subtracts values from each other - possibly null values
    *
-   * @param v1
-   * @param v2
+   * @param values the values
+   * @returns a number, if at least one value is not null, else null
    */
-  public static addSafely(v1: number | null, v2: number | null): number {
-    if (v1 == null) {
-      return v2;
-    } else if (v2 == null) {
-      return v1;
-    } else {
-      return v1 + v2;
-    }
+  public static addSafely(...values: (number | null)[]): number | null {
+    return values
+      .filter(value => value !== null && value !== undefined)
+      .reduce((sum, curr) => {
+        if (sum == null) {
+          sum = curr;
+        } else {
+          sum += curr;
+        }
+
+        return sum;
+      }, null);
   }
 
   /**
