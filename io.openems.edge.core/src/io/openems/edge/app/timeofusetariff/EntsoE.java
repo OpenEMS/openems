@@ -1,9 +1,13 @@
 package io.openems.edge.app.timeofusetariff;
 
+import static io.openems.common.utils.JsonUtils.buildJsonArray;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -14,6 +18,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -32,6 +37,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -83,9 +89,9 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		BIDDING_ZONE(AppDef.of(EntsoE.class)//
 				.setTranslatedLabelWithAppPrefix(".biddingZone.label") //
 				.setTranslatedDescriptionWithAppPrefix(".biddingZone.description") //
+				.setRequired(true)
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(BiddingZone.optionsFactory(), l);
-					field.isRequired(true);
 				})),
 
 		RESOLUTION(AppDef.copyOfGeneric(defaultDef(), def -> def //
@@ -101,7 +107,36 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					field.onlyShowIf(isInBiddingZone);
 				}))), //
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
-		;
+
+		PARAGRAPH_14A_CHECK(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".14aCheck.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					final var isInBiddingZone = Exp.staticValue(BiddingZone.GERMANY)
+							.equal(Exp.currentModelValue(BIDDING_ZONE));
+					field.onlyShowIf(isInBiddingZone);
+				}))),
+
+		GERMAN_DSO(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".dso.germany.label") //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(GermanDSO.optionsFactory(), l);
+					field.onlyShowIf(Exp.currentModelValue(PARAGRAPH_14A_CHECK).notNull());
+				}))),
+
+		TARIFF_TABLE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setDefaultValue((a, b, c, d) -> GermanDSO.getDefaultJson())//
+				.setTranslatedDescriptionWithAppPrefix(".dso.germany.description")
+				.setField(JsonFormlyUtil::buildTariffTableFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.staticValue(GermanDSO.OTHER)//
+							.equal(Exp.currentModelValue(GERMAN_DSO)));
+				}) //
+				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "ancillaryCosts",
+						ComponentManagerSupplier::getComponentManager, j -> {
+							return JsonUtils.getAsOptionalJsonObject(j) //
+									.<JsonElement>flatMap(t -> JsonUtils.getAsOptionalJsonArray(t, "schedule")) //
+									.orElse(null);
+						})));
 
 		private final AppDef<? super EntsoE, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -140,6 +175,21 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var biddingZone = this.getString(p, l, Property.BIDDING_ZONE);
 			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
+			final var paragraph14aCheck = this.getBoolean(p, Property.PARAGRAPH_14A_CHECK);
+			final var germanDso = paragraph14aCheck ? this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO) : null;
+			var ancillaryCosts = paragraph14aCheck ? germanDso.getAncillaryCosts() : null;
+
+			if (germanDso == GermanDSO.OTHER) {
+				final var tariffTable = this.getJsonArray(p, Property.TARIFF_TABLE);
+
+				parseSchedule(tariffTable);
+
+				ancillaryCosts = buildJsonObject() //
+						.addProperty("dso", germanDso) //
+						.add("schedule", tariffTable) //
+						.build() //
+						.toString(); //
+			}
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
@@ -150,7 +200,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
 							JsonUtils.buildJsonObject() //
 									.addPropertyIfNotNull("biddingZone", biddingZone) //
-									.build())//
+									.addPropertyIfNotNull("ancillaryCosts", ancillaryCosts) //
+									.build()) //
 			);
 
 			return AppConfiguration.create() //
@@ -256,6 +307,97 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		public static final OptionsFactory optionsFactory() {
 			return OptionsFactory.of(values());
 		}
+	}
+
+	// CHECKSTYLE:OFF
+	public enum GermanDSO implements TranslatableEnum {
+		// CHECKSTYLE:ON
+		BAYERNWERK("Bayernwerk"), //
+		NETZE_BW("Netze BW"), //
+		EWE_NETZ("EWE Netz"), //
+		MIT_NETZ("MIT Netz"), //
+		SH_NETZ("SH Netz"), //
+		WEST_NETZ("Westnetz"), //
+		E_DIS("E.DIS"), //
+		AVACON("Avacon"), //
+		LEW("LEW"), //
+		TE_NETZE("TE Netze"), //
+		OTHER("Other");
+
+		private final String label;
+
+		private GermanDSO(String label) {
+			this.label = label;
+		}
+
+		@Override
+		public final String getTranslation(Language l) {
+			if (this == GermanDSO.OTHER) {
+				var translationKey = "App.TimeOfUseTariff.ENTSO-E.dso.other";
+				final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
+				return TranslationUtil.getTranslation(bundle, translationKey);
+			}
+			return this.label;
+		}
+
+		public final String getAncillaryCosts() {
+			return buildJsonObject()//
+					.addProperty("dso", this.name())//
+					.build() //
+					.toString();
+		}
+
+		/**
+		 * Creates a {@link OptionsFactory} of this enum.
+		 * 
+		 * @return the {@link OptionsFactory}
+		 */
+		public static final OptionsFactory optionsFactory() {
+			return OptionsFactory.of(values());
+		}
+
+		/**
+		 * Creates a Default Json for the GermanDSO.
+		 * 
+		 * @return the {@link JsonArray}
+		 */
+		public static final JsonArray getDefaultJson() {
+			var currentYear = ZonedDateTime.now().getYear();
+			return buildJsonArray() //
+					.add(buildJsonObject() //
+							.addProperty("year", currentYear) //
+							.add("tariffs", buildTariffsJson()) //
+							.add("quarters", buildQuartersJson(currentYear)) //
+							.build()) //
+					.build();
+		}
+
+	}
+
+	// Helper methods to build JSON structure
+	private static JsonElement buildTariffsJson() {
+		return buildJsonObject() //
+				.addProperty("low", 0.0) //
+				.addProperty("standard", 0.0) //
+				.addProperty("high", 0.0) //
+				.build();
+	}
+
+	private static JsonElement buildQuartersJson(int currentYear) {
+		return buildJsonArray() //
+				.add(buildQuarterJson(1)) //
+				.add(buildQuarterJson(2)) //
+				.add(buildQuarterJson(3)) //
+				.add(buildQuarterJson(4)) //
+				.build();
+	}
+
+	private static JsonElement buildQuarterJson(int quarter) {
+		return buildJsonObject() //
+				.addProperty("quarter", quarter) //
+				.add("dailySchedule", buildJsonArray() //
+						.build()) //
+				.build();
 	}
 
 }

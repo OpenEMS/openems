@@ -22,9 +22,6 @@ import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayeds
 import { HistoryComponent as EdgeHistoryComponent } from "./edge/history/history.component";
 import { HistoryDataService } from "./edge/history/historydataservice";
 import { HistoryParentComponent } from "./edge/history/historyparent.component";
-import { AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component";
-import { SymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
-import { TimeslotPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
 import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/Evse/modal/forecast/forecast";
 import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/modal/history/history";
 import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/modal/modal";
@@ -97,17 +94,17 @@ export const routes: Routes = [
         }], component: HistoryParentComponent, children: [
           { path: "", component: EdgeHistoryComponent },
           // History Chart Pages
-          { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
           { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
           { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
           { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
           { path: ":componentId/heatmypvchart", component: HeatmypvchartOverviewComponent },
           { path: ":componentId/heatchart", component: HeatchartOverviewComponent },
           { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
+          { path: ":componentId/asymmetricpeakshavingchart", loadChildren: () => import("./edge/history/Controller/peak-shaving/asymmetric/asymmetric-peak-shaving.module").then(m => m.AsymmetricPeakShavingModule) },
+          { path: ":componentId/symmetricpeakshavingchart", loadChildren: () => import("./edge/history/Controller/peak-shaving/symmetric/symmetric-peak-shaving.module").then(m => m.SymmetricPeakShavingModule) },
+          { path: ":componentId/timeslotpeakshavingchart", loadChildren: () => import("./edge/history/Controller/peak-shaving/timeslot/timeslot-peak-shaving.module").then(m => m.TimeslotPeakShavingModule) },
           { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
           { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
-          { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
-          { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
           { path: "autarchychart", component: AutarchyChartOverviewComponent },
           { path: "consumptionchart", component: ConsumptionChartOverviewComponent },
           { path: "consumptionchart/:componentId", component: ConsumptionDetailsOverviewComponent },
