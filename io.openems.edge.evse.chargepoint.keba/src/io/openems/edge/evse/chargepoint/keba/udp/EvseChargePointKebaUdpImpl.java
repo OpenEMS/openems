@@ -41,7 +41,6 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -105,7 +104,7 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 		this.readWorker = new ReadWorker(this::send, //
 				report -> {
 					var receivedAMessage = this.readHandler.hasResultandReset(report);
-					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+					this.channel(EvseChargePointKebaUdp.ChannelId.COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
 					if (!receivedAMessage) {
 						// Resets all channel values except the Communication_Failed channel.
 						Arrays.stream(EvseChargePointKebaUdp.ChannelId.values()) //

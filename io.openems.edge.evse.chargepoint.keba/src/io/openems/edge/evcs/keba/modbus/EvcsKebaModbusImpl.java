@@ -1,11 +1,12 @@
 package io.openems.edge.evcs.keba.modbus;
 
 import static io.openems.common.types.OpenemsType.INTEGER;
-import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
-import static io.openems.edge.common.type.TypeUtils.getAsType;
+import static io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils.CONVERT_FIRMWARE_VERSION;
+import static io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils.calculateActivePowerL1L2L3;
 
 import java.net.UnknownHostException;
 import java.time.Clock;
@@ -313,15 +314,16 @@ public class EvcsKebaModbusImpl extends AbstractOpenemsModbusComponent implement
 								CONVERT_FIRMWARE_VERSION)),
 				new FC3ReadRegistersTask(1020, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020),
-								SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)
+								.onUpdateCallback(power -> calculateActivePowerL1L2L3(this, power))),
 				new FC3ReadRegistersTask(1036, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(1036))),
 				new FC3ReadRegistersTask(1040, Priority.LOW, //
-						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(1040))),
+						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(1040), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1042, Priority.LOW, //
-						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(1042))),
+						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(1042), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1044, Priority.LOW, //
-						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(1044))),
+						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(1044), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1046, Priority.LOW, //
 						m(EvcsKebaModbus.ChannelId.POWER_FACTOR, new UnsignedDoublewordElement(1046),
 								SCALE_FACTOR_MINUS_1)),
@@ -356,28 +358,6 @@ public class EvcsKebaModbusImpl extends AbstractOpenemsModbusComponent implement
 	public boolean isReadOnly() {
 		return this.config.readOnly();
 	}
-
-	/**
-	 * Converts an unsigned 32-bit integer value to a firmware version string.
-	 * 
-	 * @param value the unsigned 32-bit integer value representing the firmware
-	 *              version
-	 * @return the firmware version string in the format "major.minor.patch" or null
-	 */
-	protected static final ElementToChannelConverter CONVERT_FIRMWARE_VERSION = new ElementToChannelConverter(obj -> {
-		if (obj == null) {
-			return null;
-		}
-		var value = (long) getAsType(LONG, obj);
-		// Extract major, minor, and patch versions using bit manipulation
-		return new StringBuilder() //
-				.append((value >> 24) & 0xFF) //
-				.append(".") //
-				.append((value >> 16) & 0xFF) //
-				.append(".") //
-				.append((value >> 8) & 0xFF) //
-				.toString();
-	});
 
 	private boolean checkWriteIntervall() {
 		if (this.lastWrite == null) {
