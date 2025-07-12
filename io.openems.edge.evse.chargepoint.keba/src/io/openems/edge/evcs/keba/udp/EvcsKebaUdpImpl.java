@@ -37,6 +37,7 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
+import io.openems.edge.evse.chargepoint.keba.common.EvcsKeba;
 import io.openems.edge.evse.chargepoint.keba.udp.ReadWorker;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -50,7 +51,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 @EventTopics({ //
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements EvcsKebaUdp, ManagedEvcs, Evcs,
+public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements EvcsKebaUdp, EvcsKeba, ManagedEvcs, Evcs,
 		DeprecatedEvcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	protected final ReadHandler readHandler = new ReadHandler(this);
@@ -76,6 +77,7 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				DeprecatedEvcs.ChannelId.values(), //
+				EvcsKeba.ChannelId.values(), //
 				EvcsKebaUdp.ChannelId.values() //
 		);
 		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);

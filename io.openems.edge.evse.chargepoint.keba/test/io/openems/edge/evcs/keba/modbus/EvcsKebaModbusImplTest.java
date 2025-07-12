@@ -17,6 +17,8 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.test.DummyEvcsPower;
+import io.openems.edge.evse.chargepoint.keba.common.EvcsKeba;
+import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ProductTypeAndFeatures;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -75,8 +77,8 @@ public class EvcsKebaModbusImplTest {
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(1000, // STATUS - TODO
 								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1004, // PLUG - TODO
-								new int[] { 0x0000, 0x0000 }) //
+						.withRegisters(1004, // PLUG
+								new int[] { 0x0000, 0x0007 }) //
 						.withRegisters(1006, // ERROR_CODE - TODO
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1008, // CURRENT_L1: 7_000
@@ -128,6 +130,7 @@ public class EvcsKebaModbusImplTest {
 						.build()) //
 				.next(new TestCase(), 15) //
 				.next(new TestCase() //
+						.output(EvcsKeba.ChannelId.PLUG, CableState.PLUGGED_AND_LOCKED) //
 						.output(EvcsKebaModbus.ChannelId.FIRMWARE, "1.1.1") //
 						.output(EvcsKebaModbus.ChannelId.PTAF_PRODUCT_TYPE, ProductTypeAndFeatures.ProductType.KC_P30) //
 						.output(EvcsKebaModbus.ChannelId.PTAF_CABLE_OR_SOCKET,

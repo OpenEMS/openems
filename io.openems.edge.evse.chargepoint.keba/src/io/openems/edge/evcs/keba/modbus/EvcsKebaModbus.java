@@ -19,7 +19,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ProductTypeAndFeatures;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -27,8 +26,6 @@ public interface EvcsKebaModbus
 		extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-		PLUG(Doc.of(CableState.values())), //
 		ERROR_CODE(Doc.of(OpenemsType.INTEGER)), //
 		SERIAL_NUMBER(Doc.of(OpenemsType.INTEGER)), //
 		PRODUCT_TYPE(Doc.of(OpenemsType.INTEGER)), //

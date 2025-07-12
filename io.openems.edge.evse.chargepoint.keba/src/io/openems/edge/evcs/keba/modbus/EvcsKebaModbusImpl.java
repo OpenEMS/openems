@@ -57,6 +57,7 @@ import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.evse.chargepoint.keba.common.EvcsKeba;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ProductTypeAndFeatures;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -69,8 +70,8 @@ import io.openems.edge.meter.api.ElectricityMeter;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsKebaModbusImpl extends AbstractOpenemsModbusComponent implements EvcsKebaModbus, ManagedEvcs, Evcs,
-		ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, ModbusComponent {
+public class EvcsKebaModbusImpl extends AbstractOpenemsModbusComponent implements EvcsKebaModbus, EvcsKeba, ManagedEvcs,
+		Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, ModbusComponent {
 
 	private Clock clock;
 	private final Logger log = LoggerFactory.getLogger(EvcsKebaModbusImpl.class);
@@ -111,6 +112,7 @@ public class EvcsKebaModbusImpl extends AbstractOpenemsModbusComponent implement
 				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
+				EvcsKeba.ChannelId.values(), //
 				EvcsKebaModbus.ChannelId.values() //
 		);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
@@ -288,7 +290,7 @@ public class EvcsKebaModbusImpl extends AbstractOpenemsModbusComponent implement
 					};
 				}))), //
 				new FC3ReadRegistersTask(1004, Priority.LOW, //
-						m(EvcsKebaModbus.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
+						m(EvcsKeba.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
 				new FC3ReadRegistersTask(1006, Priority.LOW, //
 						m(EvcsKebaModbus.ChannelId.ERROR_CODE, new UnsignedDoublewordElement(1006))),
 				new FC3ReadRegistersTask(1008, Priority.LOW, //

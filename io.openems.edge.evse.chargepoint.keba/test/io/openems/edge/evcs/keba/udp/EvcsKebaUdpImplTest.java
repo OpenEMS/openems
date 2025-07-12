@@ -8,6 +8,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.test.DummyEvcsPower;
+import io.openems.edge.evse.chargepoint.keba.common.EvcsKeba;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCoreImpl;
@@ -46,6 +47,7 @@ public class EvcsKebaUdpImplTest {
 						.output(EvcsKebaUdp.ChannelId.CHARGING_STATE, ChargingState.INTERRUPTED) //
 						.output(EvcsKebaUdp.ChannelId.ERROR_1, 0) //
 						.output(EvcsKebaUdp.ChannelId.ERROR_2, 0) //
+						.output(EvcsKeba.ChannelId.PLUG, CableState.PLUGGED_AND_LOCKED) //
 						.output(EvcsKebaUdp.ChannelId.CABLE_STATE, CableState.PLUGGED_AND_LOCKED) //
 						.output(EvcsKebaUdp.ChannelId.ENABLE_SYS, false) //
 						.output(EvcsKebaUdp.ChannelId.ENABLE_USER, false) //

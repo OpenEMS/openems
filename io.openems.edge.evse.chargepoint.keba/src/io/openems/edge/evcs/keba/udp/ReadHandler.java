@@ -4,6 +4,7 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
 import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
@@ -26,6 +27,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evse.chargepoint.keba.common.EvcsKeba;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.udp.ReadWorker;
@@ -396,6 +398,7 @@ public class ReadHandler implements Consumer<String> {
 		final var channelId = EvcsKebaUdp.ChannelId.CABLE_STATE;
 		this.setInt(channelId, jMessage, "Plug");
 		final CableState cableState = this.parent.channel(channelId).getNextValue().asEnum();
+		setValue(this.parent, EvcsKeba.ChannelId.PLUG, cableState);
 		this.energySessionHandler.updateCableState(cableState);
 		return cableState;
 	}
