@@ -1,10 +1,10 @@
-package io.openems.edge.timeofusetariff.entsoe;
+package io.openems.edge.timeofusetariff.api;
 
-import static io.openems.edge.timeofusetariff.entsoe.AncillaryCosts.GridFee.Tariff.HIGH;
-import static io.openems.edge.timeofusetariff.entsoe.AncillaryCosts.GridFee.Tariff.LOW;
-import static io.openems.edge.timeofusetariff.entsoe.AncillaryCosts.GridFee.Tariff.STANDARD;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff.HIGH;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff.LOW;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff.STANDARD;
 
-import io.openems.edge.timeofusetariff.entsoe.AncillaryCosts.GridFee;
+import io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee;
 
 //CHECKSTYLE:OFF
 public enum GermanDSO {
@@ -22,16 +22,24 @@ public enum GermanDSO {
 					.setStart(2025, 10, 1) //
 					.setEnd(2025, 12, 31) //
 					.setLowTariff(0.88) //
+					.setStandardTariff(8.75) //
 					.setHighTariff(11.58) //
 					.addTimeRange(tr -> tr //
 							.setStart(0, 0) //
 							.setEnd(5, 0) //
 							.setTariff(LOW)) //
 					.addTimeRange(tr -> tr //
+							.setStart(5, 0) //
+							.setEnd(17, 0) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
 							.setStart(17, 0) //
 							.setEnd(21, 0) //
-							.setTariff(HIGH))) //
-	),
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr //
+							.setStart(21, 0) //
+							.setEnd(0, 0) //
+							.setTariff(STANDARD)))),
 
 	NETZE_BW(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -45,22 +53,21 @@ public enum GermanDSO {
 							.setEnd(10, 0) //
 							.setTariff(STANDARD))
 					.addTimeRange(tr -> tr //
+							.setStart(10, 0) //
+							.setEnd(14, 0) //
+							.setTariff(LOW)) //
+					.addTimeRange(tr -> tr //
 							.setStart(14, 0) //
 							.setEnd(17, 0) //
-							.setTariff(STANDARD))
-					.addTimeRange(tr -> tr //
-							.setStart(22, 0) //
-							.setEnd(0, 0) //
 							.setTariff(STANDARD))
 					.addTimeRange(tr -> tr //
 							.setStart(17, 0) //
 							.setEnd(22, 0) //
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
-							.setStart(10, 0) //
-							.setEnd(14, 0) //
-							.setTariff(LOW))) //
-	),
+							.setStart(22, 0) //
+							.setEnd(0, 0) //
+							.setTariff(STANDARD)))),
 
 	EWE_NETZ(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -74,13 +81,13 @@ public enum GermanDSO {
 							.setEnd(17, 30) //
 							.setTariff(STANDARD))
 					.addTimeRange(tr -> tr //
-							.setStart(20, 30) //
-							.setEnd(23, 0) //
-							.setTariff(STANDARD))
-					.addTimeRange(tr -> tr //
 							.setStart(17, 30) //
 							.setEnd(20, 30) //
 							.setTariff(HIGH))
+					.addTimeRange(tr -> tr //
+							.setStart(20, 30) //
+							.setEnd(23, 0) //
+							.setTariff(STANDARD))
 					.addTimeRange(tr -> tr //
 							.setStart(23, 0) //
 							.setEnd(5, 0) //
@@ -102,30 +109,29 @@ public enum GermanDSO {
 					.setLowTariff(0.99) //
 					.setHighTariff(17.90) //
 					.addTimeRange(tr -> tr //
-							.setStart(3, 0) //
-							.setEnd(8, 0) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
-							.setStart(12, 0) //
-							.setEnd(17, 0) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
 							.setStart(0, 0) //
 							.setEnd(3, 0) //
 							.setTariff(LOW)) //
 					.addTimeRange(tr -> tr //
-							.setStart(19, 0) //
-							.setEnd(0, 0) //
-							.setTariff(LOW)) //
+							.setStart(3, 0) //
+							.setEnd(8, 0) //
+							.setTariff(STANDARD)) //
 					.addTimeRange(tr -> tr //
 							.setStart(8, 0) //
 							.setEnd(12, 0) //
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
+							.setStart(12, 0) //
+							.setEnd(17, 0) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
 							.setStart(17, 0) //
 							.setEnd(19, 0) //
-							.setTariff(HIGH))) //
-	),
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr //
+							.setStart(19, 0) //
+							.setEnd(0, 0) //
+							.setTariff(LOW)))),
 
 	SH_NETZ(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -142,30 +148,29 @@ public enum GermanDSO {
 					.setLowTariff(1.05) //
 					.setHighTariff(15.83) //
 					.addTimeRange(tr -> tr //
-							.setStart(4, 0) //
-							.setEnd(10, 0) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
-							.setStart(13, 0) //
-							.setEnd(18, 0) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
 							.setStart(0, 0) //
 							.setEnd(4, 0) //
 							.setTariff(LOW)) //
 					.addTimeRange(tr -> tr //
-							.setStart(21, 0) //
-							.setEnd(0, 0) //
-							.setTariff(LOW)) //
+							.setStart(4, 0) //
+							.setEnd(10, 0) //
+							.setTariff(STANDARD)) //
 					.addTimeRange(tr -> tr //
 							.setStart(10, 0) //
 							.setEnd(13, 0) //
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
+							.setStart(13, 0) //
+							.setEnd(18, 0) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
 							.setStart(18, 0) //
 							.setEnd(21, 0) //
-							.setTariff(HIGH))) //
-	),
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr //
+							.setStart(21, 0) //
+							.setEnd(0, 0) //
+							.setTariff(LOW)))),
 
 	WEST_NETZ(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -175,22 +180,21 @@ public enum GermanDSO {
 					.setLowTariff(1.19) //
 					.setHighTariff(17.75) //
 					.addTimeRange(tr -> tr //
+							.setStart(0, 0) //
+							.setEnd(6, 0) //
+							.setTariff(LOW))
+					.addTimeRange(tr -> tr //
 							.setStart(6, 0) //
 							.setEnd(15, 0) //
-							.setTariff(STANDARD))
-					.addTimeRange(tr -> tr //
-							.setStart(20, 0) //
-							.setEnd(0, 0) //
 							.setTariff(STANDARD))
 					.addTimeRange(tr -> tr //
 							.setStart(15, 0) //
 							.setEnd(20, 0) //
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
-							.setStart(0, 0) //
-							.setEnd(6, 0) //
-							.setTariff(LOW))) //
-	),
+							.setStart(20, 0) //
+							.setEnd(0, 0) //
+							.setTariff(STANDARD)))),
 
 	E_DIS(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -207,26 +211,25 @@ public enum GermanDSO {
 					.setLowTariff(0.79) //
 					.setHighTariff(13.04) //
 					.addTimeRange(tr -> tr //
+							.setStart(0, 0) //
+							.setEnd(5, 45) //
+							.setTariff(LOW)) //
+					.addTimeRange(tr -> tr //
 							.setStart(5, 45) //
 							.setEnd(16, 30) //
 							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
+							.setStart(16, 30) //
+							.setEnd(20, 45) //
+							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
 							.setStart(20, 45) //
 							.setEnd(23, 15) //
 							.setTariff(STANDARD)) //
 					.addTimeRange(tr -> tr //
-							.setStart(0, 0) //
-							.setEnd(5, 45) //
-							.setTariff(LOW)) //
-					.addTimeRange(tr -> tr //
 							.setStart(23, 15) //
 							.setEnd(0, 0) //
-							.setTariff(LOW)) //
-					.addTimeRange(tr -> tr //
-							.setStart(16, 30) //
-							.setEnd(20, 45) //
-							.setTariff(HIGH))) //
-	),
+							.setTariff(LOW)))),
 
 	AVACON(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -243,26 +246,25 @@ public enum GermanDSO {
 					.setLowTariff(1.08) //
 					.setHighTariff(15.01) //
 					.addTimeRange(tr -> tr //
+							.setStart(0, 15) //
+							.setEnd(5, 0) //
+							.setTariff(LOW)) //
+					.addTimeRange(tr -> tr //
 							.setStart(5, 0) //
 							.setEnd(16, 30) //
 							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
+							.setStart(16, 30) //
+							.setEnd(21, 0) //
+							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
 							.setStart(21, 0) //
 							.setEnd(23, 0) //
 							.setTariff(STANDARD)) //
 					.addTimeRange(tr -> tr //
-							.setStart(0, 15) //
-							.setEnd(5, 0) //
-							.setTariff(LOW)) //
-					.addTimeRange(tr -> tr //
 							.setStart(23, 0) //
 							.setEnd(0, 15) //
-							.setTariff(LOW)) //
-					.addTimeRange(tr -> tr //
-							.setStart(16, 30) //
-							.setEnd(21, 0) //
-							.setTariff(HIGH))) //
-	),
+							.setTariff(LOW)))),
 
 	LEW(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -276,22 +278,21 @@ public enum GermanDSO {
 							.setEnd(10, 0) //
 							.setTariff(STANDARD)) //
 					.addTimeRange(tr -> tr //
-							.setStart(15, 0) //
-							.setEnd(17, 0) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
-							.setStart(21, 0) //
-							.setEnd(0, 0) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
 							.setStart(10, 0) //
 							.setEnd(15, 0) //
 							.setTariff(LOW)) //
 					.addTimeRange(tr -> tr //
+							.setStart(15, 0) //
+							.setEnd(17, 0) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
 							.setStart(17, 0) //
 							.setEnd(21, 0) //
-							.setTariff(HIGH))) //
-	),
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr //
+							.setStart(21, 0) //
+							.setEnd(0, 0) //
+							.setTariff(STANDARD)))),
 
 	TE_NETZE(GridFee.create() //
 			.addDateRange(dr -> dr //
@@ -308,38 +309,37 @@ public enum GermanDSO {
 					.setLowTariff(3.52) //
 					.setHighTariff(11.86) //
 					.addTimeRange(tr -> tr //
-							.setStart(4, 30) //
-							.setEnd(11, 30) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
-							.setStart(13, 0) //
-							.setEnd(18, 30) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
-							.setStart(20, 30) //
-							.setEnd(22, 0) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
-							.setStart(23, 0) //
-							.setEnd(1, 30) //
-							.setTariff(STANDARD)) //
-					.addTimeRange(tr -> tr //
 							.setStart(1, 30) //
 							.setEnd(4, 30) //
 							.setTariff(LOW)) //
+					.addTimeRange(tr -> tr //
+							.setStart(4, 30) //
+							.setEnd(11, 30) //
+							.setTariff(STANDARD)) //
 					.addTimeRange(tr -> tr //
 							.setStart(11, 30) //
 							.setEnd(13, 0) //
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
+							.setStart(13, 0) //
+							.setEnd(18, 30) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
 							.setStart(18, 30) //
 							.setEnd(20, 30) //
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr //
+							.setStart(20, 30) //
+							.setEnd(22, 0) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
 							.setStart(22, 00) //
 							.setEnd(23, 00) //
-							.setTariff(HIGH))) //
-	);
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr //
+							.setStart(23, 0) //
+							.setEnd(1, 30) //
+							.setTariff(STANDARD))));
 
 	public final GridFee gridFee;
 
