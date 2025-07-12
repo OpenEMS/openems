@@ -4,6 +4,7 @@ import { SharedModule } from "../../shared/shared.module";
 import { ChpSocChartComponent } from "./chpsoc/chart.component";
 import { ChpSocWidgetComponent } from "./chpsoc/widget.component";
 import { Common } from "./common/common";
+import { FlatComponent as StorageFlatComponent } from "./common/storage/flat/flat";
 import { Controller } from "./Controller/controller.module";
 import { FlatComponent as HeatpumpFlatComponent } from "./Controller/Io/heatpump/flat/flat";
 import { FlatComponent as AsymmetricPeakshavingFlatComponent } from "./Controller/peak-shaving/asymmetric/flat/flat";
@@ -30,6 +31,7 @@ import { HistoryParentComponent } from "./historyparent.component";
     DelayedSellToGridWidgetComponent,
     HeatpumpFlatComponent,
     TimeslotPeakshavingFlatComponent,
+    StorageFlatComponent,
     SymmetricPeakshavingFlatComponent,
     AsymmetricPeakshavingFlatComponent,
     HistoryComponent,
