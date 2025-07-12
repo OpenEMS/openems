@@ -1,4 +1,9 @@
-package io.openems.edge.evcs.keba.kecontact;
+package io.openems.edge.evcs.keba.udp;
+
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -10,11 +15,8 @@ import java.net.UnknownHostException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -26,7 +28,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.ChargingType;
@@ -36,45 +37,46 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
-import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCore;
+import io.openems.edge.evse.chargepoint.keba.udp.ReadWorker;
+import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.Keba.KeContact", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implements EvcsKebaKeContact, ManagedEvcs, Evcs,
+public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements EvcsKebaUdp, ManagedEvcs, Evcs,
 		DeprecatedEvcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	protected final ReadHandler readHandler = new ReadHandler(this);
 
-	private final Logger log = LoggerFactory.getLogger(EvcsKebaKeContactImpl.class);
-	private final ReadWorker readWorker = new ReadWorker(this);
+	private final Logger log = LoggerFactory.getLogger(EvcsKebaUdpImpl.class);
+	private final ReadWorker readWorker;
 
 	@Reference
 	private EvcsPower evcsPower;
 
-	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
-	private EvcsKebaKeContactCore kebaKeContactCore = null;
+	@Reference(policy = STATIC, cardinality = MANDATORY)
+	private EvseChargePointKebaUdpCore kebaUdpCore = null;
 
 	protected Config config;
 
 	private Boolean lastConnectionLostState = false;
 	private InetAddress ip = null;
 
-	public EvcsKebaKeContactImpl() {
+	public EvcsKebaUdpImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				DeprecatedEvcs.ChannelId.values(), //
-				EvcsKebaKeContact.ChannelId.values() //
+				EvcsKebaUdp.ChannelId.values() //
 		);
 		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
@@ -85,6 +87,12 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 		this._setReactivePowerL1(0);
 		this._setReactivePowerL2(0);
 		this._setReactivePowerL3(0);
+
+		this.readWorker = new ReadWorker(this::send, //
+				report -> {
+					var receivedAMessage = this.readHandler.hasResultandReset(report);
+					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+				});
 	}
 
 	@Activate
@@ -102,7 +110,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 		/*
 		 * subscribe on replies to report queries
 		 */
-		this.kebaKeContactCore.onReceive((ip, message) -> {
+		this.kebaUdpCore.onReceive((ip, message) -> {
 			if (ip.equals(this.ip)) { // same IP -> handle message
 				this.readHandler.accept(message);
 				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
@@ -128,7 +136,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 		}
 		super.handleEvent(event);
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+		case TOPIC_CYCLE_EXECUTE_WRITE:
 
 			// Clear channels if the connection to the Charging Station has been lost
 			Channel<Boolean> connectionLostChannel = this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
@@ -161,7 +169,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 	 */
 	protected boolean send(String s) {
 		var raw = s.getBytes();
-		var packet = new DatagramPacket(raw, raw.length, this.ip, EvcsKebaKeContactImpl.UDP_PORT);
+		var packet = new DatagramPacket(raw, raw.length, this.ip, EvcsKebaUdpImpl.UDP_PORT);
 		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
 			datagrammSocket.send(packet);
 			return true;
@@ -184,7 +192,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 
 	@Override
 	public String debugLog() {
-		return "Limit:" + this.channel(EvcsKebaKeContact.ChannelId.CURR_USER).value().asString() + "|"
+		return "Limit:" + this.channel(EvcsKebaUdp.ChannelId.CURR_USER).value().asString() + "|"
 				+ this.getStatus().getName();
 	}
 
@@ -212,7 +220,7 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 	 * Resets all channel values except the Communication_Failed channel.
 	 */
 	private void resetChannelValues() {
-		for (var c : EvcsKebaKeContact.ChannelId.values()) {
+		for (var c : EvcsKebaUdp.ChannelId.values()) {
 			Channel<?> channel = this.channel(c);
 			channel.setNextValue(null);
 		}
@@ -278,5 +286,10 @@ public class EvcsKebaKeContactImpl extends AbstractManagedEvcsComponent implemen
 	public int getConfiguredMaximumHardwarePower() {
 		return Math.round(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT / 1000f) * Evcs.DEFAULT_VOLTAGE
 				* Phases.THREE_PHASE.getValue();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this.config.readOnly();
 	}
 }

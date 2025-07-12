@@ -16,6 +16,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -40,6 +41,7 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -74,7 +76,7 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 
 	private final Logger log = LoggerFactory.getLogger(EvseChargePointKebaUdpImpl.class);
 	private final Utils utils = new Utils(this);
-	private final ReadWorker readWorker = new ReadWorker(this);
+	private final ReadWorker readWorker;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -99,6 +101,18 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 		);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+
+		this.readWorker = new ReadWorker(this::send, //
+				report -> {
+					var receivedAMessage = this.readHandler.hasResultandReset(report);
+					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+					if (!receivedAMessage) {
+						// Resets all channel values except the Communication_Failed channel.
+						Arrays.stream(EvseChargePointKebaUdp.ChannelId.values()) //
+								.filter(c -> c != EvseChargePointKebaUdp.ChannelId.COMMUNICATION_FAILED) //
+								.forEach(c -> this.channel(c).setNextValue(null));
+					}
+				});
 	}
 
 	@Activate
@@ -154,6 +168,9 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 			this.utils.onBeforeProcessImage();
 		}
 		case TOPIC_CYCLE_EXECUTE_WRITE -> {
+			if (this.config.readOnly()) {
+				return;
+			}
 			this.setCurrent(//
 					this.getSetEnableChannel().getNextWriteValueAndReset() //
 							.map(ena -> OptionsEnum.getOption(SetEnable.class, ena)) //

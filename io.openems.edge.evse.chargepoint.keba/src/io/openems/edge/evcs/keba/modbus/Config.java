@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.keba.p40;
+package io.openems.edge.evcs.keba.modbus;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

@@ -1,9 +1,10 @@
-package io.openems.edge.evcs.keba.p40;
+package io.openems.edge.evcs.keba.modbus;
 
 import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.evcs.api.PhaseRotation;
+import io.openems.edge.evcs.keba.modbus.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

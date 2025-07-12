@@ -9,7 +9,7 @@ import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
+		private String id;
 		private boolean readOnly;
 		private String ip;
 		private PhaseRotation phaseRotation;
@@ -22,6 +22,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+		
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
 			return this;
 		}
 

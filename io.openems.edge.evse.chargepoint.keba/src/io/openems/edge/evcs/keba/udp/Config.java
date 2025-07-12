@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.keba.kecontact;
+package io.openems.edge.evcs.keba.udp;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -17,6 +17,9 @@ import io.openems.edge.evcs.api.PhaseRotation;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
+	boolean readOnly() default false;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;

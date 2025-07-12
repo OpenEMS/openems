@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.keba.p40;
+package io.openems.edge.evcs.keba.modbus;
 
 import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.common.channel.Unit.MILLIAMPERE;
@@ -19,14 +19,16 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.keba.common.R2Plug;
+import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.ProductTypeAndFeatures;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvcsKebaP40 extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
+public interface EvcsKebaModbus
+		extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		PLUG(Doc.of(R2Plug.values())), //
+		PLUG(Doc.of(CableState.values())), //
 		ERROR_CODE(Doc.of(OpenemsType.INTEGER)), //
 		SERIAL_NUMBER(Doc.of(OpenemsType.INTEGER)), //
 		PRODUCT_TYPE(Doc.of(OpenemsType.INTEGER)), //
@@ -146,7 +148,7 @@ public interface EvcsKebaP40 extends ManagedEvcs, Evcs, ElectricityMeter, Openem
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(EvcsKebaP40.class, accessMode, 300) //
+		return ModbusSlaveNatureTable.of(EvcsKebaModbus.class, accessMode, 300) //
 				.build();
 	}
 }

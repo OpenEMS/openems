@@ -20,7 +20,7 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
+	@AttributeDefinition(name = "Read only", description = "Defines that this Charge-Point is read only.", required = true)
 	boolean readOnly() default false;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.", required = true)

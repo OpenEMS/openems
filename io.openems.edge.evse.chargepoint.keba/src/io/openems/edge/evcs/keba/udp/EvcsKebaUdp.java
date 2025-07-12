@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.keba.kecontact;
+package io.openems.edge.evcs.keba.udp;
 
 import org.osgi.service.event.EventHandler;
 
@@ -15,11 +15,11 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.keba.common.R2Plug;
+import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvcsKebaKeContact
-		extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
+public interface EvcsKebaUdp extends ManagedEvcs, Evcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int UDP_PORT = 7090;
 
@@ -46,12 +46,12 @@ public interface EvcsKebaKeContact
 		/*
 		 * Report 2
 		 */
-		R2_STATE(Doc.of(R2State.values())), //
+		CHARGING_STATE(Doc.of(ChargingState.values())), //
+		CABLE_STATE(Doc.of(CableState.values())), //
 		ERROR_1(Doc.of(OpenemsType.INTEGER) //
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 		ERROR_2(Doc.of(OpenemsType.INTEGER) //
 				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-		R2_PLUG(Doc.of(R2Plug.values())), //
 		ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 		ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //
@@ -139,26 +139,26 @@ public interface EvcsKebaKeContact
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(EvcsKebaKeContact.class, accessMode, 300) //
-				.channel(0, EvcsKebaKeContact.ChannelId.PRODUCT, ModbusType.STRING16)
-				.channel(16, EvcsKebaKeContact.ChannelId.SERIAL, ModbusType.STRING16)
-				.channel(32, EvcsKebaKeContact.ChannelId.FIRMWARE, ModbusType.STRING16)
-				.channel(48, EvcsKebaKeContact.ChannelId.COM_MODULE, ModbusType.STRING16)
-				.channel(64, EvcsKebaKeContact.ChannelId.R2_STATE, ModbusType.UINT16)
-				.channel(65, EvcsKebaKeContact.ChannelId.ERROR_1, ModbusType.UINT16)
-				.channel(66, EvcsKebaKeContact.ChannelId.ERROR_2, ModbusType.UINT16)
-				.channel(67, EvcsKebaKeContact.ChannelId.R2_PLUG, ModbusType.UINT16)
-				.channel(68, EvcsKebaKeContact.ChannelId.ENABLE_SYS, ModbusType.UINT16)
-				.channel(69, EvcsKebaKeContact.ChannelId.ENABLE_USER, ModbusType.UINT16)
-				.channel(70, EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
-				.channel(71, EvcsKebaKeContact.ChannelId.CURR_USER, ModbusType.UINT16)
-				.channel(72, EvcsKebaKeContact.ChannelId.CURR_FAILSAFE, ModbusType.UINT16)
-				.channel(73, EvcsKebaKeContact.ChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
-				.channel(74, EvcsKebaKeContact.ChannelId.CURR_TIMER, ModbusType.UINT16)
-				.channel(75, EvcsKebaKeContact.ChannelId.TIMEOUT_CT, ModbusType.UINT16) //
+		return ModbusSlaveNatureTable.of(EvcsKebaUdp.class, accessMode, 300) //
+				.channel(0, EvcsKebaUdp.ChannelId.PRODUCT, ModbusType.STRING16)
+				.channel(16, EvcsKebaUdp.ChannelId.SERIAL, ModbusType.STRING16)
+				.channel(32, EvcsKebaUdp.ChannelId.FIRMWARE, ModbusType.STRING16)
+				.channel(48, EvcsKebaUdp.ChannelId.COM_MODULE, ModbusType.STRING16)
+				.channel(64, EvcsKebaUdp.ChannelId.CHARGING_STATE, ModbusType.UINT16)
+				.channel(65, EvcsKebaUdp.ChannelId.ERROR_1, ModbusType.UINT16)
+				.channel(66, EvcsKebaUdp.ChannelId.ERROR_2, ModbusType.UINT16)
+				.channel(67, EvcsKebaUdp.ChannelId.CABLE_STATE, ModbusType.UINT16)
+				.channel(68, EvcsKebaUdp.ChannelId.ENABLE_SYS, ModbusType.UINT16)
+				.channel(69, EvcsKebaUdp.ChannelId.ENABLE_USER, ModbusType.UINT16)
+				.channel(70, EvcsKebaUdp.ChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
+				.channel(71, EvcsKebaUdp.ChannelId.CURR_USER, ModbusType.UINT16)
+				.channel(72, EvcsKebaUdp.ChannelId.CURR_FAILSAFE, ModbusType.UINT16)
+				.channel(73, EvcsKebaUdp.ChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
+				.channel(74, EvcsKebaUdp.ChannelId.CURR_TIMER, ModbusType.UINT16)
+				.channel(75, EvcsKebaUdp.ChannelId.TIMEOUT_CT, ModbusType.UINT16) //
 				.uint16Reserved(76) //
-				.channel(77, EvcsKebaKeContact.ChannelId.OUTPUT, ModbusType.UINT16)
-				.channel(78, EvcsKebaKeContact.ChannelId.INPUT, ModbusType.UINT16) //
+				.channel(77, EvcsKebaUdp.ChannelId.OUTPUT, ModbusType.UINT16)
+				.channel(78, EvcsKebaUdp.ChannelId.INPUT, ModbusType.UINT16) //
 				.build();
 	}
 }

@@ -1,10 +1,13 @@
-package io.openems.edge.evcs.keba.kecontact;
+package io.openems.edge.evcs.keba.udp;
 
 import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDateTime;
 
 import org.junit.Test;
+
+import io.openems.edge.evse.chargepoint.keba.udp.ReadWorker;
+import io.openems.edge.evse.chargepoint.keba.udp.core.Report;
 
 public class ReadWorkerTest {
 

@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.keba.kecontact;
+package io.openems.edge.evcs.keba.udp;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
@@ -26,7 +26,10 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.keba.common.R2Plug;
+import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
+import io.openems.edge.evse.chargepoint.keba.udp.ReadWorker;
+import io.openems.edge.evse.chargepoint.keba.udp.core.Report;
 
 /**
  * Handles replies to Report Queries sent by {@link ReadWorker}.
@@ -34,14 +37,14 @@ import io.openems.edge.evcs.keba.common.R2Plug;
 public class ReadHandler implements Consumer<String> {
 
 	private final Logger log = LoggerFactory.getLogger(ReadHandler.class);
-	private final EvcsKebaKeContactImpl parent;
+	private final EvcsKebaUdpImpl parent;
 	private final EnergySessionHandler energySessionHandler = new EnergySessionHandler();
 
 	private boolean receiveReport1 = false;
 	private boolean receiveReport2 = false;
 	private boolean receiveReport3 = false;
 
-	public ReadHandler(EvcsKebaKeContactImpl parent) {
+	public ReadHandler(EvcsKebaUdpImpl parent) {
 		this.parent = parent;
 	}
 
@@ -78,9 +81,9 @@ public class ReadHandler implements Consumer<String> {
 		 */
 		case "1" -> {
 			this.receiveReport1 = true;
-			this.setString(EvcsKebaKeContact.ChannelId.SERIAL, j, "Serial");
-			this.setString(EvcsKebaKeContact.ChannelId.FIRMWARE, j, "Firmware");
-			this.setInt(EvcsKebaKeContact.ChannelId.COM_MODULE, j, "COM-module");
+			this.setString(EvcsKebaUdp.ChannelId.SERIAL, j, "Serial");
+			this.setString(EvcsKebaUdp.ChannelId.FIRMWARE, j, "Firmware");
+			this.setInt(EvcsKebaUdp.ChannelId.COM_MODULE, j, "COM-module");
 
 			// Dip-Switches
 			var dipSwitch1 = getAsOptionalString(j, "DIP-Sw1");
@@ -92,7 +95,7 @@ public class ReadHandler implements Consumer<String> {
 
 			// Product information
 			var product = getAsOptionalString(j, "Product");
-			keba.channel(EvcsKebaKeContact.ChannelId.PRODUCT).setNextValue(product.orElse(null));
+			keba.channel(EvcsKebaUdp.ChannelId.PRODUCT).setNextValue(product.orElse(null));
 			if (product.isPresent()) {
 				this.checkProductInformation(product.get());
 			}
@@ -105,18 +108,18 @@ public class ReadHandler implements Consumer<String> {
 			this.receiveReport2 = true;
 
 			// Parse Status and Plug immediately
-			this.setInt(EvcsKebaKeContact.ChannelId.R2_STATE, j, "State");
-			final R2State r2State = keba.channel(EvcsKebaKeContact.ChannelId.R2_STATE).getNextValue().asEnum();
-			final R2Plug r2Plug = this.setPlug(j);
+			this.setInt(EvcsKebaUdp.ChannelId.CHARGING_STATE, j, "State");
+			final ChargingState r2State = keba.channel(EvcsKebaUdp.ChannelId.CHARGING_STATE).getNextValue().asEnum();
+			final CableState cableState = this.setCableState(j);
 
 			// Value "setenergy" not used, because it is reset by the currtime 0 1 command
 
 			// Set Evcs status
-			var status = switch (r2Plug) {
-			case PLUGGED_ON_EVCS, PLUGGED_ON_EVCS_AND_LOCKED, PLUGGED_ON_EVCS_AND_ON_EV, UNDEFINED, UNPLUGGED //
+			var status = switch (cableState) {
+			case PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED, PLUGGED_EV_NOT_LOCKED, UNDEFINED, UNPLUGGED //
 				-> Status.NOT_READY_FOR_CHARGING;
 
-			case PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED -> {
+			case PLUGGED_AND_LOCKED -> {
 				/*
 				 * Check if the maximum energy limit is reached, informs the user and sets the
 				 * status
@@ -128,21 +131,21 @@ public class ReadHandler implements Consumer<String> {
 			};
 
 			keba._setStatus(status);
-			keba.channel(EvcsKebaKeContact.ChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(status == Status.ERROR);
+			keba.channel(EvcsKebaUdp.ChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(status == Status.ERROR);
 
-			this.setInt(EvcsKebaKeContact.ChannelId.ERROR_1, j, "Error1");
-			this.setInt(EvcsKebaKeContact.ChannelId.ERROR_2, j, "Error2");
-			this.setBoolean(EvcsKebaKeContact.ChannelId.ENABLE_SYS, j, "Enable sys");
-			this.setBoolean(EvcsKebaKeContact.ChannelId.ENABLE_USER, j, "Enable user");
-			this.setInt(EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, j, "Max curr %");
-			this.setInt(EvcsKebaKeContact.ChannelId.CURR_FAILSAFE, j, "Curr FS");
-			this.setInt(EvcsKebaKeContact.ChannelId.TIMEOUT_FAILSAFE, j, "Tmo FS");
-			this.setInt(EvcsKebaKeContact.ChannelId.CURR_TIMER, j, "Curr timer");
-			this.setInt(EvcsKebaKeContact.ChannelId.TIMEOUT_CT, j, "Tmo CT");
-			this.setBoolean(EvcsKebaKeContact.ChannelId.OUTPUT, j, "Output");
-			this.setBoolean(EvcsKebaKeContact.ChannelId.INPUT, j, "Input");
-			this.setInt(EvcsKebaKeContact.ChannelId.MAX_CURR, j, "Curr HW");
-			this.setInt(EvcsKebaKeContact.ChannelId.CURR_USER, j, "Curr user");
+			this.setInt(EvcsKebaUdp.ChannelId.ERROR_1, j, "Error1");
+			this.setInt(EvcsKebaUdp.ChannelId.ERROR_2, j, "Error2");
+			this.setBoolean(EvcsKebaUdp.ChannelId.ENABLE_SYS, j, "Enable sys");
+			this.setBoolean(EvcsKebaUdp.ChannelId.ENABLE_USER, j, "Enable user");
+			this.setInt(EvcsKebaUdp.ChannelId.MAX_CURR_PERCENT, j, "Max curr %");
+			this.setInt(EvcsKebaUdp.ChannelId.CURR_FAILSAFE, j, "Curr FS");
+			this.setInt(EvcsKebaUdp.ChannelId.TIMEOUT_FAILSAFE, j, "Tmo FS");
+			this.setInt(EvcsKebaUdp.ChannelId.CURR_TIMER, j, "Curr timer");
+			this.setInt(EvcsKebaUdp.ChannelId.TIMEOUT_CT, j, "Tmo CT");
+			this.setBoolean(EvcsKebaUdp.ChannelId.OUTPUT, j, "Output");
+			this.setBoolean(EvcsKebaUdp.ChannelId.INPUT, j, "Input");
+			this.setInt(EvcsKebaUdp.ChannelId.MAX_CURR, j, "Curr HW");
+			this.setInt(EvcsKebaUdp.ChannelId.CURR_USER, j, "Curr user");
 		}
 
 		/*
@@ -189,7 +192,7 @@ public class ReadHandler implements Consumer<String> {
 									.orElse(null)));
 
 			// TODO use COS_PHI to calculate ReactivePower
-			this.setInt(EvcsKebaKeContact.ChannelId.COS_PHI, j, "PF");
+			this.setInt(EvcsKebaUdp.ChannelId.COS_PHI, j, "PF");
 
 			final var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
 			keba._setPhases(phases);
@@ -203,7 +206,7 @@ public class ReadHandler implements Consumer<String> {
 			 * dynamically calculated MAXIMUM_HARDWARE_POWER including the current used
 			 * phases.
 			 */
-			Channel<Integer> maxDipSwitchLimitChannel = keba.channel(EvcsKebaKeContact.ChannelId.DIP_SWITCH_MAX_HW);
+			Channel<Integer> maxDipSwitchLimitChannel = keba.channel(EvcsKebaUdp.ChannelId.DIP_SWITCH_MAX_HW);
 			int maxDipSwitchPowerLimit = round(maxDipSwitchLimitChannel.value() //
 					.orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT) / 1000f) * Evcs.DEFAULT_VOLTAGE
 					* THREE_PHASE.getValue();
@@ -226,16 +229,16 @@ public class ReadHandler implements Consumer<String> {
 		 */
 		default -> {
 			if (j.has("State")) {
-				this.setInt(EvcsKebaKeContact.ChannelId.R2_STATE, j, "State");
+				this.setInt(EvcsKebaUdp.ChannelId.CHARGING_STATE, j, "State");
 			}
 			if (j.has("Plug")) {
-				this.setPlug(j);
+				this.setCableState(j);
 			}
 			if (j.has("Input")) {
-				this.setBoolean(EvcsKebaKeContact.ChannelId.INPUT, j, "Input");
+				this.setBoolean(EvcsKebaUdp.ChannelId.INPUT, j, "Input");
 			}
 			if (j.has("Enable sys")) {
-				this.setBoolean(EvcsKebaKeContact.ChannelId.ENABLE_SYS, j, "Enable sys");
+				this.setBoolean(EvcsKebaUdp.ChannelId.ENABLE_SYS, j, "Enable sys");
 			}
 			if (j.has("E pres")) {
 				keba._setEnergySession(//
@@ -250,20 +253,20 @@ public class ReadHandler implements Consumer<String> {
 	/**
 	 * Calculates the Status based on the raw status and energylimit.
 	 * 
-	 * @param r2State the r2 state
-	 * @param limit   the set energy limit
-	 * @param energy  the current energy session
+	 * @param chargingState the {@link ChargingState}
+	 * @param limit         the set energy limit
+	 * @param energy        the current energy session
 	 * @return the mapped Status
 	 */
-	public static Status getStatus(R2State r2State, Integer limit, Integer energy) {
+	public static Status getStatus(ChargingState chargingState, Integer limit, Integer energy) {
 		if (limit != null && energy != null && energy >= limit && limit != 0) {
 			return Status.ENERGY_LIMIT_REACHED;
 		}
-		return switch (r2State) {
+		return switch (chargingState) {
 		case UNDEFINED -> Status.UNDEFINED;
-		case STARTUP -> Status.STARTING;
-		case NOT_READY -> Status.NOT_READY_FOR_CHARGING;
-		case INTERRUPTED, READY -> Status.READY_FOR_CHARGING;
+		case STARTING -> Status.STARTING;
+		case NOT_READY_FOR_CHARGING -> Status.NOT_READY_FOR_CHARGING;
+		case INTERRUPTED, READY_FOR_CHARGING -> Status.READY_FOR_CHARGING;
 		case CHARGING -> Status.CHARGING;
 		case ERROR -> Status.ERROR;
 		};
@@ -296,15 +299,15 @@ public class ReadHandler implements Consumer<String> {
 		dipSwitch1 = hexStringToBinaryString(dipSwitch1);
 		dipSwitch2 = hexStringToBinaryString(dipSwitch2);
 
-		this.parent.channel(EvcsKebaKeContact.ChannelId.DIP_SWITCH_1).setNextValue(dipSwitch1);
-		this.parent.channel(EvcsKebaKeContact.ChannelId.DIP_SWITCH_2).setNextValue(dipSwitch2);
+		this.parent.channel(EvcsKebaUdp.ChannelId.DIP_SWITCH_1).setNextValue(dipSwitch1);
+		this.parent.channel(EvcsKebaUdp.ChannelId.DIP_SWITCH_2).setNextValue(dipSwitch2);
 
 		var setState = false;
 		var hasStaticIp = false;
 
 		// Set Channel for the communication
 		setState = dipSwitch1.charAt(2) == '1' == false;
-		this.setnextStateChannelValue(EvcsKebaKeContact.ChannelId.DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM, setState);
+		this.setnextStateChannelValue(EvcsKebaUdp.ChannelId.DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM, setState);
 
 		// Is IP static or dynamic
 		var staticIpSum = Integer.parseInt(dipSwitch2.substring(0, 4));
@@ -313,24 +316,21 @@ public class ReadHandler implements Consumer<String> {
 		if (hasStaticIp) {
 			// Set Channel for "static IP dip-switch not set"
 			setState = dipSwitch2.charAt(5) == '1' == false;
-			this.setnextStateChannelValue(EvcsKebaKeContact.ChannelId.DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP,
-					setState);
+			this.setnextStateChannelValue(EvcsKebaUdp.ChannelId.DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP, setState);
 
 		} else {
 			// Set Channel for "static IP dip-switch wrongly set"
 			setState = dipSwitch2.charAt(5) == '1' == true;
-			this.setnextStateChannelValue(EvcsKebaKeContact.ChannelId.DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP,
-					setState);
+			this.setnextStateChannelValue(EvcsKebaUdp.ChannelId.DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP, setState);
 		}
 
 		// Set Channel for "Master-Slave communication set"
 		setState = dipSwitch2.charAt(4) == '1' == true;
-		this.setnextStateChannelValue(EvcsKebaKeContact.ChannelId.DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM,
-				setState);
+		this.setnextStateChannelValue(EvcsKebaUdp.ChannelId.DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM, setState);
 
 		// Set Channel for "installation mode set"
 		setState = dipSwitch2.charAt(7) == '1' == true;
-		this.setnextStateChannelValue(EvcsKebaKeContact.ChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
+		this.setnextStateChannelValue(EvcsKebaUdp.ChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
 
 		// Set Channel for the configured maximum limit in mA
 		var hwLimit = switch (dipSwitch1.substring(5)) {
@@ -342,7 +342,7 @@ public class ReadHandler implements Consumer<String> {
 		case "101" -> 32_000;
 		default -> null;
 		};
-		this.parent.channel(EvcsKebaKeContact.ChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);
+		this.parent.channel(EvcsKebaUdp.ChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);
 	}
 
 	/**
@@ -356,12 +356,12 @@ public class ReadHandler implements Consumer<String> {
 		// e- and b-series cannot be controlled
 		var series = blocks[2].charAt(6);
 		var oldSeries = series == '0' || series == '1' == true;
-		this.setnextStateChannelValue(EvcsKebaKeContact.ChannelId.PRODUCT_SERIES_IS_NOT_COMPATIBLE, oldSeries);
+		this.setnextStateChannelValue(EvcsKebaUdp.ChannelId.PRODUCT_SERIES_IS_NOT_COMPATIBLE, oldSeries);
 
 		// Energy cannot be measured if there is no meter installed
 		var meter = blocks[3].charAt(0);
 		var noMeter = meter == '0' == true;
-		this.setnextStateChannelValue(EvcsKebaKeContact.ChannelId.NO_ENERGY_METER_INSTALLED, noMeter);
+		this.setnextStateChannelValue(EvcsKebaUdp.ChannelId.NO_ENERGY_METER_INSTALLED, noMeter);
 	}
 
 	/**
@@ -370,7 +370,7 @@ public class ReadHandler implements Consumer<String> {
 	 * @param channel Channel that needs to be set
 	 * @param bool    Value that will be set
 	 */
-	private void setnextStateChannelValue(EvcsKebaKeContact.ChannelId channel, boolean bool) {
+	private void setnextStateChannelValue(EvcsKebaUdp.ChannelId channel, boolean bool) {
 		this.parent.channel(channel).setNextValue(bool);
 	}
 
@@ -392,12 +392,12 @@ public class ReadHandler implements Consumer<String> {
 		this.set(channelId, getAsOptionalString(jMessage, name).orElse(null));
 	}
 
-	private R2Plug setPlug(JsonObject jMessage) {
-		final var channelId = EvcsKebaKeContact.ChannelId.R2_PLUG;
+	private CableState setCableState(JsonObject jMessage) {
+		final var channelId = EvcsKebaUdp.ChannelId.CABLE_STATE;
 		this.setInt(channelId, jMessage, "Plug");
-		final R2Plug r2Plug = this.parent.channel(channelId).getNextValue().asEnum();
-		this.energySessionHandler.updatePlug(r2Plug);
-		return r2Plug;
+		final CableState cableState = this.parent.channel(channelId).getNextValue().asEnum();
+		this.energySessionHandler.updateCableState(cableState);
+		return cableState;
 	}
 
 	private void setInt(ChannelId channelId, JsonObject jMessage, String name) {
@@ -441,20 +441,20 @@ public class ReadHandler implements Consumer<String> {
 	}
 
 	protected static class EnergySessionHandler {
-		private R2Plug r2Plug = R2Plug.UNDEFINED;
+		private CableState cableState = CableState.UNDEFINED;
 		private Integer ePresOnUnplugged = null;
 
-		protected synchronized void updatePlug(R2Plug r2Plug) {
-			this.r2Plug = r2Plug;
+		protected synchronized void updateCableState(CableState cableState) {
+			this.cableState = cableState;
 		}
 
 		public synchronized Integer updateFromReport3(Integer ePres) {
-			switch (this.r2Plug) {
+			switch (this.cableState) {
 			case UNPLUGGED, // no cable
-					PLUGGED_ON_EVCS, PLUGGED_ON_EVCS_AND_LOCKED // not plugged on EV
+					PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED // not plugged on EV
 				-> this.ePresOnUnplugged = ePres > 0 ? ePres : null;
 			case UNDEFINED, // unsure
-					PLUGGED_ON_EVCS_AND_ON_EV, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED // plugged on EV
+					PLUGGED_EV_NOT_LOCKED, PLUGGED_AND_LOCKED // plugged on EV
 				-> doNothing();
 			}
 			if (this.ePresOnUnplugged == null) {

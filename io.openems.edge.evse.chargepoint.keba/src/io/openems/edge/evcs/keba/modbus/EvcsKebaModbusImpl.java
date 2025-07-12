@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.keba.p40;
+package io.openems.edge.evcs.keba.modbus;
 
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
@@ -56,6 +56,7 @@ import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.evse.chargepoint.keba.common.enums.ProductTypeAndFeatures;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -67,11 +68,11 @@ import io.openems.edge.meter.api.ElectricityMeter;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements EvcsKebaP40, ManagedEvcs, Evcs,
+public class EvcsKebaModbusImpl extends AbstractOpenemsModbusComponent implements EvcsKebaModbus, ManagedEvcs, Evcs,
 		ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, ModbusComponent {
 
 	private Clock clock;
-	private final Logger log = LoggerFactory.getLogger(EvcsKebaP40Impl.class);
+	private final Logger log = LoggerFactory.getLogger(EvcsKebaModbusImpl.class);
 
 	private Config config;
 
@@ -102,14 +103,14 @@ public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements E
 		super.setModbus(modbus);
 	}
 
-	public EvcsKebaP40Impl() {
+	public EvcsKebaModbusImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
-				EvcsKebaP40.ChannelId.values() //
+				EvcsKebaModbus.ChannelId.values() //
 		);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
@@ -286,9 +287,9 @@ public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements E
 					};
 				}))), //
 				new FC3ReadRegistersTask(1004, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
+						m(EvcsKebaModbus.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
 				new FC3ReadRegistersTask(1006, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.ERROR_CODE, new UnsignedDoublewordElement(1006))),
+						m(EvcsKebaModbus.ChannelId.ERROR_CODE, new UnsignedDoublewordElement(1006))),
 				new FC3ReadRegistersTask(1008, Priority.LOW, //
 						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(1008))),
 				new FC3ReadRegistersTask(1010, Priority.LOW, //
@@ -296,19 +297,19 @@ public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements E
 				new FC3ReadRegistersTask(1012, Priority.LOW, //
 						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(1012))),
 				new FC3ReadRegistersTask(1014, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1014))),
+						m(EvcsKebaModbus.ChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1014))),
 				new FC3ReadRegistersTask(1016, Priority.LOW, //
 						m(new UnsignedDoublewordElement(1016)).build().onUpdateCallback(value -> {
 							var ptaf = ProductTypeAndFeatures.from(value);
-							setValue(this, EvcsKebaP40.ChannelId.PTAF_PRODUCT_TYPE, ptaf.productType());
-							setValue(this, EvcsKebaP40.ChannelId.PTAF_CABLE_OR_SOCKET, ptaf.cableOrSocket());
-							setValue(this, EvcsKebaP40.ChannelId.PTAF_SUPPORTED_CURRENT, ptaf.supportedCurrent());
-							setValue(this, EvcsKebaP40.ChannelId.PTAF_DEVICE_SERIES, ptaf.deviceSeries());
-							setValue(this, EvcsKebaP40.ChannelId.PTAF_ENERGY_METER, ptaf.energyMeter());
-							setValue(this, EvcsKebaP40.ChannelId.PTAF_AUTHORIZATION, ptaf.authorization());
+							setValue(this, EvcsKebaModbus.ChannelId.PTAF_PRODUCT_TYPE, ptaf.productType());
+							setValue(this, EvcsKebaModbus.ChannelId.PTAF_CABLE_OR_SOCKET, ptaf.cableOrSocket());
+							setValue(this, EvcsKebaModbus.ChannelId.PTAF_SUPPORTED_CURRENT, ptaf.supportedCurrent());
+							setValue(this, EvcsKebaModbus.ChannelId.PTAF_DEVICE_SERIES, ptaf.deviceSeries());
+							setValue(this, EvcsKebaModbus.ChannelId.PTAF_ENERGY_METER, ptaf.energyMeter());
+							setValue(this, EvcsKebaModbus.ChannelId.PTAF_AUTHORIZATION, ptaf.authorization());
 						})),
 				new FC3ReadRegistersTask(1018, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.FIRMWARE, new UnsignedDoublewordElement(1018),
+						m(EvcsKebaModbus.ChannelId.FIRMWARE, new UnsignedDoublewordElement(1018),
 								CONVERT_FIRMWARE_VERSION)),
 				new FC3ReadRegistersTask(1020, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020),
@@ -322,30 +323,30 @@ public class EvcsKebaP40Impl extends AbstractOpenemsModbusComponent implements E
 				new FC3ReadRegistersTask(1044, Priority.LOW, //
 						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(1044))),
 				new FC3ReadRegistersTask(1046, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.POWER_FACTOR, new UnsignedDoublewordElement(1046),
+						m(EvcsKebaModbus.ChannelId.POWER_FACTOR, new UnsignedDoublewordElement(1046),
 								SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(1100, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.MAX_CHARGING_CURRENT, new UnsignedDoublewordElement(1100),
+						m(EvcsKebaModbus.ChannelId.MAX_CHARGING_CURRENT, new UnsignedDoublewordElement(1100),
 								SCALE_FACTOR_MINUS_3)),
 				new FC3ReadRegistersTask(1110, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.MAX_HARDWARE_CURRENT, new UnsignedDoublewordElement(1110),
+						m(EvcsKebaModbus.ChannelId.MAX_HARDWARE_CURRENT, new UnsignedDoublewordElement(1110),
 								SCALE_FACTOR_MINUS_3)),
 				new FC3ReadRegistersTask(1502, Priority.LOW, //
 						m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedDoublewordElement(1502))),
 				new FC3ReadRegistersTask(1550, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.PHASE_SWITCH_SOURCE, new UnsignedDoublewordElement(1550))),
+						m(EvcsKebaModbus.ChannelId.PHASE_SWITCH_SOURCE, new UnsignedDoublewordElement(1550))),
 				new FC3ReadRegistersTask(1552, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.PHASE_SWITCH_STATE, new UnsignedDoublewordElement(1552))),
+						m(EvcsKebaModbus.ChannelId.PHASE_SWITCH_STATE, new UnsignedDoublewordElement(1552))),
 				new FC3ReadRegistersTask(1600, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.FAILSAFE_CURRENT_SETTING, new UnsignedDoublewordElement(1600))),
+						m(EvcsKebaModbus.ChannelId.FAILSAFE_CURRENT_SETTING, new UnsignedDoublewordElement(1600))),
 				new FC3ReadRegistersTask(1602, Priority.LOW, //
-						m(EvcsKebaP40.ChannelId.FAILSAFE_TIMEOUT_SETTING, new UnsignedDoublewordElement(1602))));
+						m(EvcsKebaModbus.ChannelId.FAILSAFE_TIMEOUT_SETTING, new UnsignedDoublewordElement(1602))));
 
 		if (!this.isReadOnly()) {
 			modbusProtocol.addTask(new FC6WriteRegisterTask(5004,
-					m(EvcsKebaP40.ChannelId.SET_CHARGING_CURRENT, new UnsignedWordElement(5004))));
+					m(EvcsKebaModbus.ChannelId.SET_CHARGING_CURRENT, new UnsignedWordElement(5004))));
 			modbusProtocol.addTask(new FC6WriteRegisterTask(5014, //
-					m(EvcsKebaP40.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))));
+					m(EvcsKebaModbus.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))));
 		}
 
 		return modbusProtocol;

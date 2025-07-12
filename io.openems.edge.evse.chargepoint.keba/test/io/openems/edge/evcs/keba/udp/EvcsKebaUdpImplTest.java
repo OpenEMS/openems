@@ -1,29 +1,30 @@
-package io.openems.edge.evcs.keba.kecontact;
+package io.openems.edge.evcs.keba.udp;
 
 import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
-import static io.openems.edge.evcs.keba.common.R2Plug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED;
-import static io.openems.edge.evcs.keba.kecontact.R2State.INTERRUPTED;
 
 import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.keba.kecontact.core.EvcsKebaKeContactCoreImpl;
 import io.openems.edge.evcs.test.DummyEvcsPower;
+import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
+import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCoreImpl;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public class EvcsKebaKeContactImplTest {
+public class EvcsKebaUdpImplTest {
 
 	@Test
 	public void test() throws Exception {
-		var sut = new EvcsKebaKeContactImpl();
+		var sut = new EvcsKebaUdpImpl();
 		var rh = sut.readHandler;
 		new ComponentTest(sut) //
 				.addReference("evcsPower", new DummyEvcsPower()) //
-				.addReference("kebaKeContactCore", new EvcsKebaKeContactCoreImpl()) //
+				.addReference("kebaUdpCore", new EvseChargePointKebaUdpCoreImpl()) //
 				.activate(MyConfig.create() //
 						.setId("evcs0") //
+						.setReadOnly(false) //
 						.setDebugMode(false) //
 						.setIp("172.0.0.1") //
 						.setMinHwCurrent(6000) //
@@ -33,30 +34,30 @@ public class EvcsKebaKeContactImplTest {
 
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> rh.accept(REPORT_1)) //
-						.output(EvcsKebaKeContact.ChannelId.SERIAL, "12345678") //
-						.output(EvcsKebaKeContact.ChannelId.FIRMWARE, "P30 v 3.10.57 (240521-093236)") //
-						.output(EvcsKebaKeContact.ChannelId.COM_MODULE, "0") //
-						.output(EvcsKebaKeContact.ChannelId.DIP_SWITCH_1, "00100101") //
-						.output(EvcsKebaKeContact.ChannelId.DIP_SWITCH_2, "00000010") //
-						.output(EvcsKebaKeContact.ChannelId.PRODUCT, "KC-P30-EC240422-E00")) //
+						.output(EvcsKebaUdp.ChannelId.SERIAL, "12345678") //
+						.output(EvcsKebaUdp.ChannelId.FIRMWARE, "P30 v 3.10.57 (240521-093236)") //
+						.output(EvcsKebaUdp.ChannelId.COM_MODULE, "0") //
+						.output(EvcsKebaUdp.ChannelId.DIP_SWITCH_1, "00100101") //
+						.output(EvcsKebaUdp.ChannelId.DIP_SWITCH_2, "00000010") //
+						.output(EvcsKebaUdp.ChannelId.PRODUCT, "KC-P30-EC240422-E00")) //
 
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> rh.accept(REPORT_2)) //
-						.output(EvcsKebaKeContact.ChannelId.R2_STATE, INTERRUPTED) //
-						.output(EvcsKebaKeContact.ChannelId.ERROR_1, 0) //
-						.output(EvcsKebaKeContact.ChannelId.ERROR_2, 0) //
-						.output(EvcsKebaKeContact.ChannelId.R2_PLUG, PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) //
-						.output(EvcsKebaKeContact.ChannelId.ENABLE_SYS, false) //
-						.output(EvcsKebaKeContact.ChannelId.ENABLE_USER, false) //
-						.output(EvcsKebaKeContact.ChannelId.MAX_CURR_PERCENT, 1_000) //
-						.output(EvcsKebaKeContact.ChannelId.CURR_FAILSAFE, 0) //
-						.output(EvcsKebaKeContact.ChannelId.TIMEOUT_FAILSAFE, 0) //
-						.output(EvcsKebaKeContact.ChannelId.CURR_TIMER, 0) //
-						.output(EvcsKebaKeContact.ChannelId.TIMEOUT_CT, 0) //
-						.output(EvcsKebaKeContact.ChannelId.OUTPUT, false) //
-						.output(EvcsKebaKeContact.ChannelId.INPUT, false) //
-						.output(EvcsKebaKeContact.ChannelId.MAX_CURR, 32_000) //
-						.output(EvcsKebaKeContact.ChannelId.CURR_USER, 1_0000)) //
+						.output(EvcsKebaUdp.ChannelId.CHARGING_STATE, ChargingState.INTERRUPTED) //
+						.output(EvcsKebaUdp.ChannelId.ERROR_1, 0) //
+						.output(EvcsKebaUdp.ChannelId.ERROR_2, 0) //
+						.output(EvcsKebaUdp.ChannelId.CABLE_STATE, CableState.PLUGGED_AND_LOCKED) //
+						.output(EvcsKebaUdp.ChannelId.ENABLE_SYS, false) //
+						.output(EvcsKebaUdp.ChannelId.ENABLE_USER, false) //
+						.output(EvcsKebaUdp.ChannelId.MAX_CURR_PERCENT, 1_000) //
+						.output(EvcsKebaUdp.ChannelId.CURR_FAILSAFE, 0) //
+						.output(EvcsKebaUdp.ChannelId.TIMEOUT_FAILSAFE, 0) //
+						.output(EvcsKebaUdp.ChannelId.CURR_TIMER, 0) //
+						.output(EvcsKebaUdp.ChannelId.TIMEOUT_CT, 0) //
+						.output(EvcsKebaUdp.ChannelId.OUTPUT, false) //
+						.output(EvcsKebaUdp.ChannelId.INPUT, false) //
+						.output(EvcsKebaUdp.ChannelId.MAX_CURR, 32_000) //
+						.output(EvcsKebaUdp.ChannelId.CURR_USER, 1_0000)) //
 
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> rh.accept(REPORT_3)) //
@@ -74,9 +75,9 @@ public class EvcsKebaKeContactImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 7747834L) //
 						.output(Evcs.ChannelId.ENERGY_SESSION, 6530) //
-						.output(EvcsKebaKeContact.ChannelId.COS_PHI, 905) //
+						.output(EvcsKebaUdp.ChannelId.COS_PHI, 905))
 
-				);
+				.deactivate();
 	}
 
 	private static final String REPORT_1 = """
