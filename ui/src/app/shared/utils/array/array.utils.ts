@@ -85,8 +85,8 @@ export namespace ArrayUtils {
     return arr.every(el => strings.includes(el));
   }
 
-  export function getArrayOfLength(length: number): number[] {
-    return Array.from({ length }, (_, index) => index);
+  export function getArrayOfLength<T = number>(length: number): T[] {
+    return Array.from({ length }, (_, index) => index) as T[];
   }
 
   export function sanitize<T>(arr: T[]): T[] {

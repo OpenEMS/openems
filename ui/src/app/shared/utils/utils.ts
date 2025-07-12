@@ -738,7 +738,7 @@ export namespace HistoryUtils {
     /** False per default */
     hideLabelInLegend?: boolean,
     /** Borderstyle of label in legend */
-    borderDash?: number[],
+    borderDash?: [number, number],
     /** Hides shadow of chart lines, default false */
     hideShadow?: boolean,
     /** axisId from yAxes  */
