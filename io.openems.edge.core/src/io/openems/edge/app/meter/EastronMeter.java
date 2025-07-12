@@ -22,7 +22,7 @@ import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.enums.MeterType;
-import io.openems.edge.app.meter.MicrocareSdm630Meter.Property;
+import io.openems.edge.app.meter.EastronMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -37,18 +37,17 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppStatus;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
- * Describes a Microcare SDM630 meter App.
+ * Describes a Eastron SDM630 meter App.
  *
  * <pre>
   {
-    "appId":"App.Meter.Microcare.Sdm630",
+    "appId":"App.Meter.Eastron",
     "alias":"SDM630 Zähler",
     "instanceId": UUID,
     "image": base64,
@@ -64,12 +63,11 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
   }
  * </pre>
  */
-@Component(name = "App.Meter.Microcare.Sdm630")
-public class MicrocareSdm630Meter
-		extends AbstractOpenemsAppWithProps<MicrocareSdm630Meter, Property, Parameter.BundleParameter>
+@Component(name = "App.Meter.Eastron")
+public class EastronMeter extends AbstractOpenemsAppWithProps<EastronMeter, Property, Parameter.BundleParameter>
 		implements OpenemsApp, AppManagerUtilSupplier {
 
-	public enum Property implements Type<Property, MicrocareSdm630Meter, Parameter.BundleParameter>, Nameable {
+	public enum Property implements Type<Property, EastronMeter, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
 		METER_ID(AppDef.componentId("meter0")), //
 		// Properties
@@ -85,27 +83,26 @@ public class MicrocareSdm630Meter
 		MODBUS_GROUP(CommunicationProps.modbusGroup(MODBUS_ID, MODBUS_ID.def(), //
 				MODBUS_UNIT_ID, MODBUS_UNIT_ID.def())), //
 		INVERT(MeterProps.invert(METER_ID)), //
-		UNOFFICIAL_APP_WARNING(CommonProps.installationHintOfUnofficialApp()), //
 		;
 
-		private final AppDef<? super MicrocareSdm630Meter, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super EastronMeter, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super MicrocareSdm630Meter, ? super Property, ? super BundleParameter> def) {
+		private Property(AppDef<? super EastronMeter, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, MicrocareSdm630Meter, BundleParameter> self() {
+		public Type<Property, EastronMeter, BundleParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super MicrocareSdm630Meter, ? super Property, ? super BundleParameter> def() {
+		public AppDef<? super EastronMeter, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<MicrocareSdm630Meter>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<EastronMeter>, BundleParameter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 
@@ -114,7 +111,7 @@ public class MicrocareSdm630Meter
 	private final AppManagerUtil appManagerUtil;
 
 	@Activate
-	public MicrocareSdm630Meter(//
+	public EastronMeter(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
@@ -176,12 +173,7 @@ public class MicrocareSdm630Meter
 	}
 
 	@Override
-	protected OpenemsAppStatus getStatus() {
-		return OpenemsAppStatus.BETA;
-	}
-
-	@Override
-	protected MicrocareSdm630Meter getApp() {
+	protected EastronMeter getApp() {
 		return this;
 	}
 
