@@ -177,12 +177,4 @@ public class HeatMyPvReadOnly
 	public Host getHost() {
 		return this.host;
 	}
-	
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanDelete(Role.ADMIN)//
-				.setCanSee(Role.ADMIN)//
-				.build();
-	}
 }

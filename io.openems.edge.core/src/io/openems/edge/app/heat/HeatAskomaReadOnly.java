@@ -178,12 +178,4 @@ public class HeatAskomaReadOnly extends AbstractOpenemsAppWithProps<HeatAskomaRe
 	public Host getHost() {
 		return this.host;
 	}
-	
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanDelete(Role.ADMIN)//
-				.setCanSee(Role.ADMIN)//
-				.build();
-	}
 }
