@@ -322,6 +322,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		AVACON("Avacon"), //
 		LEW("LEW"), //
 		TE_NETZE("TE Netze"), //
+		NETZE_ODR("Netze ODR"),
 		OTHER("Other");
 
 		private final String label;
