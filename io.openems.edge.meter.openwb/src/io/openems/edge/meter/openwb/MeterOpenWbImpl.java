@@ -71,7 +71,7 @@ public class MeterOpenWbImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config)  throws InvalidValueException, KeyManagementException, NoSuchAlgorithmException, OpenemsException{
+	protected void activate(ComponentContext context, Config config)  throws InvalidValueException, KeyManagementException, NoSuchAlgorithmException, OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		
