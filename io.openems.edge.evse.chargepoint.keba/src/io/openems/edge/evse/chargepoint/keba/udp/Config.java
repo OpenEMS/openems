@@ -7,8 +7,8 @@ import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
 
-@ObjectClassDefinition(name = "EVSE Charge-Point KEBA (via UDP)", //
-		description = "The KEBA KeContact P30 or P40 electric vehicle charging station")
+@ObjectClassDefinition(name = "EVSE Charge-Point KEBA P30 (via UDP)", //
+		description = "The KEBA KeContact P30 electric vehicle charging station")
 public @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -20,7 +20,7 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
+	@AttributeDefinition(name = "Read only", description = "Defines that this Charge-Point is read only.", required = true)
 	boolean readOnly() default false;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.", required = true)
@@ -38,5 +38,5 @@ public @interface Config {
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.DEBUG_LOG;
 
-	String webconsole_configurationFactory_nameHint() default "EVSE Charge-Point KEBA (via UDP) [{id}]";
+	String webconsole_configurationFactory_nameHint() default "EVSE Charge-Point KEBA P30 (via UDP) [{id}]";
 }

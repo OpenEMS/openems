@@ -1,13 +1,12 @@
 package io.openems.edge.evse.chargepoint.keba.modbus;
 
-import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
-import static io.openems.edge.common.type.TypeUtils.getAsType;
-import static java.lang.Math.round;
+import static io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils.CONVERT_FIRMWARE_VERSION;
+import static io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils.calculateActivePowerL1L2L3;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
@@ -15,7 +14,6 @@ import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.net.UnknownHostException;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -35,7 +33,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -168,8 +165,8 @@ public class EvseChargePointKebaModbusImpl extends AbstractOpenemsModbusComponen
 								CONVERT_FIRMWARE_VERSION)),
 				new FC3ReadRegistersTask(1020, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020),
-								SCALE_FACTOR_MINUS_3)
-								.onUpdateCallback(this.calculateActivePowerL1L2L3)),
+								SCALE_FACTOR_MINUS_3) //
+								.onUpdateCallback(power -> calculateActivePowerL1L2L3(this, power))),
 				new FC3ReadRegistersTask(1036, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(1036),
 								SCALE_FACTOR_MINUS_1)),
@@ -232,28 +229,6 @@ public class EvseChargePointKebaModbusImpl extends AbstractOpenemsModbusComponen
 		return this.config.phaseRotation();
 	}
 
-	/**
-	 * Converts an unsigned 32-bit integer value to a firmware version string.
-	 * 
-	 * @param value the unsigned 32-bit integer value representing the firmware
-	 *              version
-	 * @return the firmware version string in the format "major.minor.patch" or null
-	 */
-	protected static final ElementToChannelConverter CONVERT_FIRMWARE_VERSION = new ElementToChannelConverter(obj -> {
-		if (obj == null) {
-			return null;
-		}
-		var value = (long) getAsType(LONG, obj);
-		// Extract major, minor, and patch versions using bit manipulation
-		return new StringBuilder() //
-				.append((value >> 24) & 0xFF) //
-				.append(".") //
-				.append((value >> 16) & 0xFF) //
-				.append(".") //
-				.append((value >> 8) & 0xFF) //
-				.toString();
-	});
-
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
@@ -265,45 +240,10 @@ public class EvseChargePointKebaModbusImpl extends AbstractOpenemsModbusComponen
 			return;
 		}
 		switch (event.getTopic()) {
-		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-			this.utils.onBeforeProcessImage();
-		}
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+			-> this.utils.onBeforeProcessImage();
 		}
 	}
-
-	/**
-	 * On Update of ACTIVE_POWER, calculates ACTIVE_POWER_L1, L2 and L3 from CURRENT
-	 * and VOLTAGE values and distributes the power to match the sum.
-	 */
-	private final Consumer<Long> calculateActivePowerL1L2L3 = (activePower) -> {
-		var currentL1 = this.getCurrentL1Channel().getNextValue().get();
-		var currentL2 = this.getCurrentL2Channel().getNextValue().get();
-		var currentL3 = this.getCurrentL3Channel().getNextValue().get();
-		var voltageL1 = this.getVoltageL1Channel().getNextValue().get();
-		var voltageL2 = this.getVoltageL2Channel().getNextValue().get();
-		var voltageL3 = this.getVoltageL3Channel().getNextValue().get();
-		final Integer activePowerL1;
-		final Integer activePowerL2;
-		final Integer activePowerL3;
-		if (activePower == null || currentL1 == null || currentL2 == null || currentL3 == null || voltageL1 == null
-				|| voltageL2 == null || voltageL3 == null) {
-			activePowerL1 = null;
-			activePowerL2 = null;
-			activePowerL3 = null;
-		} else {
-			var pL1 = (voltageL1 / 1000F) * (currentL1 / 1000F);
-			var pL2 = (voltageL2 / 1000F) * (currentL2 / 1000F);
-			var pL3 = (voltageL3 / 1000F) * (currentL3 / 1000F);
-			var pSum = pL1 + pL2 + pL3;
-			var factor = activePower / pSum / 1000F; // distribute power to match sum
-			activePowerL1 = round(pL1 * factor);
-			activePowerL2 = round(pL2 * factor);
-			activePowerL3 = round(pL3 * factor);
-		}
-		this._setActivePowerL1(activePowerL1);
-		this._setActivePowerL2(activePowerL2);
-		this._setActivePowerL3(activePowerL3);
-	};
 
 	@Override
 	public PhaseSwitchSource getRequiredPhaseSwitchSource() {

@@ -24,6 +24,7 @@ public class EvseChargePointKebaUdpImplTest {
 		final var rh = sut.readHandler;
 		final var config = MyConfig.create() //
 				.setId("evcs0") //
+				.setReadOnly(false) //
 				.setIp("172.0.0.1") //
 				.setWiring(SingleOrThreePhase.THREE_PHASE) //
 				.setP30hasS10PhaseSwitching(false) //

@@ -46,16 +46,16 @@
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
-          <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </symmetricPeakshavingWidget>
+          <oe-controller-peakshaving-symmetric [componentId]="widget.componentId">
+          </oe-controller-peakshaving-symmetric>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
-          <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </asymmetricPeakshavingWidget>
+          <oe-controller-peakshaving-asymmetric
+            [componentId]="widget.componentId"></oe-controller-peakshaving-asymmetric>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.TimeslotPeakshaving'">
-          <timeslotPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </timeslotPeakshavingWidget>
+          <oe-controller-peakshaving-timeslot [componentId]="widget.componentId">
+          </oe-controller-peakshaving-timeslot>
         </ion-col>
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'">
