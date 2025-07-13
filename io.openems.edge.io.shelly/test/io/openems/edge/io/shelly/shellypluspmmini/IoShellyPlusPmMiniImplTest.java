@@ -1,7 +1,6 @@
 package io.openems.edge.io.shelly.shellypluspmmini;
 
 import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
-import io.openems.edge.common.type.Phase.SinglePhase;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -11,6 +10,7 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -34,33 +34,32 @@ public class IoShellyPlusPmMiniImplTest {
 						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
 									{
-									"pm1:0": {
-									"id": 0,
-								    "voltage": 237.2,
-								    "current": 0.106,
-								    "apower": 6.7,
-								    "freq": 50.1,
-								    "aenergy": {
-								      "total": 73284.398,
-								      "by_minute": [
-								        219.104,
-								        0,
-								        219.104
-								      ],
-								      "minute_ts": 1751037360
-								    },
-								    "ret_aenergy": {
-								      "total": 0,
-								      "by_minute": [
-								        0,
-								        0,
-								        0
-								      ],
-								      "minute_ts": 1751037360
-								    }
-								  }
-								}
-									"""));
+									  "pm1:0":{
+									    "id":0,
+									    "voltage":237.2,
+									    "current":0.106,
+									    "apower":6.7,
+									    "freq":50.1,
+									    "aenergy":{
+									      "total":73284.398,
+									      "by_minute":[
+									        219.104,
+									        0,
+									        219.104
+									      ],
+									      "minute_ts":1751037360
+									    },
+									    "ret_aenergy":{
+									      "total":0,
+									      "by_minute":[
+									        0,
+									        0,
+									        0
+									      ],
+									      "minute_ts":1751037360
+									    }
+									  }
+									}"""));
 							httpTestBundle.triggerNextCycle();
 						}) //
 						.onAfterProcessImage(() -> assertEquals("L1:7 W", sut.debugLog()))
@@ -87,8 +86,6 @@ public class IoShellyPlusPmMiniImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
 						.output(IoShellyPlusPmMini.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
-
-
 
 				.deactivate();
 	}
