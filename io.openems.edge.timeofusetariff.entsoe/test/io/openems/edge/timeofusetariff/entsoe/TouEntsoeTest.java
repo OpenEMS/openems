@@ -110,7 +110,8 @@ public class TouEntsoeTest {
 	private TouManualHelper buildHelper(String dso, String clockTime) throws OpenemsNamedException {
 		var ancillaryCosts = buildJsonObject() //
 				.addProperty("dso", dso) //
-				.build().toString();
+				.build() //
+				.toString();
 
 		var schedule = parseToSchedule(BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 		var clock = new TimeLeapClock(Instant.parse(clockTime), ZoneId.systemDefault());
@@ -119,10 +120,16 @@ public class TouEntsoeTest {
 	}
 
 	@Test
-	public void testStandardTariffOnJuly15At14PM() throws OpenemsNamedException {
+	public void testStandardTariffOnJuly15At2PM() throws OpenemsNamedException {
 		var helper = this.buildHelper("BAYERNWERK", "2025-07-15T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 7, 15), LocalTime.of(14, 0), ZoneId.systemDefault());
+
 		assertEquals(8.75, helper.getPrices().getAt(testTime), 0.01);
+
+		helper = this.buildHelper("NETZE_ODR", "2025-07-15T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 7, 15), LocalTime.of(14, 0), ZoneId.systemDefault());
+
+		assertEquals(3.05, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
@@ -151,6 +158,11 @@ public class TouEntsoeTest {
 		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(3, 0), ZoneId.systemDefault());
 
 		assertEquals(6.99, helper.getPrices().getAt(testTime), 0.01);
+
+		helper = this.buildHelper("NETZE_ODR", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(3, 0), ZoneId.systemDefault());
+
+		assertEquals(7.63, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
@@ -179,12 +191,18 @@ public class TouEntsoeTest {
 		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(17, 0), ZoneId.systemDefault());
 
 		assertEquals(15.01, helper.getPrices().getAt(testTime), 0.01);
+
+		helper = this.buildHelper("NETZE_ODR", "2025-10-20T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 10, 20), LocalTime.of(17, 0), ZoneId.systemDefault());
+
+		assertEquals(7.63, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
 	public void testStandardTariffOnApril10At12PM() throws OpenemsNamedException {
 		var helper = this.buildHelper("BAYERNWERK", "2025-04-10T00:00:00Z");
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), ZoneId.systemDefault());
+
 		assertEquals(8.75, helper.getPrices().getAt(testTime), 0.01);
 
 		helper = this.buildHelper("NETZE_BW", "2025-04-10T00:00:00Z");
@@ -195,6 +213,11 @@ public class TouEntsoeTest {
 		testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(0, 0), ZoneId.systemDefault());
 
 		assertEquals(11.58, helper.getPrices().getAt(testTime), 0.01);
+
+		helper = this.buildHelper("NETZE_ODR", "2025-04-09T00:00:00Z");
+		testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(0, 0), ZoneId.systemDefault());
+
+		assertEquals(13.23, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
