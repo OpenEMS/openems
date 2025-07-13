@@ -122,6 +122,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Meter.Janitza", "") //
 			.put("App.Meter.Discovergy", "")//
 			.put("App.Meter.PhoenixContact", "")//
+			.put("App.Meter.Eastron", "")//
+			.put("App.Meter.Kdk", "")//
 			.put("App.OpenemsHardware.BeagleBoneBlack", "") //
 			.put("App.OpenemsHardware.Compulab", "") //
 			.put("App.OpenemsHardware.CM3", "") //

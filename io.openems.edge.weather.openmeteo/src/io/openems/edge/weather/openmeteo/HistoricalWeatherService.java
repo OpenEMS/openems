@@ -57,16 +57,19 @@ public class HistoricalWeatherService {
 	}
 
 	private UrlBuilder buildBaseUrl() {
-		return UrlBuilder.create()//
+		var builder = UrlBuilder.create()//
 				.withScheme(API_SCHEME)//
 				.withHost(this.apiKey != null //
 						? API_HOST_COMMERCIAL //
 						: API_HOST)//
 				.withPath("/" + API_VERSION + "/forecast")//
-				.withQueryParam("apikey", this.apiKey != null //
-						? this.apiKey //
-						: "")//
 				.withQueryParam("minutely_15", String.join(",", this.weatherVariables));
+
+		if (this.apiKey != null) {
+			builder = builder.withQueryParam("apikey", this.apiKey);
+		}
+
+		return builder;
 	}
 
 	private String buildHistoricalUrl(Coordinates coordinates, LocalDate dateFrom, LocalDate dateTo, ZoneId zone) {
