@@ -110,8 +110,8 @@ public class TouEntsoeTest {
 	private TouManualHelper buildHelper(String dso, String clockTime) throws OpenemsNamedException {
 		var ancillaryCosts = buildJsonObject() //
 				.addProperty("dso", dso) //
-				.build(). //
-				toString();
+				.build() //
+				.toString();
 
 		var schedule = parseToSchedule(BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 		var clock = new TimeLeapClock(Instant.parse(clockTime), ZoneId.systemDefault());

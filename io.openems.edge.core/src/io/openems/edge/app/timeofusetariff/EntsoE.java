@@ -2,6 +2,8 @@ package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
@@ -130,11 +132,11 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 				.setField(JsonFormlyUtil::buildTariffTableFromNameable, (app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.staticValue(GermanDSO.OTHER)//
 							.equal(Exp.currentModelValue(GERMAN_DSO)));
-				}) //
+				})//
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "ancillaryCosts",
 						ComponentManagerSupplier::getComponentManager, j -> {
-							return JsonUtils.getAsOptionalJsonObject(j) //
-									.<JsonElement>flatMap(t -> JsonUtils.getAsOptionalJsonArray(t, "schedule")) //
+							return getAsOptionalJsonObject(j)//
+									.<JsonElement>flatMap(t -> getAsOptionalJsonArray(t, "schedule"))//
 									.orElse(null);
 						})));
 
@@ -322,7 +324,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		AVACON("Avacon"), //
 		LEW("LEW"), //
 		TE_NETZE("TE Netze"), //
-		NETZE_ODR("Netze ODR"),
+		NETZE_ODR("Netze ODR"), //
 		OTHER("Other");
 
 		private final String label;
