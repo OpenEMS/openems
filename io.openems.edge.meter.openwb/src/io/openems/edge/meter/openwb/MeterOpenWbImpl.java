@@ -1,6 +1,5 @@
 package io.openems.edge.meter.openwb;
 
-
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 

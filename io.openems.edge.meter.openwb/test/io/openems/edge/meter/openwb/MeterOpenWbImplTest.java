@@ -1,11 +1,9 @@
 package io.openems.edge.meter.openwb;
+
 import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
-
 import org.junit.Test;
-
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-
 
 
 public class MeterOpenWbImplTest {
