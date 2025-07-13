@@ -339,7 +339,50 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr //
 							.setStart(23, 0) //
 							.setEnd(1, 30) //
-							.setTariff(STANDARD))));
+							.setTariff(STANDARD)))),
+
+	NETZE_ODR(GridFee.create() //
+			.addDateRange(dr -> dr //
+					.setStart(2025, 1, 1) //
+					.setEnd(2025, 3, 31) //
+					.setStandardTariff(7.63) //
+					.addTimeRange(tr -> tr //
+							.setFullDay() //
+							.setTariff(STANDARD))) //
+			.addDateRange(dr -> dr //
+					.setStart(2025, 4, 1) //
+					.setEnd(2025, 9, 30) //
+					.setLowTariff(3.05) //
+					.setStandardTariff(7.63) //
+					.setHighTariff(13.23) //
+					.addTimeRange(tr -> tr //
+							.setStart(0, 0) //
+							.setEnd(5, 0) //
+							.setTariff(HIGH)) //
+					.addTimeRange(tr -> tr //
+							.setStart(5, 0) //
+							.setEnd(11, 0) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
+							.setStart(11, 0) //
+							.setEnd(17, 0) //
+							.setTariff(LOW)) //
+					.addTimeRange(tr -> tr //
+							.setStart(17, 0) //
+							.setEnd(22, 0) //
+							.setTariff(STANDARD)) //
+					.addTimeRange(tr -> tr //
+							.setStart(22, 0) //
+							.setEnd(0, 0) //
+							.setTariff(HIGH))) //
+			.addDateRange(dr -> dr //
+					.setStart(2025, 10, 1) //
+					.setEnd(2025, 12, 31) //
+					.setStandardTariff(7.63) //
+					.addTimeRange(tr -> tr //
+							.setFullDay() //
+							.setTariff(STANDARD))) //
+	);
 
 	public final GridFee gridFee;
 
