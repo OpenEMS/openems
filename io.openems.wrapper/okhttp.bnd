@@ -1,15 +1,8 @@
-Bundle-Name: okttp
-Bundle-Description: Squares meticulous HTTP client for Java and Kotlin. 
-Bundle-DocURL: https://square.github.io/okhttp/
-Bundle-License: https://opensource.org/licenses/Apache-2.0
-Bundle-Version: 5.1.0
+# This OSGi fragment for okhttp3 exports packages required by `io.openems.wrapper.influxdb-client-core`
 
-Include-Resource: \
-	@logging-interceptor-5.1.0.jar,\
-	@okhttp-jvm-5.1.0.jar,\
+Fragment-Host: com.squareup.okhttp3;bundle-version="5.1.0"
 
 Export-Package: \
-   okhttp3,\
    okhttp3.internal,\
    okhttp3.internal.authenticator,\
    okhttp3.internal.cache,\
@@ -19,14 +12,13 @@ Export-Package: \
    okhttp3.internal.http,\
    okhttp3.internal.http1,\
    okhttp3.internal.http2,\
-   okhttp3.internal.http2.flowcontrol,\
    okhttp3.internal.io,\
    okhttp3.internal.platform,\
+   okhttp3.internal.platform.android,\
    okhttp3.internal.proxy,\
    okhttp3.internal.publicsuffix,\
    okhttp3.internal.tls,\
    okhttp3.internal.ws,\
-   okhttp3.logging,\
 
 Import-Package: \
 	android.os;resolution:=optional,\
@@ -42,11 +34,6 @@ Import-Package: \
 	org.openjsse.javax.net.ssl;resolution:=optional,\
 	org.openjsse.net.ssl;resolution:=optional,\
 	sun.security.ssl;resolution:=optional,\
-	okio,\
 	*
 
--dsannotations: *
-
--metatypeannotations: *
-
--sources: false
+-resourceonly: true
