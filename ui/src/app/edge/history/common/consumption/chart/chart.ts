@@ -58,7 +58,7 @@ export class ChartComponent extends AbstractHistoryChart {
         const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
 
         return component.isEnabled && config.isTypeConsumptionMetered(component) &&
-          (!isEvcs || (isEvcs && !isDeprecatedEvcs)) && !isHeat;
+          (isEvcs === false || (isEvcs === true && isDeprecatedEvcs === false)) && isHeat === false;
       });
 
     consumptionMeters.forEach(meter => {

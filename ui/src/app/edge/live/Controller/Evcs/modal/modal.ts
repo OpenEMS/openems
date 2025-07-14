@@ -132,7 +132,7 @@ export class ModalComponent extends AbstractModal {
   protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
     this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
-    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", false);
+    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);

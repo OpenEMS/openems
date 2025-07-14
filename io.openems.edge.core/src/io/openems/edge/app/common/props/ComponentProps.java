@@ -180,6 +180,40 @@ public final class ComponentProps {
 				.setTranslatedLabel("meterId.label") //
 				.setTranslatedDescription("meterId.description");
 	}
+	
+	/**
+	 * Creates a {@link AppDef} for a input to select an {@link ElectricityMeter}
+	 * with the {@link MeterType} {@link MeterType#CONSUMPTION_METERED} and that are unused.
+	 * 
+	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param ignoreIdsToCheck a list of the id of a component that should be ignored to check.
+	 * @param meterIdsToNotInclude a list of meterIds that shouldn't be included
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
+	AppDef<APP, Nameable, BundleProvider> pickUnusedElectricityConsumptionMeterId(Function<APP, List<String>> ignoreIdsToCheck, List<String> meterIdsToNotInclude) {
+		
+	    return pickComponentId(app -> {
+	        final var componentUtil = app.getComponentUtil();
+	        List<String> ignoreIds = ignoreIdsToCheck.apply(app);
+
+	        var components = componentUtil.getEnabledComponentsOfType(ElectricityMeter.class).stream()
+	            .filter(meter -> {
+	            	var toIgnore = meterIdsToNotInclude.stream().anyMatch(m -> meter.id().equals(m));
+	            	return meter.getMeterType() == MeterType.CONSUMPTION_METERED && !toIgnore;
+	            });
+	        
+	        components = components.filter(meter -> {
+	        	if (!ignoreIds.contains(meter.id())) {
+	        		ignoreIds.add(meter.id());
+	        	}
+	        	return !componentUtil.anyComponentUses(meter.id(), ignoreIds);
+	        });
+	        
+	        return components.toList();
+	    });
+	    
+	}
 
 	/**
 	 * Creates a {@link AppDef} for a input to select an {@link ElectricityMeter}
