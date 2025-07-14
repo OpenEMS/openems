@@ -217,7 +217,9 @@
 	com.google.gson;version='[2.13.1,2.13.2)',\
 	com.google.guava;version='[33.4.8,33.4.9)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
-	com.squareup.okio;version='[3.14.0,3.14.1)',\
+	com.squareup.okhttp3;version='[5.1.0,5.1.1)',\
+	com.squareup.okhttp3.logging;version='[5.1.0,5.1.1)',\
+	com.squareup.okio;version='[3.15.0,3.15.1)',\
 	com.sun.jna;version='[5.17.0,5.17.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
