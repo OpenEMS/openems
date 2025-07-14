@@ -245,8 +245,9 @@ export namespace ChartConstants {
     export const LIGHT_GREY: string = new RGBColor(160, 160, 160).toString();
     export const BLACK: string = new RGBColor(0, 0, 0).toString();
 
-    export const SHADES_OF_RED: string[] = [RED, "rgb(204,78,50)", "rgb(153,59,38)", "rgb(102,39,25)", "rgb(51,20,13)"];
     export const SHADES_OF_GREEN: string[] = [GREEN, "rgb(11,152,67)", "rgb(8,114,50)", "rgb(6,76,34)", "rgb(3,38,17)"];
+    export const SHADES_OF_GREY: string[] = ["rgb(215,211,211)", "rgb(168,169,173)", "rgb(125,125,125)"];
+    export const SHADES_OF_RED: string[] = [RED, "rgb(204,78,50)", "rgb(153,59,38)", "rgb(102,39,25)", "rgb(51,20,13)"];
     export const SHADES_OF_YELLOW: string[] = [YELLOW, "rgb(204,165,0)", "rgb(153,124,0)", "rgb(102,82,0)", "rgb(255,221,77)"];
 
     export const DEFAULT_PHASES_COLORS: string[] = ["rgb(255,127,80)", "rgb(91, 92, 214)", "rgb(128,128,0)"];
