@@ -2,17 +2,17 @@ package io.openems.edge.meter.carlo.gavazzi.em100;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -28,15 +28,15 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Meter.CarloGavazzi.EM100", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class MeterCarloGavazziEm100Impl extends AbstractOpenemsModbusComponent
 		implements MeterCarloGavazziEm100, SinglePhaseMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
@@ -45,7 +45,7 @@ public class MeterCarloGavazziEm100Impl extends AbstractOpenemsModbusComponent
 	private ConfigurationAdmin cm;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -93,17 +93,17 @@ public class MeterCarloGavazziEm100Impl extends AbstractOpenemsModbusComponent
 		final var offset = 300000 + 1;
 		/**
 		 * See Modbus definition PDF-file in doc directory and
-		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
+		 * https://www.gavazziautomation.com/fileadmin/images/PIM/OTHERSTUFF/COMPRO/EM100_ET100_Series_CPP.pdf
 		 */
 
-		final ElectricityMeter.ChannelId energyChannelId300019;
-		final ElectricityMeter.ChannelId energyChannelId300035;
+		final ElectricityMeter.ChannelId energyChannelId300017;
+		final ElectricityMeter.ChannelId energyChannelId300033;
 		if (this.config.invert()) {
-			energyChannelId300019 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
-			energyChannelId300035 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+			energyChannelId300017 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+			energyChannelId300033 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
 		} else {
-			energyChannelId300019 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
-			energyChannelId300035 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+			energyChannelId300017 = ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+			energyChannelId300033 = ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
 		}
 
 		return new ModbusProtocol(this, //
@@ -127,13 +127,12 @@ public class MeterCarloGavazziEm100Impl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(300016 - offset, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300016 - offset),
 								SCALE_FACTOR_2),
-						new DummyRegisterElement(300017 - offset, 300018 - offset), //
-						m(energyChannelId300019,
-								new SignedDoublewordElement(300019 - offset).wordOrder(WordOrder.LSWMSW),
+						m(energyChannelId300017,
+								new SignedDoublewordElement(300017 - offset).wordOrder(WordOrder.LSWMSW),
 								SCALE_FACTOR_2),
-						new DummyRegisterElement(300021 - offset, 300034 - offset), //
-						m(energyChannelId300035,
-								new SignedDoublewordElement(300035 - offset).wordOrder(WordOrder.LSWMSW),
+						new DummyRegisterElement(300019 - offset, 300032 - offset),
+						m(energyChannelId300033,
+								new SignedDoublewordElement(300033 - offset).wordOrder(WordOrder.LSWMSW),
 								SCALE_FACTOR_2)));
 	}
 

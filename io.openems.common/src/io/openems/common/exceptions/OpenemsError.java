@@ -48,6 +48,7 @@ public enum OpenemsError {
 	JSONRPC_INVALID_MESSAGE(4002, "JSON-RPC Message is not a valid Request, Result or Notification: %s"), //
 	JSONRPC_RESPONSE_WITHOUT_REQUEST(4003, "Got Response without Request: %s"), //
 	JSONRPC_SEND_FAILED(4004, "Send failed"), //
+	JSONRPC_TOO_MANY_REQUESTS(4005, "Too Many Requests! Request discarded by Rate-Limiter."), //
 
 	/*
 	 * JSON Errors. 5000-5999

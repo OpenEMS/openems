@@ -316,6 +316,35 @@ export namespace Converter {
   };
 
   /**
+   * Converts the runState of the heating element to the tranlsated state
+   *
+   * @param translate the current language to be translated to
+   * @returns converted value
+   */
+  export const CONVERT_HEATING_ELEMENT_RUNSTATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case 0:
+          return translate.instant("General.inactive");
+        case 1:
+          return translate.instant("General.active");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.activeForced");
+        case 3:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.ACTIVED_FORCED_LIMIT");
+        case 4:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.DONE");
+        case 5:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.UNREACHABLE");
+        case 6:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.CALIBRATION");
+        default:
+          return "";
+      };
+    };
+  };
+
+  /**
    * Converts Power2Heat-State
    *
    * @param translate the current language to be translated to
@@ -350,5 +379,10 @@ export namespace Converter {
   export const CONVERT_TO_HEATING_STATE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       EnabledDisabledState[value]);
+  };
+
+  export const CONVERT_TO_HOUR: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_HOUR(value));
   };
 }

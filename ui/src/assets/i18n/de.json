@@ -213,13 +213,23 @@
           "activeLevel": "Aktives Level",
           "endtime": "Endzeit",
           "energy": "Energie",
-          "guaranteeMinimumHeating": "Minimale Beheizung garantieren",
+          "guaranteeMinimumHeating": "Minimale Heizdauer garantieren",
           "heatingelement": "Heizelement",
           "minimalEnergyAmount": "Minimale Energiemenge",
           "minimumRunTime": "Mindestlaufzeit",
           "priority": "Priorität",
           "time": "Zeit",
-          "timeCountdown": "Spätester Start"
+          "timeCountdown": "Spätester Start",
+          "GUARANTEE_HEATING": "Minimale Heizenergie garantieren",
+          "MINIMAL_ENERGY_LIMIT": "Minimales Energielimit",
+          "ACTIVED_FORCED_LIMIT": "Aktiv (Zusatzenergie)",
+          "DONE": "Fertig",
+          "UNREACHABLE": "Unerreichbar",
+          "CALIBRATION": "Kalibrierung",
+          "CALIBRATION_DESCRIPTION": "Der Heizstab wird kalibriert, um die Leistung der einzelnen Level des Zählers zu bekommen",
+          "HEATING_POWER": "Heizleistung",
+          "MESSAGE_UNREACHABLE": "Das Energielimit kann nicht in der Zeit erreicht werden",
+          "ENERGY_SINCE_BEGINNING": "Energie seit Beginn"
         },
         "HEAT": {
           "TEMPERATURE": "Wassertemperatur",
@@ -487,7 +497,11 @@
       "addIP": "Statische IP-Adressen hinzufügen",
       "validAddressWarning": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24",
       "advancedMode": "erweiterte Ansicht",
-      "submit": "Anwenden"
+      "submit": "Anwenden",
+      "DHCP": {
+        "INFO": "Die angezeigte IP-Adresse wurde dynamisch über DHCP (Dynamic Host Configuration Protocol) vergeben. Sie ist nicht dauerhaft und kann sich bei einem Neustart des Geräts oder Routers ändern.",
+        "ADDRESS": "DHCP Adresse"
+      }
     },
     "title": "{{ edgeShortName }}",
     "FOOTER": {

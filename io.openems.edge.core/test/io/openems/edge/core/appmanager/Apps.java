@@ -47,10 +47,10 @@ import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
-import io.openems.edge.app.heat.HeatPump;
-import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.heat.HeatAskomaReadOnly;
 import io.openems.edge.app.heat.HeatMyPvReadOnly;
+import io.openems.edge.app.heat.HeatPump;
+import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.integratedsystem.FeneconHome10;
 import io.openems.edge.app.integratedsystem.FeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.FeneconHome15;
@@ -68,7 +68,7 @@ import io.openems.edge.app.meter.CarloGavazziMeter;
 import io.openems.edge.app.meter.DiscovergyMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.KdkMeter;
-import io.openems.edge.app.meter.MicrocareSdm630Meter;
+import io.openems.edge.app.meter.EastronMeter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -804,13 +804,13 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link MicrocareSdm630Meter}.
+	 * Test method for creating a {@link EastronMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
-		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
+	public static final EastronMeter eastronMeter(AppManagerTestBundle t) {
+		return app(t, EastronMeter::new, "App.Meter.Eastron");
 	}
 
 	/**

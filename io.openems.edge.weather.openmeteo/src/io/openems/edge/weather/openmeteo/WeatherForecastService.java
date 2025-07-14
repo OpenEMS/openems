@@ -24,6 +24,7 @@ public class WeatherForecastService {
 
 	private static final String API_SCHEME = "https";
 	private static final String API_HOST = "api.open-meteo.com";
+	private static final String API_HOST_COMMERCIAL = "customer-api.open-meteo.com";
 	private static final String API_VERSION = "v1";
 	private static final String PAST_DAYS = "1";
 
@@ -34,16 +35,18 @@ public class WeatherForecastService {
 	private final BridgeHttp httpBridge;
 	private final String[] weatherVariables;
 	private final long forecastDays;
+	private final String apiKey;
 	private final UrlBuilder baseUrl;
 
 	private TimeEndpoint subscription;
 	private WeatherData weatherForecast = WeatherData.EMPTY_WEATHER_DATA;
 
-	public WeatherForecastService(BridgeHttp httpBridge, String[] weatherVariables, long forecastDays) {
+	public WeatherForecastService(BridgeHttp httpBridge, String[] weatherVariables, long forecastDays, String apiKey) {
 		super();
 		this.httpBridge = httpBridge;
 		this.weatherVariables = weatherVariables;
 		this.forecastDays = forecastDays;
+		this.apiKey = apiKey;
 		this.baseUrl = this.buildBaseUrl();
 	}
 
@@ -109,13 +112,21 @@ public class WeatherForecastService {
 	}
 
 	private UrlBuilder buildBaseUrl() {
-		return UrlBuilder.create()//
+		var builder = UrlBuilder.create()//
 				.withScheme(API_SCHEME)//
-				.withHost(API_HOST)//
+				.withHost(this.apiKey != null //
+						? API_HOST_COMMERCIAL //
+						: API_HOST)//
 				.withPath("/" + API_VERSION + "/forecast")//
 				.withQueryParam("forecast_days", String.valueOf(this.forecastDays))//
 				.withQueryParam("past_days", PAST_DAYS)//
 				.withQueryParam("minutely_15", String.join(",", this.weatherVariables));
+
+		if (this.apiKey != null) {
+			builder = builder.withQueryParam("apikey", this.apiKey);
+		}
+
+		return builder;
 	}
 
 	private String buildForecastUrl(Coordinates coordinates, ZoneId zone) {

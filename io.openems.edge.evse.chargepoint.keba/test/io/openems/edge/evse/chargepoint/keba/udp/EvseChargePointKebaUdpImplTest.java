@@ -1,15 +1,18 @@
 package io.openems.edge.evse.chargepoint.keba.udp;
 
-import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.chargepoint.PhaseRotation.L2_L3_L1;
-import static io.openems.edge.evse.chargepoint.keba.common.enums.P30S10PhaseSwitching.NOT_AVAILABLE;
+import static io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity.DEBUG_LOG;
 
 import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.chargepoint.keba.common.EvseChargePointKeba;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCoreImpl;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -17,48 +20,59 @@ public class EvseChargePointKebaUdpImplTest {
 
 	@Test
 	public void test() throws Exception {
-		var sut = new EvseChargePointKebaUdpImpl();
-		var rh = sut.readHandler;
+		final var sut = new EvseChargePointKebaUdpImpl();
+		final var rh = sut.readHandler;
+		final var config = MyConfig.create() //
+				.setId("evcs0") //
+				.setReadOnly(false) //
+				.setIp("172.0.0.1") //
+				.setWiring(SingleOrThreePhase.THREE_PHASE) //
+				.setP30hasS10PhaseSwitching(false) //
+				.setPhaseRotation(L2_L3_L1) //
+				// .setUseDisplay(false) //
+				.setLogVerbosity(DEBUG_LOG) //
+				.build();
+		final var logVerbosity = config.logVerbosity();
 		new ComponentTest(sut) //
 				.addReference("kebaUdpCore", new EvseChargePointKebaUdpCoreImpl()) //
-				.activate(MyConfig.create() //
-						.setId("evcs0") //
-						.setDebugMode(false) //
-						.setIp("172.0.0.1") //
-						.setWiring(THREE_PHASE) //
-						.setP30S10PhaseSwitching(NOT_AVAILABLE) //
-						.setPhaseRotation(L2_L3_L1) //
-						// .setUseDisplay(false) //
-						.build()) //
+				.activate(config) //
 
 				.next(new TestCase() //
-						.onBeforeProcessImage(() -> rh.accept(REPORT_1)) //
+						.onBeforeProcessImage(() -> rh.accept(REPORT_1, logVerbosity)) //
+						.output(EvseChargePointKebaUdp.ChannelId.PRODUCT, "KC-P30-EC240422-E00") //
 						.output(EvseChargePointKebaUdp.ChannelId.SERIAL, "12345678") //
 						.output(EvseChargePointKeba.ChannelId.FIRMWARE, "P30 v 3.10.57 (240521-093236)") //
-						.output(EvseChargePointKebaUdp.ChannelId.COM_MODULE, "0") //
+						.output(EvseChargePointKebaUdp.ChannelId.COM_MODULE, false) //
+						.output(EvseChargePointKebaUdp.ChannelId.BACKEND, false) //
 						.output(EvseChargePointKebaUdp.ChannelId.DIP_SWITCH_1, "00100101") //
-						.output(EvseChargePointKebaUdp.ChannelId.DIP_SWITCH_2, "00000010") //
-						.output(EvseChargePointKebaUdp.ChannelId.PRODUCT, "KC-P30-EC240422-E00")) //
+						.output(EvseChargePointKebaUdp.ChannelId.DIP_SWITCH_2, "00000010")) //
 
 				.next(new TestCase() //
-						.onBeforeProcessImage(() -> rh.accept(REPORT_2)) //
+						.onBeforeProcessImage(() -> rh.accept(REPORT_2, logVerbosity)) //
+						.output(EvseChargePointKeba.ChannelId.CHARGING_STATE, ChargingState.INTERRUPTED) //
+						.output(EvseChargePointKeba.ChannelId.CABLE_STATE, CableState.PLUGGED_AND_LOCKED) //
 						.output(EvseChargePointKebaUdp.ChannelId.ERROR_1, 0) //
 						.output(EvseChargePointKebaUdp.ChannelId.ERROR_2, 0) //
-						.output(EvseChargePointKeba.ChannelId.CABLE_STATE, CableState.PLUGGED_AND_LOCKED) //
+						.output(EvseChargePointKebaUdp.ChannelId.AUTH_ON, false) //
+						.output(EvseChargePointKebaUdp.ChannelId.AUTH_REQ, false) //
 						.output(EvseChargePointKebaUdp.ChannelId.ENABLE_SYS, false) //
 						.output(EvseChargePointKebaUdp.ChannelId.ENABLE_USER, false) //
+						.output(EvseChargePointKebaUdp.ChannelId.MAX_CURR, 0) //
 						.output(EvseChargePointKebaUdp.ChannelId.MAX_CURR_PERCENT, 1_000) //
+						.output(EvseChargePointKebaUdp.ChannelId.CURR_HW, 32_000) //
+						.output(EvseChargePointKebaUdp.ChannelId.CURR_USER, 10_000) //
 						.output(EvseChargePointKebaUdp.ChannelId.CURR_FAILSAFE, 0) //
 						.output(EvseChargePointKebaUdp.ChannelId.TIMEOUT_FAILSAFE, 0) //
 						.output(EvseChargePointKebaUdp.ChannelId.CURR_TIMER, 0) //
 						.output(EvseChargePointKebaUdp.ChannelId.TIMEOUT_CT, 0) //
-						.output(EvseChargePointKebaUdp.ChannelId.OUTPUT, false) //
+						.output(EvseChargePointKebaUdp.ChannelId.SETENERGY, 0) //
+						.output(EvseChargePointKebaUdp.ChannelId.OUTPUT, 0) //
 						.output(EvseChargePointKebaUdp.ChannelId.INPUT, false) //
-						.output(EvseChargePointKebaUdp.ChannelId.MAX_CURR, 32_000) //
-						.output(EvseChargePointKebaUdp.ChannelId.CURR_USER, 1_0000)) //
+						.output(EvseChargePointKeba.ChannelId.PHASE_SWITCH_SOURCE, PhaseSwitchSource.NONE) //
+						.output(EvseChargePointKeba.ChannelId.PHASE_SWITCH_STATE, PhaseSwitchState.SINGLE)) //
 
 				.next(new TestCase() //
-						.onBeforeProcessImage(() -> rh.accept(REPORT_3)) //
+						.onBeforeProcessImage(() -> rh.accept(REPORT_3, logVerbosity)) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE, 227_500) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 228_000) //
@@ -72,8 +86,8 @@ public class EvseChargePointKebaUdpImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1_866) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 7747834L) //
-						// .output(EvseChargePointKebaUdp.ChannelId.ENERGY_SESSION, 6530) //
-						.output(EvseChargePointKebaUdp.ChannelId.COS_PHI, 905) //
+						.output(EvseChargePointKeba.ChannelId.ENERGY_SESSION, 6530) //
+						.output(EvseChargePointKeba.ChannelId.POWER_FACTOR, 905) //
 
 				);
 	}

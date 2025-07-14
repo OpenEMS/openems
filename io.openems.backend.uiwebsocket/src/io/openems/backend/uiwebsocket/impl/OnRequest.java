@@ -60,6 +60,8 @@ import io.openems.common.utils.JsonUtils;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
+	private static final OpenemsNamedException RATE_LIMIT_EXCEPTION = OpenemsError.JSONRPC_TOO_MANY_REQUESTS.exception();
+
 	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 
 	private final UiWebsocketImpl parent;
@@ -72,6 +74,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
+		if (!wsData.checkLimiter(request.getMethod())) {
+			wsData.debugLog(this.log, () -> "Rate limit hit for user=%s, method=%s" //
+					.formatted(wsData.getUserId().orElse("UNKNOWN"), request.getMethod()));
+			return CompletableFuture.failedFuture(RATE_LIMIT_EXCEPTION);
+		}
 
 		// Start with authentication requests
 		CompletableFuture<? extends JsonrpcResponseSuccess> result = null;
@@ -88,8 +95,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// should be authenticated
 		var user = this.parent.assertUser(wsData, request);
-		wsData.debugLog(this.log,
-				() -> "REQUEST " + user.getId() + ": " + toShortString(simplifyJsonrpcMessage(request), 200));
+		wsData.debugLog(this.log, () -> "REQUEST %s: %s" //
+				.formatted(user.getId(), toShortString(simplifyJsonrpcMessage(request), 200)));
 
 		result = switch (request.getMethod()) {
 		case LogoutRequest.METHOD -> //
