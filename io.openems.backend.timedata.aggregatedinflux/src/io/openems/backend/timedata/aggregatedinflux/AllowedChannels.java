@@ -170,7 +170,8 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ctrlApiModbusTcp, "CumulatedInactiveTime", DataType.LONG)) //
 				.put("ctrlEssLimiter14a0/CumulatedRestrictionTime", DataType.LONG) //
 				.putAll(multiChannels(ctrlEssRippleControlReceiver, "CumulatedRestrictionTime", DataType.LONG)) //
-				.putAll(multiChannels(heat, "ActiveConsumptionEnergy", DataType.LONG)) //
+				.putAll(multiChannels(heat, "ActiveConsumptionEnergy", DataType.LONG)) // @Deprecated(use=ActiveProductionEnergy)
+				.putAll(multiChannels(heat, "ActiveProductionEnergy", DataType.LONG)) //
 				.build();
 	}
 

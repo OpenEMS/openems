@@ -19,7 +19,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommunicationProps;
@@ -37,7 +36,6 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
@@ -65,7 +63,8 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
  * </pre>
  */
 @Component(name = "App.Heat.Askoma.ReadOnly")
-public class HeatAskomaReadOnly extends AbstractOpenemsAppWithProps<HeatAskomaReadOnly, HeatAskomaReadOnly.Property, BundleParameter>
+public class HeatAskomaReadOnly
+		extends AbstractOpenemsAppWithProps<HeatAskomaReadOnly, HeatAskomaReadOnly.Property, BundleParameter>
 		implements OpenemsApp, HostSupplier {
 
 	public static enum Property implements Type<Property, HeatAskomaReadOnly, BundleParameter>, Nameable {
@@ -74,8 +73,8 @@ public class HeatAskomaReadOnly extends AbstractOpenemsAppWithProps<HeatAskomaRe
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		ALIAS(alias()), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.2.118") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.2.118")//
 				.setRequired(true)), //
 		;
 
@@ -177,13 +176,5 @@ public class HeatAskomaReadOnly extends AbstractOpenemsAppWithProps<HeatAskomaRe
 	@Override
 	public Host getHost() {
 		return this.host;
-	}
-	
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanDelete(Role.ADMIN)//
-				.setCanSee(Role.ADMIN)//
-				.build();
 	}
 }

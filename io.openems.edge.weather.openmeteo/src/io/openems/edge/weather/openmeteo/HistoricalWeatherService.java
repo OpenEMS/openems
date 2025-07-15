@@ -19,18 +19,21 @@ public class HistoricalWeatherService {
 
 	private static final String API_SCHEME = "https";
 	private static final String API_HOST = "historical-forecast-api.open-meteo.com";
+	private static final String API_HOST_COMMERCIAL = "customer-historical-forecast-api.open-meteo.com";
 	private static final String API_VERSION = "v1";
 
 	private final Logger log = LoggerFactory.getLogger(HistoricalWeatherService.class);
 
 	private final BridgeHttp httpBridge;
 	private final String[] weatherVariables;
+	private final String apiKey;
 	private final UrlBuilder baseUrl;
 
-	public HistoricalWeatherService(BridgeHttp httpBridge, String[] weatherVariables) {
+	public HistoricalWeatherService(BridgeHttp httpBridge, String[] weatherVariables, String apiKey) {
 		super();
 		this.httpBridge = httpBridge;
 		this.weatherVariables = weatherVariables;
+		this.apiKey = apiKey;
 		this.baseUrl = this.buildBaseUrl();
 	}
 
@@ -54,11 +57,19 @@ public class HistoricalWeatherService {
 	}
 
 	private UrlBuilder buildBaseUrl() {
-		return UrlBuilder.create()//
+		var builder = UrlBuilder.create()//
 				.withScheme(API_SCHEME)//
-				.withHost(API_HOST)//
+				.withHost(this.apiKey != null //
+						? API_HOST_COMMERCIAL //
+						: API_HOST)//
 				.withPath("/" + API_VERSION + "/forecast")//
 				.withQueryParam("minutely_15", String.join(",", this.weatherVariables));
+
+		if (this.apiKey != null) {
+			builder = builder.withQueryParam("apikey", this.apiKey);
+		}
+
+		return builder;
 	}
 
 	private String buildHistoricalUrl(Coordinates coordinates, LocalDate dateFrom, LocalDate dateTo, ZoneId zone) {

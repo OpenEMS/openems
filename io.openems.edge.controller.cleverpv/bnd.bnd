@@ -6,14 +6,12 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	Java-WebSocket,\
+	com.squareup.okhttp3,\
 	io.openems.common,\
 	io.openems.edge.bridge.http,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.common,\
-	io.openems.wrapper.okhttp,\
 
 -testpath: \
 	${testpath},\
-	io.openems.wrapper.okhttp,\
-	

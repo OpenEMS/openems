@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { ViewWillLeave } from "@ionic/angular";
+import { ActivatedRoute } from "@angular/router";
+import { NavController, ViewWillLeave } from "@ionic/angular";
 import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
@@ -21,7 +21,7 @@ export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
     private edge: Edge | null = null;
 
     constructor(
-        private router: Router,
+        protected navCtrl: NavController,
         private activatedRoute: ActivatedRoute,
         private service: Service,
         private websocket: Websocket,
@@ -44,7 +44,7 @@ export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
                         ]);
                     });
             }).catch(() => {
-                this.router.navigate(["index"]);
+                this.navCtrl.navigateRoot("index");
             });
         });
     }

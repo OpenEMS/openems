@@ -1,6 +1,6 @@
 package io.openems.edge.pvinverter.sma;
 
-import static io.openems.edge.pvinverter.sunspec.Phase.ALL;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 
 import org.junit.Test;
 

@@ -2,7 +2,6 @@ package io.openems.edge.evse.chargepoint.keba.common;
 
 import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.common.channel.Unit.MILLIAMPERE;
-import static io.openems.common.types.OpenemsType.FLOAT;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.STRING;
 
@@ -34,9 +33,8 @@ public interface EvseChargePointKeba extends EvseChargePoint, ElectricityMeter, 
 		ERROR_CODE(Doc.of(INTEGER)), //
 		SERIAL_NUMBER(Doc.of(INTEGER)), //
 		ENERGY_SESSION(Doc.of(INTEGER)), //
-		POWER_FACTOR(Doc.of(FLOAT)), //
+		POWER_FACTOR(Doc.of(INTEGER)), //
 		MAX_CHARGING_CURRENT(Doc.of(INTEGER)), //
-		RFID(Doc.of(STRING)), //
 		PHASE_SWITCH_SOURCE(Doc.of(PhaseSwitchSource.values())), //
 		PHASE_SWITCH_STATE(Doc.of(PhaseSwitchState.values())), //
 		FAILSAFE_CURRENT_SETTING(Doc.of(INTEGER)), //
@@ -169,5 +167,30 @@ public interface EvseChargePointKeba extends EvseChargePoint, ElectricityMeter, 
 	 */
 	public default IntegerWriteChannel getSetChargingCurrentChannel() {
 		return this.channel(ChannelId.SET_CHARGING_CURRENT);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_PHASE_SWITCH_SOURCE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumWriteChannel getSetPhaseSwitchSourceChannel() {
+		return this.channel(ChannelId.SET_PHASE_SWITCH_SOURCE);
+	}
+
+	/**
+	 * Gets the required {@link PhaseSwitchSource} for this implementation.
+	 * 
+	 * @return the {@link PhaseSwitchSource}
+	 */
+	public PhaseSwitchSource getRequiredPhaseSwitchSource();
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_PHASE_SWITCH_STATE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumWriteChannel getSetPhaseSwitchStateChannel() {
+		return this.channel(ChannelId.SET_PHASE_SWITCH_STATE);
 	}
 }

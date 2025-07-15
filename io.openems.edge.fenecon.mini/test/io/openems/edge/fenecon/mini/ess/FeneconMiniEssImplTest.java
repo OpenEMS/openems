@@ -1,5 +1,6 @@
 package io.openems.edge.fenecon.mini.ess;
 
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static io.openems.edge.fenecon.mini.ess.FeneconMiniEss.ChannelId.PCS_MODE;
 import static io.openems.edge.fenecon.mini.ess.FeneconMiniEss.ChannelId.SETUP_MODE;
 import static io.openems.edge.fenecon.mini.ess.FeneconMiniEss.ChannelId.STATE_MACHINE;
@@ -9,7 +10,6 @@ import org.junit.Test;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
@@ -30,7 +30,7 @@ public class FeneconMiniEssImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setModbusId("modbus0") //
-						.setPhase(SinglePhase.L1) //
+						.setPhase(L1) //
 						.setReadonly(false) //
 						.build()) //
 				.next(new TestCase() //
@@ -71,7 +71,7 @@ public class FeneconMiniEssImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setModbusId("modbus0") //
-						.setPhase(SinglePhase.L1) //
+						.setPhase(L1) //
 						.setReadonly(false) //
 						.build()) //
 				.next(new TestCase() //
@@ -99,7 +99,7 @@ public class FeneconMiniEssImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setModbusId("modbus0") //
-						.setPhase(SinglePhase.L1) //
+						.setPhase(L1) //
 						.setReadonly(true) //
 						.build()) //
 				.next(new TestCase() //
@@ -140,7 +140,7 @@ public class FeneconMiniEssImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setModbusId("modbus0") //
-						.setPhase(SinglePhase.L1) //
+						.setPhase(L1) //
 						.setReadonly(true) //
 						.build()) //
 				.next(new TestCase() //

@@ -1,6 +1,7 @@
 package io.openems.edge.controller.io.heatingelement;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
@@ -16,10 +17,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int powerOfPhase;
 		private Mode mode;
 		private WorkMode workMode;
+		private int minEnergylimit;
+		private String endTimeWithMeter;
+		private String meterId;
 		private int minTime;
 		private String endTime;
 		private Level defaultLevel;
 		private int minimumSwitchingTime;
+		private String scheduler;
 
 		private Builder() {
 
@@ -60,6 +65,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMinEnergylimit(int minEnergylimit) {
+			this.minEnergylimit = minEnergylimit;
+			return this;
+		}
+
+		public Builder setMeterid(String meterid) {
+			this.meterId = meterid;
+			return this;
+		}
+
 		public Builder setMinTime(int minTime) {
 			this.minTime = minTime;
 			return this;
@@ -70,6 +85,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setEndTimeWithMeter(String endTimeWithMeter) {
+			this.endTimeWithMeter = endTimeWithMeter;
+			return this;
+		}
+
 		public Builder setDefaultLevel(Level defaultLevel) {
 			this.defaultLevel = defaultLevel;
 			return this;
@@ -77,6 +97,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMinimumSwitchingTime(int minimumSwitchingTime) {
 			this.minimumSwitchingTime = minimumSwitchingTime;
+			return this;
+		}
+
+		public Builder setScheduler(String scheduler) {
+			this.scheduler = scheduler;
 			return this;
 		}
 
@@ -137,6 +162,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public int minEnergylimit() {
+		return this.builder.minEnergylimit;
+	}
+
+	@Override
+	public String meter_id() {
+		return this.builder.meterId;
+	}
+
+	@Override
 	public int minTime() {
 		return this.builder.minTime;
 	}
@@ -151,4 +186,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.minimumSwitchingTime;
 	}
 
+	@Override
+	public String endTimeWithMeter() {
+		return this.builder.endTimeWithMeter;
+	}
+
+	@Override
+	public String meter_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
+	}
+
+	@Override
+	public String schedule() {
+		return this.builder.scheduler;
+	}
 }

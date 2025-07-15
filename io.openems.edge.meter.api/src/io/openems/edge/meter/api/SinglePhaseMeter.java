@@ -1,8 +1,8 @@
 package io.openems.edge.meter.api;
 
-import static io.openems.edge.meter.api.SinglePhase.L1;
-import static io.openems.edge.meter.api.SinglePhase.L2;
-import static io.openems.edge.meter.api.SinglePhase.L3;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 
 import java.util.function.Function;
 
@@ -11,6 +11,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ProviderType
 public interface SinglePhaseMeter extends ElectricityMeter {

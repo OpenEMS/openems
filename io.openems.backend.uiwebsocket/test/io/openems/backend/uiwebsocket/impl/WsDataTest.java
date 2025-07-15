@@ -16,7 +16,7 @@ public class WsDataTest {
 
 	@Test
 	public void test() throws OpenemsNamedException {
-		var sut = new WsData(null);
+		var sut = new WsData(null, 10);
 		assertEquals(Optional.empty(), sut.getUser(null));
 		assertThrows(OpenemsNamedException.class, () -> sut.assertToken());
 		assertEquals("UiWebsocket.WsData [userId=UNKNOWN, token=UNKNOWN]", sut.toLogString());

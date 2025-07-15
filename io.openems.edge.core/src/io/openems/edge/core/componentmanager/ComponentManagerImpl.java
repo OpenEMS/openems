@@ -1,5 +1,6 @@
 package io.openems.edge.core.componentmanager;
 
+import static io.openems.common.utils.StreamUtils.dictionaryToStream;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
@@ -586,12 +587,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					config.getPid() + ": Properties is 'null'");
 		}
 
-		// Reset all target properties to avoid missing old references
-		for (var k = properties.keys(); k.hasMoreElements();) {
-			var property = k.nextElement();
-			if (property.endsWith(".target")) {
-				properties.put(property, "(enabled=true)");
-			}
+		// Reset Target-Properties to avoid missing old references
+		for (var property : getResetTargetProperties(properties, request.properties())) {
+			properties.put(property, "(enabled=true)");
 		}
 
 		for (Property property : request.properties()) {
@@ -619,6 +617,34 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.componentId(), e.getMessage());
 		}
+	}
+
+	/**
+	 * Finds properties with depending '.target' properties, like 'battery.id' and
+	 * 'battery.target'. If such a ID-Property should be updated (via
+	 * UpdateComponentConfig.Request), the corresponding Target-Property is returned
+	 * in the list and later reset to "(enabled=true)". In the Component this
+	 * triggers Deactivate/Activate instead of Modified.
+	 * 
+	 * @param properties Properties of the existing configuration
+	 * @param request    Properties of UpdateComponentConfig.Request
+	 * @return list of Target-Properties that should be reset
+	 */
+	private static List<String> getResetTargetProperties(Dictionary<String, Object> properties,
+			List<Property> request) {
+		return dictionaryToStream(properties) //
+				.map(Entry::getKey) //
+				.filter(p -> p.endsWith(".target")) // e.g. 'battery.target'
+				.filter(p -> {
+					var base = p.substring(0, p.length() //
+							- "target".length()) // keep the final dot, e.g. 'battery.'
+							.toLowerCase(); // match case-insensitive
+					return request.stream() //
+							.map(Property::getName) //
+							// matches 'battery.id' but not 'batteryInverter.id'
+							.anyMatch(n -> n.toLowerCase().startsWith(base));
+				}) //
+				.toList();
 	}
 
 	@Override

@@ -1,9 +1,8 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnChanges, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
@@ -42,6 +41,8 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   private selector: string = uuidv4();
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private edge: Edge | null = null;
+  private subscription: EffectRef;
+  private injector = inject(Injector);
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
@@ -88,6 +89,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     // Unsubscribe from CurrentData subject
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+    this.subscription?.destroy();
   }
 
   protected setValue(value: any) {
@@ -109,10 +111,11 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
       this.edge = edge;
 
       this.dataService.getValues([channelAddress], this.edge);
-      this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        this.setValue(value.allComponents[channelAddress.toString()]);
-      });
+
+      this.subscription = effect(() => {
+        const val = this.dataService.currentValue();
+        this.setValue(val.allComponents[channelAddress.toString()]);
+      }, { injector: this.injector });
     });
   }
-
 }

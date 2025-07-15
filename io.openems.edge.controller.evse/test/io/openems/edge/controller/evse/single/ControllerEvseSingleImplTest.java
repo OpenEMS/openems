@@ -1,7 +1,7 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -22,12 +22,13 @@ public class ControllerEvseSingleImplTest {
 				.addReference("chargePoint", new DummyEvseChargePoint("chargePoint0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
-						.setDebugMode(true) //
 						.setMode(Mode.MINIMUM) //
 						.setChargePointId("chargePoint0") //
 						.setElectricVehicleId("electricVehicle0") //
+						.setPhaseSwitching(PhaseSwitching.DISABLE) //
 						.setSmartConfig("") //
 						.setManualEnergySessionLimit(10_000) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
@@ -46,6 +47,7 @@ public class ControllerEvseSingleImplTest {
 						.setMode(Mode.SMART) //
 						.setChargePointId("chargePoint0") //
 						.setElectricVehicleId("electricVehicle0") //
+						.setPhaseSwitching(PhaseSwitching.DISABLE) //
 						.setSmartConfig("""
 								[{
 								  "updated": "2020-01-01T00:00:00Z",
@@ -64,10 +66,11 @@ public class ControllerEvseSingleImplTest {
 								  }
 								}]""") //
 						.setManualEnergySessionLimit(0) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
 
-		assertNull(sut.getParams());
+		assertEquals(Mode.Actual.ZERO, sut.getParams().actualMode());
 	}
 }

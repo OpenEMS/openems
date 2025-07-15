@@ -2,6 +2,10 @@ package io.openems.edge.ess.byd.container;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -36,10 +40,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -157,8 +158,8 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 		// Handle Read-Only mode -> no charge/discharge
 		if (this.readonly) {
 			return new Constraint[] { //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+					this.createPowerConstraint("Read-Only-Mode", ALL, ACTIVE, EQUALS, 0), //
+					this.createPowerConstraint("Read-Only-Mode", ALL, REACTIVE, EQUALS, 0) //
 			};
 		}
 
@@ -169,20 +170,16 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 
 		if (systemWorkmode != SystemWorkmode.PQ_MODE) {
 			return new Constraint[] { //
-					this.createPowerConstraint("WorkMode invalid", //
-							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
-					this.createPowerConstraint("WorkMode invalid", //
-							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
+					this.createPowerConstraint("WorkMode invalid", ALL, ACTIVE, EQUALS, 0),
+					this.createPowerConstraint("WorkMode invalid", ALL, REACTIVE, EQUALS, 0) };
 		}
 
 		switch (systemWorkstate) {
 		case FAULT:
 		case STOP:
 			return new Constraint[] { //
-					this.createPowerConstraint("WorkState invalid", //
-							Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0),
-					this.createPowerConstraint("WorkState invalid", //
-							Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) };
+					this.createPowerConstraint("WorkState invalid", ALL, ACTIVE, EQUALS, 0),
+					this.createPowerConstraint("WorkState invalid", ALL, REACTIVE, EQUALS, 0) };
 		case DEBUG:
 		case RUNNING:
 		case UNDEFINED:

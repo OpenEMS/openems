@@ -2,8 +2,8 @@ package io.openems.edge.heat.askoma;
 
 import org.junit.Test;
 
-import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 

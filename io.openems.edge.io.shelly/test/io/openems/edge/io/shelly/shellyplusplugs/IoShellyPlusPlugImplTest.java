@@ -1,6 +1,7 @@
 package io.openems.edge.io.shelly.shellyplusplugs;
 
 import static io.openems.common.types.MeterType.PRODUCTION;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -12,7 +13,6 @@ import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class IoShellyPlusPlugImplTest {
@@ -26,7 +26,7 @@ public class IoShellyPlusPlugImplTest {
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId("io0") //
-						.setPhase(SinglePhase.L1) //
+						.setPhase(L1) //
 						.setIp("127.0.0.1") //
 						.setType(PRODUCTION) //
 						.build()) //

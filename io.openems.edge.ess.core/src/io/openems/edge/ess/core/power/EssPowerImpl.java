@@ -30,12 +30,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.filter.DisabledPidFilter;
 import io.openems.edge.common.filter.PidFilter;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.data.ConstraintUtil;
 import io.openems.edge.ess.core.power.solver.CalculatePowerExtrema;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
@@ -169,13 +169,14 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	 * Helpers to create Constraints
 	 */
 	@Override
-	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) throws OpenemsException {
+	public Coefficient getCoefficient(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr)
+			throws OpenemsException {
 		return this.data.getCoefficient(ess.id(), phase, pwr);
 	}
 
 	@Override
-	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			Relationship relationship, double value) throws OpenemsException {
+	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, SingleOrAllPhase phase,
+			Pwr pwr, Relationship relationship, double value) throws OpenemsException {
 		return ConstraintUtil.createSimpleConstraint(this.data.getCoefficients(), //
 				description, ess.id(), phase, pwr, relationship, value);
 	}
@@ -186,16 +187,16 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	}
 
 	@Override
-	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public int getMaxPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) {
 		return this.getActivePowerExtrema(ess, phase, pwr, GoalType.MAXIMIZE);
 	}
 
 	@Override
-	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public int getMinPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) {
 		return this.getActivePowerExtrema(ess, phase, pwr, GoalType.MINIMIZE);
 	}
 
-	private int getActivePowerExtrema(ManagedSymmetricEss ess, Phase phase, Pwr pwr, GoalType goal) {
+	private int getActivePowerExtrema(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr, GoalType goal) {
 		final List<Constraint> allConstraints;
 		try {
 			allConstraints = this.data.getConstraintsForAllInverters();

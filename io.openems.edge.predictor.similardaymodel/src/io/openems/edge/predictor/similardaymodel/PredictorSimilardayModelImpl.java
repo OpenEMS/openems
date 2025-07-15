@@ -71,8 +71,8 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(),
-				this.config.channelAddresses(), config.logVerbosity());
+		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(), config.logVerbosity(),
+				this.config.channelAddresses());
 	}
 
 	@Override

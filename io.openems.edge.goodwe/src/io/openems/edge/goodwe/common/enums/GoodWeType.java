@@ -30,10 +30,23 @@ public enum GoodWeType implements OptionsEnum {
 	FENECON_GEN2_10K(150, "FENECON ET Gen2 10K", Series.EUB, //
 			authorisedLimit(40, 25, 40), serialNrFilter("010K", "EUB"), notHomeBattery52Or64Ah()),
 	FENECON_GEN2_15K(160, "FENECON ET Gen2 15K", Series.EUB, //
-			authorisedLimit(40, 25, 40), serialNrFilter("015K", "EUB"), notHomeBattery52Or64Ah()); //
+			authorisedLimit(40, 25, 40), serialNrFilter("015K", "EUB"), notHomeBattery52Or64Ah()),
+	FENECON_50K(170, "FENECON 50K", Series.ETF, //
+			authorisedLimit(100, 0, 100), serialNrFilter("050K", "ETF"), notHomeBattery64Ah()); //
 
 	public static enum Series {
-		UNDEFINED, BT, ET, ETT, EUB;
+		UNDEFINED("Undefined"), //
+		BT("GoodWe Series BT"), //
+		ET("GoodWe Series BT also used for home"), //
+		ETT("Home Series 20 & 30 kW"), //
+		EUB("Home Gen2 Series 6, 10 & 15 kW"), //
+		ETF("Commercial Series 50+ kW");
+
+		public final String description;
+
+		Series(String description) {
+			this.description = description;
+		}
 	}
 
 	private final int value;

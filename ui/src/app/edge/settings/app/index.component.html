@@ -101,7 +101,7 @@
               <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
               <ion-text text-nowrap translate>Edge.Config.App.Key.useKey</ion-text>
               <ion-badge *ngIf="numberOfUnusedRegisteredKeys !== 0" slot="end"
-                color="secondary">{{numberOfUnusedRegisteredKeys}}</ion-badge>
+                color="dark">{{numberOfUnusedRegisteredKeys}}</ion-badge>
             </ion-item>
           </ion-card>
           <ion-popover #hasKeyPopover [isOpen]="showPopover" side="bottom" alignment="center">

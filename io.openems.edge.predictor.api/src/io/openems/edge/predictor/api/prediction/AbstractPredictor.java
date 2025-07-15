@@ -1,7 +1,7 @@
 package io.openems.edge.predictor.api.prediction;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -24,6 +24,7 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 
 	private final Map<ChannelAddress, Prediction> predictions = new HashMap<>();
 
+	private ChannelAddress[] channelAdresses = new ChannelAddress[0];
 	private LogVerbosity logVerbosity = LogVerbosity.NONE;
 
 	protected abstract ClockProvider getClockProvider();
@@ -41,28 +42,51 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 		throw new IllegalArgumentException("use the other activate method!");
 	}
 
+	/**
+	 * Activate with a String-Array of ChannelAddresses.
+	 * 
+	 * @param context          the {@link ComponentContext}
+	 * @param id               the Component-ID
+	 * @param alias            the Component-Alias
+	 * @param enabled          is the Component enabled?
+	 * @param logVerbosity     the {@link LogVerbosity}
+	 * @param channelAddresses the ChannelAddresses as String-Array
+	 * @throws OpenemsNamedException on error
+	 */
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
-			String[] channelAddresses, LogVerbosity logVerbosity) throws OpenemsNamedException {
+			LogVerbosity logVerbosity, String... channelAddresses) throws OpenemsNamedException {
+		this.activate(context, id, alias, enabled, logVerbosity, toChannelAddresses(channelAddresses));
+	}
+
+	/**
+	 * Activate with a {@link ChannelAddress}-Array.
+	 * 
+	 * @param context          the {@link ComponentContext}
+	 * @param id               the Component-ID
+	 * @param alias            the Component-Alias
+	 * @param enabled          is the Component enabled?
+	 * @param logVerbosity     the {@link LogVerbosity}
+	 * @param channelAddresses the {@link ChannelAddress}es
+	 */
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
+			LogVerbosity logVerbosity, ChannelAddress... channelAddresses) {
 		super.activate(context, id, alias, enabled);
 		this.logVerbosity = logVerbosity;
-
-		for (var i = 0; i < channelAddresses.length; i++) {
-			this.predictions.put(ChannelAddress.fromString(channelAddresses[i]), EMPTY_PREDICTION);
-		}
+		this.channelAdresses = channelAddresses;
 	}
 
 	@Override
 	public ChannelAddress[] getChannelAddresses() {
-		return this.predictions.keySet().toArray(ChannelAddress[]::new);
+		return this.channelAdresses;
 	}
 
 	@Override
 	public Prediction getPrediction(ChannelAddress channelAddress) {
 		var now = roundDownToQuarter(ZonedDateTime.now(this.getClockProvider().getClock()));
 		var prediction = this.predictions.get(channelAddress);
-		if (Optional.ofNullable(prediction) //
-				.map(p -> p.getFirstTime()) //
-				.map(t -> now.isAfter(t)) //
+		if (Optional.ofNullable(prediction) // handle first-request or unsupported channelAddress
+				.map(p -> p.getFirstTime()) // handle prediction is EMPTY_PREDICTION
+				.map(t -> now.isAfter(t)) // handle prediction is outdated
 				.orElse(true /* any null? */)) {
 			// Create new prediction
 			prediction = this.createNewPrediction(channelAddress);
@@ -71,10 +95,22 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 			// Reuse existing prediction
 		}
 		switch (this.logVerbosity) {
-		case NONE -> {
-		}
-		case REQUESTED_PREDICTIONS -> this.logInfo(this.log, "Prediction for [" + channelAddress + "]: " + prediction);
+		case NONE -> doNothing();
+		case REQUESTED_PREDICTIONS, ARCHIVE_LOCALLY ->
+			this.logInfo(this.log, "Prediction for [" + channelAddress + "]: " + prediction);
 		}
 		return prediction;
+	}
+
+	protected LogVerbosity getLogVerbosity() {
+		return this.logVerbosity;
+	}
+
+	private static ChannelAddress[] toChannelAddresses(String[] strings) throws OpenemsNamedException {
+		final var result = new ChannelAddress[strings.length];
+		for (var i = 0; i < strings.length; i++) {
+			result[i] = ChannelAddress.fromString(strings[i]);
+		}
+		return result;
 	}
 }

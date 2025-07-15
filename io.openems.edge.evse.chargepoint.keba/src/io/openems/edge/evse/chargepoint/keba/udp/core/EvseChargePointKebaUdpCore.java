@@ -9,7 +9,7 @@ public interface EvseChargePointKebaUdpCore {
 
 	/**
 	 * Callback on receive of a message. InetAddress is the address of the sending
-	 * EVCS, String is the message.
+	 * Charge-Point, String is the message.
 	 *
 	 * @param callback Callback
 	 */

@@ -78,7 +78,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 // get the channel addresses that should be subscribed
                 channelAddresses = this.getChannelAddresses();
                 if (this.component != null) {
-                    this.component = config.components[this.component.id];
+                    this.component = EdgeConfig.Component.of(config.components[this.component.id]);
 
                     const channelIds = this.getChannelIds();
                     for (const channelId of channelIds) {

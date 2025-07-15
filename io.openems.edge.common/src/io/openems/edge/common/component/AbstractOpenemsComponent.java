@@ -376,8 +376,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		// Add Channel to channels list
 		this.channels.put(channel.channelId().id(), channel);
 		// Handle StateChannels
-		if (channel instanceof StateChannel) {
-			this.getStateChannel().addChannel((StateChannel) channel);
+		if (channel instanceof StateChannel sc) {
+			this.getStateChannel().addChannel(sc);
 		}
 	}
 

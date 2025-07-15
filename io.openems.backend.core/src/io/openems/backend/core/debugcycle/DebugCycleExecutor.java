@@ -81,7 +81,7 @@ public class DebugCycleExecutor implements Runnable {
 			// handle database metrics
 			final var metrics = debugCycle.debugMetrics();
 			if (metrics == null || metrics.isEmpty())  {
-				return;
+				continue;
 			}
 			
 			for (var consumer : this.debugCycleConsumer) {

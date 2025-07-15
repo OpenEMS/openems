@@ -1,6 +1,12 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,10 +62,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.fenecon.commercial40.charger.EssFeneconCommercial40Pv;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -774,17 +777,17 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		// Read-Only-Mode
 		if (this.config.readOnlyMode()) {
 			return new Constraint[] { //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+					this.createPowerConstraint("Read-Only-Mode", ALL, ACTIVE, EQUALS, 0), //
+					this.createPowerConstraint("Read-Only-Mode", ALL, REACTIVE, EQUALS, 0) //
 			};
 		}
 
 		// Reactive Power constraints
 		return new Constraint[] { //
-				this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
-						Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER), //
-				this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
-						Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
+				this.createPowerConstraint("Commercial40 Min Reactive Power", ALL, REACTIVE, GREATER_OR_EQUALS,
+						MIN_REACTIVE_POWER), //
+				this.createPowerConstraint("Commercial40 Max Reactive Power", ALL, REACTIVE, LESS_OR_EQUALS,
+						MAX_REACTIVE_POWER) };
 	}
 
 	@Override
@@ -820,14 +823,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 				 * Apply limit on ESS charge/discharge power
 				 */
 				try {
-					this.power.addConstraintAndValidate(
-							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
-									Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
-									this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
-					this.power.addConstraintAndValidate(
-							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
-									Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-									this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
+					this.power.addConstraintAndValidate(this.createPowerConstraint(
+							"Limit On PowerDecreaseCausedByOvertemperature Error", ALL, ACTIVE, GREATER_OR_EQUALS,
+							this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
+					this.power.addConstraintAndValidate(this.createPowerConstraint(
+							"Limit On PowerDecreaseCausedByOvertemperature Error", ALL, ACTIVE, LESS_OR_EQUALS,
+							this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
 				} catch (OpenemsException e) {
 					this.logError(this.log, e.getMessage());
 				}

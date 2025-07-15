@@ -2,6 +2,7 @@ package io.openems.edge.meter.pqplus.umd97;
 
 import static io.openems.common.types.MeterType.GRID;
 
+import io.openems.edge.common.test.DummyComponentManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +19,7 @@ public class MeterPqplusUmd97ImplTest {
 	public void setup() throws Exception {
 		this.test = new ComponentTest(new MeterPqplusUmd97Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager())
 				.addReference("setModbus", new DummyModbusBridge("modbus0")//
 						.withRegisters(19000,
 								// VOLTAGE_L1

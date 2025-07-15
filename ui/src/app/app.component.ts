@@ -3,7 +3,7 @@ import { Component, effect, OnDestroy, OnInit, signal, WritableSignal } from "@a
 import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
-import { MenuController, ModalController, Platform, ToastController } from "@ionic/angular";
+import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
 import { Subject, Subscription } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
@@ -48,6 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private title: Title,
     private stateService: AppStateTracker,
     public navigationService: NavigationService,
+    protected navCtrl: NavController
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 

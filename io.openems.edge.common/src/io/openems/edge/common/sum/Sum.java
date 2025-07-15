@@ -394,6 +394,28 @@ public interface Sum extends OpenemsComponent {
 		PRODUCTION_MAX_ACTIVE_POWER(Doc.of(INTEGER) //
 				.unit(WATT) //
 				.persistencePriority(VERY_HIGH)), //
+
+		/**
+		 * Unmanaged Production: Active Power.
+		 *
+		 * <ul>
+		 * <li>Interface: Sum (origin: ElectricityMeter and ESS DC Charger)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: should be only positive; greater than or equal to
+		 * {@link ChannelId#PRODUCTION_ACTIVE_POWER}
+		 * <li>Note: this value represents the part of the active power production that
+		 * is not actively managed or curtailed by OpenEMS or external regulations,
+		 * i.e., it reflects the raw production before any control actions such as
+		 * feed-in limitation due to grid constraints or new regulations on PV systems.
+		 * This value can be used for forecasting or analysis of the unmanaged
+		 * production.
+		 * </ul>
+		 */
+		UNMANAGED_PRODUCTION_ACTIVE_POWER(Doc.of(INTEGER) //
+				.unit(WATT) //
+				.persistencePriority(VERY_HIGH)), //
+
 		/**
 		 * Consumption: Active Power.
 		 *
@@ -479,7 +501,8 @@ public interface Sum extends OpenemsComponent {
 		 * <li>Interface: Sum
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>Range: should be only positive
+		 * <li>Range: should be only positive; less than or equal to
+		 * {@link ChannelId#CONSUMPTION_ACTIVE_POWER}
 		 * <li>Note: this value represents the part of the Consumption that is not
 		 * actively managed by OpenEMS, i.e. it is calculated as
 		 * ({@link #CONSUMPTION_ACTIVE_POWER}) minus charge power for an electric
@@ -1538,16 +1561,6 @@ public interface Sum extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setProductionActivePower(Integer value) {
-		this.getProductionActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_ACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
 	public default void _setProductionActivePower(int value) {
 		this.getProductionActivePowerChannel().setNextValue(value);
 	}
@@ -1784,6 +1797,25 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setProductionMaxActivePower(int value) {
 		this.getProductionMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#UNMANAGED_PRODUCTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getUnmanagedProductionActivePowerChannel() {
+		return this.channel(ChannelId.UNMANAGED_PRODUCTION_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Unmanaged Production Active Power in [W]. See
+	 * {@link ChannelId#UNMANAGED_PRODUCTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getUnmanagedProductionActivePower() {
+		return this.getUnmanagedProductionActivePowerChannel().value();
 	}
 
 	/**

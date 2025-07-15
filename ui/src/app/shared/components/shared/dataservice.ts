@@ -1,13 +1,13 @@
 // @ts-strict-ignore
 import { Injectable, WritableSignal, signal } from "@angular/core";
-import { BehaviorSubject, Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { ChannelAddress, Edge, Service } from "../../shared";
 
 @Injectable()
 export abstract class DataService {
 
   /** Used to retrieve values */
-  public currentValue: BehaviorSubject<{ allComponents: {} }> = new BehaviorSubject({ allComponents: {} });
+  public currentValue: WritableSignal<{ allComponents: { [id: string]: any } }> = signal({ allComponents: {} });
   public lastUpdated: WritableSignal<Date | null> = signal(new Date());
 
   protected edge: Edge | null = null;

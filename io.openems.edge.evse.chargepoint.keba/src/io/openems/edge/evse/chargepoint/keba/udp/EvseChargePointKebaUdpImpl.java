@@ -1,5 +1,6 @@
 package io.openems.edge.evse.chargepoint.keba.udp;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore.UDP_PORT;
@@ -15,6 +16,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -41,10 +43,13 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.chargepoint.keba.common.CommonConfig;
 import io.openems.edge.evse.chargepoint.keba.common.EvseChargePointKeba;
 import io.openems.edge.evse.chargepoint.keba.common.Utils;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -63,14 +68,14 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent implements EvseChargePointKeba,
-		EvseChargePoint, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent implements EvseChargePointKebaUdp,
+		EvseChargePointKeba, EvseChargePoint, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	protected final ReadHandler readHandler = new ReadHandler(this);
 
 	private final Logger log = LoggerFactory.getLogger(EvseChargePointKebaUdpImpl.class);
 	private final Utils utils = new Utils(this);
-	private final ReadWorker readWorker = new ReadWorker(this);
+	private final ReadWorker readWorker;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -95,6 +100,18 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 		);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+
+		this.readWorker = new ReadWorker(this::send, //
+				report -> {
+					var receivedAMessage = this.readHandler.hasResultandReset(report);
+					this.channel(EvseChargePointKebaUdp.ChannelId.COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
+					if (!receivedAMessage) {
+						// Resets all channel values except the Communication_Failed channel.
+						Arrays.stream(EvseChargePointKebaUdp.ChannelId.values()) //
+								.filter(c -> c != EvseChargePointKebaUdp.ChannelId.COMMUNICATION_FAILED) //
+								.forEach(c -> this.channel(c).setNextValue(null));
+					}
+				});
 	}
 
 	@Activate
@@ -108,7 +125,7 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 		this.ip = InetAddress.getByName(config.ip().trim());
 		this.kebaUdpCore.onReceive((ip, message) -> {
 			if (ip.equals(this.ip)) { // same IP -> handle message
-				this.readHandler.accept(message);
+				this.readHandler.accept(message, this.config.logVerbosity());
 				this.channel(EvseChargePointKebaUdp.ChannelId.COMMUNICATION_FAILED).setNextValue(false);
 			}
 		});
@@ -136,8 +153,8 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 	}
 
 	@Override
-	public ChargeParams getChargeParams() {
-		return this.utils.getChargeParams(this.config);
+	public ChargePointAbilities getChargePointAbilities() {
+		return this.utils.getChargePointAbilities(this.config);
 	}
 
 	@Override
@@ -150,11 +167,21 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 			this.utils.onBeforeProcessImage();
 		}
 		case TOPIC_CYCLE_EXECUTE_WRITE -> {
+			if (this.config.readOnly()) {
+				return;
+			}
 			this.setCurrent(//
 					this.getSetEnableChannel().getNextWriteValueAndReset() //
 							.map(ena -> OptionsEnum.getOption(SetEnable.class, ena)) //
 							.orElse(SetEnable.UNDEFINED), //
 					this.getSetChargingCurrentChannel().getNextWriteValueAndReset().orElse(null));
+			this.setPhaseSwitch(//
+					this.getSetPhaseSwitchSourceChannel().getNextWriteValueAndReset() //
+							.map(pss -> OptionsEnum.getOption(PhaseSwitchSource.class, pss)) //
+							.orElse(PhaseSwitchSource.UNDEFINED), //
+					this.getSetPhaseSwitchStateChannel().getNextWriteValueAndReset() //
+							.map(pss -> OptionsEnum.getOption(PhaseSwitchState.class, pss)) //
+							.orElse(PhaseSwitchState.UNDEFINED)); //
 			this.setDisplayText(Optional.empty()); // TODO
 		}
 		}
@@ -171,9 +198,7 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 			return;
 		}
 
-		final var command = "currtime " + current + " 1";
-		var success = this.send(command);
-		this.logDebug("Sent [" + command + "] " + (success ? "successfully" : "-> FAILED"));
+		this.send("currtime " + current + " 1");
 	}
 
 	private void setDisplayText(Optional<String> setText) {
@@ -187,24 +212,44 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 		setText.ifPresent(text -> this.send("display 0 0 0 0 " + text));
 	}
 
+	private void setPhaseSwitch(PhaseSwitchSource phaseSwitchSource, PhaseSwitchState phaseSwitchState) {
+		switch (phaseSwitchSource) {
+		case NONE, UNDEFINED -> doNothing();
+		case VIA_MODBUS, VIA_OCPP, VIA_REST, VIA_UDP //
+			-> this.send("x2src " + phaseSwitchSource.getValue());
+		}
+
+		switch (phaseSwitchState) {
+		case UNDEFINED -> doNothing();
+		case SINGLE, THREE //
+			-> this.send("x2 " + phaseSwitchState.getValue());
+		}
+	}
+
 	/**
 	 * Send UDP message to KEBA KeContact. Returns true if sent successfully
 	 *
-	 * @param s Message to send
+	 * @param command Command to send
 	 * @return true if sent
 	 */
-	protected boolean send(String s) {
-		var raw = s.getBytes();
+	protected boolean send(String command) {
+		var raw = command.getBytes();
 		var packet = new DatagramPacket(raw, raw.length, this.ip, UDP_PORT);
 		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
 			datagrammSocket.send(packet);
+
+			switch (this.config.logVerbosity()) {
+			case DEBUG_LOG -> doNothing();
+			case WRITES, UDP_REPORTS -> this.logInfo(this.log, //
+					"Sent [" + command + "] successfully");
+			}
 			return true;
 		} catch (SocketException e) {
-			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + this.ip.getHostAddress()
-					+ "]: " + e.getMessage());
+			this.logError(this.log, "Unable to open UDP socket for sending [" + command + "] to ["
+					+ this.ip.getHostAddress() + "]: " + e.getMessage());
 		} catch (IOException e) {
-			this.logError(this.log,
-					"Unable to send [" + s + "] UDP message to [" + this.ip.getHostAddress() + "]: " + e.getMessage());
+			this.logError(this.log, "Unable to send [" + command + "] UDP message to [" + this.ip.getHostAddress()
+					+ "]: " + e.getMessage());
 		}
 		return false;
 	}
@@ -218,21 +263,12 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 
 	@Override
 	public String debugLog() {
-		var b = new StringBuilder() //
-				.append("L:").append(this.getActivePower().asString());
-		if (!this.config.readOnly()) {
-			b //
-					.append("|SetCurrent:") //
-					.append(this.channel(EvseChargePointKeba.ChannelId.DEBUG_SET_CHARGING_CURRENT).value().asString()) //
-					.append("|SetEnable:") //
-					.append(this.channel(EvseChargePointKeba.ChannelId.DEBUG_SET_ENABLE).value().asString());
-		}
-		return b.toString();
+		return this.utils.debugLog(this.config);
 	}
 
 	@Override
 	public void apply(ChargePointActions actions) {
-		this.utils.handleApplyCharge(actions);
+		this.utils.handleChargePointActions(this.config, actions);
 	}
 
 	@Override
@@ -240,14 +276,13 @@ public class EvseChargePointKebaUdpImpl extends AbstractOpenemsComponent impleme
 		return this.config.phaseRotation();
 	}
 
-	protected void logDebug(String message) {
-		if (this.config.debugMode()) {
-			this.logInfo(this.log, message);
-		}
-	}
-
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public PhaseSwitchSource getRequiredPhaseSwitchSource() {
+		return PhaseSwitchSource.VIA_UDP;
 	}
 }

@@ -1,12 +1,16 @@
 package io.openems.edge.evse.chargepoint.keba.udp;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.getAsOptionalLong;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.common.utils.JsonUtils.prettyToString;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.round;
 
 import java.math.BigInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,18 +18,19 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.EvseChargePointKeba;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
 import io.openems.edge.evse.chargepoint.keba.udp.core.Report;
 
 /**
  * Handles replies to Report Queries sent by {@link ReadWorker}.
  */
-public class ReadHandler implements Consumer<String> {
+public class ReadHandler implements BiConsumer<String, LogVerbosity> {
 
 	private final Logger log = LoggerFactory.getLogger(ReadHandler.class);
 	private final EvseChargePointKebaUdpImpl parent;
@@ -39,7 +44,7 @@ public class ReadHandler implements Consumer<String> {
 	}
 
 	@Override
-	public void accept(String message) {
+	public void accept(String message, LogVerbosity logVerbosity) {
 		final var keba = this.parent;
 
 		if (message.startsWith("TCH-OK")) {
@@ -57,10 +62,16 @@ public class ReadHandler implements Consumer<String> {
 		// Parse JsonObject
 		final JsonObject j;
 		try {
-			j = JsonUtils.parseToJsonObject(message);
+			j = parseToJsonObject(message);
 		} catch (OpenemsNamedException e) {
 			this.log.error("Error while parsing KEBA message: " + e.getMessage());
 			return;
+		}
+
+		// Log Report (if requested by config)
+		switch (logVerbosity) {
+		case DEBUG_LOG, WRITES -> doNothing();
+		case UDP_REPORTS -> OpenemsComponent.logInfo(keba, this.log, (prettyToString(j)));
 		}
 
 		switch (getAsOptionalString(j, "ID").orElse("")) {
@@ -71,7 +82,8 @@ public class ReadHandler implements Consumer<String> {
 			this.receiveReport1 = true;
 			this.setString(EvseChargePointKebaUdp.ChannelId.SERIAL, j, "Serial");
 			this.setString(EvseChargePointKeba.ChannelId.FIRMWARE, j, "Firmware");
-			this.setInt(EvseChargePointKebaUdp.ChannelId.COM_MODULE, j, "COM-module");
+			this.setBoolean(EvseChargePointKebaUdp.ChannelId.COM_MODULE, j, "COM-module");
+			this.setBoolean(EvseChargePointKebaUdp.ChannelId.BACKEND, j, "Backend");
 
 			// Dip-Switches
 			var dipSwitch1 = getAsOptionalString(j, "DIP-Sw1");
@@ -83,7 +95,7 @@ public class ReadHandler implements Consumer<String> {
 
 			// Product information
 			var product = getAsOptionalString(j, "Product");
-			keba.channel(EvseChargePointKebaUdp.ChannelId.PRODUCT).setNextValue(product.orElse(null));
+			setValue(keba, EvseChargePointKebaUdp.ChannelId.PRODUCT, product.orElse(null));
 			if (product.isPresent()) {
 				this.checkProductInformation(product.get());
 			}
@@ -105,17 +117,23 @@ public class ReadHandler implements Consumer<String> {
 
 			this.setInt(EvseChargePointKebaUdp.ChannelId.ERROR_1, j, "Error1");
 			this.setInt(EvseChargePointKebaUdp.ChannelId.ERROR_2, j, "Error2");
+			this.setBoolean(EvseChargePointKebaUdp.ChannelId.AUTH_ON, j, "AuthON");
+			this.setBoolean(EvseChargePointKebaUdp.ChannelId.AUTH_REQ, j, "Authreq");
 			this.setBoolean(EvseChargePointKebaUdp.ChannelId.ENABLE_SYS, j, "Enable sys");
 			this.setBoolean(EvseChargePointKebaUdp.ChannelId.ENABLE_USER, j, "Enable user");
+			this.setInt(EvseChargePointKebaUdp.ChannelId.MAX_CURR, j, "Max curr");
 			this.setInt(EvseChargePointKebaUdp.ChannelId.MAX_CURR_PERCENT, j, "Max curr %");
+			this.setInt(EvseChargePointKebaUdp.ChannelId.CURR_HW, j, "Curr HW");
+			this.setInt(EvseChargePointKebaUdp.ChannelId.CURR_USER, j, "Curr user");
 			this.setInt(EvseChargePointKebaUdp.ChannelId.CURR_FAILSAFE, j, "Curr FS");
 			this.setInt(EvseChargePointKebaUdp.ChannelId.TIMEOUT_FAILSAFE, j, "Tmo FS");
 			this.setInt(EvseChargePointKebaUdp.ChannelId.CURR_TIMER, j, "Curr timer");
 			this.setInt(EvseChargePointKebaUdp.ChannelId.TIMEOUT_CT, j, "Tmo CT");
-			this.setBoolean(EvseChargePointKebaUdp.ChannelId.OUTPUT, j, "Output");
+			this.setInt(EvseChargePointKebaUdp.ChannelId.SETENERGY, j, "Setenergy");
+			this.setInt(EvseChargePointKebaUdp.ChannelId.OUTPUT, j, "Output");
 			this.setBoolean(EvseChargePointKebaUdp.ChannelId.INPUT, j, "Input");
-			this.setInt(EvseChargePointKebaUdp.ChannelId.MAX_CURR, j, "Curr HW");
-			this.setInt(EvseChargePointKebaUdp.ChannelId.CURR_USER, j, "Curr user");
+			this.setInt(EvseChargePointKeba.ChannelId.PHASE_SWITCH_SOURCE, j, "X2 phaseSwitch source");
+			this.setInt(EvseChargePointKeba.ChannelId.PHASE_SWITCH_STATE, j, "X2 phaseSwitch");
 		}
 
 		/*
@@ -126,6 +144,10 @@ public class ReadHandler implements Consumer<String> {
 			 * Reply to report 3
 			 */
 			this.receiveReport3 = true;
+
+			setValue(keba, EvseChargePointKeba.ChannelId.ENERGY_SESSION, getAsOptionalInt(j, "E pres") //
+					.map(e -> round(e * 0.1F)) //
+					.orElse(null));
 
 			// Voltage
 			final var voltageL1 = getAsOptionalInt(j, "U1").map(v -> v != 0 ? v * 1000 : null).orElse(null);
@@ -159,32 +181,7 @@ public class ReadHandler implements Consumer<String> {
 							.orElse(null));
 
 			// TODO use COS_PHI to calculate ReactivePower
-			this.setInt(EvseChargePointKebaUdp.ChannelId.COS_PHI, j, "PF");
-
-			// /*
-			// * Set FIXED_MAXIMUM_HARDWARE_POWER of Evcs - this is setting internally the
-			// * dynamically calculated MAXIMUM_HARDWARE_POWER including the current used
-			// * phases.
-			// */
-			// Channel<Integer> maxDipSwitchLimitChannel =
-			// keba.channel(EvseChargePointKebaUdp.ChannelId.DIP_SWITCH_MAX_HW);
-			// int maxDipSwitchPowerLimit = round(maxDipSwitchLimitChannel.value() //
-			// .orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT) / 1000f) *
-			// Evcs.DEFAULT_VOLTAGE
-			// * THREE_PHASE.getValue();
-			//
-			// // Minimum of hardware setting and component configuration will be set.
-			// int maximumHardwareLimit = Math.min(maxDipSwitchPowerLimit,
-			// keba.getConfiguredMaximumHardwarePower());
-			//
-			// keba._setFixedMaximumHardwarePower(maximumHardwareLimit);
-			//
-			// /*
-			// * Set FIXED_MINIMUM_HARDWARE_POWER of Evcs - this is setting internally the
-			// * dynamically calculated MINIMUM_HARDWARE_POWER including the current used
-			// * phases.
-			// */
-			// keba._setFixedMinimumHardwarePower(keba.getConfiguredMinimumHardwarePower());
+			this.setInt(EvseChargePointKeba.ChannelId.POWER_FACTOR, j, "PF");
 		}
 
 		/*
@@ -359,7 +356,6 @@ public class ReadHandler implements Consumer<String> {
 	 * @return boolean
 	 */
 	public boolean hasResultandReset(Report report) {
-
 		var result = false;
 		switch (report) {
 		case REPORT1:

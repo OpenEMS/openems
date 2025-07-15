@@ -5,4 +5,10 @@
             [channelAddress]="component.id + '/Level' + i + 'CumulatedTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
         </oe-flat-widget-line>
     </ng-container>
+    <ng-container *ngIf="consumptionMeter && consumptionMeter.isEnabled">
+        <oe-flat-widget-line [name]="'General.consumption' | translate" [channelAddress]="consumptionMeter.id + '/ActiveProductionEnergy'"
+        [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
+        </oe-flat-widget-line>
+    </ng-container>
 </oe-flat-widget>
+

@@ -3,9 +3,8 @@ package io.openems.edge.evse.chargepoint.heidelberg.connect;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
-import static io.openems.edge.evse.api.SingleThreePhase.SINGLE_PHASE;
-import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
-import static io.openems.edge.evse.api.chargepoint.Profile.ApplySetPoint.Ability.MILLI_AMPERE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.chargepoint.heidelberg.connect.enums.ChargingState.stateFromValue;
 
 import java.time.Duration;
@@ -48,13 +47,13 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
+import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.heidelberg.connect.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.heidelberg.connect.enums.LockState;
 import io.openems.edge.evse.chargepoint.heidelberg.connect.enums.ReadyForCharging;
@@ -280,43 +279,30 @@ public class EvseChargePointHeidelbergConnectImpl extends AbstractOpenemsModbusC
 	}
 
 	@Override
-	public ChargeParams getChargeParams() {
-
+	public ChargePointAbilities getChargePointAbilities() {
 		var config = this.config;
 		final var phases = this.getWiring();
 		if (config == null || config.readOnly()) {
 			return null;
 		}
 
-		var singlePhaseLimit = new Limit(SINGLE_PHASE, 6000, 16000);
-		var threePhaseLimit = new Limit(THREE_PHASE, 6000, 16000);
+		// TODO: Add phase switching ability
 
-		final var limit = switch (phases) {
-		case SINGLE_PHASE -> singlePhaseLimit;
-		case THREE_PHASE -> threePhaseLimit;
-		};
-
-		// TODO: Add phase switching profiles
-		// this.phaseSwitchHandler...();
-
-		var abilities = ChargePointAbilities.create() //
-				.applySetPointIn(MILLI_AMPERE) //
+		return ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, 16000)) //
 				.build();
-
-		return new ChargeParams(this.getIsReadyForCharging(), limit, abilities);
 	}
 
-	private SingleThreePhase getWiring() {
-
+	private SingleOrThreePhase getWiring() {
 		if (this.config.wiring() == SINGLE_PHASE) {
-			return SingleThreePhase.SINGLE_PHASE;
+			return SINGLE_PHASE;
 		}
 
 		this.logIfDebug("Fallback ");
 		// TODO: Check if the read value changing directly or after 90sec.
 		return switch (this.getPhaseSwitchControl()) {
-		case SINGLE -> SingleThreePhase.SINGLE_PHASE;
-		case THREE -> SingleThreePhase.THREE_PHASE;
+		case SINGLE -> SINGLE_PHASE;
+		case THREE -> THREE_PHASE;
 		case UNDEFINED ->
 			throw new UnsupportedOperationException("Unimplemented case: " + this.getPhaseSwitchControl());
 		};

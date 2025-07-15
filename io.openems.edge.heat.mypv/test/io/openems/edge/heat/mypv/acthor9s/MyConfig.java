@@ -66,13 +66,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.modbusUnitId;
 	}
 	
-	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
 
 	@Override
 	public boolean readOnly() {
 		return this.builder.readOnly;
+	}
+
+	@Override
+	public String Modbus_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 }

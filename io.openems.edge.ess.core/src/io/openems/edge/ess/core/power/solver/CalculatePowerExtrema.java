@@ -13,11 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.data.LinearSolverUtil;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 
 public class CalculatePowerExtrema {
@@ -31,13 +31,13 @@ public class CalculatePowerExtrema {
 	 * @param coefficients   the {@link Coefficients}
 	 * @param allConstraints all active {@link Constraint}s
 	 * @param essId          the ID of the {@link ManagedSymmetricEss}
-	 * @param phase          the {@link Phase}
+	 * @param phase          the {@link SingleOrAllPhase}
 	 * @param pwr            the {@link Pwr}
 	 * @param goal           the {@link GoalType}
 	 * @return the extrema value; or 0 on error
 	 */
-	public static double from(Coefficients coefficients, List<Constraint> allConstraints, String essId, Phase phase,
-			Pwr pwr, GoalType goal) {
+	public static double from(Coefficients coefficients, List<Constraint> allConstraints, String essId,
+			SingleOrAllPhase phase, Pwr pwr, GoalType goal) {
 		// prepare objective function
 		int index;
 		try {

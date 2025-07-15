@@ -1,11 +1,12 @@
 package io.openems.edge.tesla.powerwall2.battery;
 
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+
 import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.tesla.powerwall2.core.TeslaPowerwall2CoreImpl;
 
 public class TeslaPowerwall2BatteryImplTest {
@@ -18,10 +19,9 @@ public class TeslaPowerwall2BatteryImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setCoreId("core0") //
-						.setPhase(SinglePhase.L1) //
+						.setPhase(L1) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
 	}
-
 }

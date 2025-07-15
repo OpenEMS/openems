@@ -1,11 +1,12 @@
 package io.openems.edge.ess.samsung.ess;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+
 import org.junit.Test;
 
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.ess.power.api.Phase;
 
 public class SamsungEssImplTest {
 
@@ -16,11 +17,10 @@ public class SamsungEssImplTest {
 				.activate(MyConfig.create() //
 						.setId("charger0") //
 						.setIp("127.0.0.1") //
-						.setPhase(Phase.L1) //
+						.setPhase(L1) //
 						.setCapacity(3600) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
 	}
-
 }

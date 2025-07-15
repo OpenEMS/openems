@@ -75,7 +75,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
     return {
       input: input,
-      output: (data: HistoryUtils.ChannelData) => {
+      output: (data: HistoryUtils.ChannelData): HistoryUtils.DisplayValue[] => {
         return [
           {
             name: translate.instant("General.production"),
@@ -159,15 +159,15 @@ export class ChartComponent extends AbstractHistoryChart {
             hiddenOnInit: chartType == "line" ? false : true,
             ...(chartType === "line" && { order: 0 }),
           },
-          ...[chartType === "line" &&
-          {
-            name: translate.instant("General.soc"),
-            converter: () => data["EssSoc"]?.map(value => Utils.multiplySafely(value, 1000)),
-            color: "rgb(189, 195, 199)",
-            borderDash: [10, 10],
-            yAxisId: ChartAxis.RIGHT,
-            stack: 1,
-          }],
+          ...(chartType === "line" ?
+            [{
+              name: translate.instant("General.soc"),
+              converter: () => data["EssSoc"]?.map(value => Utils.multiplySafely(value, 1000)),
+              color: "rgb(189, 195, 199)",
+              borderDash: [10, 10],
+              yAxisId: ChartAxis.RIGHT,
+              stack: 1,
+            } as HistoryUtils.DisplayValue] : []),
         ];
       },
       tooltip: {

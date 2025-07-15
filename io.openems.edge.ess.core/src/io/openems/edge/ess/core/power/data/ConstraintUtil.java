@@ -1,8 +1,14 @@
 package io.openems.edge.ess.core.power.data;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L3;
 import static io.openems.edge.ess.core.power.data.ApparentPowerConstraintUtil.generateConstraints;
 import static io.openems.edge.ess.power.api.EssType.SYMMETRIC;
 import static io.openems.edge.ess.power.api.EssType.getEssType;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -25,7 +32,6 @@ import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.DummyInverter;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.LinearCoefficient;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -42,7 +48,7 @@ public final class ConstraintUtil {
 	 * @param coefficients the {@link Coefficients}
 	 * @param description  a description for the Constraint
 	 * @param essId        the component Id of a {@link ManagedSymmetricEss}
-	 * @param phase        the {@link Phase}
+	 * @param phase        the {@link SingleOrAllPhase}
 	 * @param pwr          the {@link Pwr}
 	 * @param relationship the {@link Relationship}
 	 * @param value        the value
@@ -50,7 +56,7 @@ public final class ConstraintUtil {
 	 * @throws OpenemsException on error
 	 */
 	public static Constraint createSimpleConstraint(Coefficients coefficients, String description, String essId,
-			Phase phase, Pwr pwr, Relationship relationship, double value) throws OpenemsException {
+			SingleOrAllPhase phase, Pwr pwr, Relationship relationship, double value) throws OpenemsException {
 		return new Constraint(description, //
 				new LinearCoefficient[] { //
 						new LinearCoefficient(coefficients.of(essId, phase, pwr), 1) //
@@ -72,9 +78,9 @@ public final class ConstraintUtil {
 		for (var inv : inverters) {
 			var essId = inv.getEssId();
 			var phase = inv.getPhase();
-			for (Pwr pwr : Pwr.values()) {
+			for (var pwr : Pwr.values()) {
 				result.add(createSimpleConstraint(coefficients, //
-						essId + ": Disable " + pwr.getSymbol() + phase.getSymbol(), //
+						essId + ": Disable " + pwr.symbol + phase.symbol, //
 						essId, phase, pwr, Relationship.EQUALS, 0));
 			}
 		}
@@ -93,7 +99,7 @@ public final class ConstraintUtil {
 	 */
 	public static List<Constraint> createGenericEssConstraints(Coefficients coefficients,
 			List<ManagedSymmetricEss> esss, boolean symmetricMode) throws OpenemsException {
-		List<Constraint> result = new ArrayList<>();
+		var result = new ArrayList<Constraint>();
 		for (var ess : esss) {
 
 			if (ess instanceof MetaEss) {
@@ -103,26 +109,26 @@ public final class ConstraintUtil {
 
 			// Allowed Charge Power
 			result.add(createSimpleConstraint(coefficients, ess.id() + ": Allowed Charge", //
-					ess.id(), Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS, //
+					ess.id(), ALL, ACTIVE, GREATER_OR_EQUALS, //
 					ess.getAllowedChargePower().orElse(0)));
 
 			// Allowed Charge Power
 			result.add(createSimpleConstraint(coefficients, ess.id() + ": Allowed Discharge", //
-					ess.id(), Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS, //
+					ess.id(), ALL, ACTIVE, Relationship.LESS_OR_EQUALS, //
 					ess.getAllowedDischargePower().orElse(0)));
 
 			// Max Apparent Power
 			int maxApparentPower = ess.getMaxApparentPower().orElse(0);
 			if (ess instanceof ManagedAsymmetricEss && !symmetricMode && !(ess instanceof ManagedSinglePhaseEss)) {
 				var maxApparentPowerPerPhase = maxApparentPower / 3d;
-				for (var phase : Phase.values()) {
-					if (phase == Phase.ALL) {
+				for (var phase : SingleOrAllPhase.values()) {
+					if (phase == ALL) {
 						continue; // do not add Max Apparent Power Constraint for ALL phases
 					}
 					result.addAll(generateConstraints(coefficients, ess.id(), phase, maxApparentPowerPerPhase));
 				}
 			} else {
-				result.addAll(generateConstraints(coefficients, ess.id(), Phase.ALL, maxApparentPower));
+				result.addAll(generateConstraints(coefficients, ess.id(), ALL, maxApparentPower));
 			}
 		}
 		return result;
@@ -179,12 +185,11 @@ public final class ConstraintUtil {
 					// creates two constraint of the form
 					// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
 					// 1*Q - 1*L1 - 1*L2 - 1*L3 = 0
-					result.add(new Constraint(ess.id() + ": " + pwr.getSymbol() + "=L1+L2+L3",
-							new LinearCoefficient[] {
-									new LinearCoefficient(coefficients.of(ess.id(), Phase.ALL, pwr), 1),
-									new LinearCoefficient(coefficients.of(ess.id(), Phase.L1, pwr), -1),
-									new LinearCoefficient(coefficients.of(ess.id(), Phase.L2, pwr), -1),
-									new LinearCoefficient(coefficients.of(ess.id(), Phase.L3, pwr), -1) //
+					result.add(new Constraint(ess.id() + ": " + pwr.symbol + "=L1+L2+L3",
+							new LinearCoefficient[] { new LinearCoefficient(coefficients.of(ess.id(), ALL, pwr), 1),
+									new LinearCoefficient(coefficients.of(ess.id(), L1, pwr), -1),
+									new LinearCoefficient(coefficients.of(ess.id(), L2, pwr), -1),
+									new LinearCoefficient(coefficients.of(ess.id(), L3, pwr), -1) //
 							}, Relationship.EQUALS, 0));
 				}
 			}
@@ -203,7 +208,7 @@ public final class ConstraintUtil {
 	 */
 	public static List<Constraint> createSymmetricEssConstraints(Coefficients coefficients,
 			List<ManagedSymmetricEss> esss, boolean symmetricMode) throws OpenemsException {
-		List<Constraint> result = new ArrayList<>();
+		var result = new ArrayList<Constraint>();
 		for (var ess : esss) {
 			var essType = getEssType(ess);
 			if (!symmetricMode && essType == SYMMETRIC) {
@@ -216,12 +221,12 @@ public final class ConstraintUtil {
 					// 1*L1 - 1*L2 = 0
 					// 1*L1 - 1*L3 = 0
 					result.add(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-							new LinearCoefficient(coefficients.of(ess.id(), Phase.L1, pwr), 1), //
-							new LinearCoefficient(coefficients.of(ess.id(), Phase.L2, pwr), -1) //
+							new LinearCoefficient(coefficients.of(ess.id(), L1, pwr), 1), //
+							new LinearCoefficient(coefficients.of(ess.id(), L2, pwr), -1) //
 					}, Relationship.EQUALS, 0));
 					result.add(new Constraint(ess.id() + ": Symmetric L1/L3", new LinearCoefficient[] { //
-							new LinearCoefficient(coefficients.of(ess.id(), Phase.L1, pwr), 1), //
-							new LinearCoefficient(coefficients.of(ess.id(), Phase.L3, pwr), -1) //
+							new LinearCoefficient(coefficients.of(ess.id(), L1, pwr), 1), //
+							new LinearCoefficient(coefficients.of(ess.id(), L3, pwr), -1) //
 					}, Relationship.EQUALS, 0));
 				}
 			}
@@ -253,8 +258,8 @@ public final class ConstraintUtil {
 				if (inv instanceof DummyInverter) {
 					for (var pwr : Pwr.values()) {
 						result.add(createSimpleConstraint(coefficients, //
-								inv.getEssId() + ": Dummy " + pwr.getSymbol() + inv.getPhase().getSymbol(),
-								inv.getEssId(), inv.getPhase(), pwr, Relationship.EQUALS, 0));
+								inv.getEssId() + ": Dummy " + pwr.symbol + inv.getPhase().symbol, inv.getEssId(),
+								inv.getPhase(), pwr, Relationship.EQUALS, 0));
 					}
 				}
 			}
@@ -280,12 +285,12 @@ public final class ConstraintUtil {
 				if (symmetricMode) {
 					// Symmetric Mode
 					for (var pwr : Pwr.values()) {
-						result.add(createOneClusterConstraint(coefficients, e, Phase.ALL, pwr));
+						result.add(createOneClusterConstraint(coefficients, e, SingleOrAllPhase.ALL, pwr));
 					}
 				} else {
 					// Asymmetric Mode
-					for (var phase : Phase.values()) {
-						for (Pwr pwr : Pwr.values()) {
+					for (var phase : SingleOrAllPhase.values()) {
+						for (var pwr : Pwr.values()) {
 							result.add(createOneClusterConstraint(coefficients, e, phase, pwr));
 						}
 					}
@@ -300,18 +305,18 @@ public final class ConstraintUtil {
 	 *
 	 * @param coefficients the {@link Coefficients}
 	 * @param e            the {@link MetaEss} Cluster
-	 * @param phase        the {@link Phase}
+	 * @param phase        the {@link SingleOrAllPhase}
 	 * @param pwr          the {@link Pwr}
 	 * @return the {@link Constraint}
 	 * @throws OpenemsException on error
 	 */
-	private static Constraint createOneClusterConstraint(Coefficients coefficients, MetaEss e, Phase phase, Pwr pwr)
-			throws OpenemsException {
+	private static Constraint createOneClusterConstraint(Coefficients coefficients, MetaEss e, SingleOrAllPhase phase,
+			Pwr pwr) throws OpenemsException {
 		List<LinearCoefficient> cos = new ArrayList<>();
 		cos.add(new LinearCoefficient(coefficients.of(e.id(), phase, pwr), 1));
 		for (var subEssId : e.getEssIds()) {
 			cos.add(new LinearCoefficient(coefficients.of(subEssId, phase, pwr), -1));
 		}
-		return new Constraint(e.id() + ": Sum of " + pwr.getSymbol() + phase.getSymbol(), cos, Relationship.EQUALS, 0);
+		return new Constraint(e.id() + ": Sum of " + pwr.symbol + phase.symbol, cos, Relationship.EQUALS, 0);
 	}
 }

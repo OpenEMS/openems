@@ -8,5 +8,9 @@ public enum LogVerbosity {
 	/**
 	 * Logs all requested predictions.
 	 */
-	REQUESTED_PREDICTIONS;
+	REQUESTED_PREDICTIONS,
+	/**
+	 * Archive predictions to the local file system.
+	 */
+	ARCHIVE_LOCALLY;
 }

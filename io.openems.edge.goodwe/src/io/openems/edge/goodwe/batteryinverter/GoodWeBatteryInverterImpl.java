@@ -2,6 +2,10 @@ package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,10 +50,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine.State;
@@ -603,10 +604,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsNamedException {
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("Max AC Import", Phase.ALL, Pwr.ACTIVE, //
-						Relationship.GREATER_OR_EQUALS, this.getMaxAcImport().orElse(0)), //
-				new BatteryInverterConstraint("Max AC Export", Phase.ALL, Pwr.ACTIVE, //
-						Relationship.LESS_OR_EQUALS, this.getMaxAcExport().orElse(0)) //
+				new BatteryInverterConstraint("Max AC Import", ALL, ACTIVE, GREATER_OR_EQUALS,
+						this.getMaxAcImport().orElse(0)), //
+				new BatteryInverterConstraint("Max AC Export", ALL, ACTIVE, LESS_OR_EQUALS,
+						this.getMaxAcExport().orElse(0)) //
 		};
 	}
 

@@ -19,13 +19,11 @@ export class FlatComponent extends AbstractFlatWidget {
         const channels: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActiveEnergy")];
 
         this.evcsComponents = this.config?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-            .filter(component =>
-                !(component.factoryId === "Evcs.Cluster.SelfConsumption") &&
-                !(component.factoryId === "Evcs.Cluster.PeakShaving") &&
-                !component.isEnabled === false);
-        this.evcsComponents.forEach((component) => {
-            channels.push(new ChannelAddress(component.id, "ActiveConsumptionEnergy"));
-        });
+            .filter(component => !(
+                component.factoryId == "Evcs.Cluster" ||
+                component.factoryId == "Evcs.Cluster.PeakShaving" ||
+                component.factoryId == "Evcs.Cluster.SelfConsumption") && this.config?.hasComponentNature("io.openems.edge.evcs.api.DeprecatedEvcs", component.id));
+        ;
 
         this.heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
             .filter(component =>
@@ -38,12 +36,15 @@ export class FlatComponent extends AbstractFlatWidget {
         );
 
         this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component)
-                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs")
-                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.heat.api.Heat"));
-        this.consumptionMeterComponents.forEach((component) => {
-            channels.push(new ChannelAddress(component.id, "ActiveProductionEnergy"));
-        });
+            .filter(component => {
+                const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
+                const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
+                const isDeprecatedEvcs = natureIds.includes("io.openems.edge.evcs.api.DeprecatedEvcs");
+                const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
+
+                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
+                    (isEvcs === false || (isEvcs === true && isDeprecatedEvcs === false)) && isHeat === false;
+            });
 
         return channels;
     }

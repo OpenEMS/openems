@@ -81,8 +81,8 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor implements 
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses(),
-				config.logVerbosity());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.channelAddresses());
 	}
 
 	@Override

@@ -196,7 +196,11 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				throw new IllegalArgumentException("This modbus device is not SunSpec!");
 			}
 
-			return this.readNextBlock(40_002, expectedBlocks, 0).thenRun(() -> {
+			return this.readNextBlock(40_002, expectedBlocks, 0).whenComplete((result, error) -> {
+				if (error != null) {
+					this.log.error("Error during SunSpec initialization", error);
+					return;
+				}
 				this.isSunSpecInitializationCompleted.set(true);
 				this.onSunSpecInitializationCompleted();
 			});
@@ -322,13 +326,14 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					} else {
 
 						// Should this Block be considered?
-						var activeEntry = this.getActiveModelForId(blockId);
+						final var activeEntry = this.getActiveModelForId(blockId);
 						if (activeEntry != null) {
-							var sunSpecModel = activeEntry.sunSpecModel();
-							var priority = activeEntry.priority();
-
-							this.addBlock(startAddress, sunSpecModel, priority);
-							remainingBlocks.remove(sunSpecModel.getBlockId());
+							final var sunSpecModel = activeEntry.sunSpecModel();
+							if (remainingBlocks.remove(sunSpecModel.getBlockId()) != null) {
+								this.addBlock(startAddress, sunSpecModel, activeEntry.priority());
+							} else {
+								this.log.warn("Skip model {}; already added", sunSpecModel.getBlockId());
+							}
 						} else {
 							// This block is not considered, because the Model is not active
 							this.logInfo(this.log,

@@ -96,6 +96,4 @@ export class ModalComponent extends AbstractModal {
             }
         });
     };
-
-
 }

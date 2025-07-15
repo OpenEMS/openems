@@ -1,7 +1,7 @@
 package io.openems.edge.meter.carlo.gavazzi.em100;
 
 import static io.openems.common.types.MeterType.GRID;
-import static io.openems.edge.meter.api.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 
 import org.junit.Test;
 

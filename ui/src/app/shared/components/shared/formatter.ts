@@ -43,6 +43,10 @@ export namespace Formatter {
     return formatNumber(value, locale, "1.1-1") + " mbar";
   };
 
+  export const FORMAT_HOUR = (value: number) => {
+    return formatNumber(value, locale, "1.0-0") + " h";
+  };
+
   export const FORMAT_CURRENCY_PER_KWH = (value: number | string, currency: string = Currency.Unit.CENT) => {
     return formatNumber(parseInt(value.toString()), locale, "1.0-2") + " " + Currency.getCurrencyLabelByCurrency(currency);
   };

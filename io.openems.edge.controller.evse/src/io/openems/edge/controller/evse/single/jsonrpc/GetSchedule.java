@@ -120,7 +120,7 @@ public class GetSchedule implements EndpointRequestType<EmptyObject, Response> {
 			} else if (manualEnergyScheduleHandler != null) {
 				future = toPeriodsStream(manualEnergyScheduleHandler.getParentId(),
 						manualEnergyScheduleHandler.getSchedule(), //
-						(p, managedCons) -> managedCons > 0 && p.coc().isReadyForCharging() //
+						(p, managedCons) -> managedCons > 0 && p.coc().abilities().isReadyForCharging() //
 								? p.coc().mode() //
 								: Mode.Actual.ZERO);
 

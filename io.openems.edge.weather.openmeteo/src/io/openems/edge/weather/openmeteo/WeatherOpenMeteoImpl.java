@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -52,6 +53,9 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+
+	@Reference
+	private OpenemsEdgeOem oem;
 
 	private BridgeHttp httpBridge;
 	private HistoricalWeatherService historicalWeatherService;
@@ -118,8 +122,15 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 		}
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.historicalWeatherService = new HistoricalWeatherService(this.httpBridge, WEATHER_VARIABLES);
-		this.weatherForecastService = new WeatherForecastService(this.httpBridge, WEATHER_VARIABLES, FORECAST_DAYS);
+		this.historicalWeatherService = new HistoricalWeatherService(//
+				this.httpBridge, //
+				WEATHER_VARIABLES, //
+				this.oem.getOpenMeteoApiKey());
+		this.weatherForecastService = new WeatherForecastService(//
+				this.httpBridge, //
+				WEATHER_VARIABLES, //
+				FORECAST_DAYS, //
+				this.oem.getOpenMeteoApiKey());
 
 		// Subscribe to weather forecast
 		this.weatherForecastService.subscribeToWeatherForecast(//

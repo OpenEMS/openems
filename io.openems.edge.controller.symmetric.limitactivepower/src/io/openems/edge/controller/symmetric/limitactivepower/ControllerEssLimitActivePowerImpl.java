@@ -1,5 +1,11 @@
 package io.openems.edge.controller.symmetric.limitactivepower;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,9 +20,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -75,34 +78,21 @@ public class ControllerEssLimitActivePowerImpl extends AbstractOpenemsComponent
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		if (this.config.validatePowerConstraints()) {
-
 			// adjust value so that it fits into Min/MaxActivePower
-			var maxPower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-			var minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-			var calculatedMaxDischargePower = fitIntoMinMax(minPower, maxPower, this.maxDischargePower);
-			var calculatedMaxChargePower = fitIntoMinMax(minPower, maxPower, this.maxChargePower);
+			var maxPower = ess.getPower().getMaxPower(ess, ALL, ACTIVE);
+			var minPower = ess.getPower().getMinPower(ess, ALL, ACTIVE);
+			var calculatedMaxDischargePower = fitWithin(minPower, maxPower, this.maxDischargePower);
+			var calculatedMaxChargePower = fitWithin(minPower, maxPower, this.maxChargePower);
 
 			// set result
-			ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", Phase.ALL, Pwr.ACTIVE,
-					Relationship.GREATER_OR_EQUALS, calculatedMaxChargePower);
-			ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", Phase.ALL, Pwr.ACTIVE,
-					Relationship.LESS_OR_EQUALS, calculatedMaxDischargePower);
+			ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", ALL, ACTIVE, GREATER_OR_EQUALS,
+					calculatedMaxChargePower);
+			ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", ALL, ACTIVE, LESS_OR_EQUALS,
+					calculatedMaxDischargePower);
+
 		} else {
-
-			ess.addPowerConstraint("SymmetricLimitActivePower", Phase.ALL, Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
-					this.maxChargePower);
-			ess.addPowerConstraint("SymmetricLimitActivePower", Phase.ALL, Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-					this.maxDischargePower);
+			ess.addPowerConstraint("SymmetricLimitActivePower", ALL, ACTIVE, GREATER_OR_EQUALS, this.maxChargePower);
+			ess.addPowerConstraint("SymmetricLimitActivePower", ALL, ACTIVE, LESS_OR_EQUALS, this.maxDischargePower);
 		}
-	}
-
-	private static int fitIntoMinMax(int min, int max, int value) {
-		if (value > max) {
-			value = max;
-		}
-		if (value < min) {
-			value = min;
-		}
-		return value;
 	}
 }

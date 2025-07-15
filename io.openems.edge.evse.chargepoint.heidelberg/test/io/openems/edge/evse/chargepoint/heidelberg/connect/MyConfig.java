@@ -1,7 +1,7 @@
 package io.openems.edge.evse.chargepoint.heidelberg.connect;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.evse.api.SingleThreePhase;
+import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.heidelberg.connect.enums.PhaseSwitching;
 
@@ -13,7 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean readOnly;
 		private boolean debugMode;
 		private String modbusId;
-		private SingleThreePhase wiring;
+		private SingleOrThreePhase wiring;
 		private int modbusUnitId;
 		private PhaseSwitching phaseSwitching;
 		private PhaseRotation phaseRotation;
@@ -41,7 +41,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setWiring(SingleThreePhase wiring) {
+		public Builder setWiring(SingleOrThreePhase wiring) {
 			this.wiring = wiring;
 			return this;
 		}
@@ -103,7 +103,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public SingleThreePhase wiring() {
+	public SingleOrThreePhase wiring() {
 		return this.builder.wiring;
 	}
 

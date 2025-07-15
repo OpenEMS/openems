@@ -1,4 +1,4 @@
-import { Directive, inject, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -27,6 +27,8 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
 
   /** Skips next two currentData events */
   protected skipCurrentData: boolean = false;
+  private injector: Injector = inject(Injector);
+  private subscription: EffectRef | null = null;
 
   constructor() {
     const service = SharedModule.injector.get<Service>(Service);
@@ -98,19 +100,19 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    */
   protected async fetchCurrentData(service: Service) {
     let skipCount = 0;
-    this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy), filter(() => {
+    this.subscription = effect(() => {
+      const val = this.dataService.currentValue();
       if (this.skipCurrentData && skipCount < this.SKIP_COUNT) {
         skipCount++;
-        return false;
+        return;
       }
 
       this.skipCurrentData = false; // Reset after skipping 2 values
       service.stopSpinner("formly-field-modal");
       skipCount = 0;
-      return true;
-    })).subscribe((currentData) => {
-      this.onCurrentData(currentData);
-    });
+      this.onCurrentData(val);
+
+    }, { injector: this.injector });
   }
 
 

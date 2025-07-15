@@ -1,14 +1,13 @@
 package io.openems.edge.evse.api.chargepoint.test;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
+import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
 
 public abstract class AbstractDummyElectricVehicle<SELF extends AbstractDummyElectricVehicle<?>>
 		extends AbstractDummyOpenemsComponent<SELF> implements EvseElectricVehicle {
 
-	private ChargeParams chargeParams = new ChargeParams(ImmutableList.of(), ImmutableList.of());
+	private ElectricVehicleAbilities electricVehicleAbilities;
 
 	protected AbstractDummyElectricVehicle(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -16,17 +15,18 @@ public abstract class AbstractDummyElectricVehicle<SELF extends AbstractDummyEle
 	}
 
 	/**
-	 * Set {@link ChargeParams}s.
+	 * Set {@link ElectricVehicleAbilities}.
 	 *
-	 * @param value the value
+	 * @param electricVehicleAbilities the {@link ElectricVehicleAbilities}
 	 * @return myself
 	 */
-	public final SELF withChargeParams(ChargeParams value) {
-		this.chargeParams = value;
+	public final SELF withElectricVehicleAbilities(ElectricVehicleAbilities electricVehicleAbilities) {
+		this.electricVehicleAbilities = electricVehicleAbilities;
 		return this.self();
 	}
 
-	public ChargeParams getChargeParams() {
-		return this.chargeParams;
+	@Override
+	public ElectricVehicleAbilities getElectricVehicleAbilities() {
+		return this.electricVehicleAbilities;
 	}
 }

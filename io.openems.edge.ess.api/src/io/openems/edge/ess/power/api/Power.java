@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.filter.PidFilter;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public interface Power {
@@ -36,15 +37,15 @@ public interface Power {
 	 *
 	 * @param description  a description (for debug)
 	 * @param ess          the {@link ManagedSymmetricEss}
-	 * @param phase        the {@link Phase}
+	 * @param phase        the {@link SingleOrAllPhase}
 	 * @param pwr          the {@link Pwr}
 	 * @param relationship the {@link Relationship}
 	 * @param value        the value
 	 * @return the {@link Constraint}
 	 * @throws OpenemsException on error
 	 */
-	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			Relationship relationship, double value) throws OpenemsException;
+	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, SingleOrAllPhase phase,
+			Pwr pwr, Relationship relationship, double value) throws OpenemsException;
 
 	/**
 	 * Removes a Constraint.
@@ -57,46 +58,46 @@ public interface Power {
 	 * Gets the maximum possible Power under the active Constraints.
 	 * 
 	 * @param ess   the {@link ManagedSymmetricEss}
-	 * @param phase the {@link Phase}
+	 * @param phase the {@link SingleOrAllPhase}
 	 * @param pwr   the {@link Pwr}
 	 * @return the maximum possible power
 	 */
-	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
+	public int getMaxPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr);
 
 	/**
 	 * Gets the minimum possible possible Power under the active Constraints.
 	 * 
 	 * @param ess   the {@link ManagedSymmetricEss}
-	 * @param phase the {@link Phase}
+	 * @param phase the {@link SingleOrAllPhase}
 	 * @param pwr   the {@link Pwr}
 	 * @return the minimum possible power
 	 */
-	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr);
+	public int getMinPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr);
 
 	/**
 	 * Gets the Coefficient singleton for a specific combination of ess, phase and
 	 * pwr.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
-	 * @param phase the {@link Phase}
+	 * @param phase the {@link SingleOrAllPhase}
 	 * @param pwr   the {@link Pwr}
 	 * @return the {@link Coefficient}
 	 * @throws OpenemsException on error
 	 */
-	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) throws OpenemsException;
+	public Coefficient getCoefficient(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException;
 
 	/**
 	 * Adjusts the given value so that it fits into Min/MaxPower.
 	 *
 	 * @param componentId Component-ID of the calling component for the log message
 	 * @param ess         the {@link ManagedSymmetricEss}
-	 * @param phase       the {@link Phase}
+	 * @param phase       the {@link SingleOrAllPhase}
 	 * @param pwr         the {@link Pwr}
 	 * @param value       the target value
 	 * @return a value that fits into Min/MaxPower
 	 */
-	public default int fitValueIntoMinMaxPower(String componentId, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			int value) {
+	public default int fitValueIntoMinMaxPower(String componentId, ManagedSymmetricEss ess, SingleOrAllPhase phase,
+			Pwr pwr, int value) {
 		// fit into max possible discharge power
 		value = this.fitValueToMaxPower(componentId, ess, phase, pwr, value);
 
@@ -109,17 +110,17 @@ public interface Power {
 	 *
 	 * @param componentId Component-ID of the calling component for the log message
 	 * @param ess         the {@link ManagedSymmetricEss}
-	 * @param phase       the {@link Phase}
+	 * @param phase       the {@link SingleOrAllPhase}
 	 * @param pwr         the {@link Pwr}
 	 * @param value       the target value
 	 * @return a value that is compared to existing Max-Power
 	 */
-	public default int fitValueToMaxPower(String componentId, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+	public default int fitValueToMaxPower(String componentId, ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr,
 			int value) {
 		var maxPower = this.getMaxPower(ess, phase, pwr);
 		if (value > maxPower) {
 			Power.log.info("[" + componentId + "] reducing requested [" + value + " W] to maximum power [" + maxPower
-					+ " W] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
+					+ " W] for [" + ess.id() + pwr.symbol + phase.symbol + "]");
 			return maxPower;
 		}
 		return value;
@@ -131,17 +132,17 @@ public interface Power {
 	 *
 	 * @param componentId Component-ID of the calling component for the log message
 	 * @param ess         the {@link ManagedSymmetricEss}
-	 * @param phase       the {@link Phase}
+	 * @param phase       the {@link SingleOrAllPhase}
 	 * @param pwr         the {@link Pwr}
 	 * @param value       the target value
 	 * @return a value that is compared to existing Min-Power
 	 */
-	public default int fitValueToMinPower(String componentId, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
+	public default int fitValueToMinPower(String componentId, ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr,
 			int value) {
 		var minPower = this.getMinPower(ess, phase, pwr);
 		if (value < minPower) {
 			Power.log.info("[" + componentId + "] increasing requested [" + value + " W] to minimum power [" + minPower
-					+ " W] for [" + ess.id() + pwr.getSymbol() + phase.getSymbol() + "]");
+					+ " W] for [" + ess.id() + pwr.symbol + phase.symbol + "]");
 			return minPower;
 		}
 		return value;

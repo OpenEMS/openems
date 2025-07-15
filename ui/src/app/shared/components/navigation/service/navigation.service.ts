@@ -16,6 +16,7 @@ export class NavigationService {
     public navigationNodes: WritableSignal<NavigationTree | null> = signal(null);
     public currentNode: WritableSignal<NavigationTree | null> = signal(null);
     public position: "left" | "bottom" | null = null;
+    public headerOptions: WritableSignal<{ showBackButton: boolean }> = signal({ showBackButton: false });
 
     constructor(
         private service: Service,
@@ -88,7 +89,7 @@ export class NavigationService {
         } else {
             this.position = null;
         }
-
+        this.headerOptions.set({ showBackButton: activeNode == null });
         this.currentNode.set(NavigationTree.of(activeNode));
     }
 

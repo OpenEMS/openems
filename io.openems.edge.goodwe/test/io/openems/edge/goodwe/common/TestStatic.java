@@ -36,6 +36,10 @@ public class TestStatic {
 		assertEquals(GoodWeType.FENECON_GEN2_10K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KEUB246L0001"));
 		assertEquals(GoodWeType.FENECON_GEN2_15K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9015KEUB246L0003"));
 
+		assertEquals(GoodWeType.FENECON_50K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9050KETF241W8012"));
+
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9050KETT241W8012"));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9055KETF241W8012"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9040KETT228W0004"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9000KETT228W0004"));
 		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("ET2"));
@@ -223,7 +227,7 @@ public class TestStatic {
 	}
 
 	@Test
-	public void testignoreImpossibleMinimumPower() {
+	public void testIgnoreImpossibleMinimumPower() {
 
 		var dcPower = 200_000; // W
 		var powerMode = EmsPowerMode.AUTO;
