@@ -978,7 +978,9 @@
     "passwordReset": "Passwort zurücksetzen",
     "authenticationFailed": "Authentifizierung fehlgeschlagen",
     "user": "Benutzer",
-    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal."
+    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal.",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen"
   },
   "Menu": {
     "accessLevel": "Zugriffslevel",
@@ -1031,6 +1033,10 @@
       "email": "E-Mail Adresse",
       "password": "Passwort",
       "confirmPassword": "Passwort wiederholen",
+      "showPassword": "Passwort anzeigen",
+      "hidePassword": "Passwort verbergen",
+      "showConfirmPassword": "Passwort-Bestätigung anzeigen",
+      "hideConfirmPassword": "Passwort-Bestätigung verbergen",
       "confirmEmail": "E-Mail Adresse wiederholen",
       "PRIVATE": "Privat"
     },
@@ -1141,6 +1147,12 @@
   "GENERAL": {
     "FORMLY": {
       "REQUIRED": "Ist erforderlich"
+    }
+  },
+  "ADMIN": {
+    "PASSWORD": {
+      "SHOW": "Passwort anzeigen",
+      "HIDE": "Passwort verbergen"
     }
   }
 }

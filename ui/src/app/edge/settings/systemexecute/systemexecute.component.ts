@@ -63,6 +63,8 @@ export class SystemExecuteComponent implements OnInit {
     },
   }];
 
+  protected showPassword: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
@@ -141,6 +143,10 @@ export class SystemExecuteComponent implements OnInit {
         });
       this.commandLogs.unshift(executeSystemCommandRequest);
     });
+  }
+
+  protected togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
 }
