@@ -208,7 +208,7 @@
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
 
 -runbundles: \
-	Java-WebSocket;version='[1.5.4,1.5.5)',\
+	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.81.0,1.81.1)',\
 	bcprov;version='[1.81.0,1.81.1)',\
 	bcutil;version='[1.81.0,1.81.1)',\
