@@ -120,6 +120,10 @@ export class UserPermission {
     return user.hasMultipleEdges;
   }
 
+  public static isUserAllowedToSeeSidebarEdgeList(user: User): boolean {
+    return Role.isAtLeast(user.globalRole, Role.OWNER);
+  }
+
   /**
   * Checks if user is allowed to see {@link SystemRestartComponent}
   *
