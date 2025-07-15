@@ -19,9 +19,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	@AttributeDefinition(name = "Regulation steps", description = "Number of control levels, for example, 2 if two CHP units are to operate in full-load mode. Use 0 for stepless (continuous) control.")
 	int regulationSteps() default 2;	
-
-	@AttributeDefinition(name = "xrgiRo-ID", description = "ID of the XrgiRo device")
-	String xrgiRo_id() default "xrgiRo0";	
+	
+	@AttributeDefinition(name = "Hysteresis [s]", description = "Hysteresis between transition steps. No effect if stepless control is configured.")
+	int hysteresis() default 3600;	
 	
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;

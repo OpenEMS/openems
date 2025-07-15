@@ -19,19 +19,17 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.generator.api.SymmetricGenerator;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.generator.api.ManagedSymmetricGenerator;
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -47,7 +45,7 @@ import io.openems.edge.generator.api.ManagedSymmetricGenerator;
 	EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
-public class XrgiRoImpl extends AbstractOpenemsModbusComponent implements XrgiRo, ModbusComponent, OpenemsComponent, ElectricityMeter, EventHandler, ManagedSymmetricGenerator {
+public class XrgiRoImpl extends AbstractOpenemsModbusComponent implements XrgiRo, ModbusComponent, OpenemsComponent, EventHandler, ElectricityMeter, SymmetricGenerator  {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -57,13 +55,12 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent implements XrgiRo
 		super.setModbus(modbus);
 	}
 
-	private Config config;
-
 	public XrgiRoImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				ElectricityMeter.ChannelId.values(), //				
+				ElectricityMeter.ChannelId.values(),				
+				SymmetricGenerator.ChannelId.values(), //	
 				XrgiRo.ChannelId.values() //
 		);
 	}
@@ -74,7 +71,7 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent implements XrgiRo
 				config.modbus_id())) {
 			return;
 		}
-		this.config = config;
+		
 	}
 
 	@Override
@@ -90,10 +87,22 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent implements XrgiRo
 
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this._setActivePowerL1(331);
 			this._setActivePowerL2(332);
 			this._setActivePowerL3(333);
+			
+			this._setVoltageL1(221000);
+			this._setVoltageL2(222000);
+			this._setVoltageL3(223000);
+			
+			this._setCurrentL1(21000);
+			this._setCurrentL2(22000);
+			this._setCurrentL3(23000);
+			this._setActiveProductionEnergy(4711L);			
+			
+			this._setGeneratorActivePower(34);	
+			
 			break;
 		//case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 		//	//this._setActivePower(666);
@@ -107,72 +116,70 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent implements XrgiRo
 		    return new ModbusProtocol(this,
 		        // BOOL-Register (1 bit)
 		        new FC3ReadRegistersTask(0, Priority.LOW,
-		            m(XrgiRo.ChannelId.STOERUNG, new UnsignedWordElement(0)), // 0x0000: Störung BOOL
-		            m(XrgiRo.ChannelId.BETRIEB, new UnsignedWordElement(1)), // 0x0001: Betrieb BOOL
-		            m(XrgiRo.ChannelId.BHKW_EINSATZBEREIT, new UnsignedWordElement(2)), // 0x0002: BHKW Einsatzbereit BOOL
-		            m(XrgiRo.ChannelId.BHKW_NICHT_EINSATZBEREIT, new UnsignedWordElement(3)), // 0x0003: BHKW nicht Einsatzbereit BOOL
-		            m(XrgiRo.ChannelId.MEHRERE_SPEICHER, new UnsignedWordElement(4)), // 0x0004: mehrere Speicher BOOL
-		            m(XrgiRo.ChannelId.SPEICHERFUEHLER_REIHENFOLGE_ERKANNT, new UnsignedWordElement(5)) // 0x0005: Speicherfühler-Reihenfolge erkannt BOOL
+		            m(XrgiRo.ChannelId.ERROR, new UnsignedWordElement(0)), // 0x0000: Störung BOOL
+		            m(XrgiRo.ChannelId.OPERATING, new UnsignedWordElement(1)), // 0x0001: Betrieb BOOL
+		            m(XrgiRo.ChannelId.CHP_READY_FOR_OPERATION, new UnsignedWordElement(2)), // 0x0002: BHKW Einsatzbereit BOOL
+		            m(XrgiRo.ChannelId.CHP_NOT_READY_FOR_OPERATION, new UnsignedWordElement(3)), // 0x0003: BHKW nicht Einsatzbereit BOOL
+		            m(XrgiRo.ChannelId.MULTIPLE_STORAGE_UNITS_PRESENT, new UnsignedWordElement(4)), // 0x0004: mehrere Speicher BOOL
+		            m(XrgiRo.ChannelId.STORAGE_SENSOR_ORDER_DETECTED, new UnsignedWordElement(5)) // 0x0005: Speicherfühler-Reihenfolge erkannt BOOL
 		        ),
 		        // INT16/UIN16/UINT32 Register
 		        new FC3ReadRegistersTask(0, Priority.LOW,
-		            m(XrgiRo.ChannelId.SPEICHERTEMPERATUR_OBEN, new SignedWordElement(0)), // 0x0000: INT16, °C x100
-		            m(XrgiRo.ChannelId.SPEICHERTEMPERATUR_UNTEN, new SignedWordElement(1)), // 0x0001: INT16, °C x100
-		            m(XrgiRo.ChannelId.FM_VORLAUFTEMPERATUR, new SignedWordElement(2)), // 0x0002: INT16, °C x100
-		            m(XrgiRo.ChannelId.FM_RUECKLAUFTEMPERATUR, new SignedWordElement(3)), // 0x0003: INT16, °C x100
-		            m(XrgiRo.ChannelId.BHKW_NETZTEMPERATUR, new SignedWordElement(4)), // 0x0004: INT16, °C x100
-		            m(XrgiRo.ChannelId.AUSSENTEMPERATUR, new SignedWordElement(5)), // 0x0005: INT16, °C x100
+		            m(XrgiRo.ChannelId.STORAGE_TEMPERATURE_TOP, new SignedWordElement(0)), // 0x0000: INT16, °C x100
+		            m(XrgiRo.ChannelId.STORAGE_TEMPERATURE_BOTTOM, new SignedWordElement(1)), // 0x0001: INT16, °C x100
+		            m(XrgiRo.ChannelId.FLOW_MASTER_FLOW_TEMPERATURE, new SignedWordElement(2)), // 0x0002: INT16, °C x100
+		            m(XrgiRo.ChannelId.FLOW_MASTER_RETURN_TEMPERATURE, new SignedWordElement(3)), // 0x0003: INT16, °C x100
+		            m(XrgiRo.ChannelId.CHP_NETWORK_TEMPERATURE, new SignedWordElement(4)), // 0x0004: INT16, °C x100
+		            m(XrgiRo.ChannelId.OUTDOOR_TEMPERATURE, new SignedWordElement(5)), // 0x0005: INT16, °C x100
 		            m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(6)), // 0x0006: UINT16, kW x10
-		            m(XrgiRo.ChannelId.AKTUELLE_WAERMEPRODUKTION, new UnsignedWordElement(7)), // 0x0007: UINT16, %
-		            m(XrgiRo.ChannelId.GESAMTE_STROMPRODUKTION, new UnsignedDoublewordElement(8)), // 0x0008: UINT32, kWh
-		            m(XrgiRo.ChannelId.GESAMTE_WAERMEPRODUKTION, new UnsignedDoublewordElement(10)), // 0x000A: UINT32, kWh
-		            m(XrgiRo.ChannelId.STROMPRODUKTION_15MIN, new UnsignedWordElement(12)), // 0x000C: UINT16, kWh
-		            m(XrgiRo.ChannelId.WAERMEPRODUKTION_15MIN, new UnsignedWordElement(13)), // 0x000D: UINT16, kWh
-		            m(XrgiRo.ChannelId.GESAMT_GASVERBRAUCH, new UnsignedDoublewordElement(14)), // 0x000E: UINT32, kWh
-		            m(XrgiRo.ChannelId.GESAMTE_BETRIEBSSTUNDEN, new UnsignedWordElement(16)), // 0x0010: UINT16, Stunden
-		            m(XrgiRo.ChannelId.BETRIEBSSTUNDEN_BIS_WARTUNG, new UnsignedWordElement(17)), // 0x0011: UINT16, Stunden
-		            m(XrgiRo.ChannelId.LETZTER_FEHLERCODE, new UnsignedWordElement(18)), // 0x0012: UINT16
-		            m(XrgiRo.ChannelId.GESAMTE_GENERATOR_STARTS, new UnsignedWordElement(19)), // 0x0013: UINT16
-		            m(XrgiRo.ChannelId.QW_TMV_TEMPERATUR, new UnsignedWordElement(20)), // 0x0014: UINT16, °C x100
-		            m(XrgiRo.ChannelId.QW_TMK_TEMPERATUR, new UnsignedWordElement(21)), // 0x0015: UINT16, °C x100
-		            m(XrgiRo.ChannelId.QW_TLV_TEMPERATUR, new UnsignedWordElement(22)), // 0x0016: UINT16, °C x100
-		            m(XrgiRo.ChannelId.QW_TLK_TEMPERATUR, new UnsignedWordElement(23)), // 0x0017: UINT16, °C x100
-		            m(XrgiRo.ChannelId.QW_RUECKLAUF_TEMPERATUR, new UnsignedWordElement(24)), // 0x0018: UINT16, °C x100
-		            m(XrgiRo.ChannelId.OPERATIVER_SOLLWERT_TMV, new UnsignedWordElement(25)), // 0x0019: UINT16, °C x100
-		            m(XrgiRo.ChannelId.FM_BYPASSTEMPERATUR, new UnsignedWordElement(26)), // 0x001A: UINT16, °C x100
-		            m(XrgiRo.ChannelId.FM_ZUFUHR_TEMPERATUR, new UnsignedWordElement(27)), // 0x001B: UINT16, °C x100
-		            m(XrgiRo.ChannelId.FM_SOLLWERT_TEMPERATUR, new UnsignedWordElement(28)), // 0x001C: UINT16, °C x100
-		            m(XrgiRo.ChannelId.FM_OP_SOLLWERT, new UnsignedWordElement(29)), // 0x001D: UINT16, °C x100
-		            m(XrgiRo.ChannelId.QW_MOTORKREISPUMPE, new UnsignedWordElement(30)), // 0x001E: UINT16, %
-		            m(XrgiRo.ChannelId.QW_SEKUNDAERPUMPE, new UnsignedWordElement(31)), // 0x001F: UINT16, %
-		            m(XrgiRo.ChannelId.FM_PUMPENLEISTUNG, new UnsignedWordElement(32)), // 0x0020: UINT16, %
-		            m(XrgiRo.ChannelId.QW_VENTILSTELLUNG, new UnsignedWordElement(33)), // 0x0021: UINT16, %
-		            m(XrgiRo.ChannelId.FM_VENTILSTELLUNG, new UnsignedWordElement(34)), // 0x0022: UINT16, %
-		            m(XrgiRo.ChannelId.AKTUELLE_WAERMEPRODUKTION_MOTOR, new UnsignedWordElement(35)), // 0x0023: UINT16, kW x100
-		            m(XrgiRo.ChannelId.WAERMEUEBERTRAGUNGSWERT, new UnsignedWordElement(36)), // 0x0024: UINT16, kW/K x10
-		            m(XrgiRo.ChannelId.TRENN_SCHICHTTEMPERATUR, new UnsignedWordElement(37)), // 0x0025: UINT16, °C x100
-		            m(XrgiRo.ChannelId.PU_ANGEFORDERTE_LEISTUNG, new UnsignedWordElement(38)), // 0x0026: UINT16, W
-		            m(XrgiRo.ChannelId.PU_LEISTUNGSGRENZWERT, new UnsignedWordElement(39)), // 0x0027: UINT16, W
-		            m(XrgiRo.ChannelId.PU_ZIELLEISTUNG, new UnsignedWordElement(40)), // 0x0028: UINT16, W
-		            m(XrgiRo.ChannelId.PU_MOTORLEISTUNG_VENTILSTELLUNG, new UnsignedWordElement(41)), // 0x0029: UINT16
-		            m(XrgiRo.ChannelId.PU_MAP_DRUCK, new UnsignedWordElement(42)), // 0x002A: UINT16, mBar
-		            m(XrgiRo.ChannelId.PU_BRENNGAS_VENTILSTELLUNG, new UnsignedWordElement(43)), // 0x002B: UINT16
-		            m(XrgiRo.ChannelId.PU_ZUENDWINKEL, new UnsignedWordElement(44)), // 0x002C: UINT16, °C x10
-		            m(XrgiRo.ChannelId.PU_MOTORBLOCKTEMPERATUR, new UnsignedWordElement(45)), // 0x002D: UINT16, °C x100
-		            m(XrgiRo.ChannelId.PU_DREHZAHL, new UnsignedWordElement(46)), // 0x002E: UINT16
-		            m(XrgiRo.ChannelId.L1L2_PHASENSPANNUNG, new UnsignedWordElement(47)), // 0x002F: UINT16, Volt
-		            m(XrgiRo.ChannelId.L2L3_PHASENSPANNUNG, new UnsignedWordElement(48)), // 0x0030: UINT16, Volt
-		            m(XrgiRo.ChannelId.L3L1_PHASENSPANNUNG, new UnsignedWordElement(49)), // 0x0031: UINT16, Volt
-		            m(XrgiRo.ChannelId.NETZFREQUENZ, new UnsignedWordElement(50)), // 0x0032: UINT16, Hz x100
-		            m(XrgiRo.ChannelId.MELDESTATUS, new UnsignedWordElement(51)) // 0x0033: UINT16
+		            m(XrgiRo.ChannelId.CURRENT_HEAT_OUTPUT, new UnsignedWordElement(7)), // 0x0007: UINT16, %
+		            m(XrgiRo.ChannelId.TOTAL_ACTIVE_ENERGY, new UnsignedDoublewordElement(8)), // 0x0008: UINT32, kWh
+		            m(XrgiRo.ChannelId.TOTAL_HEAT_ENERGY, new UnsignedDoublewordElement(10)), // 0x000A: UINT32, kWh
+		            m(XrgiRo.ChannelId.ACTIVE_ENERGY_15MIN, new UnsignedWordElement(12)), // 0x000C: UINT16, kWh
+		            m(XrgiRo.ChannelId.HEAT_ENERGY_15MIN, new UnsignedWordElement(13)), // 0x000D: UINT16, kWh
+		            m(XrgiRo.ChannelId.TOTAL_GAS_CONSUMPTION, new UnsignedDoublewordElement(14)), // 0x000E: UINT32, kWh
+		            m(XrgiRo.ChannelId.TOTAL_OPERATING_HOURS, new UnsignedWordElement(16)), // 0x0010: UINT16, Stunden
+		            m(XrgiRo.ChannelId.REMAINING_HOURS_UNTIL_MAINTENANCE, new UnsignedWordElement(17)), // 0x0011: UINT16, Stunden
+		            m(XrgiRo.ChannelId.LAST_ERROR_CODE, new UnsignedWordElement(18)), // 0x0012: UINT16
+		            m(XrgiRo.ChannelId.TOTAL_GENERATOR_STARTS, new UnsignedWordElement(19)), // 0x0013: UINT16
+		            m(XrgiRo.ChannelId.MIXER_TMV_TEMPERATURE, new UnsignedWordElement(20)), // 0x0014: UINT16, °C x100
+		            m(XrgiRo.ChannelId.MIXER_TMK_TEMPERATURE, new UnsignedWordElement(21)), // 0x0015: UINT16, °C x100
+		            m(XrgiRo.ChannelId.MIXER_TLV_TEMPERATURE, new UnsignedWordElement(22)), // 0x0016: UINT16, °C x100
+		            m(XrgiRo.ChannelId.MIXER_TLK_TEMPERATURE, new UnsignedWordElement(23)), // 0x0017: UINT16, °C x100
+		            m(XrgiRo.ChannelId.MIXER_RETURN_TEMPERATUR, new UnsignedWordElement(24)), // 0x0018: UINT16, °C x100
+		            m(XrgiRo.ChannelId.OPERATIONAL_SETPOINT_TMV, new UnsignedWordElement(25)), // 0x0019: UINT16, °C x100
+		            m(XrgiRo.ChannelId.FLOW_MASTER_BYPASS_TEMPERATURE, new UnsignedWordElement(26)), // 0x001A: UINT16, °C x100
+		            m(XrgiRo.ChannelId.FLOW_MASTER_SUPPLY_TEMPERATURE, new UnsignedWordElement(27)), // 0x001B: UINT16, °C x100
+		            m(XrgiRo.ChannelId.FLOW_MASTER_SETPOINT_TEMPERATURE, new UnsignedWordElement(28)), // 0x001C: UINT16, °C x100
+		            m(XrgiRo.ChannelId.FLOW_MASTER_OPERATIONAL_SETPOINT, new UnsignedWordElement(29)), // 0x001D: UINT16, °C x100
+		            m(XrgiRo.ChannelId.MIXER_ENGINE_LOOP_PUMP, new UnsignedWordElement(30)), // 0x001E: UINT16, %
+		            m(XrgiRo.ChannelId.MIXER_SECONDARY_PUMP, new UnsignedWordElement(31)), // 0x001F: UINT16, %
+		            m(XrgiRo.ChannelId.FLOW_MASTER_PUMP_POWER, new UnsignedWordElement(32)), // 0x0020: UINT16, %
+		            m(XrgiRo.ChannelId.MIXER_VALVE_POSITION, new UnsignedWordElement(33)), // 0x0021: UINT16, %
+		            m(XrgiRo.ChannelId.FLOW_MASTER_VALVE_POSITION, new UnsignedWordElement(34)), // 0x0022: UINT16, %
+		            m(XrgiRo.ChannelId.CURRENT_ENGINE_HEAT_OUTPUT, new UnsignedWordElement(35)), // 0x0023: UINT16, kW x100
+		            m(XrgiRo.ChannelId.HEAT_TRANSFER_VALUE, new UnsignedWordElement(36)), // 0x0024: UINT16, kW/K x10
+		            m(XrgiRo.ChannelId.LAYER_SEPARATION_TEMPERATURE, new UnsignedWordElement(37)), // 0x0025: UINT16, °C x100
+		            m(XrgiRo.ChannelId.POWER_UNIT_REQUESTED_POWER, new UnsignedWordElement(38)), // 0x0026: UINT16, W
+		            m(XrgiRo.ChannelId.POWER_UNIT_POWER_LIMIT, new UnsignedWordElement(39)), // 0x0027: UINT16, W
+		            m(XrgiRo.ChannelId.POWER_UNIT_TARGET_POWER, new UnsignedWordElement(40)), // 0x0028: UINT16, W
+		            m(XrgiRo.ChannelId.POWER_UNIT_ENGINE_VALVE_POSITION, new UnsignedWordElement(41)), // 0x0029: UINT16
+		            m(XrgiRo.ChannelId.POWER_UNIT_MAP_PRESSURE, new UnsignedWordElement(42)), // 0x002A: UINT16, mBar
+		            m(XrgiRo.ChannelId.POWER_UNIT_FUEL_VALVE_POSITION, new UnsignedWordElement(43)), // 0x002B: UINT16
+		            m(XrgiRo.ChannelId.POWER_UNIT_IGNITION_ANGLE, new UnsignedWordElement(44)), // 0x002C: UINT16, °C x10
+		            m(XrgiRo.ChannelId.POWER_UNIT_ENGINE_TEMPERATURE, new UnsignedWordElement(45)), // 0x002D: UINT16, °C x100
+		            m(XrgiRo.ChannelId.POWER_UNIT_RPM, new UnsignedWordElement(46)), // 0x002E: UINT16
+		            m(XrgiRo.ChannelId.L1_L2_VOLTAGE, new UnsignedWordElement(47)), // 0x002F: UINT16, Volt
+		            m(XrgiRo.ChannelId.L2_L3_VOLTAGE, new UnsignedWordElement(48)), // 0x0030: UINT16, Volt
+		            m(XrgiRo.ChannelId.L3_L1_VOLTAGE, new UnsignedWordElement(49)), // 0x0031: UINT16, Volt
+		            m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(50)), // 0x0032: UINT16, Hz x100
+		            m(XrgiRo.ChannelId.ALERT_STATUS, new UnsignedWordElement(51)) // 0x0033: UINT16
 		        ),
 		        new FC3ReadRegistersTask(0, Priority.LOW,
-		            m(XrgiRo.ChannelId.VPP_FREIGABE, new UnsignedWordElement(0)), // 0x0000: VPP Freigabe
-		            m(XrgiRo.ChannelId.BHKW_LEISTUNGSREGELUNG, new UnsignedWordElement(1)) // 0x0001: BHKW Leistungsregelung %
-		        ),
-				new FC16WriteRegistersTask(150, //
-						this.m(XrgiRo.ChannelId.SET_POWER_PERCENT, new UnsignedWordElement(150),
-								ElementToChannelConverter.SCALE_FACTOR_1))
+		            m(XrgiRo.ChannelId.VPP_ENABLE, new UnsignedWordElement(0)), // 0x0000: VPP Freigabe
+		            m(XrgiRo.ChannelId.CHP_POWER_CONTROL, new UnsignedWordElement(1)) // 0x0001: BHKW Leistungsregelung %
+		        )
+
 		        
 		        // ggf. weitere Tasks für andere Bereiche
 		    );
@@ -186,13 +193,18 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent implements XrgiRo
 					));
 		}
 		*/
+		
+
 
 	@Override
 	public String debugLog() {
 		
-		return "Hello World";
+		return "RO-Device Power: " + this.getActivePower().asString();
 	}
 
+	
+
+	
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;

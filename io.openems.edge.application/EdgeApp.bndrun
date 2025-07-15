@@ -221,7 +221,8 @@
 	bnd.identity;id='io.openems.edge.solaredge.ess',\
 	bnd.identity;id='io.openems.edge.batteryinverter.deye',\
 	bnd.identity;id='io.openems.edge.controller.chp.cost',\
-	bnd.identity;id='io.openems.edge.chp.ecpower'
+	bnd.identity;id='io.openems.edge.chp.ecpower',\
+	bnd.identity;id='io.openems.edge.generator.api'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	bcpkix;version='[1.81.0,1.81.1)',\
@@ -494,4 +495,5 @@
 	com.squareup.okio;version='[3.13.0,3.13.1)',\
 	com.sun.jna;version='[5.17.0,5.17.1)',\
 	io.openems.edge.controller.chp.cost;version=snapshot,\
-	io.openems.edge.chp.ecpower;version=latest
+	io.openems.edge.chp.ecpower;version=latest,\
+	io.openems.edge.generator.api;version=latest

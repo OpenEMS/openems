@@ -1,105 +1,94 @@
 package io.openems.edge.chp.ecpower.ro;
 
-import org.osgi.service.event.EventHandler;
-
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Level;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 
-import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.value.Value;
 
-public interface XrgiRo extends ModbusComponent, OpenemsComponent {
+public interface XrgiRo extends ModbusComponent, OpenemsComponent, ElectricityMeter  {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		//ACTIVE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		STOERUNG(Doc.of(OpenemsType.BOOLEAN)),
-		BETRIEB(Doc.of(OpenemsType.BOOLEAN)),
-		BHKW_EINSATZBEREIT(Doc.of(OpenemsType.BOOLEAN)),
-		BHKW_NICHT_EINSATZBEREIT(Doc.of(OpenemsType.BOOLEAN)),
-		MEHRERE_SPEICHER(Doc.of(OpenemsType.BOOLEAN)),
-		SPEICHERFUEHLER_REIHENFOLGE_ERKANNT(Doc.of(OpenemsType.BOOLEAN)),
+		ERROR(Doc.of(OpenemsType.BOOLEAN)),
+		OPERATING(Doc.of(OpenemsType.BOOLEAN)),
+		CHP_READY_FOR_OPERATION(Doc.of(OpenemsType.BOOLEAN)),
+		CHP_NOT_READY_FOR_OPERATION(Doc.of(OpenemsType.BOOLEAN)),
+		MULTIPLE_STORAGE_UNITS_PRESENT(Doc.of(OpenemsType.BOOLEAN)),
+		STORAGE_SENSOR_ORDER_DETECTED(Doc.of(OpenemsType.BOOLEAN)),
 
 		// Temperatur (°C x100)
-		SPEICHERTEMPERATUR_OBEN(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		SPEICHERTEMPERATUR_UNTEN(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		FM_VORLAUFTEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		FM_RUECKLAUFTEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		BHKW_NETZTEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		AUSSENTEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		STORAGE_TEMPERATURE_TOP(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		STORAGE_TEMPERATURE_BOTTOM(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		FLOW_MASTER_FLOW_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		FLOW_MASTER_RETURN_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		CHP_NETWORK_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		OUTDOOR_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
 
 		// Leistung / Produktion
 		AKTUELLE_ELEKTRO_PRODUKTION(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT)), // kW x10
-		AKTUELLE_WAERMEPRODUKTION(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		GESAMTE_STROMPRODUKTION(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
-		GESAMTE_WAERMEPRODUKTION(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
-		STROMPRODUKTION_15MIN(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
-		WAERMEPRODUKTION_15MIN(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
+		CURRENT_HEAT_OUTPUT(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		TOTAL_ACTIVE_ENERGY(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
+		TOTAL_HEAT_ENERGY(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
+		ACTIVE_ENERGY_15MIN(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
+		HEAT_ENERGY_15MIN(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
 
 		// Gas
-		GESAMT_GASVERBRAUCH(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
+		TOTAL_GAS_CONSUMPTION(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT_HOURS)), // kWh
 
 		// Betriebsstunden etc.
-		GESAMTE_BETRIEBSSTUNDEN(Doc.of(OpenemsType.INTEGER).unit(Unit.HOUR)),
-		BETRIEBSSTUNDEN_BIS_WARTUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.HOUR)),
-		LETZTER_FEHLERCODE(Doc.of(OpenemsType.INTEGER)),
-		GESAMTE_GENERATOR_STARTS(Doc.of(OpenemsType.INTEGER)),
+		TOTAL_OPERATING_HOURS(Doc.of(OpenemsType.INTEGER).unit(Unit.HOUR)),
+		REMAINING_HOURS_UNTIL_MAINTENANCE(Doc.of(OpenemsType.INTEGER).unit(Unit.HOUR)),
+		LAST_ERROR_CODE(Doc.of(OpenemsType.INTEGER)),
+		TOTAL_GENERATOR_STARTS(Doc.of(OpenemsType.INTEGER)),
 
 		// Temperaturen QW/FM (°C x100)
-		QW_TMV_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		QW_TMK_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		QW_TLV_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		QW_TLK_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		QW_RUECKLAUF_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		OPERATIVER_SOLLWERT_TMV(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		FM_BYPASSTEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		FM_ZUFUHR_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		FM_SOLLWERT_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		FM_OP_SOLLWERT(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MIXER_TMV_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MIXER_TMK_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MIXER_TLV_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MIXER_TLK_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		MIXER_RETURN_TEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		OPERATIONAL_SETPOINT_TMV(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		FLOW_MASTER_BYPASS_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		FLOW_MASTER_SUPPLY_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		FLOW_MASTER_SETPOINT_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		FLOW_MASTER_OPERATIONAL_SETPOINT(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
 
 		// Prozent (%)
-		QW_MOTORKREISPUMPE(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		QW_SEKUNDAERPUMPE(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		FM_PUMPENLEISTUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		QW_VENTILSTELLUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
-		FM_VENTILSTELLUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		MIXER_ENGINE_LOOP_PUMP(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		MIXER_SECONDARY_PUMP(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		FLOW_MASTER_PUMP_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		MIXER_VALVE_POSITION(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		FLOW_MASTER_VALVE_POSITION(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 
 		// Wärmemotor
-		AKTUELLE_WAERMEPRODUKTION_MOTOR(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT)), // kW x100
-		WAERMEUEBERTRAGUNGSWERT(Doc.of(OpenemsType.INTEGER)), // kW/K x10
-		TRENN_SCHICHTTEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		CURRENT_ENGINE_HEAT_OUTPUT(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT)), // kW x100
+		HEAT_TRANSFER_VALUE(Doc.of(OpenemsType.INTEGER)), // kW/K x10
+		LAYER_SEPARATION_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
 
 		// Leistung/Leistungsgrenzen
-		PU_ANGEFORDERTE_LEISTUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		PU_LEISTUNGSGRENZWERT(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		PU_ZIELLEISTUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		PU_MOTORLEISTUNG_VENTILSTELLUNG(Doc.of(OpenemsType.INTEGER)),
-		PU_MAP_DRUCK(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIBAR)),
-		PU_BRENNGAS_VENTILSTELLUNG(Doc.of(OpenemsType.INTEGER)),
-		PU_ZUENDWINKEL(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		PU_MOTORBLOCKTEMPERATUR(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
-		PU_DREHZAHL(Doc.of(OpenemsType.INTEGER)),
+		POWER_UNIT_REQUESTED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
+		POWER_UNIT_POWER_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
+		POWER_UNIT_TARGET_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
+		POWER_UNIT_ENGINE_VALVE_POSITION(Doc.of(OpenemsType.INTEGER)),
+		POWER_UNIT_MAP_PRESSURE(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIBAR)),
+		POWER_UNIT_FUEL_VALVE_POSITION(Doc.of(OpenemsType.INTEGER)),
+		POWER_UNIT_IGNITION_ANGLE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		POWER_UNIT_ENGINE_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+		POWER_UNIT_RPM(Doc.of(OpenemsType.INTEGER)),
 
 		// Spannung, Frequenz
-		L1L2_PHASENSPANNUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		L2L3_PHASENSPANNUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		L3L1_PHASENSPANNUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
-		NETZFREQUENZ(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ)),
-		MELDESTATUS(Doc.of(OpenemsType.INTEGER)), 
-		VPP_FREIGABE(Doc.of(OpenemsType.INTEGER)),
-		BHKW_LEISTUNGSREGELUNG(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
+		L1_L2_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		L2_L3_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		L3_L1_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT)),
+		//FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ)),
+		ALERT_STATUS(Doc.of(OpenemsType.INTEGER)), 
+		VPP_ENABLE(Doc.of(OpenemsType.INTEGER)),
+		CHP_POWER_CONTROL(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 		
-		SET_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_ONLY)),
-		
-		
+
 		
 		;
 
@@ -114,9 +103,6 @@ public interface XrgiRo extends ModbusComponent, OpenemsComponent {
 			return this.doc;
 		}
 	}
-	
 
-
-	
 	
 }

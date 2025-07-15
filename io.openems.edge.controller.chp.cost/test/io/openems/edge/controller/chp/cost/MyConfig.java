@@ -44,22 +44,56 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String modbus_id() {
+	public boolean debugMode() {
 		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}
 
 	@Override
-	public int modbusUnitId() {
+	public int maxCost() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public String Modbus_target() {
+	public String meter_id() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String chp_id() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int maxActivePower() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int minCost() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int startHyteresis() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int stopHyteresis() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+
+
 
 //	@Override
 //	public String setting0() {

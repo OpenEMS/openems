@@ -3,24 +3,27 @@ package io.openems.edge.generator.api;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.meter.api.ElectricityMeter;
+
+
 
 /**
  * Represents a 3-Phase, symmetric PV-Inverter.
  */
-public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComponent {
+public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGenerator  {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
+		
 		/**
 		 * Holds the maximum possible apparent power. This value is defined by the
 		 * inverter limitations.
@@ -32,7 +35,7 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		GENRATOR_MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
@@ -46,7 +49,7 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		GENRATOR_MAX_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
@@ -60,7 +63,7 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
+		GENRATOR_MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
@@ -72,7 +75,7 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		ACTIVE_POWER_LIMIT(new IntegerDoc() //
+		GENRATOR_ACTIVE_POWER_LIMIT(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
@@ -95,24 +98,17 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 		}
 	}
 
-	/**
-	 * Gets the type of this Meter.
-	 *
-	 * @return the MeterType
-	 */
-	@Override
-	default MeterType getMeterType() {
-		return MeterType.PRODUCTION;
-	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_ACTIVE_POWER}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getMaxActivePowerChannel() {
-		return this.channel(ChannelId.MAX_ACTIVE_POWER);
+	public default IntegerReadChannel getGeneratorMaxActivePowerChannel() {
+		return this.channel(ChannelId.GENRATOR_MAX_ACTIVE_POWER);
 	}
+
+	
 
 	/**
 	 * Gets the Maximum Active Power in [WATT], range "&gt;= 0". See
@@ -120,8 +116,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getMaxActivePower() {
-		return this.getMaxActivePowerChannel().value();
+	public default Value<Integer> getGeneratorMaxActivePower() {
+		return this.getGeneratorMaxActivePowerChannel().value();
 	}
 
 	/**
@@ -130,8 +126,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMaxActivePower(Integer value) {
-		this.getMaxActivePowerChannel().setNextValue(value);
+	public default void _setGeneratorMaxActivePower(Integer value) {
+		this.getGeneratorMaxActivePowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -140,8 +136,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMaxActivePower(int value) {
-		this.getMaxActivePowerChannel().setNextValue(value);
+	public default void _setGeneratorMaxActivePower(int value) {
+		this.getGeneratorMaxActivePowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -149,8 +145,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getMaxReactivePowerChannel() {
-		return this.channel(ChannelId.MAX_REACTIVE_POWER);
+	public default IntegerReadChannel getGeneratorMaxReactivePowerChannel() {
+		return this.channel(ChannelId.GENRATOR_MAX_REACTIVE_POWER);
 	}
 
 	/**
@@ -159,8 +155,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getMaxReactivePower() {
-		return this.getMaxReactivePowerChannel().value();
+	public default Value<Integer> getGeneratorMaxReactivePower() {
+		return this.getGeneratorMaxReactivePowerChannel().value();
 	}
 
 	/**
@@ -169,8 +165,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMaxReactivePower(Integer value) {
-		this.getMaxReactivePowerChannel().setNextValue(value);
+	public default void _setGeneratorMaxReactivePower(Integer value) {
+		this.getGeneratorMaxReactivePowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -180,7 +176,7 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 * @param value the next value
 	 */
 	public default void _setMaxReactivePower(int value) {
-		this.getMaxReactivePowerChannel().setNextValue(value);
+		this.getGeneratorMaxReactivePowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -188,8 +184,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getMaxApparentPowerChannel() {
-		return this.channel(ChannelId.MAX_APPARENT_POWER);
+	public default IntegerReadChannel getGeneratorMaxApparentPowerChannel() {
+		return this.channel(ChannelId.GENRATOR_MAX_APPARENT_POWER);
 	}
 
 	/**
@@ -198,8 +194,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getMaxApparentPower() {
-		return this.getMaxApparentPowerChannel().value();
+	public default Value<Integer> getGeneratorMaxApparentPower() {
+		return this.getGeneratorMaxApparentPowerChannel().value();
 	}
 
 	/**
@@ -208,8 +204,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMaxApparentPower(Integer value) {
-		this.getMaxApparentPowerChannel().setNextValue(value);
+	public default void _setGeneratorMaxApparentPower(Integer value) {
+		this.getGeneratorMaxApparentPowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -218,8 +214,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMaxApparentPower(int value) {
-		this.getMaxApparentPowerChannel().setNextValue(value);
+	public default void _setGeneratorMaxApparentPower(int value) {
+		this.getGeneratorMaxApparentPowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -227,8 +223,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerWriteChannel getActivePowerLimitChannel() {
-		return this.channel(ChannelId.ACTIVE_POWER_LIMIT);
+	public default IntegerWriteChannel getGeneratorActivePowerLimitChannel() {
+		return this.channel(ChannelId.GENRATOR_ACTIVE_POWER_LIMIT);
 	}
 
 	/**
@@ -236,8 +232,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getActivePowerLimit() {
-		return this.getActivePowerLimitChannel().value();
+	public default Value<Integer> getGeneratorActivePowerLimit() {
+		return this.getGeneratorActivePowerLimitChannel().value();
 	}
 
 	/**
@@ -246,8 +242,8 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @param value the next value
 	 */
-	public default void _setActivePowerLimit(Integer value) {
-		this.getActivePowerLimitChannel().setNextValue(value);
+	public default void _setGeneratorActivePowerLimit(Integer value) {
+		this.getGeneratorActivePowerLimitChannel().setNextValue(value);
 	}
 
 	/**
@@ -256,29 +252,11 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 	 *
 	 * @param value the next value
 	 */
-	public default void _setActivePowerLimit(int value) {
-		this.getActivePowerLimitChannel().setNextValue(value);
+	public default void _setGeneratorActivePowerLimit(int value) {
+		this.getGeneratorActivePowerLimitChannel().setNextValue(value);
 	}
 
-	/**
-	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
-	 *
-	 * @param value the Integer value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setActivePowerLimit(Integer value) throws OpenemsNamedException {
-		this.getActivePowerLimitChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
-	 *
-	 * @param value the int value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setActivePowerLimit(int value) throws OpenemsNamedException {
-		this.getActivePowerLimitChannel().setNextWriteValue(value);
-	}
+	
 
 	/**
 	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
@@ -291,4 +269,9 @@ public interface ManagedSymmetricGenerator extends ElectricityMeter, OpenemsComp
 		return ModbusSlaveNatureTable.of(ManagedSymmetricGenerator.class, accessMode, 100) //
 				.build();
 	}
+
+	public void applyPower(int calculateChpPowerTarget);
+
+	public void applyPower(Integer activePowerTarget);
+	
 }
