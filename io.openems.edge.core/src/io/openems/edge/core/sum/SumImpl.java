@@ -278,6 +278,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				if (!meter.addToSum()) {
 					continue;
 				}
+				
 				switch (meter.getMeterType()) {
 				case PRODUCTION_AND_CONSUMPTION -> // TODO
 					// Production Power is positive, Consumption is negative
