@@ -12,7 +12,6 @@ import { PickdateComponentModule } from "src/app/shared/components/pickdate/pick
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { ChartComponent } from "../chart/chart";
-import tr from "./translation.json";
 @Component({
     selector: "controller-io-heatpump-overview",
     templateUrl: "./overview.html",
@@ -49,9 +48,6 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
         private translate: TranslateService,
     ) {
         super(service, route, modalCtrl);
-        Language.setAdditionalTranslationFile(tr, this.translate).then(({ lang, translations, shouldMerge }) => {
-            this.translate.setTranslation(lang, translations, shouldMerge);
-        });
     }
 
     protected setChartConfig(event: ChartTypes.ChartConfig) {
