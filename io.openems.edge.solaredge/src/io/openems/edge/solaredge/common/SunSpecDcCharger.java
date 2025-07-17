@@ -1,9 +1,9 @@
-package io.openems.edge.batteryinverter.sunspec;
+package io.openems.edge.solaredge.common;
 
 import io.openems.edge.common.channel.Doc;
 
-public interface SunSpecEss {
-
+public interface SunSpecDcCharger {
+	
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 
@@ -17,6 +17,6 @@ public interface SunSpecEss {
 		public Doc doc() {
 			return this.doc;
 		}
-	}
+	}	
 
 }

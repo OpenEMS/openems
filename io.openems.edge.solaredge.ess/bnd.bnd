@@ -10,7 +10,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.timedata.api,\
-	io.openems.edge.pvinverter.sunspec;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.battery.api,\
 	io.openems.edge.batteryinverter.api,\

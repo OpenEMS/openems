@@ -36,11 +36,13 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
-import io.openems.edge.pvinverter.sunspec.Phase;
-import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
+
+import io.openems.edge.bridge.modbus.sunspec.pvinverter.AbstractSunSpecPvInverter;
+import io.openems.edge.bridge.modbus.sunspec.pvinverter.SunSpecPvInverter;
+
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -115,7 +117,7 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter
 
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(),
-				config.modbusUnitId(), this.cm, "Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, Phase.ALL)) {
+				config.modbusUnitId(), this.cm, "Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, SingleOrAllPhase.ALL)) {
 			return;
 		}
 

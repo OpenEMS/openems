@@ -47,7 +47,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -428,9 +428,9 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("Victron inverter not ready", Phase.ALL, Pwr.REACTIVE, //
+				new BatteryInverterConstraint("Victron inverter not ready", SingleOrAllPhase.ALL, Pwr.REACTIVE, //
 						Relationship.EQUALS, 0d), //
-				new BatteryInverterConstraint("Victron inverter not ready", Phase.ALL, Pwr.ACTIVE, //
+				new BatteryInverterConstraint("Victron inverter not ready", SingleOrAllPhase.ALL, Pwr.ACTIVE, //
 						Relationship.EQUALS, 0d) //
 		};
 	}

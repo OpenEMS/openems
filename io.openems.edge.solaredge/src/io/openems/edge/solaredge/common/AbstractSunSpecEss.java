@@ -1,4 +1,5 @@
-package io.openems.edge.batteryinverter.sunspec;
+package io.openems.edge.solaredge.common;
+
 
 import java.util.Map;
 import java.util.Optional;
@@ -15,22 +16,24 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.dccharger.api.EssDcCharger;
+import io.openems.edge.ess.api.SymmetricEss;
+//
 
-public abstract class AbstractSunSpecDcCharger extends AbstractOpenemsSunSpecComponent
+public abstract class AbstractSunSpecEss extends AbstractOpenemsSunSpecComponent
 		// TODO Implement HybridEss, ManagedSymmetricEss, AsymmetricEss
-		implements SunSpecDcCharger, EssDcCharger, OpenemsComponent {
+		implements SunSpecEss, SymmetricEss, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecBatteryInverter.class);
+	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecEss.class);
 
-	public AbstractSunSpecDcCharger(Map<SunSpecModel, Priority> activeModels,
+	public AbstractSunSpecEss(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
-		//this._setGridMode(GridMode.ON_GRID);
+		this._setGridMode(GridMode.ON_GRID);
 	}
-	
+
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
 	 *
@@ -54,6 +57,7 @@ public abstract class AbstractSunSpecDcCharger extends AbstractOpenemsSunSpecCom
 	 *         activate() method.
 	 * @throws OpenemsException on error
 	 */
+	@Override
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
 			throws OpenemsException {
@@ -73,34 +77,14 @@ public abstract class AbstractSunSpecDcCharger extends AbstractOpenemsSunSpecCom
 	@Override
 	public String debugLog() {
 		return new StringBuilder() //
-				
-				.append("|Charger ActualPower:").append(this.getActualPower().asString()) //
-				
+				.append("SoC:").append(this.getSoc().asString()) //
+				.append("|ESS ActivePower:").append(this.getActivePower().asString()) //
 				.toString();
 	}
 
 	@Override
 	protected void onSunSpecInitializationCompleted() {
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
-
-		// this.mapFirstPointToChannel(//
-		// SymmetricEss.ChannelId.SOC, //
-		// ElementToChannelConverter.DIRECT_1_TO_1, //
-		// DefaultSunSpecModel.S802.SO_C);
-		//
-		// this.mapFirstPointToChannel(//
-		// SymmetricEss.ChannelId.CAPACITY, //
-		// ElementToChannelConverter.DIRECT_1_TO_1, //
-		// DefaultSunSpecModel.S802.W_H_RTG);
-		//
-		// // TODO this is the battery power; wrong for hybrid system
-		// this.mapFirstPointToChannel(//
-		// SymmetricEss.ChannelId.ACTIVE_POWER, //
-		// ElementToChannelConverter.DIRECT_1_TO_1, //
-		// DefaultSunSpecModel.S802.W);
-
-		// TODO Channels: REACTIVE_POWER, MAX_APPARENT_POWER, ACTIVE_CHARGE_ENERGY,
-		// ACTIVE_DISCHARGE_ENERGY,...
 	}
 
 	@Override

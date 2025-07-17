@@ -81,7 +81,7 @@ public class PredictorWeatherForecastModelImpl extends AbstractPredictor
 		this.config = config;
 
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(),
-				this.config.channelAddresses(), this.config.logVerbosity());
+				this.config.logVerbosity(), this.config.channelAddresses());
 
 		this.timezone = this.componentManager.getClock().getZone();
 		this.encodedTimeZone = URLEncoder.encode(this.timezone.toString(), StandardCharsets.UTF_8);

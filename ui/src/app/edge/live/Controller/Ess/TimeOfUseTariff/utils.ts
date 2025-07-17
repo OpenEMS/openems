@@ -12,6 +12,12 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         labels: Date[]
     };
 
+    export type ScheduleChartDataReduced = {
+        datasets: ChartDataset[],
+        colors: any[],
+        labels: Date[]
+    };
+
     export enum ControlMode {
         CHARGE_CONSUMPTION = "CHARGE_CONSUMPTION",
         DELAY_DISCHARGE = "DELAY_DISCHARGE",
@@ -139,5 +145,54 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         };
 
         return scheduleChartData;
+    }
+
+
+    /**
+     * Gets the schedule chart data containing datasets, colors and labels.
+     *
+     * @param size The length of the dataset
+     * @param prices The Time-of-Use-Tariff quarterly price array
+     * @param timestamps The Time-of-Use-Tariff timestamps array
+     * @param translate The Translate service
+     * @returns The ScheduleChartData.
+     */
+    export function getScheduleChartDataReduced(size: number, prices: number[], timestamps: string[],
+        translate: TranslateService): Controller_Ess_TimeOfUseTariffUtils.ScheduleChartDataReduced {
+
+        const datasets: ChartDataset[] = [];
+        const colors: any[] = [];
+        const labels: Date[] = [];
+
+        // Initializing States.
+        const barPrices = Array(size).fill(null);
+
+
+        for (let index = 0; index < size; index++) {
+            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(prices[index]);
+            labels.push(new Date(timestamps[index]));
+            barPrices[index] = quarterlyPrice;
+        }
+
+        datasets.push({
+            type: "bar",
+            label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.PRICE"),
+            data: barPrices,
+            order: 1,
+        });
+
+        colors.push({
+            backgroundColor: "rgba(255,165,0,0.8)", //
+            borderColor: "rgba(255,140,0,1)", //
+        });
+
+        const scheduleChartDataReduced: Controller_Ess_TimeOfUseTariffUtils.ScheduleChartDataReduced = {
+            colors: colors,
+            datasets: datasets,
+            labels: labels,
+        };
+
+        return scheduleChartDataReduced;
+
     }
 }

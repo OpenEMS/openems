@@ -132,7 +132,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	 * @param arrlist array list of all data.
 	 * @param n       number of data per day.
 	 * @return 2dimension array list
-	 */
+	 
 	private List<List<Integer>> getSlicedArrayList(List<Integer> arrlist, int n) {
 		List<List<Integer>> twoDimensionalArrayList = new ArrayList<>();
 		for (var i = 0; i < arrlist.size(); i = i + n) {
@@ -144,13 +144,26 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 		return twoDimensionalArrayList;
 
 	}
+	*/
+	// 2025 07 17 modified above method. added null-checks	
+	private List<List<Integer>> getSlicedArrayList(List<Integer> arrlist, int n) {
+	    var m = arrlist.size();
+	    List<List<Integer>> twoDimensionalArrayList = new ArrayList<>();
+	    for (var i = 0; i < m; i = i + n) {
+	        int end = Math.min(i + n, m); // 
+	        twoDimensionalArrayList.add(arrlist.subList(i, end));
+	    }
+	    return twoDimensionalArrayList;
+	}	
 
+	
+	
 	/**
 	 * This methods get the average of data based on the indexes.
 	 *
 	 * @param twoDimensionalArrayList The actual data.
 	 * @return Average values of the last four days.
-	 */
+	 
 	private List<Integer> getAveragePrediction(List<List<Integer>> twoDimensionalArrayList) {
 		List<Integer> averageList = new ArrayList<>();
 		var rows = twoDimensionalArrayList.size();
@@ -167,7 +180,36 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 		return averageList;
 
 	}
+	*/
+	// 2025 07 17 modified above method. added null-checks
+	private List<Integer> getAveragePrediction(List<List<Integer>> twoDimensionalArrayList) {
+	    List<Integer> averageList = new ArrayList<>();
+	    // calculate max size
+	    int maxCols = twoDimensionalArrayList.stream()
+	        .mapToInt(List::size)
+	        .max()
+	        .orElse(0);
 
+	    for (int i = 0; i < maxCols; i++) {
+	        int sum = 0;
+	        int count = 0;
+	        for (List<Integer> row : twoDimensionalArrayList) {
+	            if (i < row.size() && row.get(i) != null) {
+	                sum += row.get(i);
+	                count++;
+	            }
+	        }
+	        // avoid division by null
+	        if (count > 0) {
+	            averageList.add(sum / count);
+	        } else {
+	            averageList.add(0); // oder Optional.empty()/null, falls gewünscht
+	        }
+	    }
+	    return averageList;
+	}
+
+	
 	/**
 	 * Data manipulation, to get the proper indexes.
 	 *

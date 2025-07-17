@@ -21,6 +21,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -747,7 +748,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.build();
 	}
 
-	public Object getPhase();
+	public SinglePhase getPhase();
 
 
 

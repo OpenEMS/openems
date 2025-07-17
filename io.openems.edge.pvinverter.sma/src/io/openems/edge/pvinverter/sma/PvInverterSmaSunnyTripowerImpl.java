@@ -47,11 +47,13 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
-import io.openems.edge.pvinverter.sunspec.Phase;
-import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
+
+import io.openems.edge.bridge.modbus.sunspec.pvinverter.AbstractSunSpecPvInverter;
+import io.openems.edge.bridge.modbus.sunspec.pvinverter.SunSpecPvInverter;
+
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -248,7 +250,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 	// Active Power channel is not available (yet)
 	// STP10 does not send valid modbus data if pv production is 0
 	private void checkActivePowerChannel() {
-		if (config.phase() == Phase.ALL) {
+		if (config.phase() == SingleOrAllPhase.ALL) {
 			try {
 				if (this.getActivePower().getOrError() == null) {
 					this.log.error("ActivePower channel is null. Inverter in standby? Set value = 0 ");

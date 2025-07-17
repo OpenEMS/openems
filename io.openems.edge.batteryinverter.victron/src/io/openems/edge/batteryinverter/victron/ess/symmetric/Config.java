@@ -2,8 +2,7 @@ package io.openems.edge.batteryinverter.victron.ess.symmetric;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @ObjectClassDefinition(//
 		name = "Victron Multiplus 2 ESS", //
@@ -26,7 +25,7 @@ public @interface Config {
 	int modbusUnitId() default 227;
 
 	@AttributeDefinition(name = "Connected Phase", description = "to which phase is the ESS connected? ALL for symmetric mode")
-	Phase phase() default Phase.ALL;
+	SingleOrAllPhase phase() default SingleOrAllPhase.ALL;
 
 	@AttributeDefinition(name = "Debug", description = "Enable debug mode?")
 	boolean debugMode() default false;

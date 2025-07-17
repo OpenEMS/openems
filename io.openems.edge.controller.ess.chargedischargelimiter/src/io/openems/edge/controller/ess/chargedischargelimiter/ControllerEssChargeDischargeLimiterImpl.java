@@ -29,7 +29,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.power.api.Pwr;
 
 import io.openems.edge.common.type.TypeUtils;
@@ -522,7 +522,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			case FORCE_CHARGE_ACTIVE, BALANCING_ACTIVE -> {
 				// Fit calculated power within min/max limits and apply
-				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, SingleOrAllPhase.ALL, Pwr.ACTIVE,
 						calculatedPower);
 				ess.setActivePowerLessOrEquals(calculatedPower);
 

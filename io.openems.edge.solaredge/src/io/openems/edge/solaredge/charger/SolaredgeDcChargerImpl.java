@@ -46,7 +46,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.batteryinverter.sunspec.AbstractSunSpecDcCharger;
+import io.openems.edge.solaredge.common.AbstractSunSpecDcCharger;
 import io.openems.edge.solaredge.common.AverageCalculator;
 
 import io.openems.edge.solaredge.enums.ActiveInactive;

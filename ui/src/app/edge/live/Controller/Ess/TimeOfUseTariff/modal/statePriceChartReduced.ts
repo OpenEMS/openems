@@ -9,12 +9,12 @@ import { calculateResolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/utils/utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
-import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
+import { Controller_Ess_TimeOfUseTariffUtils } from "../utils";
 
 @Component({
     selector: "statePriceChartReduced",
@@ -82,17 +82,16 @@ export class ScheduleStateAndPriceChartReducedComponent extends AbstractHistoryC
             }
 
             // Extracting prices, states, timestamps from the schedule array
-            const { priceArray, stateArray, timestampArray } = {
+            const { priceArray, stateArray, timestampArray, gridBuyArray, socArray } = {
                 priceArray: schedule.map(entry => entry.price),
                 stateArray: schedule.map(entry => entry.state),
                 timestampArray: schedule.map(entry => entry.timestamp),
+                gridBuyArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid)),
+                socArray: schedule.map(entry => entry.soc),
             };
 
-            const scheduleChartDataReduced = Controller_Ess_TimeOfUseTariff.getScheduleChartDataReduced(schedule.length, priceArray,
-                timestampArray, this.translate);
-
-            //console.log("Mapped price array", priceArray); // Check if prices are available
-
+            const scheduleChartDataReduced = Controller_Ess_TimeOfUseTariffUtils.getScheduleChartData(schedule.length, priceArray,
+                stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
 
             this.colors = scheduleChartDataReduced.colors;
             this.labels = scheduleChartDataReduced.labels;
@@ -101,7 +100,7 @@ export class ScheduleStateAndPriceChartReducedComponent extends AbstractHistoryC
             this.loading = false;
             this.setLabel();
             this.stopSpinner();
-            //console.log("Processed Data:", this.datasets, this.labels);  // LOG THE PROCESSED DATA            
+            //console.log("Processed Data:", this.datasets, this.labels);  // LOG THE PROCESSED DATA
 
         }).catch((reason) => {
             console.error(reason);
@@ -129,7 +128,7 @@ export class ScheduleStateAndPriceChartReducedComponent extends AbstractHistoryC
             unit: this.unit,
             yAxisId: ChartAxis.LEFT,
             customTitle: this.currencyUnit,
-            scale: { dynamicScale: true }
+            scale: { dynamicScale: true },
         };
 
         // Apply only the left Y-axis

@@ -1,5 +1,9 @@
 package io.openems.edge.controller.chp.cost;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -70,7 +74,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private TimeOfUseTariff timeOfUseTariff;
 
-	@Reference
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private ElectricityMeter gridMeter;
 
 	@Reference
@@ -95,7 +99,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		}
 
 		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.meter_id())) {
 			return;
 		}
 	}
@@ -107,10 +111,10 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS:
-			int i = 0;
+			// nothing to do
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-			i = 0;
+			// nothing to do
 			break;
 
 		}
@@ -125,7 +129,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		Integer gridActivePower = this.gridMeter.getActivePower().get();
 		Integer chpActivePower = this.chp.getGeneratorActivePower().get();
 		// Integer chpActivePower = 0;
-		Integer currentEnergyCost = this.getCurrentCost(gridPowerWithoutChp);
+  		Integer currentEnergyCost = this.getCurrentCost(gridPowerWithoutChp);
 		
 		if (!checkOperationalValues() || currentEnergyCost == null ) {
 			this.logWarn(this.log, "Controller not ready");

@@ -51,20 +51,16 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
-
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
-
 import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssChargeDischargeLimiter;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-//import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.power.api.Power;
-
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
+import io.openems.edge.bridge.modbus.sunspec.pvinverter.SunSpecPvInverter;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.enums.PvMode;
 import io.openems.edge.timedata.api.Timedata;
@@ -73,6 +69,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
 import io.openems.edge.solaredge.charger.SolaredgeDcCharger;
+import io.openems.edge.solaredge.common.AbstractSunSpecEss;
 import io.openems.edge.solaredge.common.AverageCalculator;
 
 

@@ -1,7 +1,7 @@
 package io.openems.edge.solaredge.ess;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.solaredge.ess.enums.ControlMode;
 import io.openems.common.test.AbstractComponentConfig;
 
@@ -14,7 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		private int modbusUnitId;
 		private ControlMode controlMode;
-		private Phase phase;
+		private SingleOrAllPhase phase;
 
 		private Builder() {
 		}
@@ -39,7 +39,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 		
-		public Builder setPhase(Phase phase) {
+		public Builder setPhase(SingleOrAllPhase phase) {
 			this.phase = phase;
 			return this;
 		}
@@ -92,7 +92,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Phase phase() {
+	public SingleOrAllPhase phase() {
 		return this.builder.phase;
 	}
 

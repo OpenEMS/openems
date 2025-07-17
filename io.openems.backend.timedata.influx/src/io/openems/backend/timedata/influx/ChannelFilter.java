@@ -55,7 +55,8 @@ public class ChannelFilter {
 		// Valid Component-ID
 		final var componentId = channelAddress.substring(0, indexOfDelimiter);
 		if (!isValidComponentId(componentId)) {
-			return false;
+			// do noting
+			//return false;
 		}
 
 		// Blacklisted ChannelIds.

@@ -6,7 +6,9 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
 import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
+import { SchedulePowerAndSocChartReducedComponent } from "./modal/powerSocChartReduced";
 import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
+import { ScheduleStateAndPriceChartReducedComponent } from "./modal/statePriceChartReduced";
 
 @NgModule({
     imports: [
@@ -19,7 +21,9 @@ import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
 
         FlatComponent,
         ScheduleStateAndPriceChartComponent,
+        ScheduleStateAndPriceChartReducedComponent,
         SchedulePowerAndSocChartComponent,
+        SchedulePowerAndSocChartReducedComponent,
     ],
     exports: [
         FlatComponent,

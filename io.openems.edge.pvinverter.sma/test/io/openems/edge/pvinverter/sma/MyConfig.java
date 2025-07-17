@@ -2,7 +2,7 @@ package io.openems.edge.pvinverter.sma;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.pvinverter.sunspec.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -13,7 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean debugMode;
 		private String modbusId = null;
 		private int modbusUnitId;
-		private Phase phase;
+		private SingleOrAllPhase phase;
 		private int modbusBaseAddress;
 
 		private Builder() {
@@ -49,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(Phase phase) {
+		public Builder setPhase(SingleOrAllPhase phase) {
 			this.phase = phase;
 			return this;
 		}
@@ -106,7 +106,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Phase phase() {
+	public SingleOrAllPhase phase() {
 		return this.builder.phase;
 	}
 

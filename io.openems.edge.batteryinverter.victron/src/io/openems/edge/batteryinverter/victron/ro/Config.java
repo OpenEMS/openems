@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.common.startstop.StartStopConfig;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.victron.enums.DeviceType;
 
 @ObjectClassDefinition(//
@@ -20,7 +20,7 @@ public @interface Config {
 
 
 	@AttributeDefinition(name = "Phase", description = "true, if three Inverters are configured for master-slave symmetric mode")
-	Phase phase() default Phase.L1;
+	SingleOrAllPhase phase() default SingleOrAllPhase.L1;
 
     @AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
     boolean enabled() default true;

@@ -64,18 +64,19 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Phase;
+
 import io.openems.edge.solaredge.ess.charger.SolarEdgeCharger;
 import io.openems.edge.solaredge.ess.common.AbstractSunSpecEss;
 import io.openems.edge.timedata.api.Timedata;
@@ -212,7 +213,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");	
 
 		this.channel(SolarEdgeEss.ChannelId.WRONG_PHASE_CONFIGURED).setNextValue(
-				this.inverterType == InverterType.SINGLE_PHASE ? this.config.phase() == Phase.ALL : this.config.phase() != Phase.ALL);
+				this.inverterType == InverterType.SINGLE_PHASE ? this.config.phase() == SingleOrAllPhase.ALL : this.config.phase() != SingleOrAllPhase.ALL);
 		
 		this.mapFirstPointToChannel(//
 				SolarEdgeEss.ChannelId.SERIAL_NUMBER, //
@@ -431,7 +432,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
-		if (this.config.phase() == Phase.ALL) {
+		if (this.config.phase() == SingleOrAllPhase.ALL) {
 			return;
 		}
 
@@ -673,11 +674,11 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	}
 	
 	// Sets the correct value for ACTIVE_POWER_L1, ACTIVE_POWER_L2 or ACTIVE_POWER_L3-Channel from ACTIVE_POWER
-	public static void calculateSinglePhaseFromActivePower(SolarEdgeEssImpl solarEdge, Phase phase) {
+	public static void calculateSinglePhaseFromActivePower(SolarEdgeEssImpl solarEdge, SingleOrAllPhase phase) {
 		solarEdge.getActivePowerChannel().onSetNextValue(value -> {
-			solarEdge.getActivePowerL1Channel().setNextValue(phase == Phase.L1||phase == Phase.ALL ? value : null); // Fallback to L1 on wrong configuration
-			solarEdge.getActivePowerL2Channel().setNextValue(phase == Phase.L2 ? value : null);
-			solarEdge.getActivePowerL3Channel().setNextValue(phase == Phase.L3 ? value : null);
+			solarEdge.getActivePowerL1Channel().setNextValue(phase == SingleOrAllPhase.L1||phase == SingleOrAllPhase.ALL ? value : null); // Fallback to L1 on wrong configuration
+			solarEdge.getActivePowerL2Channel().setNextValue(phase == SingleOrAllPhase.L2 ? value : null);
+			solarEdge.getActivePowerL3Channel().setNextValue(phase == SingleOrAllPhase.L3 ? value : null);
 		});
 	}	
 	
