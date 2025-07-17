@@ -10,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int port;
 		private int apiTimeout;
 		private boolean debugMode;
+		private int compressionLevel;
 
 		private Builder() {
 		}
@@ -31,6 +32,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setCompressionLevel(int compressionLevel) {
+			this.compressionLevel = compressionLevel;
 			return this;
 		}
 
@@ -68,6 +74,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean debugMode() {
 		return this.builder.debugMode;
+	}
+
+	@Override
+	public int compressionLevel() {
+		return this.builder.compressionLevel;
 	}
 
 }

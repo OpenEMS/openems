@@ -14,5 +14,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
 	int poolSize() default 10;
 
-	String webconsole_configurationFactory_nameHint() default "Backend2Backend Websocket";
+        @AttributeDefinition(name = "Compression Level", description = "Compression level for permessage-deflate (0-9)")
+        int compressionLevel() default 1;
+
+        String webconsole_configurationFactory_nameHint() default "Backend2Backend Websocket";
 }
