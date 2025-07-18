@@ -81,7 +81,8 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 
 		@Override
 		public int trainingWindowInQuarters() {
-			return daysToQuarters(30);
+			//return daysToQuarters(30);
+			return 2;
 		}
 
 		@Override
