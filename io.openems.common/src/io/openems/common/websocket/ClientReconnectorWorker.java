@@ -1,29 +1,25 @@
 package io.openems.common.websocket;
 
-import java.lang.reflect.Field;
-import java.net.Socket;
+import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.WebSocketImpl;
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft;
 import org.java_websocket.enums.ReadyState;
-import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.common.worker.AbstractWorker;
 
 public class ClientReconnectorWorker extends AbstractWorker {
 
 	public record Config(int connectTimeoutSeconds, int maxWaitSeconds, int minWaitSeconds, int cycleTime) {
-
 	}
 
 	public static final ClientReconnectorWorker.Config DEFAULT_CONFIG = new Config(100, 100, 10,
@@ -67,7 +63,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		if (ws.getReadyState() != ReadyState.NOT_YET_CONNECTED) {
 			// Copy of WebSocketClient#reconnectBlocking.
 			// Do not 'reset' if WebSocket has never been connected before.
-			resetWebSocketClient(ws, this.parent::createWsData, this.config.connectTimeoutSeconds());
+			resetWebSocketClient(ws, this.parent::createWsData);
 		}
 
 		var success = false;
@@ -80,7 +76,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			// Catch "WebSocketClient objects are not reuseable" thrown by
 			// WebSocketClient#connect(). Set WebSocketClient#connectReadThread to `null`.
 			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... " + e.getMessage());
-			resetWebSocketClient(ws, this.parent::createWsData, this.config.connectTimeoutSeconds());
+			resetWebSocketClient(ws, this.parent::createWsData);
 			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... done");
 		}
 
@@ -97,96 +93,23 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	}
 
 	/**
-	 * This method is a copy of {@link WebSocketClient} reset()-method, because the
-	 * original one may block at the call of 'closeBlocking()' method. It also sets
-	 * the new attachment from the attachment supplier.
+	 * This method uses the {@link WebSocketClient} reset()-method through
+	 * reflection, because it is private. It also sets the new attachment from the
+	 * attachment supplier.
 	 * 
-	 * <p>
-	 * Waiting for https://github.com/TooTallNate/Java-WebSocket/pull/1251 to be
-	 * merged.
-	 * 
-	 * @param <T>                   the type of the attachment
-	 * @param ws                    the {@link WebSocketClient}
-	 * @param wsData                {@link Function} to provide a the new attachment
-	 * @param connectTimeoutSeconds the max wait time to close the websocket
-	 * @throws Exception on error
+	 * @param <T>    the type of the attachment
+	 * @param ws     the {@link WebSocketClient}
+	 * @param wsData {@link Function} to provide a the new attachment
+	 * @throws ReflectionException on error
 	 */
-	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Function<WebSocket, T> wsData,
-			int connectTimeoutSeconds) throws Exception {
-		/*
-		 * Get methods and fields via Reflection
-		 */
-		// WebSocketClient#writeThread
-		Field writeThreadField = WebSocketClient.class.getDeclaredField("writeThread");
-		writeThreadField.setAccessible(true);
-		final var writeThread = (Thread) writeThreadField.get(ws);
-		// WebSocketClient#connectReadThread
-		Field connectReadThreadField = WebSocketClient.class.getDeclaredField("connectReadThread");
-		connectReadThreadField.setAccessible(true);
-		final var connectReadThread = (Thread) connectReadThreadField.get(ws);
-		// WebSocketClient#draft
-		Field draftField = WebSocketClient.class.getDeclaredField("draft");
-		draftField.setAccessible(true);
-		final var draft = (Draft) draftField.get(ws);
-		// WebSocketClient#socket
-		Field socketField = WebSocketClient.class.getDeclaredField("socket");
-		socketField.setAccessible(true);
-		final var socket = (Socket) socketField.get(ws);
-		// WebSocketClient#connectLatch
-		Field connectLatchField = WebSocketClient.class.getDeclaredField("connectLatch");
-		connectLatchField.setAccessible(true);
-		// WebSocketClient#closeLatch
-		Field closeLatchField = WebSocketClient.class.getDeclaredField("closeLatch");
-		closeLatchField.setAccessible(true);
-		final var closeLatch = (CountDownLatch) closeLatchField.get(ws);
-		// WebSocketClient#closeLatch
-		Field engineField = WebSocketClient.class.getDeclaredField("engine");
-		engineField.setAccessible(true);
-		final var engine = (WebSocketImpl) engineField.get(ws);
+	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Function<WebSocket, T> wsData)
+			throws ReflectionException {
+		// Call the private WebSocketClient#reset method via Reflection
+		invokeMethodWithoutArgumentsViaReflection(ws, "reset");
 
-		/*
-		 * From here it's a copy of #reset()
-		 */
-		Thread current = Thread.currentThread();
-		if (current == writeThread || current == connectReadThread) {
-			throw new IllegalStateException(
-					"You cannot initialize a reconnect out of the websocket thread. Use reconnect in another thread to ensure a successful cleanup.");
-		}
-		try {
-			// closeBlocking(); -> to reflection
-			ws.close();
-			closeLatch.await(connectTimeoutSeconds, TimeUnit.SECONDS);
-			// closeBlocking() END
-			if (writeThread != null) {
-				writeThread.interrupt();
-				// writeThread = null; -> to reflection
-				writeThreadField.set(ws, null);
-			}
-			if (connectReadThread != null) {
-				connectReadThread.interrupt();
-				// this.connectReadThread = null; -> to reflection
-				connectReadThreadField.set(ws, null);
-			}
-			draft.reset();
-			if (socket != null) {
-				socket.close();
-				// this.socket = null; -> to reflection
-				socketField.set(ws, null);
-			}
-		} catch (Exception e) {
-			ws.onError(e);
-			engine.closeConnection(CloseFrame.ABNORMAL_CLOSE, e.getMessage());
-			return;
-		}
-		// connectLatch = new CountDownLatch(1); -> to reflection
-		connectLatchField.set(ws, new CountDownLatch(1));
-		// closeLatch = new CountDownLatch(1); -> to reflection
-		closeLatchField.set(ws, new CountDownLatch(1));
-		// this.engine = new WebSocketImpl(this, this.draft); -> to reflection
-		final var newEngine = new WebSocketImpl(ws, draft);
+		// Set attachment to newly created engine
 		final var newAttachment = wsData.apply(ws);
-		newEngine.setAttachment(newAttachment);
-		engineField.set(ws, newEngine);
+		ws.setAttachment(newAttachment);
 	}
 
 	@Override
