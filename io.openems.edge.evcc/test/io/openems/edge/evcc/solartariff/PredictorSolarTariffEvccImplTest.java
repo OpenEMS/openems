@@ -124,7 +124,7 @@ public class PredictorSolarTariffEvccImplTest {
 						}))//
 
 				// Case: simulated API processing (60 minutes)
-				.next(new TestCase("Successful API response") //
+				.next(new TestCase("API response, 60min") //
 						.timeleap(clock, 6, ChronoUnit.HOURS) //
 						.onBeforeProcessImage(() -> {
 							assertEquals(Prediction.EMPTY_PREDICTION, api.getPrediction());
@@ -155,7 +155,7 @@ public class PredictorSolarTariffEvccImplTest {
 						})) //
 
 				// Case: simulated API processing (30 minutes)
-				.next(new TestCase("Successful API response") //
+				.next(new TestCase("API response, 30min") //
 						.onBeforeProcessImage(() -> {
 							String jsonResponse = this.generateDynamicJson(clock, 30);
 							Prediction prediction = api.parsePrediction(jsonResponse);
@@ -182,7 +182,7 @@ public class PredictorSolarTariffEvccImplTest {
 						})) //
 
 				// Case: simulated API processing (15 minutes)
-				.next(new TestCase("Successful API response") //
+				.next(new TestCase("API response, 15min") //
 						.onBeforeProcessImage(() -> {
 							String jsonResponse = this.generateDynamicJson(clock, 15);
 							Prediction prediction = api.parsePrediction(jsonResponse);
@@ -209,13 +209,13 @@ public class PredictorSolarTariffEvccImplTest {
 						})) //
 
 				// Case: simulated API processing (old data, caching)
-				.next(new TestCase("Successful API response") //
+				.next(new TestCase("API response, old data") //
 						.timeleap(clock, -6, ChronoUnit.HOURS) //
 						.onBeforeProcessImage(() -> {
 
 							String jsonResponsePast = String.format(
 									"""
-											    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 100 },{ "start": "%s", "end": "%s", "value": 200 }]}}
+											    { "rates": [{ "start": "%s", "end": "%s", "value": 100 },{ "start": "%s", "end": "%s", "value": 200 }]}
 											""",
 									currentHour.minusMinutes(120), currentHour.minusMinutes(60),
 									currentHour.minusMinutes(60), currentHour);
@@ -230,7 +230,7 @@ public class PredictorSolarTariffEvccImplTest {
 
 							String jsonResponseOld = String.format(
 									"""
-											    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 100 },{ "start": "%s", "end": "%s", "value": 200 }]}}
+											    { "rates": [{ "start": "%s", "end": "%s", "value": 100 },{ "start": "%s", "end": "%s", "value": 200 }]}
 											""",
 									currentHour.minusMinutes(60), currentHour, currentHour,
 									currentHour.plusMinutes(60));
@@ -271,25 +271,25 @@ public class PredictorSolarTariffEvccImplTest {
 							assertEquals(200, predictions[3].intValue());
 
 						})) //
-
+				
 				// Case: simulated API processing (invalid data, caching)
-				.next(new TestCase("Successful API response") //
+				.next(new TestCase("API response, invalid data") //
 						.onBeforeProcessImage(() -> {
 							// JSON data
 							final String jsonResponseInvalid = String.format(
 									"""
-											    { "res": { "rates": [{ "start": "%s", "end": "%s", "value": 100 },{ "start": "%s", "end": "%s", "value": 200 }]}}
+											    { "values": [{ "start": "%s", "end": "%s", "value": 100 },{ "start": "%s", "end": "%s", "value": 200 }]}
 											""",
 									currentHour, currentHour.plusHours(1), currentHour.plusHours(1),
 									currentHour.plusHours(2));
 
 							final String jsonResponseInvalidData = String.format(
 									"""
-											    { "result": { "rates": [{ "start": "%s", "end": "%s", "val": 100 },{ "start": "%s", "end": "%s", "val": 200 }]}}
+											    { "rates": [{ "start": "%s", "end": "%s", "val": 100 },{ "start": "%s", "end": "%s", "val": 200 }]}
 											""",
 									currentHour, currentHour.plusHours(1), currentHour.plusHours(1),
 									currentHour.plusHours(2));
-
+							
 							// should have been initialized before
 							assertNotEquals(Prediction.EMPTY_PREDICTION, api.getPrediction());
 
@@ -300,6 +300,35 @@ public class PredictorSolarTariffEvccImplTest {
 							prediction = api.parsePrediction(jsonResponseInvalidData);
 							assertEquals(Prediction.EMPTY_PREDICTION, prediction);
 							assertNotEquals(Prediction.EMPTY_PREDICTION, api.getPrediction());
+							
+						})) //
+
+				.deactivate();
+
+		// API response - testing current and older API responses
+		new ComponentTest(sut)
+				// Case: response handling (manual)
+				.next(new TestCase("current API response, manual") //
+						.onBeforeProcessImage(() -> {
+							// simulate response
+							String jsonResponse = this.generateDynamicJson(clock, 60);
+							api.handleResponse(HttpResponse.ok(jsonResponse));
+							assertNotEquals(Prediction.EMPTY_PREDICTION, api.getPrediction());
+						}))//
+
+				// Case: simulated API processing (old API)
+				.next(new TestCase("old API response, manual") //
+						.onBeforeProcessImage(() -> {
+							// JSON data
+							final String jsonResponseFallbackApi = String.format(
+									"""
+											    { "result": { "rates": [{ "start": "%s", "end": "%s", "value": 100 },{ "start": "%s", "end": "%s", "value": 200 }]}}
+											""",
+									currentHour, currentHour.plusHours(1), currentHour.plusHours(1),
+									currentHour.plusHours(2));
+
+							Prediction prediction = api.parsePrediction(jsonResponseFallbackApi);
+							assertNotEquals(Prediction.EMPTY_PREDICTION, prediction);
 
 						})) //
 
@@ -311,7 +340,7 @@ public class PredictorSolarTariffEvccImplTest {
 		ZonedDateTime endTime = now.plusHours(2);
 
 		StringBuilder jsonBuilder = new StringBuilder();
-		jsonBuilder.append("{ \"result\": { \"rates\": [");
+		jsonBuilder.append("{ \"rates\": [");
 
 		for (ZonedDateTime time = now; time.isBefore(endTime); time = time.plusMinutes(minutes)) {
 			jsonBuilder.append(String.format("""
@@ -321,7 +350,7 @@ public class PredictorSolarTariffEvccImplTest {
 		}
 
 		jsonBuilder.setLength(jsonBuilder.length() - 2);
-		jsonBuilder.append("]}}");
+		jsonBuilder.append("]}");
 
 		return jsonBuilder.toString();
 	}

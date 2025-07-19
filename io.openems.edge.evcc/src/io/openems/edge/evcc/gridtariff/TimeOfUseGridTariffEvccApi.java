@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.gson.JsonObject;
 
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.utils.JsonUtils;
@@ -165,7 +166,12 @@ public class TimeOfUseGridTariffEvccApi {
 	public TimeOfUsePrices parsePrices(String jsonData) {
 		try {
 			var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
-			var resultObject = JsonUtils.parseToJsonObject(jsonData).getAsJsonObject("result");
+			
+			JsonObject jsonObject = JsonUtils.parseToJsonObject(jsonData);
+	        JsonObject resultObject = jsonObject.has("result") 
+	                ? jsonObject.getAsJsonObject("result") // Fallback, older API 
+	                : jsonObject;
+
 			var dataArray = JsonUtils.getAsJsonArray(resultObject, "rates");
 			long duration = -1;
 

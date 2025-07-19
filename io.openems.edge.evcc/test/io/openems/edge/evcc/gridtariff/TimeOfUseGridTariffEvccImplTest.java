@@ -151,9 +151,21 @@ public class TimeOfUseGridTariffEvccImplTest {
 							prices = api.getPrices();
 							assertEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
 						})) //
+				
+				// check current API
+				.next(new TestCase("check current API") //
+						.onBeforeProcessImage(() -> {
+							var api = new TimeOfUseGridTariffEvccApi(clock);
+							String jsonResponse10 = String.format("""
+									    { "rates": [{ "start": "%s", "end": "%s", "value": 0.2567 }]}
+									""", now, now.plusMinutes(10));
+
+							TimeOfUsePrices prices = api.parsePrices(jsonResponse10);
+							assertEquals(TimeOfUsePrices.EMPTY_PRICES, prices);
+						})) //
 
 				// invalid parsing #1
-				.next(new TestCase("invalid API response") //
+				.next(new TestCase("invalid API response, #1") //
 						.onBeforeProcessImage(() -> {
 							var api = new TimeOfUseGridTariffEvccApi(clock);
 							String jsonResponseFail = String.format("""
@@ -165,7 +177,7 @@ public class TimeOfUseGridTariffEvccImplTest {
 						})) //
 
 				// invalid parsing #2
-				.next(new TestCase("invalid API response") //
+				.next(new TestCase("invalid API response, #2") //
 						.onBeforeProcessImage(() -> {
 							var api = new TimeOfUseGridTariffEvccApi(clock);
 							String jsonResponseFail = String.format("""
@@ -177,7 +189,7 @@ public class TimeOfUseGridTariffEvccImplTest {
 						})) //
 
 				// invalid parsing #3
-				.next(new TestCase("invalid API response") //
+				.next(new TestCase("invalid API response, #3") //
 						.onBeforeProcessImage(() -> {
 							var api = new TimeOfUseGridTariffEvccApi(clock);
 							String jsonResponseFail = String.format("""

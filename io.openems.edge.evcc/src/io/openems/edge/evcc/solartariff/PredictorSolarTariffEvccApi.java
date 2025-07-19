@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -137,8 +138,12 @@ public class PredictorSolarTariffEvccApi {
 		try {
 
 			var result = ImmutableSortedMap.<ZonedDateTime, Integer>naturalOrder();
-			var jsonObject = JsonUtils.parseToJsonObject(jsonData);
-			var resultObject = JsonUtils.getAsJsonObject(jsonObject, "result");
+			
+			JsonObject jsonObject = JsonUtils.parseToJsonObject(jsonData);
+	        JsonObject resultObject = jsonObject.has("result") 
+	                ? jsonObject.getAsJsonObject("result") // Fallback, older API 
+	                : jsonObject;
+	        
 			var dataArray = JsonUtils.getAsJsonArray(resultObject, "rates");
 
 			log.debug("Parsing JSON response: {}", jsonObject);
