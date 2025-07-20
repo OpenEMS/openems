@@ -19,6 +19,7 @@ public class EssSmaSunnyIslandImplTest {
 						.setId("ess0") //
 						.setModbusId("modbus0") //
 						.setPhase(L1) //
+						.setCapacity(10_000) //
 						.build()) //
 		;
 	}
