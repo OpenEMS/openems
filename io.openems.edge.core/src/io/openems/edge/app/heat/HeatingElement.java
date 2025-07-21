@@ -187,12 +187,13 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 		HOW_MEASURED(AppDef.copyOfGeneric(CommonProps.defaultDef(), de -> de //
 				.setTranslatedLabelWithAppPrefix(".howMeasured") //
 				.setDefaultValue(HeatingElementMeterIntegration.EXTERN) //
-				.appendIsAllowedToSee((app, property, l, parameter, user) -> {
-					return PropsUtil.isHomeInstalled(app.appManagerUtil)
-							&& app.appManagerUtil.getInstantiatedAppsOf("App.FENECON.Home").isEmpty();
-				}) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class), l);
+					if (PropsUtil.isHomeInstalled(app.appManagerUtil)
+							&& app.appManagerUtil.getInstantiatedAppsOf("App.FENECON.Home").isEmpty()) {
+						field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class), l);
+					} else {
+						field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class, HeatingElementMeterIntegration.INTERN), l);
+					}
 					field.onlyShowIf(Exp.currentModelValue(IS_ELEMENT_MEASURED).notNull());
 				}))), //
 		METER_ID(AppDef.copyOfGeneric(defaultDef(), def -> def //
