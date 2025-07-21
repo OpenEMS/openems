@@ -316,7 +316,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
 							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 							DependencyDeclaration.AppDependencyConfig.create() //
-									.setAppId("App.Meter.Microcare.Sdm630") //
+									.setAppId("App.Meter.Eastron") //
 									.setAlias(translate(getTranslationBundle(l),
 											"App.Heat.HeatingElement.internalMeterAlias")) //
 									.setInitialProperties(buildJsonObject(meterProperties.deepCopy()) //
