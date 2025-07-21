@@ -109,7 +109,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
 		}
 
-		this._setCapacity(config.capacity());
+		this._setCapacity(Math.max(0, config.capacity()));
 		this._setGridMode(GridMode.ON_GRID);
 	}
 
