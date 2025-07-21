@@ -1,4 +1,7 @@
-<ion-content>
+<oe-navigation-view *ngIf="edge">
+  <ion-buttons header #header class="ion-justify-content-center" *ngIf="navigationService.position() !== null">
+    <pickdate></pickdate>
+  </ion-buttons>
   <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
@@ -117,4 +120,4 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-</ion-content>
+</oe-navigation-view>

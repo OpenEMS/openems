@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { registerLocaleData } from "@angular/common";
-import { effect, Injectable, Injector, runInInjectionContext, signal, untracked, WritableSignal } from "@angular/core";
+import { effect, inject, Injectable, Injector, runInInjectionContext, signal, untracked, WritableSignal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
@@ -26,6 +26,7 @@ import { Language } from "../type/language";
 import { Role } from "../type/role";
 import { DateUtils } from "../utils/date/dateutils";
 import { AbstractService } from "./abstractservice";
+import { RouteService } from "./route.service";
 import { Websocket } from "./websocket";
 
 @Injectable()
@@ -87,7 +88,7 @@ export class Service extends AbstractService {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
-  private injector;
+  private injector = inject(Injector);
 
   constructor(
     private router: Router,
@@ -95,10 +96,10 @@ export class Service extends AbstractService {
     private toaster: ToastController,
     public translate: TranslateService,
     private _injector: Injector,
+    private routeService: RouteService,
   ) {
 
     super();
-    this.injector = _injector;
     // add language
     translate.addLangs(Language.ALL.map(l => l.key));
     // this language will be used as a fallback when a translation isn't found in the current language
@@ -206,6 +207,7 @@ export class Service extends AbstractService {
 
   public onLogout() {
     this.currentEdge.set(null);
+
     this.metadata.next(null);
     this.websocket.state.set(States.NOT_AUTHENTICATED);
     this.router.navigate(["/login"]);

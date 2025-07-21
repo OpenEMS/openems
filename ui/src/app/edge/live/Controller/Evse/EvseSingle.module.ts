@@ -1,20 +1,22 @@
+import { NgOptimizedImage } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import tr from "src/app/edge/live/Controller/Evse/shared/translation.json";
 import { ModalModule } from "src/app/shared/components/modal/modal.module";
+import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { SharedModule } from "src/app/shared/shared.module";
 import { Language } from "src/app/shared/type/language";
 import { FlatComponent } from "./flat/flat";
-import { SchedulePowerChartComponent } from "./modal/forecast/chart/power.chart";
-import { ScheduleChartComponent } from "./modal/forecast/chart/schedule.chart";
-import { ModalComponent as EvseForecastPageComponent } from "./modal/forecast/forecast";
-import { ChartComponent } from "./modal/history/chart/power.chart";
-import { ChartComponent as StatusChartComponent } from "./modal/history/chart/status.chart";
-import { ModalComponent as EvseHistoryPageComponent } from "./modal/history/history";
-import { ModalComponent } from "./modal/modal";
-import { ModalComponent as EvseSettingsPageComponent } from "./modal/settings/settings";
+import { SchedulePowerChartComponent } from "./pages/forecast/chart/power.chart";
+import { ScheduleChartComponent } from "./pages/forecast/chart/schedule.chart";
+import { ModalComponent as EvseForecastPageComponent } from "./pages/forecast/forecast";
+import { ChartComponent } from "./pages/history/chart/power.chart";
+import { ChartComponent as StatusChartComponent } from "./pages/history/chart/status.chart";
+import { ModalComponent as EvseHistoryPageComponent } from "./pages/history/history";
+import { ModalComponent } from "./pages/home";
+import { EvseSettingsComponent } from "./pages/settings/settings";
 
 
 @NgModule({
@@ -23,13 +25,15 @@ import { ModalComponent as EvseSettingsPageComponent } from "./modal/settings/se
     SharedModule,
     PipeComponentsModule,
     ModalModule,
+    NgOptimizedImage,
+    OeImageComponent,
   ],
   declarations: [
     FlatComponent,
     ModalComponent,
     EvseHistoryPageComponent,
     EvseForecastPageComponent,
-    EvseSettingsPageComponent,
+    EvseSettingsComponent,
     ScheduleChartComponent,
     SchedulePowerChartComponent,
     ChartComponent,

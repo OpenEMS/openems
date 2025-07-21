@@ -1,12 +1,13 @@
 // @ts-strict-ignore
 import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { NavigationEnd, Router } from "@angular/router";
-import { MenuController, ModalController } from "@ionic/angular";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
+import { UserService } from "../../service/user.service";
 import { Edge, Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -30,6 +31,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     protected isHeaderAllowed: boolean = false;
     protected showBackButton: boolean = false;
 
+
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
 
@@ -42,9 +44,11 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public websocket: Websocket,
         protected navigationService: NavigationService,
         public routeService: RouteService,
+        private userService: UserService,
+        protected navCtrl: NavController,
+        private route: ActivatedRoute
 
     ) {
-
         effect(() => {
             const currentNode = navigationService.currentNode();
 
@@ -65,6 +69,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         this._customBackUrl = url;
         this.updateBackUrl(url);
     }
+
 
     ngOnInit() {
         // set inital URL
@@ -197,14 +202,13 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
+            this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
 
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
-            // this.router.navigate(["../history"], { relativeTo: this.route });
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
+            this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
     }
