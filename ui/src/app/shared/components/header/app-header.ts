@@ -47,7 +47,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         effect(() => {
             const currentNode = navigationService.currentNode();
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
             const _currentUrl = routeService.currentUrl();
 
             if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
