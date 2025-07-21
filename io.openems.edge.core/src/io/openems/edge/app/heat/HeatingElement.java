@@ -344,6 +344,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				}
 			}
 
+			final var tmpMeterId = meterId;
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement", buildJsonObject() //
 							.addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
@@ -351,7 +352,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
 							.addProperty("powerPerPhase", powerPerPhase) //
 							.addProperty("minimumSwitchingTime", hysteresis) //
-							.addProperty("meter.id", meterId) //
+							.onlyIf(t != ConfigurationTarget.VALIDATE, b -> b.addProperty("meter.id", tmpMeterId)) //
 							.build()) //
 			);
 
