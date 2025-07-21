@@ -36,6 +36,14 @@ import { FieldType } from "@ngx-formly/core";
               color: var(--ion-text-color) !important;
             }
         }
+        ion-select::part(label) {
+          max-width: 100% !important;
+          white-space: normal !important;
+        }
+
+        ion-select::part(text) {
+          flex: 1;
+        }
       `],
 })
 export class FormlySelectComponent extends FieldType { }
