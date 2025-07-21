@@ -1,6 +1,7 @@
-package io.openems.edge.controller.chp.cost;
+package io.openems.edge.controller.chp.costoptimization;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.controller.chp.costoptimization.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.chp.cost;
+package io.openems.edge.controller.chp.costoptimization;
 
 import static io.openems.common.channel.PersistencePriority.HIGH;
 

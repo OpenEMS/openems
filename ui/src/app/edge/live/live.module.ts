@@ -14,6 +14,8 @@ import { Common_Selfconsumption } from "./common/selfconsumption/Common_Selfcons
 import { StorageModalComponent } from "./common/storage/modal/modal.component";
 import { StorageComponent } from "./common/storage/storage.component";
 import { Controller_ChannelthresholdComponent } from "./Controller/Channelthreshold/Channelthreshold";
+import { Controller_ChpCostOptimizationComponent } from "./Controller/ChpCostOptimization/ChpCostOptimization";
+import { Controller_ChpCostOptimizationModalComponent } from "./Controller/ChpCostOptimization/modal/modal.component";
 import { Controller_ChpSocComponent } from "./Controller/ChpSoc/ChpSoc";
 import { Controller_ChpSocModalComponent } from "./Controller/ChpSoc/modal/modal.component";
 import { Controller_Ess_FixActivePower } from "./Controller/Ess/FixActivePower/Ess_FixActivePower";
@@ -81,6 +83,8 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Controller_Asymmetric_PeakShavingComponent,
     Controller_Asymmetric_PeakShavingModalComponent,
     Controller_ChannelthresholdComponent,
+    Controller_ChpCostOptimizationComponent,
+    Controller_ChpCostOptimizationModalComponent,
     Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
     Controller_Io_ChannelSingleThresholdComponent,

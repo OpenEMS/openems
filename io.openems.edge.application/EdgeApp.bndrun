@@ -215,7 +215,7 @@
 	bnd.identity;id='io.openems.edge.thermometer.esera.onewire',\
 	bnd.identity;id='io.openems.edge.solaredge.ess',\
 	bnd.identity;id='io.openems.edge.batteryinverter.deye',\
-	bnd.identity;id='io.openems.edge.controller.chp.cost',\
+	bnd.identity;id='io.openems.edge.controller.chp.costoptimization',\
 	bnd.identity;id='io.openems.edge.chp.ecpower',\
 	bnd.identity;id='io.openems.edge.generator.api',\
 	bnd.identity;id='io.openems.edge.predictor.api'
@@ -490,7 +490,7 @@
 	com.google.guava;version='[33.4.8,33.4.9)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
 	com.sun.jna;version='[5.17.0,5.17.1)',\
-	io.openems.edge.controller.chp.cost;version=snapshot,\
+	io.openems.edge.controller.chp.costoptimization;version=latest,\
 	io.openems.edge.chp.ecpower;version=snapshot,\
 	io.openems.edge.generator.api;version=snapshot,\
 	io.openems.edge.weather.api;version=snapshot,\

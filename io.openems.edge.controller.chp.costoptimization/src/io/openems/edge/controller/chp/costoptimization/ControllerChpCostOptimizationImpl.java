@@ -1,4 +1,4 @@
-package io.openems.edge.controller.chp.cost;
+package io.openems.edge.controller.chp.costoptimization;
 
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -41,7 +41,7 @@ import io.openems.edge.generator.api.ManagedSymmetricGenerator;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.CHP.Cost.Optimization", //
+		name = "Controller.CHP.CostOptimization", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

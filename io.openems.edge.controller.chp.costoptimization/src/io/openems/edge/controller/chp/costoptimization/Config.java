@@ -1,11 +1,11 @@
-package io.openems.edge.controller.chp.cost;
+package io.openems.edge.controller.chp.costoptimization;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller CHP cost optimization", //
-		description = "")
+		name = "Controller CHP cost optimization ", //
+		description = "This is a Controller for CHP (Combined Heat and Power Unit, German: BHKW - Blockheizkraftwerk). The Controller is used to signal CHP turn ON if total consumption costs exeed a configured value")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
