@@ -28,6 +28,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.core.AppMeta.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -62,23 +63,23 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				.setTranslatedLabelWithAppPrefix(".currency.label")
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Stream.of(CurrencyConfig.values()).map(Enum::name).toList());
-				}) //
+				})//
 				.bidirectional("_meta", "currency", ComponentManagerSupplier::getComponentManager))), //
 		IS_ESS_CHARGE_FROM_GRID_ALLOWED(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridCharge.label") //
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
 					var bundle = parameter.bundle();
 					field.setPopupInput(property, DisplayType.BOOLEAN);
-					field.setFieldGroup(JsonUtils.buildJsonArray() //
-							.add(JsonFormlyUtil.buildText() //
+					field.setFieldGroup(JsonUtils.buildJsonArray()//
+							.add(JsonFormlyUtil.buildText()//
 									.setText(TranslationUtil.getTranslation(bundle,
 											"App.Core.Meta.gridCharge.description"))
 									.build())
-							.add(JsonFormlyUtil.buildCheckboxFromNameable(property) //
-									.setLabel(TranslationUtil.getTranslation(bundle, "App.Core.Meta.gridCharge.label")) //
+							.add(JsonFormlyUtil.buildCheckboxFromNameable(property)//
+									.setLabel(TranslationUtil.getTranslation(bundle, "App.Core.Meta.gridCharge.label"))//
 									.build())
 							.build());
-				}) //
+				})//
 				.bidirectional("_meta", "isEssChargeFromGridAllowed", ComponentManagerSupplier::getComponentManager))), //
 		GRID_CONNECTION_POINT_FUSE_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridConnectionPointFuseLimit.label")
@@ -86,16 +87,34 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setInputType(InputType.NUMBER);
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.AMPERE, l);
-				}) //
+				})//
 				.bidirectional("_meta", "gridConnectionPointFuseLimit",
 						ComponentManagerSupplier::getComponentManager))), //
+		SUBDIVISION_CODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".subdivisionCode.label")
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(Stream.of(SubdivisionCode.values()).map(Enum::name).toList());
+				})//
+				.bidirectional("_meta", "subdivisionCode", ComponentManagerSupplier::getComponentManager))), //
+		PLACE_NAME(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".placeName.label")
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.TEXT);
+				})//
+				.bidirectional("_meta", "placeName", ComponentManagerSupplier::getComponentManager))), //
+		POSTCODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".postcode.label")
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.TEXT);
+				})//
+				.bidirectional("_meta", "postcode", ComponentManagerSupplier::getComponentManager))), //
 		LATITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".latitude.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.NUMBER);
 					field.setStep(0.0000001);
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
-				}) //
+				})//
 				.bidirectional("_meta", "latitude", ComponentManagerSupplier::getComponentManager))), //
 		LONGITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".longitude.label")
@@ -103,8 +122,14 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setInputType(InputType.NUMBER);
 					field.setStep(0.0000001);
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
-				}) //
+				})//
 				.bidirectional("_meta", "longitude", ComponentManagerSupplier::getComponentManager))), //
+		TIMEZONE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".timezone.label")
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(InputType.TEXT);
+				})//
+				.bidirectional("_meta", "timezone", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -146,18 +171,26 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 			final var currency = this.getEnum(p, CurrencyConfig.class, Property.CURRENCY);
 			final var isEssChargeFromGridAllowed = this.getBoolean(p, Property.IS_ESS_CHARGE_FROM_GRID_ALLOWED);
 			final var gridConnectionPointFuseLimit = this.getInt(p, Property.GRID_CONNECTION_POINT_FUSE_LIMIT);
+			final var subdivisionCode = this.getEnum(p, SubdivisionCode.class, Property.SUBDIVISION_CODE);
+			final var placeName = this.getString(p, Property.PLACE_NAME);
+			final var postcode = this.getString(p, Property.POSTCODE);
 			final var latitude = this.getDouble(p, Property.LATITUDE);
 			final var longitude = this.getDouble(p, Property.LONGITUDE);
+			final var timezone = this.getString(p, Property.TIMEZONE);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
 			components.add(new EdgeConfig.Component("_meta", "", "Core.Meta", //
-					JsonUtils.buildJsonObject() //
-							.addProperty("currency", currency) //
-							.addProperty("isEssChargeFromGridAllowed", isEssChargeFromGridAllowed) //
-							.addProperty("gridConnectionPointFuseLimit", gridConnectionPointFuseLimit) //
-							.addProperty("latitude", latitude) //
-							.addProperty("longitude", longitude) //
+					JsonUtils.buildJsonObject()//
+							.addProperty("currency", currency)//
+							.addProperty("isEssChargeFromGridAllowed", isEssChargeFromGridAllowed)//
+							.addProperty("gridConnectionPointFuseLimit", gridConnectionPointFuseLimit)//
+							.addProperty("subdivisionCode", subdivisionCode)//
+							.addProperty("placeName", placeName)//
+							.addProperty("postcode", postcode)//
+							.addProperty("latitude", latitude)//
+							.addProperty("longitude", longitude)//
+							.addProperty("timezone", timezone)//
 							.build()));
 
 			return AppConfiguration.create() //

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { NavigationPageComponent } from "src/app/shared/components/navigation/view/view";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket, Widgets } from "src/app/shared/shared";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
@@ -22,6 +23,7 @@ export class LiveComponent implements OnDestroy {
   protected isModbusTcpWidgetAllowed: boolean = false;
   protected showRefreshDragDown: boolean = false;
   protected showNewFooter: boolean = false;
+  protected paddingBottom: number | null = null;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private interval: ReturnType<typeof setInterval> | undefined;
@@ -38,6 +40,8 @@ export class LiveComponent implements OnDestroy {
 
     effect(() => {
       const edge = this.service.currentEdge();
+      const position = this.navigationService.position();
+      this.paddingBottom = LiveComponent.calculatePaddingBottom(position);
       this.edge = edge;
       this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
 
@@ -47,6 +51,10 @@ export class LiveComponent implements OnDestroy {
       });
       this.checkIfRefreshNeeded();
     });
+  }
+
+  private static calculatePaddingBottom(position: string | null) {
+    return 100 - NavigationPageComponent.calculateHeight(position);
   }
 
   public ionViewWillEnter() {

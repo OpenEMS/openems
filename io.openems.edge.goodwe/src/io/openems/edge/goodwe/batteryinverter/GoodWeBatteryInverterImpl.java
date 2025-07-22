@@ -277,20 +277,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		case UNDEFINED -> doNothing();
 		case QU_ENABLE_CURVE -> {
 			quEnableDisable = EnableCurve.ENABLE;
-			// values according to vde-ar-n-4105
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_IN_POWER_QU), 200);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_OUT_POWER_QU), 50);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VOLTAGE), 214); // ratio U/Un: 0.93
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VALUE), 1000); // (var % rated VA)
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VOLTAGE), 223); // ratio U/Un: 0.97
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VALUE), 0); // (var % rated VA)
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VOLTAGE), 237);// ratio U/Un: 1,03
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VALUE), 0); // (var % rated VA)
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VOLTAGE), 247); // ratio U/Un: 1,07
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -1000);
+
+			/*
+			 * Detailed Q(U) settings like V1_VOLTAGE & V1_VALUE are updated automatically
+			 * by GoodWe while setting the country code.
+			 */
 		}
 		case PU_ENABLE_CURVE -> {
-			// Not part of the 4105 for GERMANY
+			// Not part of the VDE-AR-N 4105 (GERMANY)
 			puEnableDisable = EnableCurve.ENABLE;
 		}
 		case LAGGING_0_80, LAGGING_0_81, LAGGING_0_82, LAGGING_0_83, LAGGING_0_84, LAGGING_0_85, LAGGING_0_86,

@@ -11,9 +11,34 @@ import io.openems.common.exceptions.OpenemsException;
  */
 public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 
-	private String openMeteoApiKey = null;
+	private String openCageApiKey;
+	private String openMeteoApiKey;
 
 	public DummyOpenemsEdgeOem() {
+	}
+
+	/**
+	 * Sets the Open-Meteo API key to be used by this {@link DummyOpenemsEdgeOem}
+	 * instance.
+	 *
+	 * @param apiKey the Open-Meteo API key
+	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
+	 */
+	public DummyOpenemsEdgeOem withOpenMeteoApiKey(String apiKey) {
+		this.openMeteoApiKey = apiKey;
+		return this;
+	}
+
+	/**
+	 * Sets the OpenCage API key to be used by this {@link DummyOpenemsEdgeOem}
+	 * instance.
+	 *
+	 * @param apiKey the OpenCage API key
+	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
+	 */
+	public DummyOpenemsEdgeOem withOpenCageApiKey(String apiKey) {
+		this.openCageApiKey = apiKey;
+		return this;
 	}
 
 	@Override
@@ -170,19 +195,12 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 	}
 
 	@Override
-	public String getOpenMeteoApiKey() {
-		return this.openMeteoApiKey;
+	public String getOpenCageApiKey() {
+		return this.openCageApiKey;
 	}
 
-	/**
-	 * Sets the Open-Meteo API key to be used by this {@link DummyOpenemsEdgeOem}
-	 * instance.
-	 *
-	 * @param apiKey the Open-Meteo API key
-	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
-	 */
-	public DummyOpenemsEdgeOem withOpenMeteoApiKey(String apiKey) {
-		this.openMeteoApiKey = apiKey;
-		return this;
+	@Override
+	public String getOpenMeteoApiKey() {
+		return this.openMeteoApiKey;
 	}
 }

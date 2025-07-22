@@ -1,4 +1,5 @@
 @use "variables";
+// @use "./global.scss";
 
 /** Grid **/
 /** Padding **/
@@ -9,6 +10,10 @@
 
 .ion-no-padding-bottom {
     padding-bottom: 0;
+}
+
+.ion-padding-bottom-double {
+    padding-bottom: 20px;
 }
 
 .ion-no-padding-top {

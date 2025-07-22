@@ -123,7 +123,8 @@ export default [{
       "error",
       {
         "args": "none",
-        "ignoreRestSiblings": true
+        "ignoreRestSiblings": true,
+        "varsIgnorePattern": "^_"
       }
     ],
     "@typescript-eslint/no-explicit-any": 0,

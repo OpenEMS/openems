@@ -192,7 +192,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		if (this.config.mode() == Mode.AUTOMATIC) {
 			this.updateEndTime();
 		}
-		if (this.config.meter_id().isEmpty()) {
+		if (this.config.meter_id() == null || this.config.meter_id().isEmpty()) {
 			OpenemsComponent.updateReferenceFilterRaw(this.cm, this.servicePid(), "meter", "(false=true)");
 		} else {
 			OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id());

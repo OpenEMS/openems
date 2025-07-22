@@ -7,6 +7,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { routes } from "src/app/app-routing.module";
+import { RouteService } from "src/app/shared/service/route.service";
 import { Service } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
@@ -21,6 +22,7 @@ export const BASE_TEST_BED: TestModuleMetadata = {
         { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
         { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
         Service,
+        RouteService,
     ],
 };
 

@@ -648,7 +648,10 @@
       "DAYS": "Tage"
     },
     "CHARGE": "Beladung",
-    "DISCHARGE": "Entladung"
+    "DISCHARGE": "Entladung",
+    "INSTALL": "Installieren",
+    "FROM": "Von",
+    "TO": "Bis"
   },
   "OFFLINE": {
     "EDGE": {
@@ -1141,6 +1144,24 @@
   "GENERAL": {
     "FORMLY": {
       "REQUIRED": "Ist erforderlich"
+    }
+  },
+  "FORMLY_FORM": {
+    "TARIFF_TABLE": {
+      "TARIFFS": {
+        "LOW": "Niedriglasttarifstufe",
+        "STANDARD": "Standardtarifstufe",
+        "HIGH": "Hochlasttarifstufe"
+      },
+      "GROSS_PREIS_TITLE": "Brutto-Preis für das Jahr {{ year }}*",
+      "ADD_TIME_SLOT": "Zeitfenster hinzufügen",
+      "PRICE_ITEMS": "Preisartikel",
+      "ADD_YEAR": "{{ year }} Jahr hinzufügen",
+      "REMOVE_YEAR": "{{ year }} Jahr entfernen",
+      "TITLE": "{{ year }} Netzentgelte",
+      "ERROR_MESSAGES": {
+        "INVALID_TIME_INPUT": "Die „Bis“-Zeit kann nicht größer oder gleich der „Von“-Zeit sein."
+      }
     }
   }
 }

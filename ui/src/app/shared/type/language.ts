@@ -115,6 +115,9 @@ export class Language {
      *
      * e.g. AdvertismentModule
      *
+     *  IMPORTANT: Translation keys will overwrite each other.
+     *  Make sure to use a unique top level key.
+     *
      * @param translationFile the translation file
      * @returns translations params
      */

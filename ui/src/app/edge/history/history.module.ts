@@ -34,6 +34,7 @@ import { HistoryParentComponent } from "./historyparent.component";
     StorageFlatComponent,
     SymmetricPeakshavingFlatComponent,
     AsymmetricPeakshavingFlatComponent,
+    StorageFlatComponent,
     HistoryComponent,
     HistoryParentComponent,
   ],

@@ -8,7 +8,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "controller-evse-history-status-chart",
+    selector: "oe-controller-evse-history-status-chart",
     templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
@@ -97,6 +97,7 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     protected override beforeSetChartLabel(): void {
+        // Use only bar chart
         this.chartType = "bar";
     }
 

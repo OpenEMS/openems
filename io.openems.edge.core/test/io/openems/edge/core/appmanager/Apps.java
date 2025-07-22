@@ -14,6 +14,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
 import io.openems.edge.app.api.AppCleverPv;
@@ -66,9 +67,9 @@ import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.meter.CarloGavazziMeter;
 import io.openems.edge.app.meter.DiscovergyMeter;
+import io.openems.edge.app.meter.EastronMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.KdkMeter;
-import io.openems.edge.app.meter.EastronMeter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -375,6 +376,16 @@ public final class Apps {
 	 */
 	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
 		return app(t, TestPermissions::new, "App.Test.TestPermissions");
+	}
+
+	/**
+	 * Test method for creating a {@link TestMapPropName}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestMapPropName testMapPropName(AppManagerTestBundle t) {
+		return app(t, TestMapPropName::new, "App.Test.TestMapPropName");
 	}
 
 	// Test
