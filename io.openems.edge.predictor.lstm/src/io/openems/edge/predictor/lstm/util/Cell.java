@@ -87,11 +87,13 @@ public class Cell {
 			this.yT = this.ytMinusOne * (1 - dropOutProb) + this.oT * MathUtils.tanh(this.cT) * dropOutProb;
 			this.error = Math.abs(this.yT - this.outputDataLoc) / Math.sqrt(2);
 		} else {
+			// When not dropping out, apply the scale factor to maintain expected output magnitude
 			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.ytMinusOne);
 			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.ytMinusOne);
 			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
 			this.cT = this.ctMinusOne + this.iT * this.zT;
-			this.yT = this.oT * MathUtils.tanh(this.cT);
+			// Apply dropoutScale to scale the output during training
+			this.yT = this.oT * MathUtils.tanh(this.cT) * this.dropoutScale;
 			this.error = Math.abs(this.yT - this.outputDataLoc) / Math.sqrt(2);
 		}
 	}
@@ -110,22 +112,60 @@ public class Cell {
 		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wZ * this.xT + this.rZ * this.ytMinusOne);
 	}
 
+	// Dropout regularization properties
+	private boolean dropoutEnabled = false;
+	private double dropoutRate = 0.3; // Default: drop 30% of connections
+	private double dropoutScale = 1.0;
+	
+	/**
+	 * Enable or disable dropout regularization.
+	 * 
+	 * @param enabled true to enable dropout, false to disable
+	 */
+	public void setDropoutEnabled(boolean enabled) {
+		this.dropoutEnabled = enabled;
+	}
+	
+	/**
+	 * Set the dropout rate (percentage of connections to randomly zero out).
+	 * 
+	 * @param rate dropout rate between 0.0 and 1.0
+	 */
+	public void setDropoutRate(double rate) {
+		this.dropoutRate = rate;
+	}
+	
+	/**
+	 * Set the scale factor to apply to remaining connections after dropout.
+	 * 
+	 * @param scale scale factor to maintain expected output magnitude
+	 */
+	public void setDropoutScale(double scale) {
+		this.dropoutScale = scale;
+	}
+	
 	/**
 	 * Generates a random decision with dropout probability. This method generates a
-	 * random boolean decision with a dropout probability of 10%. It uses a random
-	 * number generator to determine whether the decision is true or false. The
-	 * probability of returning true is 10%, and the probability of returning false
-	 * is 90%.
+	 * random boolean decision with a dropout probability configurable via dropoutRate.
+	 * It uses a random number generator to determine whether the decision is true or false.
 	 * 
-	 * @return true with a 10% probability, false with a 90% probability.
+	 * <p>
+	 * When dropout is enabled, the probability of returning true is dropoutRate,
+	 * and the probability of returning false is (1-dropoutRate).
+	 * 
+	 * <p>
+	 * When dropout is disabled, it always returns false (no dropout applied).
+	 * 
+	 * @return true if the connection should be dropped, false otherwise
 	 */
 	public boolean decisionDropout() {
-		Random random = new Random();
-		int randomNumber = random.nextInt(10) + 1;
-		if (randomNumber > 7) {
-			return true;
+		if (!this.dropoutEnabled) {
+			return false;
 		}
-		return false;
+		
+		Random random = new Random();
+		double randomValue = random.nextDouble();
+		return randomValue < this.dropoutRate;
 	}
 
 	public double getError() {

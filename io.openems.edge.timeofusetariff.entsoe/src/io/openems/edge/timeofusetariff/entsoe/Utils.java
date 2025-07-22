@@ -1,22 +1,27 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.common.utils.XmlUtils.getXmlRootDocument;
 import static io.openems.common.utils.XmlUtils.stream;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseForGermany;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -28,10 +33,15 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Streams;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jscalendar.JSCalendar.Task;
+import io.openems.common.jsonrpc.serialization.JsonObjectPathActual;
 import io.openems.common.utils.XmlUtils;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
@@ -48,19 +58,19 @@ public class Utils {
 	 * @param xml                 The XML string to be parsed.
 	 * @param exchangeRate        The exchange rate of user currency to EUR.
 	 * @param preferredResolution The user preferred resolution.
-	 * @return The {@link TimeOfUsePrices}
+	 * @return The {@link ImmutableSortedMap}
 	 * @throws ParserConfigurationException on error.
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static TimeOfUsePrices parsePrices(String xml, double exchangeRate, Resolution preferredResolution)
-			throws ParserConfigurationException, SAXException, IOException {
+	protected static ImmutableSortedMap<ZonedDateTime, Double> parsePrices(String xml, double exchangeRate,
+			Resolution preferredResolution) throws ParserConfigurationException, SAXException, IOException {
 		var root = getXmlRootDocument(xml);
 
-		var allPrices = parseXml(root, exchangeRate);
+		var allPrices = parseXml(root);
 
 		if (allPrices.isEmpty()) {
-			return TimeOfUsePrices.EMPTY_PRICES;
+			return ImmutableSortedMap.of();
 		}
 
 		final var globalTimeInterval = parseTimeInterval(root, "period.timeInterval");
@@ -69,7 +79,7 @@ public class Utils {
 				.distinct() //
 				.toList();
 
-		var result = Stream //
+		return Stream //
 				.iterate(globalTimeInterval.start, //
 						t -> t.isBefore(globalTimeInterval.end), //
 						t -> t.plusMinutes(15)) //
@@ -89,11 +99,47 @@ public class Utils {
 								}) //
 								.filter(Objects::nonNull) //
 								.findFirst().orElse(null)));
-
-		return TimeOfUsePrices.from(result);
 	}
 
-	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root, double exchangeRate) {
+	protected static TimeOfUsePrices processPrices(Clock clock, ImmutableSortedMap<ZonedDateTime, Double> timePriceMap,
+			double exchangeRate, TimeOfUsePrices gridFees) {
+
+		// Filter timePriceMap to include only entries from "now" onward.
+		// filteredMap will have 34 hour data maximum (when called during 14:00).
+		var filteredPrices = timePriceMap.tailMap(ZonedDateTime.now(clock), true);
+
+		if (filteredPrices.isEmpty()) {
+			return TimeOfUsePrices.EMPTY_PRICES; // or handle as appropriate
+		}
+
+		// always consists of 36 hour values.
+		var gridFeesArray = gridFees.asArray();
+		var filterSize = Math.min(filteredPrices.size(), gridFeesArray.length);
+
+		// Trim grid fees
+		gridFeesArray = Arrays.copyOf(gridFeesArray, filterSize);
+
+		// Build the result map with adjusted prices
+		ImmutableSortedMap.Builder<ZonedDateTime, Double> resultBuilder = new ImmutableSortedMap.Builder<>(
+				Comparator.naturalOrder());
+
+		int index = 0;
+		for (var entry : filteredPrices.entrySet()) {
+			if (index >= gridFeesArray.length) {
+				break; // defensive check
+			}
+
+			// converting grid fees from ct/KWh -> EUR/MWh
+			var gridFeesPerMwh = gridFeesArray[index] * 10;
+			var priceWithFee = (entry.getValue() + gridFeesPerMwh) * exchangeRate;
+			resultBuilder.put(entry.getKey(), priceWithFee);
+			index++;
+		}
+
+		return TimeOfUsePrices.from(resultBuilder.build());
+	}
+
+	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root) {
 		var result = ImmutableTable.<Duration, ZonedDateTime, Double>builder();
 		stream(root) //
 				// <TimeSeries>
@@ -104,7 +150,7 @@ public class Utils {
 				// Find Period with correct resolution
 				.forEach(period -> {
 					try {
-						parsePeriod(result, period, exchangeRate);
+						parsePeriod(result, period);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -138,8 +184,8 @@ public class Utils {
 		return new TimeInterval(start, end);
 	}
 
-	protected static void parsePeriod(ImmutableTable.Builder<Duration, ZonedDateTime, Double> result, Node period,
-			double exchangeRate) throws Exception {
+	protected static void parsePeriod(ImmutableTable.Builder<Duration, ZonedDateTime, Double> result, Node period)
+			throws Exception {
 		final var duration = Duration.parse(stream(period) //
 				// <resolution>
 				.filter(n -> n.getNodeName() == "resolution") //
@@ -161,7 +207,7 @@ public class Utils {
 							// <price.amount>
 							.filter(n -> n.getNodeName() == "price.amount") //
 							.map(XmlUtils::getContentAsString) //
-							.map(s -> parseDouble(s) * exchangeRate) //
+							.map(s -> parseDouble(s)) //
 							.findFirst().get();
 					prices.put(position, price);
 				});
@@ -236,4 +282,34 @@ public class Utils {
 						.findFirst()//
 						.get());
 	}
+
+	/**
+	 * Parses the ancillary cost configuration JSON into a schedule of
+	 * {@link Task}s.
+	 * 
+	 * @param biddingZone    the {@link BiddingZone}
+	 * @param ancillaryCosts the JSON configuration object
+	 * @param logWarn        a {@link Consumer} for a warning message
+	 * @return an {@link ImmutableList} of {@link Task} instances representing the
+	 *         schedule
+	 * @throws OpenemsNamedException on error.
+	 */
+	public static ImmutableList<Task<Double>> parseToSchedule(BiddingZone biddingZone, String ancillaryCosts,
+			Consumer<String> logWarn) throws OpenemsNamedException {
+		if (ancillaryCosts == null || ancillaryCosts.isBlank()) {
+			return ImmutableList.of();
+		}
+		var j = new JsonObjectPathActual.JsonObjectPathActualNonNull(parseToJsonObject(ancillaryCosts));
+
+		return switch (biddingZone) {
+		case GERMANY //
+			-> parseForGermany(j);
+		case AUSTRIA, BELGIUM, NETHERLANDS, SWEDEN_SE1, SWEDEN_SE2, SWEDEN_SE3, SWEDEN_SE4 -> {
+			logWarn.accept("Parser for " + biddingZone.name() + "-Scheduler is not implemented");
+			throw new OpenemsException("Parser for bidding zone " + biddingZone.name() + " is not implemented");
+		}
+		};
+
+	}
+
 }

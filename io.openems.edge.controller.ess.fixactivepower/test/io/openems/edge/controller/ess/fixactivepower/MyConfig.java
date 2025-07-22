@@ -2,7 +2,7 @@ package io.openems.edge.controller.ess.fixactivepower;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.power.api.Relationship;
 
 @SuppressWarnings("all")
@@ -14,7 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int power;
 		private Mode mode;
 		private HybridEssMode hybridEssMode;
-		private Phase phase;
+		private SingleOrAllPhase phase;
 		private Relationship relationship;
 
 		private Builder() {
@@ -45,7 +45,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(Phase phase) {
+		public Builder setPhase(SingleOrAllPhase phase) {
 			this.phase = phase;
 			return this;
 		}
@@ -107,7 +107,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Phase phase() {
+	public SingleOrAllPhase phase() {
 		return this.builder.phase;
 	}
 

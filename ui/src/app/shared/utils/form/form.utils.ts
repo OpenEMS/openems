@@ -65,7 +65,7 @@ export namespace FormUtils {
      */
     export function filterFieldPropsWithKey(fields: FormlyFieldConfig[], key: string): FormlyFieldConfig[] {
         return fields.filter(field => {
-            return field.props != null && key in field.props;
+            return field?.props != null && key in field.props;
         });
     }
 };

@@ -1,7 +1,5 @@
 package io.openems.backend.alerting;
 
-import static org.junit.Assert.assertEquals;
-
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
@@ -9,6 +7,9 @@ import org.junit.Test;
 import org.osgi.service.event.Event;
 
 import io.openems.backend.common.test.DummyMetadata;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class AlertingTest {
 
@@ -42,7 +43,7 @@ public class AlertingTest {
 		}
 	};
 
-	private static Config conf = new Config() {
+	private static final Config conf = new Config() {
 		@Override
 		public Class<? extends Annotation> annotationType() {
 			throw new UnsupportedOperationException();
@@ -71,7 +72,7 @@ public class AlertingTest {
 
 	@Test
 	public void testActivateAndDeactivate() {
-		var alerting = new DummyAlerting();
+		final var alerting = new DummyAlerting();
 		alerting.metadata = new DummyMetadata();
 
 		// Activate
@@ -92,7 +93,7 @@ public class AlertingTest {
 
 		alerting.activate(testConf);
 
-		assertEquals(null, alerting.lastEvent);
+        assertNull(alerting.lastEvent);
 
 		alerting.handleEvent(event);
 

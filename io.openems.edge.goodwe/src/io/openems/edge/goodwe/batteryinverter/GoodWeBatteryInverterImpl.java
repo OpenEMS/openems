@@ -2,6 +2,10 @@ package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,10 +50,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine.State;
@@ -276,20 +277,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		case UNDEFINED -> doNothing();
 		case QU_ENABLE_CURVE -> {
 			quEnableDisable = EnableCurve.ENABLE;
-			// values according to vde-ar-n-4105
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_IN_POWER_QU), 200);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.LOCK_OUT_POWER_QU), 50);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VOLTAGE), 214); // ratio U/Un: 0.93
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V1_VALUE), 1000); // (var % rated VA)
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VOLTAGE), 223); // ratio U/Un: 0.97
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V2_VALUE), 0); // (var % rated VA)
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VOLTAGE), 237);// ratio U/Un: 1,03
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V3_VALUE), 0); // (var % rated VA)
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VOLTAGE), 247); // ratio U/Un: 1,07
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -1000);
+
+			/*
+			 * Detailed Q(U) settings like V1_VOLTAGE & V1_VALUE are updated automatically
+			 * by GoodWe while setting the country code.
+			 */
 		}
 		case PU_ENABLE_CURVE -> {
-			// Not part of the 4105 for GERMANY
+			// Not part of the VDE-AR-N 4105 (GERMANY)
 			puEnableDisable = EnableCurve.ENABLE;
 		}
 		case LAGGING_0_80, LAGGING_0_81, LAGGING_0_82, LAGGING_0_83, LAGGING_0_84, LAGGING_0_85, LAGGING_0_86,
@@ -603,10 +598,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsNamedException {
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("Max AC Import", Phase.ALL, Pwr.ACTIVE, //
-						Relationship.GREATER_OR_EQUALS, this.getMaxAcImport().orElse(0)), //
-				new BatteryInverterConstraint("Max AC Export", Phase.ALL, Pwr.ACTIVE, //
-						Relationship.LESS_OR_EQUALS, this.getMaxAcExport().orElse(0)) //
+				new BatteryInverterConstraint("Max AC Import", ALL, ACTIVE, GREATER_OR_EQUALS,
+						this.getMaxAcImport().orElse(0)), //
+				new BatteryInverterConstraint("Max AC Export", ALL, ACTIVE, LESS_OR_EQUALS,
+						this.getMaxAcExport().orElse(0)) //
 		};
 	}
 

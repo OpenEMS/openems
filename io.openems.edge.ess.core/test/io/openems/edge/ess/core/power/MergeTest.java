@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.junit.Test;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.junit.Test;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.optimizers.KeepAllNearEqual;

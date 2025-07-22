@@ -4,7 +4,7 @@ import { History } from "src/app/edge/history/common/energy/chart/channels.spec"
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
-import { ChartAxis } from "src/app/shared/service/utils";
+import { ChartAxis } from "src/app/shared/utils/utils";
 import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
 import { expectView } from "./chart.constants.spec";
 

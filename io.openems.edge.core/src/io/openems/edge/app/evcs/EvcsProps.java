@@ -13,6 +13,8 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.KebaHardwareType;
+import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
@@ -37,6 +39,19 @@ public final class EvcsProps {
 	public static final int NUMBER_OF_PHASES = 3;
 
 	private EvcsProps() {
+	}
+
+	/**
+	 * Creates a {@link AppDef} for configuring the reaad only of a evcs app.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> readOnly() {
+		return AppDef.copyOfGeneric(defaultDef())//
+				.setTranslatedLabel("App.Evcs.readOnly.label") //
+				.setTranslatedDescription("App.Evcs.readOnly.description") //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
+				.setDefaultValue(false);
 	}
 
 	/**
@@ -199,5 +214,24 @@ public final class EvcsProps {
 							.map(PhaseRotation::name) //
 							.toList());
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a {@link KebaHardwareType}.
+	 * 
+	 * @param evcsId {@link Nameable} of evcs id
+	 * @return the {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> hardwareType(Nameable evcsId) {
+		return AppDef.copyOfGeneric(defaultDef())//
+				.setTranslatedLabel("App.Evcs.Keba.hardwareType.label")
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(KebaHardwareType.class), l);
+				})//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
+				})//
+				.setRequired(true)//
+				.setDefaultValue(KebaHardwareType.P30);
 	}
 }

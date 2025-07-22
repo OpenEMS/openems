@@ -87,7 +87,6 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	}
 
 	protected void start() {
-
 	}
 
 	protected void stop() {

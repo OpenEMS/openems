@@ -52,9 +52,11 @@ public interface GoodWeGridMeter extends ElectricityMeter, OpenemsComponent {
 				.text("L3 (Phase S) - Connected reverse")), //
 		METER_CON_INCORRECTLY_L3(Doc.of(Level.WARNING) //
 				.text("L3 (Phase S) - Connected incorrectly")),
+
 		EXTERNAL_METER_RATIO(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)
-				.text("External meter ratio (e.g. the selected CT is 3000A:5A, the CT ratio value is 600")); //
+				.text("External meter ratio (e.g. the selected CT is 3000A:5A, the CT ratio value is 600")),
+		EXTENDED_POWER_VALUES(Doc.of(OpenemsType.BOOLEAN)); //
 
 		private final Doc doc;
 

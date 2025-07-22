@@ -10,9 +10,11 @@ import org.osgi.service.component.ComponentContext;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
 import io.openems.edge.app.api.AppCleverPv;
@@ -38,12 +40,16 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
+import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
+import io.openems.edge.app.heat.HeatAskomaReadOnly;
+import io.openems.edge.app.heat.HeatMyPvReadOnly;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.integratedsystem.FeneconHome10;
@@ -61,9 +67,9 @@ import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.meter.CarloGavazziMeter;
 import io.openems.edge.app.meter.DiscovergyMeter;
+import io.openems.edge.app.meter.EastronMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.KdkMeter;
-import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -372,6 +378,16 @@ public final class Apps {
 		return app(t, TestPermissions::new, "App.Test.TestPermissions");
 	}
 
+	/**
+	 * Test method for creating a {@link TestMapPropName}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestMapPropName testMapPropName(AppManagerTestBundle t) {
+		return app(t, TestMapPropName::new, "App.Test.TestMapPropName");
+	}
+
 	// Test
 
 	/**
@@ -509,7 +525,7 @@ public final class Apps {
 	// Evcs
 
 	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * Test method for creating a {@link DezonyEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
@@ -519,13 +535,23 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * Test method for creating a {@link HardyBarthEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final HardyBarthEvcs hardyBarthEvcs(AppManagerTestBundle t) {
 		return app(t, HardyBarthEvcs::new, "App.Evcs.HardyBarth");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHardyBarthReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHardyBarthReadOnly hardyBarthEvcsReadOnly(AppManagerTestBundle t) {
+		return app(t, AppHardyBarthReadOnly::new, "App.Evcs.HardyBarth.ReadOnly");
 	}
 
 	/**
@@ -789,13 +815,13 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link MicrocareSdm630Meter}.
+	 * Test method for creating a {@link EastronMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
-		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
+	public static final EastronMeter eastronMeter(AppManagerTestBundle t) {
+		return app(t, EastronMeter::new, "App.Meter.Eastron");
 	}
 
 	/**
@@ -935,6 +961,26 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link HeatMyPvReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatMyPvReadOnly heatMyPvReadOnly(AppManagerTestBundle t) {
+		return app(t, HeatMyPvReadOnly::new, "App.Heat.MyPv.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatMyPvReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatAskomaReadOnly heatAskoma(AppManagerTestBundle t) {
+		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
+	}
+
+	/**
 	 * Gets the minimum configuration of an app for easily creating instances in
 	 * tests.
 	 * 
@@ -949,6 +995,9 @@ public final class Apps {
 		case "App.FENECON.Home6" -> TestFeneconHome10Gen2.minSettings();
 		case "App.FENECON.Home10.Gen2" -> TestFeneconHome10Gen2.minSettings();
 		case "App.FENECON.Home15" -> TestFeneconHome10Gen2.minSettings();
+		case "App.Hardware.IoGpio" -> JsonUtils.buildJsonObject() //
+				.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+				.build();
 		default -> new JsonObject();
 		};
 	}

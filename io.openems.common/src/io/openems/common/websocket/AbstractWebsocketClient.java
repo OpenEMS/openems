@@ -1,10 +1,12 @@
 package io.openems.common.websocket;
 
+import java.net.ConnectException;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
@@ -16,9 +18,11 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.function.BooleanConsumer;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.utils.FunctionUtils;
 
 /**
  * A Websocket Client implementation that automatically tries to reconnect a
@@ -36,30 +40,46 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketClient.class);
 	private final URI serverUri;
+	private final BooleanConsumer onConnectedChange;
+	private final AtomicBoolean isConnected = new AtomicBoolean(false);
 	private final ClientReconnectorWorker reconnectorWorker;
 
 	protected AbstractWebsocketClient(String name, URI serverUri) {
 		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, AbstractWebsocketClient.NO_HTTP_HEADERS,
-				AbstractWebsocketClient.NO_PROXY);
+				AbstractWebsocketClient.NO_PROXY, null /* onConnectedChange */);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders) {
-		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
+				null /* onConnectedChange */);
+	}
+
+	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders,
+			BooleanConsumer onConnectedChange) {
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
+				onConnectedChange);
+	}
+
+	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders,
+			BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
+				onConnectedChange, reconnectorConfig);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders, Proxy proxy) {
-		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, proxy);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, proxy, null /* onConnectedChange */);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
-			Proxy proxy) {
-		this(name, serverUri, draft, httpHeaders, proxy, ClientReconnectorWorker.DEFAULT_CONFIG);
+			Proxy proxy, BooleanConsumer onConnectedChange) {
+		this(name, serverUri, draft, httpHeaders, proxy, onConnectedChange, ClientReconnectorWorker.DEFAULT_CONFIG);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
-			Proxy proxy, ClientReconnectorWorker.Config reconnectorConfig) {
+			Proxy proxy, BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
 		super(name);
 		this.serverUri = serverUri;
+		this.onConnectedChange = onConnectedChange == null ? FunctionUtils::doNothing : onConnectedChange;
 		this.ws = new WebSocketClient(serverUri, draft, httpHeaders) {
 
 			private void logInfo(String message) {
@@ -73,6 +93,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 						AbstractWebsocketClient.this.getOnOpen(), //
 						AbstractWebsocketClient.this::logWarn, //
 						AbstractWebsocketClient.this::handleInternalError));
+				this.updateIsConnected();
 			}
 
 			@Override
@@ -88,6 +109,12 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			@Override
 			public void onError(Exception ex) {
+				if (ex instanceof ConnectException) {
+					// Ignore. This happens when connecting fails and is handled by
+					// ClientReconnectorWorker
+					return;
+				}
+
 				AbstractWebsocketClient.this.execute(new OnErrorHandler(//
 						AbstractWebsocketClient.this.ws, ex, //
 						AbstractWebsocketClient.this.getOnError(), //
@@ -101,12 +128,26 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 						AbstractWebsocketClient.this.getOnClose(), //
 						AbstractWebsocketClient.this::handleInternalError));
 
+				if (code == CloseFrame.NEVER_CONNECTED) {
+					// Ignore "Code [-1] Reason [Connection refused: connect]"
+					return;
+				}
+
 				this.logInfo(new StringBuilder() //
 						.append("Websocket [").append(serverUri.toString()) //
 						.append("] closed. Code [").append(code) //
 						.append("] Reason [").append(reason).append("]") //
 						.toString());
+				this.updateIsConnected();
 				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
+			}
+
+			private void updateIsConnected() {
+				var isOpen = this.isOpen();
+				if (AbstractWebsocketClient.this.isConnected.compareAndSet(!isOpen, isOpen)) {
+					// Value has changed
+					AbstractWebsocketClient.this.onConnectedChange.accept(isOpen);
+				}
 			}
 		};
 		// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection
@@ -190,4 +231,18 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		return wsData.send(request);
 	}
 
+	/**
+	 * Gets some output that is suitable for a continuous Debug log.
+	 *
+	 * @return the debug log output or null
+	 */
+	public String debugLog() {
+		var b = new StringBuilder("[").append(this.getName()).append("] [monitor] ");
+		if (this.ws.isOpen()) {
+			b.append("Connected ");
+		} else {
+			b.append("NOT CONNECTED. ").append(this.reconnectorWorker.debugLog());
+		}
+		return b.toString();
+	}
 }

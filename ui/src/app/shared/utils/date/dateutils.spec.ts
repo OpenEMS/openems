@@ -44,4 +44,25 @@ describe("DateUtils", () => {
     expect(DateUtils.isDateBefore(date, null)).toEqual(false);
     expect(DateUtils.isDateBefore(null, DateUtils.stringToDate("2023-01-01"))).toEqual(false);
   });
+
+  describe("#formatQuarterDateRange", () => {
+
+    // Valid dates for Quarter
+    it("should correctly format dates with standard format", () => {
+      const startDate = new Date(2024, 0, 1); // January 1, 2024
+      const endDate = new Date(2024, 2, 31); // March 31, 2024
+      const dateFormat = "dd.MM.yyyy";
+      const expected = "01.01.2024 - 31.03.2024";
+      expect(DateUtils.formatQuarterDateRange(startDate, endDate, dateFormat)).toBe(expected);
+    });
+
+    // Null end date
+    it("should return null if Date is null", () => {
+      const startDate = new Date(2024, 0, 1);
+      const dateFormat = "dd.MM.yyyy";
+      expect(DateUtils.formatQuarterDateRange(startDate, null!, dateFormat)).toBeNull();
+      expect(DateUtils.formatQuarterDateRange(null!, null!, dateFormat)).toBeNull();
+    });
+
+  });
 });

@@ -1,7 +1,8 @@
 <ion-grid *ngIf="props.options" class="ion-no-padding">
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     @for (row of props.options; track row; let odd = $odd) {
-    <ion-row class="ion-align-self-start" [style.background]="odd ? 'var(--ion-background-color-card-header)' : ''">
+    <ion-row *ngIf="row?.props" class="ion-align-self-start"
+      [style.background]="odd ? 'var(--ion-background-color-card-header)' : ''">
       <ion-col size="auto" class="ion-padding ion-align-self-center">
         <ion-icon class="ion-margin-start" size="large" [name]="row.props?.icon.name" [color]="row.props?.icon.color"
           [size]="row.props?.icon.size" item-left></ion-icon>

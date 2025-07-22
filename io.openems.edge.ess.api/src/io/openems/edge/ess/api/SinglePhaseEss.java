@@ -3,6 +3,7 @@ package io.openems.edge.ess.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ProviderType
 public interface SinglePhaseEss extends AsymmetricEss {

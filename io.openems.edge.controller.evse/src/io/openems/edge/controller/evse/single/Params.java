@@ -1,21 +1,36 @@
 package io.openems.edge.controller.evse.single;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
-import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Profile;
 
+/**
+ * Parameters of one Evse.Controller.Single. Contains configuration settings,
+ * runtime parameters and CombinedAbilities of Charge-Point and
+ * Electric-Vehicle.
+ */
 public record Params(//
-		/** EV is ready for charging anytime. */
-		boolean isReadyForCharging, //
+		/**
+		 * Mode configuration of Evse.Controller.Single.
+		 */
 		Mode.Actual actualMode, //
-		/** The ActivePower value; possibly null */
+		/**
+		 * The measured ActivePower; possibly null.
+		 */
 		Integer activePower, //
-		Limit limit, //
+		/**
+		 * Hysteresis data
+		 */
 		Hysteresis hysteresis, //
-		/** EV appears to be fully charged. */
+		/**
+		 * PhaseSwitching configuration of Evse.Controller.Single.
+		 */
+		PhaseSwitching phaseSwitching, //
+		/**
+		 * EV appears to be fully charged.
+		 */
 		boolean appearsToBeFullyCharged, //
-		ImmutableList<Profile> profiles) {
+		/**
+		 * The CombinedAbilities of Charge-Point and Electric-Vehicle.
+		 */
+		CombinedAbilities combinedAbilities) {
 }

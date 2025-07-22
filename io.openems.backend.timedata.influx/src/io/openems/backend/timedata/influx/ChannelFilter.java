@@ -1,16 +1,74 @@
 package io.openems.backend.timedata.influx;
 
-import static java.util.stream.Collectors.toUnmodifiableSet;
+import static java.util.Arrays.stream;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
+import com.google.common.collect.ImmutableSet;
 
 public class ChannelFilter {
 
 	/**
-	 * Pattern for Component-IDs.
+	 * Creates a new {@link ChannelFilter} from the provided arguments.
+	 * 
+	 * @param blacklistedChannelAddresses an array of blacklisted ChannelAddresses
+	 * @param blacklistedChannelIds       an array of blacklisted ChannelIds
+	 * @return the created {@link ChannelFilter}
+	 */
+	public static ChannelFilter from(String[] blacklistedChannelAddresses, String[] blacklistedChannelIds) {
+		return new ChannelFilter(//
+				stream(blacklistedChannelAddresses) //
+						.collect(ImmutableSet.toImmutableSet()), //
+				stream(blacklistedChannelIds) //
+						.collect(ImmutableSet.toImmutableSet()));
+	}
+
+	private final ImmutableSet<String> blacklistedChannelAddresses;
+	private final ImmutableSet<String> blacklistedChannelIds;
+
+	private ChannelFilter(ImmutableSet<String> blacklistedChannelAddresses,
+			ImmutableSet<String> blacklistedChannelIds) {
+		this.blacklistedChannelAddresses = blacklistedChannelAddresses;
+		this.blacklistedChannelIds = blacklistedChannelIds;
+	}
+
+	/**
+	 * Checks if the provided channel is valid or not.
+	 * 
+	 * @param channelAddress the channel to check with the format
+	 *                       "component0/Channel"
+	 * @return true if the channel is valid; else false
+	 */
+	public boolean isValid(String channelAddress) {
+		if (channelAddress == null) {
+			return false;
+		}
+
+		// Blacklisted ChannelAddresses
+		if (this.blacklistedChannelAddresses.contains(channelAddress)) {
+			return false;
+		}
+
+		final var indexOfDelimiter = channelAddress.indexOf('/');
+		if (indexOfDelimiter == -1) {
+			return false;
+		}
+
+		// Valid Component-ID
+		final var componentId = channelAddress.substring(0, indexOfDelimiter);
+		if (!isValidComponentId(componentId)) {
+			return false;
+		}
+
+		// Blacklisted ChannelIds.
+		final var channelId = channelAddress.substring(indexOfDelimiter + 1);
+		if (channelId.isEmpty() || this.blacklistedChannelIds.contains(channelId)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks if the provided Component-ID is valid or not.
 	 * 
 	 * <p>
 	 * Either:
@@ -29,57 +87,78 @@ public class ChannelFilter {
 	 * <li>contains only ASCII letters and numbers
 	 * <li>ends with a letter
 	 * </ul>
-	 */
-	// TODO move to io.openems.common and validate pattern on Edge
-	private static final Predicate<String> COMPONENT_ID_PATTERN = //
-			Pattern.compile("^([a-z][a-zA-Z0-9]+[0-9]+|_[a-z][a-zA-Z0-9]+[a-zA-Z])$").asPredicate();
-
-	/**
-	 * Creates a new {@link ChannelFilter} from the provided arguments.
 	 * 
-	 * @param blacklistedChannels a array of the blacklisted channels
-	 * @return the created {@link ChannelFilter}
+	 * @param componentId the id to check
+	 * @return true if it is a valid id; else false
 	 */
-	public static ChannelFilter from(String[] blacklistedChannels) {
-		return new ChannelFilter(Arrays.stream(blacklistedChannels) //
-				.collect(toUnmodifiableSet()));
-	}
+	public static boolean isValidComponentId(String componentId) {
+		if (componentId == null || componentId.length() < 2) {
+			return false;
+		}
+		// core/singleton component
+		if (componentId.startsWith("_")) {
+			if (!isLatinLowerCaseLetter(componentId.charAt(1))) {
+				return false;
+			}
 
-	private final Set<String> blacklistedChannels;
+			for (int i = 2; i < componentId.length() - 1; i++) {
+				if (!isValidChar(componentId.charAt(i))) {
+					return false;
+				}
+			}
 
-	private ChannelFilter(Set<String> blacklistedChannels) {
-		super();
-		this.blacklistedChannels = blacklistedChannels;
-	}
+			if (!isLatinLetter(componentId.charAt(componentId.length() - 1))) {
+				return false;
+			}
 
-	/**
-	 * Checks if the provided channel is valid or not.
-	 * 
-	 * @param channelAddress the channel to check with the format
-	 *                       "component0/Channel"
-	 * @return true if the channel is valid; else false
-	 */
-	public boolean isValid(String channelAddress) {
-		if (channelAddress == null) {
+			return true;
+		}
+
+		// factory component
+		if (!isLatinLowerCaseLetter(componentId.charAt(0))) {
 			return false;
 		}
 
-		if (this.blacklistedChannels.contains(channelAddress)) {
+		var lastDigitIndex = -1;
+		for (int i = componentId.length() - 1; i >= 0; i--) {
+			final var c = componentId.charAt(i);
+			if (!isDecimalNumber(c)) {
+				break;
+			}
+			lastDigitIndex = i;
+		}
+
+		if (lastDigitIndex == -1) {
 			return false;
 		}
 
-		final var c = channelAddress.split("/");
-		if (c.length != 2) {
-			return false;
-		}
-
-		// Valid Component-ID
-		final var componentId = c[0];
-		if (!COMPONENT_ID_PATTERN.test(componentId)) {
-			return false;
+		for (int i = 1; i < lastDigitIndex; i++) {
+			if (!isValidChar(componentId.charAt(i))) {
+				return false;
+			}
 		}
 
 		return true;
+	}
+
+	private static boolean isLatinLetter(char c) {
+		return isLatinUpperCaseLetter(c) || isLatinLowerCaseLetter(c);
+	}
+
+	private static boolean isLatinUpperCaseLetter(char c) {
+		return (c >= 'A' && c <= 'Z');
+	}
+
+	private static boolean isLatinLowerCaseLetter(char c) {
+		return (c >= 'a' && c <= 'z');
+	}
+
+	private static boolean isDecimalNumber(char c) {
+		return c >= '0' && c <= '9';
+	}
+
+	private static boolean isValidChar(char c) {
+		return isLatinLetter(c) || isDecimalNumber(c);
 	}
 
 }
