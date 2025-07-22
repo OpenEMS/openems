@@ -26,7 +26,7 @@ RUN wget -O /etc/apk/keys/adoptium.rsa.pub https://packages.adoptium.net/artifac
     echo 'https://packages.adoptium.net/artifactory/apk/alpine/main' >> /etc/apk/repositories
 
 RUN apk add --update --no-cache \
-    temurin-${JAVA_VERSION}-jre rsync
+    temurin-${JAVA_VERSION}-jre rsync dos2unix
 
 ### Build edge container
 FROM base_container

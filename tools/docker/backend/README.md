@@ -24,7 +24,7 @@
     |         |                                                   |
     | ------- | ------------------------------------------------- |
     | Backend | http://\<hostname\>:8079/system/console/configMgr |
-    | UI      | http://\<hostname\>/:80                           |
+    | UI      | http://\<hostname\>:80                            |
 
 *change `<hostname>` to the actual hostname*
 
