@@ -14,9 +14,7 @@ FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container
 
 ARG JAVA_VERSION
 
-RUN apk update && apk upgrade
-
-RUN apk add --no-cache \
+RUN apk add --update --no-cache \
     openjdk${JAVA_VERSION}-jre rsync dos2unix
 
 ### Build edge container
