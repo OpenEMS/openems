@@ -1,6 +1,7 @@
 package io.openems.backend.alerting;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -100,15 +101,33 @@ public class OfflineEdgeAlertingTest {
 		}
 	}
 
+	private static void checkMetrics(Alerting alerting, String handlerId, int expectedSent, int expectedQueue) {
+		final var metricsMessagesSentKey = "%s/%s".formatted(handlerId, Alerting.METRIC_MESSAGES_SENT);
+		final var metricsMessagesQueueKey = "%s/%s".formatted(handlerId, Alerting.METRIC_MESSAGES_QUEUE);
+
+		var metrics = alerting.debugMetrics();
+		var metricsMessagesSent = metrics.get(metricsMessagesSentKey);
+		var metricsMessagesQueue = metrics.get(metricsMessagesQueueKey);
+		assertNotNull(metricsMessagesSent);
+		assertEquals(expectedSent, metricsMessagesSent.getAsInt());
+		assertNotNull(metricsMessagesQueue);
+		assertEquals(expectedQueue, metricsMessagesQueue.getAsInt());
+	}
+
 	@Test
 	public void integrationTest() {
 		var env = new TestEnvironment();
 
-		var config = Dummy.testConfig(15, true, false);
+		final var config = Dummy.testConfig(15, true, false);
 		env.alerting.activate(config);
+		final var handler = env.alerting.handler.getFirst();
+		assertNotNull(handler);
+		assertEquals(OfflineEdgeHandler.class, handler.getClass());
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
+
+		checkMetrics(env.alerting, handler.id(), 0, 0);
 
 		/* Wait long enough to trigger delayed Initialization. */
 		env.timer.leap(config.initialDelay());
@@ -150,6 +169,8 @@ public class OfflineEdgeAlertingTest {
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
 		/* edge05.user02, edge03.user01, edge03.user02 */
 		assertEquals(3, env.mailer.getMailsCount());
+
+		checkMetrics(env.alerting, handler.id(), 3, 1);
 
 		env.alerting.deactivate();
 

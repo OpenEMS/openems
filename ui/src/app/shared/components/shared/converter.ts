@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, GridMode, Utils } from "../../shared";
+import { EnabledDisabledState } from "../../type/general";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
@@ -312,5 +313,76 @@ export namespace Converter {
         return TimeUtils.formatSecondsToDuration(value, locale);
       });
     };
+  };
+
+  /**
+   * Converts the runState of the heating element to the tranlsated state
+   *
+   * @param translate the current language to be translated to
+   * @returns converted value
+   */
+  export const CONVERT_HEATING_ELEMENT_RUNSTATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case 0:
+          return translate.instant("General.inactive");
+        case 1:
+          return translate.instant("General.active");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.activeForced");
+        case 3:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.ACTIVED_FORCED_LIMIT");
+        case 4:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.DONE");
+        case 5:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.UNREACHABLE");
+        case 6:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.CALIBRATION");
+        default:
+          return "";
+      };
+    };
+  };
+
+  /**
+   * Converts Power2Heat-State
+   *
+   * @param translate the current language to be translated to
+   * @returns converted value
+   */
+  export const CONVERT_POWER_2_HEAT_STATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case 0:
+          return translate.instant("Edge.Index.Widgets.HEAT.HEATING");
+        case 1:
+          return translate.instant("Edge.Index.Widgets.HEAT.TARGET_TEMPERATURE_REACHED");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+        case -1:
+        default:
+          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+      }
+    };
+  };
+
+  export const CONVERT_TO_BAR: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_BAR(value));
+  };
+
+  export const CONVERT_TO_ENABLED_DISABLED_STATE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      EnabledDisabledState[value]);
+  };
+
+  export const CONVERT_TO_HEATING_STATE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      EnabledDisabledState[value]);
+  };
+
+  export const CONVERT_TO_HOUR: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_HOUR(value));
   };
 }

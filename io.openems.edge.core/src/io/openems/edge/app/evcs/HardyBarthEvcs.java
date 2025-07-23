@@ -5,7 +5,6 @@ import static io.openems.edge.core.appmanager.formly.enums.Wrappers.PANEL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -54,7 +53,6 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
-import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Case;
@@ -151,7 +149,7 @@ public class HardyBarthEvcs
 											.every(i -> Exp.currentModelValue(EVCS_ID).notEqual(i))));
 						}))), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
-		;
+		READ_ONLY(EvcsProps.readOnly());
 
 		private final AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def;
 
@@ -334,56 +332,68 @@ public class HardyBarthEvcs
 			final var schedulerIds = new ArrayList<SchedulerComponent>();
 
 			final var alias = this.getString(p, l, SubPropertyFirstChargepoint.ALIAS);
-			final var ip = this.getString(p, l, SubPropertyFirstChargepoint.IP);
+			final var ip = this.getString(p, SubPropertyFirstChargepoint.IP);
 			final var evcsId = this.getId(t, p, Property.EVCS_ID);
-			final var phaseRotation = this.getString(p, l, Property.PHASE_ROTATION);
-			final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
-			schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
+			final var phaseRotation = this.getString(p, Property.PHASE_ROTATION);
+			final var readOnly = this.getBoolean(p, Property.READ_ONLY);
 
 			final var factorieId = "Evcs.HardyBarth";
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(evcsId, alias, factorieId, JsonUtils.buildJsonObject() //
 							.addProperty("ip", ip) //
 							.addPropertyIfNotNull("phaseRotation", phaseRotation) //
-							.build()), //
-					new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs", JsonUtils.buildJsonObject() //
-							.addProperty("evcs.id", evcsId) //
-							.build())//
-			);
-			final List<DependencyDeclaration> clusterDependency;
+							.addPropertyIfNotNull("readOnly", readOnly)//
+							.build())); //
+			if (!readOnly) {
+				final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
+				schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
+				components.add(new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs",
+						JsonUtils.buildJsonObject() //
+								.addProperty("evcs.id", evcsId) //
+								.build())//
+				);
+			}
+			final var appConfigBuilder = AppConfiguration.create();
 			if (numberOfChargingStations == 2) {
 				final var aliasCp2 = this.getString(p, l, SubPropertySecondChargepoint.ALIAS_CP_2);
 				final var ipCp2 = this.getString(p, l, SubPropertySecondChargepoint.IP_CP_2);
 				final var evcsIdCp2 = this.getId(t, p, Property.EVCS_ID_CP_2);
-				final var ctrlEvcsIdCp2 = this.getId(t, p, Property.CTRL_EVCS_ID_CP_2);
-				schedulerIds.add(new SchedulerComponent(ctrlEvcsIdCp2, "Controller.Evcs", this.getAppId()));
-
 				components.add(new EdgeConfig.Component(evcsIdCp2, aliasCp2, factorieId, JsonUtils.buildJsonObject() //
 						.addProperty("ip", ipCp2) //
 						.addPropertyIfNotNull("phaseRotation", phaseRotation) //
+						.addPropertyIfNotNull("readOnly", readOnly) //
 						.build()));
-				components.add(new EdgeConfig.Component(ctrlEvcsIdCp2, controllerAlias, "Controller.Evcs",
-						JsonUtils.buildJsonObject() //
-								.addProperty("evcs.id", evcsIdCp2) //
-								.build()));
-				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
-						maxHardwarePowerPerPhase, evcsId, evcsIdCp2);
-			} else {
-				var removeIds = Collections.<String>emptyList();
-				if (p.containsKey(Property.EVCS_ID_CP_2)) {
-					removeIds = Lists.newArrayList(this.getId(t, p, Property.EVCS_ID_CP_2));
+
+				if (!readOnly) {
+					final var ctrlEvcsIdCp2 = this.getId(t, p, Property.CTRL_EVCS_ID_CP_2);
+					schedulerIds.add(new SchedulerComponent(ctrlEvcsIdCp2, "Controller.Evcs", this.getAppId()));
+
+					components.add(new EdgeConfig.Component(ctrlEvcsIdCp2, controllerAlias, "Controller.Evcs",
+							JsonUtils.buildJsonObject() //
+									.addProperty("evcs.id", evcsIdCp2) //
+									.build()));
+					appConfigBuilder.addDependencies(EvcsCluster.dependency(t, this.componentManager,
+							this.componentUtil, maxHardwarePowerPerPhase, evcsId, evcsIdCp2));
 				}
-				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
-						maxHardwarePowerPerPhase, removeIds, evcsId);
+			} else {
+				if (!readOnly) {
+					var removeIds = Collections.<String>emptyList();
+					if (p.containsKey(Property.EVCS_ID_CP_2)) {
+						removeIds = Lists.newArrayList(this.getId(t, p, Property.EVCS_ID_CP_2));
+					}
+					appConfigBuilder.addDependencies(EvcsCluster.dependency(t, this.componentManager,
+							this.componentUtil, maxHardwarePowerPerPhase, removeIds, evcsId));
+				}
 			}
 
-			return AppConfiguration.create() //
+			if (!readOnly) {
+				appConfigBuilder.addTask(Tasks.schedulerByCentralOrder(schedulerIds)); //
+			}
+			return appConfigBuilder //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.schedulerByCentralOrder(schedulerIds)) //
 					.throwingOnlyIf(ip.startsWith("192.168.25."),
 							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
 									.addIp("Evcs", "192.168.25.10/24")))) //
-					.addDependencies(clusterDependency) //
 					.build();
 		};
 	}

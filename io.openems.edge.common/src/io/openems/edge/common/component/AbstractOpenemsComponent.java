@@ -376,8 +376,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		// Add Channel to channels list
 		this.channels.put(channel.channelId().id(), channel);
 		// Handle StateChannels
-		if (channel instanceof StateChannel) {
-			this.getStateChannel().addChannel((StateChannel) channel);
+		if (channel instanceof StateChannel sc) {
+			this.getStateChannel().addChannel(sc);
 		}
 	}
 
@@ -458,15 +458,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Removes a Channel from this Component.
 	 *
 	 * @param channel the Channel
+	 * @return {@code true} if the channel was removed
 	 */
 	// TODO remove Channel(s) using Channel-ID; see addChannels()-method above.
-	protected void removeChannel(Channel<?> channel) {
+	protected boolean removeChannel(Channel<?> channel) {
 		// Add Channel to channels list
-		this.channels.remove(channel.channelId().id(), channel);
+		final var result = this.channels.remove(channel.channelId().id(), channel);
 		// Handle StateChannels
 		if (channel instanceof StateChannel) {
 			this.getStateChannel().removeChannel((StateChannel) channel);
 		}
+		return result;
 	}
 
 	@Override

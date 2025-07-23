@@ -1,7 +1,7 @@
 <ion-app>
   <app-header></app-header>
   <ion-content>
-    <ng-container *ngIf="position() === null">
+    <ng-container *ngIf="navigationService.position() === null">
       <ng-template *ngTemplateOutlet="sidemenu">
       </ng-template>
       <ion-content>
@@ -10,14 +10,15 @@
       </ion-content>
     </ng-container>
 
-    <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main" *ngIf="position() === 'left'">
+    <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main"
+      *ngIf="navigationService.position() === 'left'">
 
       <ion-menu contentId="main">
         <div class="ion-page" id="main">
           <ion-content>
             <ion-list>
-              <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active" routerLink="/user"
-                (click)="menu.close()">
+              <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active"
+                (click)="navCtrl.navigateRoot('/user');menu.close()">
                 <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
                 </ion-icon>
                 <ion-label>
@@ -57,7 +58,7 @@
       </div>
     </ion-split-pane>
 
-    <ng-container *ngIf="position() === 'bottom'">
+    <ng-container *ngIf="navigationService.position() === 'bottom'">
       <ng-container *ngTemplateOutlet="content">
       </ng-container>
       <ng-container *ngTemplateOutlet="sidemenu">
@@ -108,8 +109,8 @@
 <ng-template #sidemenu>
   <ion-menu contentId="content" type="overlay" side="start">
     <ion-list>
-      <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active" routerLink="/user"
-        (click)="menu.close()">
+      <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active"
+        (click)="navCtrl.navigateRoot('/user');menu.close()">
         <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
         </ion-icon>
         <ion-label>

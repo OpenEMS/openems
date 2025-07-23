@@ -94,6 +94,21 @@ export namespace DateUtils {
   }
 
   /**
+   * Formats a date range for quarters.
+   *
+   * @param fromDate The start date of the quarter.
+   * @param toDate The end date of the quarter.
+   * @param dateFormat The desired date format string (e.g., "dd.MM.yyyy").
+   * @returns A formatted date range string (e.g., "01.01.2024 - 31.03.2024").
+   */
+  export function formatQuarterDateRange(fromDate: Date, toDate: Date, dateFormat: string): string | null {
+    if (!fromDate || !toDate) {
+      return null;
+    }
+    return `${format(fromDate, dateFormat)} - ${format(toDate, dateFormat)}`;
+  }
+
+  /**
    * Checks if passed date is before a certain date, e.g. "01.08.2024 - 02.08.2024"
    *
    * @param fromDate the date

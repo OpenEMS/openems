@@ -16,7 +16,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -679,13 +678,11 @@ public class AppManagerTestBundle {
 	 * Tries to install the provided app with the minimal available configuration.
 	 * 
 	 * @param app the app to install
-	 * @throws InterruptedException  if the current thread was interruptedwhile
-	 *                               waiting
-	 * @throws ExecutionException    if this future completed exceptionally
+	 * @return the installation response
 	 * @throws OpenemsNamedException on installation error
 	 */
-	public void tryInstallWithMinConfig(OpenemsApp app) throws OpenemsNamedException {
-		this.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+	public AddAppInstance.Response tryInstallWithMinConfig(OpenemsApp app) throws OpenemsNamedException {
+		return this.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(app.getAppId(), "key", "alias", Apps.getMinConfig(app.getAppId())));
 	}
 

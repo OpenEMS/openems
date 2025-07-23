@@ -59,13 +59,13 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
 
-  protected override getChannelAddresses(): ChannelAddress[] {
+  protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
     const componentId = this.component?.id ?? null;
     if (!componentId) {
-      return [];
+      return Promise.resolve([]);
     }
     this.isOnChannel = new ChannelAddress(componentId, "_PropertyIsOn");
-    return [this.isOnChannel];
+    return Promise.resolve([this.isOnChannel]);
   }
 
   protected override onCurrentData(currentData: CurrentData): void {

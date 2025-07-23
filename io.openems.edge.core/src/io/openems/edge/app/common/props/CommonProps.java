@@ -59,7 +59,7 @@ public final class CommonProps {
 	public static final <//
 			APP extends OpenemsApp, //
 			PROP extends Nameable, //
-			PARAM extends BundleParameter> AppDef<APP, PROP, PARAM> installationHint(//
+			PARAM extends BundleProvider> AppDef<APP, PROP, PARAM> installationHint(//
 					final FieldValuesSupplier<APP, PROP, PARAM, String> firstText, //
 					final FieldValuesSupplier<APP, PROP, PARAM, String>... otherTexts //
 	) {
@@ -80,7 +80,7 @@ public final class CommonProps {
 									.build());
 						});
 						fields.add(JsonFormlyUtil.buildCheckboxFromNameable(property) //
-								.setLabel(TranslationUtil.getTranslation(parameter.bundle, "acceptCondition.label")) //
+								.setLabel(TranslationUtil.getTranslation(parameter.bundle(), "acceptCondition.label")) //
 								.build());
 						field.setFieldGroup(fields.build());
 					});

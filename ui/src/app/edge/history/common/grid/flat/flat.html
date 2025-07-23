@@ -1,5 +1,5 @@
-<oe-flat-widget button routerLink="/device/{{edge.id}}/history/gridchart" [icon]="{name: 'oe-grid', color:'dark'}"
-    [title]="'General.grid' | translate" *ngIf="isInitialized">
+<oe-flat-widget button [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/gridchart'"
+    [icon]="{name: 'oe-grid', color:'dark'}" [title]="'General.grid' | translate" *ngIf="isInitialized">
     <oe-flat-widget-line *ngIf="offGridTime > 0" [name]="'GRID_STATES.OFF_GRID' | translate"
         channelAddress="_sum/GridModeOffGridTime" [converter]="TIME_CONVERTER">
     </oe-flat-widget-line>

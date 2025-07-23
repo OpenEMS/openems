@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.edge.common.update.Updateable;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
@@ -86,5 +87,13 @@ public interface OperatingSystem {
 	 * @return a future with the result
 	 */
 	public CompletableFuture<String> getOperatingSystemVersion();
+
+	/**
+	 * Returns the {@link Updateable} to update the current operating system.
+	 * 
+	 * @return the {@link Updateable} for the current operating system or null if
+	 *         not implemented
+	 */
+	public Updateable getSystemUpdateable();
 
 }

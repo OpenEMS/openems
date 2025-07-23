@@ -202,4 +202,14 @@ public class DummyMetadata implements Metadata {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
+	@Override
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
 }

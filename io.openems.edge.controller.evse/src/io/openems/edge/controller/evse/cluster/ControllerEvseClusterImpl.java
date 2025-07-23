@@ -71,10 +71,12 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() {
-		for (var result : calculate(this.config.distributionStrategy(), this.sum, this.ctrls, this::logDebug)) {
-			// Apply current & commands
-			result.ctrl().apply(result.current(), result.commands());
-		}
+		calculate(this.config.distributionStrategy(), this.sum, this.ctrls, this::logDebug) //
+				.streamEntries() //
+				.forEach(e -> {
+					// Apply actions
+					e.ctrl.apply(e.actions.build());
+				});
 	}
 
 	protected void logDebug(String message) {

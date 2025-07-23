@@ -1,12 +1,9 @@
 package io.openems.shared.influxdb.proxy;
 
-import static io.openems.common.utils.CollectorUtils.toDoubleMap;
-
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -103,14 +100,6 @@ public class FluxProxy extends QueryProxy {
 			throws OpenemsNamedException {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public Map<Integer, Map<String, Long>> queryAvailableSince(InfluxConnection influxConnection, String bucket)
-			throws OpenemsNamedException {
-		final var query = this.buildFetchAvailableSinceQuery(bucket);
-		final var queryResult = this.executeQuery(influxConnection, query);
-		return convertAvailableSinceQueryResult(queryResult, this.tag);
 	}
 
 	@Override
@@ -230,16 +219,6 @@ public class FluxProxy extends QueryProxy {
 			Resolution resolution) throws OpenemsException {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	protected String buildFetchAvailableSinceQuery(//
-			String bucket //
-	) {
-		return Flux.from(bucket) //
-				.range(0L, 1L) //
-				.filter(Restrictions.measurement().equal(QueryProxy.AVAILABLE_SINCE_MEASUREMENT)) //
-				.toString();
 	}
 
 	@Override
@@ -440,17 +419,4 @@ public class FluxProxy extends QueryProxy {
 		return latestValues;
 	}
 
-	private static Map<Integer, Map<String, Long>> convertAvailableSinceQueryResult(List<FluxTable> queryResult,
-			String tag) {
-		if (queryResult == null || queryResult.isEmpty()) {
-			return new TreeMap<>();
-		}
-		return queryResult.stream() //
-				.flatMap(t -> t.getRecords().stream()) //
-				.collect(toDoubleMap(//
-						record -> Integer.parseInt((String) record.getValueByKey(tag)), //
-						record -> (String) record.getValueByKey(QueryProxy.CHANNEL_TAG), //
-						record -> (Long) record.getValue()) //
-				);
-	}
 }

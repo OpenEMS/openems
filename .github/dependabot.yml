@@ -23,6 +23,12 @@ updates:
       guava:
         patterns:
           - "com.google.guava:*"
+      retrofit2:
+        patterns:
+          - "com.squareup.retrofit2:*"
+      prometheus:
+        patterns:
+          - "io.prometheus:*"
 
   - package-ecosystem: npm
     directory: "/ui"

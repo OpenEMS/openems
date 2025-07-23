@@ -1,5 +1,7 @@
 package io.openems.edge.ess.power.api;
 
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -27,23 +29,23 @@ public abstract class Inverter {
 			// Asymmetric Mode
 			return switch (essType) {
 			case SINGLE_PHASE -> {
-				var phase = ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase();
+				var phase = ((ManagedSinglePhaseEss) ess).getPhase();
 				yield new Inverter[] { //
-						phase == Phase.L1 //
-								? new SinglePhaseInverter(essId, Phase.L1)
-								: new DummyInverter(essId, Phase.L1),
-						phase == Phase.L2 //
-								? new SinglePhaseInverter(essId, Phase.L2)
-								: new DummyInverter(essId, Phase.L2),
-						phase == Phase.L3 //
-								? new SinglePhaseInverter(essId, Phase.L3)
-								: new DummyInverter(essId, Phase.L3), //
+						phase == SinglePhase.L1 //
+								? new SinglePhaseInverter(essId, phase) //
+								: new DummyInverter(essId, phase.toSingleOrAllPhase), //
+						phase == SinglePhase.L2 //
+								? new SinglePhaseInverter(essId, phase) //
+								: new DummyInverter(essId, phase.toSingleOrAllPhase), //
+						phase == SinglePhase.L3 //
+								? new SinglePhaseInverter(essId, phase) //
+								: new DummyInverter(essId, phase.toSingleOrAllPhase) //
 				};
 			}
 			case ASYMMETRIC -> new Inverter[] { //
-					new SinglePhaseInverter(essId, Phase.L1), //
-					new SinglePhaseInverter(essId, Phase.L2), //
-					new SinglePhaseInverter(essId, Phase.L3) //
+					new SinglePhaseInverter(essId, SinglePhase.L1), //
+					new SinglePhaseInverter(essId, SinglePhase.L2), //
+					new SinglePhaseInverter(essId, SinglePhase.L3) //
 				};
 			case META //
 				-> new Inverter[0];
@@ -54,9 +56,9 @@ public abstract class Inverter {
 	}
 
 	private final String essId;
-	private final Phase phase;
+	private final SingleOrAllPhase phase;
 
-	protected Inverter(String essId, Phase phase) {
+	protected Inverter(String essId, SingleOrAllPhase phase) {
 		this.essId = essId;
 		this.phase = phase;
 	}
@@ -65,7 +67,7 @@ public abstract class Inverter {
 		return this.essId;
 	}
 
-	public Phase getPhase() {
+	public SingleOrAllPhase getPhase() {
 		return this.phase;
 	}
 
@@ -105,6 +107,6 @@ public abstract class Inverter {
 
 	@Override
 	public String toString() {
-		return this.essId + this.phase.getSymbol();
+		return this.essId + this.phase.symbol;
 	}
 }

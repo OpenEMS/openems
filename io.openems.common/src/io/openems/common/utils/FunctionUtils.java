@@ -3,13 +3,63 @@ package io.openems.common.utils;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.function.ThrowingRunnable;
 
 public final class FunctionUtils {
+
+	/**
+	 * Helper method to always return the same object.
+	 * 
+	 * @param <T>   the type of the input value
+	 * @param <R>   the type of the return object
+	 * @param value the object to return every time {@link Function#apply(Object)}
+	 *              is called
+	 * @return a {@link Function} which return always the same object when
+	 *         {@link Function#apply(Object)} is called
+	 */
+	public static <T, R> Function<T, R> alwaysReturn(R value) {
+		return i -> value;
+	}
+
+	/**
+	 * Helper method to always return the same object.
+	 * 
+	 * @param <T>   the type of the input value
+	 * @param <R>   the type of the return object
+	 * @param <E>   the {@link Exception} the method may throw
+	 * @param value the object to return every time
+	 *              {@link ThrowingFunction#apply(Object)} is called
+	 * @return a {@link ThrowingFunction} which return always the same object when
+	 *         {@link ThrowingFunction#apply(Object)} is called
+	 */
+	public static <T, R, E extends Exception> ThrowingFunction<T, R, E> alwaysReturnThrowing(R value) {
+		return i -> value;
+	}
+
+	/**
+	 * Helper method to always throw the same exception when
+	 * {@link ThrowingFunction#apply(Object)} is called.
+	 * 
+	 * @param <T>       the type of the input value
+	 * @param <R>       the type of the return object
+	 * @param <E>       the {@link Exception} the method may throw
+	 * @param exception the exception to throw when
+	 *                  {@link ThrowingFunction#apply(Object)} is called
+	 * @return a {@link ThrowingFunction} which always throws the same
+	 *         {@link Exception} when {@link ThrowingFunction#apply(Object)} is
+	 *         called
+	 */
+	public static <T, R, E extends Exception> ThrowingFunction<T, R, E> alwaysThrow(E exception) {
+		return i -> {
+			throw exception;
+		};
+	}
 
 	/**
 	 * Helper method to create empty {@link Runnable} or {@link ThrowingRunnable}.

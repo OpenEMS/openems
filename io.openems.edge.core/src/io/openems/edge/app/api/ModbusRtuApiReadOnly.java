@@ -132,7 +132,7 @@ public class ModbusRtuApiReadOnly extends AbstractOpenemsAppWithProps<ModbusRtuA
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var portName = this.getString(p, Property.PORT_NAME);
-			final var alias = this.getString(p, Property.ALIAS);
+			final var alias = this.getString(p, l, Property.ALIAS);
 			final var controllerId = this.getId(t, p, Property.CONTROLLER_ID);
 			final var apiTimeout = this.getInt(p, Property.API_TIMEOUT);
 			final var controllerIds = this.getJsonArray(p, Property.COMPONENT_IDS);

@@ -243,65 +243,67 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 
 	private record RegulationValues(//
 			boolean isBatteryStarted, //
-			Value<Integer> voltage, //
-			Value<Integer> current, //
-			Value<Integer> chargeMaxVoltage, //
-			Value<Integer> dischargeMinVoltage, //
-			Value<Integer> innerResistance, //
-			Value<Integer> bvpChargeBms, //
-			Value<Integer> bvpDischargeBms, //
-			Value<Integer> inverterDcMinVoltage, //
-			Value<Integer> inverterDcMaxVoltage) {
-		public RegulationValues(Battery battery, SymmetricBatteryInverter inverter) {
-			this(//
-					battery.isStarted(), //
-					battery.getVoltage(), //
-					battery.getCurrent(), //
-					battery.getChargeMaxVoltage(), //
-					battery.getDischargeMinVoltage(), //
-					battery.getInnerResistance(), //
-					battery instanceof BatteryVoltageProtection b ? b.getBvpChargeBms() : null, //
-					battery instanceof BatteryVoltageProtection b ? b.getBvpDischargeBms() : null, //
-					inverter.getDcMinVoltage(), //
-					inverter.getDcMaxVoltage());
+			int voltage, //
+			int current, //
+			int chargeMaxVoltage, //
+			int dischargeMinVoltage, //
+			int innerResistance, //
+			Integer bvpChargeBms, // nullable
+			Integer bvpDischargeBms, // nullable
+			int inverterDcMinVoltage, //
+			int inverterDcMaxVoltage) {
+		private static RegulationValues from(Battery battery, SymmetricBatteryInverter inverter) {
+			var isBatteryStarted = battery.isStarted();
+			var voltage = battery.getVoltage().get();
+			var current = battery.getCurrent().get();
+			var chargeMaxVoltage = battery.getChargeMaxVoltage().get();
+			var dischargeMinVoltage = battery.getDischargeMinVoltage().get();
+			var innerResistance = battery.getInnerResistance().get();
+			var bvpChargeBms = battery instanceof BatteryVoltageProtection b ? b.getBvpChargeBms().get() : null;
+			var bvpDischargeBms = battery instanceof BatteryVoltageProtection b ? b.getBvpDischargeBms().get() : null;
+			var inverterDcMinVoltage = inverter.getDcMinVoltage().get();
+			var inverterDcMaxVoltage = inverter.getDcMaxVoltage().get();
+			if (!isBatteryStarted //
+					|| voltage == null//
+					|| current == null //
+					|| chargeMaxVoltage == null//
+					|| dischargeMinVoltage == null//
+					|| innerResistance == null//
+					|| inverterDcMinVoltage == null //
+					|| inverterDcMaxVoltage == null//
+			) {
+				return null;
+			}
+			return new RegulationValues(isBatteryStarted, voltage, current, chargeMaxVoltage, dischargeMinVoltage,
+					innerResistance, bvpChargeBms, bvpDischargeBms, inverterDcMinVoltage, inverterDcMaxVoltage);
 		}
-	}
-
-	private static boolean areRegulationValuesDefined(RegulationValues regulationValues) {
-		return regulationValues.isBatteryStarted()//
-				&& regulationValues.voltage.isDefined()//
-				&& regulationValues.current.isDefined() //
-				&& regulationValues.chargeMaxVoltage.isDefined()//
-				&& regulationValues.dischargeMinVoltage.isDefined()//
-				&& regulationValues.innerResistance.isDefined()//
-				&& regulationValues.inverterDcMinVoltage.isDefined()//
-				&& regulationValues.inverterDcMaxVoltage.isDefined();//
 	}
 
 	private static Integer calculateMaxCurrent(Battery battery, SymmetricBatteryInverter inverter, int cycleTime,
 			Pt1filter pt1Filter, BiFunction<Integer, Integer, Integer> dcLimit,
 			BiFunction<Double, Double, Double> typeUtilsMethod, boolean invert) {
-		var regulationValues = new RegulationValues(battery, inverter);
-		if (!areRegulationValuesDefined(regulationValues)) {
+		var regulationValues = RegulationValues.from(battery, inverter);
+		if (regulationValues == null) {
 			return null;
 		}
 
-		final var batteryLimit = invert//
-				? TypeUtils.min(regulationValues.chargeMaxVoltage.get(), regulationValues.bvpChargeBms.get())
-				: TypeUtils.max(regulationValues.dischargeMinVoltage.get(), regulationValues.bvpDischargeBms.get());
+		final var batteryLimit = invert
+				? TypeUtils.min(regulationValues.chargeMaxVoltage, regulationValues.bvpChargeBms)
+				: TypeUtils.max(regulationValues.dischargeMinVoltage, regulationValues.bvpDischargeBms);
+
 		final var inverterLimit = invert //
-				? regulationValues.inverterDcMaxVoltage.get()
-				: regulationValues.inverterDcMinVoltage.get();
+				? regulationValues.inverterDcMaxVoltage
+				: regulationValues.inverterDcMinVoltage;
 		final var limitVoltage = dcLimit.apply(//
 				batteryLimit, //
 				inverterLimit);
 
-		var subtractLimit = subtract(regulationValues.voltage.get(), limitVoltage);
+		var subtractLimit = subtract(regulationValues.voltage, limitVoltage);
 		var voltageDifference = invert ? multiply(subtractLimit, -1) : subtractLimit;
 
-		var resistance = regulationValues.innerResistance.get() / 1000.;
+		var resistance = regulationValues.innerResistance / 1000.;
 		final var deltaChargeCurrent = voltageDifference / resistance;
-		var maxCurrentVoltLimit = typeUtilsMethod.apply(deltaChargeCurrent, (double) regulationValues.current.get());
+		var maxCurrentVoltLimit = typeUtilsMethod.apply(deltaChargeCurrent, (double) regulationValues.current);
 		pt1Filter.setCycleTime(cycleTime);
 		return pt1Filter.applyPt1Filter(max(maxCurrentVoltLimit, -5.0));
 	}
