@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplus1pm;
+package io.openems.edge.io.shelly.shellypmminigen3;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;

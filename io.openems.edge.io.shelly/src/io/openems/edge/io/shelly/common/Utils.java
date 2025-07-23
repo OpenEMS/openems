@@ -1,5 +1,7 @@
 package io.openems.edge.io.shelly.common;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
@@ -7,6 +9,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+
+import com.google.gson.JsonElement;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
@@ -56,6 +64,18 @@ public class Utils {
 	}
 
 	/**
+	 * Generates a standard Debug-Log string for Shellys without digital outputs.
+	 * 
+	 * @param activePowerChannel the ActivePower-Channel
+	 * @return suitable for {@link OpenemsComponent#debugLog()}
+	 */
+	public static String generateDebugLog(Channel<Integer> activePowerChannel) {
+		var b = new StringBuilder();
+		b.append(activePowerChannel.value().asString());
+		return b.toString();
+	}
+
+	/**
 	 * Executes a write command to a specified relay channel by constructing and
 	 * sending an HTTP request based on the channel's current and intended state.
 	 * This method compares the current state with the desired state, and only
@@ -99,6 +119,64 @@ public class Utils {
 		});
 
 		return future;
+	}
+
+	/**
+	 * Subscribes to the /shelly endpoint once to check for authentication status.
+	 * Sets the AUTH_ENABLED_WARNING channel and logs a warning if authentication is
+	 * enabled.
+	 * 
+	 * @param baseUrl    the base URL of the Shelly device
+	 * @param httpBridge the HTTP bridge for making requests
+	 * @param component  the ShellyCommon component
+	 * @param logger     the logger for logging messages
+	 */
+	public static void subscribeAuthenticationCheck(String baseUrl, BridgeHttp httpBridge, ShellyCommon component,
+			Logger logger) {
+		httpBridge.get(baseUrl + "/shelly").thenAccept(response -> {
+			try {
+				var json = JsonUtils.parseToJsonObject(response.data());
+				processShellyInfo(json, component, logger);
+			} catch (OpenemsNamedException e) {
+				// Log error but don't fail - authentication check is not critical
+				logger.debug("Failed to parse /shelly response: " + e.getMessage());
+			}
+		}).exceptionally(error -> {
+			// Log error but don't fail - authentication check is not critical
+			logger.debug("Failed to fetch /shelly info: " + error.getMessage());
+			return null;
+		});
+	}
+
+	/**
+	 * Process the response from /shelly endpoint to check authentication status.
+	 * 
+	 * @param json      the parsed JSON response
+	 * @param component the ShellyCommon component
+	 * @param logger    the logger for logging messages
+	 */
+	private static void processShellyInfo(JsonElement json, ShellyCommon component, Logger logger) {
+		try {
+			var jsonObj = getAsJsonObject(json);
+
+			// Check auth_en field
+			var authEnabled = getAsBoolean(jsonObj, "auth_en");
+			component._setAuthEnabledWarning(authEnabled);
+
+			// Log device info
+			if (authEnabled) {
+				logger.warn(
+						"Authentication is enabled on Shelly device [{}]. Please disable authentication in Shelly settings for OpenEMS to work properly.",
+						component.id());
+			}
+
+			// Get device generation
+			var gen = jsonObj.has("gen") ? jsonObj.get("gen").getAsString() : "unknown";
+			component.channel(ShellyCommon.ChannelId.DEVICE_GENERATION).setNextValue(gen);
+
+		} catch (OpenemsNamedException e) {
+			logger.debug("Error parsing /shelly response: " + e.getMessage());
+		}
 	}
 
 }

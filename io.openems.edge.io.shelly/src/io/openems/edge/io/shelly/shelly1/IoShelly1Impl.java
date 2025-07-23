@@ -37,6 +37,8 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -51,7 +53,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class IoShelly1Impl extends AbstractOpenemsComponent
-		implements IoShelly1, DigitalOutput, OpenemsComponent, TimedataProvider, EventHandler {
+		implements IoShelly1, DigitalOutput, OpenemsComponent, ShellyCommon, TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(IoShelly1.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
@@ -69,7 +71,8 @@ public class IoShelly1Impl extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShelly1.ChannelId.values() //
+				IoShelly1.ChannelId.values(), //
+				ShellyCommon.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShelly1.ChannelId.RELAY) //
@@ -86,6 +89,9 @@ public class IoShelly1Impl extends AbstractOpenemsComponent
 			return;
 		}
 
+		// Subscribe to check auth status on activation
+		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log);
+		
 		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
 	}
 
