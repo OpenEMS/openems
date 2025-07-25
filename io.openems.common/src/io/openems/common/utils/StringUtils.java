@@ -154,4 +154,15 @@ public class StringUtils {
 		}
 		return OptionalInt.empty();
 	}
+
+	/**
+	 * Returns {@code null} if the given string is {@code null} or blank, otherwise
+	 * returns the string itself.
+	 *
+	 * @param value the input string
+	 * @return {@code null} if input is {@code null} or blank, else the input string
+	 */
+	public static String emptyToNull(String value) {
+		return (value == null || value.isBlank()) ? null : value;
+	}
 }

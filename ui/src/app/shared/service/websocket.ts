@@ -56,8 +56,8 @@ export class Websocket implements WebsocketInterface {
     private translate: TranslateService,
     private cookieService: CookieService,
     private router: Router,
-    private pagination: Pagination,
     private userService: UserService,
+    private pagination: Pagination,
   ) {
     service.websocket = this;
 

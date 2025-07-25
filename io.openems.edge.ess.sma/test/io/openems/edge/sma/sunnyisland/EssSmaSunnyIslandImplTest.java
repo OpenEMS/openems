@@ -5,7 +5,9 @@ import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
 public class EssSmaSunnyIslandImplTest {
@@ -19,8 +21,11 @@ public class EssSmaSunnyIslandImplTest {
 						.setId("ess0") //
 						.setModbusId("modbus0") //
 						.setPhase(L1) //
+						.setCapacity(10_000) //
 						.build()) //
-		;
+				.next(new TestCase() //
+						.output(SymmetricEss.ChannelId.CAPACITY, 10_000)) //
+				.deactivate();
 	}
 
 }

@@ -1,3 +1,4 @@
+<ngx-spinner name="user"></ngx-spinner>
 <ion-content>
   <ion-grid>
     <ion-row class="ion-justify-content-center">
@@ -163,6 +164,10 @@
             <ng-container *ngIf="isAtLeastAdmin">
               <ion-item lines="none">
                 <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">Debug-Mode
+                </ion-checkbox>
+              </ion-item>
+              <ion-item [disabled]="newNavigationForced" lines="none" *ngIf="useNewUi !== null">
+                <ion-checkbox (ionChange)="toggleNewUI($event)" [(ngModel)]="useNewUi">Neues UI
                 </ion-checkbox>
               </ion-item>
               <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">

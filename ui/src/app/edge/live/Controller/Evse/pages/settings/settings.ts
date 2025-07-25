@@ -23,12 +23,11 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
         }`,
     ],
 })
-export class ModalComponent extends AbstractFormlyComponent {
 
+export class EvseSettingsComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     // Increased skip count
-    protected override SKIP_COUNT: number = 8;
     private component: EdgeConfig.Component | null = null;
     private energySessionLimitChannel: ChannelAddress | null = null;
 
@@ -46,7 +45,7 @@ export class ModalComponent extends AbstractFormlyComponent {
         const lines: OeFormlyField[] = [
             {
                 type: "value-from-form-control-line",
-                name: "Energielimit",
+                name: translate.instant("EVSE_SINGLE.SETTINGS.ENERGY_LIMIT"),
                 controlName: "manualEnergySessionLimit",
                 converter: Converter.WATT_HOURS_IN_KILO_WATT_HOURS,
             },
@@ -54,7 +53,10 @@ export class ModalComponent extends AbstractFormlyComponent {
                 type: "range-button-from-form-control-line",
                 controlName: "manualEnergySessionLimit",
                 properties: {
-                    tickMin: 0, tickMax: 100000, step: 1000, tickFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val),
+                    tickMin: 0,
+                    tickMax: 100000,
+                    step: 1000,
+                    tickFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val),
                     pinFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val),
                 },
             }];
@@ -68,23 +70,19 @@ export class ModalComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-
-        if (this.skipCurrentData || this.form.dirty || this.form.touched || !this.energySessionLimitChannel || currentData.allComponents[this.energySessionLimitChannel.toString()] == null) {
-            return;
-        }
-
-        const manualEnergySessionLimit = currentData.allComponents[this.energySessionLimitChannel.toString()];
-        this.form.controls["manualEnergySessionLimit"].setValue(manualEnergySessionLimit);
-        this.form.controls["manualEnergySessionLimit"].markAsTouched();
+        this.setFormControlSafely<number>(this.form, "manualEnergySessionLimit", currentData, this.energySessionLimitChannel);
     }
 
     protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
         this.component = config.getComponent(this.route.snapshot.params.componentId);
         const edge = this.service.currentEdge();
-        return ModalComponent.generateView(this.translate, this.component, edge);
+        return EvseSettingsComponent.generateView(this.translate, this.component, edge);
     }
 
     protected override getFormGroup(): FormGroup {
+        if (Object.keys(this.form.controls).length > 0) {
+            return this.form;
+        }
         return new FormGroup({
             manualEnergySessionLimit: new FormControl(null),
         });

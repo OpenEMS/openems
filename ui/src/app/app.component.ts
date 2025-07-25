@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, OnDestroy, OnInit, signal, WritableSignal } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
@@ -11,6 +11,7 @@ import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
+import { UserService } from "./shared/service/user.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
@@ -29,7 +30,6 @@ export class AppComponent implements OnInit, OnDestroy {
   protected isUserAllowedToSeeOverview: boolean = false;
   protected isUserAllowedToSeeFooter: boolean = false;
   protected isHistoryDetailView: boolean = false;
-  protected position: WritableSignal<"left" | "bottom" | null> = signal(null);
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private subscription: Subscription = new Subscription();
@@ -40,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public modalCtrl: ModalController,
     public router: Router,
     public service: Service,
+    private userService: UserService,
     public toastController: ToastController,
     public websocket: Websocket,
     private globalRouteChangeHandler: GlobalRouteChangeHandler,
@@ -47,7 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private appService: PlatFormService,
     private title: Title,
     private stateService: AppStateTracker,
-    public navigationService: NavigationService,
+    protected navigationService: NavigationService,
     protected navCtrl: NavController
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
@@ -68,13 +69,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.appService.listen();
     SplashScreen.hide();
 
-    effect(() => {
-      /* eslint-disable @typescript-eslint/no-unused-vars */
-      const currentNode = navigationService.currentNode();
-
-      const nodes = navigationService.navigationNodes();
-      this.position.set(this.navigationService.position);
-    });
   }
 
   ngOnDestroy() {

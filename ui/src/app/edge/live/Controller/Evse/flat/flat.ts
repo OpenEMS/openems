@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { ModalComponent } from "../modal/modal";
+import { ModalComponent } from "../pages/home";
 
 @Component({
     selector: "oe-controller-evse-single",

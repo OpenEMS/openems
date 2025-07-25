@@ -1,6 +1,4 @@
-package io.openems.edge.common.meta;
-
-import java.util.Optional;
+package io.openems.edge.common.meta.types;
 
 public record Coordinates(double latitude, double longitude) {
 
@@ -10,14 +8,14 @@ public record Coordinates(double latitude, double longitude) {
 	 *
 	 * @param latitude  the latitude value (must be between -90 and 90)
 	 * @param longitude the longitude value (must be between -180 and 180)
-	 * @return an {@link Optional} containing a new {@link Coordinates} object if
-	 *         valid, or an empty {@link Optional} if invalid or not set
+	 * @return a new {@link Coordinates} object if valid, or null if invalid or not
+	 *         set
 	 */
-	public static Optional<Coordinates> of(double latitude, double longitude) {
+	public static Coordinates of(double latitude, double longitude) {
 		if (isLatitudeValid(latitude) && isLongitudeValid(longitude)) {
-			return Optional.of(new Coordinates(latitude, longitude));
+			return new Coordinates(latitude, longitude);
 		}
-		return Optional.empty();
+		return null;
 	}
 
 	public Coordinates {

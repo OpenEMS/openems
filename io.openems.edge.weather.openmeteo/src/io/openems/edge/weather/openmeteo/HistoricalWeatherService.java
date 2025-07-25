@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.UrlBuilder;
-import io.openems.edge.common.meta.Coordinates;
+import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.WeatherData;
 
 public class HistoricalWeatherService {
@@ -37,15 +36,15 @@ public class HistoricalWeatherService {
 		this.baseUrl = this.buildBaseUrl();
 	}
 
-	protected CompletableFuture<WeatherData> getWeatherData(Optional<Coordinates> coordinates, ZonedDateTime dateFrom,
+	protected CompletableFuture<WeatherData> getWeatherData(Coordinates coordinates, ZonedDateTime dateFrom,
 			ZonedDateTime dateTo, ZoneId zone) {
-		if (coordinates.isEmpty()) {
+		if (coordinates == null) {
 			this.log.error("Can't get historical weather data, coordinates are missing");
 			return CompletableFuture.completedFuture(WeatherData.EMPTY_WEATHER_DATA);
 		}
 
 		String url = this.buildHistoricalUrl(//
-				coordinates.get(), //
+				coordinates, //
 				dateFrom.withZoneSameInstant(ZoneOffset.UTC).toLocalDate(), //
 				dateTo.withZoneSameInstant(ZoneOffset.UTC).toLocalDate(), //
 				ZoneId.of("UTC")//

@@ -1,6 +1,9 @@
+import { TranslateService } from "@ngx-translate/core";
 import { Theme } from "src/app/edge/history/shared";
 import { environment } from "src/environments";
 
+import { NavigationId, NavigationTree } from "../components/navigation/shared";
+import { EdgeConfig } from "../shared";
 import { Role } from "../type/role";
 import { ArrayUtils } from "../utils/array/array.utils";
 import { AuthenticateResponse } from "./response/authenticateResponse";
@@ -16,6 +19,13 @@ export type Edges = [{
     firstSetupProtocol: Date
 }];
 
+export enum UserSettings {
+    JSON_RPC_TEST = "jsonrpcTest",
+    THEME = "theme",
+    CAPACITOR_TEST = "capacitorTest",
+    USE_NEW_UI = "useNewUI",
+}
+
 export class User {
 
     constructor(
@@ -24,7 +34,7 @@ export class User {
         public globalRole: "admin" | "installer" | "owner" | "guest",
         public language: string,
         public hasMultipleEdges: boolean,
-        public settings: {},
+        public settings: Partial<{ [k in UserSettings]: number | boolean | string }>,
     ) { }
 
     /**
@@ -67,7 +77,31 @@ export class User {
         return null;
     }
 
+    /**
+     * Gets the current theme from user settings
+     *
+     * @returns the theme if existing, else null
+     */
+    public getUseNewUIFromSettings(): boolean {
+
+        if (UserSettings.USE_NEW_UI in this.settings) {
+            return this.settings[UserSettings.USE_NEW_UI] as boolean;
+        }
+
+        return false;
+    }
+
     public isAtLeast(role: Role) {
         return Role.isAtLeast(this.globalRole, role);
     }
+
+    public getNavigationTree(navigationTree: NavigationTree, translate: TranslateService, components: { [id: string]: EdgeConfig.Component; }) {
+
+        const showNewUI = navigationTree != null || this.getUseNewUIFromSettings();
+        if (!showNewUI) {
+            return;
+        }
+        navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+    }
+
 };

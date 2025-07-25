@@ -105,7 +105,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Function<WebSocket, T> wsData)
 			throws ReflectionException {
 		// Call the private WebSocketClient#reset method via Reflection
-		invokeMethodWithoutArgumentsViaReflection(ws, "reset");
+		invokeMethodWithoutArgumentsViaReflection(WebSocketClient.class, ws, "reset");
 
 		// Set attachment to newly created engine
 		final var newAttachment = wsData.apply(ws);

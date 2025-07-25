@@ -26,6 +26,12 @@ describe("Edge", () => {
                 isAtLeast(role) {
                     return true;
                 },
+                getNavigationTree(navigation, translate) {
+                    return null;
+                },
+                getUseNewUIFromSettings: function (): boolean {
+                    throw new Error("Function not implemented.");
+                },
             },
         }),
     });
@@ -91,6 +97,12 @@ export async function expectNgOnInit(serviceSypObject: jasmine.SpyObj<Service>, 
             },
             isAtLeast(role) {
                 return true;
+            },
+            getNavigationTree(navigation, translate) {
+                return null;
+            },
+            getUseNewUIFromSettings: function (): boolean {
+                throw new Error("Function not implemented.");
             },
         },
     });

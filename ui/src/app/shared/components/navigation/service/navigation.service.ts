@@ -1,41 +1,82 @@
 import { Location } from "@angular/common";
-import { Directive, effect, signal, WritableSignal } from "@angular/core";
+import { Directive, effect, signal, untracked, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { User } from "src/app/shared/jsonrpc/shared";
 import { RouteService } from "src/app/shared/service/route.service";
-import { Role } from "src/app/shared/type/role";
-import { Edge, EdgeConfig, Service, Websocket } from "../../../shared";
+import { UserService } from "src/app/shared/service/user.service";
+import { Edge, EdgeConfig, Service } from "../../../shared";
 import { ArrayUtils } from "../../../utils/array/array.utils";
 import { AssertionUtils } from "../../../utils/assertions/assertions.utils";
-import { Name } from "../../shared/name";
-import { NavigationId, NavigationTree } from "../shared";
+import { NavigationTree } from "../shared";
 
 @Directive()
 export class NavigationService {
 
-    public navigationNodes: WritableSignal<NavigationTree | null> = signal(null);
+    public navigationTree: WritableSignal<NavigationTree | null> = signal(null);
     public currentNode: WritableSignal<NavigationTree | null> = signal(null);
-    public position: "left" | "bottom" | null = null;
+    public position: WritableSignal<"left" | "bottom" | null> = signal(null);
     public headerOptions: WritableSignal<{ showBackButton: boolean }> = signal({ showBackButton: false });
 
     constructor(
         private service: Service,
+        private userService: UserService,
         private routeService: RouteService,
         private router: Router,
         private location: Location,
-        private websocket: Websocket,
         private translate: TranslateService,
     ) {
 
         effect(async () => {
-            const currentEdge = this.service.currentEdge();
-            const currentUrl = this.routeService.currentUrl();
-            currentEdge?.getFirstValidConfig(websocket).then((config: EdgeConfig) => {
-                const nodes = this.createNavigationTree(config.components, config.factories, currentEdge, translate);
-                this.navigationNodes.set(nodes);
-                this.initNavigation(currentUrl, nodes);
+            const _currentUrl = this.routeService.currentUrl();
+            const currentEdge = await this.service.getCurrentEdge();
+            currentEdge?.getFirstValidConfig(service.websocket).then(async (config: EdgeConfig) => {
+                this.updateNavigationNodes(_currentUrl, currentEdge, translate);
             });
         });
+    }
+
+    public static isNewNavigation(user: User | null, edge: Edge | null) {
+        return (user && user.getUseNewUIFromSettings()) || NavigationService.forceNewNavigation(edge);
+    }
+
+    public static forceNewNavigation(edge: Edge | null): boolean {
+        const config = edge?.getCurrentConfig() ?? null;
+
+        if (config == null) {
+            return false;
+        }
+        return config.hasFactories(["Evse.Controller.Single"]);
+    }
+
+    /**
+     * Creates a navigation Tree
+     *
+     * @param components the edgeconfig components
+     * @param factories the edgeconfig factories
+     * @param edge the current edge
+     * @param translate the translate service
+     * @returns a navigationTree
+     */
+    private static async createNavigationTree(edge: Edge, translate: TranslateService): Promise<NavigationTree | null> {
+        if (edge == null) {
+            return Promise.resolve(null);
+        }
+        return await edge.createNavigationTree(translate);
+    }
+
+    /**
+     * Updates the navigation nodes
+     *
+     * @param config the edge config
+     * @param currentEdge the current edge
+     * @param translate the translate service
+     * @param currentUrl the current url
+     */
+    public async updateNavigationNodes(currenUrl: string | null, edge: Edge, translate: TranslateService) {
+        const navigationTree = await NavigationService.createNavigationTree(edge, translate);
+        this.navigationTree.set(navigationTree);
+        this.initNavigation(currenUrl, navigationTree);
     }
 
     /**
@@ -81,13 +122,14 @@ export class NavigationService {
      * @param currentUrl the current url
      * @param nodes the navigation tree
      */
-    private async initNavigation(currentUrl: string | null, nodes: NavigationTree) {
-        const activeNode = this.findActiveNode(nodes, currentUrl);
+    private async initNavigation(currentUrl: string | null, navigationTree: NavigationTree | null) {
+        const activeNode = this.findActiveNode(navigationTree, currentUrl);
+        const user = this.userService.currentUser();
 
-        if (nodes && nodes.children && nodes.children.length > 0) {
-            this.position = this.service.isSmartphoneResolution ? "bottom" : "left";
+        if (NavigationService.isNewNavigation(user, untracked(() => this.service.currentEdge()))) {
+            this.position.set(this.service.isSmartphoneResolution ? "bottom" : "left");
         } else {
-            this.position = null;
+            this.position.set(null);
         }
         this.headerOptions.set({ showBackButton: activeNode == null });
         this.currentNode.set(NavigationTree.of(activeNode));
@@ -208,49 +250,4 @@ export class NavigationService {
         }
         return currentNavigationNode;
     }
-
-    /**
-     * Creates a navigation Tree
-     *
-     * @param components the edgeconfig components
-     * @param factories the edgeconfig factories
-     * @param edge the current edge
-     * @param translate the translate service
-     * @returns a navigationTree
-     */
-    private createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory }, edge: Edge, translate: TranslateService): NavigationTree {
-
-
-        // Create copy of navigationTree, avoid call by reference
-        const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree.slice() as ConstructorParameters<typeof NavigationTree>;
-        const navigationTree: NavigationTree = new NavigationTree(..._baseNavigationTree);
-
-        const baseMode: NavigationTree["mode"] = "label";
-        for (const [componentId, component] of Object.entries(components)) {
-            switch (component.factoryId) {
-                case "Evse.Controller.Single":
-                    navigationTree.setChild(NavigationId.LIVE,
-                        new NavigationTree(
-                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
-
-                            ...(edge.roleIsAtLeast(Role.ADMIN)
-                                ? [new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
-                                : []),
-
-                            new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
-                            new NavigationTree("settings", "settings", { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
-                        ], navigationTree));
-                    break;
-                case "Controller.IO.Heating.Room":
-                    navigationTree.setChild(NavigationId.LIVE,
-                        new NavigationTree(
-                            componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
-                            navigationTree,));
-                    break;
-            }
-        }
-
-        return navigationTree;
-    }
 }
-export const baseNavigationTree: ConstructorParameters<typeof NavigationTree> = [NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [], null];

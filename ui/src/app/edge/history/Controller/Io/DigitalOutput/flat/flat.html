@@ -1,5 +1,5 @@
 <oe-flat-widget button *ngIf="isInitialized" [title]="'Laststeuerung'" button
-    routerLink="/device/{{edge.id}}/history/digitaloutputchart" [icon]="{name:
+    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/digitaloutputchart'" [icon]="{name:
     'power-outline',color:'normal'}">
 
     <ng-container *ngFor="let controller of singleThresholdControllers; let first = first">

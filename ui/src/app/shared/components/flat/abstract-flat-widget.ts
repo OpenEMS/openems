@@ -8,6 +8,7 @@ import { Subject } from "rxjs";
 
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Service } from "../../service/service";
+import { UserService } from "../../service/user.service";
 import { Websocket } from "../../service/websocket";
 import { Converter } from "../shared/converter";
 import { DataService } from "../shared/dataservice";
@@ -31,8 +32,14 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
+    /** @deprecated used for new navigation migration purposes */
+    public isNewNavigation = false;
+    /** @deprecated */
+    public newNavigationUrlSegment: string;
+
     private injector = inject(Injector);
     private subscription: EffectRef[] = [];
+
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -43,9 +50,17 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         protected dataService: DataService,
         protected formBuilder: FormBuilder,
         protected router: Router,
-    ) { }
+        protected userService: UserService,
+    ) {
+
+        effect(() => {
+            const isNewNavigation = this.userService.isNewNavigation();
+            this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+        });
+    }
 
     public ngOnInit() {
+
         this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically

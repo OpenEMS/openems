@@ -90,6 +90,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-dev.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -102,6 +106,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-prod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -114,6 +122,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-dev.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -126,6 +138,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-prod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -138,6 +154,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-docker.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -150,6 +170,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-docker.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -162,6 +186,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/gitpod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             }

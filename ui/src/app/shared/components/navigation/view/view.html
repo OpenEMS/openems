@@ -1,12 +1,15 @@
-<ion-content style="font-size: 1em;">
-
-    <oe-navigation-breadcrumbs *ngIf="navigationService.position === 'left'"
+<ion-header *ngTemplateOutlet="headerTpl"></ion-header>
+<ng-template #headerTpl>
+    <oe-navigation-breadcrumbs *ngIf="navigationService.position() === 'left'"
         (navigate)="navigationService.navigateTo($event)"></oe-navigation-breadcrumbs>
+    <ng-content select="[header]"></ng-content>
+</ng-template>
+<ion-content style="font-size: 1em;" *ngIf="contentHeight !== null">
 
     <!-- If FromGroup is used -->
-    <form [formGroup]="formGroup" *ngIf="formGroup"
-        style="position: absolute; overflow-y: auto; height: 100%; overflow-x:hidden; width: 100%;"
-        [style.height]="contentHeight + '%'" class="ion-padding">
+    <form [formGroup]="formGroup" *ngIf="formGroup && contentHeight !== null"
+        style="position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
+        [style.height]="contentHeight + '%'" class="ion-padding ion-padding-bottom">
 
         <!-- For gap between header and content  -->
         <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->

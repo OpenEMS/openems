@@ -6,7 +6,8 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="start" *ngIf="enableSideMenu">
-      <ion-menu-button autoHide="false" class="custom-menu-button"></ion-menu-button>
+      <ion-menu-button [autoHide]="navigationService.position() === 'left'"
+        class="custom-menu-button"></ion-menu-button>
     </ion-buttons>
     <!-- page title is shown if the current page isn't Live nor History -->
     <ion-title style="color: var(--ion-title-color);"
@@ -18,7 +19,8 @@
       {{ service.currentPageTitle }}
     </ion-title>
     <ng-container *ngIf="service.currentEdge() as edge">
-      <ng-container *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory'">
+      <ng-container
+        *ngIf="(currentPage === 'IndexLive' || currentPage === 'IndexHistory') && navigationService.position() === null">
         <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
           class="ion-justify-content-center">
           <ion-segment-button
@@ -69,7 +71,7 @@
     </ng-container>
   </ion-toolbar>
 
-  <ng-container *ngIf="currentPage === 'IndexHistory'">
+  <ng-container *ngIf="currentPage === 'IndexHistory' && navigationService.position() !== 'left'">
     <ion-toolbar color="secondary">
       <ion-buttons class="ion-justify-content-center">
         <pickdate></pickdate>

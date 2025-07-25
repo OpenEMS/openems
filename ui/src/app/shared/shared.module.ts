@@ -29,6 +29,7 @@ import { FormlySelectComponent } from "./components/formly/formly-select/formly-
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
+import { FormlyTariffTableTypeComponent } from "./components/formly/formly-tariff-table/formly-custom-tariff-table";
 import { FormlyFieldCheckboxWithLabelComponent } from "./components/formly/help-popover-label-with-description-and-checkbox/help-popover-label-with-description-and-checkbox";
 import { InputTypeComponent } from "./components/formly/input";
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from "./components/formly/input-serial-number-wrapper";
@@ -38,6 +39,7 @@ import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
+import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
 import { DirectiveModule } from "./directive/directive";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
@@ -94,6 +96,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "select", component: FormlySelectComponent },
         { name: "checkbox-button", component: CheckboxButtonTypeComponent },
         { name: "radio", component: FormlyRadioTypeComponent },
+        { name: "tariff-table", component: FormlyTariffTableTypeComponent },
         { name: "range", component: FormlyRangeTypeComponent },
       ],
       validators: [
@@ -143,6 +146,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlySelectComponent,
     CheckboxButtonTypeComponent,
     FormlyRadioTypeComponent,
+    FormlyTariffTableTypeComponent,
+    PickDateTimeRangeComponent,
     FormlyRangeTypeComponent,
   ],
   exports: [
@@ -167,6 +172,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    PickDateTimeRangeComponent,
   ],
   providers: [
     AppStateTracker,

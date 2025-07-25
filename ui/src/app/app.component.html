@@ -1,7 +1,7 @@
 <ion-app>
   <app-header></app-header>
   <ion-content>
-    <ng-container *ngIf="position() === null">
+    <ng-container *ngIf="navigationService.position() === null">
       <ng-template *ngTemplateOutlet="sidemenu">
       </ng-template>
       <ion-content>
@@ -10,7 +10,8 @@
       </ion-content>
     </ng-container>
 
-    <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main" *ngIf="position() === 'left'">
+    <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main"
+      *ngIf="navigationService.position() === 'left'">
 
       <ion-menu contentId="main">
         <div class="ion-page" id="main">
@@ -57,7 +58,7 @@
       </div>
     </ion-split-pane>
 
-    <ng-container *ngIf="position() === 'bottom'">
+    <ng-container *ngIf="navigationService.position() === 'bottom'">
       <ng-container *ngTemplateOutlet="content">
       </ng-container>
       <ng-container *ngTemplateOutlet="sidemenu">
