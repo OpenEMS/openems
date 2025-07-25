@@ -9,6 +9,7 @@ import { Controller } from "./Controller/controller.module";
 import { FlatComponent as HeatpumpFlatComponent } from "./Controller/Io/heatpump/flat/flat";
 import { FlatComponent as AsymmetricPeakshavingFlatComponent } from "./Controller/peak-shaving/asymmetric/flat/flat";
 import { FlatComponent as SymmetricPeakshavingFlatComponent } from "./Controller/peak-shaving/symmetric/flat/flat";
+import { FlatComponent as ThresholdPeakshavingFlatComponent } from "./Controller/peak-shaving/threshold/flat/flat";
 import { FlatComponent as TimeslotPeakshavingFlatComponent } from "./Controller/peak-shaving/timeslot/flat/flat";
 import { DelayedSellToGridChartComponent } from "./delayedselltogrid/chart.component";
 import { DelayedSellToGridChartOverviewComponent } from "./delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
@@ -30,10 +31,11 @@ import { HistoryParentComponent } from "./historyparent.component";
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
     HeatpumpFlatComponent,
-    TimeslotPeakshavingFlatComponent,
     StorageFlatComponent,
     SymmetricPeakshavingFlatComponent,
     AsymmetricPeakshavingFlatComponent,
+    ThresholdPeakshavingFlatComponent,
+    TimeslotPeakshavingFlatComponent,
     HistoryComponent,
     HistoryParentComponent,
   ],

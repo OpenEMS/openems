@@ -2,21 +2,15 @@ package io.openems.edge.controller.chp.costoptimization;
 
 import io.openems.common.types.OptionsEnum;
 
-// ToDo
-public enum State implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
-	NORMAL(0, "Normal"), // SoC in range between min and max
-	ERROR(1, "Error State"),
-	CHP_ACTIVE(2, "CHP activated"),
-	CHP_INACTIVE(3, "CHP stopped")
-	
-	;
-
+public enum Mode implements OptionsEnum {
+	MANUAL_ON(0, "Manual control for the ON signal"), //
+	MANUAL_OFF(1, "Manual control for the OFF signal"), //
+	AUTOMATIC(2, "Automatic control"); //
 
 	private final int value;
 	private final String name;
 
-	private State(int value, String name) {
+	private Mode(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
@@ -33,6 +27,6 @@ public enum State implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return UNDEFINED;
+		return AUTOMATIC;
 	}
 }

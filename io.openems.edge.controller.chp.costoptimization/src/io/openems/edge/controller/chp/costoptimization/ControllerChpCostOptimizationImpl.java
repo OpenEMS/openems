@@ -63,7 +63,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	private Integer applyPowerTarget = null;
 	private Integer lastApplyPowerTarget = null;	
 	private Double currentPrice = null;	
-	private Integer currentEnergyCost = 0;	
+	private Double currentEnergyCost = 0.0;	
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -122,23 +122,22 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-
-		// this.log.info("chpActivePower: " + (this.chp != null ?
-		// this.chp.getActivePower().get() : null));
-
-		Integer gridActivePower = this.gridMeter.getActivePower().get();
-		Integer chpActivePower = this.chp.getGeneratorActivePower().get();
-		// Integer chpActivePower = 0;
-  		Integer currentEnergyCost = this.getCurrentCost(gridPowerWithoutChp);
-		
 		if (!checkOperationalValues() || currentEnergyCost == null ) {
 			this.logWarn(this.log, "Controller not ready");
 			this.changeState(State.ERROR);
 			return;
 		}		
-		this.gridPowerWithoutChp = gridActivePower + chpActivePower;
+		Integer gridActivePower = this.gridMeter.getActivePower().get();
+		Integer chpActivePower = this.chp.getGeneratorActivePower().get();
 		
-		this._setEnergyCosts(currentEnergyCost); // save value in channel
+		this.gridPowerWithoutChp = gridActivePower + chpActivePower;
+		Double currentEnergyCostsWithoutChp = this.getCurrentCost(gridPowerWithoutChp);
+		Double currentEnergyCosts = this.getCurrentCost(gridActivePower);
+		
+		this._setEnergyCostsWithoutChp(currentEnergyCostsWithoutChp); // save value in channel
+		this._setEnergyCosts(currentEnergyCosts); // save value in channel
+		this._setChpActivePower(chpActivePower); // save value in channel
+		this._setAwaitingDeviceHysteresis(this.chp.getAwaitingHysteresis().get());
 
 		switch (this.state) {
 		case ERROR:
@@ -155,7 +154,19 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			break;
 		case NORMAL:
 
-			if (currentEnergyCost > this.config.maxCost()) {
+	  		if (this.config.mode() == Mode.MANUAL_ON) {
+	  			this.changeState(State.CHP_ACTIVE);
+	  			this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+	  			break;
+	  		}
+	  		
+	  		if (this.config.mode() == Mode.MANUAL_OFF) {
+	  			this.chp.applyPower(null); // off
+	  			this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
+	  			break;
+	  		}
+			
+			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
 				// ready to start
 
 				// start chp
@@ -166,12 +177,12 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			} else {
 				
 				// Only turn off if there was a change in target power
-				if (this.lastApplyPowerTarget != this.applyPowerTarget) {
-					this.chp.applyPower(this.applyPowerTarget);	
-				} else {
+				//if (this.lastApplyPowerTarget != this.applyPowerTarget) {
+				//	this.chp.applyPower(this.applyPowerTarget);	
+				//} else {
 					// do nothing
-				}
-				
+				//}
+				this.chp.applyPower(this.applyPowerTarget);				
 			}
 
 			break;
@@ -181,12 +192,29 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			// check costs
 			//this._setAwaitingStartHysteresis(false); // 
 			
-			if (currentEnergyCost > this.config.maxCost()) {
+	  		if (this.config.mode() == Mode.MANUAL_ON) {
+	  			this.chp.applyPower(this.config.maxActivePower()); // full power
+	  			break;
+	  		}			
+			
+	  		if (this.config.mode() == Mode.MANUAL_OFF) {
+				// stop chp
+				this.applyPowerTarget = null;
+				this.chp.applyPower(this.applyPowerTarget);
+				this.changeState(State.CHP_INACTIVE);
+				// Start Timer
+				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
+				this._setAwaitingStartHysteresis(false);
+	  			break;
+	  		}	  		
+	  		
+	  		// Automatic mode
+			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
 				this.applyPowerTarget = this.calculateChpPowerTarget();
 				this.chp.applyPower(this.applyPowerTarget);
 				this._setAwaitingStartHysteresis(false);
 
-			} else { // costs are below threshold -> can stop chp?
+			} else { // costs are below threshold or not in automatic mode -> can stop chp?
 				// check last START time
 				if (isHysteresisActive(this.lastStartHysteresisTime, this.config.startHyteresis())) {
 					this.applyPowerTarget = this.calculateChpPowerTarget();
@@ -240,23 +268,23 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			
 			// Apply limits
 			chpTargetPower = Math.min(this.config.maxActivePower(), chpTargetPower);
-			chpTargetPower = Math.min(chpTargetPower, this.gridPowerWithoutChp);
+			chpTargetPower = Math.min(chpTargetPower, this.gridPowerWithoutChp); // sell to grid is now allowed
 		}
 
 		this._setActivePowerTarget(chpTargetPower); // feed channel
 		return chpTargetPower;
 	}
 
-	private Integer getCurrentCost(Integer gridPowerWithoutChp) {
+	private Double getCurrentCost(Integer gridPowerWithoutChp) {
 
 		if (!this.timeOfUseTariff.getPrices().isEmpty()) {
-			this.currentPrice = this.timeOfUseTariff.getPrices().getFirst() / 10; // Price in €/MWh. Divided to ct/kWh
+			this.currentPrice = this.timeOfUseTariff.getPrices().getFirst(); // Price in €/MWh. 
 		} else {
-			return null;
+			return 0.0;
 		}
 
 		if (gridPowerWithoutChp != null && this.currentPrice != null && gridPowerWithoutChp > 0) {
-			this.currentEnergyCost = (int) Math.round((this.currentPrice * (gridPowerWithoutChp / 1000))); // Ct
+			this.currentEnergyCost = this.currentPrice * gridPowerWithoutChp / 1_000_000.0; // €
 		}
 
 
@@ -322,7 +350,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		// return null;
-		return "Current Energy costs: " + this.getEnergyCosts().asString() + " Ct/kWh"+
+		return "Current Energy costs: " + this.getEnergyCostsWithoutChp().asString() + " €/h"+
 				" State: " + this.state +
 				" TargetPower: " + this.getActivePowerTarget().asString() 
 				

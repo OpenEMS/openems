@@ -28,6 +28,7 @@ export enum WidgetFactory {
     "Controller.Api.ModbusTcp.ReadWrite",
     "Controller.Asymmetric.PeakShaving",
     "Controller.ChannelThreshold",
+    "Controller.CHP.CostOptimization",
     "Controller.CHP.SoC",
     "Controller.Ess.DelayedSellToGrid",
     "Controller.Ess.FixActivePower",

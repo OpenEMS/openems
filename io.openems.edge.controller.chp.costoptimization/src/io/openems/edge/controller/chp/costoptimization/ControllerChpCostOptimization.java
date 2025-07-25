@@ -9,6 +9,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.DoubleReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -25,21 +26,34 @@ public interface ControllerChpCostOptimization extends Controller, OpenemsCompon
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine").persistencePriority(HIGH)), //
 		
-		ENERGY_COSTS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)),		
+		ENERGY_COSTS(Doc.of(OpenemsType.DOUBLE) //
+				.accessMode(AccessMode.READ_WRITE)
+				.persistencePriority(PersistencePriority.HIGH)),
+		
+		ENERGY_COSTS_WITHOUT_CHP(Doc.of(OpenemsType.DOUBLE) //
+				.accessMode(AccessMode.READ_WRITE)
+				.persistencePriority(PersistencePriority.HIGH)),		
 
 		AWAITING_TRANSITION_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would change State, but hysteresis is active")),
+				.text("Would change State, but hysteresis is active").persistencePriority(PersistencePriority.MEDIUM)),
+		
+		AWAITING_DEVICE_HYSTERESIS(Doc.of(Level.INFO) //
+				.text("Would change value but device is still busy").persistencePriority(PersistencePriority.MEDIUM)),		
 
 		AWAITING_START_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would stop chp, but hysteresis is active")),	
+				.text("Would stop chp, but hysteresis is active").persistencePriority(PersistencePriority.MEDIUM)),	
 		
 		AWAITING_STOP_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would start chp, but hysteresis is active")),				
+				.text("Would start chp, but hysteresis is active")
+				.persistencePriority(PersistencePriority.HIGH).persistencePriority(PersistencePriority.MEDIUM)), 				
 		
 		ACTIVE_POWER_TARGET(new IntegerDoc() //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)), //		
+				.persistencePriority(PersistencePriority.HIGH)), //
+		
+		CHP_ACTIVE_POWER(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)), //				
 		
 		;
 
@@ -74,6 +88,30 @@ public interface ControllerChpCostOptimization extends Controller, OpenemsCompon
 	public default void _setAwaitingTransitionHysteresis(boolean value) {
 		this.getAwaitingTransistionHysteresisChannel().setNextValue(value);
 	}	
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#AWAITING_HYSTERESIS}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getAwaitingDeviceHysteresisChannel() {
+		return this.channel(ChannelId.AWAITING_DEVICE_HYSTERESIS);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#AWAITING_HYSTERESIS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAwaitingDeviceHysteresis(boolean value) {
+		this.getAwaitingDeviceHysteresisChannel().setNextValue(value);
+	}		
+	
+	public default Value<Boolean> getAwaitingDeviceHysteresis() {
+		return this.getAwaitingDeviceHysteresisChannel().value();
+	}	
+		
 	
 	//
 	/**
@@ -123,23 +161,32 @@ public interface ControllerChpCostOptimization extends Controller, OpenemsCompon
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getEnergyCostsChannel() {
+	public default DoubleReadChannel getEnergyCostsWithoutChpChannel() {
+		return this.channel(ChannelId.ENERGY_COSTS_WITHOUT_CHP);
+	}
+
+	public default void _setEnergyCostsWithoutChp(Double value) {
+		this.getEnergyCostsWithoutChpChannel().setNextValue(value);
+	}		
+	
+	public default Value<Double> getEnergyCostsWithoutChp() {
+		return this.getEnergyCostsWithoutChpChannel().value();
+	}	
+	
+	
+	//
+	public default DoubleReadChannel getEnergyCostsChannel() {
 		return this.channel(ChannelId.ENERGY_COSTS);
 	}
 
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#AWAITING_STOP_HYSTERESIS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setEnergyCosts(Integer value) {
+	public default void _setEnergyCosts(Double value) {
 		this.getEnergyCostsChannel().setNextValue(value);
 	}		
 	
-	public default Value<Integer> getEnergyCosts() {
+	public default Value<Double> getEnergyCosts() {
 		return this.getEnergyCostsChannel().value();
 	}	
+	
 	
 	
 	//
@@ -158,6 +205,25 @@ public interface ControllerChpCostOptimization extends Controller, OpenemsCompon
 
 	public default void _setActivePowerTarget(int value) {
 		this.getActivePowerTargetChannel().setNextValue(value);
+	}
+	
+	//
+	//
+	public default IntegerReadChannel getChpActivePowerChannel() {
+		return this.channel(ChannelId.CHP_ACTIVE_POWER);
+	}
+
+	public default Value<Integer> getChpActivePower() {
+		return this.getChpActivePowerChannel().value();
+	}
+
+	public default void _setChpActivePower(Integer value) {
+		this.getChpActivePowerChannel().setNextValue(value);
+	}
+
+
+	public default void _setChpActivePower(int value) {
+		this.getChpActivePowerChannel().setNextValue(value);
 	}
 	
 	//

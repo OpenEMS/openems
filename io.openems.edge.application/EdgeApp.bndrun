@@ -383,11 +383,6 @@
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.meter.ziehl;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
-	io.openems.edge.predictor.api;version=latest,\
-	io.openems.edge.predictor.lstm;version=latest,\
-	io.openems.edge.predictor.persistencemodel;version=latest,\
-	io.openems.edge.predictor.production.linearmodel;version=latest,\
-	io.openems.edge.predictor.similardaymodel;version=latest,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
 	io.openems.edge.pvinverter.fronius;version=snapshot,\
@@ -481,7 +476,6 @@
 	io.openems.edge.meter.emh;version=snapshot,\
 	io.openems.edge.controller.ess.chargedischargelimiter;version=snapshot,\
 	io.openems.edge.energy;version=snapshot,\
-	io.openems.edge.predictor.pv.weather.forecast;version=latest,\
 	io.openems.edge.thermometer.esera.onewire;version=snapshot,\
 	io.openems.edge.controller.symmetric.thresholdpeakshaver;version=snapshot,\
 	io.openems.edge.solaredge.ess;version=snapshot,\
@@ -490,8 +484,14 @@
 	com.google.guava;version='[33.4.8,33.4.9)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
 	com.sun.jna;version='[5.17.0,5.17.1)',\
-	io.openems.edge.controller.chp.costoptimization;version=latest,\
 	io.openems.edge.chp.ecpower;version=snapshot,\
 	io.openems.edge.generator.api;version=snapshot,\
 	io.openems.edge.weather.api;version=snapshot,\
-	io.openems.edge.weather.openmeteo;version=snapshot
+	io.openems.edge.weather.openmeteo;version=snapshot,\
+	io.openems.edge.controller.chp.costoptimization;version=snapshot,\
+	io.openems.edge.predictor.api;version=snapshot,\
+	io.openems.edge.predictor.lstm;version=snapshot,\
+	io.openems.edge.predictor.persistencemodel;version=snapshot,\
+	io.openems.edge.predictor.production.linearmodel;version=snapshot,\
+	io.openems.edge.predictor.pv.weather.forecast;version=snapshot,\
+	io.openems.edge.predictor.similardaymodel;version=snapshot

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.chp.costoptimization;
+package io.openems.edge.chp.ecpower.manager;
 
 import io.openems.common.types.OptionsEnum;
 
@@ -7,8 +7,7 @@ public enum State implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NORMAL(0, "Normal"), // SoC in range between min and max
 	ERROR(1, "Error State"),
-	CHP_ACTIVE(2, "CHP activated"),
-	CHP_INACTIVE(3, "CHP stopped")
+	AWAITING_HYSTERESIS(2, "Awaiting hysteresis between regulation steps"),
 	
 	;
 

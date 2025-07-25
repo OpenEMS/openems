@@ -155,8 +155,29 @@
           "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale Netzeinspeisung durch Batteriebeladung"
         },
         "CHP": {
+          "currentChpState": "Status",
+          "activePower": "BHKW Leistung",
+          "currentEnergyCostsWithoutChp": "Kosten ohne BHKW",
+          "awaitingStartHysteresis": "Start Hysterese ",
+          "awaitingStopHysteresis": "Stop Hysterese ",
+          "awaitingTransitionHysteresis": "Transition Hysterese ",
+          "awaitingDeviceHysteresis": "Gerät spezifische Hysterese",
+          "currentEnergyCosts": "Aktuelle Kosten",
           "highThreshold": "Oberer Schwellenwert",
-          "lowThreshold": "Unterer Schwellenwert"
+          "lowThreshold": "Unterer Schwellenwert",
+          "highCostsThreshold": "Schaltschwelle",
+          "HYSTERESIS_STATE": {
+            "ACTIVE": "Aktiv",
+            "INACTIVE": "Inaktiv"
+          },
+          "CHP_STATE": {
+            "UNDEFINED": "Undefiniert",
+            "NORMAL": "Bereit",
+            "IDLE": "Bereit",
+            "ERROR": "Fehler",
+            "CHP_ACTIVE": "BHKW läuft",
+            "CHP_INACTIVE": "BHKW gestoppt"
+          }
         },
         "EVCS": {
           "activateCharging": "Aktivieren der Ladesäule",

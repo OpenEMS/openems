@@ -74,11 +74,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return 0;
 	}
 
-	@Override
-	public int minCost() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public int startHyteresis() {
@@ -90,6 +85,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int stopHyteresis() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public Mode mode() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

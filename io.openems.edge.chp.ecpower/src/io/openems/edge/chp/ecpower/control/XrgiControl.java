@@ -31,8 +31,7 @@ public interface XrgiControl extends ModbusComponent, OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)),
 		
 		
-		AWAITING_STEP_TRANSITION_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would change regulation step, but hysteresis is active")),		
+
 
 		/**
 		 * Active Power Target.
@@ -61,24 +60,6 @@ public interface XrgiControl extends ModbusComponent, OpenemsComponent {
 	}
 	
 
-	/**
-	 * Gets the Channel for {@link ChannelId#AWAITING_HYSTERESIS}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getAwaitingStepTransistionHysteresisChannel() {
-		return this.channel(ChannelId.AWAITING_STEP_TRANSITION_HYSTERESIS);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#AWAITING_HYSTERESIS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setAwaitingStepTransitionHysteresis(boolean value) {
-		this.getAwaitingStepTransistionHysteresisChannel().setNextValue(value);
-	}		
 
 	//
 	public default void _setActivePowerTarget(Integer value) {

@@ -1,13 +1,30 @@
 // @ts-strict-ignore
+import { formatNumber } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
-import { RangeValue } from "@ionic/core";
 import { TranslateService } from "@ngx-translate/core";
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { filter, take } from "rxjs/operators";
+import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 
 type mode = "MANUAL_ON" | "MANUAL_OFF" | "AUTOMATIC";
 
+enum ChpState {
+    UNDEFINED = -1,                  // Undefined state
+    IDLE = 0,                        // Peakshaver is inactive and waiting
+    ERROR = 1,                       // Error State
+    CHP_ACTIVE = 2,                  // CHP running
+    CHP_INACTIVE = 3,                // CHP stopping
+}
+
+enum HysteresisState {
+    UNDEFINED = -1,                  // Undefined state
+    INACTIVE = 0,                    // Peakshaver is inactive and waiting
+    ACTIVE = 1,                      // Error State
+
+}
 
 @Component({
     selector: Controller_ChpCostOptimizationModalComponent.SELECTOR,
@@ -16,33 +33,133 @@ type mode = "MANUAL_ON" | "MANUAL_OFF" | "AUTOMATIC";
 })
 export class Controller_ChpCostOptimizationModalComponent implements OnInit {
 
+
     private static readonly SELECTOR = "ChpCostOptimization-modal";
 
     @Input({ required: true }) public edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
-    @Input({ required: true }) public outputChannel!: ChannelAddress;
-    @Input({ required: true }) public inputChannel!: ChannelAddress;
 
-    public thresholds: RangeValue = {
-        lower: null,
-        upper: null,
-    };
+    public threshold: number = null; // %- from ion component
+    protected meta: EdgeConfig.Component = null;
+    protected currency: string = null;
+    private currencyLabel: Currency.Label; // Default
+    private currencyUnit: Currency.Unit; // Default
+    private locale: string = "-";
+    private unitpipe: UnitvaluePipe;
+    private highCostsThreshold: number;
+    // Variable to hold the current state of the PeakShavingState
+    private currentState: ChpState = ChpState.UNDEFINED; // Default value is UNDEFINED
+    private currentAwaitingStartHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
+    private currentAwaitingStopHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
+    private currentAwaitingTransitionHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
+    private currentAwaitingDeviceHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
 
     constructor(
+        unitpipe: UnitvaluePipe,
         public service: Service,
         public websocket: Websocket,
         public router: Router,
-        protected translate: TranslateService,
+        public translate: TranslateService,
         public modalCtrl: ModalController,
     ) { }
 
+    get costsWithLabel(): string {
+        if (this.highCostsThreshold == null) { return "-"; }
+        return formatNumber(this.highCostsThreshold, this.locale, "1.0-2") + " " + this.currency + "/h";
+    }
+
     ngOnInit() {
-        this.thresholds["lower"] = this.component.properties["lowThreshold"];
-        this.thresholds["upper"] = this.component.properties["highThreshold"];
+        this.threshold = this.component.properties["maxCost"];
+        this.edge.currentData.subscribe((currentData) => {
+            this.setCurrentStateFromData(currentData);
+            console.log("Current Data:", currentData); // Check what data is coming in
+        });
+
+        this.edge.getConfig(this.websocket)
+            .pipe(filter(config => !!config), take(1))
+            .subscribe(config => {
+                const meta: EdgeConfig.Component = config?.getComponent("_meta");
+                this.currency = config?.getPropertyFromComponent<string>(meta, "currency");
+                this.currencyLabel = Currency.getCurrencyLabelByCurrency(this.currency);
+                this.currencyUnit = Currency.getChartCurrencyUnitLabel(this.currency);
+
+            });
+        this.locale = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    }
+
+    formatCosts(value: number | null | undefined): string {
+        if (value == null || isNaN(value)) { return "-"; }
+        return formatNumber(value, this.locale, "1.0-2") + " " + this.currency + "/h";
+    }
+
+
+    setCurrentStateFromData(currentData): void {
+        // Get the latest value from the BehaviorSubject
+        //const currentData = this.edge.currentData.value;
+
+        // Check if currentData and channel exist
+        if (!currentData || !currentData.channel) {
+            console.warn("currentData or currentData.channel is undefined");
+            return;
+        }
+
+        const controllerId = this.component?.id;
+        if (!controllerId) {
+            console.warn("controllerId is undefined");
+            return;
+        }
+
+        // Safely access the PeakShavingStateMachine channel
+        const currentStateValue = currentData.channel[`${controllerId}/StateMachine`];
+        const currentAwaitingStartHysteresisValue = currentData.channel[`${controllerId}/AwaitingStartHysteresis`];
+        const currentAwaitingStopHysteresisValue = currentData.channel[`${controllerId}/AwaitingStopHysteresis`];
+        const currentAwaitingTransitionHysteresisValue = currentData.channel[`${controllerId}/AwaitingTransitionHysteresis`];
+        const currentAwaitingDeviceHysteresisValue = currentData.channel[`${controllerId}/AwaitingDeviceHysteresis`];
+
+        // Check if currentStateValue is not undefined or null and is a valid number
+        if (isNaN(currentStateValue) || isNaN(currentAwaitingStartHysteresisValue) || isNaN(currentAwaitingStopHysteresisValue) || isNaN(currentAwaitingTransitionHysteresisValue) || isNaN(currentAwaitingDeviceHysteresisValue)) {
+            console.warn(`States for ${controllerId} is undefined or null`);
+            this.currentAwaitingStartHysteresis = HysteresisState.UNDEFINED;
+            this.currentAwaitingStopHysteresis = HysteresisState.UNDEFINED;
+            this.currentAwaitingTransitionHysteresis = HysteresisState.UNDEFINED;
+            this.currentAwaitingDeviceHysteresis = HysteresisState.UNDEFINED;
+            this.currentState = ChpState.UNDEFINED;
+        } else {
+            // Ensure currentStateValue is a valid enum value (number) before casting
+            this.currentAwaitingStartHysteresis = HysteresisState[currentAwaitingStartHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
+            this.currentAwaitingStopHysteresis = HysteresisState[currentAwaitingStopHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
+            this.currentAwaitingTransitionHysteresis = HysteresisState[currentAwaitingTransitionHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
+            this.currentAwaitingDeviceHysteresis = HysteresisState[currentAwaitingDeviceHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
+            this.currentState = ChpState[currentStateValue as keyof typeof ChpState] ?? ChpState.UNDEFINED;
+            //console.log("Mapped currentState:", this.currentState);
+        }
+    }
+
+
+    getBackgroundClass(state: string): string {
+
+        switch (state) {
+            case "UNDEFINED":
+                return "danger"; // Neutral or undefined state
+            case "IDLE":
+                return "success"; // Green for idle or ready
+            case "ERROR":
+                return "danger"; // Red for errors
+            case "INACTIVE":
+                return "medium"; // Grey for disabled
+            case "ACTIVE":
+                return "warning"; // Blue for active state
+            case "CHP_ACTIVE":
+                return "warning"; // Orange for charging
+            case "CHP_INACTIVE":
+                return "tertiary"; // Different color for hysteresis active
+            default:
+                return "default"; // Optional fallback if state doesn't match
+        }
     }
 
     /**
-    * Updates the Charge-Mode of the EVCS-Controller.
+    * Updates Mode of chp
     *
     * @param event
     */
@@ -75,31 +192,25 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
             });
         }
     }
-
     /**
     * Updates the Min-Power of force charging
     *
     * @param event
     */
-    updateThresholds() {
-        const oldLowerThreshold = this.component.properties["lowThreshold"];
-        const oldUpperThreshold = this.component.properties["highThreshold"];
+    updateThreshold() {
+        const oldHighCostsThreshold = Number(this.component.properties["maxCost"]);
 
-        const newLowerThreshold = this.thresholds["lower"];
-        const newUpperThreshold = this.thresholds["upper"];
+        const newHighCostsThreshold = Number(this.threshold);
 
         // prevents automatic update when no values have changed
-        if (this.edge != null && (oldLowerThreshold != newLowerThreshold || oldUpperThreshold != newUpperThreshold)) {
+        if (this.edge != null && oldHighCostsThreshold != newHighCostsThreshold) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                { name: "lowThreshold", value: newLowerThreshold },
-                { name: "highThreshold", value: newUpperThreshold },
+                { name: "maxCost", value: newHighCostsThreshold },
             ]).then(() => {
-                this.component.properties["lowThreshold"] = newLowerThreshold;
-                this.component.properties["highThreshold"] = newUpperThreshold;
+                this.component.properties["maxCost"] = newHighCostsThreshold;
                 this.service.toast(this.translate.instant("General.changeAccepted"), "success");
             }).catch(reason => {
-                this.component.properties["lowThreshold"] = oldLowerThreshold;
-                this.component.properties["highThreshold"] = oldUpperThreshold;
+                this.component.properties["maxCost"] = oldHighCostsThreshold;
                 this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
                 console.warn(reason);
             });

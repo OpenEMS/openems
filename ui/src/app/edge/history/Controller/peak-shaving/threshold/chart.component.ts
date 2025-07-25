@@ -2,10 +2,11 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
-import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
-import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service } from "../../../../shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../../shared/shared";
 import { AbstractHistoryChart } from "../../abstracthistorychart";
 
 @Component({
@@ -94,7 +95,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         hidden: false,
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.DARK_GREY, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.DARK_GREY, 0.2),
                         borderColor: "rgb(5, 5, 5)",
                         //borderWidth: 0.5,
                     });
@@ -116,7 +117,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         hidden: false,
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.RED, 0.2),
                         borderColor: "rgb(234, 11, 11)",
                         borderDash: [3, 3],
                     });
@@ -140,9 +141,9 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
 
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.ORANGE, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.ORANGE, 0.2),
                         borderColor: "rgb(234, 11, 11)",
-                        borderDash: [3, 3],
+                        borderDash: [3, 3]
                     });
                 }
 
@@ -163,7 +164,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         borderDash: [3, 3],
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.GREY, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.GREY, 0.2),
                         borderColor: "rgb(5, 5, 5)",
                     });
                 }
@@ -202,9 +203,9 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                         fill: false, // Kein Füllen von dieser Linie aus
                     });
                     this.colors.push({
-                        backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
+                        backgroundColor: ColorUtils.rgbStringToRGBA(ChartConstants.Colors.YELLOW, 0.2),
                         borderColor: "rgb(234, 11, 11)",
-                        borderDash: [3, 3],
+                        borderDash: [3, 3]
                     });
 
                     // Obere Linie (propertyPeakshavingPower) mit Füllung nach unten
@@ -293,7 +294,7 @@ export class ThresholdPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: "rgba(0,223,0,0.05)",
                         borderColor: "rgb(3, 117, 48)",
-                        borderDash: [10, 10],
+                        borderDash: [10, 10]
                     });
                 }
 

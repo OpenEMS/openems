@@ -101,6 +101,11 @@
                 <Controller_ChpSocComponent [componentId]="widget.componentId"></Controller_ChpSocComponent>
               </ion-col>
 
+              <ion-col *ngSwitchCase="'Controller.CHP.CostOptimization'" size="12" size-lg="6" class="ion-no-padding">
+                <Controller_ChpCostOptimizationComponent [componentId]="widget.componentId">
+                </Controller_ChpCostOptimizationComponent>
+              </ion-col>
+
               <ion-col *ngSwitchCase="'Controller.IO.HeatingElement'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_HeatingElement [componentId]="widget.componentId"></Controller_Io_HeatingElement>
               </ion-col>

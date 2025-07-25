@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "CHP EC Power Manager", //
-		description = "")
+		description = "Manager for EX Power XGRI CHP. Manages control and readonly unit parts")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

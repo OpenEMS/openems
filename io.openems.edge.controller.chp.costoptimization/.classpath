@@ -8,5 +8,7 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.meter.api"/>
+	<classpathentry kind="src" path="/io.openems.edge.generator.api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

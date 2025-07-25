@@ -1,6 +1,7 @@
 package io.openems.edge.generator.api;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -9,7 +10,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -23,6 +24,9 @@ public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGe
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
+		
+		AWAITING_HYSTERESIS(Doc.of(Level.WARNING) //
+				.text("Would change regulation, but hysteresis is active")),				
 		
 		/**
 		 * Holds the maximum possible apparent power. This value is defined by the
@@ -98,6 +102,30 @@ public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGe
 		}
 	}
 
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#AWAITING_HYSTERESIS}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getAwaitingHysteresisChannel() {
+		return this.channel(ChannelId.AWAITING_HYSTERESIS);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#AWAITING_HYSTERESIS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAwaitingHysteresis(boolean value) {
+		this.getAwaitingHysteresisChannel().setNextValue(value);
+	}		
+	
+	public default Value<Boolean> getAwaitingHysteresis() {
+		return this.getAwaitingHysteresisChannel().value();
+	}	
+	
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_ACTIVE_POWER}.

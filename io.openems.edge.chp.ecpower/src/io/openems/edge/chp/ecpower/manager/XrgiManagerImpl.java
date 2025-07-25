@@ -29,7 +29,7 @@ import io.openems.edge.generator.api.SymmetricGenerator;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "io.openems.edge.chp.ecpower.manager", //
+		name = "CHP.ECcpower.manager", //		
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -51,6 +51,8 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 	private volatile XrgiControl xrgiControl = null;
 
 	private Config config = null;
+	
+	private State state = State.UNDEFINED;	
 
 	public XrgiManagerImpl() {
 		super(
@@ -78,6 +80,7 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 		this.config = config;
 	}
 
+	
 	@Override
 	@Deactivate
 	protected void deactivate() {
@@ -108,9 +111,27 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 			//this.applyPower(19000);
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-			//this.applyPower(19000);
+			this.checkState();
 			break;
 
+		}
+	}
+	
+	public boolean awaitingStepTransitionHysteresis() {
+		if (this.state ==  State.AWAITING_HYSTERESIS ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public void checkState() {
+		if (this.xrgiRo == null) {
+			this.state = State.ERROR;
+		}
+		
+		if (this.xrgiControl == null) {
+			this.state = State.ERROR;
 		}
 	}
 
