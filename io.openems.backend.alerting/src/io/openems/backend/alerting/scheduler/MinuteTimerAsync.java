@@ -28,7 +28,7 @@ public class MinuteTimerAsync extends MinuteTimer {
 	}
 
 	@Override
-	protected void start() {
+	protected synchronized void start() {
 		super.start();
 		this.scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
 		this.scheduler.scheduleAtFixedRate(this::cycle, 0, 1, TimeUnit.MINUTES);
@@ -51,7 +51,7 @@ public class MinuteTimerAsync extends MinuteTimer {
 	}
 
 	@Override
-	protected void stop() {
+	protected synchronized void stop() {
 		super.stop();
 		if (this.scheduler == null) {
 			return;

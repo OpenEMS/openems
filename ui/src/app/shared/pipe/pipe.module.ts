@@ -7,6 +7,7 @@ import { FormatSecondsToDurationPipe } from "./formatSecondsToDuration/formatSec
 import { IsclassPipe } from "./isclass/isclass.pipe";
 import { KeysPipe } from "./keys/keys.pipe";
 import { SignPipe } from "./sign/sign.pipe";
+import { TimedisplayPipe } from "./timedisplay/timedisplay.pipe";
 import { TypeofPipe } from "./typeof/typeof.pipe";
 import { UnitvaluePipe } from "./unitvalue/unitvalue.pipe";
 import { VersionPipe } from "./version/version.pipe";
@@ -21,6 +22,7 @@ import { VersionPipe } from "./version/version.pipe";
         VersionPipe,
         TypeofPipe,
         ConverterPipe,
+        TimedisplayPipe,
     ],
     exports: [
         UnitvaluePipe,
@@ -32,6 +34,7 @@ import { VersionPipe } from "./version/version.pipe";
         VersionPipe,
         TypeofPipe,
         ConverterPipe,
+        TimedisplayPipe,
     ],
     providers: [
         DecimalPipe,

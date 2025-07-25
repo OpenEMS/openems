@@ -2,7 +2,6 @@ package io.openems.edge.weather.openmeteo;
 
 import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ import io.openems.edge.bridge.http.api.HttpMethod;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.api.UrlBuilder;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.meta.Coordinates;
+import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.WeatherData;
 
 public class WeatherForecastService {
@@ -51,13 +50,13 @@ public class WeatherForecastService {
 	}
 
 	protected void subscribeToWeatherForecast(OpenMeteoDelayTimeProvider delayTimeProvider,
-			Channel<Integer> httpStatusCodeChannel, Optional<Coordinates> coordinates, ZoneId zone) {
+			Channel<Integer> httpStatusCodeChannel, Coordinates coordinates, ZoneId zone) {
 		if (this.subscription != null) {
 			this.httpBridge.removeTimeEndpoint(this.subscription);
 			this.subscription = null;
 		}
 
-		if (coordinates.isEmpty()) {
+		if (coordinates == null) {
 			this.log.error("Can't subscribe to weather forecast, coordinates are missing");
 			return;
 		}
@@ -65,7 +64,7 @@ public class WeatherForecastService {
 		this.subscription = this.httpBridge.subscribeJsonTime(//
 				delayTimeProvider, //
 				this.createForecastEndpoint(//
-						coordinates.get()//
+						coordinates//
 				), //
 				response -> this.handleEndpointResponse(//
 						response, //

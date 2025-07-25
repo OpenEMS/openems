@@ -2,6 +2,7 @@
 import { Component, effect, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
@@ -39,6 +40,7 @@ export class HistoryComponent implements OnInit {
     public translate: TranslateService,
     private route: ActivatedRoute,
     private dataService: DataService,
+    protected navigationService: NavigationService,
   ) {
 
     effect(() => {

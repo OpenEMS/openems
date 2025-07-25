@@ -28,6 +28,9 @@ import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 	@AttributeDefinition(name = "Phase", description = "On which phase is the ESS connected?")
 	SingleOrAllPhase phase() default SingleOrAllPhase.L1;
 
+	@AttributeDefinition(name = "Capacity", description = "Capacity of the battery in Wh")
+	int capacity() default 0;
+
 	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
 	boolean readOnlyMode() default false;
 

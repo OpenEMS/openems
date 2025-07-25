@@ -23,9 +23,7 @@ public enum CurrencyConfig {
 	CHF("Fr", "Rappen", 100f);
 
 	private final String symbol;
-
 	private final String underPart;
-
 	private final float ratio;
 
 	private CurrencyConfig(String symbol, String underPart, float ratio) {
@@ -45,5 +43,4 @@ public enum CurrencyConfig {
 	public float getRatio() {
 		return this.ratio;
 	}
-
 }

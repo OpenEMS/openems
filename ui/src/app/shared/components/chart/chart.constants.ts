@@ -216,7 +216,12 @@ export namespace ChartConstants {
     });
 
 
-    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => {
+    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> => {
+
+      if (dataset == null || dataset.backgroundColor == null) {
+        return { pointStyle: Chart.defaults.plugins.legend.labels.pointStyle };
+      }
+
       if ("borderDash" in dataset) {
         return { pointStyle: "circle", lineDash: [3, 3] };
       }

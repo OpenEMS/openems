@@ -1,5 +1,5 @@
 <oe-flat-widget [title]="'General.consumption' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
-    routerLink="/device/{{edge.id}}/history/consumptionchart" *ngIf="isInitialized">
+    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/consumptionchart'" *ngIf="isInitialized">
 
     <oe-flat-widget-line
         *ngIf="evcsComponents.length === 0 && consumptionMeterComponents.length === 0 && heatComponents.length === 0, else meters"

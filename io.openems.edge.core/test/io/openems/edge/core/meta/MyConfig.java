@@ -3,17 +3,22 @@ package io.openems.edge.core.meta;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.types.SubdivisionCode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 
-		private CurrencyConfig currency;
+		private CurrencyConfig currency = CurrencyConfig.EUR;
 		private boolean isEssChargeFromGridAllowed;
 		private int gridConnectionPointFuseLimit;
-		private double latitude;
-		private double longitude;
+		private SubdivisionCode subdivisionCode = SubdivisionCode.UNDEFINED;
+		private String placeName = "";
+		private String postcode = "";
+		private double latitude = -999.0;
+		private double longitude = -999.0;
+		private String timezone = "";
 
 		private Builder() {
 		}
@@ -33,6 +38,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setSubdivisionCode(SubdivisionCode subdivisionCode) {
+			this.subdivisionCode = subdivisionCode;
+			return this;
+		}
+
+		public Builder setPlaceName(String placeName) {
+			this.placeName = placeName;
+			return this;
+		}
+
+		public Builder setPostcode(String postcode) {
+			this.postcode = postcode;
+			return this;
+		}
+
 		public Builder setLatitude(double latitude) {
 			this.latitude = latitude;
 			return this;
@@ -40,6 +60,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setLongitude(double longitude) {
 			this.longitude = longitude;
+			return this;
+		}
+
+		public Builder setTimezone(String timezone) {
+			this.timezone = timezone;
 			return this;
 		}
 
@@ -80,6 +105,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public SubdivisionCode subdivisionCode() {
+		return this.builder.subdivisionCode;
+	}
+
+	@Override
+	public String placeName() {
+		return this.builder.placeName;
+	}
+
+	@Override
+	public String postcode() {
+		return this.builder.postcode;
+	}
+
+	@Override
 	public double latitude() {
 		return this.builder.latitude;
 	}
@@ -87,5 +127,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public double longitude() {
 		return this.builder.longitude;
+	}
+
+	@Override
+	public String timezone() {
+		return this.builder.timezone;
 	}
 }

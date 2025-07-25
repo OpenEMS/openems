@@ -641,7 +641,10 @@
       "DAYS": "Days"
     },
     "CHARGE": "Charge",
-    "DISCHARGE": "Discharge"
+    "DISCHARGE": "Discharge",
+    "INSTALL": "Install",
+    "FROM": "From",
+    "TO": "To"
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -1123,6 +1126,24 @@
   "GENERAL": {
     "FORMLY": {
       "REQUIRED": "Is required"
+    }
+  },
+  "FORMLY_FORM": {
+    "TARIFF_TABLE": {
+      "TARIFFS": {
+        "LOW": "Low Tariff",
+        "STANDARD": "Standard tariff",
+        "HIGH": "High tariff"
+      },
+      "GROSS_PREIS_TITLE": "Gross price for the year {{ year }}*",
+      "ADD_TIME_SLOT": "Add Time Slot",
+      "PRICE_ITEMS": "Price items",
+      "ADD_YEAR": "Add Year {{ year }}",
+      "REMOVE_YEAR": "Remove Year {{ year }}",
+      "TITLE": "{{ year }} Ancillary Costs",
+      "ERROR_MESSAGES": {
+        "INVALID_TIME_INPUT": "'To' Time cannot be higher than or equal to 'from' time"
+      }
     }
   }
 }

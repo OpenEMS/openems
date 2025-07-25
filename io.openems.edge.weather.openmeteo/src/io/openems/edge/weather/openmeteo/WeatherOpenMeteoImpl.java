@@ -6,7 +6,7 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Map.Entry;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
@@ -23,8 +23,8 @@ import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.meta.Coordinates;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.Weather;
 import io.openems.edge.weather.api.WeatherData;
 import io.openems.edge.weather.api.WeatherSnapshot;
@@ -62,7 +62,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 	private WeatherForecastService weatherForecastService;
 
 	private Meta meta;
-	private Optional<Coordinates> coordinates;
+	private Coordinates coordinates;
 
 	/**
 	 * Binds the {@link Meta} object.
@@ -82,7 +82,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 	 * @param updatedMeta the updated Meta object
 	 */
 	public void updatedMeta(Meta updatedMeta) {
-		if (!this.coordinates.equals(updatedMeta.getCoordinates())) {
+		if (!Objects.equals(this.coordinates, updatedMeta.getCoordinates())) {
 			// Subscribe to weather forecast
 			this.weatherForecastService.subscribeToWeatherForecast(//
 					new OpenMeteoDelayTimeProvider(this.componentManager.getClock()), //

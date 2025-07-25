@@ -187,12 +187,13 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 		HOW_MEASURED(AppDef.copyOfGeneric(CommonProps.defaultDef(), de -> de //
 				.setTranslatedLabelWithAppPrefix(".howMeasured") //
 				.setDefaultValue(HeatingElementMeterIntegration.EXTERN) //
-				.appendIsAllowedToSee((app, property, l, parameter, user) -> {
-					return PropsUtil.isHomeInstalled(app.appManagerUtil)
-							&& app.appManagerUtil.getInstantiatedAppsOf("App.FENECON.Home").isEmpty();
-				}) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class), l);
+					if (PropsUtil.isHomeInstalled(app.appManagerUtil)
+							&& app.appManagerUtil.getInstantiatedAppsOf("App.FENECON.Home").isEmpty()) {
+						field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class), l);
+					} else {
+						field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class, HeatingElementMeterIntegration.INTERN), l);
+					}
 					field.onlyShowIf(Exp.currentModelValue(IS_ELEMENT_MEASURED).notNull());
 				}))), //
 		METER_ID(AppDef.copyOfGeneric(defaultDef(), def -> def //
@@ -316,7 +317,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
 							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 							DependencyDeclaration.AppDependencyConfig.create() //
-									.setAppId("App.Meter.Microcare.Sdm630") //
+									.setAppId("App.Meter.Eastron") //
 									.setAlias(translate(getTranslationBundle(l),
 											"App.Heat.HeatingElement.internalMeterAlias")) //
 									.setInitialProperties(buildJsonObject(meterProperties.deepCopy()) //
@@ -344,6 +345,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				}
 			}
 
+			final var tmpMeterId = meterId;
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement", buildJsonObject() //
 							.addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
@@ -351,7 +353,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
 							.addProperty("powerPerPhase", powerPerPhase) //
 							.addProperty("minimumSwitchingTime", hysteresis) //
-							.addProperty("meter.id", meterId) //
+							.onlyIf(t != ConfigurationTarget.VALIDATE, b -> b.addProperty("meter.id", tmpMeterId)) //
 							.build()) //
 			);
 

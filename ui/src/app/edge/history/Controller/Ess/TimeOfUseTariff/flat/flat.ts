@@ -27,5 +27,4 @@ export class FlatComponent extends AbstractFlatWidget {
         this.delayedActiveTimeOverPeriod = currentData.allComponents[this.componentId + "/DelayedTime"];
         this.chargedConsumptionActiveTimeOverPeriod = currentData.allComponents[this.componentId + "/ChargedTime"];
     }
-
 }

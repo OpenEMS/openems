@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { NavController, ViewWillLeave } from "@ionic/angular";
-import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
-import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
+import { Component, effect, OnDestroy, OnInit } from "@angular/core";
+import { ViewWillLeave } from "@ionic/angular";
+import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { Pagination } from "../shared/service/pagination";
+import { RouteService } from "../shared/service/route.service";
 
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
@@ -14,39 +14,34 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
     `,
     standalone: false,
 })
-export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
+export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
 
     protected latestIncident: { message: string | null, id: string } | null = null;
 
     private edge: Edge | null = null;
 
     constructor(
-        protected navCtrl: NavController,
-        private activatedRoute: ActivatedRoute,
+        private routeService: RouteService,
         private service: Service,
         private websocket: Websocket,
-    ) { }
+        private pagination: Pagination,
+    ) {
 
-    public ngOnInit(): void {
-        this.activatedRoute.params.subscribe((params) => {
-            // Set CurrentEdge in Metadata
-            const edgeId = params["edgeId"];
-            this.service.updateCurrentEdge(edgeId).then((edge) => {
-                this.edge = edge;
+        effect(() => {
+            const edge = this.service.currentEdge();
+            const edgeId = this.routeService.getRouteParam<string>("edgeId");
+            if (!edgeId || !edge) {
+                return;
+            }
 
-                this.checkMessages();
-                this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
-                    .then(() => {
-
-                        // Subscribe on these channels for the state in HeaderComponent
-                        edge.subscribeChannels(this.websocket, "", [
-                            new ChannelAddress("_sum", "State"),
-                        ]);
-                    });
-            }).catch(() => {
-                this.navCtrl.navigateRoot("index");
-            });
+            pagination.subscribeEdge(edge);
+            this.checkMessages();
         });
+    }
+
+    public async ngOnInit() {
+        const edgeId = this.routeService.getRouteParam<string>("edgeId");
+        this.service.updateCurrentEdge(edgeId);
     }
 
     public checkMessages(): void {
@@ -62,5 +57,6 @@ export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
             return;
         }
         this.edge.unsubscribeAllChannels(this.websocket);
+
     }
 }

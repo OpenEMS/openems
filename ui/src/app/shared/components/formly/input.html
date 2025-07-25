@@ -2,7 +2,7 @@
     style="width:100%; float:right; text-align: right" labelPlacement="floating" [type]="props.type || 'text'"
     [formControl]="formControl" [min]="props.min"
     [label]="props.label + ((props.required && props.hideRequiredMarker !== true) ? '*': '')"
-    [helperText]="props.description">
+    [helperText]="props.description" [step]="props.step">
 </ion-input>
 <ng-template #noNumberInput>
     <ion-input placeholder="{{props.placeholder}}" [type]="props.type || 'text'" [formControl]="formControl"

@@ -5,7 +5,7 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { TextIndentation } from "../modal/modal-line/modal-line";
+import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
@@ -131,6 +131,18 @@ export namespace DummyConfig {
                 "io.openems.edge.common.component.OpenemsComponent",
                 "io.openems.edge.evcs.api.ManagedEvcs",
                 "io.openems.edge.evcs.api.Evcs",
+            ],
+        };
+
+        export const EVSE_CHARGEPOINT_KEBA_UDP = {
+            id: "Evse.ChargePoint.Keba.UDP",
+            natureIds: [
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.evse.chargepoint.keba.common.KebaUdp",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
+                "io.openems.edge.evse.chargepoint.keba.common.EvseKeba",
+                "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
 
@@ -402,6 +414,18 @@ export namespace DummyConfig {
             channels: {},
         });
 
+        export const EVSE_CHARGEPOINT_KEBA_UDP = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.EVSE_CHARGEPOINT_KEBA_UDP,
+            properties: {
+                alias: alias ?? id,
+                enabled: true,
+                readOnly: false,
+            },
+            channels: {},
+        });
+
         export const GOODWE_CHARGER_PV_1 = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
@@ -568,6 +592,12 @@ export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string
     name: text,
     buttons: buttons,
     controlName: controlName,
+});
+export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, expectedValue: T, properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,): OeFormlyViewTester.Field => ({
+    type: "range-button-from-form-control-line",
+    controlName,
+    expectedValue,
+    properties,
 });
 
 export namespace ChartConfig {

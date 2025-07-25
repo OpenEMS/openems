@@ -48,12 +48,15 @@ import io.openems.common.utils.JsonUtils;
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler, DebugLoggable {
 
+	public static final String METRIC_MESSAGES_SENT = "AlertingMessagesSent";
+	public static final String METRIC_MESSAGES_QUEUE = "AlertingMessagesQueue";
+
 	// Maximum number of messages constructed at the same time
 	private static final byte THREAD_POOL_SIZE = 2;
 	// Queue size from which warnings are issued
 	private static final byte THREAD_QUEUE_WARNING_THRESHOLD = 50;
 
-	private static final ThreadPoolExecutor createDefaultExecutorService() {
+	private static ThreadPoolExecutor createDefaultExecutorService() {
 		final var threadFactory = new ThreadFactoryBuilder()
 				.setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d").build();
 		return (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE, threadFactory);
@@ -88,15 +91,12 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		this.scheduler.start();
 
 		if (config.notifyOnOffline()) {
-			var handler = new OfflineEdgeHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
-					config.initialDelay());
-			this.handler.add(handler);
+			this.handler.add(new OfflineEdgeHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
+					config.initialDelay()));
 		}
 
 		if (config.notifyOnSumStateChange()) {
-			var handler = new SumStateHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
-					config.initialDelay());
-			this.handler.add(handler);
+			this.handler.add(new SumStateHandler(this.scheduler, this.scheduler, this.mailer, this.metadata));
 		}
 	}
 
@@ -131,10 +131,10 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		if (queueSize >= THREAD_QUEUE_WARNING_THRESHOLD) {
 			sb.append("%d tasks in the EventHandlerQueue! ".formatted(queueSize));
 		}
-		final String handlerStr = this.handler.stream().map(handler -> {
-			final var metrics = handler.getMetrics();
+		final String handlerStr = this.handler.stream().map(h -> {
+			final var metrics = h.getMetrics();
 			return "%s{MessagesSent: %d, MessagesQueue: %d}" //
-					.formatted(handler.getClass().getSimpleName(), metrics.messagesSent(), metrics.messagesQueue());
+					.formatted(h.getClass().getSimpleName(), metrics.messagesSent(), metrics.messagesQueue());
 		}).collect(Collectors.joining(", "));
 		sb.append(handlerStr);
 
@@ -148,11 +148,11 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	public Map<String, JsonElement> debugMetrics() {
 		final var map = new HashMap<String, JsonElement>();
 
-		for (var handler : this.handler) {
-			final var id = handler.id();
-			final var metrics = handler.getMetrics();
-			map.put(id + "/AlertingMessagesSent", JsonUtils.toJson(metrics.messagesSent()));
-			map.put(id + "/AlertingMessagesQueue", JsonUtils.toJson(metrics.messagesQueue()));
+		for (var h : this.handler) {
+			final var id = h.id();
+			final var metrics = h.getMetrics();
+			map.put("%s/%s".formatted(id, METRIC_MESSAGES_SENT), JsonUtils.toJson(metrics.messagesSent()));
+			map.put("%s/%s".formatted(id, METRIC_MESSAGES_QUEUE), JsonUtils.toJson(metrics.messagesQueue()));
 		}
 
 		return map;

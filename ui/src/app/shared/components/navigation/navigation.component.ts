@@ -9,7 +9,7 @@ import { NavigationTree } from "./shared";
     standalone: false,
 })
 export class NavigationComponent {
-    public static INITIAL_BREAKPOINT: number = 0.2;
+    public static INITIAL_BREAKPOINT: number = 0.15;
 
     @ViewChild("modal") private modal: IonModal | null = null;
 
@@ -25,10 +25,10 @@ export class NavigationComponent {
             const currentNode = navigationService.currentNode();
 
             if (!currentNode) {
-                this.navigationService.position = null;
+                this.navigationService.position.set(null);
             }
 
-            this.isVisible = this.navigationService.position === "bottom";
+            this.isVisible = this.navigationService.position() === "bottom";
         });
     }
 

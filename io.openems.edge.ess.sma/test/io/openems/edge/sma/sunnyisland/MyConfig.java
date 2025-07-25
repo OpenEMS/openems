@@ -14,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int modbusUnitId;
 		private SingleOrAllPhase phase;
 		private boolean readOnlyMode;
+		private int capacity;
 
 		private Builder() {
 		}
@@ -35,6 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setReadOnlyMode(boolean readOnlyMode) {
 			this.readOnlyMode = readOnlyMode;
+			return this;
+		}
+
+		public Builder setCapacity(int capacity) {
+			this.capacity = capacity;
 			return this;
 		}
 
@@ -82,6 +88,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean readOnlyMode() {
 		return this.builder.readOnlyMode;
+	}
+
+	@Override
+	public int capacity() {
+		return this.builder.capacity;
 	}
 
 }

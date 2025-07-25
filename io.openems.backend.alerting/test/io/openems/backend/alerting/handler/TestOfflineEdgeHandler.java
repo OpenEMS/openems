@@ -55,23 +55,23 @@ public class TestOfflineEdgeHandler {
 		final var msgsch = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(Clock.systemUTC());
 		final var handler = new OfflineEdgeHandler(msgsch, timer, mailer, Utility.getTestMetadata(), 1);
-		final var msg_1 = new OfflineEdgeMessage("1", ZonedDateTime.now().minusSeconds(1));
-		msg_1.addRecipient(new OfflineEdgeAlertingSetting("edge1", "user1", 1, null));
-		msg_1.addRecipient(new OfflineEdgeAlertingSetting("edge1", "user2", 2, null));
+		final var msg1 = new OfflineEdgeMessage("1", ZonedDateTime.now().minusSeconds(1));
+		msg1.addRecipient(new OfflineEdgeAlertingSetting("edge1", "user1", 1, null));
+		msg1.addRecipient(new OfflineEdgeAlertingSetting("edge1", "user2", 2, null));
 
-		final var msg_2 = new OfflineEdgeMessage("Fail", ZonedDateTime.now().minusSeconds(2));
-		msg_2.addRecipient(new OfflineEdgeAlertingSetting("edge2", "user1", 1, null));
-		msg_2.addRecipient(new OfflineEdgeAlertingSetting("edge2", "user2", 2, null));
+		final var msg2 = new OfflineEdgeMessage("Fail", ZonedDateTime.now().minusSeconds(2));
+		msg2.addRecipient(new OfflineEdgeAlertingSetting("edge2", "user1", 1, null));
+		msg2.addRecipient(new OfflineEdgeAlertingSetting("edge2", "user2", 2, null));
 
-		assertEquals(mailer.sentMails.size(), 0);
-		var msgs = new ArrayList<>(List.of(msg_1, msg_2));
+		assertEquals(0, mailer.sentMails.size());
+		var msgs = new ArrayList<>(List.of(msg1, msg2));
 		handler.send(ZonedDateTime.now(), msgs);
 		assertEquals(1, mailer.sentMails.size());
 
 		// check if correctly rescheduled
 		final var sc = msgsch.find(handler);
-		assertTrue(sc.isScheduled(msg_1));
-		assertFalse(sc.isScheduled(msg_2));
+		assertTrue(sc.isScheduled(msg1));
+		assertFalse(sc.isScheduled(msg2));
 	}
 
 	@Test
@@ -195,8 +195,8 @@ public class TestOfflineEdgeHandler {
 			return metadata;
 		}
 
-		private static Edge getTestEdge(Metadata metadata, String id, ZonedDateTime LastMessage, boolean isOnline) {
-			final var edge = new Edge(metadata, id, "comment", "version", "producttype", LastMessage);
+		private static Edge getTestEdge(Metadata metadata, String id, ZonedDateTime lastMessage, boolean isOnline) {
+			final var edge = new Edge(metadata, id, "comment", "version", "producttype", lastMessage);
 			edge.setOnline(isOnline);
 			return edge;
 		}

@@ -8,7 +8,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "controller-evse-history-chart",
+    selector: "oe-controller-evse-history-chart",
     templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })

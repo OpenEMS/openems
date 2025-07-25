@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, Component, Input } from "@angular/core";
+import { ChangeDetectorRef, Component, effect, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -28,7 +28,7 @@ export enum Status {
     `],
     standalone: false,
 })
-export class NavigationPageComponent implements AfterViewChecked {
+export class NavigationPageComponent {
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
@@ -43,13 +43,28 @@ export class NavigationPageComponent implements AfterViewChecked {
         protected navigationService: NavigationService,
         private websocket: Websocket,
         private translate: TranslateService,
+        private cdr: ChangeDetectorRef
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
+
+        effect(() => {
+            const position = this.navigationService.position();
+            this.contentHeight = NavigationPageComponent.calculateHeight(position);
+        });
     }
 
+    public static calculateHeight(position: string | null): number {
+        if (position == null) {
+            return 100;
+        }
 
-    ngAfterViewChecked() {
-        this.contentHeight = this.calculateHeight();
+        const HEADER_HEIGHT_WITH_PICKDATE_BREADCRUMBS = 10;
+        if (position === "bottom") {
+            return 100 - ((NavigationComponent.INITIAL_BREAKPOINT * 100) + HEADER_HEIGHT_WITH_PICKDATE_BREADCRUMBS);
+        }
+
+        // !IMPORTANT TODO: Calculate container height dynamically
+        return 100 - ((NavigationComponent.INITIAL_BREAKPOINT * 100));
     }
 
     // Changes applied together
@@ -80,12 +95,6 @@ export class NavigationPageComponent implements AfterViewChecked {
                 }).finally(() => this.service.stopSpinner("spinner"));
         }
         this.formGroup.markAsPristine();
-    }
-
-    private calculateHeight(): number {
-
-        // !IMPORTANT TODO: Calculate container height
-        return 100 - (this.navigationService.position == "bottom" ? (NavigationComponent.INITIAL_BREAKPOINT * 100) : 5);
     }
 }
 
