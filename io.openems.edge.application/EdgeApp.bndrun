@@ -98,8 +98,8 @@
 	bnd.identity;id='io.openems.edge.controller.io.analog',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
-	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
+	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
 	bnd.identity;id='io.openems.edge.controller.levl',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
@@ -125,6 +125,7 @@
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
 	bnd.identity;id='io.openems.edge.evcs.dezony',\
+	bnd.identity;id='io.openems.edge.evcs.goe',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.heidelberg',\
 	bnd.identity;id='io.openems.edge.evcs.mennekes',\
@@ -315,6 +316,7 @@
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
 	io.openems.edge.evcs.dezony;version=snapshot,\
+	io.openems.edge.evcs.goe;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.heidelberg;version=snapshot,\
 	io.openems.edge.evcs.mennekes;version=snapshot,\

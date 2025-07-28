@@ -112,6 +112,7 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcsReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcsReadonly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.goeEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heidelbergEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.mennekesEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));

@@ -41,6 +41,7 @@ import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
 import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
+import io.openems.edge.app.evcs.readonly.AppGoeEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
@@ -575,6 +576,16 @@ public final class Apps {
 	 */
 	public static final KebaEvcsReadOnly kebaEvcsReadonly(AppManagerTestBundle t) {
 		return app(t, KebaEvcsReadOnly::new, "App.Evcs.Keba.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppGoeEvcsReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppGoeEvcsReadOnly goeEvcs(AppManagerTestBundle t) {
+		return app(t, AppGoeEvcsReadOnly::new, "App.Evcs.Goe.ReadOnly");
 	}
 
 	/**
