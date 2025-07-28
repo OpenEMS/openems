@@ -137,6 +137,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.updateServiceBinder.bindService(updateParams);
 	}
 
+	@SuppressWarnings("unused")
 	private void unbindUpdateParams(GoodWeBatteryInverterUpdateParams updateParams) {
 		this.updateServiceBinder.unbindService(updateParams);
 	}

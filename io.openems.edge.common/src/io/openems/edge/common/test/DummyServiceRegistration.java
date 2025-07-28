@@ -7,8 +7,8 @@ import org.osgi.framework.ServiceRegistration;
 
 public class DummyServiceRegistration<S> implements ServiceRegistration<S> {
 
-	private final S service;
-	private Dictionary<String, ?> properties;
+	protected final S service;
+	protected Dictionary<String, ?> properties;
 
 	public DummyServiceRegistration(S service, Dictionary<String, ?> properties) {
 		this.service = service;
@@ -27,6 +27,5 @@ public class DummyServiceRegistration<S> implements ServiceRegistration<S> {
 
 	@Override
 	public void unregister() {
-
 	}
 }
