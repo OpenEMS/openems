@@ -95,7 +95,7 @@ public class EvcsKebaModbusImplTest {
 						.setModbusUnitId(255) //
 						.setReadOnly(false) //
 						.build()) //
-				.next(new TestCase(), 20) //
+				.next(new TestCase(), 19) //
 				.next(tc) //
 				.deactivate();
 

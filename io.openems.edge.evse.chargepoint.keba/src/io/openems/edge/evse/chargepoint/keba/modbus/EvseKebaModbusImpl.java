@@ -168,7 +168,7 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 								.onUpdateCallback(power -> calculateActivePowerL1L2L3(this, power))),
 				new FC3ReadRegistersTask(1036, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(1036),
-								SCALE_FACTOR_MINUS_1)),
+								this.energyScaleFactor)),
 				new FC3ReadRegistersTask(1040, Priority.LOW, //
 						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(1040), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1042, Priority.LOW, //
@@ -183,7 +183,8 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 				// this register is can not always be read with keba firmware 1.1.9 or less
 				// there is currently no way of knowing when it can be read
 				new FC3ReadRegistersTask(1502, Priority.LOW, //
-						m(EvseKeba.ChannelId.ENERGY_SESSION, new UnsignedDoublewordElement(1502))),
+						m(EvseKeba.ChannelId.ENERGY_SESSION, new UnsignedDoublewordElement(1502),
+								this.energyScaleFactor)),
 				new FC3ReadRegistersTask(1550, Priority.LOW, //
 						m(Keba.ChannelId.PHASE_SWITCH_SOURCE, new UnsignedDoublewordElement(1550))),
 				new FC3ReadRegistersTask(1552, Priority.LOW, //

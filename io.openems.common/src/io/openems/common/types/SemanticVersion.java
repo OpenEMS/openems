@@ -50,6 +50,9 @@ public class SemanticVersion {
 	 * @return the SemanticVersion instance
 	 */
 	public static SemanticVersion fromStringOrZero(String versionString) {
+		if (versionString == null) {
+			return SemanticVersion.ZERO;
+		}
 		try {
 			return SemanticVersion.fromString(versionString);
 		} catch (Exception e) {

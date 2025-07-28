@@ -18,7 +18,6 @@ import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.net.UnknownHostException;
-import java.time.Clock;
 import java.time.Instant;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -88,7 +87,6 @@ import io.openems.edge.timedata.api.TimedataProvider;
 public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedEvcs, Evcs, DeprecatedEvcs,
 		ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, ModbusComponent, TimedataProvider {
 
-	private Clock clock;
 	private final Logger log = LoggerFactory.getLogger(EvcsKebaModbusImpl.class);
 	private final KebaUtils kebaUtils = new KebaUtils(this);
 
@@ -168,7 +166,6 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
-		this.clock = this.componentManager.getClock();
 		this.setEnableSet = false;
 	}
 
@@ -222,7 +219,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 			current = 0;
 		}
 		this.setChargingCurrent(current);
-		this.lastWrite = Instant.now(this.clock);
+		this.lastWrite = Instant.now(this.componentManager.getClock());
 		return true;
 	}
 
@@ -362,7 +359,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 										power -> calculateActivePowerL1L2L3(this, power))),
 				new FC3ReadRegistersTask(1036, Priority.LOW, //
 						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(1036),
-								SCALE_FACTOR_MINUS_1)),
+								this.energyScaleFactor)),
 				new FC3ReadRegistersTask(1040, Priority.LOW, //
 						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(1040), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1042, Priority.LOW, //
@@ -379,7 +376,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 				// this register is can not always be read with keba firmware 1.1.9 or less
 				// there is currently no way of knowing when it can be read
 				new FC3ReadRegistersTask(1502, Priority.LOW, //
-						m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedDoublewordElement(1502))),
+						m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedDoublewordElement(1502), this.energyScaleFactor)),
 				new FC3ReadRegistersTask(1550, Priority.LOW, //
 						m(Keba.ChannelId.PHASE_SWITCH_SOURCE, new UnsignedDoublewordElement(1550))),
 				new FC3ReadRegistersTask(1552, Priority.LOW, //
@@ -415,7 +412,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 		if (this.lastWrite == null) {
 			return false;
 		}
-		return Instant.now(this.clock).isBefore(this.lastWrite.plusSeconds(5));
+		return Instant.now(this.componentManager.getClock()).isBefore(this.lastWrite.plusSeconds(5));
 	}
 
 	@Override

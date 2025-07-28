@@ -55,7 +55,7 @@ public class KebaModbusTest {
 						.withRegisters(1500, // RFID - TODO
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1502, // ENERGY_SESSION
-								new int[] { 0x0000, 0x1982 }) //
+								new int[] { 0x0000, 0xFF14 }) //
 						.withRegisters(1550, // PHASE_SWITCH_SOURCE - TODO
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1552, // PHASE_SWITCH_STATE - TODO
