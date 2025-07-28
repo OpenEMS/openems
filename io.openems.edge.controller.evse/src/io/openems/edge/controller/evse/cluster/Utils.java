@@ -2,18 +2,19 @@ package io.openems.edge.controller.evse.cluster;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
-import static io.openems.edge.evse.api.EvseConstants.MIN_CURRENT;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE;
+import static io.openems.edge.evse.api.chargepoint.Mode.Actual.MINIMUM;
+import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_SINGLE_PHASE;
+import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_THREE_PHASE;
+import static io.openems.edge.evse.api.common.ApplySetPoint.roundDownToPowerStep;
 import static java.lang.Math.max;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.joining;
 
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 
@@ -21,232 +22,443 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplySetPoint;
 
 public class Utils {
 
 	private Utils() {
 	}
 
-	protected static record Input(ControllerEvseSingle ctrl, Params params) {
+	/**
+	 * Holds temporary calculations and power distribution among
+	 * {@link ControllerEvseSingle}s.
+	 */
+	public static class PowerDistribution {
+
+		/**
+		 * Holds {@link PowerDistribution} for one single {@link ControllerEvseSingle}.
+		 */
+		public static class Entry {
+			public final ControllerEvseSingle ctrl;
+			public final Params params;
+			public final Integer activePower;
+			public final ChargePointActions.Builder actions;
+
+			protected int setPointInWatt;
+
+			public Entry(ControllerEvseSingle ctrl, Params params) {
+				this.ctrl = ctrl;
+				this.params = params;
+
+				this.activePower = params.activePower();
+				this.actions = ChargePointActions.from(params.combinedAbilities().chargePointAbilities());
+			}
+
+			@Override
+			public final String toString() {
+				return toStringHelper(Entry.class) //
+						.addValue(this.ctrl.id()) //
+						.addValue(this.params) //
+						.add("activePower", this.activePower) //
+						.add("setPointInWatt", this.setPointInWatt) //
+						.add("actions", this.actions.getApplySetPoint() == null //
+								? "UNDEFINED" //
+								: this.actions.build()) //
+						.toString();
+			}
+		}
+
+		/**
+		 * Creates {@link PowerDistribution} from a list of
+		 * {@link ControllerEvseSingle}.
+		 * 
+		 * @param ctrls the list of {@link ControllerEvseSingle}
+		 * @return a {@link PowerDistribution}
+		 */
+		protected static PowerDistribution of(List<ControllerEvseSingle> ctrls) {
+			return new PowerDistribution(ctrls.stream() //
+					.map(ctrl -> new PowerDistribution.Entry(ctrl, ctrl.getParams())) //
+					.collect(toImmutableList()));
+		}
+
+		public final ImmutableList<Entry> entries;
+		public final int totalActivePower;
+
+		public PowerDistribution(ImmutableList<Entry> entries) {
+			this.entries = entries;
+			this.totalActivePower = this.streamWithParams() //
+					.map(e -> e.params.activePower()) //
+					.filter(Objects::nonNull) //
+					.mapToInt(Integer::intValue) //
+					.sum();
+		}
+
+		/**
+		 * Stream all {@link Entry}s.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamEntries() {
+			return this.entries.stream();
+		}
+
+		/**
+		 * Stream all {@link Entry}s with non-null {@link Params}.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamWithParams() {
+			return this.streamEntries() //
+					.filter(e -> e.params != null && e.params.combinedAbilities().applySetPoint() != null);
+		}
+
+		/**
+		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
+		 * charging.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamActives() {
+			return this.streamWithParams() //
+					.filter(e -> e.params.combinedAbilities().isReadyForCharging()
+							&& !e.params.appearsToBeFullyCharged());
+		}
+
+		/**
+		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
+		 * charging and in {@link Mode.Actual#SURPLUS} mode.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamSurplus() {
+			return this.streamActives() //
+					.filter(e -> switch (e.params.actualMode()) {
+					case FORCE, MINIMUM, ZERO -> false;
+					case SURPLUS -> true;
+					});
+		}
+
+		/**
+		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
+		 * charging and in {@link Mode.Actual#SURPLUS} mode and have a temporary
+		 * Set-Point > 0.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamSurplusGreaterZero() {
+			return this.streamSurplus()
+					// Only the ones that are at least min() after distributeSurplusMinPower()
+					.filter(e -> e.setPointInWatt > 0);
+		}
+
 		@Override
 		public final String toString() {
-			return toStringHelper(Input.class) //
-					.add("ctrl", this.ctrl.id()) //
-					.add("params", this.params) //
+			return toStringHelper(PowerDistribution.class) //
+					.add("totalActivePower", this.totalActivePower) //
+					.add("entries", "\n" + this.entries.stream() //
+							.map(Entry::toString) //
+							.collect(joining("\n"))) //
 					.toString();
 		}
 	}
 
-	protected static record Result(ControllerEvseSingle ctrl, ChargePointActions actions) {
-	}
-
-	protected static ImmutableList<Result> calculate(DistributionStrategy distributionStrategy, Sum sum,
+	/**
+	 * Calculate the {@link PowerDistribution} according to the given
+	 * {@link DistributionStrategy}.
+	 * 
+	 * @param distributionStrategy the {@link DistributionStrategy}
+	 * @param sum                  the {@link Sum} component
+	 * @param ctrls                the list of {@link ControllerEvseSingle}
+	 * @param logDebug             a debug log consumer
+	 * @return the {@link PowerDistribution}
+	 */
+	protected static PowerDistribution calculate(DistributionStrategy distributionStrategy, Sum sum,
 			List<ControllerEvseSingle> ctrls, Consumer<String> logDebug) {
-		var inputs = ctrls.stream() //
+		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
 					var params = ctrl.getParams();
 					if (params == null) {
 						return null;
 					}
-					return new Input(ctrl, params);
+					return new PowerDistribution.Entry(ctrl, params);
 				}) //
 				.filter(Objects::nonNull) //
-				.collect(toImmutableList());
+				.collect(toImmutableList()));
 
-		final var outputs = ImmutableList.<Result>builder();
+		initializeSetPoints(powerDistribution);
+		distributeSurplusPower(powerDistribution, distributionStrategy, sum);
 
-		var surplusDistribution = distributeSurplusPower(distributionStrategy, inputs, sum);
+		// Build Actions
+		powerDistribution.streamWithParams().forEach(e -> {
+			handleApplySetPoint(e, logDebug);
+			handlePhaseSwitch(e, logDebug);
+		});
 
-		for (var input : inputs) {
-			final var ctrl = input.ctrl;
-			final var params = input.params;
-			final var abilities = params.abilities();
-
-			// Build Actions
-			final var actions = ChargePointActions.from(abilities);
-			if (params.actualMode() == Mode.Actual.MINIMUM
-					&& abilities.phaseSwitch() instanceof PhaseSwitch.Ability.ToSinglePhase) {
-				// Switch from THREE to SINGLE phase in MINIMUM mode
-				logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
-				actions.setPhaseSwitch(PhaseSwitch.Action.TO_SINGLE_PHASE);
-			} else if (params.actualMode() == Mode.Actual.FORCE
-					&& abilities.phaseSwitch() instanceof PhaseSwitch.Ability.ToThreePhase) {
-				// Switch from SINGLE to THREE phase in FORCE mode
-				logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
-				actions.setPhaseSwitch(PhaseSwitch.Action.TO_THREE_PHASE);
-			}
-
-			// Evaluate Charge Current
-			var current = switch (params.actualMode()) {
-			case ZERO -> 0;
-			case MINIMUM -> MIN_CURRENT;
-			case SURPLUS -> params.limit().calculateCurrent(surplusDistribution.poll());
-			case FORCE -> params.limit().maxCurrent();
-			};
-
-			logDebug.accept(ctrl.id() + ": " //
-					+ "Mode [" + params.actualMode() + "] " //
-					+ "Set Current [" + current + "]. " //
-					+ "Params: " + params);
-
-			// Apply MIN_CURRENT if car appears to be fully charged. Makes no difference in
-			// power, but allows the car to start pre-heating, etc.
-			if (params.appearsToBeFullyCharged()) {
-				current = MIN_CURRENT;
-			}
-
-			// TODO apply rounding to unit already during 'distributeSurplusPower'
-			switch (abilities.applySetPoint()) {
-			case AMPERE -> actions.setApplySetPointInAmpere(current / 1000);
-			case MILLI_AMPERE -> actions.setApplySetPointInMilliAmpere(current);
-			}
-
-			outputs.add(new Result(ctrl, actions.build()));
-		}
-
-		return outputs.build();
-	}
-
-	protected static Queue<Integer> distributeSurplusPower(DistributionStrategy distributionStrategy,
-			ImmutableList<Input> inputs, Sum sum) {
-		var totalExcessPower = calculateTotalExcessPower(inputs, sum);
-		var totalFixedPower = calculateTotalFixedPower(inputs);
-		var surplusInputs = inputs.stream() //
-				.filter(i -> switch (i.params.actualMode()) {
-				case FORCE, MINIMUM, ZERO -> false;
-				case SURPLUS -> true;
-				}) //
-				.toArray(Input[]::new);
-		return stream(
-				distributePower(distributionStrategy, surplusInputs, Math.max(0, totalExcessPower - totalFixedPower))) //
-				.mapToObj(Integer::valueOf) //
-				.collect(toCollection(LinkedList::new));
+		return powerDistribution;
 	}
 
 	/**
-	 * Distributes power among surplus EVs by strategy.
+	 * Initialize the Set-Points for {@link Mode.Actual#FORCE},
+	 * {@link Mode.Actual#MINIMUM} and {@link Mode.Actual#ZERO}.
 	 * 
-	 * @param strategy                the {@link DistributionStrategy}
-	 * @param surplusInputs           the {@link Input}s; only SURPLUS allowed!
-	 * @param totalDistributablePower the power to be distributed
-	 * @return array of distributed powers
+	 * @param powerDistribution the {@link PowerDistribution}
 	 */
-	protected static int[] distributePower(DistributionStrategy strategy, Input[] surplusInputs,
-			int totalDistributablePower) {
-		var d = distributeMinPower(surplusInputs, totalDistributablePower);
-		if (d.noOfNonZeroPowers > 0) {
-			switch (strategy) {
-			case EQUAL_POWER -> distributePowerEqual(surplusInputs, d);
-			case BY_PRIORITY -> distributePowerByPriority(surplusInputs, d);
-			}
-		}
-		return d.powers;
+	private static void initializeSetPoints(PowerDistribution powerDistribution) {
+		// Set all to MINIMUM by default
+		// Example: apply min value if car appears to be fully charged. Makes no
+		// difference in power, but allows the car to start pre-heating, etc.
+		powerDistribution.streamWithParams().forEach(e -> {
+			var min = e.params.combinedAbilities().applySetPoint().min();
+			e.setPointInWatt = switch (e.params.actualMode()) {
+			case FORCE, MINIMUM -> min;
+			case SURPLUS, ZERO -> 0;
+			};
+		});
+		// Set Actives to actual setting
+		powerDistribution.streamActives().forEach(e -> {
+			var asp = e.params.combinedAbilities().applySetPoint();
+			e.setPointInWatt = switch (e.params.actualMode()) {
+			case MINIMUM -> asp.min();
+			case FORCE -> asp.max();
+			case SURPLUS, ZERO -> 0;
+			};
+		});
 	}
 
-	protected static void distributePowerEqual(Input[] surplusInputs, DistributedMinPower d) {
-		var p = d.remainingPower / d.noOfNonZeroPowers;
-		for (var i = 0; i < d.powers.length; i++) {
-			if (d.powers[i] > 0) {
-				var input = surplusInputs[i];
-				var params = input.params;
-				var limit = params.limit();
-				d.powers[i] = fitWithin(limit.getMinPower(), limit.getMaxPower(), d.powers[i] + p);
-			}
-		}
-	}
+	/**
+	 * Distribute excess power to Controllers in {@link Mode.Actual#SURPLUS} mode.
+	 * 
+	 * <p>
+	 * First distributes minimum required power to each Controller (e.g. 6 A on
+	 * single-/three-phase); then distributes remaining excess power as per given
+	 * {@link DistributionStrategy}.
+	 * 
+	 * @param powerDistribution    the {@link PowerDistribution}
+	 * @param distributionStrategy the {@link DistributionStrategy}
+	 * @param sum                  the {@link Sum} component
+	 */
+	protected static void distributeSurplusPower(PowerDistribution powerDistribution,
+			DistributionStrategy distributionStrategy, Sum sum) {
+		var totalExcessPower = calculateTotalExcessPower(powerDistribution, sum);
+		var totalFixedPower = powerDistribution.streamActives() //
+				.mapToInt(e -> e.setPointInWatt) // initialized before via initializeSetPoints()
+				.sum();
+		var totalDistributablePower = Math.max(0, totalExcessPower - totalFixedPower);
+		var remainingDistributablePower = distributeSurplusMinPower(powerDistribution, totalDistributablePower);
+		distributeSurplusRemainingPower(powerDistribution, distributionStrategy, remainingDistributablePower);
 
-	protected static void distributePowerByPriority(Input[] surplusInputs, DistributedMinPower d) {
-		var remaining = d.remainingPower;
-		for (var i = 0; i < d.powers.length; i++) {
-			if (d.powers[i] > 0) {
-				var input = surplusInputs[i];
-				var params = input.params;
-				var limit = params.limit();
-				var before = d.powers[i];
-				var after = fitWithin(limit.getMinPower(), limit.getMaxPower(), d.powers[i] + remaining);
-				d.powers[i] = after;
-				remaining -= after - before;
-			}
-		}
-	}
-
-	private record DistributedMinPower(int[] powers, int remainingPower, int noOfNonZeroPowers) {
-		@Override
-		public final String toString() {
-			return toStringHelper(DistributedMinPower.class) //
-					.add("powers", Arrays.toString(this.powers)) //
-					.add("remainingPower", this.remainingPower) //
-					.add("noOfNonZeroPowers", this.noOfNonZeroPowers) //
-					.toString();
-		}
-	}
-
-	private static DistributedMinPower distributeMinPower(Input[] surplusInputs, int totalDistributablePower) {
-		var powers = new int[surplusInputs.length];
-		var remaining = totalDistributablePower;
-		var noOfNonZeroPowers = 0;
-		for (var i = 0; i < surplusInputs.length; i++) {
-			var input = surplusInputs[i];
-			var param = input.params;
-			if (!param.isReadyForCharging() || param.appearsToBeFullyCharged()) {
-				continue;
-			}
-			var hysteresis = param.hysteresis();
-			if (hysteresis == Hysteresis.KEEP_ZERO) {
-				continue;
-			}
-			var power = param.limit().getMinPower();
-			if (hysteresis != Hysteresis.KEEP_CHARGING && power > remaining) {
-				continue;
-			}
-			noOfNonZeroPowers++;
-			remaining -= power;
-			powers[i] = power;
-		}
-		return new DistributedMinPower(powers, remaining, noOfNonZeroPowers);
+		distributeToApplySetPointStep(powerDistribution);
 	}
 
 	/**
 	 * Calculates the total excess power, depending on the current PV production and
 	 * house consumption.
 	 * 
-	 * @param inputs the {@link Input}s
-	 * @param sum    the {@link Sum} component
+	 * @param powerDistribution the {@link PowerDistribution}
+	 * @param sum               the {@link Sum} component
 	 * @return the available additional excess power for charging
 	 */
-	protected static int calculateTotalExcessPower(ImmutableList<Input> inputs, Sum sum) {
+	protected static int calculateTotalExcessPower(PowerDistribution powerDistribution, Sum sum) {
 		var buyFromGrid = sum.getGridActivePower().orElse(0);
 		var essDischarge = sum.getEssDischargePower().orElse(0);
-		var evseCharge = inputs.stream() //
-				.map(Input::params) //
-				.map(p -> p.activePower()) //
-				.filter(Objects::nonNull) //
-				.mapToInt(Integer::intValue) //
-				.sum();
+		var evseCharge = powerDistribution.totalActivePower;
 
 		return max(0, evseCharge - buyFromGrid - essDischarge);
 	}
 
 	/**
-	 * Calculates the total fixed power.
+	 * Distribute minimum required power to each Controller (e.g. 6 A on
+	 * single-/three-phase).
 	 * 
-	 * @param inputs the {@link Input}s
-	 * @return the fixed required power for MINIMUM and FORCE mode
+	 * @param powerDistribution  the {@link PowerDistribution}
+	 * @param distributablePower the total distributable power (i.e. the excess
+	 *                           power)
+	 * @return the remaining distributable power
 	 */
-	protected static int calculateTotalFixedPower(ImmutableList<Input> inputs) {
-		return inputs.stream() //
-				.map(Input::params) //
-				.filter(p -> p.isReadyForCharging() && !p.appearsToBeFullyCharged()) //
-				.map(p -> switch (p.actualMode()) {
-				case FORCE -> p.limit().getMaxPower();
-				case MINIMUM -> p.limit().getMinPower();
-				case SURPLUS, ZERO -> null;
-				}) //
-				.filter(Objects::nonNull) //
-				.mapToInt(Integer::intValue) //
-				.sum();
+	private static int distributeSurplusMinPower(PowerDistribution powerDistribution, int distributablePower) {
+		var remaining = distributablePower;
+		for (var e : powerDistribution.streamSurplus().toList()) {
+			final var p = e.params;
+			var hysteresis = p.hysteresis();
+			if (hysteresis == Hysteresis.KEEP_ZERO) {
+				continue;
+			}
+			final var combinedAbilities = p.combinedAbilities();
+			final var asp = combinedAbilities.applySetPoint();
+			var power = asp.toPower(asp.min());
+			if (hysteresis != Hysteresis.KEEP_CHARGING && power > remaining) {
+				continue;
+			}
+			e.setPointInWatt = power;
+			remaining -= power;
+		}
+		return remaining;
+	}
+
+	/**
+	 * Distribute distributablePower (i.e. remaining excess power) as per given
+	 * {@link DistributionStrategy}.
+	 * 
+	 * @param powerDistribution    the {@link PowerDistribution}
+	 * @param distributionStrategy the {@link DistributionStrategy}
+	 * @param distributablePower   the total distributable power (i.e. remaining
+	 *                             excess power)
+	 */
+	protected static void distributeSurplusRemainingPower(PowerDistribution powerDistribution,
+			DistributionStrategy distributionStrategy, int distributablePower) {
+		var entries = powerDistribution.streamSurplusGreaterZero() //
+				.toList();
+		if (entries.isEmpty()) {
+			return;
+		}
+		switch (distributionStrategy) {
+		case EQUAL_POWER -> distributePowerEqual(entries, distributablePower);
+		case BY_PRIORITY -> distributePowerByPriority(entries, distributablePower);
+		}
+	}
+
+	/**
+	 * Distribute power equally among Controllers.
+	 * 
+	 * @param entries            the PowerDistribution Entries
+	 * @param distributablePower the distributable power
+	 */
+	protected static void distributePowerEqual(List<PowerDistribution.Entry> entries, int distributablePower) {
+		var equalPower = distributablePower / entries.size();
+		for (var e : entries) {
+			e.setPointInWatt += equalPower;
+		}
+	}
+
+	/**
+	 * Distribute power by priority among Controllers.
+	 * 
+	 * @param entries            the PowerDistribution Entries
+	 * @param distributablePower the distributable power
+	 */
+	protected static void distributePowerByPriority(List<PowerDistribution.Entry> entries, int distributablePower) {
+		var remaining = distributablePower;
+		for (var e : entries) {
+			var before = e.setPointInWatt;
+			var after = e.params.combinedAbilities().applySetPoint().fitWithin(before + remaining);
+
+			remaining -= after - before;
+			e.setPointInWatt += after;
+		}
+	}
+
+	/**
+	 * This last step distributes the power according to the 'steps' defined in the
+	 * {@link ApplySetPoint.Ability}.
+	 * 
+	 * <p>
+	 * Example: if a {@link EvseChargePoint} only supports
+	 * {@link ApplySetPoint.Ability.Ampere}, its set-point is adjusted (reduced) to
+	 * match the step. The gained power is again distributed among the Controllers.
+	 * 
+	 * @param powerDistribution the {@link PowerDistribution}
+	 */
+	private static void distributeToApplySetPointStep(PowerDistribution powerDistribution) {
+		var entries = powerDistribution.streamSurplusGreaterZero() //
+				.toList();
+		var distributablePower = 0;
+		for (var e : entries.reversed()) {
+			var set = roundDownToPowerStep(e.params.combinedAbilities().applySetPoint(), e.setPointInWatt);
+			distributablePower += e.setPointInWatt - set;
+			e.setPointInWatt = set;
+		}
+		for (var e : entries) {
+			if (distributablePower < 1) {
+				break;
+			}
+			var set = roundDownToPowerStep(e.params.combinedAbilities().applySetPoint(),
+					e.setPointInWatt + distributablePower);
+			distributablePower -= set - e.setPointInWatt;
+			e.setPointInWatt = set;
+		}
+	}
+
+	/**
+	 * Takes the PowerDistribution Entries of one {@link ControllerEvseSingle} and
+	 * sets the {@link ApplySetPoint.Action}.
+	 * 
+	 * @param e        the PowerDistribution Entry
+	 * @param logDebug a debug log consumer
+	 */
+	private static void handleApplySetPoint(PowerDistribution.Entry e, Consumer<String> logDebug) {
+		final var ctrl = e.ctrl;
+		final var params = e.params;
+		final var combinedAbilities = params.combinedAbilities();
+		final var chargePointAbilities = combinedAbilities.chargePointAbilities();
+
+		if (chargePointAbilities == null) {
+			logDebug.accept(ctrl.id() + ": " //
+					+ "Mode [" + params.actualMode() + "] " //
+					+ "ChargePointCapability is null " //
+					+ params);
+			return;
+		}
+
+		var value = params.combinedAbilities().chargePointAbilities().applySetPoint().fromPower(e.setPointInWatt);
+
+		logDebug.accept(ctrl.id() + ": " //
+				+ "Mode [" + params.actualMode() + "] " //
+				+ "Set [" + e.setPointInWatt + " W -> " + value + "] " //
+				+ params);
+
+		switch (combinedAbilities.chargePointAbilities().applySetPoint()) {
+		case ApplySetPoint.Ability.MilliAmpere ma -> e.actions.setApplySetPointInMilliAmpere(value);
+		case ApplySetPoint.Ability.Ampere a -> e.actions.setApplySetPointInAmpere(value);
+		case ApplySetPoint.Ability.Watt w -> e.actions.setApplySetPointInWatt(value);
+		}
+	}
+
+	/**
+	 * Handles a {@link PhaseSwitch} Action for one {@link ControllerEvseSingle}.
+	 * 
+	 * @param e        the PowerDistribution Entry
+	 * @param logDebug a debug log consumer
+	 */
+	private static void handlePhaseSwitch(PowerDistribution.Entry e, Consumer<String> logDebug) {
+		final var ctrl = e.ctrl;
+		final var params = e.params;
+		final var combinedAbilities = params.combinedAbilities();
+		final var phaseSwitchAbility = combinedAbilities.phaseSwitch();
+		if (phaseSwitchAbility == null) {
+			return;
+		}
+		final var actions = e.actions;
+
+		switch (params.phaseSwitching()) {
+		case DISABLE -> doNothing();
+		case AUTOMATIC_SWITCHING -> {
+			if (params.actualMode() == FORCE // Mode is Force-Charge
+					&& phaseSwitchAbility == TO_THREE_PHASE) { // Can switch to Three-Phase
+				logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
+				actions.setPhaseSwitch(TO_THREE_PHASE);
+
+			} else if (params.actualMode() == MINIMUM // Mode is Minimum
+					&& phaseSwitchAbility == TO_SINGLE_PHASE) { // Can switch to Single-Phase
+				logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
+				actions.setPhaseSwitch(TO_SINGLE_PHASE);
+			}
+		}
+		case FORCE_SINGLE_PHASE -> {
+			if (phaseSwitchAbility == TO_SINGLE_PHASE) { // Force switch to Single-Phase
+				logDebug.accept(ctrl.id() + ": Force switch to SINGLE phase");
+				actions.setPhaseSwitch(TO_SINGLE_PHASE);
+			}
+		}
+		case FORCE_THREE_PHASE -> {
+			if (phaseSwitchAbility == TO_THREE_PHASE) { // Force switch to Three-Phase
+				logDebug.accept(ctrl.id() + ": Force switch to THREE phase");
+				actions.setPhaseSwitch(TO_THREE_PHASE);
+			}
+		}
+		}
 	}
 }

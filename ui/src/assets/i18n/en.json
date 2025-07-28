@@ -213,13 +213,33 @@
           "activeLevel": "Active level",
           "endtime": "Endtime",
           "energy": "Energy",
-          "guaranteeMinimumHeating": "Guarantee minimum heating",
+          "guaranteeMinimumHeating": "Guarantee minimum heating time",
           "heatingelement": "Heating element",
           "minimalEnergyAmount": "Minimal charge amount",
           "minimumRunTime": "Minimum runtime",
           "priority": "Priority",
           "time": "Time",
-          "timeCountdown": "Time until start"
+          "timeCountdown": "Time until start",
+          "GUARANTEE_HEATING": "Guarantee minimum heating energy",
+          "MINIMAL_ENERGY_LIMIT": "Minimum energy limit",
+          "ACTIVED_FORCED_LIMIT": "Active (additional energy)",
+          "DONE": "Done",
+          "UNREACHABLE": "Unreachable",
+          "CALIBRATION": "Calibration",
+          "CALIBRATION_DESCRIPTION": "The heating element is calibrated to get the power of the single levels of the meter",
+          "HEATING_POWER": "Heating power",
+          "MESSAGE_UNREACHABLE": "The energy limit can't be reached in time",
+          "ENERGY_SINCE_BEGINNING": "Energy since beginning"
+        },
+        "HEAT": {
+          "TEMPERATURE": "Current temperature",
+          "TEMPERATURE_UNIT": "Temperature in °C",
+          "NO_HEATING": "no Heating",
+          "HEATING": "Heating is running",
+          "HEATING_OUTPUT": "Heating output",
+          "HEATING_ENERGY": "Heating energy",
+          "CHANGES_MY_PV_INFO": "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
+          "TARGET_TEMPERATURE_REACHED": "Target temperature reached"
         },
         "HeatPump": {
           "HEAT_PUMP": "Heat pump",
@@ -478,7 +498,11 @@
       "addIP": "Add static IP addresses",
       "validAddressWarning": "In 'Add static IP addresses', Please enter valid ip address with subnetmask e.g. 10.4.1.6/24",
       "advancedMode": "Advanced Mode",
-      "submit": "Submit"
+      "submit": "Submit",
+      "DHCP": {
+        "INFO": "The displayed IP address was dynamically assigned via DHCP (Dynamic Host Configuration Protocol). It is not permanent and may change when the device or router is restarted.",
+        "ADDRESS": "DHCP Adress"
+      }
     },
     "title": "{{ edgeShortName }}",
     "FOOTER": {
@@ -564,6 +588,8 @@
     "storageSystem": "Storage System",
     "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
+    "TOTAL_CHARGE": "Total charge",
+    "TOTAL_DISCHARGE": "Total discharge",
     "totalState": "Total state",
     "VISIBLE_FOR_ADMINS_ONLY": "Visible for Service & Administration only",
     "warning": "Warning",
@@ -615,7 +641,10 @@
       "DAYS": "Days"
     },
     "CHARGE": "Charge",
-    "DISCHARGE": "Discharge"
+    "DISCHARGE": "Discharge",
+    "INSTALL": "Install",
+    "FROM": "From",
+    "TO": "To"
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -792,7 +821,9 @@
       "TITLE": "Feed-In management",
       "EXTERNAL_CONTROLLER_RECEIVER": "Ripple control receiver",
       "PLACE_HOLDER": "Select option",
-      "NO_LIMITATION": "No limitation"
+      "NO_LIMITATION": "No limitation",
+      "NA_PROTECTION": "Activate remote shutdown (central NS protection)",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "Typically, the grid operator specifies a fixed power factor of '1'"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",
@@ -1095,6 +1126,24 @@
   "GENERAL": {
     "FORMLY": {
       "REQUIRED": "Is required"
+    }
+  },
+  "FORMLY_FORM": {
+    "TARIFF_TABLE": {
+      "TARIFFS": {
+        "LOW": "Low Tariff",
+        "STANDARD": "Standard tariff",
+        "HIGH": "High tariff"
+      },
+      "GROSS_PREIS_TITLE": "Gross price for the year {{ year }}*",
+      "ADD_TIME_SLOT": "Add Time Slot",
+      "PRICE_ITEMS": "Price items",
+      "ADD_YEAR": "Add Year {{ year }}",
+      "REMOVE_YEAR": "Remove Year {{ year }}",
+      "TITLE": "{{ year }} Ancillary Costs",
+      "ERROR_MESSAGES": {
+        "INVALID_TIME_INPUT": "'To' Time cannot be higher than or equal to 'from' time"
+      }
     }
   }
 }

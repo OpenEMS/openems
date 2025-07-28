@@ -18,6 +18,7 @@ import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -194,8 +195,8 @@ public class JSCalendar<PAYLOAD> {
 						.setStart(json.getString("start")) //
 						.setDuration(json.getStringOrNull("duration")); //
 
-				json.getNullableJsonArrayPath("recurrenceRules")
-						.mapIfPresent(t -> t.getAsList(RecurrenceRule.serializer()))
+				json.getOptionalList("recurrenceRules", RecurrenceRule.serializer()) //
+						.orElse(emptyList()) //
 						.forEach(rr -> b.addRecurrenceRule(rr));
 
 				var payload = json.getObjectOrNull(PROPERTY_PAYLOAD, payloadSerializer);

@@ -14,6 +14,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
 import io.openems.edge.app.api.AppCleverPv;
@@ -47,6 +48,8 @@ import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
+import io.openems.edge.app.heat.HeatAskomaReadOnly;
+import io.openems.edge.app.heat.HeatMyPvReadOnly;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.integratedsystem.FeneconHome10;
@@ -64,9 +67,9 @@ import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.meter.CarloGavazziMeter;
 import io.openems.edge.app.meter.DiscovergyMeter;
+import io.openems.edge.app.meter.EastronMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.KdkMeter;
-import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -373,6 +376,16 @@ public final class Apps {
 	 */
 	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
 		return app(t, TestPermissions::new, "App.Test.TestPermissions");
+	}
+
+	/**
+	 * Test method for creating a {@link TestMapPropName}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestMapPropName testMapPropName(AppManagerTestBundle t) {
+		return app(t, TestMapPropName::new, "App.Test.TestMapPropName");
 	}
 
 	// Test
@@ -802,13 +815,13 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link MicrocareSdm630Meter}.
+	 * Test method for creating a {@link EastronMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
-		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
+	public static final EastronMeter eastronMeter(AppManagerTestBundle t) {
+		return app(t, EastronMeter::new, "App.Meter.Eastron");
 	}
 
 	/**
@@ -945,6 +958,26 @@ public final class Apps {
 	 */
 	public static final Limiter14a limiter14a(AppManagerTestBundle t) {
 		return app(t, Limiter14a::new, "App.Ess.Limiter14a");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatMyPvReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatMyPvReadOnly heatMyPvReadOnly(AppManagerTestBundle t) {
+		return app(t, HeatMyPvReadOnly::new, "App.Heat.MyPv.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatMyPvReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatAskomaReadOnly heatAskoma(AppManagerTestBundle t) {
+		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
 	}
 
 	/**

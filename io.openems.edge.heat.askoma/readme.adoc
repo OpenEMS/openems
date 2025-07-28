@@ -1,0 +1,7 @@
+= Heatingelement Askoma
+
+Implements an Askoma heating element.
+
+See https://www.askoma.com/de/produkte.html
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heat.askoma[Source Code icon:github[]]

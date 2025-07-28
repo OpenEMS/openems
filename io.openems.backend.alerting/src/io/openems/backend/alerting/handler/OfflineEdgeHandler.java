@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -75,10 +76,23 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		this.mss = null;
 	}
 
+	private void reschedule(List<OfflineEdgeMessage> pack) {
+		if (this.log.isDebugEnabled()) {
+			final var logStr = new StringJoiner(", ", "Sent OfflineEdgeMsg: ", "");
+			pack.forEach(msg -> {
+				logStr.add(msg.toString());
+				this.tryReschedule(msg);
+			});
+			this.log.debug(logStr.toString());
+		} else {
+			pack.forEach(this::tryReschedule);
+		}
+	}
+
 	@Override
 	public void send(ZonedDateTime sentAt, List<OfflineEdgeMessage> pack) {
 		// Ensure Edge is still offline before sending mail.
-		pack.removeIf((msg) -> !this.isEdgeOffline(msg.getEdgeId()));
+		pack.removeIf(msg -> !this.isEdgeOffline(msg.getEdgeId()));
 		if (pack.isEmpty()) {
 			return;
 		}
@@ -88,12 +102,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params);
 		this.messagesSent.getAndAdd(pack.size());
 
-		final var logStr = new StringBuilder(pack.size() * 64);
-		pack.forEach(msg -> {
-			logStr.append(msg).append(", ");
-			this.tryReschedule(msg);
-		});
-		this.log.info("Sent OfflineEdgeMsg: {}", logStr.substring(0, logStr.length() - 2));
+		this.reschedule(pack);
 	}
 
 	private void tryReschedule(OfflineEdgeMessage msg) {
@@ -211,8 +220,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			return;
 		}
 		final var msg = this.getEdgeMessage(edge);
-		final var msgScheduler = this.msgScheduler;
-		if (msg != null && msgScheduler != null) {
+		if (msg != null && this.msgScheduler != null) {
 			this.msgScheduler.schedule(msg);
 		}
 	}
@@ -228,9 +236,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			this.checkMetadata();
 		} else {
 			final var executeAt = this.timeService.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
-			this.initMetadata = this.timeService.schedule(executeAt, (now) -> {
-				this.checkMetadata();
-			});
+			this.initMetadata = this.timeService.schedule(executeAt, now -> this.checkMetadata());
 		}
 	}
 

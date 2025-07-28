@@ -1,5 +1,8 @@
-<ion-content>
-  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh()">
+<oe-navigation-view *ngIf="edge">
+  <ion-buttons header #header class="ion-justify-content-center" *ngIf="navigationService.position() !== null">
+    <pickdate></pickdate>
+  </ion-buttons>
+  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
   </ion-refresher>
   <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
@@ -14,7 +17,7 @@
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
         <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
-          <storageWidget [period]="service.historyPeriod.value"></storageWidget>
+          <common-storage-widget></common-storage-widget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Production'" size="12" size-md="6" size-lg="4" size-xl="3">
           <productionWidget></productionWidget>
@@ -46,16 +49,16 @@
       <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
-          <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </symmetricPeakshavingWidget>
+          <oe-controller-peakshaving-symmetric [componentId]="widget.componentId">
+          </oe-controller-peakshaving-symmetric>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
-          <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </asymmetricPeakshavingWidget>
+          <oe-controller-peakshaving-asymmetric
+            [componentId]="widget.componentId"></oe-controller-peakshaving-asymmetric>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.TimeslotPeakshaving'">
-          <timeslotPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </timeslotPeakshavingWidget>
+          <oe-controller-peakshaving-timeslot [componentId]="widget.componentId">
+          </oe-controller-peakshaving-timeslot>
         </ion-col>
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'">
@@ -83,6 +86,13 @@
           <controller-io-heatingelement-widget [componentId]="widget.componentId">
           </controller-io-heatingelement-widget>
         </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
+          *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'">
+          <controller-heat-widget [componentId]="widget.componentId">
+          </controller-heat-widget>
+        </ion-col>
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
           <controller-io-heatpump-widget [componentId]="widget.componentId">
           </controller-io-heatpump-widget>
@@ -110,4 +120,4 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-</ion-content>
+</oe-navigation-view>

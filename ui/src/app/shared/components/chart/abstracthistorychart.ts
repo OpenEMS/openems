@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { calculateResolution, ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { JsonrpcResponseError } from "../../jsonrpc/base";
 import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { QueryHistoricTimeseriesDataRequest } from "../../jsonrpc/request/queryHistoricTimeseriesDataRequest";
@@ -20,7 +20,6 @@ import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/quer
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
-import { ChartAxis, HistoryUtils, YAxisType } from "../../service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
@@ -28,6 +27,7 @@ import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
+import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
 import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
 import { ChartTypes } from "./chart.types";
@@ -47,7 +47,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   @Input() public chartTitle: string = "";
 
   /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
-  @Input() public component?: EdgeConfig.Component;
+  @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean = false;
   @Input() public showTotal: boolean = false;
   @Input() public isOnlyChart: boolean = false;
@@ -69,7 +69,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
   protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
-  protected debounceTimeout: any | null = null;
 
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
 
@@ -88,11 +87,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   /**
    * Fills the chart with required data
    *
+   * @param chartType Chart visualization type to generate: "line" or "bar".
    * @param energyPeriodResponse the response of a {@link QueryHistoricTimeseriesEnergyPerPeriodRequest} or {@link QueryHistoricTimeseriesDataResponse}
    * @param energyResponse the response of a {@link QueryHistoricTimeseriesEnergyResponse}
    */
   public static fillChart(chartType: "line" | "bar", chartObject: HistoryUtils.ChartData, energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
     energyResponse?: QueryHistoricTimeseriesEnergyResponse) {
+
     if (Utils.isDataEmpty(energyPeriodResponse)) {
       return {
         datasets: ChartConstants.EMPTY_DATASETS,
@@ -341,6 +342,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return "V";
       case YAxisType.CURRENT:
         return "A";
+      case YAxisType.TEMPERATURE:
+        return "°C";
       case YAxisType.NONE:
         return "";
       default:
@@ -413,7 +416,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       return AbstractHistoryChart.getToolTipsSuffix(label, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, translate, config);
     };
 
-    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>): Chart.TooltipLabelStyle | void => {
+    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
       let backgroundColor = item.dataset.backgroundColor;
 
       if (Array.isArray(backgroundColor)) {
@@ -633,7 +636,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisType.PERCENTAGE:
         options.scales[element.yAxisId] = {
           ...baseConfig,
-          stacked: true,
+          stacked: false,
           beginAtZero: true,
           max: 100,
           min: 0,
@@ -645,6 +648,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
+      case YAxisType.TEMPERATURE:
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          stacked: false,
+          type: "linear",
+          ticks: {
+            ...baseConfig.ticks,
+            stepSize: 4,
+          },
+        };
+        break;
+
       case YAxisType.TIME:
         options.scales[element.yAxisId] = {
           ...baseConfig,
@@ -744,6 +759,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(Language.DE.key));
             return baseName + ": " + pipe.transform(suffix);
           }
+          case YAxisType.TEMPERATURE:
+            return baseName + ": " + formatNumber(suffix / 10, locale, "1.0-1") + " °C";
           default:
             return baseName;
         }
@@ -783,6 +800,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         break;
       case YAxisType.CURRENT:
         suffix = "A";
+        break;
+      case YAxisType.TEMPERATURE:
+        suffix = "°C";
         break;
       case YAxisType.POWER:
         suffix = "W";
@@ -890,6 +910,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return "V";
       case YAxisType.CURRENT:
         return "A";
+      case YAxisType.TEMPERATURE:
+        return "°C";
       case YAxisType.REACTIVE:
         return "var";
       case YAxisType.ENERGY:
@@ -1028,10 +1050,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     this.isDataExisting = true;
     const resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
-    if (this.debounceTimeout) {
-      clearTimeout(this.debounceTimeout);
-    }
-
     return new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
       this.service.getCurrentEdge()
         .then(edge => this.service.getConfig()
@@ -1039,33 +1057,30 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             const channelAddresses = (await this.getChannelAddresses()).powerChannels;
             const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
 
-            this.debounceTimeout = setTimeout(() => {
-              edge.sendRequest(this.service.websocket, request)
-                .then(response => {
-                  const result = (response as QueryHistoricTimeseriesDataResponse)?.result;
-                  let responseToReturn: QueryHistoricTimeseriesDataResponse;
+            edge.sendRequest(this.service.websocket, request)
+              .then(response => {
+                const result = (response as QueryHistoricTimeseriesDataResponse)?.result;
+                let responseToReturn: QueryHistoricTimeseriesDataResponse;
 
-                  if (Object.keys(result).length !== 0) {
-                    responseToReturn = response as QueryHistoricTimeseriesDataResponse;
-                  } else {
-                    this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
-                    responseToReturn = new QueryHistoricTimeseriesDataResponse(response.id, {
-                      timestamps: [null],
-                      data: { null: null },
-                    });
-                  }
+                if (Object.keys(result).length !== 0) {
+                  responseToReturn = response as QueryHistoricTimeseriesDataResponse;
+                } else {
+                  this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
+                  responseToReturn = new QueryHistoricTimeseriesDataResponse(response.id, {
+                    timestamps: [null],
+                    data: { null: null },
+                  });
+                }
 
-                  if (Utils.isDataEmpty(responseToReturn)) {
-                    this.isDataExisting = false;
-                    this.initializeChart();
-                  }
-                  resolve(responseToReturn);
-                });
-            }, ChartConstants.REQUEST_TIMEOUT);
-          }),
+                if (Utils.isDataEmpty(responseToReturn)) {
+                  this.isDataExisting = false;
+                  this.initializeChart();
+                }
+                resolve(responseToReturn);
+              });
+          })
         );
     });
-
   }
 
   /**
@@ -1075,7 +1090,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param fromDate the From-Date
    * @param toDate   the To-Date
    */
-  protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
+  protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse | null> {
 
     this.isDataExisting = true;
     const resolution = calculateResolution(this.service, fromDate, toDate).resolution;
@@ -1088,6 +1103,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           const request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           if (channelAddresses.length > 0) {
 
+
             edge.sendRequest(this.service.websocket, request).then(response => {
               const result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
               if (Object.keys(result).length != 0) {
@@ -1095,7 +1111,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
               } else {
                 this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
                 resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
-                  timestamps: [null], data: { null: null },
+                  timestamps: [], data: {},
                 }));
               }
             }).catch((response) => {
@@ -1121,7 +1137,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     });
     return result;
   }
-
 
   /**
    * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
@@ -1201,24 +1216,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
   /**
    * Executed before {@link setChartLabel setChartLabel}
-   */
+  */
   protected beforeSetChartLabel(): void { }
 
-  /**
-   * Gets the ChannelAddresses that should be queried.
-   */
-  private getChannelAddresses(): Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }> {
-    return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
-      if (this.chartObject?.input) {
-        resolve({
-          powerChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.powerChannel)),
-          energyChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.energyChannel)),
-        });
-      }
-    });
-  }
+  protected afterGetChartData(): void { }
 
-  private loadLineChart(unit: ChronoUnit.Type) {
+  protected loadLineChart(unit: ChronoUnit.Type) {
     return new Promise<void>((resolve) => {
       Promise.all([
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
@@ -1235,11 +1238,15 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           this.channelData = displayValues.channelData;
           this.beforeSetChartLabel();
           this.setChartLabel();
+        }).catch(() => {
+
+          // Show empty chart
+          resolve();
         }).finally(() => resolve());
     });
   }
 
-  private loadBarChart(unit: ChronoUnit.Type): Promise<void> {
+  protected loadBarChart(unit: ChronoUnit.Type): Promise<void> {
     return new Promise((resolve) => {
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
@@ -1259,9 +1266,32 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         this.beforeSetChartLabel();
         this.setChartLabel();
         resolve();
+      }).catch(() => {
+
+        // Show empty chart
+        resolve();
       }).finally(() => resolve());
     });
   }
 
+  /**
+   * Gets the ChannelAddresses that should be queried.
+   */
+  private getChannelAddresses(): Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }> {
+    return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
+      if (this.chartObject?.input) {
+        resolve({
+          powerChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.powerChannel)),
+          energyChannels: ArrayUtils.sanitize(this.chartObject.input.map(element => element.energyChannel)),
+        });
+      }
+    });
+  }
+
   protected abstract getChartData(): HistoryUtils.ChartData | null;
+}
+
+export enum ChartType {
+  LINE = "line",
+  BAR = "bar",
 }

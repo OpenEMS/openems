@@ -1,7 +1,7 @@
 package io.openems.edge.io.shelly.shellyplus1pm;
 
 import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
-import static io.openems.edge.meter.api.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

@@ -7,6 +7,8 @@ import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.types.OpenemsType.STRING;
 
+import java.time.ZoneId;
+
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.oem.OpenemsEdgeOem;
@@ -15,6 +17,9 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
+import io.openems.edge.common.meta.types.Coordinates;
+import io.openems.edge.common.meta.types.CountryCode;
+import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -34,7 +39,7 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(Doc.of(STRING) //
+		VERSION(Doc.of(STRING)//
 				.persistencePriority(HIGH)),
 		/**
 		 * System Time: seconds since 1st January 1970 00:00:00 UTC.
@@ -44,9 +49,9 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: Long
 		 * </ul>
 		 */
-		SYSTEM_TIME_UTC(Doc.of(LONG) //
-				.unit(SECONDS) //
-				.text("System Time: seconds since 1st January 1970 00:00:00 UTC") //
+		SYSTEM_TIME_UTC(Doc.of(LONG)//
+				.unit(SECONDS)//
+				.text("System Time: seconds since 1st January 1970 00:00:00 UTC")//
 				.persistencePriority(VERY_LOW)),
 		/**
 		 * Edge currency.
@@ -56,7 +61,7 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: Currency
 		 * </ul>
 		 */
-		CURRENCY(Doc.of(Currency.values()) //
+		CURRENCY(Doc.of(Currency.values())//
 				.persistencePriority(HIGH)),
 
 		/**
@@ -67,7 +72,7 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		IS_ESS_CHARGE_FROM_GRID_ALLOWED(Doc.of(BOOLEAN) //
+		IS_ESS_CHARGE_FROM_GRID_ALLOWED(Doc.of(BOOLEAN)//
 				.persistencePriority(HIGH));
 
 		private final Doc doc;
@@ -169,4 +174,63 @@ public interface Meta extends ModbusSlave {
 	 * @return the limit in A
 	 */
 	public int getGridConnectionPointFuseLimit();
+
+	/**
+	 * Returns the ISO 3166-1 alpha-2 country code of the system location.
+	 * 
+	 * <p>
+	 * Example: "DE" for Germany.
+	 *
+	 * @return the ISO 3166-1 alpha-2 country code
+	 */
+	public default CountryCode getCountryCode() {
+		return this.getSubdivisionCode().getCountryCode();
+	}
+
+	/**
+	 * Returns the ISO 3166-2 subdivision code representing the state, province, or
+	 * region of the system location.
+	 *
+	 * <p>
+	 * Example: {@code DE-BE} for Berlin, Germany.
+	 *
+	 * @return the ISO 3166-2 subdivision code
+	 */
+	public SubdivisionCode getSubdivisionCode();
+
+	/**
+	 * Returns the most specific place name of the system location, or null if not
+	 * set. Checks in order: hamlet, village, suburb, town, neighbourhood, quarter,
+	 * city district, city.
+	 *
+	 * <p>
+	 * Example: "Mitte"
+	 *
+	 * @return the most specific place name, or null if not set
+	 */
+	public String getPlaceName();
+
+	/**
+	 * Returns the postcode of the system location, or null if not available.
+	 *
+	 * <p>
+	 * Example: "10115"
+	 *
+	 * @return the postcode, or null if not set
+	 */
+	public String getPostcode();
+
+	/**
+	 * Returns the geographical coordinates of the system location, if available.
+	 *
+	 * @return the coordinates, or null if not valid or not set
+	 */
+	public Coordinates getCoordinates();
+
+	/**
+	 * Returns the time zone of the system location, or null if not available.
+	 *
+	 * @return the time zone, or null if not set
+	 */
+	public ZoneId getTimezone();
 }

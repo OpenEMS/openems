@@ -26,7 +26,8 @@ RUN patch src/index.html < /opt/index.patch && \
 ### Build ui base
 FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base
 
-RUN apk add --update --no-cache nginx openssl bash
+RUN apk add --update --no-cache \
+    nginx openssl bash dos2unix rsync
 	
 ### Build ui container
 FROM ui_base
@@ -36,6 +37,9 @@ COPY --from=build_ui /opt/assets/ /var/www/html/openems/assets/
 COPY --from=build_ui /opt/root/ /
 
 RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
+
+RUN find /etc/s6-overlay -type f -print0 | xargs -0 dos2unix && \
+    find /etc/nginx -type f -print0 | xargs -0 dos2unix
 
 VOLUME /etc/nginx
 VOLUME /var/log/nginx
