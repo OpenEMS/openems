@@ -21,7 +21,8 @@ public class EvcsKebaUdpImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new EvcsKebaUdpImpl();
-		final var tc = new TestCase();
+		final var tc = new TestCase() //
+				.activateStrictMode();
 		testEvcsChannels(tc);
 		testManagedEvcsChannels(tc);
 		testDeprecatedEvcsChannels(tc);

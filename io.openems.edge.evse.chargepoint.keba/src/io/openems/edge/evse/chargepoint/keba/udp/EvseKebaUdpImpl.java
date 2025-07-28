@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
@@ -86,7 +85,6 @@ public class EvseKebaUdpImpl extends AbstractOpenemsComponent implements KebaUdp
 	public EvseKebaUdpImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				EvseChargePoint.ChannelId.values(), //
 				Keba.ChannelId.values(), //

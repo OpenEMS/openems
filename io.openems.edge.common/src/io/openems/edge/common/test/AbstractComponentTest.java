@@ -12,6 +12,7 @@ import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
+import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -157,6 +158,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		private final List<ThrowingRunnable<Exception>> onExecuteWriteCallbacks = new ArrayList<>();
 		private final List<ThrowingRunnable<Exception>> onAfterWriteCallbacks = new ArrayList<>();
 
+		private boolean strictMode = false;
 		private TimeLeap timeleap = null;
 
 		public TestCase() {
@@ -170,6 +172,20 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public TestCase(String description) {
 			this.description = "#" + (++instanceCounter) + (description.isEmpty() ? "" : ": " + description);
+		}
+
+		/**
+		 * Activate Strict-Mode.
+		 * 
+		 * <p>
+		 * Strict-Mode requires, that all Channels of the tested Component are defined
+		 * either as Input or as Output.
+		 * 
+		 * @return myself
+		 */
+		public TestCase activateStrictMode() {
+			this.strictMode = true;
+			return this;
 		}
 
 		/**
@@ -573,6 +589,36 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			}
 		}
 
+		/**
+		 * Validates the Strict-Mode; see {@link TestCase#activateStrictMode()}.
+		 *
+		 * @param act the {@link AbstractComponentTest}
+		 * @throws Exception on validation failure
+		 */
+		protected void validateStrictMode(AbstractComponentTest<?, ?> act) {
+			if (!this.strictMode) {
+				// Strict Mode is disabled -> ok
+				return;
+			}
+			final var sutChannels = new ArrayList<>(act.sut.channels());
+			Stream.concat(//
+					this.inputs.stream(), //
+					this.outputs.stream()) //
+					.map(cv -> this.getChannel(act, cv)) //
+					.forEach(c -> {
+						sutChannels.remove(c);
+					});
+			if (sutChannels.isEmpty()) {
+				// No Channels left -> ok
+				return;
+			}
+			throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
+					+ "Strict Mode failed. Following Channels are not covered as Input or Output channels: \n" //
+					+ sutChannels.stream() //
+							.map(c -> "  " + getChannelNature(c) + ".ChannelId." + c.channelId().name()) //
+							.collect(joining("\n")));
+		}
+
 		private OpenemsComponent getComponent(Map<String, OpenemsComponent> components, String componentId) {
 			var component = components.get(componentId);
 			if (component != null) {
@@ -958,6 +1004,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		executeCallbacks(testCase.onAfterWriteCallbacks);
 		this.handleEvent(TOPIC_CYCLE_AFTER_WRITE);
 		testCase.validateOutputs(this);
+		testCase.validateStrictMode(this);
 		return this.self();
 	}
 

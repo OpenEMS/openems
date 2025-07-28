@@ -19,7 +19,8 @@ public class EvseChargePointKebaModbusImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new EvseKebaModbusImpl();
-		final var tc = new TestCase();
+		final var tc = new TestCase() //
+				.activateStrictMode();
 		testElectricityMeterChannels(tc);
 		testKebaChannels(tc);
 		testKebaModbusChannels(tc);

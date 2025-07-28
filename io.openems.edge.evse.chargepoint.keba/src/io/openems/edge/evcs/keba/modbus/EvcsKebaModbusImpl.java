@@ -326,7 +326,10 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 								.build()),
 
 				new FC3ReadRegistersTask(1004, Priority.LOW, //
-						m(EvcsKeba.ChannelId.PLUG, new UnsignedDoublewordElement(1004))),
+						m(new UnsignedDoublewordElement(1004)) //
+								.m(Keba.ChannelId.CABLE_STATE, DIRECT_1_TO_1) //
+								.m(EvcsKeba.ChannelId.PLUG, DIRECT_1_TO_1) //
+								.build()), //
 				new FC3ReadRegistersTask(1006, Priority.LOW, //
 						m(KebaModbus.ChannelId.ERROR_CODE, new UnsignedDoublewordElement(1006))),
 				new FC3ReadRegistersTask(1008, Priority.LOW, //

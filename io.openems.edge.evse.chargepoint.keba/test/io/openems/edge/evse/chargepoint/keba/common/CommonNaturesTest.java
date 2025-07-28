@@ -87,6 +87,7 @@ public class CommonNaturesTest {
 				.output(Evcs.ChannelId.FIXED_MINIMUM_HARDWARE_POWER, 4140) //
 				.output(Evcs.ChannelId.FIXED_MAXIMUM_HARDWARE_POWER, 22080) //
 				.output(Evcs.ChannelId.MINIMUM_HARDWARE_POWER, 4140) //
+				.output(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER, 22080) //
 				.output(Evcs.ChannelId.MAXIMUM_POWER, null) //
 				.output(Evcs.ChannelId.MINIMUM_POWER, null) //
 				.output(Evcs.ChannelId.ENERGY_SESSION, 6530) //

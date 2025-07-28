@@ -1,6 +1,7 @@
 package io.openems.edge.evse.chargepoint.keba.common;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -36,7 +37,7 @@ public class KebaModbusTest {
 						.withRegisters(1016, // Product Type and Features
 								new int[] { 0x0040, 0x4657 }) //
 						.withRegisters(1018, // FIRMWARE
-								new int[] { 0x0000, 0x2775 }) //
+								new int[] { 0x0000, 0x27DB }) //
 						.withRegisters(1020, // ACTIVE_POWER: 5_678_000
 								new int[] { 0x0056, 0xA3B0 }) //
 						.withRegisters(1036, // ACTIVE_PRODUCTION_ENERGY: 7_747_835
@@ -74,16 +75,18 @@ public class KebaModbusTest {
 	 */
 	public static void testKebaModbusChannels(TestCase tc) throws Exception {
 		tc //
+				.output(ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED, false) //
+
 				.output(KebaModbus.ChannelId.ERROR_CODE, 0) //
 				.output(KebaModbus.ChannelId.SERIAL_NUMBER, 0) //
 				.output(KebaModbus.ChannelId.MAX_CHARGING_CURRENT, 0) //
 				.output(KebaModbus.ChannelId.FAILSAFE_CURRENT_SETTING, 0) //
 				.output(KebaModbus.ChannelId.FAILSAFE_TIMEOUT_SETTING, 0) //
-				.output(KebaModbus.ChannelId.DEVICE_SOFTWARE_OUTDATED, true) //
-				.output(KebaModbus.ChannelId.FIRMWARE, "1.1.1") //
+				.output(KebaModbus.ChannelId.DEVICE_SOFTWARE_OUTDATED, false) //
+				.output(KebaModbus.ChannelId.FIRMWARE, "1.2.3") //
 				.output(KebaModbus.ChannelId.FIRMWARE_MAJOR, 1) //
-				.output(KebaModbus.ChannelId.FIRMWARE_MINOR, 1) //
-				.output(KebaModbus.ChannelId.FIRMWARE_PATCH, 1) //
+				.output(KebaModbus.ChannelId.FIRMWARE_MINOR, 2) //
+				.output(KebaModbus.ChannelId.FIRMWARE_PATCH, 3) //
 				.output(KebaModbus.ChannelId.PTAF_PRODUCT_FAMILY, ProductTypeAndFeatures.ProductFamily.KC_P40) //
 				.output(KebaModbus.ChannelId.PTAF_DEVICE_CURRENT, ProductTypeAndFeatures.DeviceCurrent.A32_32) //
 				.output(KebaModbus.ChannelId.PTAF_CONNECTOR, ProductTypeAndFeatures.Connector.CABLE) //

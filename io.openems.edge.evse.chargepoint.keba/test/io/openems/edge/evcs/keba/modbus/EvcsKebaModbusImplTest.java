@@ -73,7 +73,8 @@ public class EvcsKebaModbusImplTest {
 	@Test
 	public void test2() throws Exception {
 		final var sut = new EvcsKebaModbusImpl();
-		final var tc = new TestCase();
+		final var tc = new TestCase() //
+				.activateStrictMode();
 		testEvcsChannels(tc);
 		testManagedEvcsChannels(tc);
 		testDeprecatedEvcsChannels(tc);

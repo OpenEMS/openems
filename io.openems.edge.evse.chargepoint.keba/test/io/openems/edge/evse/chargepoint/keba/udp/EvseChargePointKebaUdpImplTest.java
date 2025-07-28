@@ -19,7 +19,8 @@ public class EvseChargePointKebaUdpImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new EvseKebaUdpImpl();
-		final var tc = new TestCase();
+		final var tc = new TestCase() //
+				.activateStrictMode();
 		testElectricityMeterChannels(tc);
 		testKebaChannels(tc);
 		testKebaUdpChannels(sut, tc);
@@ -38,7 +39,7 @@ public class EvseChargePointKebaUdpImplTest {
 						.build()) //
 				.next(tc) //
 				.deactivate();
-		
+
 		assertEquals("L:5678 W|SetCurrent:UNDEFINED|SetEnable:-1:Undefined", sut.debugLog());
 	}
 }

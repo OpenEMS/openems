@@ -1,6 +1,9 @@
 package io.openems.edge.evse.chargepoint.keba.common;
 
+import io.openems.common.channel.Level;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
@@ -18,6 +21,9 @@ public class KebaTest {
 	 */
 	public static void testKebaChannels(TestCase tc) throws Exception {
 		tc //
+				.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
+
+				.output(Keba.ChannelId.CABLE_STATE, CableState.PLUGGED_AND_LOCKED) //
 				.output(Keba.ChannelId.CHARGING_STATE, ChargingState.CHARGING) //
 				.output(Keba.ChannelId.POWER_FACTOR, 905) //
 				.output(Keba.ChannelId.PHASE_SWITCH_SOURCE, PhaseSwitchSource.NONE) //
