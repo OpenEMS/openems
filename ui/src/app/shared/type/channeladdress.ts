@@ -31,5 +31,4 @@ export class ChannelAddress {
     public toString() {
         return this.componentId + "/" + this.channelId;
     }
-
 }

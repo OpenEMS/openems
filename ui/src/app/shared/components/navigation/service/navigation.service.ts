@@ -15,7 +15,7 @@ export class NavigationService {
 
     public navigationTree: WritableSignal<NavigationTree | null> = signal(null);
     public currentNode: WritableSignal<NavigationTree | null> = signal(null);
-    public position: WritableSignal<"left" | "bottom" | null> = signal(null);
+    public position: WritableSignal<"left" | "bottom" | "disabled" | null> = signal(null);
     public headerOptions: WritableSignal<{ showBackButton: boolean }> = signal({ showBackButton: false });
 
     constructor(
@@ -26,6 +26,8 @@ export class NavigationService {
         private location: Location,
         private translate: TranslateService,
     ) {
+
+        this.setPosition();
 
         effect(async () => {
             const _currentUrl = this.routeService.currentUrl();
@@ -62,7 +64,7 @@ export class NavigationService {
         if (edge == null) {
             return Promise.resolve(null);
         }
-        return await edge.createNavigationTree(translate);
+        return await edge.createNavigationTree(translate, edge);
     }
 
     /**
@@ -124,15 +126,22 @@ export class NavigationService {
      */
     private async initNavigation(currentUrl: string | null, navigationTree: NavigationTree | null) {
         const activeNode = this.findActiveNode(navigationTree, currentUrl);
+        this.setPosition();
+        this.headerOptions.set({ showBackButton: activeNode == null });
+        this.currentNode.set(NavigationTree.of(activeNode));
+    }
+
+    /**
+     * Sets the navigation position
+     */
+    private setPosition() {
         const user = this.userService.currentUser();
 
         if (NavigationService.isNewNavigation(user, untracked(() => this.service.currentEdge()))) {
             this.position.set(this.service.isSmartphoneResolution ? "bottom" : "left");
         } else {
-            this.position.set(null);
+            this.position.set("disabled");
         }
-        this.headerOptions.set({ showBackButton: activeNode == null });
-        this.currentNode.set(NavigationTree.of(activeNode));
     }
 
     /**
