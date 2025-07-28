@@ -165,12 +165,14 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 			}
 			case P40 -> {
 				// Modbus Component
+				var modbusId = this.getId(t, p, Property.MODBUS_ID);
 				components.add(//
 						new EdgeConfig.Component(//
 								cpId, //
 								TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.Keba.cp.alias"), //
 								"Evse.ChargePoint.Keba.Modbus", //
 								JsonUtils.buildJsonObject() //
+										.addProperty("modbus.id", modbusId)//
 										.addProperty("wiring", wiring) //
 										.addProperty("phaseRotation", phaseRotation) //
 										.addProperty("p30hasS10PhaseSwitching", phaseSwitching) //
@@ -178,7 +180,6 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 				) //
 				); //
 
-				var modbusId = this.getId(t, p, Property.MODBUS_ID);
 				components.add(//
 						new EdgeConfig.Component(//
 								modbusId, //
