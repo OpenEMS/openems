@@ -131,6 +131,9 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //
 			.put("App.Hardware.IoGpio", "") //
+			.put("App.Evse.ElectricVehicle.Generic", "") //
+			.put("App.Evse.ChargePoint.Keba", "") //
+			.put("App.Evse.Controller.Cluster", "") //
 			.put("App.Hardware.KMtronic8Channel", "") //
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //

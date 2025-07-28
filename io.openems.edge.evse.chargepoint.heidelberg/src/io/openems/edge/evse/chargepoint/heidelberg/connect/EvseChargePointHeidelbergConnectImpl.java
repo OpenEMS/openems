@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.MeterType;
 import io.openems.common.types.Tuple;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -76,13 +75,14 @@ public class EvseChargePointHeidelbergConnectImpl extends AbstractOpenemsModbusC
 		EvseChargePoint, EventHandler, ElectricityMeter {
 
 	private final Logger log = LoggerFactory.getLogger(EvseChargePointHeidelbergConnectImpl.class);
-	private Config config;
 	private final CalculateEnergyFromPower calculateEnergyL1 = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1);
 	private final CalculateEnergyFromPower calculateEnergyL2 = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2);
 	private final CalculateEnergyFromPower calculateEnergyL3 = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3);
+
+	private Config config;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -135,15 +135,6 @@ public class EvseChargePointHeidelbergConnectImpl extends AbstractOpenemsModbusC
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	@Override
-	public MeterType getMeterType() {
-		if (this.config.readOnly()) {
-			return MeterType.CONSUMPTION_METERED;
-		} else {
-			return MeterType.MANAGED_CONSUMPTION_METERED;
-		}
 	}
 
 	@Override
@@ -382,5 +373,10 @@ public class EvseChargePointHeidelbergConnectImpl extends AbstractOpenemsModbusC
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this.config.readOnly();
 	}
 }

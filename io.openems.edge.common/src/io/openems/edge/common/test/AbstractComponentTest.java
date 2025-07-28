@@ -4,6 +4,7 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+import static io.openems.edge.common.channel.ChannelUtils.getChannelNature;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE;
@@ -82,32 +83,39 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public boolean force();
 
+		/**
+		 * Gets an identification name.
+		 * 
+		 * @return name
+		 */
+		public String name();
+
 		public record ChannelAddressValue(ChannelAddress address, Object value, boolean force) implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.address.toString() + ":" + this.value;
+			public String name() {
+				return this.address.toString();
 			}
 		}
 
 		public record ChannelIdValue(ChannelId channelId, Object value, boolean force) implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.channelId.id() + ":" + this.value;
+			public String name() {
+				return this.channelId.id();
 			}
 		}
 
 		public record ChannelNameValue(String channelName, Object value, boolean force) implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.channelName + ":" + this.value;
+			public String name() {
+				return this.channelName;
 			}
 		}
 
 		public record ComponentChannelIdValue(String componentId, ChannelId channelId, Object value, boolean force)
 				implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.componentId + "/" + this.channelId.id() + ":" + this.value;
+			public String name() {
+				return this.componentId + "/" + this.channelId.id();
 			}
 		}
 	}
@@ -554,10 +562,12 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 					got = enumDoc.getOption(intGot);
 				}
 				if (!Objects.equals(output.value(), got)) {
+					final var nature = getChannelNature(channel);
 					throw new Exception("On TestCase [" + this.description + "]: " //
 							+ "expected " + readWriteInfo + " [" + output.value() + "] " //
 							+ "got [" + got + "] " //
-							+ "for Channel [" + output.toString() + "] " //
+							+ "for Channel [" + output.name() + "] " //
+							+ "in Nature [" + nature + "] " //
 							+ "on Inputs [" + this.inputs + "]");
 				}
 			}

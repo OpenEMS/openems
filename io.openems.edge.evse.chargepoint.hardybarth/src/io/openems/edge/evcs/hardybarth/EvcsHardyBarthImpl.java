@@ -31,7 +31,6 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.HttpStatus;
-import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
@@ -105,7 +104,7 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		this._setPhases(THREE_PHASE);
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		
+
 		if (!this.config.readOnly()) {
 			// The internal heartbeat is currently too fast - it is not enough to write
 			// every second by default. We have to disable it to run the evcs
@@ -130,14 +129,6 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		super.deactivate();
 		this.httpBridgeFactory.unget(this.httpBridge);
 		this.httpBridge = null;
-	}
-
-	@Override
-	public MeterType getMeterType() {
-		if (this.isReadOnly()) {
-			return MeterType.CONSUMPTION_METERED;
-		}
-		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	@Override

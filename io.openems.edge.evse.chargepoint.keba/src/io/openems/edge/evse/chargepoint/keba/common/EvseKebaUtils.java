@@ -22,35 +22,13 @@ import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
-import io.openems.edge.evse.chargepoint.keba.modbus.EvseChargePointKebaModbus;
-import io.openems.edge.evse.chargepoint.keba.udp.EvseChargePointKebaUdp;
-import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-public class Utils {
+public class EvseKebaUtils {
 
-	private final EvseChargePointKeba parent;
+	private final EvseKeba parent;
 
-	private final CalculateEnergyFromPower calculateEnergyL1;
-	private final CalculateEnergyFromPower calculateEnergyL2;
-	private final CalculateEnergyFromPower calculateEnergyL3;
-
-	public Utils(EvseChargePointKeba keba) {
+	public EvseKebaUtils(EvseKeba keba) {
 		this.parent = keba;
-
-		// Prepare Energy-Calculation for L1/L2/L3
-		this.calculateEnergyL1 = new CalculateEnergyFromPower(keba,
-				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1);
-		this.calculateEnergyL2 = new CalculateEnergyFromPower(keba,
-				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2);
-		this.calculateEnergyL3 = new CalculateEnergyFromPower(keba,
-				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3);
-
-		// Set ReactivePower defaults
-		keba._setReactivePower(0);
-		keba._setReactivePowerL1(0);
-		keba._setReactivePowerL2(0);
-		keba._setReactivePowerL3(0);
 	}
 
 	private Tuple<Instant, Integer> previousCurrent = null;
@@ -61,7 +39,7 @@ public class Utils {
 	 * @param config  the {@link CommonConfig}
 	 * @param actions the {@link ChargePointActions}
 	 */
-	public void handleChargePointActions(CommonConfig config, ChargePointActions actions) {
+	public void applyChargePointActions(CommonConfig config, ChargePointActions actions) {
 		if (config.readOnly()) {
 			return;
 		}
@@ -77,13 +55,10 @@ public class Utils {
 		final var keba = this.parent;
 		try {
 			// Set correct PhaseSwitchSource
-			final var setPhaseSwitchSource = keba.getSetPhaseSwitchSourceChannel();
-			if (keba instanceof EvseChargePointKebaModbus
-					&& keba.getPhaseSwitchSource() != PhaseSwitchSource.VIA_MODBUS) {
-				setPhaseSwitchSource.setNextWriteValue(PhaseSwitchSource.VIA_MODBUS);
-			} else if (keba instanceof EvseChargePointKebaUdp
-					&& keba.getPhaseSwitchSource() != PhaseSwitchSource.VIA_UDP) {
-				setPhaseSwitchSource.setNextWriteValue(PhaseSwitchSource.VIA_UDP);
+			final var requiredPhaseSwitchSource = keba.getRequiredPhaseSwitchSource();
+			if (keba.getPhaseSwitchSource() != requiredPhaseSwitchSource) {
+				final var setPhaseSwitchSource = keba.getSetPhaseSwitchSourceChannel();
+				setPhaseSwitchSource.setNextWriteValue(requiredPhaseSwitchSource);
 			}
 
 			// Apply Phase Switch
@@ -165,8 +140,8 @@ public class Utils {
 		// Set Phase-Switching Ability
 		final var phaseSwitchState = keba.getPhaseSwitchState().actual;
 		final var phaseSwitchSource = keba.getPhaseSwitchSource();
-		if (!config.p30hasS10PhaseSwitching() || config.wiring() == SINGLE_PHASE
-				|| phaseSwitchState == null || phaseSwitchSource == PhaseSwitchSource.UNDEFINED) {
+		if (!config.p30hasS10PhaseSwitching() || config.wiring() == SINGLE_PHASE || phaseSwitchState == null
+				|| phaseSwitchSource == PhaseSwitchSource.UNDEFINED) {
 			// Phase-Switching not available or still waiting for all required channels
 			return null;
 		}
@@ -216,11 +191,6 @@ public class Utils {
 				keba.getCableStateChannel().getNextValue().asEnum(), //
 				keba.getChargingStateChannel().getNextValue().asEnum());
 		setValue(keba, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, state);
-
-		// Calculate Energy values for L1/L2/L3
-		this.calculateEnergyL1.update(keba.getActivePowerL1Channel().getNextValue().get());
-		this.calculateEnergyL2.update(keba.getActivePowerL2Channel().getNextValue().get());
-		this.calculateEnergyL3.update(keba.getActivePowerL3Channel().getNextValue().get());
 	}
 
 	private static boolean evaluateIsReadyForCharging(CableState cableState, ChargingState chargingState) {
@@ -252,9 +222,9 @@ public class Utils {
 		if (!config.readOnly()) {
 			b //
 					.append("|SetCurrent:") //
-					.append(keba.channel(EvseChargePointKeba.ChannelId.DEBUG_SET_CHARGING_CURRENT).value().asString()) //
+					.append(keba.channel(Keba.ChannelId.DEBUG_SET_CHARGING_CURRENT).value().asString()) //
 					.append("|SetEnable:") //
-					.append(keba.channel(EvseChargePointKeba.ChannelId.DEBUG_SET_ENABLE).value().asString());
+					.append(keba.channel(Keba.ChannelId.DEBUG_SET_ENABLE).value().asString());
 		}
 		return b.toString();
 	}

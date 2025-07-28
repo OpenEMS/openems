@@ -44,6 +44,9 @@ import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
+import io.openems.edge.app.evse.AppEvseCluster;
+import io.openems.edge.app.evse.AppKebaEvse;
+import io.openems.edge.app.evse.vehicle.AppGenericVehicle;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
@@ -605,6 +608,36 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppKebaEvse}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppKebaEvse kebaEvse(AppManagerTestBundle t) {
+		return app(t, AppKebaEvse::new, "App.Evse.ChargePoint.Keba");
+	}
+
+	/**
+	 * Test method for creating a {@link AppEvseCluster}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppEvseCluster clusterEvse(AppManagerTestBundle t) {
+		return app(t, AppEvseCluster::new, "App.Evse.Controller.Cluster");
+	}
+
+	/**
+	 * Test method for creating a {@link AppGenericVehicle}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppGenericVehicle genericVehicle(AppManagerTestBundle t) {
+		return app(t, AppGenericVehicle::new, "App.Evse.ElectricVehicle.Generic");
+	}
+
+	/**
 	 * Test method for creating a {@link TimedataInfluxDb}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -1007,6 +1040,12 @@ public final class Apps {
 				t.componentUtil);
 	}
 
+	private static final <T> T app(AppManagerTestBundle t,
+			DefaultAppConstructorWithAppUtilAndHost<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.appManagerUtil, t.host);
+	}
+
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithAppUtil<T> constructor,
 			String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
@@ -1041,6 +1080,11 @@ public final class Apps {
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil, AppManagerUtil util);
 
+	}
+
+	private static interface DefaultAppConstructorWithAppUtilAndHost<A> {
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util, Host host);
 	}
 
 	private static interface DefaultAppConstructorWithMeta<A> {
