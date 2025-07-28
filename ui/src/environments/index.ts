@@ -30,6 +30,7 @@ export interface Environment {
     },
     readonly links: {
         readonly COMMON_STORAGE: string | null,
+        readonly DATA_PROTECTION: string | null,
         readonly FORGET_PASSWORD: string,
         readonly EVCS: string | null,
         readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string,

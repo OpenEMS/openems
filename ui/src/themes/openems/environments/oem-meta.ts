@@ -9,6 +9,7 @@ export const OemMeta: BaseMeta = {
         },
     },
     links: {
+        DATA_PROTECTION: null,
         COMMON_STORAGE: null,
         FORGET_PASSWORD: "#",
         EVCS: null,

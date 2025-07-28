@@ -22,7 +22,7 @@
     <ion-grid class="ion-padding-top">
         <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" [ngSwitch]="activeSegment">
             <!-- owner form -->
-            <div *ngSwitchCase="'owner'">
+            <ng-container *ngSwitchCase="'owner'">
                 <ion-item>
                     <ion-input formControlName="firstname" type="input"
                         [placeholder]="'Register.Form.firstname' | translate" label-placement="floating"
@@ -84,24 +84,20 @@
                         [label]="('Register.Form.confirmPassword' | translate) + ' * '">
                     </ion-input>
                 </ion-item>
-
-                <ion-item>
-                    <ion-checkbox class="ion-white-space-pre-wrap" slot="start" formControlName="acceptPrivacyPolicy"
-                        labelPlacement="end" justify="space-between"></ion-checkbox>
-                    <span [innerHTML]="'Register.Form.user.acceptPrivacyPolicy' | translate"></span>
-                </ion-item>
-                <ion-item>
-                    <ion-checkbox class="ion-white-space-pre-wrap" slot="start" formControlName="acceptAgb"
-                        labelPlacement="end" justify="space-between"></ion-checkbox>
-                    <span [innerHTML]="'Register.Form.acceptAgb' | translate"></span>
-                </ion-item>
+                <oe-checkbox [form]="{formGroup: formGroup, controlName: 'acceptPrivacyPolicy'}" [attributes]="{labelPlacement: 'end', text: 'Register.Form.user.acceptPrivacyPolicy' | translate: {
+                        link: docsLink
+                    }}">
+                </oe-checkbox>
+                <oe-checkbox [form]="{formGroup: formGroup, controlName: 'acceptAgb'}"
+                    [attributes]="{labelPlacement: 'end', text: 'Register.Form.acceptAgb' | translate}">
+                </oe-checkbox>
                 <ion-item>
                     <ion-text [innerHTML]="'Register.Form.subscribeNewsletter' | translate">
                     </ion-text>
                 </ion-item>
-            </div>
+            </ng-container>
             <!-- installer form -->
-            <div *ngSwitchCase="'installer'">
+            <ng-container *ngSwitchCase="'installer'">
                 <ion-item>
                     <ion-input formControlName="companyName" type="input"
                         [placeholder]="'Register.Form.companyName' | translate" label-placement="floating"
@@ -168,14 +164,18 @@
                         [label]="('Register.Form.confirmPassword' | translate) + ' * '">
                     </ion-input>
                 </ion-item>
-            </div>
+            </ng-container>
             <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
             <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-            <ion-button type="submit" class="ion-float-right">
-                <small translate>Register.button</small>
-                <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
-            </ion-button>
+            <ion-row class="ion-padding-top ion-padding-bottom">
+                <ion-col>
+                    <ion-button type="submit" class="ion-float-right">
+                        <small translate>Register.button</small>
+                        <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
+                    </ion-button>
+                </ion-col>
+            </ion-row>
         </form>
     </ion-grid>
 </ion-content>

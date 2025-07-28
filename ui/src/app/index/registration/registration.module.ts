@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { SharedModule } from "../shared/shared.module";
+import { OeCheckboxComponent } from "src/app/shared/components/oe-checkbox/oe-checkbox";
+import { SharedModule } from "src/app/shared/shared.module";
 import { RegistrationModalComponent } from "./modal/modal.component";
 import { RegistrationComponent } from "./registration.component";
 
@@ -12,6 +13,7 @@ import { RegistrationComponent } from "./registration.component";
   imports: [
     CommonModule,
     SharedModule,
+    OeCheckboxComponent,
   ],
   exports: [
     RegistrationComponent,
