@@ -70,7 +70,7 @@ public class ModbusRtuApiReadOnly extends AbstractOpenemsAppWithProps<ModbusRtuA
 		ALIAS(alias()), //
 		API_TIMEOUT(ModbusApiProps.apiTimeout() //
 				.setRequired(true)), //
-		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID) //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, false) //
 				.setRequired(true)), //
 		PORT_NAME(ModbusApiProps.portName() //
 				.setRequired(true)), //
