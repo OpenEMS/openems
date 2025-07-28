@@ -50,6 +50,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.update.Updateable;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
@@ -64,6 +65,8 @@ import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
+import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
+import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateable;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -73,7 +76,6 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeBatteryInverter, GoodWe,
@@ -88,6 +90,18 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
+	private final ServiceBinder<GoodWeBatteryInverterUpdateParams, GoodWeBatteryInverterUpdateable> updateServiceBinder = new ServiceBinder<>(
+			Updateable.class, updateParams -> {
+				final var bridge = this.getBridgeModbus();
+				if (bridge == null) {
+					return null;
+				}
+				return new GoodWeBatteryInverterUpdateable(bridge, updateParams, this.getGoodweTypeChannel(),
+						this.channel(GoodWe.ChannelId.DSP_FM_VERSION_MASTER),
+						this.channel(GoodWe.ChannelId.DSP_BETA_VERSION), this.channel(GoodWe.ChannelId.ARM_FM_VERSION),
+						this.channel(GoodWe.ChannelId.ARM_BETA_VERSION));
+			}, GoodWeBatteryInverterUpdateable::deactivate);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -111,6 +125,20 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
+		this.updateServiceBinder.updateConfiguration();
+	}
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE //
+	)
+	private void bindUpdateParams(GoodWeBatteryInverterUpdateParams updateParams) {
+		this.updateServiceBinder.bindService(updateParams);
+	}
+
+	private void unbindUpdateParams(GoodWeBatteryInverterUpdateParams updateParams) {
+		this.updateServiceBinder.unbindService(updateParams);
 	}
 
 	/**
@@ -150,6 +178,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.serialNumberStorage.createAndAddOnChangeListener(this.channel(GoodWe.ChannelId.SERIAL_NUMBER));
 
+		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -160,6 +190,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
 		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -172,6 +203,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.updateServiceBinder.deactivate();
 	}
 
 	@Override
@@ -619,4 +651,5 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	public boolean isOffGridPossible() {
 		return this.config.backupEnable().equals(EnableDisable.ENABLE);
 	}
+
 }
