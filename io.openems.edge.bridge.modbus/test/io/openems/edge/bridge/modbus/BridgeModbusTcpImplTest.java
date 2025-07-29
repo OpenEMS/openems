@@ -84,6 +84,8 @@ public class BridgeModbusTcpImplTest {
 							.output("device0", MyModbusComponent.ChannelId.REGISTER_100, null) //
 							.output("device0", MODBUS_COMMUNICATION_FAILED, false)); //
 
+			test.deactivate();
+
 		} finally {
 			if (slave != null) {
 				slave.close();

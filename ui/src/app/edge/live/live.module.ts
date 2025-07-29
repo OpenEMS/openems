@@ -23,7 +23,7 @@ import { AdministrationComponent } from "./Controller/Evcs/administration/admini
 import { Controller_Evcs } from "./Controller/Evcs/Evcs";
 import { ControllerEvseSingle } from "./Controller/Evse/EvseSingle.module";
 import { ControllerHeat } from "./Controller/Heat/HeatMyPv";
-import { Controller_Io_ChannelSingleThresholdComponent } from "./Controller/Io/ChannelSingleThreshold/Io_ChannelSingleThreshold";
+import { Controller_Io_ChannelSingleThresholdComponent } from "./Controller/Io/ChannelSingleThreshold/flat/flat";
 import { Controller_Io_ChannelSingleThresholdModalComponent } from "./Controller/Io/ChannelSingleThreshold/modal/modal.component";
 import { ControllerIoFixDigitalOutput } from "./Controller/Io/FixDigitalOutput/fix-digital-output.module";
 import { Controller_Io_HeatingElement } from "./Controller/Io/HeatingElement/Io_HeatingElement";

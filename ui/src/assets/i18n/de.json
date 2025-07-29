@@ -916,7 +916,9 @@
       "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein.",
       "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
-      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen."
+      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen.",
+      "DOUBLE_SOCKET_LABEL": "Im Doppelsockel verbaut",
+      "DOUBLE_SOCKET": "Doppelsockel"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -1143,7 +1145,8 @@
   },
   "GENERAL": {
     "FORMLY": {
-      "REQUIRED": "Ist erforderlich"
+      "REQUIRED": "Ist erforderlich",
+      "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente"
     }
   },
   "FORMLY_FORM": {
