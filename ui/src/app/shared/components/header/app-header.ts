@@ -1,13 +1,12 @@
 // @ts-strict-ignore
 import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
-import { UserService } from "../../service/user.service";
 import { Edge, Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -24,13 +23,12 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public environment = environment;
     public backUrl: string | boolean = "/";
-    public enableSideMenu: boolean;
+    public enableSideMenu: boolean = false;
     public currentPage: "EdgeSettings" | "Other" | "IndexLive" | "IndexHistory" = "Other";
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = false;
     protected showBackButton: boolean = false;
-
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -44,10 +42,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public websocket: Websocket,
         protected navigationService: NavigationService,
         public routeService: RouteService,
-        private userService: UserService,
         protected navCtrl: NavController,
-        private route: ActivatedRoute
-
     ) {
         effect(() => {
             const currentNode = navigationService.currentNode();
@@ -59,8 +54,11 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             } else {
                 this.showBackButton = true;
             }
+
+            this.updateUrl(this.router.routerState.snapshot.url);
         });
     }
+
 
     @Input() public set customBackUrl(url: string | null) {
         if (!url) {
@@ -69,7 +67,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         this._customBackUrl = url;
         this.updateBackUrl(url);
     }
-
 
     ngOnInit() {
         // set inital URL
@@ -102,6 +99,11 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         const file = urlArray.pop();
 
         if (file == "user" || file == "settings" || file == "changelog" || file == "login" || file == "index" || urlArray.length > 3) {
+
+            if (this.navigationService.position() != "disabled") {
+                this.enableSideMenu = true;
+                return;
+            }
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -202,13 +204,16 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
+
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
+            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
 
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
-            this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
+            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
     }
@@ -223,6 +228,10 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ngOnDestroy() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    protected toggleMenu() {
+        this.menu.toggle();
     }
 
     private isAllowedForView(url: string): boolean {

@@ -35,6 +35,11 @@ public enum OpenemsAppCategory {
 	EVCS_READ_ONLY("evcsReadOnly"),
 
 	/**
+	 * Electric vehicle.
+	 */
+	ELECTRIC_VEHCILE("electricVehicle"),
+
+	/**
 	 * Heat.
 	 */
 	HEAT("heat"),

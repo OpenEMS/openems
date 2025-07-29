@@ -1,9 +1,10 @@
-<oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
-
-  <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
-  </ion-refresher>
-  <ion-grid *ngIf="edge && edge.isOnline && paddingBottom !== null" [style.padding-bottom]="paddingBottom + '%'">
+<oe-navigation-view *ngIf="edge">
+  <oe-refresh-view header [refresh]="handleRefresh" [show]="showRefreshDragDown">
+    <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
+    </ion-refresher>
+  </oe-refresh-view>
+  <ion-grid *ngIf="edge && edge.isOnline && paddingBottom !== null">
     <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">
 
       <!-- Left column -->
@@ -136,8 +137,8 @@
 
               <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
                 class="ion-no-padding">
-                <Controller_Io_ChannelSingleThresholdComponent [componentId]="widget.componentId">
-                </Controller_Io_ChannelSingleThresholdComponent>
+                <oe-controller-io-channelsinglethreshold
+                  [componentId]="widget.componentId"></oe-controller-io-channelsinglethreshold>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'" size="12" size-lg="6" class="ion-no-padding">
@@ -179,4 +180,5 @@
     </ion-row>
   </ion-grid>
 
-</oe-refresh-view>
+  <!-- </oe-refresh-view> -->
+</oe-navigation-view>

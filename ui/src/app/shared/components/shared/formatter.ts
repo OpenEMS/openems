@@ -59,5 +59,14 @@ export namespace Formatter {
 
     return formatNumber(parseFloat(value.toString()), locale, format);
   };
+
+  export const formatSafelyWithSuffix = (value: number | string | null, format: string, suffix: string | null) => {
+
+    const formattedValue = Formatter.formatSafely(value, format);
+    if (formattedValue == null) {
+      return null;
+    }
+    return formattedValue + " " + suffix;
+  };
 }
 
