@@ -92,61 +92,44 @@ export class ChartComponent extends AbstractHistoryChart {
         };
 
         return [
-          // Haupt-Datasets (wie gehabt)
+          // main dataset
           {
             name: translate.instant("Edge.Index.Widgets.Peakshaving.gridConsumption"),
-            color: ChartConstants.Colors.RED,
+            color: ChartConstants.Colors.BLUE_GREY,
             converter: () => data["GridConsumption"],
-            hideShadow: true,
-
+            hideShadow: false,
           },
           {
             name: translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingTarget"),
             color: ChartConstants.Colors.YELLOW,
-            backgroundColor: ChartConstants.Colors.SHADES_OF_YELLOW,
-            fill: "1",
             borderDash: [3, 3],
             converter: () => data["PeakShavingTarget"],
             hideShadow: true,
           },
           {
             name: translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingActive"),
-            color: ChartConstants.Colors.BLUE_GREY,
-            backgroundColor: ChartConstants.Colors.BLUE_GREY,
-            borderColor: ChartConstants.Colors.BLUE_GREY,
-            borderDash: [3, 3],
+            color: ChartConstants.Colors.ORANGE,
             converter: () => data["PeakShavedPower"],
             hideShadow: true,
           },
-
           {
             name: translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
-            color: ChartConstants.Colors.YELLOW,
-            //borderDash: [3, 3],
-
+            color: ChartConstants.Colors.GREEN,
+            borderDash: [3, 3],
             converter: () => data["RechargePower"],
             hideShadow: true,
           },
-
           {
             name: translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
-            color: "rgba(150,199,199,1)",
-            //borderDash: [3, 3],
-            fill: "-1",
-            backgroundColor: "rgba(0,191,255,0.05)",
-            borderColor: "rgba(0,191,255,1)",
+            color: ChartConstants.Colors.RED,
+            borderDash: [3, 3],
             converter: () => data["PeakshavingPower"],
-            hideShadow: false,
-
+            hideShadow: true,
           },
-
           {
             name: translate.instant("Edge.Index.Widgets.Peakshaving.peakShavingThresholdPower"),
-            color: "rgba(150,199,199,1)",
-            //borderDash: [3, 3],
-            // fill: "1",
-            //backgroundColor: "rgba(0,191,255,0.05)",
-            borderColor: "rgba(0,191,255,1)",
+            color: ChartConstants.Colors.PURPLE,
+            borderDash: [8, 8],
             converter: () => data["PeakShavingThreshold"],
             hideShadow: true,
           },
@@ -161,19 +144,15 @@ export class ChartComponent extends AbstractHistoryChart {
           {
             name: translate.instant("General.CHARGE"),
             color: ChartConstants.Colors.GREEN,
-
-            //borderDash: [10, 10],
             converter: () => data["EssPower"]?.map(v => v != null && v < 0 ? -v : 0),
             hideShadow: true,
           },
           {
             name: translate.instant("General.DISCHARGE"),
             color: ChartConstants.Colors.RED,
-
             converter: () => data["EssPower"]?.map(v => v != null && v > 0 ? v : 0),
-            hideShadow: true,
+            hideShadow: false,
           },
-
         ];
       },
       tooltip: {
