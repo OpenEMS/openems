@@ -1,15 +1,15 @@
 package io.openems.edge.evcs.keba.udp;
 
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import org.osgi.service.component.ComponentContext;
@@ -24,11 +24,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
@@ -38,9 +40,13 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evse.chargepoint.keba.common.EvcsKeba;
+import io.openems.edge.evse.chargepoint.keba.common.Keba;
+import io.openems.edge.evse.chargepoint.keba.common.KebaUdp;
+import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
 import io.openems.edge.evse.chargepoint.keba.udp.ReadWorker;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -49,21 +55,25 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements EvcsKebaUdp, EvcsKeba, ManagedEvcs, Evcs,
-		DeprecatedEvcs, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
-
-	protected final ReadHandler readHandler = new ReadHandler(this);
+public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements KebaUdp, ManagedEvcs, Evcs, DeprecatedEvcs,
+		ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsKebaUdpImpl.class);
 	private final ReadWorker readWorker;
+	private final ReadHandler readHandler = new ReadHandler(this);
+	private final KebaUtils kebaUtils = new KebaUtils(this);
 
 	@Reference
 	private EvcsPower evcsPower;
 
 	@Reference(policy = STATIC, cardinality = MANDATORY)
 	private EvseChargePointKebaUdpCore kebaUdpCore = null;
+
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	protected Config config;
 
@@ -77,8 +87,9 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				DeprecatedEvcs.ChannelId.values(), //
+				Keba.ChannelId.values(), //
 				EvcsKeba.ChannelId.values(), //
-				EvcsKebaUdp.ChannelId.values() //
+				KebaUdp.ChannelId.values() //
 		);
 		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
@@ -114,7 +125,7 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 		 */
 		this.kebaUdpCore.onReceive((ip, message) -> {
 			if (ip.equals(this.ip)) { // same IP -> handle message
-				this.readHandler.accept(message);
+				this.readHandler.accept(message, this.config.logVerbosity());
 				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
 			}
 		});
@@ -138,24 +149,21 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 		}
 		super.handleEvent(event);
 		switch (event.getTopic()) {
-		case TOPIC_CYCLE_EXECUTE_WRITE:
-
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+			this.kebaUtils.onBeforeProcessImage();
+		}
+		case TOPIC_CYCLE_EXECUTE_WRITE -> {
 			// Clear channels if the connection to the Charging Station has been lost
 			Channel<Boolean> connectionLostChannel = this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
 			var connectionLost = connectionLostChannel.value().orElse(this.lastConnectionLostState);
 			if (connectionLost != this.lastConnectionLostState) {
 				if (connectionLost) {
-					this.resetChannelValues();
+					KebaUdp.resetChannelValues(this);
 				}
 				this.lastConnectionLostState = connectionLost;
 			}
-			break;
 		}
-	}
-
-	@Override
-	public MeterType getMeterType() {
-		return MeterType.MANAGED_CONSUMPTION_METERED;
+		}
 	}
 
 	@Override
@@ -163,51 +171,14 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 		return this.config.phaseRotation();
 	}
 
-	/**
-	 * Send UDP message to KEBA KeContact. Returns true if sent successfully
-	 *
-	 * @param s Message to send
-	 * @return true if sent
-	 */
-	protected boolean send(String s) {
-		var raw = s.getBytes();
-		var packet = new DatagramPacket(raw, raw.length, this.ip, EvcsKebaUdpImpl.UDP_PORT);
-		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
-			datagrammSocket.send(packet);
-			return true;
-		} catch (SocketException e) {
-			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + this.ip.getHostAddress()
-					+ "]: " + e.getMessage());
-		} catch (IOException e) {
-			this.logError(this.log,
-					"Unable to send [" + s + "] UDP message to [" + this.ip.getHostAddress() + "]: " + e.getMessage());
-		}
-		return false;
-	}
-
-	/**
-	 * Triggers an immediate execution of query reports.
-	 */
-	protected void triggerQuery() {
+	@Override
+	public void triggerQuery() {
 		this.readWorker.triggerNextRun();
 	}
 
 	@Override
 	public String debugLog() {
-		return "Limit:" + this.channel(EvcsKebaUdp.ChannelId.CURR_USER).value().asString() + "|"
-				+ this.getStatus().getName();
-	}
-
-	/**
-	 * Logs are displayed if the debug mode is configured.
-	 *
-	 * @param log    the {@link Logger}
-	 * @param string Text to display
-	 */
-	protected void logInfoInDebugmode(Logger log, String string) {
-		if (this.config.debugMode()) {
-			this.logInfo(log, string);
-		}
+		return this.kebaUtils.debugLog();
 	}
 
 	public ReadWorker getReadWorker() {
@@ -218,16 +189,6 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 		return this.readHandler;
 	}
 
-	/**
-	 * Resets all channel values except the Communication_Failed channel.
-	 */
-	private void resetChannelValues() {
-		for (var c : EvcsKebaUdp.ChannelId.values()) {
-			Channel<?> channel = this.channel(c);
-			channel.setNextValue(null);
-		}
-	}
-
 	@Override
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
@@ -235,12 +196,14 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 
 	@Override
 	public boolean getConfiguredDebugMode() {
-		return this.config.debugMode();
+		return switch (this.config.logVerbosity()) {
+		case DEBUG_LOG -> false;
+		case UDP_REPORTS, WRITES -> true;
+		};
 	}
 
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsException {
-
 		var phases = this.getPhasesAsInt();
 		var current = Math.round((power * 1000) / phases / 230f);
 
@@ -261,12 +224,11 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 		if (!this.config.useDisplay()) {
 			return false;
 		}
-		if (text.length() > 23) {
-			text = text.substring(0, 23);
-		}
-		text = text.replace(" ", "$"); // $ == blank
+		return this.send(KebaUdp.preprocessDisplayTest(text));
+	}
 
-		return this.send("display 0 0 0 0 " + text);
+	private boolean send(String command) {
+		return KebaUdp.send(this, this.ip, this.config.logVerbosity(), this.log, command);
 	}
 
 	@Override
@@ -293,5 +255,21 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Evc
 	@Override
 	public boolean isReadOnly() {
 		return this.config.readOnly();
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Evcs.getModbusSlaveNatureTable(accessMode), //
+				ManagedEvcs.getModbusSlaveNatureTable(accessMode), //
+				KebaUdp.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(EvcsKebaUdpImpl.class, accessMode, 100) //
+						.build());
 	}
 }

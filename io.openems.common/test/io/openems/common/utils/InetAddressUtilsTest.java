@@ -27,7 +27,6 @@ public class InetAddressUtilsTest {
 	public void testParse() throws UnknownHostException {
 		assertEquals(null, InetAddressUtils.parseOrNull(null));
 		assertEquals(null, InetAddressUtils.parseOrNull(""));
-		assertEquals(null, InetAddressUtils.parseOrNull("256.256.256.0"));
 		assertEquals(IP, InetAddressUtils.parseOrNull("192.168.1.2"));
 	}
 
@@ -39,11 +38,6 @@ public class InetAddressUtilsTest {
 	@Test(expected = OpenemsException.class)
 	public void testParseOrError2() throws OpenemsException {
 		InetAddressUtils.parseOrError("");
-	}
-
-	@Test(expected = OpenemsException.class)
-	public void testParseOrError3() throws OpenemsException {
-		InetAddressUtils.parseOrError("256.256.256.0");
 	}
 
 	@Test

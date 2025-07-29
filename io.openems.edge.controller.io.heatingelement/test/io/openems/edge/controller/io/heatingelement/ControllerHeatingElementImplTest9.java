@@ -4,7 +4,7 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.LEVEL;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.STATUS;
-
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import org.junit.Test;
@@ -103,51 +103,60 @@ public class ControllerHeatingElementImplTest9 {
 			calibrationDuration = 0;
 		}
 
-		test.next(new TestCase() //
-				.input(GRID_ACTIVE_POWER, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-				.output(LEVEL, Level.LEVEL_0) //
-				.output(STATUS, Status.INACTIVE)) //
+		test //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								energytracker.getCurrentWh()) //
+						.output(LEVEL, Level.LEVEL_0) //
+						.output(STATUS, Status.INACTIVE)) //
 
 				.next(new TestCase() //
-						.timeleap(CLOCK, 1, SECONDS) //
+						.timeleap(CLOCK, 8 * 3600 - calibrationDuration, SECONDS) //
 						.input(GRID_ACTIVE_POWER, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
 						.output(LEVEL, Level.LEVEL_0) //
-						.output(STATUS, Status.INACTIVE), 8 * 3600 - calibrationDuration) //
+						.output(STATUS, Status.INACTIVE)) //
 
 				// 8:00
 				.next(new TestCase() //
-						.timeleap(CLOCK, 1, SECONDS) //
-						.input(GRID_ACTIVE_POWER, -3000) //
-						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
-						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
-						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, energytracker.add(0, 1)) //
-						.output(LEVEL, Level.LEVEL_1) //
-						.output(STATUS, Status.ACTIVE)) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								energytracker.add(2000, 3600 * 3)))
 
 				// 3 h * 2000 W = 6000 Wh
 				.next(new TestCase() //
-						.timeleap(CLOCK, 1, SECONDS) //
+						.timeleap(CLOCK, 3, HOURS) //
 						.input(GRID_ACTIVE_POWER, -1000) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 2000) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 2000) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								energytracker.add(2000, 3 * 3600))
+								energytracker.getCurrentWh())
 						.output(LEVEL, Level.LEVEL_1) //
-						.output(STATUS, Status.ACTIVE), 3 * 3600 - 3) //
+						.output(STATUS, Status.ACTIVE)) //
 
 				// 11:00
+				.next(new TestCase() //
+						.timeleap(CLOCK, 6 * 3600 - 601, SECONDS) //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								energytracker.getCurrentWh())
+						.output(LEVEL, Level.LEVEL_0) //
+						.output(STATUS, Status.INACTIVE)) //
+
+				// 16:50
 				.next(new TestCase() //
 						.timeleap(CLOCK, 1, SECONDS) //
 						.input(GRID_ACTIVE_POWER, 0) //
@@ -155,44 +164,27 @@ public class ControllerHeatingElementImplTest9 {
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								energytracker.getCurrentWh()) //
+						.output(LEVEL, Level.LEVEL_1) //
+						.output(STATUS, Status.ACTIVE_FORCED_LIMIT)) //
+
+				.next(new TestCase() //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								energytracker.add(2000, 3600 * 3))) //
+
+				// 19:50
+				.next(new TestCase() //
+						.timeleap(CLOCK, 3, HOURS) //
+						.input(GRID_ACTIVE_POWER, 2000) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 2000) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 2000) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								energytracker.getCurrentWh()) //
 						.output(LEVEL, Level.LEVEL_0) //
-						.output(STATUS, Status.INACTIVE), 6 * 3600 - 599); //
-
-		// 16:50
-		test.next(new TestCase() //
-				.timeleap(CLOCK, 1, SECONDS) //
-				.input(GRID_ACTIVE_POWER, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 6000) //
-				.output(LEVEL, Level.LEVEL_1) //
-				.output(STATUS, Status.ACTIVE_FORCED_LIMIT)); //
-
-		for (int i = 0; i < 3600 * 3 - 2; i++) {
-			test.next(new TestCase() //
-					.timeleap(CLOCK, 1, SECONDS) //
-					.input(GRID_ACTIVE_POWER, 2000) //
-					.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 2000) //
-					.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 2000) //
-					.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-					.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-					.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, energytracker.add(2000, 1))
-					.output(LEVEL, Level.LEVEL_1) //
-					.output(STATUS, Status.ACTIVE_FORCED_LIMIT)); //
-		}
-
-		// 19:50
-		test.next(new TestCase() //
-				.timeleap(CLOCK, 1, SECONDS) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 2000) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 2000) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, energytracker.add(2000, 1))
-				.output(LEVEL, Level.LEVEL_0) //
-				.output(STATUS, Status.DONE)) //
+						.output(STATUS, Status.DONE)) //
 
 				.next(new TestCase() //
 						.timeleap(CLOCK, 1800, SECONDS) //
@@ -204,7 +196,7 @@ public class ControllerHeatingElementImplTest9 {
 						.output(STATUS, Status.DONE)) //
 
 				.next(new TestCase() //
-						.timeleap(CLOCK, 3600 * 3 + 2401, SECONDS) //
+						.timeleap(CLOCK, 3600 * 3 + 2400, SECONDS) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //

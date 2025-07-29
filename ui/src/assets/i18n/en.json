@@ -908,7 +908,9 @@
       "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number.",
       "BATTERY_TOWER_CLUSTER": "Battery {{ batteryNumber }} Tower {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Please check the {{ key }} serialnumber in {{ header }}",
-      "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes."
+      "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes.",
+      "DOUBLE_SOCKET_LABEL": "Installed in the double socket",
+      "DOUBLE_SOCKET": "Double socket"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -1125,7 +1127,8 @@
   },
   "GENERAL": {
     "FORMLY": {
-      "REQUIRED": "Is required"
+      "REQUIRED": "Is required",
+      "INITIALIZING_ERROR": "Error initializing component"
     }
   },
   "FORMLY_FORM": {

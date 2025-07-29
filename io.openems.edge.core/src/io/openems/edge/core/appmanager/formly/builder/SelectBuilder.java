@@ -16,6 +16,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.Nameable;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 /**
  * A Builder for a Formly Select.
@@ -50,6 +51,11 @@ public final class SelectBuilder extends FormlyBuilder<SelectBuilder> {
 			t.alias() == null || t.alias().isEmpty() ? t.id() : t.id() + ": " + t.alias());
 	public static final Function<OpenemsComponent, JsonElement> DEFAULT_COMPONENT_2_VALUE = t -> new JsonPrimitive(
 			t.id());
+
+	public static final Function<OpenemsAppInstance, JsonElement> DEFAULT_INSTANCE_2_LABEL = t -> new JsonPrimitive(
+			t.alias);
+	public static final Function<OpenemsAppInstance, JsonElement> DEFAULT_INSTANCE_2_VALUE = t -> new JsonPrimitive(
+			t.instanceId.toString());
 
 	public SelectBuilder(Nameable property) {
 		super(property);
