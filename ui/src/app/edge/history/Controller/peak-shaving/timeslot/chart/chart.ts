@@ -54,6 +54,7 @@ export class ChartComponent extends AbstractHistoryChart {
       powerChannel: new ChannelAddress("_sum", "EssActivePower"),
       converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
 
+
     },
     {
       name: "CHARGE_UNDER",
@@ -73,18 +74,20 @@ export class ChartComponent extends AbstractHistoryChart {
             name: translate.instant("General.gridBuyAdvanced"),
             color: ChartConstants.Colors.BLUE_GREY,
             converter: () => data["ActivePower"],
+
+          },
+
+          {
+            name: translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
+            color: ChartConstants.Colors.RED,
+            converter: () => data["DISCHARGE_OVER"],
+            hideShadow: true,
+
           },
           {
             name: translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
             color: ChartConstants.Colors.GREEN,
             converter: () => data["CHARGE_UNDER"],
-            hideShadow: true,
-            borderDash: [3, 3],
-          },
-          {
-            name: translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
-            color: ChartConstants.Colors.RED,
-            converter: () => data["DISCHARGE_OVER"],
             hideShadow: true,
             borderDash: [3, 3],
           },

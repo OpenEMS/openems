@@ -20,6 +20,7 @@ import { OverviewComponent as HeatingelementChartOverviewComponent } from "./edg
 import { OverviewComponent as ModbusTcpApiOverviewComponent } from "./edge/history/Controller/ModbusTcpApi/overview/overview";
 import { OverviewComponent as AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/asymmetric/overview/overview";
 import { OverviewComponent as SymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/symmetric/overview/overview";
+import { OverviewComponent as ThresholdPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/threshold/overview/overview";
 import { OverviewComponent as TimeslotPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/timeslot/overview/overview";
 import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
 import { HistoryComponent as EdgeHistoryComponent } from "./edge/history/history.component";
@@ -76,6 +77,7 @@ export const history: Routes = [{
     { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
     { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
     { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
+    { path: ":componentId/thresholdpeakshavingchart", component: ThresholdPeakshavingChartOverviewComponent },
     { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
     { path: "autarchychart", component: AutarchyChartOverviewComponent },
     { path: "consumptionchart", component: ConsumptionChartOverviewComponent },

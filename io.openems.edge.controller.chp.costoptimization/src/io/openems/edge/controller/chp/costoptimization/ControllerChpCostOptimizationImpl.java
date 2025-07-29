@@ -258,7 +258,22 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		}
 	}
 	
-
+	/**
+	 * Calculates the optimal target power for the CHP unit to ensure that energy costs 
+	 * do not exceed the configured maximum (maxCost). The calculation is based on the 
+	 * current grid power without CHP and the current energy cost. The result is limited 
+	 * by the maximum allowed CHP power and by the actual grid power demand (to avoid 
+	 * unwanted feed-in to the grid).
+	 * 
+	 * Formula:
+	 *     chpTargetPower = gridPowerWithoutChp * maxCost / currentEnergyCost
+	 * 
+	 * Limits:
+	 * - Does not exceed the maximum CHP power (maxActivePower).
+	 * - Does not exceed the current grid power demand (prevents export to the grid).
+	 * 
+	 * Returns the calculated power target in watts and sets it to the corresponding channel.
+	 */
 	private int calculateChpPowerTarget() {
 		int chpTargetPower = 0;
 		
@@ -268,7 +283,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			
 			// Apply limits
 			chpTargetPower = Math.min(this.config.maxActivePower(), chpTargetPower);
-			chpTargetPower = Math.min(chpTargetPower, this.gridPowerWithoutChp); // sell to grid is now allowed
+			chpTargetPower = Math.min(chpTargetPower, this.gridPowerWithoutChp); // sell to grid is not allowed
 		}
 
 		this._setActivePowerTarget(chpTargetPower); // feed channel

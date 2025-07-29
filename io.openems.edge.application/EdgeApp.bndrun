@@ -218,7 +218,9 @@
 	bnd.identity;id='io.openems.edge.controller.chp.costoptimization',\
 	bnd.identity;id='io.openems.edge.chp.ecpower',\
 	bnd.identity;id='io.openems.edge.generator.api',\
-	bnd.identity;id='io.openems.edge.predictor.api'
+	bnd.identity;id='io.openems.edge.predictor.api',\
+	bnd.identity;id='io.openems.edge.weather.api',\
+	bnd.identity;id='io.openems.edge.weather.openmeteo'
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.81.0,1.81.1)',\
@@ -486,12 +488,12 @@
 	com.sun.jna;version='[5.17.0,5.17.1)',\
 	io.openems.edge.chp.ecpower;version=snapshot,\
 	io.openems.edge.generator.api;version=snapshot,\
-	io.openems.edge.weather.api;version=snapshot,\
-	io.openems.edge.weather.openmeteo;version=snapshot,\
 	io.openems.edge.controller.chp.costoptimization;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
+	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.predictor.production.linearmodel;version=snapshot,\
 	io.openems.edge.predictor.pv.weather.forecast;version=snapshot,\
-	io.openems.edge.predictor.similardaymodel;version=snapshot
+	io.openems.edge.weather.api;version=snapshot,\
+	io.openems.edge.weather.openmeteo;version=snapshot

@@ -1,0 +1,5 @@
+<oe-chart [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" *ngIf="isInitialized && component"
+    [period]="service.historyPeriod" [title]="component.alias">
+    <oe-controller-peakshaving-threshold-chart [isOnlyChart]="true"
+        [component]="component"></oe-controller-peakshaving-threshold-chart>
+</oe-chart>
