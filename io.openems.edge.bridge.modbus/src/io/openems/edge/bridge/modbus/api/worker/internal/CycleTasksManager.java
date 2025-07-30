@@ -136,8 +136,8 @@ public class CycleTasksManager {
 		var nextTask = switch (this.state) {
 
 		case INITIAL_WAIT ->
-			// Waiting for planned waiting time to pass
-			this.waitDelayHandler.getWaitDelayTask();
+			// Waiting for onBeforeProcessImage or onExecuteWrite event
+			this.waitMutexTask;
 
 		case READ_BEFORE_WRITE -> {
 			// Read-Task available?
