@@ -401,13 +401,21 @@ public interface ElectricityMeter extends OpenemsComponent {
 			return this.doc;
 		}
 	}
-
+	
 	/**
 	 * Gets the type of this Meter.
 	 *
 	 * @return the {@link MeterType}
 	 */
 	public MeterType getMeterType();
+
+	/**
+	 * Should the data of this meter be added to the Sum?
+	 *
+	 */
+	public default boolean addToSum() {
+		return true;
+	}
 
 	/**
 	 * Is this device actively managed by OpenEMS?.
