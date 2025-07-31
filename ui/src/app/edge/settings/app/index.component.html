@@ -28,12 +28,12 @@
           </div>
         </div>
         <p *ngIf="false">
-          <small>Technischer Name: {{ app.appId }}</small><br />
-          <small>Kategorie:
+          <small>{{ 'Edge.Config.App.technicalName' | translate }}: {{ app.appId }}</small><br />
+          <small>{{ 'Edge.Config.App.category' | translate }}:
             <a *ngFor="let c of app.categorys">
               {{ c.readableName }}
             </a></small><br />
-          <small>Cardinality: {{ app.cardinality }}</small>
+          <small>{{ 'Edge.Config.App.cardinality' | translate }}: {{ app.cardinality }}</small>
         </p>
       </ion-card-content>
       <ion-accordion-group>
