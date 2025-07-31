@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManage
 import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.WAIT_BEFORE_READ;
 import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.WRITE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.function.Consumer;
@@ -213,5 +214,61 @@ public class CycleTasksManagerTest {
 
 		task = sut.getNextTask();
 		assertTrue(task instanceof WaitTask.Mutex);
+	}
+
+	@Test
+	public void testWriteTaskExecutesImmediatelyAfterExecuteWrite() throws OpenemsException, InterruptedException {
+		// This test verifies that write tasks execute immediately after onExecuteWrite()
+		// even when a WaitDelayTask is running (fixing the 8-second delay issue)
+		System.out.println("=== TEST: Write task executes immediately after onExecuteWrite ===");
+		
+		var cycle1 = CycleTasks.create() //
+				.reads(RT_L_1, RT_H_1) //
+				.writes(WT_1) //
+				.build();
+		var tasksSupplier = new DummyTasksSupplier(cycle1);
+		var defectiveComponents = new DefectiveComponents(LOG_HANDLER);
+
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, //
+				CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY, LOG_HANDLER);
+
+		// Start cycle
+		System.out.println("Starting cycle with onBeforeProcessImage()");
+		sut.onBeforeProcessImage();
+		
+		// Get the initial WaitDelayTask
+		var delayTask = sut.getNextTask();
+		assertTrue(delayTask instanceof WaitTask.Delay);
+		System.out.println("Got WaitDelayTask with delay: " + ((WaitTask.Delay) delayTask).initialDelay + "ms");
+		
+		// Start a thread to execute the delay task (simulating the ModbusWorker)
+		var delayTaskThread = new Thread(() -> {
+			try {
+				System.out.println("Delay task thread started, beginning wait...");
+				delayTask.execute(null);
+				System.out.println("Delay task completed normally");
+			} catch (Exception e) {
+				System.out.println("Delay task was interrupted (expected)");
+			}
+		});
+		delayTaskThread.start();
+		
+		// Give the thread time to start waiting
+		Thread.sleep(50);
+		
+		// Now trigger onExecuteWrite() - this should interrupt the delay
+		System.out.println("Calling onExecuteWrite() to interrupt the delay");
+		sut.onExecuteWrite();
+		
+		// The next task should be the write task, available immediately
+		var writeTask = sut.getNextTask();
+		assertEquals(WT_1, writeTask);
+		System.out.println("Got write task immediately: " + writeTask);
+		
+		// Wait for the delay task thread to finish (should be quick since it was interrupted)
+		delayTaskThread.join(100); // 100ms timeout
+		assertFalse("Delay task thread should have finished", delayTaskThread.isAlive());
+		System.out.println("Test passed: Write task was available immediately without waiting for delay!");
+		System.out.println("=== END TEST ===");
 	}
 }

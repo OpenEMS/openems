@@ -89,6 +89,7 @@ public abstract non-sealed class WaitTask implements Task {
 		public final long initialDelay;
 
 		private final Runnable onFinished;
+		private final io.openems.common.utils.Mutex interruptMutex = new io.openems.common.utils.Mutex(false);
 
 		private long delay;
 
@@ -97,12 +98,18 @@ public abstract non-sealed class WaitTask implements Task {
 			this.onFinished = onFinished;
 		}
 
+		/** Interrupt the delay, i.e. stop waiting immediately. */
+		public void interrupt() {
+			this.interruptMutex.release();
+		}
+
 		@Override
 		protected void _execute() throws InterruptedException {
 			var start = Instant.now();
 			try {
 				if (this.delay > 0) {
-					Thread.sleep(this.delay);
+					// Use interruptible wait instead of Thread.sleep
+					this.interruptMutex.awaitOrTimeout(this.delay, TimeUnit.MILLISECONDS);
 				}
 			} finally {
 				this.delay -= Duration.between(start, Instant.now()).toMillis();
