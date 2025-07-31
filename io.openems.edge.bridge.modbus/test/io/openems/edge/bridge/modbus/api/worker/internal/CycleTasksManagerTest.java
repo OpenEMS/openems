@@ -219,7 +219,7 @@ public class CycleTasksManagerTest {
 	@Test
 	public void testWriteTaskExecutesImmediatelyAfterExecuteWrite() throws OpenemsException, InterruptedException {
 		// This test verifies that write tasks execute immediately after onExecuteWrite()
-		// even when a WaitDelayTask is running (fixing the 8-second delay issue)
+		// even when a WaitDelayTask is running.
 		System.out.println("=== TEST: Write task executes immediately after onExecuteWrite ===");
 		
 		var cycle1 = CycleTasks.create() //
