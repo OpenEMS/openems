@@ -5,8 +5,9 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.io.shelly.common.ShellyCommon;
 
-public interface IoShellyPro3Em extends OpenemsComponent {
+public interface IoShellyPro3Em extends OpenemsComponent, ShellyCommon {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**

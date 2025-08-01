@@ -6,7 +6,6 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.executeWrite;
-import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
@@ -37,6 +36,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -54,7 +55,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements IoShellyPlusPlugs, DigitalOutput,
-		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, ShellyCommon, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -80,7 +81,8 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShellyPlusPlugs.ChannelId.values() //
+				IoShellyPlusPlugs.ChannelId.values(), //
+				ShellyCommon.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPlusPlugs.ChannelId.RELAY) //
@@ -103,6 +105,10 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 			return;
 		}
 
+		// Subscribe to check auth status on activation
+		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log);
+		
+		// Subscribe for regular status updates
 		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
 	}
 
@@ -123,7 +129,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
+		return Utils.generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
 	}
 
 	@Override
