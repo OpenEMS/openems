@@ -1,4 +1,5 @@
-<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/delayedselltogridchart"
+<ion-card button
+    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/delayedselltogridchart'"
     *ngIf="component && edge">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" size="large" color="normal" name="trending-down-outline"></ion-icon>

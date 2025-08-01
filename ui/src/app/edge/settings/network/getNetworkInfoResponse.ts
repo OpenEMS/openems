@@ -33,4 +33,5 @@ export class GetNetworkInfoResponse extends JsonrpcResponseSuccess {
     ) {
         super(id, result);
     }
+    public static EMPTY = (requestId: string) => new GetNetworkInfoResponse(requestId, { networkInterfaces: [], routes: [] });
 }

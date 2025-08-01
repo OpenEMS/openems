@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig, FormlyForm } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
+import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Role } from "src/app/shared/type/role";
 import { Edge, Service, Websocket } from "../../../shared/shared";
@@ -93,7 +94,9 @@ export class NetworkComponent implements OnInit {
       this.edge = await this.service.getCurrentEdge();
       if (this.edge) {
         const response: GetNetworkConfigResponse = await this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })) as GetNetworkConfigResponse;
-        const networkInfoResponse = await this.edge.sendRequest<GetNetworkInfoResponse>(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkInfoRequest() }));
+        const getNetworkInfoReq = new GetNetworkInfoRequest();
+        const [_err, networkInfoResponse] = await JsonRpcUtils.handleOrElse<GetNetworkInfoResponse>(
+          this.edge.sendRequest<GetNetworkInfoResponse>(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: getNetworkInfoReq })), GetNetworkInfoResponse.EMPTY(getNetworkInfoReq.id));
         this.handleNetworkResponses(response, networkInfoResponse);
       }
     } catch (reason: any) {

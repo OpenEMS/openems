@@ -89,8 +89,8 @@ public class MqttApi extends AbstractEnumOpenemsApp<Property> implements Openems
 								.setDescription(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".Username.description")) //
 								.isRequired(true) //
-								.setMinLenght(3) //
-								.setMaxLenght(18) //
+								.setMinLength(3) //
+								.setMaxLength(18) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.PASSWORD) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "password")) //

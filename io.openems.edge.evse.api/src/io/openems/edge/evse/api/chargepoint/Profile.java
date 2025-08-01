@@ -131,6 +131,19 @@ public final class Profile {
 					"ApplySetPoint is of invalid type [" + this.applySetPoint.getClass().getSimpleName() + "]");
 		}
 
+		/**
+		 * Gets the {@link ApplySetPoint} in [W].
+		 * 
+		 * @return the object
+		 */
+		public ApplySetPoint.Action.Watt getApplySetPointInWatt() {
+			if (this.applySetPoint instanceof ApplySetPoint.Action.Watt w) {
+				return w;
+			}
+			throw new IllegalArgumentException(
+					"ApplySetPoint is of invalid type [" + this.applySetPoint.getClass().getSimpleName() + "]");
+		}
+
 		public static final class Builder {
 
 			private final ChargePointAbilities abilities;

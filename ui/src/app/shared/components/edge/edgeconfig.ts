@@ -515,6 +515,16 @@ export class EdgeConfig {
     }
 
     /**
+     * Determines if component has at least one of the given factory ids
+     *
+     * @param factoryIds the given factory ids.
+     * @returns true, if at least one of the passed factory ids, exists in config
+     */
+    public hasFactories(factoryIds: string[]): boolean {
+        return Object.entries(this.components).some(([id, component]) => factoryIds.includes(component.factoryId));
+    }
+
+    /**
      * Determines if Edge has a Storage device
      */
     public hasStorage(): boolean {
@@ -753,19 +763,7 @@ export class EdgeConfig {
         return component?.properties[property] ?? null;
     }
 
-    /**
-     * Safely gets a property from a component, if it exists, else returns false.
-     *
-     * @param component The component from which to retrieve the property.
-     * @param property The property name to retrieve.
-     * @returns The property value if it exists, otherwise null.
-     */
-    public hasComponentPropertyValue<T>(component: EdgeConfig.Component | null, property: string, value: T): boolean {
-        if (component == null) {
-            return false;
-        }
-        return component.hasPropertyValue<T>(property, value);
-    }
+
 }
 
 export enum PersistencePriority {

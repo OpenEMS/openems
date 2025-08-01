@@ -23,7 +23,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.HttpError.ResponseError;
 import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.common.meta.Coordinates;
+import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;

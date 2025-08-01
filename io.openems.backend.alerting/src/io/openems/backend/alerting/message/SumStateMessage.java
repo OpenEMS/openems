@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
@@ -41,8 +42,7 @@ public class SumStateMessage extends Message {
 	}
 
 	private OptionalInt minimumSetting() {
-		var sumState = this.getSumState();
-		return this.recipients.stream().mapToInt(r -> r.getDelay(sumState)).filter(i -> i > 0).min();
+		return this.recipients.stream().mapToInt(r -> r.getDelay(this.getSumState())).filter(i -> i > 0).min();
 	}
 
 	@Override
@@ -70,8 +70,9 @@ public class SumStateMessage extends Message {
 		if (min.isEmpty()) {
 			return List.of();
 		}
-		var sumState = this.getSumState();
-		return this.recipients.stream().filter(r -> r.getDelay(sumState) == min.getAsInt()).toList();
+		return this.recipients.stream() //
+				.filter(r -> r.getDelay(this.getSumState()) == min.getAsInt()) //
+				.toList();
 	}
 
 	@Override
@@ -110,5 +111,19 @@ public class SumStateMessage extends Message {
 
 	public boolean isEmpty() {
 		return this.minimumSetting().isEmpty();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof SumStateMessage other //
+				&& this.getEdgeId().equals(other.getEdgeId()) //
+				&& this.stateSince.equals(other.stateSince) //
+				&& this.sumState.equals(other.sumState) //
+				&& this.recipients.equals(other.recipients);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.getEdgeId(), this.stateSince, this.sumState, this.recipients);
 	}
 }
