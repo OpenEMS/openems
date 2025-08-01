@@ -98,7 +98,7 @@
         </ion-item>
       </nav>
 
-      @if(!service.isSmartphoneResolution){
+      @if(!service.isSmartphoneResolution && navigationService.position() === "left"){
       <oe-navigation-chips (navigate)="navigationService.navigateTo($event)"></oe-navigation-chips>
       }
     </ion-list>

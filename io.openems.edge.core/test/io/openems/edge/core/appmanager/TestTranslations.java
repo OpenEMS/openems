@@ -24,6 +24,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome15;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
+import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
@@ -47,6 +48,15 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome10Gen2(t), true, TestFeneconHome10Gen2.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome15(t), true, TestFeneconHome15.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterMaster(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterSlave(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk110(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("BIDDING_ZONE", "GERMANY") //
@@ -120,8 +130,8 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.kebaEvse(t), true, JsonUtils.buildJsonObject()
-					.addProperty("ELECTRIC_VEHICLE_ID", UUID.randomUUID().toString())
+			this.apps.add(new TestTranslation(Apps.kebaEvse(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ELECTRIC_VEHICLE_ID", UUID.randomUUID().toString()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.clusterEvse(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.genericVehicle(t), true, new JsonObject()));
@@ -142,7 +152,6 @@ public class TestTranslations {
 					.addProperty("OUTPUT_CHANNEL_PHASE_L3", "io0/Relay3") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.gridOptimizedCharge(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("MAXIMUM_SELL_TO_GRID_POWER", 60) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.selfConsumptionOptimization(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
@@ -202,6 +211,10 @@ public class TestTranslations {
 					.addProperty("METER_ID", "meter0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.phaseAccuratePeakShaving(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.addProperty("METER_ID", "meter0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.timeSlotPeakShaving(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("METER_ID", "meter0") //
 					.build()));
