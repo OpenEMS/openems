@@ -142,7 +142,6 @@ public class TestTranslations {
 					.addProperty("OUTPUT_CHANNEL_PHASE_L3", "io0/Relay3") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.gridOptimizedCharge(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("MAXIMUM_SELL_TO_GRID_POWER", 60) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.selfConsumptionOptimization(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //

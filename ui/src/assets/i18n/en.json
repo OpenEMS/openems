@@ -805,6 +805,7 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Choose",
+      "LIMITATION": "Limitation",
       "CONSTANT_VALUE": "Cos φ value",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
       "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
