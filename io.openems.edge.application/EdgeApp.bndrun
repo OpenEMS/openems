@@ -419,7 +419,6 @@
 	io.openems.wrapper.javax.activation;version=snapshot,\
 	io.openems.wrapper.jenetics;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
-	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.paho-mqttv5;version=snapshot,\
 	io.openems.wrapper.retrofit-adapter-rxjava3;version=snapshot,\
