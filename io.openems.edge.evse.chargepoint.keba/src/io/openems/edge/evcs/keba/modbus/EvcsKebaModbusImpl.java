@@ -70,6 +70,7 @@ import io.openems.edge.evse.chargepoint.keba.common.Keba;
 import io.openems.edge.evse.chargepoint.keba.common.KebaModbus;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
 import io.openems.edge.evse.chargepoint.keba.common.ProductTypeAndFeatures;
+import io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -89,6 +90,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 
 	private final Logger log = LoggerFactory.getLogger(EvcsKebaModbusImpl.class);
 	private final KebaUtils kebaUtils = new KebaUtils(this);
+	private final KebaModbusUtils kebaModbusUtils = new KebaModbusUtils(this);
 
 	private Config config;
 
@@ -355,11 +357,11 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 								.onUpdateCallback((v) -> handleFirmwareVersion(this, v))),
 				new FC3ReadRegistersTask(1020, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(1020),
-								SCALE_FACTOR_MINUS_3).onUpdateCallback(
-										power -> calculateActivePowerL1L2L3(this, power))),
+								SCALE_FACTOR_MINUS_3)
+								.onUpdateCallback(power -> calculateActivePowerL1L2L3(this, power))),
 				new FC3ReadRegistersTask(1036, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(1036),
-								this.energyScaleFactor)),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+								new UnsignedDoublewordElement(1036), this.kebaModbusUtils.energyScaleFactor)),
 				new FC3ReadRegistersTask(1040, Priority.LOW, //
 						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(1040), SCALE_FACTOR_3)),
 				new FC3ReadRegistersTask(1042, Priority.LOW, //
@@ -376,7 +378,8 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 				// this register is can not always be read with keba firmware 1.1.9 or less
 				// there is currently no way of knowing when it can be read
 				new FC3ReadRegistersTask(1502, Priority.LOW, //
-						m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedDoublewordElement(1502), this.energyScaleFactor)),
+						m(Evcs.ChannelId.ENERGY_SESSION, //
+								new UnsignedDoublewordElement(1502), this.kebaModbusUtils.energyScaleFactor)),
 				new FC3ReadRegistersTask(1550, Priority.LOW, //
 						m(Keba.ChannelId.PHASE_SWITCH_SOURCE, new UnsignedDoublewordElement(1550))),
 				new FC3ReadRegistersTask(1552, Priority.LOW, //

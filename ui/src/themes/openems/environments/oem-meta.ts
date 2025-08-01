@@ -94,6 +94,14 @@ export const OemMeta: BaseMeta = {
                 DE: "#",
                 EN: "#",
             },
+            HOME_20_30: {
+                DE: "#",
+                EN: "#",
+            },
+            HOME_6_10_15: {
+                DE: "#",
+                EN: "#",
+            },
         },
     },
 };

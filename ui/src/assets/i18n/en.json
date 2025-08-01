@@ -72,6 +72,7 @@
           "peakshaving": "Peak-Shaving",
           "peakshavingPower": "Discharge above",
           "recharge": "Recharge Power",
+          "hysteresisSoC": "Threshold SoC",
           "rechargePower": "Charge below",
           "relationError": "Discharge limit must be greater than or equal to the charge limit",
           "startDate": "Start date",
@@ -805,6 +806,7 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Choose",
+      "LIMITATION": "Limitation",
       "CONSTANT_VALUE": "Cos φ value",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
       "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",

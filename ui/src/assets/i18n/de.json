@@ -73,6 +73,7 @@
           "peakshavingPower": "Entladung über",
           "recharge": "Beladeleistung",
           "rechargePower": "Beladung unter",
+          "hysteresisSoC": "Schwellenwert Ladezustand",
           "relationError": "Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein",
           "startDate": "Start Datum",
           "startTime": "Startzeit",
@@ -813,6 +814,7 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Typ",
+      "LIMITATION": "Limitierung",
       "CONSTANT_VALUE": "Cos φ Festwert",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamische Begrenzung der Einspeisung aktiviert?",
       "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
