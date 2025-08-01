@@ -10,6 +10,13 @@ export namespace Formatter {
   export const FORMAT_WATT = (value: number) => {
     return formatNumber(value, locale, "1.0-0") + " W";
   };
+  export const FORMAT_VOLT_AMPERE = (value: number) => {
+    return formatNumber(value, locale, "1.0-0") + " VA";
+  };
+
+  export const FORMAT_VOLT_AMPERE_REACTIVE = (value: number) => {
+    return formatNumber(value, locale, "1.0-0") + " var";
+  };
 
   export const FORMAT_KILO_WATT = (value: number) => {
     return formatNumber(value, locale, "1.0-2") + " kW";

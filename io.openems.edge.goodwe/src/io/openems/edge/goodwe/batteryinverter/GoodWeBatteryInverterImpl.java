@@ -173,6 +173,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		);
 		// GoodWe is always started
 		this._setStartStop(StartStop.START);
+
+		SymmetricBatteryInverter.calculateApparentPowerFromActiveAndReactivePower(this);
 	}
 
 	@Activate
