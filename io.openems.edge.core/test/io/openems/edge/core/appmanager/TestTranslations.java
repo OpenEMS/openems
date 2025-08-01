@@ -15,7 +15,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
@@ -24,7 +23,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome15;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
-import io.openems.edge.common.user.User;
+import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class TestTranslations {
@@ -47,6 +46,15 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome10Gen2(t), true, TestFeneconHome10Gen2.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome15(t), true, TestFeneconHome15.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterMaster(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterSlave(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk110(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("BIDDING_ZONE", "GERMANY") //

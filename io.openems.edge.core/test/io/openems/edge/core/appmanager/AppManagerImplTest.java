@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
