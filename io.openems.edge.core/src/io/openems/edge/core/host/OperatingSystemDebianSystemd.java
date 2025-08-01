@@ -1,5 +1,8 @@
 package io.openems.edge.core.host;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.InetAddressUtils.parseOrNull;
 import static java.lang.Runtime.getRuntime;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -10,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,29 +35,36 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.InetAddressUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.update.Updateable;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.host.NetworkInterface.IpMasqueradeSetting;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoAddress;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoWrapper;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Route;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 /**
  * OperatingSystem implementation for Debian with systemd.
@@ -121,10 +130,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	@Override
 	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
-			SetNetworkConfigRequest request) throws OpenemsNamedException {
+			SetNetworkConfig.Request request) throws OpenemsNamedException {
 		var isChanged = false;
-		var networkInterfaces = request.getNetworkInterface();
-		for (NetworkInterface<?> networkInterface : networkInterfaces) {
+		for (NetworkInterface<?> networkInterface : request.networkInterfaces()) {
 			NetworkInterface<?> iface = oldNetworkConfiguration.getInterfaces().get(networkInterface.getName());
 			if (iface == null) {
 				throw new OpenemsException("No network interface with name [" + networkInterface.getName() + "]");
@@ -142,7 +150,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		// write configuration files
 		IOException writeException = null;
 		for (Entry<String, NetworkInterface<?>> entry : oldNetworkConfiguration.getInterfaces().entrySet()) {
-			if (!networkInterfaces.stream().anyMatch(i -> i.getName().equals(entry.getKey()))) {
+			if (!request.networkInterfaces().stream().anyMatch(i -> i.getName().equals(entry.getKey()))) {
 				continue;
 			}
 			NetworkInterface<?> iface = entry.getValue();
@@ -227,6 +235,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
 			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
+		}
+		if (iface.getIpv4Forwarding().isSetAndNotNull()) {
+			result.add("IPv4Forwarding=" + (iface.getIpv4Forwarding().getValue() ? "yes" : "no"));
+		}
+		if (iface.getIpMasquerade().isSetAndNotNull()) {
+			result.add("IPMasquerade=" + iface.getIpMasquerade().getValue().settingValue);
 		}
 
 		var metric = DEFAULT_METRIC;
@@ -427,6 +441,10 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
 	private static final Pattern NETWORK_DNS = Pattern //
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+	private static final Pattern NETWORK_IPV4_FORWARDING = Pattern //
+			.compile("^IPv4Forwarding=(\\w+)$");
+	private static final Pattern NETWORK_IP_MASQUERADE = Pattern //
+			.compile("^IPMasquerade=(\\w+)$");
 	private static final Pattern GATEWAY_METRIC = Pattern //
 			.compile("^Metric=([0-9]+)$");
 	private static final Pattern ROUTE_METRIC = Pattern //
@@ -463,11 +481,15 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				ConfigurationProperty.asNotSet());
 		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithSubnetmask>>>(//
 				ConfigurationProperty.asNotSet());
+		final var ipv4Forwarding = new AtomicReference<ConfigurationProperty<Boolean>>(//
+				ConfigurationProperty.asNotSet());
+		final var ipMasquerade = new AtomicReference<ConfigurationProperty<IpMasqueradeSetting>>(//
+				ConfigurationProperty.asNotSet());
 
 		// holds the latest found address
 		final var tmpAddress = new AtomicReference<Inet4AddressWithSubnetmask>();
 
-		for (String line : lines) {
+		for (var line : lines) {
 			line = line.trim();
 			if (line.isBlank()) {
 				continue;
@@ -477,27 +499,22 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			 * Find current configuration block
 			 */
 			if (line.startsWith("[")) {
-				switch (line) {
-				case MATCH_SECTION:
-					currentBlock = Block.MATCH;
-					break;
-				case NETWORK_SECTION:
-					currentBlock = Block.NETWORK;
-					break;
-				case ADDRESS_SECTION:
+				currentBlock = switch (line) {
+				case MATCH_SECTION //
+					-> Block.MATCH;
+				case NETWORK_SECTION //
+					-> Block.NETWORK;
+				case ADDRESS_SECTION -> {
 					tmpAddress.set(null);
-					currentBlock = Block.ADDRESS;
-					break;
-				case ROUTE_SECTION:
-					currentBlock = Block.ROUTE;
-					break;
-				case DHCP_SECTION:
-					currentBlock = Block.DHCP;
-					break;
-				default:
-					currentBlock = Block.UNDEFINED;
-					break;
+					yield Block.ADDRESS;
 				}
+				case ROUTE_SECTION //
+					-> Block.ROUTE;
+				case DHCP_SECTION //
+					-> Block.DHCP;
+				default //
+					-> Block.UNDEFINED;
+				};
 				continue;
 			}
 
@@ -505,12 +522,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			 * Parse Block
 			 */
 			switch (currentBlock) {
-			case MATCH:
+			case MATCH -> {
 				onMatchString(MATCH_NAME, line, property -> {
 					name.set(property);
 				});
-				break;
-			case NETWORK:
+			}
+			case NETWORK -> {
 				onMatchString(NETWORK_DHCP, line, property -> {
 					dhcp.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
 				});
@@ -531,8 +548,14 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					addressDetails.add(Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property));
 					addresses.set(ConfigurationProperty.of(addressDetails));
 				});
-				break;
-			case ADDRESS:
+				onMatchString(NETWORK_IPV4_FORWARDING, line, property -> {
+					ipv4Forwarding.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
+				});
+				onMatchString(NETWORK_IP_MASQUERADE, line, property -> {
+					ipMasquerade.set(ConfigurationProperty.of(IpMasqueradeSetting.findBySettingValue(property)));
+				});
+			}
+			case ADDRESS -> {
 				onMatchString(NETWORK_ADDRESS, line, property -> {
 					// Storing here temporarily so that we can use it if when we find label.
 					var address = Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property);
@@ -561,75 +584,163 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 							address.getSubnetmaskAsCidr());
 					addressDetails.add(address);
 				});
-				break;
-			case ROUTE:
+			}
+			case ROUTE -> {
 				onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
 					gateway.set(ConfigurationProperty.of(property));
 				});
 				onMatchString(GATEWAY_METRIC, line, property -> {
 					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
 				});
-				break;
-			case DHCP:
+			}
+			case DHCP -> {
 				onMatchString(ROUTE_METRIC, line, property -> {
 					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
 				});
-				break;
-			case UNDEFINED:
-				break;
-			default:
-				break;
+			}
+			case UNDEFINED -> doNothing();
 			}
 		}
 		return new NetworkInterface<>(name.get(), //
 				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), metric.get(),
-				attachment);
+				ipv4Forwarding.get(), ipMasquerade.get(), attachment);
 	}
 
 	@Override
 	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
-		var req = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
+		var reqIpShow = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
 		try {
-			var result = this.handleExecuteSystemCommandRequest(req).get().getResult().toString();
-			return parseIpJson(result);
+			var resultIpShow = this.handleExecuteSystemCommandRequest(reqIpShow).get().getResult().toString();
+			return parseShowJson(resultIpShow).stream() //
+					.flatMap(t -> t.ips().stream() //
+							.map(d -> d.ip().getInet4Address())) //
+					.toList();
 		} catch (InterruptedException | ExecutionException e) {
 			return Collections.emptyList();
 		}
 
 	}
 
-	/**
-	 * Parses the json returned by ip address get command.
-	 * 
-	 * @param result the json to be parsed
-	 * @return a list of parsed ips
-	 * @throws OpenemsNamedException on error
-	 */
-	protected static List<Inet4Address> parseIpJson(String result) throws OpenemsNamedException {
-		final var stdout = JsonUtils.getAsJsonArray(JsonUtils.getAsJsonObject(JsonUtils.parse(result)), "stdout");
+	@Override
+	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
+		var reqIpShow = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
+		var reqIpRoute = ExecuteSystemCommandRequest.withoutAuthentication("ip -j route", false, 5);
+		try {
+			var resultIpShow = this.handleExecuteSystemCommandRequest(reqIpShow).get().getResult().toString();
+			var resultIpRoute = this.handleExecuteSystemCommandRequest(reqIpRoute).get().getResult().toString();
+			return new GetNetworkInfo.Response(parseShowJson(resultIpShow), parseRouteJson(resultIpRoute));
+		} catch (InterruptedException | ExecutionException e) {
+			return new GetNetworkInfo.Response(Collections.emptyList(), Collections.emptyList());
+		}
+
+	}
+
+	protected static List<JsonObject> parseIpJson(String json) throws OpenemsNamedException {
+		final var stdout = JsonUtils.getAsJsonArray(JsonUtils.getAsJsonObject(JsonUtils.parse(json)), "stdout");
 		final var networkData = stdout.get(0).getAsString();
 		final var networkDataJson = JsonUtils.parseOptional(networkData);
 		if (networkDataJson.isPresent() && networkDataJson.get().isJsonArray()) {
 			final var networkInterfaces = JsonUtils.getAsJsonArray(JsonUtils.parse(networkData));
-
 			if (networkData.startsWith("[")) {
-				return networkInterfaces.asList().stream().map(JsonElement::getAsJsonObject)
-						.map(interfaceObject -> interfaceObject.getAsJsonArray("addr_info"))
-						.flatMap(addrInfoArray -> StreamSupport.stream(addrInfoArray.spliterator(), false))
-						.map(JsonElement::getAsJsonObject)
-						.filter(addrInfoObject -> "inet".equals(addrInfoObject.get("family").getAsString()))
-						.map(addrInfoObject -> addrInfoObject.get("local").getAsString()) //
-						.<Inet4Address>mapMulti((t, u) -> {
-							try {
-								u.accept((Inet4Address) Inet4Address.getByName(t));
-							} catch (UnknownHostException e) {
-								// do nothing
-							}
-						}) //
-						.toList();//
+				return JsonUtils.stream(networkInterfaces)//
+						.map(JsonElement::getAsJsonObject)//
+						.toList();
 			}
 		}
+
 		return Collections.emptyList();
+	}
+
+	protected static List<Route> parseRouteJson(String routeJson) throws OpenemsNamedException {
+		final var networkData = parseIpJson(routeJson);
+		if (networkData == null) {
+			return Collections.emptyList();
+		}
+		return networkData.stream() //
+				.map(t -> Route.serializer().deserialize(t)) //
+				.toList();
+	}
+
+	/**
+	 * Parses the json returned by ip address get command.
+	 * 
+	 * @param resultIpShow the json to be parsed
+	 * @return a list of parsed ips
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static List<NetworkInfoWrapper> parseShowJson(String resultIpShow) throws OpenemsNamedException {
+		final var networkInterfaces = parseIpJson(resultIpShow);
+		if (networkInterfaces == null) {
+			return Collections.emptyList();
+		}
+
+		return networkInterfaces.stream() //
+				.map(SystemdInterface.serializer()::deserialize) //
+				.map(t -> {
+					return new NetworkInfoWrapper(t.ifname(), t.addressInfos.stream() //
+							.map(address -> {
+								return new NetworkInfoAddress(//
+										new Inet4AddressWithSubnetmask(address.label(), parseOrNull(address.local()),
+												address.prefixlen),
+										address.dynamic);
+							}) //
+							.toList());
+				}) //
+				.toList();
+	}
+
+	private record SystemdInterface(String ifname, List<SystemdAddressInfo> addressInfos) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link SystemdInterface}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<SystemdInterface> serializer() {
+			return jsonObjectSerializer(SystemdInterface.class, json -> {
+				return new SystemdInterface(//
+						json.getString("ifname"), //
+						json.getList("addr_info", SystemdAddressInfo.serializer()) //
+				);
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("ifname", obj.ifname()) //
+						.add("addr_info", SystemdAddressInfo.serializer().toListSerializer() //
+								.serialize(obj.addressInfos())) //
+						.build();
+			});
+		}
+
+	}
+
+	private record SystemdAddressInfo(String family, String local, int prefixlen, String label, boolean dynamic) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link SystemdAddressInfo}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<SystemdAddressInfo> serializer() {
+			return jsonObjectSerializer(SystemdAddressInfo.class, json -> {
+				return new SystemdAddressInfo(//
+						json.getString("family"), //
+						json.getString("local"), //
+						json.getInt("prefixlen"), //
+						json.getStringOrNull("label"), //
+						json.getOptionalBoolean("dynamic").orElse(false) //
+				);
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("family", obj.family()) //
+						.addProperty("local", obj.local()) //
+						.addProperty("prefixlen", obj.prefixlen()) //
+						.addProperty("label", obj.label()) //
+						.onlyIf(obj.dynamic(), b -> b//
+								.addProperty("dynamic", obj.dynamic()))
+						.build();
+			});
+		}
+
 	}
 
 	@Override
@@ -660,6 +771,11 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					.completeExceptionally(new OpenemsException("OS-Version name not found in /etc/os-release")));
 		}, versionFuture::completeExceptionally);
 		return versionFuture;
+	}
+
+	@Override
+	public Updateable getSystemUpdateable() {
+		return null;
 	}
 
 }

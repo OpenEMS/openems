@@ -97,7 +97,6 @@ public class PhoenixContactMeterImpl extends AbstractOpenemsModbusComponent
 								.wordOrder(LSWMSW), SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.CURRENT, new FloatDoublewordElement(0x8014) //
 								.wordOrder(LSWMSW), SCALE_FACTOR_3), //
-						new DummyRegisterElement(0x8016, 0x8015), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x8016) //
 								.wordOrder(LSWMSW), INVERT_IF_TRUE(this.invert)), //
 						new DummyRegisterElement(0x8018, 0x801D), //

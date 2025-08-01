@@ -3,8 +3,10 @@
     <ion-col size="6">
       <ng-container *ngIf="filter">
         <ion-select interface="popover" [multiple]="true" [label]="filter.placeholder" label-placement="floating"
-          fill="solid" type="radio" (ionDismiss)="searchOnChange($event, filter)" class="custom-ion-popover"
-          style="white-space: initial; --color: var(--ion-color-primary)">
+          fill="outline" type="radio" (ionDismiss)="searchOnChange($event, filter)"
+          [interfaceOptions]="{cssClass: 'custom-ion-popover'}"
+          class="custom-ion-popover ion-select-border-color-primary"
+          style="white-space: initial; --color: var(--ion-color-primary)" mode="md">
           <ng-container *ngFor="let option of filter.options">
             <ion-select-option [value]="option.value">{{option.name}}
             </ion-select-option>

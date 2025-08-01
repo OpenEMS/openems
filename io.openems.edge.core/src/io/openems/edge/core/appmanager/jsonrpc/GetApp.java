@@ -13,10 +13,10 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.jsonapi.EndpointRequestType;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.flag.Flag;
@@ -168,7 +168,11 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 		try {
 			final var image = imageFuture.get();
 			final var status = statusFuture.get();
-
+			final var permissions = app.getAppPermissions();
+			var permissionJson = JsonUtils.buildJsonObject()//
+					.addProperty("canSee", permissions.canSee())//
+					.addProperty("canDelete", permissions.canDelete())//
+					.build();
 			return JsonUtils.buildJsonObject() //
 					.add("categorys", Arrays.stream(app.getCategories()) //
 							.map(cat -> cat.toJsonObject(language)) //
@@ -178,6 +182,7 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 					.addProperty("name", app.getName(language)) //
 					.addProperty("shortName", app.getShortName(language)) //
 					.addPropertyIfNotNull("image", image) //
+					.add("permissions", permissionJson)//
 					.add("flags", Arrays.stream(app.flags()) //
 							.map(Flag::toJson) //
 							.collect(JsonUtils.toJsonArray()))

@@ -1,11 +1,10 @@
 <ion-footer>
-  <ion-item #container lines="none"
-    style="--min-height: initial !important;font-size: inherit; font-size: 14px !important;"
-    style="--background: var(--ion-color-toolbar-primary);" color="secondary">
-    <ion-grid style="padding-top: 0; padding-bottom: 0;">
+  <ion-item #container lines="none" style="font-size: inherit;" style="--background: var(--ion-color-toolbar-primary);"
+    color="secondary">
+    <ion-grid style="padding-top: 0;" class="ion-padding-bottom">
       <ion-row class="ion-justify-content-center" style="padding-top: 0; padding-bottom: 0;">
         <ion-col *ngIf="backButton" style="text-align: center;" #myIonCol>
-          <ion-button color="primary" (click)=" location.back()">
+          <ion-button color="primary" (click)="location.back()">
             <ion-icon name="arrow-back-outline"></ion-icon>
           </ion-button>
         </ion-col>

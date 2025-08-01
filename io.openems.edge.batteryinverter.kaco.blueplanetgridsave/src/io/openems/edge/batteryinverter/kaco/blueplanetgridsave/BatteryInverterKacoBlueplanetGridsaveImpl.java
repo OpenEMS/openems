@@ -2,10 +2,14 @@ package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 import static io.openems.edge.common.sum.GridMode.ON_GRID;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -26,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -34,6 +37,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
+import io.openems.edge.batteryinverter.api.BatteryInverterTimeoutFailure;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201ControlMode;
@@ -43,12 +47,12 @@ import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.Context;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
-import io.openems.edge.batteryinverter.sunspec.AbstractSunSpecBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
+import io.openems.edge.bridge.modbus.sunspec.batteryinverter.AbstractSunSpecBatteryInverter;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
@@ -64,9 +68,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -79,7 +80,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 )
 public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		implements BatteryInverterKacoBlueplanetGridsave, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
-		ModbusComponent, ModbusSlave, OpenemsComponent, TimedataProvider, StartStoppable {
+		ModbusComponent, ModbusSlave, OpenemsComponent, TimedataProvider, StartStoppable,
+		BatteryInverterTimeoutFailure {
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -120,16 +122,27 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	/**
 	 * Active SunSpec models for KACO blueplanet gridsave. Commented models are
 	 * available but not used currently.
+	 *
+	 * <p>
+	 * KACOs that do not yet have Modbus fully configured still have a Modbus table
+	 * containing only the default models. To avoid triggering SunSpec completion,
+	 * some entries are marked as required.
+	 * </p>
 	 */
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
-			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_103, Priority.HIGH) //
-			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64201, Priority.HIGH) //
-			.put(KacoSunSpecModel.S_64202, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64203, Priority.LOW) //
-			.put(KacoSunSpecModel.S_64204, Priority.LOW) //
-			.build();
+	private static final List<SunSpecModelEntry> ACTIVE_MODELS = List.of(
+			SunSpecModelEntry.create(DefaultSunSpecModel.S_1).build(), //
+			SunSpecModelEntry.create(DefaultSunSpecModel.S_103) //
+					.setPriority(Priority.HIGH) //
+					.setRequired(true) //
+					.build(), //
+			SunSpecModelEntry.create(DefaultSunSpecModel.S_121).build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64201) //
+					.setPriority(Priority.HIGH) //
+					.setRequired(true) //
+					.build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64202).build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64203).build(), //
+			SunSpecModelEntry.create(KacoSunSpecModel.S_64204).build());
 
 	// Further available SunSpec blocks provided by KACO blueplanet are:
 	// .put(SunSpecModel.S_113, Priority.LOW) //
@@ -152,6 +165,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 				SymmetricBatteryInverter.ChannelId.values(), //
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
+				BatteryInverterTimeoutFailure.ChannelId.values(), //
 				BatteryInverterKacoBlueplanetGridsave.ChannelId.values() //
 		);
 		this._setGridMode(ON_GRID);
@@ -184,7 +198,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Stop early if initialization is not finished
-		if (!this.isSunSpecInitializationCompleted()) {
+		if (!(this.isSunSpecInitializationCompleted() && this.areRequiredModelsRead())) {
 			return;
 		}
 
@@ -300,10 +314,8 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("KACO inverter not ready", Phase.ALL, Pwr.REACTIVE, //
-						Relationship.EQUALS, 0d), //
-				new BatteryInverterConstraint("KACO inverter not ready", Phase.ALL, Pwr.ACTIVE, //
-						Relationship.EQUALS, 0d) //
+				new BatteryInverterConstraint("KACO inverter not ready", ALL, REACTIVE, EQUALS, 0d), //
+				new BatteryInverterConstraint("KACO inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
 		};
 	}
 
@@ -390,6 +402,16 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	 */
 	@Override
 	protected void onSunSpecInitializationCompleted() {
+		/**
+		 * KACOs do have during configuration only common blocks available which may
+		 * result in completing too early without all needed models/channels. Therefore,
+		 * we just reinitialize it until we have all required channels.
+		 */
+		if (!this.areRequiredModelsRead()) {
+			this.reinitializeSunSpecChannels();
+			return;
+		}
+
 		this.addCopyListener(//
 				this.getSunSpecChannel(DefaultSunSpecModel.S121.W_MAX).get(), //
 				SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER //
@@ -553,6 +575,12 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	 */
 	public boolean hasFailure() {
 		return this.hasFaults() || this.getCurrentState() == S64201CurrentState.FAULT;
+	}
+
+	@Override
+	public void clearBatteryInverterTimeoutFailure() {
+		this._setTimeoutStartBatteryInverter(false);
+		this._setTimeoutStopBatteryInverter(false);
 	}
 
 }

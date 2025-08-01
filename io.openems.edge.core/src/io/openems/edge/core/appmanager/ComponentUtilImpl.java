@@ -30,10 +30,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
+import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -44,7 +47,7 @@ import io.openems.edge.common.host.Host;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.HostImpl;
 import io.openems.edge.core.host.NetworkInterface;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 import io.openems.edge.io.api.DigitalOutput;
 
 @org.osgi.service.component.annotations.Component()
@@ -355,7 +358,8 @@ public class ComponentUtilImpl implements ComponentUtil {
 		return copy;
 	}
 
-	private List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds) {
+	@Override
+	public List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
 				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
 				.filter(c -> { //
@@ -377,7 +381,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public boolean anyComponentUses(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
-				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
+				.filter(t -> {
+					return !ignoreIds.stream().anyMatch(id -> t.id().equals(id)); //
+				})
 				.anyMatch(c -> { //
 					var t = c.getComponentContext().getProperties();
 					return enumerationAsStream(t.keys()).anyMatch(key -> {
@@ -522,12 +528,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 			if (fallBackInARowRelays == null) {
 				count = 0;
-				var startIndex = 1;
+				var startIndex = 0;
 				for (var channelInfo : relayInfo.channels()) {
+					count++;
 					if (!channelInfo.usingComponents().isEmpty() //
 							|| !channelInfo.disabledReasons().isEmpty()) {
 						startIndex += count;
-						count = 1;
+						count = 0;
 					}
 					if (count >= numberOfRelays) {
 						break;
@@ -548,7 +555,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public void updateInterfaces(User user, List<NetworkInterface<?>> interfaces) throws OpenemsNamedException {
 		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
-		host.handleSetNetworkConfigRequest(user, new SetNetworkConfigRequest(interfaces));
+		host.handleSetNetworkConfigRequest(user, new SetNetworkConfig.Request(interfaces));
 
 		// wait until its updated
 		do {
@@ -623,7 +630,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 
 			var ids = componentIds.stream().map(JsonPrimitive::new).collect(toJsonArray());
-			final var request = new UpdateComponentConfigRequest(scheduler.getId(), List.of(//
+			final var request = new UpdateComponentConfig.Request(scheduler.getId(), List.of(//
 					new UpdateComponentConfigRequest.Property("controllers.ids", ids) //
 			));
 
@@ -729,6 +736,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
 								.forEach(t -> {
 									networkInterface.getAddresses().getValue().removeAll(t.getIps());
+
+									if (t.getIpv4Forwarding() != null) {
+										networkInterface.setIpv4Forwarding(ConfigurationProperty.asNotSet());
+									}
+									if (t.getIpMasquerade() != null) {
+										networkInterface.setIpMasquerade(ConfigurationProperty.asNotSet());
+									}
 								});
 					}
 					if (ips != null) {
@@ -737,6 +751,14 @@ public class ComponentUtilImpl implements ComponentUtil {
 								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
 								.forEach(t -> {
 									networkInterface.getAddresses().getValue().addAll(t.getIps());
+
+									if (t.getIpv4Forwarding() != null) {
+										networkInterface
+												.setIpv4Forwarding(ConfigurationProperty.of(t.getIpv4Forwarding()));
+									}
+									if (t.getIpMasquerade() != null) {
+										networkInterface.setIpMasquerade(ConfigurationProperty.of(t.getIpMasquerade()));
+									}
 								});
 					}
 				});

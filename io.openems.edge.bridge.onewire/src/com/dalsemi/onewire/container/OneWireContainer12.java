@@ -1139,18 +1139,15 @@ public class OneWireContainer12 extends OneWireContainer implements SwitchContai
 				inlength = inlength << 1; // = inlength * 2
 			}
 
-			switch (CRCMode) {
+			inlength = switch (CRCMode) {
 			default:
 			case CRC_EVERY_BYTE: // we need to allow for 2 CRC bytes for every byte of the length
-				inlength = inlength * 3; // length + 2*length
-				break;
+				yield inlength * 3; // length + 2*length
 			case CRC_EVERY_8_BYTES: // we need to allow for 2 CRC bytes for every 8 bytes of length
-				inlength = inlength + (inlength >> 3 << 1); // (length DIV 8) * 2
-				break;
+				yield inlength + (inlength >> 3 << 1); // (length DIV 8) * 2
 			case CRC_EVERY_32_BYTES: // we need to allow for 2 CRC bytes for every 32 bytes of length
-				inlength = inlength + (inlength >> 5 << 1); // (length DIV 32) * 2
-				break;
-			}
+				yield inlength + (inlength >> 5 << 1); // (length DIV 32) * 2
+			};
 
 			var outputbuffer = new byte[inlength + 3 + 1]; // 3 control bytes + 1 information byte
 

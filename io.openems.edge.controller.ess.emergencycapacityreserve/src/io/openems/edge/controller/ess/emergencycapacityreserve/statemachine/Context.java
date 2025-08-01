@@ -24,6 +24,7 @@ public class Context extends AbstractContext<ControllerEssEmergencyCapacityReser
 	private Float targetPower;
 	private float rampPower;
 	private State lastActiveState;
+	private State previousState;
 
 	public Context(ControllerEssEmergencyCapacityReserve emergencyCapacityReserve, Sum sum, Integer maxApparentPower,
 			Integer soc, int reserveSoc, boolean isEssChargeFromGridAllowed) {
@@ -55,6 +56,10 @@ public class Context extends AbstractContext<ControllerEssEmergencyCapacityReser
 		return this.lastActiveState == null ? State.UNDEFINED : this.lastActiveState;
 	}
 
+	public State getPreviousState() {
+		return this.previousState == null ? State.UNDEFINED : this.previousState;
+	}
+
 	protected void setRampPower(Double rampPower) {
 		this.rampPower = rampPower == null ? null : rampPower.floatValue();
 	}
@@ -69,6 +74,10 @@ public class Context extends AbstractContext<ControllerEssEmergencyCapacityReser
 
 	public void setLastActiveState(State state) {
 		this.lastActiveState = state;
+	}
+
+	public void setPreviousState(State state) {
+		this.previousState = state;
 	}
 
 }

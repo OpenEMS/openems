@@ -1,15 +1,15 @@
 import { TestBed } from "@angular/core/testing";
 import { ModalController } from "@ionic/angular";
-import { BehaviorSubject } from "rxjs";
 import { DummyWebsocket } from "src/app/shared/service/test/dummywebsocket";
 import { ChannelAddress, Service, Websocket } from "src/app/shared/shared";
 import { Edge } from "../../edge/edge";
 import { EdgeConfig, PersistencePriority } from "../../edge/edgeconfig";
+import { DummyConfig } from "../../edge/edgeconfig.spec";
 import { DummyModalController } from "../../shared/testing/DummyModalController";
 import { StatusSingleComponent } from "./status.component";
 
 describe("StatusComponent", () => {
-    const testComponent = new EdgeConfig.Component("test", {}, {
+    const testComponent = new EdgeConfig.Component("component0", "", true, "test", {}, {
         "testChannel": {
             accessMode: "RO",
             category: "STATE",
@@ -23,8 +23,8 @@ describe("StatusComponent", () => {
     testComponent.id = "test0";
 
     let statusComponent: StatusSingleComponent;
-    const serviceSpy = jasmine.createSpyObj("Service", ["getConfig"], ["currentEdge"]);
-    const edgeSpy = jasmine.createSpyObj("Edge", ["subscribeChannels", "isVersionAtLeast", "unsubscribeChannels"]);
+    const serviceSpy = jasmine.createSpyObj("Service", ["getConfig", "getCurrentEdge"], ["currentEdge"],);
+    const edgeSpy: Edge = jasmine.createSpyObj("Edge", ["subscribeChannels", "isVersionAtLeast", "unsubscribeChannels"]);
     const edgeConfigSpy = jasmine.createSpyObj("EdgeConfig", ["listActiveComponents"], ["components"]);
     // initialize variables only in beforeEach, beforeAll
     beforeEach((() => {
@@ -44,7 +44,7 @@ describe("StatusComponent", () => {
         valueEdgeSpy.unsubscribeChannels.and.callThrough();
 
         const valueServiceSpy = TestBed.inject(Service) as jasmine.SpyObj<Service>;
-        spyPropertyGetter(valueServiceSpy, "currentEdge").and.returnValue(new BehaviorSubject(TestBed.inject(Edge)));
+        valueServiceSpy.getCurrentEdge.and.returnValue(Promise.resolve(DummyConfig.dummyEdge({})));
 
         const valueEdgeConfigSpy = TestBed.inject(EdgeConfig) as jasmine.SpyObj<EdgeConfig>;
         valueEdgeConfigSpy.listActiveComponents.and.returnValue([{ category: { icon: "", title: "title" }, components: [testComponent] }]);

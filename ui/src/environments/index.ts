@@ -1,9 +1,10 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Filter } from "src/app/index/filter/filter.component";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export { environment } from "./dummy";
 
 export type Theme = "OpenEMS";
+export type BaseMeta = Pick<Environment, "links" | "images">;
 
 export interface Environment {
     readonly theme: Theme;
@@ -20,14 +21,18 @@ export interface Environment {
     debugMode: boolean;
 
     readonly docsUrlPrefix: string;
+    readonly images: {
+        readonly EVSE: {
+            readonly KEBA_P30: string | null,
+            readonly KEBA_P40: string | null,
+            readonly HARDY_BARTH: string | null,
+        },
+    },
     readonly links: {
-
         readonly COMMON_STORAGE: string | null,
+        readonly DATA_PROTECTION: string | null,
         readonly FORGET_PASSWORD: string,
-        readonly EVCS_KEBA_KECONTACT: string,
-        readonly EVCS_HARDY_BARTH: string,
-        readonly EVCS_OCPP_IESKEYWATTSINGLE: string,
-
+        readonly EVCS: string | null,
         readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string,
         readonly CONTROLLER_CHP_SOC: string
         readonly CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: string,
@@ -68,15 +73,28 @@ export interface Environment {
         },
 
         readonly MANUALS: {
-            readonly HOME: {
-                readonly HOME_10: string,
-                readonly HOME_20_30: string,
+            readonly SYSTEM: {
+                readonly HOME: {
+                    readonly HOME_10: string,
+                    readonly HOME_20_30: string,
+                    readonly HOME_GEN_2: string,
+                },
+                readonly COMMERCIAL: {
+                    readonly COMMERCIAL_30: string,
+                    readonly COMMERCIAL_50: string,
+                    readonly COMMERCIAL_92: string,
+                    readonly COMMERCIAL_92_CLUSTER: string,
+                },
             },
-            readonly COMMERCIAL: {
-                readonly COMMERCIAL_30: string,
-                readonly COMMERCIAL_50: string,
+
+            readonly RUNDSTEUER: {
+                readonly HOME: string,
+                readonly HOME_GEN_2: string,
             },
+
+            readonly AVU: string,
         },
+
         APP_CENTER: {
             /**
              * Gets the image url of an OpenemsApp.
@@ -93,9 +111,19 @@ export interface Environment {
         APP: {
             ANDROID: string | null,
             IOS: string | null,
-        }
+        },
+        readonly ENERGY_JOURNEY: {
+            readonly HOME_10: {
+                readonly DE: string,
+                readonly EN: string,
+            }
+        },
+        SYSTEM: {
+            INDUSTRIAL_S: string,
+            INDUSTRIAL_L: string,
+        },
     },
-    readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null
+    readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null,
 }
 
 /*

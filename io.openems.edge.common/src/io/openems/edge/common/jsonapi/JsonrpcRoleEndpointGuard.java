@@ -32,8 +32,7 @@ public final class JsonrpcRoleEndpointGuard implements JsonrpcEndpointGuard {
 	 */
 	public static JsonSerializer<JsonrpcRoleEndpointGuard> serializer() {
 		return jsonObjectSerializer(JsonrpcRoleEndpointGuard.class,
-				t -> new JsonrpcRoleEndpointGuard(Role.getRole(t.getStringPath("role") //
-						.get())),
+				t -> new JsonrpcRoleEndpointGuard(t.getEnum("role", Role.class)), //
 				t -> JsonUtils.buildJsonObject() //
 						.addProperty("name", "role") //
 						.addProperty("description", "User-Role has to be at least " + t.getRole()) //

@@ -1,3 +1,0 @@
-= io.openems.edge.predictor.weather.forecast
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.weather.forecast[Source Code icon:github[]]

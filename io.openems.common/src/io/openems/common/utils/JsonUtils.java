@@ -3,6 +3,8 @@ package io.openems.common.utils;
 import static io.openems.common.utils.EnumUtils.toEnum;
 
 import java.net.Inet4Address;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,7 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Sets;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -208,49 +211,61 @@ public final class JsonUtils {
 		}
 
 		/**
-		 * Add a boolean value to the {@link JsonObject}.
+		 * Add a Boolean value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, boolean value) {
+		public JsonObjectBuilder addProperty(String property, Boolean value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a double value to the {@link JsonObject}.
+		 * Add a Float value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, double value) {
+		public JsonObjectBuilder addProperty(String property, Float value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a int value to the {@link JsonObject}.
+		 * Add a Double value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, int value) {
+		public JsonObjectBuilder addProperty(String property, Double value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
 
 		/**
-		 * Add a long value to the {@link JsonObject}.
+		 * Add a Integer value to the {@link JsonObject}.
 		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addProperty(String property, long value) {
+		public JsonObjectBuilder addProperty(String property, Integer value) {
+			this.j.addProperty(property, value);
+			return this;
+		}
+
+		/**
+		 * Add a Long value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Long value) {
 			this.j.addProperty(property, value);
 			return this;
 		}
@@ -297,6 +312,23 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link Instant} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Instant value) {
+			if (value != null) {
+				this.j.addProperty(property, DateTimeFormatter.ISO_INSTANT.format(value));
+			}
+			return this;
+		}
+
+		/**
 		 * Add a {@link LocalDateTime} value to the {@link JsonObject}.
 		 *
 		 * <p>
@@ -310,6 +342,24 @@ public final class JsonUtils {
 		public JsonObjectBuilder addProperty(String property, LocalDateTime value) {
 			if (value != null) {
 				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link LocalDate} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_DATE}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, LocalDate value) {
+			if (value != null) {
+				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_LOCAL_DATE));
 			}
 			return this;
 		}
@@ -417,6 +467,24 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link LocalDate} value to the {@link JsonObject} if it is not null.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_DATE}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, LocalDate value) {
+			if (value != null) {
+				this.addProperty(property, value);
+			}
+			return this;
+		}
+
+		/**
 		 * Call a method on a JsonObjectBuilder if an expression is true.
 		 *
 		 * @param expression     the expression
@@ -445,7 +513,7 @@ public final class JsonUtils {
 
 		@Override
 		public Set<Characteristics> characteristics() {
-			return Sets.<Characteristics>newHashSet().stream().collect(Sets.toImmutableEnumSet());
+			return Set.of();
 		}
 
 		@Override
@@ -461,7 +529,7 @@ public final class JsonUtils {
 		@Override
 		public BinaryOperator<JsonArrayBuilder> combiner() {
 			return (t, u) -> {
-				u.build().forEach(j -> t.add(j));
+				u.build().forEach(t::add);
 				return t;
 			};
 		}
@@ -604,7 +672,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link JsonPrimitive} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonPrimitive> getAsOptionalPrimitive(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toPrimitive(toSubElement(jElement, memberName)));
@@ -634,7 +701,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link JsonElement} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonElement> getOptionalSubElement(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toSubElement(jElement, memberName));
@@ -677,7 +743,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link JsonObject} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement) {
 		return Optional.ofNullable(toJsonObject(jElement));
@@ -690,7 +755,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link JsonObject} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toJsonObject(toSubElement(jElement, memberName)));
@@ -733,7 +797,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link JsonArray} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonArray> getAsOptionalJsonArray(JsonElement jElement) {
 		return Optional.ofNullable(toJsonArray(jElement));
@@ -746,7 +809,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link JsonArray} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonArray> getAsOptionalJsonArray(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toJsonArray(toSubElement(jElement, memberName)));
@@ -789,7 +851,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link String} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<String> getAsOptionalString(JsonElement jElement) {
 		return Optional.ofNullable(toString(toPrimitive(jElement)));
@@ -802,7 +863,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link String} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toString(toPrimitive(toSubElement(jElement, memberName))));
@@ -851,7 +911,7 @@ public final class JsonUtils {
 	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsNamedException {
 		var value = toBoolean(toPrimitive(jElement));
 		if (value != null) {
-			return value.booleanValue();
+			return value;
 		}
 		throw OpenemsError.JSON_NO_BOOLEAN.exception(jElement.toString().replace("%", "%%"));
 	}
@@ -867,7 +927,7 @@ public final class JsonUtils {
 	public static boolean getAsBoolean(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		var value = toBoolean(toPrimitive(toSubElement(jElement, memberName)));
 		if (value != null) {
-			return value.booleanValue();
+			return value;
 		}
 		throw OpenemsError.JSON_NO_BOOLEAN_MEMBER.exception(memberName, jElement.toString().replace("%", "%%"));
 	}
@@ -877,7 +937,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Boolean} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Boolean> getAsOptionalBoolean(JsonElement jElement) {
 		return Optional.ofNullable(toBoolean(toPrimitive(jElement)));
@@ -890,7 +949,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Boolean} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Boolean> getAsOptionalBoolean(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toBoolean(toPrimitive(toSubElement(jElement, memberName))));
@@ -906,7 +964,7 @@ public final class JsonUtils {
 	public static short getAsShort(JsonElement jElement) throws OpenemsNamedException {
 		var value = toShort(toPrimitive(jElement));
 		if (value != null) {
-			return value.shortValue();
+			return value;
 		}
 		throw OpenemsError.JSON_NO_SHORT.exception(jElement.toString().replace("%", "%%"));
 	}
@@ -932,7 +990,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Short} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Short> getAsOptionalShort(JsonElement jElement) {
 		return Optional.ofNullable(toShort(toPrimitive(jElement)));
@@ -945,7 +1002,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Boolean} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Short> getAsOptionalShort(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toShort(toPrimitive(toSubElement(jElement, memberName))));
@@ -961,7 +1017,7 @@ public final class JsonUtils {
 	public static int getAsInt(JsonElement jElement) throws OpenemsNamedException {
 		var value = toInt(toPrimitive(jElement));
 		if (value != null) {
-			return value.intValue();
+			return value;
 		}
 		throw OpenemsError.JSON_NO_INTEGER.exception(jElement.toString().replace("%", "%%"));
 	}
@@ -1002,7 +1058,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Integer} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement) {
 		return Optional.ofNullable(toInt(toPrimitive(jElement)));
@@ -1015,7 +1070,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Integer} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toInt(toPrimitive(toSubElement(jElement, memberName))));
@@ -1031,7 +1085,7 @@ public final class JsonUtils {
 	public static long getAsLong(JsonElement jElement) throws OpenemsNamedException {
 		var value = toLong(toPrimitive(jElement));
 		if (value != null) {
-			return value.longValue();
+			return value;
 		}
 		throw OpenemsError.JSON_NO_LONG.exception(jElement.toString().replace("%", "%%"));
 	}
@@ -1057,7 +1111,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Long} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Long> getAsOptionalLong(JsonElement jElement) {
 		return Optional.ofNullable(toLong(toPrimitive(jElement)));
@@ -1069,7 +1122,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Long} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Long> getAsOptionalLong(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toLong(toPrimitive(toSubElement(jElement, memberName))));
@@ -1085,7 +1137,7 @@ public final class JsonUtils {
 	public static float getAsFloat(JsonElement jElement) throws OpenemsNamedException {
 		var value = toFloat(toPrimitive(jElement));
 		if (value != null) {
-			return value.floatValue();
+			return value;
 		}
 		throw OpenemsError.JSON_NO_FLOAT.exception(jElement.toString().replace("%", "%%"));
 	}
@@ -1111,7 +1163,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Float} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Float> getAsOptionalFloat(JsonElement jElement) {
 		return Optional.ofNullable(toFloat(toPrimitive(jElement)));
@@ -1123,7 +1174,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Float} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Float> getAsOptionalFloat(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toFloat(toPrimitive(toSubElement(jElement, memberName))));
@@ -1139,7 +1189,7 @@ public final class JsonUtils {
 	public static double getAsDouble(JsonElement jElement) throws OpenemsNamedException {
 		var value = toDouble(toPrimitive(jElement));
 		if (value != null) {
-			return value.doubleValue();
+			return value;
 		}
 		throw OpenemsError.JSON_NO_DOUBLE.exception(jElement.toString().replace("%", "%%"));
 	}
@@ -1165,7 +1215,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Double} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Double> getAsOptionalDouble(JsonElement jElement) {
 		return Optional.ofNullable(toDouble(toPrimitive(jElement)));
@@ -1178,7 +1227,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Double} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Double> getAsOptionalDouble(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toDouble(toPrimitive(toSubElement(jElement, memberName))));
@@ -1228,7 +1276,6 @@ public final class JsonUtils {
 	 * @param enumType the class of the {@link Enum}
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Enum} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement) {
 		return Optional.ofNullable(toEnum(enumType, toString(toPrimitive(jElement))));
@@ -1242,7 +1289,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Enum} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement,
 			String memberName) {
@@ -1285,7 +1331,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link Inet4Address} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement) {
 		return Optional.ofNullable(InetAddressUtils.parseOrNull(toString(toPrimitive(jElement))));
@@ -1298,7 +1343,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link Inet4Address} value
-	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(//
@@ -1345,7 +1389,6 @@ public final class JsonUtils {
 	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Optional} {@link UUID} value
-	 * @throws OpenemsNamedException on error
 	 */
 	// CHECKSTYLE:OFF
 	public static Optional<UUID> getAsOptionalUUID(JsonElement jElement) {
@@ -1359,7 +1402,6 @@ public final class JsonUtils {
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
 	 * @return the {@link Optional} {@link UUID} value
-	 * @throws OpenemsNamedException on error
 	 */
 	// CHECKSTYLE:OFF
 	public static Optional<UUID> getAsOptionalUUID(JsonElement jElement, String memberName) {
@@ -1379,7 +1421,7 @@ public final class JsonUtils {
 		try {
 			if (j.isJsonArray()) {
 				var jA = (JsonArray) j;
-				if (jA.size() == 0) {
+				if (jA.isEmpty()) {
 					return new Object[0];
 				}
 				// identify the array type (boolean, int or String)
@@ -1436,6 +1478,35 @@ public final class JsonUtils {
 			}
 			if (jP.isNumber()) {
 				var n = jP.getAsNumber();
+
+				var value = switch (n) {
+				case Double d -> d;
+				case Float f -> f;
+				case Integer i -> i;
+				case Long l -> l;
+				default -> null;
+				};
+
+				if (value != null) {
+					return value;
+				}
+
+				final var l = Longs.tryParse(n.toString());
+				if (l != null) {
+					if (l > Integer.MAX_VALUE || l < Integer.MIN_VALUE) {
+						return l;
+					}
+					return n.intValue();
+				}
+
+				final var d = Doubles.tryParse(n.toString());
+				if (d != null) {
+					if (d > Float.MAX_VALUE || d < Float.MIN_VALUE) {
+						return d;
+					}
+					return d.floatValue();
+				}
+
 				return n.intValue();
 			}
 			return j.getAsString();
@@ -1453,132 +1524,88 @@ public final class JsonUtils {
 	 * @return the {@link JsonElement}
 	 */
 	public static JsonElement getAsJsonElement(Object value) {
-		// null
-		if (value == null) {
-			return JsonNull.INSTANCE;
-		}
 		// optional
-		if (value instanceof Optional<?>) {
-			if (!((Optional<?>) value).isPresent()) {
+		if (value instanceof Optional<?> opt) {
+			if (opt.isEmpty()) {
 				return JsonNull.INSTANCE;
 			}
-			value = ((Optional<?>) value).get();
+			value = opt.get();
 		}
-		if (value instanceof Number) {
-			/*
-			 * Number
-			 */
-			return new JsonPrimitive((Number) value);
-		}
-		if (value instanceof String) {
-			/*
-			 * String
-			 */
-			return new JsonPrimitive((String) value);
-		}
-		if (value instanceof Boolean) {
-			/*
-			 * Boolean
-			 */
-			return new JsonPrimitive((Boolean) value);
-		}
-		if (value instanceof Inet4Address) {
-			/*
-			 * Inet4Address
-			 */
-			return new JsonPrimitive(((Inet4Address) value).getHostAddress());
-		}
-		if (value instanceof JsonElement) {
-			/*
-			 * JsonElement
-			 */
-			return (JsonElement) value;
-		} else if (value instanceof boolean[]) {
-			/*
-			 * boolean-Array
-			 */
+
+		return switch (value) {
+		case null -> JsonNull.INSTANCE;
+		case Number n -> new JsonPrimitive(n);
+		case String s -> new JsonPrimitive(s);
+		case Boolean b -> new JsonPrimitive(b);
+		case Inet4Address inet -> new JsonPrimitive(inet.getHostAddress());
+		case JsonElement json -> json;
+		case boolean[] bool -> {
 			var js = new JsonArray();
-			for (boolean b : (boolean[]) value) {
+			for (boolean b : bool) {
 				js.add(new JsonPrimitive(b));
 			}
-			return js;
-		} else if (value instanceof short[]) {
-			/*
-			 * short-Array
-			 */
+			yield js;
+		}
+		case short[] shorts -> {
 			var js = new JsonArray();
-			for (short s : (short[]) value) {
+			for (short s : shorts) {
 				js.add(new JsonPrimitive(s));
 			}
-			return js;
-		} else if (value instanceof int[]) {
-			/*
-			 * int-Array
-			 */
+			yield js;
+		}
+		case int[] ints -> {
 			var js = new JsonArray();
-			for (int i : (int[]) value) {
+			for (int i : ints) {
 				js.add(new JsonPrimitive(i));
 			}
-			return js;
-		} else if (value instanceof long[]) {
-			/*
-			 * long-Array
-			 */
+			yield js;
+		}
+		case long[] longs -> {
 			var js = new JsonArray();
-			for (long l : (long[]) value) {
+			for (long l : longs) {
 				js.add(new JsonPrimitive(l));
 			}
-			return js;
-		} else if (value instanceof float[]) {
-			/*
-			 * float-Array
-			 */
+			yield js;
+		}
+		case float[] floats -> {
 			var js = new JsonArray();
-			for (float f : (float[]) value) {
+			for (float f : floats) {
 				js.add(new JsonPrimitive(f));
 			}
-			return js;
-		} else if (value instanceof double[]) {
-			/*
-			 * double-Array
-			 */
+			yield js;
+		}
+		case double[] doubles -> {
 			var js = new JsonArray();
-			for (double d : (double[]) value) {
-				js.add(new JsonPrimitive(d));
+			for (double f : doubles) {
+				js.add(new JsonPrimitive(f));
 			}
-			return js;
-		} else if (value instanceof String[]) {
-			/*
-			 * String-Array
-			 */
+			yield js;
+		}
+		case String[] strings -> {
 			var js = new JsonArray();
-			var v = (String[]) value;
-			if (v.length == 1 && v[0].isEmpty()) {
+			if (strings.length == 1 && strings[0].isEmpty()) {
 				// special case: String-Array with one entry which is an empty String. Return an
 				// empty JsonArray.
-				return js;
+				yield js;
 			}
-			for (String s : v) {
+			for (String s : strings) {
 				js.add(new JsonPrimitive(s));
 			}
-			return js;
-		} else if (value instanceof Object[]) {
-			/*
-			 * Object-Array
-			 */
+			yield js;
+		}
+		case Object[] objects -> {
 			var js = new JsonArray();
-			for (Object o : (Object[]) value) {
+			for (Object o : objects) {
 				js.add(JsonUtils.getAsJsonElement(o));
 			}
-			return js;
-		} else {
-			/*
-			 * Use toString()-method
-			 */
-			JsonUtils.LOG.warn("Converter for [" + value + "]" + " of type [" + value.getClass().getSimpleName()
-					+ "] to JSON is not implemented.");
-			return new JsonPrimitive(value.toString());
+			yield js;
 		}
+		default -> {
+			JsonUtils.LOG.warn("Converter for [{}] of type [{}] to JSON is not implemented.", //
+					value, value.getClass().getSimpleName());
+			yield new JsonPrimitive(value.toString());
+		}
+		};
 	}
 
 	/**
@@ -1631,11 +1658,11 @@ public final class JsonUtils {
 				 */
 				return j.getAsJsonArray();
 			} else if (type.isArray()) {
-				/**
+				/*
 				 * Asking for Array
 				 */
 				if (Long.class.isAssignableFrom(type.getComponentType())) {
-					/**
+					/*
 					 * Asking for ArrayOfLong
 					 */
 					if (j.isJsonArray()) {
@@ -1671,22 +1698,15 @@ public final class JsonUtils {
 		}
 
 		if (j.isJsonPrimitive()) {
-			switch (type) {
-			case BOOLEAN:
-				return (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
-			case DOUBLE:
-				return (T) Double.valueOf(JsonUtils.getAsDouble(j));
-			case FLOAT:
-				return (T) Float.valueOf(JsonUtils.getAsFloat(j));
-			case INTEGER:
-				return (T) Integer.valueOf(JsonUtils.getAsInt(j));
-			case LONG:
-				return (T) Long.valueOf(JsonUtils.getAsLong(j));
-			case SHORT:
-				return (T) Short.valueOf(JsonUtils.getAsShort(j));
-			case STRING:
-				return (T) JsonUtils.getAsString(j);
-			}
+			return switch (type) {
+			case BOOLEAN -> (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
+			case DOUBLE -> (T) Double.valueOf(JsonUtils.getAsDouble(j));
+			case FLOAT -> (T) Float.valueOf(JsonUtils.getAsFloat(j));
+			case INTEGER -> (T) Integer.valueOf(JsonUtils.getAsInt(j));
+			case LONG -> (T) Long.valueOf(JsonUtils.getAsLong(j));
+			case SHORT -> (T) Short.valueOf(JsonUtils.getAsShort(j));
+			case STRING -> (T) JsonUtils.getAsString(j);
+			};
 		}
 
 		if (j.isJsonObject() || j.isJsonArray()) {
@@ -1715,7 +1735,7 @@ public final class JsonUtils {
 	 * @return an Object of the given type
 	 */
 	public static Object getAsType(Optional<Class<?>> typeOptional, JsonElement j) throws NotImplementedException {
-		if (!typeOptional.isPresent()) {
+		if (typeOptional.isEmpty()) {
 			throw new NotImplementedException(
 					"Type of Channel was not set: " + (j == null ? "UNDEFINED" : j.getAsString()));
 		}
@@ -1880,7 +1900,7 @@ public final class JsonUtils {
 	public static boolean isEmptyJsonObject(JsonElement j) {
 		if (j != null && j.isJsonObject()) {
 			var object = j.getAsJsonObject();
-			return object.size() == 0;
+			return object.isEmpty();
 		}
 
 		return false;
@@ -1895,7 +1915,7 @@ public final class JsonUtils {
 	public static boolean isEmptyJsonArray(JsonElement j) {
 		if (j != null && j.isJsonArray()) {
 			var array = j.getAsJsonArray();
-			return array.size() == 0;
+			return array.isEmpty();
 		}
 
 		return false;
@@ -1920,7 +1940,7 @@ public final class JsonUtils {
 	 */
 	public static Stream<JsonElement> stream(JsonArray jsonArray) {
 		return IntStream.range(0, jsonArray.size()) //
-				.mapToObj(index -> jsonArray.get(index));
+				.mapToObj(jsonArray::get);
 	}
 
 	private static JsonObject toJsonObject(JsonElement jElement) {

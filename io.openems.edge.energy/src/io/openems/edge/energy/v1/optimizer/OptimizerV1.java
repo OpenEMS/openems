@@ -2,6 +2,7 @@ package io.openems.edge.energy.v1.optimizer;
 
 import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
+import static io.openems.edge.energy.optimizer.Utils.calculateSleepMillis;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1.simulate;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.createSimulatorParams;
@@ -9,8 +10,6 @@ import static io.openems.edge.energy.v1.optimizer.UtilsV1.logSchedule;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.updateSchedule;
 import static java.lang.Thread.sleep;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -27,7 +26,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
-import io.openems.edge.energy.LogVerbosity;
+import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.v1.optimizer.SimulatorV1.Period;
 
 /**
@@ -62,15 +61,11 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 		this.createParams(); // this possibly takes forever
 
 		final var globalContext = this.globalContext.get();
-		final var start = Instant.now(globalContext.clock());
-
-		long executionLimitSeconds;
-
-		// Calculate max execution time till next quarter (with buffer)
-		executionLimitSeconds = calculateExecutionLimitSeconds(globalContext.clock());
 
 		// Find best Schedule
-		var schedule = SimulatorV1.getBestSchedule(this.params, executionLimitSeconds);
+		var schedule = SimulatorV1.getBestSchedule(this.params,
+				// Calculate max execution time till next quarter (with buffer)
+				calculateExecutionLimitSeconds(globalContext.clock()));
 
 		// Re-Simulate and keep best Schedule
 		var newSchedule = simulate(this.params, schedule);
@@ -93,12 +88,9 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 
 		// Sleep remaining time
 		if (!(globalContext.clock() instanceof TimeLeapClock)) {
-			var remainingExecutionLimit = Duration
-					.between(Instant.now(globalContext.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
-			if (remainingExecutionLimit > 0) {
-				this.traceLog(() -> "Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
-				sleep(remainingExecutionLimit * 1000);
-			}
+			var millisTillNextQuarter = calculateSleepMillis(globalContext.clock());
+			this.traceLog(() -> "Sleep [" + millisTillNextQuarter + "ms] till next run of Optimizer");
+			sleep(millisTillNextQuarter);
 		}
 	}
 

@@ -9,12 +9,12 @@ import { calculateResolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/utils/utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
-import { Controller_Ess_TimeOfUseTariff } from "../Ess_TimeOfUseTariff";
+import { Controller_Ess_TimeOfUseTariffUtils } from "../utils";
 
 @Component({
     selector: "statePriceChart",
@@ -82,7 +82,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
                 socArray: schedule.map(entry => entry.soc),
             };
 
-            const scheduleChartData = Controller_Ess_TimeOfUseTariff.getScheduleChartData(schedule.length, priceArray,
+            const scheduleChartData = Controller_Ess_TimeOfUseTariffUtils.getScheduleChartData(schedule.length, priceArray,
                 stateArray, timestampArray, gridBuyArray, socArray, this.translate, this.component.properties.controlMode);
 
             this.colors = scheduleChartData.colors;
@@ -165,7 +165,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 
             // align particular dataset element to right yAxis
-            if (el.label == this.translate.instant("General.gridBuy")) {
+            if (el.label == this.translate.instant("General.gridBuyAdvanced")) {
                 el["yAxisID"] = ChartAxis.RIGHT_2;
             } else if (el.label == this.translate.instant("General.soc")) {
                 el["yAxisID"] = ChartAxis.RIGHT;

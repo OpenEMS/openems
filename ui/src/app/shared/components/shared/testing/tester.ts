@@ -1,15 +1,18 @@
 // @ts-strict-ignore
+import { FormGroup } from "@angular/forms";
 import * as Chart from "chart.js";
 import { ChartDataset } from "chart.js";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { HistoryUtils } from "src/app/shared/service/utils";
 import { CurrentData, EdgeConfig } from "src/app/shared/shared";
-
+import { FormUtils } from "src/app/shared/utils/form/form.utils";
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { HistoryUtils } from "src/app/shared/utils/utils";
+
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
-import { TextIndentation } from "../../modal/modal-line/modal-line";
+import { ButtonLabel } from "../../modal/modal-button/modal-button";
+import { ModalLineComponent, TextIndentation } from "../../modal/modal-line/modal-line";
 import { Converter } from "../converter";
 import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
 import { OeTester } from "./common";
@@ -17,16 +20,16 @@ import { TestContext } from "./utils.spec";
 
 export class OeFormlyViewTester {
 
-  public static apply(view: OeFormlyView, context: OeFormlyViewTester.Context): OeFormlyViewTester.View {
+  public static apply(view: OeFormlyView, context: OeFormlyViewTester.Context, fg: FormGroup | null = null): OeFormlyViewTester.View {
     return {
       title: view.title,
       lines: view.lines
-        .map(line => OeFormlyViewTester.applyField(line, context))
+        .map(line => OeFormlyViewTester.applyField(line, context, fg))
         .filter(line => line),
     };
   }
 
-  private static applyField(field: OeFormlyField, context: OeFormlyViewTester.Context): OeFormlyViewTester.Field {
+  private static applyField(field: OeFormlyField, context: OeFormlyViewTester.Context, fg: FormGroup): OeFormlyViewTester.Field {
     switch (field.type) {
       /**
        * OeFormlyField.Line
@@ -48,7 +51,7 @@ export class OeFormlyViewTester {
         // Recursive call for children
         if (field.children) {
           result.children = field.children
-            ?.map(child => OeFormlyViewTester.applyField(child, context));
+            ?.map(child => OeFormlyViewTester.applyField(child, context, null));
         }
 
         return result;
@@ -148,6 +151,34 @@ export class OeFormlyViewTester {
       case "horizontal-line": {
         return {
           type: field.type,
+        };
+      }
+      /**
+       * {@link OeFormlyField.ButtonsFromFormControlLine}
+       */
+      case "buttons-from-form-control-line": {
+        return {
+          type: "buttons-from-form-control-line",
+          name: field.name,
+          controlName: field.controlName,
+          buttons: field.buttons,
+        };
+      }
+
+      /**
+       * {@link OeFormlyField.RangeButtonFromFormControlLine}
+       */
+      case "range-button-from-form-control-line": {
+
+        // Exlude properties, only testable per ui interaction test
+        const properties = ObjectUtils.excludeProperties(field.properties, ["pinFormatter", "tickFormatter"]);
+        const expectedValue = FormUtils.findFormControlsValueSafely(fg, field.controlName) ?? null;
+
+        return {
+          type: "range-button-from-form-control-line",
+          controlName: field.controlName,
+          expectedValue: expectedValue,
+          properties: properties,
         };
       }
     }
@@ -342,7 +373,10 @@ export namespace OeFormlyViewTester {
     | Field.ChannelLine
     | Field.ChildrenLine
     | Field.HorizontalLine
-    | Field.ValueLine;
+    | Field.ValueLine
+    | Field.ButtonsFromFormControlLine
+    | Field.RangeButtonFromFormControlLine
+    ;
 
   export namespace Field {
 
@@ -379,6 +413,18 @@ export namespace OeFormlyViewTester {
 
     export type HorizontalLine = {
       type: "horizontal-line",
+    };
+    export type ButtonsFromFormControlLine = {
+      type: "buttons-from-form-control-line",
+      name: string,
+      controlName: string,
+      buttons: ButtonLabel[],
+    };
+    export type RangeButtonFromFormControlLine<T = any> = {
+      type: "range-button-from-form-control-line",
+      controlName: string,
+      expectedValue: T,
+      properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
     };
   }
 
@@ -430,14 +476,20 @@ export namespace OeFormlyViewTester {
 /** Exclude properties that dont need to be tested  */
 function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: HistoryUtils.ChartData): Chart.ChartOptions {
   options.scales["x"]["ticks"] = ObjectUtils.excludeProperties(options.scales["x"]["ticks"] as Chart.RadialTickOptions, ["color"]);
+  options.elements.point.radius = 0;
   chartData.yAxes.filter(axis => axis.unit != null).forEach(axis => {
+
     // Remove custom scale calculations from unittest, seperate unittest existing
     options.scales[axis.yAxisId] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId], ["min", "max"]) as Chart.ScaleOptionsByType<"radialLinear" | keyof Chart.CartesianScaleTypeRegistry>;
     options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
     options.scales[axis.yAxisId]["title"] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId]["title"] as Chart.RadialTickOptions, ["color"]);
   });
-  console.log("options", options);
+
+  delete options.plugins.tooltip.caretPadding;
+  delete options.layout;
+  options.plugins.tooltip = ObjectUtils.excludeProperties(options.plugins.tooltip, ["boxHeight", "boxWidth", "boxPadding"]);
+  options.plugins.legend.labels = ObjectUtils.excludeProperties(options.plugins.legend.labels, ["boxHeight", "boxWidth"]);
+
   return options;
 }
-
 

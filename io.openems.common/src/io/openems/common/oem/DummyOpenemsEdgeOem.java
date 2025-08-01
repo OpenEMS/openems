@@ -11,6 +11,36 @@ import io.openems.common.exceptions.OpenemsException;
  */
 public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 
+	private String openCageApiKey;
+	private String openMeteoApiKey;
+
+	public DummyOpenemsEdgeOem() {
+	}
+
+	/**
+	 * Sets the Open-Meteo API key to be used by this {@link DummyOpenemsEdgeOem}
+	 * instance.
+	 *
+	 * @param apiKey the Open-Meteo API key
+	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
+	 */
+	public DummyOpenemsEdgeOem withOpenMeteoApiKey(String apiKey) {
+		this.openMeteoApiKey = apiKey;
+		return this;
+	}
+
+	/**
+	 * Sets the OpenCage API key to be used by this {@link DummyOpenemsEdgeOem}
+	 * instance.
+	 *
+	 * @param apiKey the OpenCage API key
+	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
+	 */
+	public DummyOpenemsEdgeOem withOpenCageApiKey(String apiKey) {
+		this.openCageApiKey = apiKey;
+		return this;
+	}
+
 	@Override
 	public String getManufacturer() {
 		return "OpenEMS Association e.V.";
@@ -64,6 +94,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Home10.Gen2", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
+			.put("App.FENECON.Commercial.92.ClusterMaster", "") //
+			.put("App.FENECON.Commercial.92.ClusterSlave", "") //
 			.put("App.FENECON.Industrial.L.ILK710", "https://fenecon.de/fenecon-industrial-l/") //
 			.put("App.FENECON.Industrial.S.ISK010", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
@@ -72,27 +104,43 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.TimeOfUseTariff.ENTSO-E", "") //
 			.put("App.TimeOfUseTariff.GroupeE", "") //
 			.put("App.TimeOfUseTariff.Hassfurt", "") //
+			.put("App.TimeOfUseTariff.OctopusGo", "") //
+			.put("App.TimeOfUseTariff.OctopusHeat", "") //
 			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.TimeOfUseTariff.Stromdao", "") //
 			.put("App.TimeOfUseTariff.Swisspower", "") //
 			.put("App.TimeOfUseTariff.Tibber", "") //
+			.put("App.Cloud.EnerixControl", "") //
+			.put("App.Cloud.Clever-PV", "") //
 			.put("App.Api.ModbusTcp.ReadOnly", "") //
 			.put("App.Api.ModbusTcp.ReadWrite", "") //
+			.put("App.Api.ModbusRtu.ReadOnly", "") //
+			.put("App.Api.ModbusRtu.ReadWrite", "") //
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
 			.put("App.Timedata.InfluxDb", "")//
 			.put("App.Evcs.Alpitronic", "") //
 			.put("App.Evcs.Cluster", "") //
 			.put("App.Evcs.HardyBarth", "") //
+			.put("App.Evcs.HardyBarth.ReadOnly", "") //
 			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Keba", "") //
+			.put("App.Evcs.Keba.ReadOnly", "") //
+			.put("App.Evcs.Goe.ReadOnly", "") //
+			.put("App.Evcs.Heidelberg.ReadOnly", "") //
 			.put("App.Evcs.Mennekes.ReadOnly", "") //
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //
+			.put("App.Hardware.IoGpio", "") //
+			.put("App.Evse.ElectricVehicle.Generic", "") //
+			.put("App.Evse.ChargePoint.Keba", "") //
+			.put("App.Evse.Controller.Cluster", "") //
 			.put("App.Hardware.KMtronic8Channel", "") //
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //
 			.put("App.Heat.HeatingElement", "") //
+			.put("App.Heat.Askoma.ReadOnly", "") //
+			.put("App.Heat.MyPv.ReadOnly", "") //
 			.put("App.PvSelfConsumption.GridOptimizedCharge", "") //
 			.put("App.PvSelfConsumption.SelfConsumptionOptimization", "") //
 			.put("App.LoadControl.ManualRelayControl", "") //
@@ -103,6 +151,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Meter.Janitza", "") //
 			.put("App.Meter.Discovergy", "")//
 			.put("App.Meter.PhoenixContact", "")//
+			.put("App.Meter.Eastron", "")//
+			.put("App.Meter.Kdk", "")//
 			.put("App.OpenemsHardware.BeagleBoneBlack", "") //
 			.put("App.OpenemsHardware.Compulab", "") //
 			.put("App.OpenemsHardware.CM3", "") //
@@ -146,5 +196,15 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 		if (!missing.isEmpty()) {
 			throw new OpenemsException("Missing Website-URLs in Edge-OEM for [" + String.join(", ", missing) + "]");
 		}
+	}
+
+	@Override
+	public String getOpenCageApiKey() {
+		return this.openCageApiKey;
+	}
+
+	@Override
+	public String getOpenMeteoApiKey() {
+		return this.openMeteoApiKey;
 	}
 }

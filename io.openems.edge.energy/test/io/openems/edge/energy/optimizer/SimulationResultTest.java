@@ -12,7 +12,7 @@ public class SimulationResultTest {
 
 		// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
 		// ESH2 (FOO, BAR)
-		var result = SimulationResult.fromQuarters(simulator.gsc, new int[][] { //
+		var result = SimulationResult.fromQuarters(simulator.goc, new int[][] { //
 				p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
 				p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
 				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
@@ -22,7 +22,7 @@ public class SimulationResultTest {
 				p(0, 0), p(1, 1), p(2, 0) //
 		});
 
-		assertEquals(1166163.462, result.cost(), 0.001);
+		assertEquals(1165082.1, result.fitness().getGridBuyCost(), 0.1);
 	}
 
 	private static int[] p(int... states) {

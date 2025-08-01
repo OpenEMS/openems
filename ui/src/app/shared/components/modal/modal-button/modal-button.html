@@ -1,13 +1,13 @@
-<div [formGroup]="formGroup" style="padding-top: 2%;">
+<form [formGroup]="formGroup" style="padding-top: 2%;">
     <ion-segment [formControlName]="controlName">
         <ng-container *ngFor="let button of buttons">
             <ion-segment-button [value]="button.value" (click)="button.callback" [ngStyle]="button.style">
                 <ion-label style="color: var(--ion-color-text)">{{ button.name }}</ion-label>
-                <ion-icon style="width:40px; " *ngIf="button.icon" [name]="button.icon.name || 'power-outline'"
+                <ion-icon style="width:40px;" *ngIf="button.icon" [name]="button.icon.name || 'power-outline'"
                     [color]="formGroup.controls[controlName].value === button.value ? button.icon.color : 'normal'"
                     [size]="button.icon.size || 'medium'">
                 </ion-icon>
             </ion-segment-button>
         </ng-container>
     </ion-segment>
-</div>
+</form>

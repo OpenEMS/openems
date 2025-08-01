@@ -4,8 +4,8 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "energychart",
@@ -75,7 +75,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
     return {
       input: input,
-      output: (data: HistoryUtils.ChannelData) => {
+      output: (data: HistoryUtils.ChannelData): HistoryUtils.DisplayValue[] => {
         return [
           {
             name: translate.instant("General.production"),
@@ -159,15 +159,15 @@ export class ChartComponent extends AbstractHistoryChart {
             hiddenOnInit: chartType == "line" ? false : true,
             ...(chartType === "line" && { order: 0 }),
           },
-          ...[chartType === "line" &&
-          {
-            name: translate.instant("General.soc"),
-            converter: () => data["EssSoc"]?.map(value => Utils.multiplySafely(value, 1000)),
-            color: "rgb(189, 195, 199)",
-            borderDash: [10, 10],
-            yAxisId: ChartAxis.RIGHT,
-            stack: 1,
-          }],
+          ...(chartType === "line" ?
+            [{
+              name: translate.instant("General.soc"),
+              converter: () => data["EssSoc"]?.map(value => Utils.multiplySafely(value, 1000)),
+              color: "rgb(189, 195, 199)",
+              borderDash: [10, 10],
+              yAxisId: ChartAxis.RIGHT,
+              stack: 1,
+            } as HistoryUtils.DisplayValue] : []),
         ];
       },
       tooltip: {
@@ -194,13 +194,13 @@ export class ChartComponent extends AbstractHistoryChart {
         },
 
         // Right Yaxis, only shown for line-chart
-        (chartType === "line" && {
+        ...(chartType === "line" ? [{
           unit: YAxisType.PERCENTAGE,
           customTitle: "%",
-          position: "right",
+          position: "right" as const,
           yAxisId: ChartAxis.RIGHT,
           displayGrid: false,
-        }),
+        }] : []),
       ],
       normalizeOutputData: true,
     };

@@ -28,15 +28,23 @@ export class GlobalRouteChangeHandler {
           data = route.data || data;
           route = route.firstChild;
         }
+
         return data;
       }),
-    ).subscribe(e => {
+    ).subscribe(async (e: { [key: string]: string }) => {
 
-      if (e.navbarTitle != null && e.navbarTitleToBeTranslated != null) {
-        throw new Error("Either use navbarTitle or navbarTitleToBeTranslated");
+      // Always use last entry of data object
+      const lastData = Object.entries(e).map(([k, v]) => ({ key: k, value: v })).reverse()[0] ?? null;
+      if (lastData == null) {
+        return;
       }
 
-      this.service.currentPageTitle = e.navbarTitle ?? (e.navbarTitleToBeTranslated ? translate.instant(e.navbarTitleToBeTranslated) : null) ?? this.service.currentPageTitle ?? environment.uiTitle;
+      const res = lastData.key === "navbarTitle" ? lastData.value :
+        (lastData.key === "navbarTitleToBeTranslated"
+          ? translate.instant(lastData.value) : null)
+        ?? this.service.currentPageTitle
+        ?? environment.uiTitle;
+      this.service.currentPageTitle = res;
     });
   }
 }

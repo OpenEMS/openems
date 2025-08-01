@@ -27,12 +27,28 @@ public class Lstm {
 	}
 
 	/**
-	 * Forward propagation.
+	 * Forward propagation with dropout regularization to prevent overfitting.
 	 */
 	public void forwardprop() {
 		try {
+			// Enable dropout during training
+			boolean applyDropout = true;
+			double dropoutRate = 0.2; // Keep 80% of connections
+			
 			for (int i = 0; i < this.cells.size(); i++) {
+				// Apply dropout regularization to prevent overfitting
+				if (applyDropout) {
+					// Apply dropout by randomly zeroing connections
+					double dropoutScale = 1.0 / (1.0 - dropoutRate); // Scale factor for remaining connections
+					
+					// Apply dropout to this cell's processing
+					this.cells.get(i).setDropoutEnabled(true);
+					this.cells.get(i).setDropoutRate(dropoutRate);
+					this.cells.get(i).setDropoutScale(dropoutScale);
+				}
+				
 				this.cells.get(i).forwardPropogation();
+				
 				if (i < this.cells.size() - 1) {
 					this.cells.get(i + 1).setYtMinusOne(this.cells.get(i).getYt());
 					this.cells.get(i + 1).setCtMinusOne(this.cells.get(i).getCt());

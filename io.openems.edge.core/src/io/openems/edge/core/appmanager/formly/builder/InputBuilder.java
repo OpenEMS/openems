@@ -9,7 +9,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.formly.enums.Validation;
 import io.openems.edge.core.appmanager.formly.enums.Wrappers;
@@ -48,7 +47,6 @@ import io.openems.edge.core.appmanager.formly.enums.Wrappers;
  */
 public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 
-	private JsonObject validation = null;
 	private InputType type = InputType.TEXT;
 
 	public InputBuilder(Nameable property) {
@@ -191,7 +189,11 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		case WATT -> TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l), "watt");
 		default -> unit.symbol;
 		};
-		this.templateOptions.addProperty("unit", unitString);
+		return this.setUnit(unitString);
+	}
+
+	public InputBuilder setUnit(String unit) {
+		this.templateOptions.addProperty("unit", unit);
 		this.addWrapper(Wrappers.INPUT_WITH_UNIT);
 		return this;
 	}
@@ -225,6 +227,14 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		}
 		return this;
 	}
+	
+	public InputBuilder setStep(double step) {
+		if (this.type != InputType.NUMBER) {
+			throw new IllegalArgumentException("Step can only be set on Number inputs");
+		}
+		this.templateOptions.addProperty("step", step);
+		return this;
+	}
 
 	@Override
 	protected String getType() {
@@ -236,14 +246,6 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		if (this.type != InputType.TEXT) {
 			this.templateOptions.addProperty("type", this.type.getFormlyTypeName());
 		}
-		if (this.validation != null && this.validation.size() > 0) {
-			this.jsonObject.add("validation", this.validation);
-		}
 		return super.build();
 	}
-
-	protected final JsonObject getValidation() {
-		return this.validation = JsonFormlyUtil.single(this.validation);
-	}
-
 }

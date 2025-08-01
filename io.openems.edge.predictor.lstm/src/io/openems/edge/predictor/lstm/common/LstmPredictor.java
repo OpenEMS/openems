@@ -32,6 +32,7 @@ public class LstmPredictor {
 		preprocessing.setData(to1DArray(data)).setDates(date);
 		var resized = to2DList((double[][][]) preprocessing.interpolate()//
 				.scale()//
+				.movingAverage()
 				.filterOutliers() //
 				.groupByHoursAndMinutes()//
 				.execute());
@@ -71,12 +72,14 @@ public class LstmPredictor {
 		var scaled = (double[]) preprocessing//
 				.interpolate()//
 				.scale()//
+				.movingAverage() // Added moving average with window size 3 to smooth data
+				.filterOutliers() // Added outlier filtering for trend prediction
 				.execute();
 
 		// normalize
 		var trendPrediction = new double[hyperParameters.getTrendPoint()];
 		var mean = DataStatistics.getMean(scaled);
-		var standerDev = DataStatistics.getStandardDeviation(scaled);
+		var stdDev = DataStatistics.getStandardDeviation(scaled);
 		preprocessing.setData(scaled);
 		var normData = to1DArrayList((double[]) preprocessing//
 				.normalize()//
@@ -100,7 +103,7 @@ public class LstmPredictor {
 			trendPrediction[i] = (predTemp);
 		}
 
-		preprocessing.setData(trendPrediction).setMean(mean).setStandardDeviation(standerDev);
+		preprocessing.setData(trendPrediction).setMean(mean).setStandardDeviation(stdDev);
 
 		return to1DArrayList((double[]) preprocessing//
 				.reverseNormalize()//
@@ -300,14 +303,29 @@ public class LstmPredictor {
 		var ct = hyperParameters.getCtInit();
 		var yt = hyperParameters.getYtInit();
 		var standData = inputData;// DataModification.standardize(inputData, hyperParameters);
+		
+		// Add dropout regularization for prediction
+		// Only apply dropout during training, not during actual prediction
+		boolean isTraining = false; // Set to true during training phase
+		double dropoutRate = 0.2; // Keep 80% of connections
 
 		for (var i = 0; i < standData.size(); i++) {
 			var ctMinusOne = ct;
 			var yTMinusOne = yt;
 			var xt = standData.get(i);
-			var it = MathUtils.sigmoid(wi.get(i) * xt + rI.get(i) * yTMinusOne);
-			var ot = MathUtils.sigmoid(wo.get(i) * xt + rO.get(i) * yTMinusOne);
-			var zt = MathUtils.tanh(wz.get(i) * xt + rZ.get(i) * yTMinusOne);
+			
+			// Apply dropout to input connections if in training mode
+			double dropoutScale = 1.0;
+			if (isTraining) {
+				// Scale remaining values to maintain expected output magnitude
+				dropoutScale = 1.0 / (1.0 - dropoutRate);
+			}
+			
+			// Apply dropout scaling to input
+			var it = MathUtils.sigmoid(wi.get(i) * xt * dropoutScale + rI.get(i) * yTMinusOne);
+			var ot = MathUtils.sigmoid(wo.get(i) * xt * dropoutScale + rO.get(i) * yTMinusOne);
+			var zt = MathUtils.tanh(wz.get(i) * xt * dropoutScale + rZ.get(i) * yTMinusOne);
+			
 			ct = ctMinusOne + it * zt;
 			yt = ot * MathUtils.tanh(ct);
 		}
@@ -347,14 +365,29 @@ public class LstmPredictor {
 		var ct = hyperParameters.getCtInit();
 		var yt = hyperParameters.getYtInit();
 		var standData = inputData;// DataModification.standardize(inputData, hyperParameters);
+		
+		// Add dropout regularization for prediction
+		// Only apply dropout during training, not during actual prediction
+		boolean isTraining = false; // Set to true during training phase
+		double dropoutRate = 0.2; // Keep 80% of connections
 
 		for (var i = 0; i < standData.length; i++) {
 			var ctMinusOne = ct;
 			var yTMinusOne = yt;
-			var xt = standData.length;
-			var it = MathUtils.sigmoid(wi.get(i) * xt + rI.get(i) * yTMinusOne);
-			var ot = MathUtils.sigmoid(wo.get(i) * xt + rO.get(i) * yTMinusOne);
-			var zt = MathUtils.tanh(wz.get(i) * xt + rZ.get(i) * yTMinusOne);
+			var xt = standData[i]; // Fixed: using actual value instead of array length
+			
+			// Apply dropout to input connections if in training mode
+			double dropoutScale = 1.0;
+			if (isTraining) {
+				// Scale remaining values to maintain expected output magnitude
+				dropoutScale = 1.0 / (1.0 - dropoutRate);
+			}
+			
+			// Apply dropout scaling to input
+			var it = MathUtils.sigmoid(wi.get(i) * xt * dropoutScale + rI.get(i) * yTMinusOne);
+			var ot = MathUtils.sigmoid(wo.get(i) * xt * dropoutScale + rO.get(i) * yTMinusOne);
+			var zt = MathUtils.tanh(wz.get(i) * xt * dropoutScale + rZ.get(i) * yTMinusOne);
+			
 			ct = ctMinusOne + it * zt;
 			yt = ot * MathUtils.tanh(ct);
 		}

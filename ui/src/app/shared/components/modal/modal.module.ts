@@ -1,12 +1,15 @@
+import { CommonModule } from "@angular/common";
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
-import { PipeModule } from "../../pipe/pipe";
+import { PipeComponentsModule } from "../../pipe/pipe.module";
+import { OeImageComponent } from "../oe-img/oe-img";
 import { HelpButtonComponent } from "./help-button/help-button";
+import { HelpLinkComponent } from "./help-link/help-link";
 import { ModalComponent } from "./modal";
 import { ModalButtonsComponent } from "./modal-button/modal-button";
 import { ModalInfoLineComponent } from "./modal-info-line/modal-info-line";
@@ -17,39 +20,49 @@ import { ModalValueLineComponent } from "./modal-value-line/modal-value-line";
 import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-horizontal-line";
 
 @NgModule({
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, IonicModule, PipeComponentsModule, TranslateModule, HelpButtonComponent, OeImageComponent],
+  declarations: [
+    ModalButtonsComponent,
+    ModalInfoLineComponent,
+    ModalLineComponent,
+    ModalHorizontalLineComponent,
+    ModalComponent,
+    ModalLineItemComponent,
+    ModalPhasesComponent,
+    ModalValueLineComponent,
+    HelpLinkComponent,
+  ],
+  exports: [
+    ModalButtonsComponent,
+    ModalInfoLineComponent,
+    ModalLineComponent,
+    ModalHorizontalLineComponent,
+    ModalComponent,
+    ModalLineItemComponent,
+    ModalPhasesComponent,
+    ModalValueLineComponent,
+    OeImageComponent,
+    HelpLinkComponent,
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class ModalComponentsModule { }
+
+@NgModule({
   imports: [
     BrowserModule,
     IonicModule,
     ReactiveFormsModule,
     RouterModule,
+    FormsModule,
     TranslateModule,
-    PipeModule,
-  ],
-  declarations: [
-    HelpButtonComponent,
-    ModalButtonsComponent,
-    ModalInfoLineComponent,
-    ModalLineComponent,
-    ModalHorizontalLineComponent,
-    ModalComponent,
-    ModalLineItemComponent,
-    ModalPhasesComponent,
-    ModalValueLineComponent,
-    HelpButtonComponent,
+    PipeComponentsModule,
+    ModalComponentsModule,
   ],
   exports: [
-    HelpButtonComponent,
-    ModalButtonsComponent,
-    ModalInfoLineComponent,
-    ModalLineComponent,
-    ModalHorizontalLineComponent,
-    ModalComponent,
-    ModalLineItemComponent,
-    ModalPhasesComponent,
-    ModalValueLineComponent,
-    HelpButtonComponent,
+    ModalComponentsModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-
 })
 export class ModalModule { }
+

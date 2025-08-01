@@ -5,11 +5,11 @@ import java.util.List;
 
 import io.openems.edge.common.filter.DisabledPidFilter;
 import io.openems.edge.common.filter.PidFilter;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
@@ -27,7 +27,7 @@ public class DummyPower implements Power {
 	 * filter.
 	 */
 	public DummyPower() {
-		this(Integer.MAX_VALUE, new DisabledPidFilter());
+		this(Integer.MAX_VALUE, DisabledPidFilter.INSTANCE);
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class DummyPower implements Power {
 	 * @param maxApparentPower the MaxApparentPower
 	 */
 	public DummyPower(int maxApparentPower) {
-		this(maxApparentPower, new DisabledPidFilter());
+		this(maxApparentPower, DisabledPidFilter.INSTANCE);
 	}
 
 	public DummyPower(int maxApparentPower, PidFilter pidFilter) {
@@ -90,8 +90,8 @@ public class DummyPower implements Power {
 	}
 
 	@Override
-	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, Phase phase, Pwr pwr,
-			Relationship relationship, double value) {
+	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, SingleOrAllPhase phase,
+			Pwr pwr, Relationship relationship, double value) {
 		return null;
 	}
 
@@ -105,18 +105,18 @@ public class DummyPower implements Power {
 	}
 
 	@Override
-	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public int getMaxPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) {
 		var result = this.maxApparentPower;
-		for (ManagedSymmetricEss e : this.esss) {
+		for (var e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(), e.getAllowedDischargePower().get());
 		}
 		return result;
 	}
 
 	@Override
-	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public int getMinPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) {
 		var result = this.maxApparentPower;
-		for (ManagedSymmetricEss e : this.esss) {
+		for (var e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(),
 					TypeUtils.multiply(e.getAllowedChargePower().get(), -1));
 		}
@@ -124,7 +124,7 @@ public class DummyPower implements Power {
 	}
 
 	@Override
-	public Coefficient getCoefficient(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
+	public Coefficient getCoefficient(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) {
 		return null;
 	}
 
@@ -135,11 +135,6 @@ public class DummyPower implements Power {
 
 	@Override
 	public boolean isPidEnabled() {
-		if (this.pidFilter instanceof DisabledPidFilter) {
-			return false;
-		}
-
-		return true;
+		return !(this.pidFilter instanceof DisabledPidFilter);
 	}
-
 }

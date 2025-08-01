@@ -4,10 +4,9 @@ import static com.google.common.math.Quantiles.percentiles;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_GRID;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstPeakIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstValleyIndex;
-import static io.openems.edge.energy.api.EnergyUtils.toPower;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
@@ -18,11 +17,11 @@ import com.google.common.primitives.ImmutableIntArray;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.EshContext;
-import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
+import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
+import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
-import io.openems.edge.energy.api.simulation.OneSimulationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -38,6 +37,7 @@ public final class Utils {
 	}
 
 	/** Keep some buffer to avoid scheduling errors because of bad predictions. */
+	public static final float ESS_MIN_SOC = 10F;
 	public static final float ESS_MAX_SOC = 94F;
 
 	/**
@@ -45,6 +45,9 @@ public final class Utils {
 	 * With a C-Rate of 0.5 the battery gets fully charged within 2 hours.
 	 */
 	public static final float ESS_CHARGE_C_RATE = 0.5F;
+
+	// TODO dynamic
+	public static final int ESS_DISCHARGE_TO_GRID_POWER = 5000; // [W]
 
 	public static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 	public static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
@@ -54,7 +57,7 @@ public final class Utils {
 	public static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
 	public static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
-	public static record ApplyState(StateMachine actualState, Integer setPoint) {
+	public static record ApplyMode(StateMachine actualMode, Integer setPoint) {
 	}
 
 	/**
@@ -64,35 +67,37 @@ public final class Utils {
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
 	 * @param period                 the scheduled {@link Period}
-	 * @return {@link ApplyState}
+	 * @return {@link ApplyMode}
 	 */
-	public static ApplyState calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, int maxChargePowerFromGrid,
-			Period<StateMachine, EshContext> period) {
-		final StateMachine actualState;
+	public static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, int maxChargePowerFromGrid,
+			Period<StateMachine, OptimizationContext> period) {
+		final StateMachine actualMode;
 		final Integer setPoint;
 
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (period == null || gridActivePower == null || essActivePower == null) {
 			// undefined state
-			return new ApplyState(BALANCING, null);
+			return new ApplyMode(BALANCING, null);
 		}
 
 		// Post-process and get actual state
 		final var pwrBalancing = gridActivePower + essActivePower;
 		final var pwrDelayDischarge = calculateDelayDischargePower(ess);
-		final var pwrChargeGrid = calculateChargeGridPower(period.context().essChargeInChargeGrid(), ess,
+		final var pwrChargeGrid = calculateChargeGridPower(period.coc().essChargePowerInChargeGrid(), ess,
 				essActivePower, gridActivePower, maxChargePowerFromGrid);
-		actualState = postprocessRunState(ess, period.state(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
+		final var pwrDischargeGrid = calculateDischargeGridPower(ess, essActivePower, gridActivePower);
+		actualMode = postprocessRunState(ess, period.mode(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
-		setPoint = switch (actualState) {
+		setPoint = switch (actualMode) {
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;
+		case DISCHARGE_GRID -> pwrDischargeGrid;
 		};
 
-		return new ApplyState(actualState, setPoint);
+		return new ApplyMode(actualMode, setPoint);
 	}
 
 	/**
@@ -115,6 +120,13 @@ public final class Utils {
 	 */
 	public static StateMachine postprocessRunState(ManagedSymmetricEss ess, StateMachine state, int pwrBalancing,
 			int pwrDelayDischarge, int pwrChargeGrid) {
+		if (state == DISCHARGE_GRID) {
+			var soc = ess.getSoc();
+			if (soc.isDefined() && soc.get() <= ESS_MIN_SOC) {
+				state = BALANCING;
+			}
+		}
+
 		if (state == CHARGE_GRID) {
 			// CHARGE_GRID,...
 			if (pwrChargeGrid >= pwrDelayDischarge) {
@@ -146,14 +158,24 @@ public final class Utils {
 	 * NOTE: heavy computation is ok here, because this method is called only at the
 	 * end with the best Schedule.
 	 * 
-	 * @param osc     the {@link OneSimulationContext}
-	 * @param ef      the {@link EnergyFlow} for the state
-	 * @param context the {@link EshContext}
-	 * @param state   the initial state
+	 * @param id     an identifier, e.g. the Component-ID
+	 * @param period the {@link GlobalOptimizationContext.Period}
+	 * @param gsc    the {@link GlobalScheduleContext}
+	 * @param ef     the {@link EnergyFlow} for the state
+	 * @param coc    the {@link OptimizationContext}
+	 * @param state  the initial state
 	 * @return the new state
 	 */
-	public static StateMachine postprocessSimulatorState(OneSimulationContext osc, EnergyFlow ef, EshContext context,
-			StateMachine state) {
+	public static StateMachine postprocessSimulatorState(String id, GlobalOptimizationContext.Period period,
+			GlobalScheduleContext gsc, EnergyFlow ef, OptimizationContext coc, StateMachine state) {
+		if (state == DISCHARGE_GRID) {
+			// DISCHARGE_GRID,...
+			if (ef.getGridToEss() >= 0) {
+				// but battery is not discharged to grid
+				state = BALANCING;
+			}
+		}
+
 		if (state == CHARGE_GRID) {
 			// CHARGE_GRID,...
 			if (ef.getGridToEss() <= 0) {
@@ -164,7 +186,7 @@ public final class Utils {
 
 		if (state == DELAY_DISCHARGE) {
 			// DELAY_DISCHARGE,...
-			if (osc.ess.getInitialEnergy() == 0 || ef.getEss() < 0) {
+			if (gsc.ess.getInitialEnergy() == 0 || ef.getEss() < 0) {
 				// but battery is empty or gets charged
 				state = BALANCING;
 			}
@@ -173,9 +195,9 @@ public final class Utils {
 		return state;
 	}
 
-	protected static int calculateEssChargeInChargeGridPower(Integer essChargeInChargeGrid, ManagedSymmetricEss ess) {
-		if (essChargeInChargeGrid != null) {
-			return toPower(essChargeInChargeGrid);
+	protected static int essPowerOrElse(Integer power, ManagedSymmetricEss ess) {
+		if (power != null) {
+			return power;
 		}
 		var capacity = ess.getCapacity();
 		if (capacity.isDefined()) {
@@ -183,7 +205,7 @@ public final class Utils {
 		}
 		var maxApparentPower = ess.getMaxApparentPower();
 		if (maxApparentPower.isDefined()) {
-			return maxApparentPower.get() / 4;
+			return maxApparentPower.get();
 		}
 		return 0;
 	}
@@ -192,23 +214,46 @@ public final class Utils {
 	 * Calculates the Max-ActivePower constraint for
 	 * {@link StateMachine#CHARGE_GRID}.
 	 * 
-	 * @param essChargeInChargeGrid  ESS Charge Energy in CHARGE_GRID State [Wh]
-	 * @param ess                    the {@link ManagedSymmetricEss}
-	 * @param essActivePower         the ESS ActivePower
-	 * @param gridActivePower        the Grid ActivePower
-	 * @param maxChargePowerFromGrid the configured max charge from grid power
+	 * @param essChargePowerInChargeGrid ESS Charge Power in CHARGE_GRID State [W]
+	 * @param ess                        the {@link ManagedSymmetricEss}
+	 * @param essActivePower             the ESS ActivePower
+	 * @param gridActivePower            the Grid ActivePower
+	 * @param maxChargePowerFromGrid     the configured max charge from grid power
 	 * @return the negative set-point or null
 	 */
-	public static int calculateChargeGridPower(Integer essChargeInChargeGrid, ManagedSymmetricEss ess,
+	public static int calculateChargeGridPower(Integer essChargePowerInChargeGrid, ManagedSymmetricEss ess,
 			int essActivePower, int gridActivePower, int maxChargePowerFromGrid) {
 		var realGridPower = gridActivePower + essActivePower; // 'real', without current ESS charge/discharge
-		var targetChargePower = calculateEssChargeInChargeGridPower(essChargeInChargeGrid, ess) //
+		var targetChargePower = essPowerOrElse(essChargePowerInChargeGrid, ess) //
 				+ min(0, realGridPower) * -1; // add excess production
 		var effectiveGridBuyPower = max(0, realGridPower) + targetChargePower;
 		var chargePower = max(0, targetChargePower - max(0, effectiveGridBuyPower - maxChargePowerFromGrid));
 
 		// Invert to negative for CHARGE
 		return chargePower * -1;
+	}
+
+	/**
+	 * Calculates the Min-ActivePower constraint for
+	 * {@link StateMachine#DISCHARGE_GRID}.
+	 * 
+	 * @param ess             the {@link ManagedSymmetricEss}
+	 * @param essActivePower  the ESS ActivePower
+	 * @param gridActivePower the Grid ActivePower
+	 * @return the positive set-point or null
+	 */
+	public static int calculateDischargeGridPower(ManagedSymmetricEss ess, int essActivePower, int gridActivePower) {
+		var realGridPower = gridActivePower + essActivePower; // 'real', without current ESS charge/discharge
+		var essDischargeInDischargeGrid = ESS_DISCHARGE_TO_GRID_POWER; // [W]
+		var targetDischargePower = essPowerOrElse(essDischargeInDischargeGrid, ess) //
+				+ max(0, realGridPower);
+		// TODO limit grid-sell power
+		// var effectiveGridSellPower = min(0, realGridPower) + targetDischargePower;
+		// var chargePower = max(0, targetChargePower - max(0, effectiveGridBuyPower -
+		// maxChargePowerFromGrid));
+
+		// positive for DISCHARGE
+		return targetDischargePower;
 	}
 
 	/**
@@ -234,47 +279,48 @@ public final class Utils {
 	 * @return the set-point
 	 */
 	public static int calculateDelayDischargePower(ManagedSymmetricEss ess) {
-		if (ess instanceof HybridEss e) {
+		return switch (ess) {
+		case HybridEss e ->
 			// Limit discharge to DC-PV power
-			return max(0, ess.getActivePower().orElse(0) - e.getDcDischargePower().orElse(0));
-		} else {
+			max(0, ess.getActivePower().orElse(0) - e.getDcDischargePower().orElse(0));
+		default ->
 			// Limit discharge to 0
-			return 0;
-		}
+			0;
+		};
 	}
 
 	/**
-	 * Calculates the default ESS charge energy per period in
+	 * Calculates the default ESS charge power per period in
 	 * {@link StateMachine#CHARGE_GRID}.
 	 * 
 	 * <p>
 	 * Applies {@link #ESS_CHARGE_C_RATE} with the minimum of usable ESS energy or
 	 * predicted consumption energy that cannot be supplied from production.
 	 * 
-	 * @param gsc the {@link GlobalSimulationsContext}
+	 * @param goc the {@link GlobalOptimizationContext}
 	 * @return the value in [Wh]
 	 */
-	public static int calculateChargeEnergyInChargeGrid(GlobalSimulationsContext gsc) {
+	public static int calculateChargePowerInChargeGrid(GlobalOptimizationContext goc) {
 		var refs = ImmutableIntArray.builder();
 
 		// Uses the total available energy as reference (= fallback)
-		var fallback = max(0, round(ESS_MAX_SOC / 100F * gsc.ess().totalEnergy()));
+		var fallback = max(0, round(ESS_MAX_SOC / 100F * goc.ess().totalEnergy()));
 		add(refs, fallback);
 
 		// Uses the total excess consumption as reference
-		add(refs, gsc.periods().stream() //
+		add(refs, goc.periods().stream() //
 				.mapToInt(p -> p.consumption() - p.production()) // calculates excess Consumption Energy per Period
 				.sum());
 
-		add(refs, gsc.periods().stream() //
+		add(refs, goc.periods().stream() //
 				.takeWhile(p -> p.consumption() >= p.production()) // take only first Periods
 				.mapToInt(p -> p.consumption() - p.production()) // calculates excess Consumption Energy per Period
 				.sum());
 
 		// Uses the excess consumption during high price periods as reference
 		{
-			var prices = gsc.periods().stream() //
-					.mapToDouble(GlobalSimulationsContext.Period::price) //
+			var prices = goc.periods().stream() //
+					.mapToDouble(GlobalOptimizationContext.Period::price) //
 					.toArray();
 			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
 			var firstPrices = stream(prices) //
@@ -282,7 +328,7 @@ public final class Utils {
 					.toArray();
 			if (firstPrices.length > 0) {
 				var percentilePrice = percentiles().index(95).compute(firstPrices);
-				add(refs, gsc.periods().stream() //
+				add(refs, goc.periods().stream() //
 						.limit(peakIndex) //
 						.filter(p -> p.price() >= percentilePrice) // takes only prices > percentile
 						.mapToInt(p -> p.consumption() - p.production()) // excess Consumption Energy per Period
@@ -294,7 +340,7 @@ public final class Utils {
 				refs.build().stream() //
 						.average() //
 						.orElse(fallback) //
-						* ESS_CHARGE_C_RATE / PERIODS_PER_HOUR);
+						* ESS_CHARGE_C_RATE);
 	}
 
 	private static void add(ImmutableIntArray.Builder builder, int value) {

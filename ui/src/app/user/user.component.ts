@@ -1,19 +1,18 @@
 // @ts-strict-ignore
 import { KeyValue } from "@angular/common";
-import { Component, OnInit, effect } from "@angular/core";
+import { Component, effect, OnInit, untracked } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Changelog } from "src/app/changelog/view/component/changelog.constants";
-import { environment } from "../../environments";
-import { Theme } from "../edge/history/shared";
+import { environment, Theme as SystemTheme } from "../../environments";
+import { Changelog } from "../changelog/view/component/changelog.constants";
+import { Theme as UserTheme } from "../edge/history/shared";
+import { NavigationService } from "../shared/components/navigation/service/navigation.service";
 import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
-import { UpdateUserSettingsRequest } from "../shared/jsonrpc/request/updateUserSettingsRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
-import { User } from "../shared/jsonrpc/shared";
+import { UserService } from "../shared/service/user.service";
 import { Service, Websocket } from "../shared/shared";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
 import { Language } from "../shared/type/language";
@@ -38,9 +37,11 @@ type UserInformation = {
 })
 export class UserComponent implements OnInit {
 
-  private static readonly DEFAULT_THEME: Theme = Theme.LIGHT;
-  public currentTheme: string;
-  public readonly themes: KeyValue<string, string>[] = [
+  private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
+  protected userTheme: UserTheme; // Theme as of "Light","Dark" or "System" Themes.
+  protected systemTheme: SystemTheme; // SystemTheme as of "OpenEMS" or other OEM Themes.
+
+  protected readonly themes: KeyValue<string, string>[] = [
     { key: "Light", value: "light" },
     { key: "Dark", value: "dark" },
     { key: "System", value: "system" },
@@ -71,66 +72,43 @@ export class UserComponent implements OnInit {
   protected companyInformationFields: FormlyFieldConfig[] = [];
 
   protected isAtLeastAdmin: boolean = false;
+  protected isAllowedToSeeUserDetails: boolean = true;
+  protected useNewUi: boolean | null = null;
+  protected newNavigationForced: boolean = false;
 
   constructor(
     public translate: TranslateService,
     public service: Service,
-    private route: ActivatedRoute,
     private websocket: Websocket,
+    private userService: UserService,
+    private navigationService: NavigationService,
   ) {
-    effect(() => {
-      const user = this.service.currentUser();
+    effect(async () => {
+      const user = this.userService.currentUser();
 
-      if (user) {
+      if (user && this.form == null) {
         this.isAtLeastAdmin = Role.isAtLeast(user.globalRole, Role.ADMIN);
-        this.updateUserInformation();
+        await this.updateUserInformation();
+
+        this.isAllowedToSeeUserDetails = this.isUserAllowedToSeeContactDetails(user.id);
+        this.showInformation = this.form != null;
+        this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
+        this.useNewUi = user.getUseNewUIFromSettings();
+        this.newNavigationForced = NavigationService.forceNewNavigation(untracked(() => this.service.currentEdge()));
       }
     });
-  }
-
-  public static applyUserSettings(user: User): void {
-    const theme = UserComponent.getCurrentTheme(user);
-    let attr: Exclude<`${Theme}`, Theme.SYSTEM> = theme;
-    localStorage.setItem("THEME", theme);
-    if (theme === Theme.SYSTEM) {
-      attr = window.matchMedia("(prefers-color-scheme: dark)").matches ? Theme.DARK : Theme.LIGHT;
-    }
-    document.documentElement.setAttribute("data-theme", attr);
-  }
-
-  public static getPreferedColorSchemeFromTheme(theme: Theme) {
-    return theme === Theme.SYSTEM ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? Theme.DARK : Theme.LIGHT) : theme;
-  }
-
-  public static getCurrentTheme(user: User): Theme {
-    return user?.settings["theme"] ?? localStorage.getItem("THEME") ?? UserComponent.DEFAULT_THEME;
   }
 
   ngOnInit() {
-    // Set currentLanguage to
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
-
-    this.updateUserInformation().then(() => {
-      this.service.metadata.subscribe(entry => {
-        this.showInformation = true;
-      });
-    });
+    this.systemTheme = environment.theme as SystemTheme;
   }
 
-  public setTheme(theme: Theme): void {
-    this.service.websocket.sendSafeRequest(new UpdateUserSettingsRequest({
-      settings: { theme: theme },
-    })).then(() => {
-      const currentUser = this.service.currentUser();
-      if (currentUser) {
-        currentUser.settings["theme"] = theme;
-        UserComponent.applyUserSettings(currentUser);
-      }
-    });
+  public setTheme(theme: UserTheme): void {
+    this.userService.selectTheme(theme);
   }
 
   public applyChanges() {
-
     const params: SetUserInformationRequest["params"] = {
       user: {
         lastname: this.form.model.lastname,
@@ -156,41 +134,33 @@ export class UserComponent implements OnInit {
   }
 
   public enableAndDisableEditMode(): void {
-    if (this.isEditModeDisabled == false) {
-      this.getUserInformation().then((userInformation) => {
-        this.form = {
-          formGroup: new FormGroup({}),
-          model: userInformation,
-        };
-      });
+    if (!this.isEditModeDisabled) {
+      this.updateUserInformation();
     }
-
     this.enableAndDisableFormFields();
   }
 
-  public enableAndDisableFormFields(): boolean {
+  public getEditButtonText(): string {
+    return this.isEditModeDisabled ? "General.EDIT" : "General.RESET";
+  }
 
+  public enableAndDisableFormFields(): boolean {
     this.userInformationFields = this.userInformationFields.map(field => {
       field.props.disabled = !field.props.disabled;
       return field;
     });
-
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
   public getUserInformation(): Promise<UserInformation | CompanyUserInformation> {
-
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.websocket.status == "online") {
+        if (this.websocket.status === "online") {
           this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
             const user = response.result.user;
-
             resolve({
               lastname: user.lastname,
               firstname: user.firstname,
-
-              // Show company if available
               email: user.email,
               phone: user.phone,
               street: user.address.street,
@@ -221,12 +191,20 @@ export class UserComponent implements OnInit {
    * Logout from OpenEMS Edge or Backend.
    */
   public doLogout() {
+    this.userService.currentUser.set(null);
     this.websocket.logout();
   }
 
-  public toggleDebugMode(event: CustomEvent) {
-    localStorage.setItem("DEBUGMODE", event.detail["checked"]);
-    this.environment.debugMode = event.detail["checked"];
+  public toggleDebugMode(event: Event) {
+    localStorage.setItem("DEBUGMODE", (event as CustomEvent).detail["checked"]);
+    this.environment.debugMode = (event as CustomEvent).detail["checked"];
+  }
+
+  public async toggleNewUI(event: Event) {
+    const isToggleOn = (event as CustomEvent).detail["checked"];
+    this.service.startSpinner("user");
+    await this.userService.updateUserSettingsWithProperty("useNewUI", isToggleOn);
+    this.service.stopSpinner("user");
   }
 
   public setLanguage(language: Language): void {
@@ -321,4 +299,22 @@ export class UserComponent implements OnInit {
       }
     });
   }
+
+  /**
+   * Checks if user is allowed to see contact details
+   *
+   * @param id the user id
+   * @returns true, if user is allowed to see contact details
+   */
+  private isUserAllowedToSeeContactDetails(id: string): boolean {
+    switch (id) {
+      case "demo@fenecon.de":
+      case "pv@schachinger-gaerten.de":
+      case "pv@studentenpark1-straubing.de":
+        return false;
+      default:
+        return true;
+    }
+  }
 }
+

@@ -329,7 +329,8 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		RACK_NUMBER_OF_BATTERY_BCU(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Count Of The Connected BCU")),
+				.text("Count Of The Connected BCU") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 		RACK_NUMBER_OF_CELLS_IN_SERIES_PER_MODULE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
@@ -633,32 +634,27 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		TOWER_4_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of fifth tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of fifth tower")),
 
 		TOWER_3_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of fourth tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of fourth tower")),
 
 		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of third tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of third tower")),
 
 		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of second tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of second tower")),
 
 		TOWER_0_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of first tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of first tower")),
 
 		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
 				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
@@ -784,5 +780,33 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 	 */
 	public default void _setLowMinVoltageFaultBatteryStopped(boolean value) {
 		this.getLowMinVoltageFaultBatteryStoppedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RACK_NUMBER_OF_BATTERY_BCU}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getRackNumberOfBatteryBcuChannel() {
+		return this.channel(ChannelId.RACK_NUMBER_OF_BATTERY_BCU);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#NUMBER_OF_TOWERS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getNumberOfTowersChannel() {
+		return this.channel(ChannelId.NUMBER_OF_TOWERS);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#NUMBER_OF_TOWERS}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setNumberOfTowers(Integer value) {
+		this.getNumberOfTowersChannel().setNextValue(value);
 	}
 }

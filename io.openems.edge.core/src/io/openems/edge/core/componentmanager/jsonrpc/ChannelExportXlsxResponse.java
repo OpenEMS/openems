@@ -1,5 +1,7 @@
 package io.openems.edge.core.componentmanager.jsonrpc;
 
+import static io.openems.edge.common.channel.ChannelUtils.getChannelNature;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -7,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.dhatim.fastexcel.Workbook;
@@ -20,8 +23,9 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateChannelDoc;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -48,6 +52,8 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 	private static final int COL_DESCRIPTION = 3;
 	private static final int COL_SOURCE = 4;
 	private static final int COL_ACCESS = 5;
+	private static final int COL_TYPE = 6;
+	private static final int COL_NATURE = 7;
 
 	public ChannelExportXlsxResponse(UUID id, OpenemsComponent component) throws OpenemsException {
 		super(id, generatePayload(component));
@@ -71,55 +77,16 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 					List<Channel<?>> channels = component.channels().stream() //
 							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
 							.toList(); //
-					for (Channel<?> channel : channels) {
-						/*
-						 * create descriptive text
-						 */
-						var description = "";
-						if (channel instanceof EnumReadChannel) {
-							try {
-								description += channel.value().asOptionString();
-							} catch (IllegalArgumentException e) {
-								description += "UNKNOWN OPTION VALUE [" + channel.value().asString() + "]";
-								description += "ERROR: " + e.getMessage();
-							}
-
-						} else if (channel instanceof StateChannel
-								&& ((StateChannel) channel).value().orElse(false) == true) {
-							if (!description.isEmpty()) {
-								description += "; ";
-							}
-							description += ((StateChannel) channel).channelDoc().getText();
-
-						} else if (channel instanceof StateCollectorChannel
-								&& ((StateCollectorChannel) channel).value().orElse(0) != 0) {
-							if (!description.isEmpty()) {
-								description += "; ";
-							}
-							description += ((StateCollectorChannel) channel).listStates();
-						}
-
-						ws.value(row, COL_CHANNEL_ID, channel.channelId().id());
-
-						switch (channel.channelDoc().getAccessMode()) {
-						case WRITE_ONLY:
-							break;
-						case READ_ONLY:
-						case READ_WRITE:
-							ws.value(row, COL_VALUE, channel.value().asStringWithoutUnit());
-							break;
-						}
-
-						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().symbol);
-						ws.value(row, COL_DESCRIPTION, description);
-						ws.value(row, COL_ACCESS, channel.channelDoc().getAccessMode().getAbbreviation());
-
-						// Source
-						final var readSource = channel.getMetaInfo();
-						if (readSource != null) {
-							ws.value(row, COL_SOURCE, readSource.toString());
-						}
-
+					for (var channel : channels) {
+						var cr = ChannelRow.fromChannel(channel);
+						ws.value(row, COL_CHANNEL_ID, cr.channelId);
+						ws.value(row, COL_VALUE, cr.value);
+						ws.value(row, COL_UNIT, cr.unit);
+						ws.value(row, COL_DESCRIPTION, cr.description);
+						ws.value(row, COL_SOURCE, cr.readSource);
+						ws.value(row, COL_ACCESS, cr.access);
+						ws.value(row, COL_TYPE, cr.type);
+						ws.value(row, COL_NATURE, cr.nature);
 						row++;
 					}
 				} finally {
@@ -132,6 +99,55 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 			}
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to generate Xlsx payload: " + e.getMessage());
+		}
+	}
+
+	protected static record ChannelRow(String channelId, String value, String unit, String description,
+			String readSource, String access, String type, String nature) {
+
+		protected static ChannelRow fromChannel(Channel<?> channel) {
+			final var doc = channel.channelDoc();
+			final var accessMode = doc.getAccessMode();
+
+			final var value = switch (accessMode) {
+			case WRITE_ONLY -> "";
+			case READ_ONLY, READ_WRITE -> //
+				switch (channel) {
+				case EnumReadChannel erc -> erc.value().get() + ":" + erc.value().asOptionString();
+				default -> channel.value().asStringWithoutUnit();
+				};
+			};
+
+			final var additionalDescription = switch (accessMode) {
+			// WRITE_ONLY throws IllegalArgumentException in channel.value()
+			case WRITE_ONLY -> null;
+			case READ_ONLY, READ_WRITE -> //
+				switch (channel) {
+				case StateCollectorChannel scc when (scc.value().orElse(0) != 0) -> {
+					yield scc.listStates();
+				}
+				default -> null;
+				};
+			};
+			final var description = doc.getText() //
+					+ (additionalDescription != null ? " | " + additionalDescription : "");
+
+			final var channelId = channel.channelId().id();
+			final var unit = doc.getUnit().symbol;
+			final var access = accessMode.getAbbreviation();
+			final var readSource = Optional.ofNullable(channel.getMetaInfo()) //
+					.map(Object::toString) //
+					.orElse("");
+
+			final var type = switch (doc) {
+			case StateChannelDoc sc -> "State";
+			case EnumDoc e -> "Enum";
+			default -> CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, doc.getType().toString());
+			};
+
+			final var nature = getChannelNature(channel);
+
+			return new ChannelRow(channelId, value, unit, description, readSource, access, type, nature);
 		}
 	}
 
@@ -169,6 +185,8 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 		addTableHeader(wb, ws, row, COL_DESCRIPTION, "Description", 25);
 		addTableHeader(wb, ws, row, COL_SOURCE, "Read Source", 20);
 		addTableHeader(wb, ws, row, COL_ACCESS, "Access", 10);
+		addTableHeader(wb, ws, row, COL_TYPE, "Type", 10);
+		addTableHeader(wb, ws, row, COL_NATURE, "Nature", 10);
 
 		return ++row;
 	}

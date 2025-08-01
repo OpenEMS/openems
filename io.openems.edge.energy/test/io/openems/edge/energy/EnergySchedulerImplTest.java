@@ -3,10 +3,15 @@ package io.openems.edge.energy;
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
-import static io.openems.edge.energy.LogVerbosity.TRACE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
+import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssEmergencyCapacityReserve;
+import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssFixActivePower;
+import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssGridOptimizedCharge;
+import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssLimitTotalDischarge;
+import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssTimeOfUseTariff;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
-import static io.openems.edge.energy.api.EnergyUtils.toEnergy;
+import static io.openems.edge.energy.api.LogVerbosity.TRACE;
 import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
 import static io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
@@ -26,15 +31,12 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserveImpl;
-import io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePowerImpl;
-import io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl;
-import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischargeImpl;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
-import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
-import io.openems.edge.energy.api.test.DummyEnergySchedulable;
+import io.openems.edge.controller.evse.single.CombinedAbilities;
 import io.openems.edge.energy.optimizer.Optimizer;
-import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
+import io.openems.edge.evse.api.common.ApplySetPoint;
+import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
@@ -63,7 +65,6 @@ public class EnergySchedulerImplTest {
 		final var sum = new DummySum() //
 				.withEssCapacity(10000) //
 				.withEssSoc(50);
-		final var ess = new DummyManagedSymmetricEss("ess0");
 		final var predictor0 = new DummyPredictor("predictor0", componentManager,
 				Prediction.from(sum, SUM_PRODUCTION, midnight, PRODUCTION_PREDICTION_QUARTERLY), SUM_PRODUCTION);
 		final var predictor1 = new DummyPredictor("predictor1", componentManager,
@@ -79,31 +80,27 @@ public class EnergySchedulerImplTest {
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
 				.addReference("scheduler", new DummyScheduler("scheduler0")) //
+				.addReference("addSchedulable", dummyEssEmergencyCapacityReserve("ctrlEmergencyCapacityReserve0", 20)) //
+				.addReference("addSchedulable", dummyEssLimitTotalDischarge("ctrlLimitTotalDischarge0", 0)) //
+				.addReference("addSchedulable", dummyEssFixActivePower("ctrlFixActivePower0", -1000, GREATER_OR_EQUALS)) //
 				.addReference("addSchedulable",
-						new DummyEnergySchedulable("ctrlEmergencyCapacityReserve0",
-								ControllerEssEmergencyCapacityReserveImpl.buildEnergyScheduleHandler(//
-										() -> /* reserveSoc */ 10))) //
+						dummyEssGridOptimizedCharge("ctrlGridOptimizedCharge0", LocalTime.of(10, 00))) //
 				.addReference("addSchedulable",
-						new DummyEnergySchedulable("ctrlLimitTotalDischarge0",
-								ControllerEssLimitTotalDischargeImpl.buildEnergyScheduleHandler(//
-										() -> /* minSoc */ 12))) //
-				.addReference("addSchedulable",
-						new DummyEnergySchedulable("ctrlFixActivePower0",
-								ControllerEssFixActivePowerImpl.buildEnergyScheduleHandler(//
-										() -> new ControllerEssFixActivePowerImpl.EshContext(
-												io.openems.edge.controller.ess.fixactivepower.Mode.MANUAL_ON, //
-												toEnergy(-1000), GREATER_OR_EQUALS)))) //
-				.addReference("addSchedulable",
-						new DummyEnergySchedulable("ctrlGridOptimizedCharge0",
-								ControllerEssGridOptimizedChargeImpl.buildEnergyScheduleHandler(//
-										() -> io.openems.edge.controller.ess.gridoptimizedcharge.Mode.MANUAL, //
-										() -> LocalTime.of(10, 00)))) //
-				.addReference("addSchedulable",
-						new DummyEnergySchedulable("ctrlEssTimeOfUseTariff0",
-								TimeOfUseTariffControllerImpl.buildEnergyScheduleHandler(//
-										() -> ess, //
-										() -> ControlMode.CHARGE_CONSUMPTION, //
-										() -> /* maxChargePowerFromGrid */ 20_000)))
+						dummyEssTimeOfUseTariff("ctrlEssTimeOfUseTariff0", ControlMode.CHARGE_CONSUMPTION)) //
+				.addReference("addSchedulable", EnergySchedulerTestUtils.dummyEvseSingle("ctrlEvseSingle0", //
+						io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE, //
+						CombinedAbilities.createFrom(//
+								ChargePointAbilities.create() //
+										.setApplySetPoint(
+												new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+										.setIsReadyForCharging(true) //
+										.build(),
+								ElectricVehicleAbilities.create() //
+										.setSinglePhaseLimitInMilliAmpere(6000, 32000) //
+										.setThreePhaseLimitInMilliAmpere(6000, 16000) //
+										.build()) //
+								.build(),
+						10_000)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("_energy") //

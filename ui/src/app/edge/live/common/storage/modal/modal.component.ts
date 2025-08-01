@@ -6,6 +6,8 @@ import { TranslateService } from "@ngx-translate/core";
 import { isBefore } from "date-fns";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { environment, Environment } from "src/environments";
 
 @Component({
     selector: "storage-modal",
@@ -30,6 +32,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     protected config: EdgeConfig;
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected chargerComponents!: EdgeConfig.Component[];
+    protected readonly environment: Environment = environment;
 
     constructor(
         public service: Service,
@@ -173,7 +176,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
     }
 
-    applyChanges() {
+    async applyChanges() {
         if (this.edge == null) {
             return;
         }
@@ -224,19 +227,30 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             const properties: { name: string, value: any }[] = [];
             controllers.forEach((element) => {
                 const name = element.keys().next().value;
-                const value = element.values().next().value;
+                const rawValue = element.values().next().value;
+                let value = rawValue;
+
+                // Needs to be done to get Datetime string in this format: YYYY-MM-DDTHH:mm:ssTZD
+                if (name === "targetTime") {
+                    value = DateTimeUtils.formatToISOZonedDateTime(rawValue);
+                }
+
                 properties.push({
                     name: name,
                     value: value,
                 });
             });
 
-            this.edge.updateComponentConfig(this.websocket, controllerId, properties).then(() => {
+            try {
+                // todo: updateAppConfig for once fixed
+                await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
                 this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 this.formGroup.markAsPristine();
-            }).catch(reason => {
+
+            } catch (reason) {
                 this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
-            });
+            }
+
         }
     }
 

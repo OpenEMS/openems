@@ -5,13 +5,13 @@
     <ion-buttons slot="end">
       <oe-help-button key="CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
-        <ion-icon name="close-outline"></ion-icon>
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ng-container *ngIf="service.currentEdge | async as edge">
+<ng-container *ngIf="service.currentEdge() as edge">
   <ng-container *ngIf="edge.currentData | async as currentData">
     <ng-container *ngIf="currentData.summary as sum">
       <ion-content>
@@ -68,7 +68,7 @@
           </ion-card-content>
           <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && !loading">
             <form [formGroup]="formGroup">
-              <ng-container *ngIf="inputMode.value === 'OTHER'">
+              <ng-container *ngIf="inputMode?.value === 'OTHER'">
                 <ion-card-content class="underline">
                   <table class="full_width">
                     <tr>
@@ -182,7 +182,7 @@
                     </tr>
                   </table>
                 </ng-container>
-                <ng-container *ngIf="inputMode.value !== 'SOC'">
+                <ng-container *ngIf="inputMode?.value !== 'SOC'">
                   <table class="full_width">
                     <tr>
                       <td style="width: 65%" translate>
@@ -212,11 +212,11 @@
                   </tr>
                 </table>
                 <!-- regular behaviour for invert if GridSell is not selected -->
-                <ion-segment *ngIf="inputMode.value !== 'GRIDSELL'" formControlName="invert" scrollable="false"
-                  [value]="invert.value">
-                  <ion-segment-button value="false">
+                <ion-segment *ngIf="inputMode !== null && inputMode.value !== 'GRIDSELL'" formControlName="invert"
+                  scrollable="false" [value]="formGroup.controls['invert'].value">
+                  <ion-segment-button [value]="false">
                     <ion-label>
-                      <ng-container *ngIf="inputMode.value === 'SOC'; else noSocFalse">
+                      <ng-container *ngIf="inputMode?.value === 'SOC'; else noSocFalse">
                         <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
                         {{ threshold.value | unitvalue:'%' }}
                       </ng-container>
@@ -227,9 +227,9 @@
                     </ion-label>
                     <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
                   </ion-segment-button>
-                  <ion-segment-button value="true">
+                  <ion-segment-button [value]="true">
                     <ion-label>
-                      <ng-container *ngIf="inputMode.value === 'SOC'; else noSocTrue">
+                      <ng-container *ngIf="inputMode?.value === 'SOC'; else noSocTrue">
                         <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
                         {{ threshold.value | unitvalue:'%' }}
                       </ng-container>
@@ -242,16 +242,17 @@
                   </ion-segment-button>
                 </ion-segment>
                 <!-- invert behaviour for invert if GridSell is selected -->
-                <ion-segment *ngIf="inputMode.value === 'GRIDSELL'" formControlName="invert" scrollable="false"
-                  [value]="invert.value">
-                  <ion-segment-button value="true">
+                <ion-segment
+                  *ngIf="formGroup?.controls['invert']?.value !== null && inputMode && inputMode.value === 'GRIDSELL'"
+                  formControlName="invert" scrollable="false" [value]="invert.value">
+                  <ion-segment-button [value]="true">
                     <ion-label>
                       <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
                       {{ threshold.value | unitvalue:'W' }}
                     </ion-label>
                     <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
                   </ion-segment-button>
-                  <ion-segment-button value="false">
+                  <ion-segment-button [value]="false">
                     <ion-label>
                       <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
                       {{ threshold.value | unitvalue:'W' }}

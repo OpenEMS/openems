@@ -112,11 +112,11 @@ public final class UtilsV1 {
 				.setEssInitialEnergy(essSocEnergy) //
 				.setEssMaxChargeEnergy(toEnergy(maxChargePower)) //
 				.setEssMaxDischargeEnergy(toEnergy(maxDischargePower)) //
-				.seMaxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
+				.setMaxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
 				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
 				.setPrices(interpolateDoubleArray(prices.asArray())) //
-				.setStates(context.controlMode().states) //
+				.setStates(context.controlMode().modes) //
 				.setExistingSchedule(existingSchedule) //
 				.build();
 	}

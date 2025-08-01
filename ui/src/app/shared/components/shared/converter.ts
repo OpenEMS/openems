@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, GridMode, Utils } from "../../shared";
+import { EnabledDisabledState } from "../../type/general";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
@@ -122,12 +123,26 @@ export namespace Converter {
   };
 
   /**
+   * Formats a Energy value as Watt hours [Wh].
+   *
+   * Value 1000 -> "1000 Wh".
+   * Value null -> "-".
+   *
+   * @param value the energy value
+   * @returns formatted value; '-' for null
+   */
+  export const TO_WATT_HOURS: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_WATT_HOURS(value));
+  };
+
+  /**
    * Formats a Energy value as Kilo watt hours [kWh].
    *
    * Value 1000 -> "1000 kWh".
    * Value null -> "-".
    *
-   * @param value the power value
+   * @param value the energy value
    * @returns formatted value; '-' for null
    */
   export const TO_KILO_WATT_HOURS: Converter = (raw) => {
@@ -275,11 +290,99 @@ export namespace Converter {
     };
   };
 
+  export const HEAT_PUMP_STATES = (translate: TranslateService) => {
+    return (raw): string => {
+      switch (raw) {
+        case -1:
+          return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+        case 0:
+          return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+        case 1:
+          return translate.instant("Edge.Index.Widgets.HeatPump.normalOperationShort");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRecShort");
+        case 3:
+          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnComShort");
+      }
+    };
+  };
+
   export const FORMAT_SECONDS_TO_DURATION: any = (locale: string) => {
     return (raw): any => {
       return IF_NUMBER(raw, value => {
         return TimeUtils.formatSecondsToDuration(value, locale);
       });
     };
+  };
+
+  /**
+   * Converts the runState of the heating element to the tranlsated state
+   *
+   * @param translate the current language to be translated to
+   * @returns converted value
+   */
+  export const CONVERT_HEATING_ELEMENT_RUNSTATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case 0:
+          return translate.instant("General.inactive");
+        case 1:
+          return translate.instant("General.active");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.activeForced");
+        case 3:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.ACTIVED_FORCED_LIMIT");
+        case 4:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.DONE");
+        case 5:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.UNREACHABLE");
+        case 6:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.CALIBRATION");
+        default:
+          return "";
+      };
+    };
+  };
+
+  /**
+   * Converts Power2Heat-State
+   *
+   * @param translate the current language to be translated to
+   * @returns converted value
+   */
+  export const CONVERT_POWER_2_HEAT_STATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case 0:
+          return translate.instant("Edge.Index.Widgets.HEAT.HEATING");
+        case 1:
+          return translate.instant("Edge.Index.Widgets.HEAT.TARGET_TEMPERATURE_REACHED");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+        case -1:
+        default:
+          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+      }
+    };
+  };
+
+  export const CONVERT_TO_BAR: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_BAR(value));
+  };
+
+  export const CONVERT_TO_ENABLED_DISABLED_STATE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      EnabledDisabledState[value]);
+  };
+
+  export const CONVERT_TO_HEATING_STATE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      EnabledDisabledState[value]);
+  };
+
+  export const CONVERT_TO_HOUR: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_HOUR(value));
   };
 }

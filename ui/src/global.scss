@@ -47,6 +47,14 @@ ion-card-content {
     color: var(--ion-card-content-color);
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    background-color: transparent !important;
+    box-shadow: 0 0 0em 1000em var(--ion-background-color) inset !important;
+    -webkit-text-fill-color: var(--ion-text-color) !important;
+    margin-top: 0.1em;
+}
+
 .footer-color {
     background-color: var(--ion-color-toolbar-secondary) !important;
 }
@@ -62,6 +70,10 @@ ion-card-content {
         display: none;
     }
 
+}
+
+.paragraph-space {
+    margin-top: 2rem;
 }
 
 .disabled {
@@ -142,9 +154,23 @@ formly-field-ion-radio {
     border-color: white;
 }
 
+//* Color of arrow down *//
+ion-select::part(icon) {
+    color: var(--ion-color-primary) !important;
+}
+
+.ion-select-border-color-primary {
+    --border-color: var(--ion-color-primary);
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+        border-color: var(--ion-color-primary) !important;
+    }
+}
+
 .custom-ion-popover {
 
-    --border-width: 0;
     --background: var(--ion-background-color);
 
     // Floating label
@@ -170,6 +196,10 @@ formly-field-ion-radio {
     .item-radio-checked {
         --background: var(--ion-color-primary-tint);
         --background-opacity: 0.9;
+    }
+
+    ion-list {
+        min-width: fit-content;
     }
 }
 
@@ -227,9 +257,7 @@ html.md {
     --ion-default-font: $font-family;
 }
 
-//252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content {
-    width: 251px;
     position: center;
     overflow-y: hidden;
     overflow-x: hidden;
@@ -249,6 +277,16 @@ html.md {
 
 .white-space-initial {
     white-space: initial !important;
+}
+
+formly-range-type {
+    display: block;
+    width: 100%;
+}
+
+ion-range {
+    --bar-background: var(--ion-color-background-pull-to-refresh);
+    --bar-background-active: var(--ion-color-primary);
 }
 
 ion-label {
@@ -274,6 +312,10 @@ mat-card.single_top {
 
 table.full_width {
     width: 100%;
+}
+
+.full_height {
+    height: 100%;
 }
 
 .bold {
@@ -310,19 +352,6 @@ ion-item,
 ion-checkbox {
     .checkbox-icon {
         display: none;
-    }
-}
-
-#theme-switcher {
-    --transition: checkmark-color 5s ease-in-out;
-
-    :host {
-        --checkmark-color: red;
-    }
-
-    ion-checkbox::part('mark') {
-        --border-color: white;
-        --checkmark-color: red;
     }
 }
 
@@ -384,6 +413,20 @@ formly-input-section {
 }
 
 :root {
+
+    ion-text {
+        small {
+            color: var(--ion-card-content-color);
+        }
+    }
+
+    ion-card {
+
+        ion-card-title,
+        ion-card-subtitle {
+            color: var(--ion-text-color);
+        }
+    }
 
     --ion-color-primary-item: shade($primary-color, #000);
 
@@ -452,8 +495,24 @@ formly-input-section {
     }
 
     ion-toggle {
-        --background-checked: var(--ion-color-toggle-background);
-        --background: #9C9C9C;
+        --track-background: var(--ion-color-toggle-background);
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --handle-background-checked: white;
+        --track-background-checked: var(--ion-color-primary);
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
+        padding: 0.8em;
+        padding-right: 0.2em;
+        padding-left: 0.2em;
+        overflow: visible;
+        scale: 0.95;
+    }
+
+    ion-toggle::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
+    }
+
+    ion-toggle.toggle-checked::part(handle) {
+        border: 0.15em solid var(--ion-color-toggle-active) !important;
     }
 
     ion-spinner {
@@ -461,6 +520,18 @@ formly-input-section {
         left: 25%;
         width: 50%;
         color: var(--ion-color-primary);
+    }
+
+    // Ensure content is fitting inside tooltip
+    ion-range::part(pin) {
+        width: max-content !important;
+        white-space: nowrap;
+        padding: 0.5em;
+        text-align: center;
+    }
+
+    ion-buttons {
+        color: var(--ion-color-toggle-background) !important;
     }
 }
 

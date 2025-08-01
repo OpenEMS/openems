@@ -11,7 +11,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_ESS_DISCH
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_ESS_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_PRODUCTION;
-import static io.openems.edge.energy.api.EnergyUtils.toPower;
 import static java.lang.Math.round;
 import static java.util.Optional.ofNullable;
 
@@ -22,6 +21,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -38,13 +38,14 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
-import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl.EshContext;
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
-import io.openems.edge.energy.api.EnergyScheduleHandler.WithDifferentStates.Period;
+import io.openems.edge.energy.api.handler.DifferentModes.Period;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -101,8 +102,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static GetScheduleResponse from(UUID requestId, String componentId, Clock clock, SymmetricEss ess,
-			Timedata timedata,
-			EnergyScheduleHandler.WithDifferentStates<StateMachine, EshContext> energyScheduleHandler) {
+			Timedata timedata, EshWithDifferentModes<StateMachine, OptimizationContext, Void> energyScheduleHandler) {
 		final var schedule = energyScheduleHandler.getSchedule();
 		final JsonArray result;
 		if (schedule.isEmpty()) {
@@ -181,20 +181,21 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	 * @return {@link Stream} of {@link JsonObject}s
 	 */
 	protected static Stream<JsonObject> fromSchedule(SymmetricEss ess,
-			ImmutableSortedMap<ZonedDateTime, Period<StateMachine, EshContext>> schedule) {
+			ImmutableSortedMap<ZonedDateTime, Period<StateMachine, OptimizationContext>> schedule) {
 		final var essTotalEnergy = ess.getCapacity().orElse(0);
 		return schedule.entrySet().stream() //
 				.map(e -> {
 					var p = e.getValue();
+					final IntUnaryOperator convertEnergyToPower = i -> p.duration().convertEnergyToPower(i);
 
 					return buildJsonObject() //
 							.addProperty("timestamp", e.getKey()) //
 							.addProperty("price", p.price()) //
-							.addProperty("state", p.state().getValue()) //
-							.addProperty("grid", toPower(p.energyFlow().getGrid())) //
-							.addProperty("production", toPower(p.energyFlow().getProd())) //
-							.addProperty("consumption", toPower(p.energyFlow().getCons())) //
-							.addProperty("ess", toPower(p.energyFlow().getEss())) //
+							.addProperty("state", p.mode().getValue()) //
+							.addProperty("grid", convertEnergyToPower.applyAsInt(p.energyFlow().getGrid())) //
+							.addProperty("production", convertEnergyToPower.applyAsInt(p.energyFlow().getProd())) //
+							.addProperty("consumption", convertEnergyToPower.applyAsInt(p.energyFlow().getCons())) //
+							.addProperty("ess", convertEnergyToPower.applyAsInt(p.energyFlow().getEss())) //
 							.addProperty("soc", round(fitWithin(0F, 100F, //
 									p.essInitialEnergy() * 100F / essTotalEnergy))) //
 							.build();

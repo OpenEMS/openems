@@ -3,13 +3,15 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
-import { MenuController, ModalController, Platform, ToastController } from "@ionic/angular";
+import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
 import { Subject, Subscription } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
-import { AppService } from "./app.service";
+import { PlatFormService } from "./platform.service";
+import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
+import { UserService } from "./shared/service/user.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
@@ -38,13 +40,16 @@ export class AppComponent implements OnInit, OnDestroy {
     public modalCtrl: ModalController,
     public router: Router,
     public service: Service,
+    private userService: UserService,
     public toastController: ToastController,
     public websocket: Websocket,
     private globalRouteChangeHandler: GlobalRouteChangeHandler,
     private meta: Meta,
-    private appService: AppService,
+    private appService: PlatFormService,
     private title: Title,
     private stateService: AppStateTracker,
+    protected navigationService: NavigationService,
+    protected navCtrl: NavController
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 

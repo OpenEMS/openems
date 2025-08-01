@@ -1,13 +1,15 @@
 // @ts-strict-ignore
 import { Injectable, signal, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
+import { Capacitor } from "@capacitor/core";
 import { TranslateService } from "@ngx-translate/core";
+import { SavePassword } from "capacitor-ios-autofill-save-password";
 import { CookieService } from "ngx-cookie-service";
 import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { UserComponent } from "src/app/user/user.component";
 import { environment } from "src/environments";
 
+import { WebsocketInterface } from "../interface/websocketInterface";
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { CurrentDataNotification } from "../jsonrpc/notification/currentDataNotification";
 import { EdgeConfigNotification } from "../jsonrpc/notification/edgeConfigNotification";
@@ -19,11 +21,12 @@ import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 import { LogoutRequest } from "../jsonrpc/request/logoutRequest";
 import { RegisterUserRequest } from "../jsonrpc/request/registerUserRequest";
 import { AuthenticateResponse } from "../jsonrpc/response/authenticateResponse";
+import { User } from "../jsonrpc/shared";
 import { States } from "../ngrx-store/states";
 import { Language } from "../type/language";
 import { Pagination } from "./pagination";
 import { Service } from "./service";
-import { WebsocketInterface } from "./websocketInterface";
+import { UserService } from "./user.service";
 import { WsData } from "./wsdata";
 
 @Injectable()
@@ -42,7 +45,7 @@ export class Websocket implements WebsocketInterface {
     | "failed" // connection failed
     = "initial";
 
-  public state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
+  public readonly state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
 
   private readonly wsdata = new WsData();
 
@@ -53,6 +56,7 @@ export class Websocket implements WebsocketInterface {
     private translate: TranslateService,
     private cookieService: CookieService,
     private router: Router,
+    private userService: UserService,
     private pagination: Pagination,
   ) {
     service.websocket = this;
@@ -75,6 +79,15 @@ export class Websocket implements WebsocketInterface {
         this.state.set(States.AUTHENTICATED);
         const authenticateResponse = (r as AuthenticateResponse).result;
 
+        if (request instanceof AuthenticateWithPasswordRequest) {
+          if (Capacitor.getPlatform() === "ios") {
+            SavePassword.promptDialog({
+              username: request.params.username,
+              password: request.params.password,
+            });
+          }
+        }
+
         const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
         localStorage.LANGUAGE = language.key;
         this.service.setLang(language);
@@ -82,10 +95,7 @@ export class Websocket implements WebsocketInterface {
 
         // received login token -> save in cookie
         this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
-
-        this.service.currentUser.set(authenticateResponse.user);
-        UserComponent.applyUserSettings(authenticateResponse.user);
-
+        this.userService.currentUser.set(User.from(authenticateResponse.user));
         // Metadata
         this.service.metadata.next({
           user: authenticateResponse.user,

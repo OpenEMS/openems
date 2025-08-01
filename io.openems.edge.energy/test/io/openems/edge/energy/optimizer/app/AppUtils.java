@@ -1,130 +1,155 @@
 package io.openems.edge.energy.optimizer.app;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentStates;
-import static java.lang.Double.parseDouble;
-import static java.lang.Integer.parseInt;
+import static io.jenetics.engine.Limits.byExecutionTime;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.common.type.RegexUtils.applyPatternOrError;
+import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentModes;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
+import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
+import static java.time.Duration.ofSeconds;
 
-import java.time.LocalTime;
+import java.time.Duration;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.EnergySchedulerTestUtils;
+import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.RiskLevel;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext;
-import io.openems.edge.energy.api.simulation.GlobalSimulationsContext.Period;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
 import io.openems.edge.energy.optimizer.SimulationResult;
-import io.openems.edge.evcs.api.Status;
+import io.openems.edge.energy.optimizer.Simulator;
 
-public class AppUtils {
+public final class AppUtils {
 
 	private AppUtils() {
 	}
 
+	protected static void simulateFromLog(String log, long executionLimitSeconds)
+			throws IllegalArgumentException, OpenemsNamedException {
+		simulateFromJson(parseLog(log), executionLimitSeconds);
+	}
+
+	protected static void simulateFromJson(JsonObject json, long executionLimitSeconds)
+			throws IllegalArgumentException, OpenemsNamedException {
+		simulate(globalOptimizationContextSerializer().deserialize(json), executionLimitSeconds);
+	}
+
+	private static void simulate(GlobalOptimizationContext gsc, long executionLimitSeconds) {
+		var simulator = new Simulator(gsc);
+
+		var simulationResult = simulator.getBestSchedule(EMPTY_SIMULATION_RESULT, //
+				false /* isCurrentPeriodFixed */, null, //
+				stream -> stream //
+						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))));
+
+		logSimulationResult(simulator, simulationResult);
+	}
+
 	/**
-	 * Creates {@link GlobalSimulationsContext} from the log output of
-	 * {@link SimulationResult#toLogString()}.
+	 * Returns a {@link JsonSerializer} for a {@link Ess}.
 	 * 
-	 * @param log  the log output of {@link SimulationResult#toLogString()}
-	 * @param eshs the {@link EnergyScheduleHandler}s
-	 * @return a {@link GlobalSimulationsContext}
+	 * @return the created {@link JsonSerializer}
 	 */
-	public static GlobalSimulationsContext parseGlobalSimulationsContextFromLogString(String log,
-			ImmutableList<EnergyScheduleHandler> eshs) throws IllegalArgumentException {
-		var headerMatcher = log.lines() //
-				.filter(l -> l.contains("OPTIMIZER ") && l.contains("GlobalSimulationsContext")) //
-				.map(l -> applyPattern(HEADER_PATTERN, l)) //
-				.findFirst().get();
-		final var startDateTime = ZonedDateTime.parse(headerMatcher.group("startTime"));
-		final var clock = new TimeLeapClock(startDateTime.toInstant(), ZoneId.of("UTC"));
+	public static JsonSerializer<GlobalOptimizationContext> globalOptimizationContextSerializer() {
+		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
+			final var startTime = json.getZonedDateTime("startTime");
+			final var clock = new TimeLeapClock(startTime.toInstant(), ZoneId.of("UTC"));
+			final var controllers = json.getJsonArrayPath("eshs").getAsImmutableList(e -> {
+				var j = e.getAsJsonObjectPath();
+				var parentFactoryPid = j.getString("factoryPid");
+				var parentId = j.getString("id");
+				var source = j.getNullableJsonObjectPath("source").getOrNull();
+				return EnergySchedulerTestUtils.createFromJson(parentFactoryPid, parentId, source);
+			});
 
-		var gridMatcher = applyPattern(GRID_PATTERN, headerMatcher.group("grid"));
-		final var grid = new GlobalSimulationsContext.Grid(//
-				parseInt(gridMatcher.group("maxBuy")), //
-				parseInt(gridMatcher.group("maxSell")));
+			var nextTime = new AtomicReference<>(startTime);
+			final var periods = json.getJsonArrayPath("periods").getAsImmutableList(e -> {
+				var j = e.getAsJsonObjectPath();
+				var time = nextTime.get();
+				var index = (int) Duration.between(startTime, time).toMinutes() / 15;
+				nextTime.set(time.plusMinutes(15));
+				return (GlobalOptimizationContext.Period) new GlobalOptimizationContext.Period.Quarter(index, time, //
+						j.getInt("production"), j.getInt("consumption"), j.getDouble("price"));
+			});
 
-		var essMatcher = applyPattern(ESS_PATTERN, headerMatcher.group("ess"));
-		final var ess = new GlobalSimulationsContext.Ess(//
-				parseInt(essMatcher.group("currentEnergy")), //
-				parseInt(essMatcher.group("totalEnergy")), //
-				parseInt(essMatcher.group("maxChargeEnergy")), //
-				parseInt(essMatcher.group("maxDischargeEnergy")));
+			final var eshs = controllers.stream() //
+					.map(EnergySchedulable::getEnergyScheduleHandler) //
+					.collect(toImmutableList());
+			var eshsWithDifferentModes = filterEshsWithDifferentModes(eshs) //
+					.collect(toImmutableList());
 
-		final var evcss = Arrays.stream(headerMatcher.group("evcss").split("], ")) //
-				.map(evcs -> applyPattern(EVCS_PATTERN, evcs)) //
-				.collect(toImmutableMap(//
-						m -> m.group("componentId"), //
-						m -> new GlobalSimulationsContext.Evcs(//
-								Status.valueOf(m.group("status")), //
-								parseInt(m.group("energySession"))))); //
+			return new GlobalOptimizationContext(//
+					clock, //
+					json.getEnum("riskLevel", RiskLevel.class), //
+					startTime, //
+					eshs, //
+					eshsWithDifferentModes, //
+					json.getObject("grid", Grid.serializer()), //
+					json.getObject("ess", Ess.serializer()), //
+					periods); //
 
-		var nextTime = new AtomicReference<>(startDateTime);
-		var periods = log.lines() //
-				.filter(l -> l.contains("OPTIMIZER ") && !l.contains("GlobalSimulationsContext") && !l.contains("Time")) //
-				.map(l -> applyPattern(PERIOD_PATTERN, l)) //
-				.map(m -> {
-					var time = nextTime.get();
-					if (!nextTime.get().toLocalTime().equals(LocalTime.parse(m.group("time"), HOURS_MINUTES))) {
-						throw new IllegalArgumentException("Times do not match: " + time);
-					}
-					nextTime.set(time.plusMinutes(15));
-					return (Period) new Period.Quarter(time, //
-							parseInt(m.group("production")), //
-							parseInt(m.group("consumption")), //
-							parseDouble(m.group("price")));
-				}) //
-				.collect(toImmutableList());
-
-		return new GlobalSimulationsContext(clock, RiskLevel.MEDIUM, startDateTime, //
-				eshs, filterEshsWithDifferentStates(eshs).collect(toImmutableList()), //
-				grid, ess, evcss, periods);
+		}, GlobalOptimizationContext::toJson);
 	}
 
-	private static Matcher applyPattern(Pattern pattern, String line) {
-		var matcher = pattern.matcher(line);
-		if (!matcher.find()) {
-			throw new IllegalArgumentException("Pattern [" + pattern + "] does not match line [" + line + "]");
-		}
-		return matcher;
+	/**
+	 * Parses the log output of {@link SimulationResult#toLogString()} to a
+	 * {@link JsonObject}.
+	 * 
+	 * @param log the log output of {@link SimulationResult#toLogString()}
+	 * @return a {@link JsonObject}
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
+	 */
+	private static JsonObject parseLog(String log) throws IllegalArgumentException, OpenemsNamedException {
+		var header = parseToJsonObject(log.lines() //
+				.filter(l -> l.contains("OPTIMIZER ") && l.contains("GlobalOptimizationContext")) //
+				.map(l -> applyPatternOrError(HEADER_PATTERN, l)) //
+				.map(m -> m.group("json")) //
+				.findFirst().get());
+		var goc = getAsJsonObject(header, "GlobalOptimizationContext");
+		goc.add("periods", log.lines() //
+				.filter(l -> l.contains("OPTIMIZER ") && !l.contains("GlobalOptimizationContext")
+						&& !l.contains("Time")) //
+				.map(l -> applyPatternOrError(PERIOD_PATTERN, l)) //
+				.map(m -> buildJsonObject() //
+						.addProperty("time", m.group("time")) //
+						.addProperty("production", Integer.parseInt(m.group("production"))) //
+						.addProperty("consumption", Integer.parseInt(m.group("consumption"))) //
+						.addProperty("price", Double.parseDouble(m.group("price"))) //
+						.build()) //
+				.collect(toJsonArray()));
+		return goc;
 	}
-
-	private static final DateTimeFormatter HOURS_MINUTES = DateTimeFormatter.ofPattern("HH:mm");
 
 	private static final Pattern HEADER_PATTERN = Pattern.compile("" //
-			+ "startTime=(?<startTime>\\S*), " //
-			+ "Grid\\[(?<grid>.*)\\], " //
-			+ "Ess\\[(?<ess>.*)\\], " //
-			+ "evcss=\\{(?<evcss>.*)\\}, " //
-			+ "eshs=\\[");
-
-	private static final Pattern GRID_PATTERN = Pattern.compile("" //
-			+ "maxBuy=(?<maxBuy>\\d+), " //
-			+ "maxSell=(?<maxSell>\\d+)");
-
-	private static final Pattern ESS_PATTERN = Pattern.compile("" //
-			+ "currentEnergy=(?<currentEnergy>\\d+), " //
-			+ "totalEnergy=(?<totalEnergy>\\d+), " //
-			+ "maxChargeEnergy=(?<maxChargeEnergy>\\d+), " //
-			+ "maxDischargeEnergy=(?<maxDischargeEnergy>\\d+)");
-
-	private static final Pattern EVCS_PATTERN = Pattern.compile("" //
-			+ "(?<componentId>\\S+)=Evcs\\[" //
-			+ "status=(?<status>\\S+), " //
-			+ "energySession=(?<energySession>\\d+)");
+			+ "OPTIMIZER (?<json>\\{\\\"GlobalOptimizationContext\\\".*\\}$)");
 
 	private static final Pattern PERIOD_PATTERN = Pattern.compile("" //
 			+ "(?<time>\\d{2}:\\d{2})" //
-			+ "\\s+(?<price>-?\\d+\\.\\d+)" //
+			+ "\\s+(?<price>-?\\d+)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
 
+	protected static JsonElement period(String time, double production, double consumption, double price) {
+		return buildJsonObject() //
+				.addProperty("time", time) //
+				.addProperty("production", production) //
+				.addProperty("consumption", consumption) //
+				.addProperty("price", price) //
+				.build();
+	}
 }

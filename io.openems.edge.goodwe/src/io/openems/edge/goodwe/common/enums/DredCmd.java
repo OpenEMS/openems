@@ -5,10 +5,10 @@ import io.openems.common.types.OptionsEnum;
 public enum DredCmd implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	DRED0(0x00FF, "Dred 0"), //
-	DRED1(0x0001, "Dred 1"), //
-	DRED2(0x0002, "Dred 2"), //
-	DRED3(0x0004, "Dred 3"), //
-	DRED4(0x0008, "Dred 4"), //
+	DRED1(0x0001, "Dred 1 or 0% PV"), //
+	DRED2(0x0002, "Dred 2 or 30% PV"), //
+	DRED3(0x0004, "Dred 3 or 60% PV"), //
+	DRED4(0x0008, "Dred 4 or 100% PV"), //
 	DRED5(0x0010, "Dred 5"), //
 	DRED6(0x0020, "Dred 6"), //
 	DRED7(0x0040, "Dred 7"), //

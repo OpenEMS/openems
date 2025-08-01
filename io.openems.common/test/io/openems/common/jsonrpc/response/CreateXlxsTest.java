@@ -49,10 +49,11 @@ public class CreateXlxsTest {
 		values.put(Channel.ESS_DISCHARGE_POWER, new JsonPrimitive(50));
 		values.put(Channel.ESS_SOC, new JsonPrimitive(50));
 		values.put(new ChannelAddress("meter0", "ActivePower"), new JsonPrimitive(100));
+		values.put(new ChannelAddress("charger0", "ActualPower"), new JsonPrimitive(66));
 		values.put(new ChannelAddress("meter1", "ActivePower"), new JsonPrimitive(412));
 		values.put(new ChannelAddress("evcs0", "ChargePower"), new JsonPrimitive(75));
 		values.put(new ChannelAddress("meter2", "ActivePower"), new JsonPrimitive(10));
-		values.put(new ChannelAddress("_sum", "GridBuyPower"), new JsonPrimitive(292.5));
+		values.put(new ChannelAddress("_sum", "GridBuyPower"), new JsonPrimitive(292.5525252));
 
 		return ImmutableSortedMap.<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>naturalOrder()
 				.put(ZonedDateTime.of(2020, 07, 01, 0, 15, 0, 0, ZoneId.systemDefault()).plusMinutes(15), values) //
@@ -77,6 +78,8 @@ public class CreateXlxsTest {
 		production.add(new XlsxExportDataEntry("PV-Dach", new ChannelAddress("meter0", "ActivePower"),
 				HistoricTimedataSaveType.POWER));
 		production.add(new XlsxExportDataEntry("PV-Alm", new ChannelAddress("meter1", "ActivePower"),
+				HistoricTimedataSaveType.POWER));
+		production.add(new XlsxExportDataEntry("Charger", new ChannelAddress("charger0", "ActualPower"),
 				HistoricTimedataSaveType.POWER));
 		consumption.add(new XlsxExportDataEntry("Consumption Meter", new ChannelAddress("meter2", "ActivePower"),
 				HistoricTimedataSaveType.POWER));

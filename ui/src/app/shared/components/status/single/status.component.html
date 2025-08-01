@@ -4,7 +4,7 @@
         <ion-title translate>General.SYSTEM_STATE</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close"></ion-icon>
+                <ion-icon name="close" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -33,7 +33,7 @@
                             <ion-item lines="inset">
                                 <ion-icon class="normal-icon" name="{{ category.category.icon }}"></ion-icon>
                                 <ion-label class="ion-padding-start">
-                                    {{ category.category.title }}
+                                    {{category.category.title}}
                                 </ion-label>
                             </ion-item>
                         </ion-item-group>

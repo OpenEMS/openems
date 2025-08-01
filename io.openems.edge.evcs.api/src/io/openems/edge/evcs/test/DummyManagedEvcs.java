@@ -16,6 +16,7 @@ import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -27,6 +28,7 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	private int minimumHardwarePower = Evcs.DEFAULT_MINIMUM_HARDWARE_POWER;
 	private int maximumHardwarePower = Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER;
 	private MeterType meterType = MANAGED_CONSUMPTION_METERED;
+	private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 
 	/**
 	 * Instantiates a disabled {@link DummyManagedEvcs}.
@@ -68,6 +70,22 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	}
 
 	/**
+	 * Set the {@link PhaseRotation}.
+	 *
+	 * @param phaseRotation the phaseRotation
+	 * @return myself
+	 */
+	public DummyManagedEvcs withPhaseRotation(PhaseRotation phaseRotation) {
+		this.phaseRotation = phaseRotation;
+		return this;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		return this.phaseRotation;
+	}
+
+	/**
 	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER}.
 	 *
 	 * @param value the value
@@ -75,6 +93,17 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	 */
 	public DummyManagedEvcs withActivePower(Integer value) {
 		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER, value);
+		return this;
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedEvcs withActiveProductionEnergy(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, value);
 		return this;
 	}
 

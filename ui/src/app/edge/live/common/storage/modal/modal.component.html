@@ -5,7 +5,7 @@
             <oe-help-button key="COMMON_STORAGE"></oe-help-button>
 
             <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline"></ion-icon>
+                <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -117,7 +117,7 @@
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                 <ng-container
                                                     *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
-                                                    <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                    <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'">
                                                     </ion-toggle>
                                                 </ng-container>
                                             </td>
@@ -132,7 +132,7 @@
                                         <td style="width: 90%">
                                             <ion-note class="ion-text-wrap ion-align-items-center">
                                                 <ion-text>
-                                                    <small style="color: var(--ion-text-color);" translate>
+                                                    <small translate>
                                                         Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                     </small>
                                                 </ion-text>
@@ -184,12 +184,12 @@
                                             Edge.Index.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
-                                            <ion-toggle formControlName="isRunning">
+                                            <ion-toggle mode="md" formControlName="isRunning">
                                             </ion-toggle>
                                         </td>
-
                                     </ion-item-divider>
                                 </tr>
+
                             </table>
                             <ng-container
                                 *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
@@ -401,7 +401,7 @@
                             </ng-container>
                         </table>
                         <!-- Info Text -->
-                        <ng-container *ngIf="service.currentEdge | async as edge">
+                        <ng-container *ngIf="service.currentEdge() as edge">
                             <ng-container *ngIf="edge.currentData | async as currentData">
                                 <ng-container *ngIf="currentData.summary.storage as sum">
                                     <ion-grid
@@ -513,7 +513,8 @@
                                                         <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                         <ng-container
                                                             *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
-                                                            <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                            <ion-toggle mode="md"
+                                                                [formControlName]="'isReserveSocEnabled'">
                                                             </ion-toggle>
                                                         </ng-container>
                                                     </td>
@@ -565,7 +566,7 @@
                                                     Edge.Index.RETROFITTING.OPTIMAL
                                                 </td>
                                                 <td style="width: 15%" class="align_right">
-                                                    <ion-toggle formControlName="isRunning">
+                                                    <ion-toggle mode="md" formControlName="isRunning">
                                                     </ion-toggle>
                                                 </td>
 
@@ -747,7 +748,7 @@
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                 <ng-container
                                                     *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
-                                                    <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                    <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'">
                                                     </ion-toggle>
                                                 </ng-container>
                                             </td>
@@ -796,7 +797,7 @@
                                             Edge.Index.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
-                                            <ion-toggle formControlName="isRunning">
+                                            <ion-toggle mode="md" formControlName="isRunning">
                                             </ion-toggle>
                                         </td>
 

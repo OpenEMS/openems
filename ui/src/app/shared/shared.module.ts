@@ -10,19 +10,27 @@ import { FormlyIonicModule } from "@ngx-formly/ionic";
 import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { appRoutingProviders } from "../app-routing.module";
+import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/formly/formly-current-user-alerting";
+import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
 import { FormlyWrapperDefaultValueWithCasesComponent } from "./components/formly/form-field-default-cases.wrapper";
 import { FormlyFieldMultiStepComponent } from "./components/formly/form-field-multi-step/form-field-multi-step";
 import { FormlyWrapperFormFieldComponent } from "./components/formly/form-field.wrapper";
+import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox-with-button/formly-checkbox-with-button";
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
-import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formlyfieldmodal";
+import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
+import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
 import { FormlyFieldRadioWithImageComponent } from "./components/formly/formly-field-radio-with-image/formly-field-radio-with-image";
+import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
+import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
+import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
+import { FormlyTariffTableTypeComponent } from "./components/formly/formly-tariff-table/formly-custom-tariff-table";
+import { FormlyFieldCheckboxWithLabelComponent } from "./components/formly/help-popover-label-with-description-and-checkbox/help-popover-label-with-description-and-checkbox";
 import { InputTypeComponent } from "./components/formly/input";
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from "./components/formly/input-serial-number-wrapper";
 import { PanelWrapperComponent } from "./components/formly/panel-wrapper.component";
@@ -31,15 +39,16 @@ import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
+import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
+import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
 import { DirectiveModule } from "./directive/directive";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
 import { AppStateTracker } from "./ngrx-store/states";
-import { PipeModule } from "./pipe/pipe";
+import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
-import { PreviousRouteService } from "./service/previousRouteService";
+import { RouteService } from "./service/route.service";
 import { Service } from "./service/service";
-import { Utils } from "./service/utils";
-import { Websocket } from "./shared";
+import { Utils, Websocket } from "./shared";
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { "ip": true };
@@ -59,6 +68,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 
 @NgModule({
   imports: [
+    BaseChartDirective,
     BrowserAnimationsModule,
     CommonModule,
     ComponentsModule,
@@ -73,12 +83,21 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "formly-wrapper-default-of-cases", component: FormlyWrapperDefaultValueWithCasesComponent },
         { name: "panel", component: PanelWrapperComponent },
         { name: "formly-field-modal", component: FormlyFieldModalComponent },
+        { name: "formly-field-navigation", component: FormlyFieldNavigationComponent },
         { name: "formly-field-checkbox-with-image", component: FormlyFieldCheckboxWithImageComponent },
+        { name: "formly-current-user-alerting", component: FormlyCurrentUserAlertingComponent },
+        { name: "formly-other-users-alerting", component: FormlyOtherUsersAlertingComponent },
       ],
       types: [
+        { name: "help-popover-label-with-description-and-checkbox", component: FormlyFieldCheckboxWithLabelComponent },
         { name: "input", component: InputTypeComponent },
         { name: "repeat", component: RepeatTypeComponent },
         { name: "multi-step", component: FormlyFieldMultiStepComponent },
+        { name: "select", component: FormlySelectComponent },
+        { name: "checkbox-button", component: CheckboxButtonTypeComponent },
+        { name: "radio", component: FormlyRadioTypeComponent },
+        { name: "tariff-table", component: FormlyTariffTableTypeComponent },
+        { name: "range", component: FormlyRangeTypeComponent },
       ],
       validators: [
         { name: "ip", validation: IpValidator },
@@ -101,13 +120,16 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    HelpPopoverButtonComponent,
   ],
   declarations: [
     AppHeaderComponent,
     ChartOptionsComponent,
     FormlyCheckBoxHyperlinkWrapperComponent,
     FormlyFieldCheckboxWithImageComponent,
+    FormlyFieldCheckboxWithLabelComponent,
     FormlyFieldModalComponent,
+    FormlyFieldNavigationComponent,
     FormlyFieldMultiStepComponent,
     FormlyFieldRadioWithImageComponent,
     FormlyFieldWithLoadingAnimationComponent,
@@ -121,6 +143,12 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PanelWrapperComponent,
     PercentageBarComponent,
     RepeatTypeComponent,
+    FormlySelectComponent,
+    CheckboxButtonTypeComponent,
+    FormlyRadioTypeComponent,
+    FormlyTariffTableTypeComponent,
+    PickDateTimeRangeComponent,
+    FormlyRangeTypeComponent,
   ],
   exports: [
     AppHeaderComponent,
@@ -144,12 +172,12 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    PickDateTimeRangeComponent,
   ],
   providers: [
     AppStateTracker,
-    appRoutingProviders,
     Logger,
-    PreviousRouteService,
+    RouteService,
     Service,
     Utils,
     Websocket,

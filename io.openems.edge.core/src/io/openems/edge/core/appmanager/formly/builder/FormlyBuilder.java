@@ -9,10 +9,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OnlyIf;
 import io.openems.edge.core.appmanager.Self;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.Wrappers;
@@ -44,9 +47,10 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 
 	protected final JsonObject jsonObject = new JsonObject();
 	protected final JsonObject templateOptions = new JsonObject();
-	private JsonObject expressionProperties = null;
+	private JsonObject expressionProperties;
 	private final List<String> wrappers = new ArrayList<>();
-	private JsonObject validators = null;
+	private JsonObject validators;
+	private JsonObject validation;
 
 	protected FormlyBuilder(Nameable property) {
 		this.setType(this.getType());
@@ -142,6 +146,23 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 		return this.self();
 	}
 
+	/**
+	 * Requires the checkbox to be checked.
+	 * 
+	 * @param l the language of the message
+	 * @return this
+	 */
+	public final T requireTrue(Language l) {
+		this.templateOptions.addProperty("pattern", "true");
+		final var message = TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l),
+				"formly.validation.requireChecked");
+		this.getValidation().add("messages", JsonUtils.buildJsonObject() //
+				.addProperty("pattern", message) //
+				.build());
+
+		return this.self();
+	}
+
 	public final T setLabel(String label) {
 		if (label != null) {
 			this.templateOptions.addProperty("label", label);
@@ -158,7 +179,7 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 
 	private final T onlyShowIf(String expression) {
 		this.getExpressionProperties().addProperty("templateOptions.required", expression);
-		this.jsonObject.addProperty("hideExpression", "!(" + expression + ")");
+		this.getExpressionProperties().addProperty("hide", "!(" + expression + ")");
 		return this.self();
 	}
 
@@ -216,6 +237,22 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 		}
 		this.templateOptions.addProperty("readonly", true);
 		return this.self();
+	}
+
+	private final T readonlyIf(String expression) {
+		this.getExpressionProperties().addProperty("props.readonly", expression);
+		return this.self();
+	}
+
+	/**
+	 * Makes the current input readonly if the given {@link ExpressionBuilder}
+	 * returns true.
+	 * 
+	 * @param expression the {@link BooleanExpression} to set
+	 * @return this
+	 */
+	public final T readonlyIf(BooleanExpression expression) {
+		return this.readonlyIf(expression.expression());
 	}
 
 	public final T setLabelExpression(StringExpression expression) {
@@ -332,6 +369,9 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 		if (this.validators != null) {
 			this.jsonObject.add("validators", this.validators);
 		}
+		if (this.validation != null) {
+			this.jsonObject.add("validation", this.validation);
+		}
 		return this.jsonObject;
 	}
 
@@ -343,6 +383,10 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 
 	protected final JsonObject getValidators() {
 		return this.validators = JsonFormlyUtil.single(this.validators);
+	}
+
+	protected final JsonObject getValidation() {
+		return this.validation = JsonFormlyUtil.single(this.validation);
 	}
 
 	@Override

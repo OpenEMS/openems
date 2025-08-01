@@ -2,10 +2,11 @@
 import { Component } from "@angular/core";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { saveAs } from "file-saver-es";
-import { AppService } from "src/app/app.service";
+import { PlatFormService } from "src/app/platform.service";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { QueryHistoricTimeseriesExportXlxsRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs";
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared";
 
 @Component({
@@ -19,7 +20,7 @@ export class FlatComponent extends AbstractFlatWidget {
     private static readonly EXCEL_EXTENSION = ".xlsx";
     protected autarchyValue: number | null;
     protected readonly isSmartphoneResolution = this.service.isSmartphoneResolution;
-    protected readonly isApp: boolean = AppService.platform !== "web";
+    protected readonly isApp: boolean = PlatFormService.platform !== "web";
 
     public getChartHeight(): number {
         return this.service.deviceHeight / 2;
@@ -50,7 +51,7 @@ export class FlatComponent extends AbstractFlatWidget {
         }
 
         this.service.getCurrentEdge().then(edge => {
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
+            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(DateUtils.maxDate(this.service.historyPeriod.value.from, this.edge?.firstSetupProtocol), this.service.historyPeriod.value.to)).then(response => {
                 const r = response as Base64PayloadResponse;
                 const binary = atob(r.result.payload.replace(/\s/g, ""));
                 const len = binary.length;
