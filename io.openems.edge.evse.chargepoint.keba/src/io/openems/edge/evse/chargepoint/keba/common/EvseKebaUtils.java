@@ -83,13 +83,10 @@ public class EvseKebaUtils {
 		this.previousCurrent = Tuple.of(now, setPointInMilliAmpere);
 
 		try {
-			var setEnable = keba.getSetEnableChannel();
-			if (setPointInMilliAmpere == 0) {
-				setEnable.setNextWriteValue(SetEnable.DISABLE);
-			} else {
-				setEnable.setNextWriteValue(SetEnable.ENABLE);
-				keba.getSetChargingCurrentChannel().setNextWriteValue(setPointInMilliAmpere);
-			}
+			keba.getSetEnableChannel().setNextWriteValue(setPointInMilliAmpere == 0 //
+					? SetEnable.DISABLE //
+					: SetEnable.ENABLE);
+			keba.getSetChargingCurrentChannel().setNextWriteValue(setPointInMilliAmpere);
 
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
