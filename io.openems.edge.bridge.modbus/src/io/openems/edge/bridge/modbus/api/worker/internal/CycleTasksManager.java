@@ -116,6 +116,13 @@ public class CycleTasksManager {
 		this.traceLog(() -> "State: " + this.state + " -> " + StateMachine.WRITE + " (onExecuteWrite)");
 
 		this.state = StateMachine.WRITE;
+		
+		// Interrupt the WaitDelayTask if it's currently running
+		var currentWaitDelayTask = this.waitDelayHandler.getWaitDelayTask();
+		if (currentWaitDelayTask != null) {
+			currentWaitDelayTask.interrupt();
+		}
+		
 		this.waitMutexTask.release();
 	}
 
@@ -136,7 +143,7 @@ public class CycleTasksManager {
 		var nextTask = switch (this.state) {
 
 		case INITIAL_WAIT ->
-			// Waiting for planned waiting time to pass
+			// Waiting for planned waiting time to pass or EXECUTE_WRITE event
 			this.waitDelayHandler.getWaitDelayTask();
 
 		case READ_BEFORE_WRITE -> {
