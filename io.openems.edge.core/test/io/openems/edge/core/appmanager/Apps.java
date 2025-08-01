@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -730,6 +731,16 @@ public final class Apps {
 	 */
 	public static final HeatPump heatPump(AppManagerTestBundle t) {
 		return app(t, HeatPump::new, "App.Heat.HeatPump");
+	}
+
+	/**
+	 * Test method for creating a {@link PeakShaving}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TimeSlotPeakShaving timeSlotPeakShaving(AppManagerTestBundle t) {
+		return app(t, TimeSlotPeakShaving::new, "App.PeakShaving.TimeSlotPeakShaving");
 	}
 
 	/**

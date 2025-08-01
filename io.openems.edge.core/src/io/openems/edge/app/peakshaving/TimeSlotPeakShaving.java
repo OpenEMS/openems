@@ -7,6 +7,7 @@ import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustri
 import java.util.Map;
 import java.util.function.Function;
 
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,17 +25,17 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.ComponentProps;
-import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving.Property;
+import io.openems.edge.app.peakshaving.TimeSlotPeakShaving.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -45,88 +46,76 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
- * Describes an asymmetric peak shaving app.
+ * Describes a time slot peak shaving app.
  *
  * <pre>
-  {
-    "appId":"App.PeakShaving.PeakShaving",
-    "alias":"Phasengenaue Lastspitzenkappung",
-    "instanceId": UUID,
-    "image": base64,
-    "properties":{
-      "CTRL_PEAK_SHAVING_ID": "ctrlPeakShaving0",
-      "ESS_ID": "ess0",
-      "METER_ID":"meter0",
-      "PEAK_SHAVING_POWER": 7000,
-      "RECHARGE_POWER": 6000
-    },
-    "appDescriptor": {
-    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
-    }
-  }
+ {
+ "appId":"App.PeakShaving.TimeSlotPeakShaving",
+ "alias":"Hochlastzeitfenster",
+ "instanceId": UUID,
+ "image": base64,
+ "properties":{
+ "CTRL_PEAK_SHAVING_ID": "ctrlTimeSlotPeakShaving0",
+ "ESS_ID": "ess0",
+ "METER_ID":"meter0",
+ "PEAK_SHAVING_POWER": 7000,
+ "RECHARGE_POWER": 6000
+ },
+ "appDescriptor": {
+ "websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
+ }
+ }
  * </pre>
  */
-@Component(name = "App.PeakShaving.PhaseAccuratePeakShaving")
-public class PhaseAccuratePeakShaving
-		extends AbstractOpenemsAppWithProps<PhaseAccuratePeakShaving, Property, Parameter.BundleParameter>
-		implements OpenemsApp {
+@Component(name = "App.PeakShaving.TimeSlotPeakShaving")
+public class TimeSlotPeakShaving extends
+		AbstractOpenemsAppWithProps<TimeSlotPeakShaving, Property, Parameter.BundleParameter> implements OpenemsApp {
 
-	public enum Property implements Type<Property, PhaseAccuratePeakShaving, Parameter.BundleParameter>, Nameable {
+	public enum Property implements Type<Property, TimeSlotPeakShaving, Parameter.BundleParameter> {
 		// Component-IDs
-		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlPeakShaving0")), //
+		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlTimeSlotPeakShaving0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
 		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def //
 				.setRequired(true) //
-				.bidirectional(CTRL_PEAK_SHAVING_ID, "ess.id", //
+				.bidirectional(CTRL_PEAK_SHAVING_ID, "ess", //
 						ComponentManagerSupplier::getComponentManager))), //
 		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def //
 				.setRequired(true) //
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
 						ComponentManagerSupplier::getComponentManager))), //
-		PEAK_SHAVING_POWER(AppDef.copyOfGeneric(PeakShavingProps.peakShavingPowerPerPhase(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
-				.bidirectional(CTRL_PEAK_SHAVING_ID, "peakShavingPower", //
-						ComponentManagerSupplier::getComponentManager))), //
-		RECHARGE_POWER(AppDef.copyOfGeneric(PeakShavingProps.rechargePowerPerPhase(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
-				.bidirectional(CTRL_PEAK_SHAVING_ID, "rechargePower", //
-						ComponentManagerSupplier::getComponentManager))), //
-		PEAK_SHAVING_RECHARGE_POWER_GROUP(
-				PeakShavingProps.peakShavingRechargePowerGroup(PEAK_SHAVING_POWER, RECHARGE_POWER)), //
 		;
 
-		private final AppDef<? super PhaseAccuratePeakShaving, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super TimeSlotPeakShaving, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super PhaseAccuratePeakShaving, ? super Property, ? super BundleParameter> def) {
+		Property(AppDef<? super TimeSlotPeakShaving, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, PhaseAccuratePeakShaving, BundleParameter> self() {
+		public Type<Property, TimeSlotPeakShaving, BundleParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super PhaseAccuratePeakShaving, ? super Property, ? super BundleParameter> def() {
+		public AppDef<? super TimeSlotPeakShaving, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<PhaseAccuratePeakShaving>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<TimeSlotPeakShaving>, BundleParameter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 
 	}
 
 	@Activate
-	public PhaseAccuratePeakShaving(//
+	public TimeSlotPeakShaving(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
-			@Reference ComponentUtil componentUtil //
+			@Reference ComponentUtil componentUtil, //
+			@Reference AppManagerUtil appManagerUtil //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
 	}
@@ -145,11 +134,11 @@ public class PhaseAccuratePeakShaving
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 	@Override
-	protected PhaseAccuratePeakShaving getApp() {
+	protected TimeSlotPeakShaving getApp() {
 		return this;
 	}
 
@@ -159,22 +148,33 @@ public class PhaseAccuratePeakShaving
 			final var ctrlPeakShavingId = this.getId(t, m, Property.CTRL_PEAK_SHAVING_ID);
 
 			final var alias = this.getString(m, l, Property.ALIAS);
-			final var essId = this.getString(m, l, Property.ESS_ID);
-			final var meterId = this.getString(m, l, Property.METER_ID);
-			final var peakShavingPower = this.getInt(m, Property.PEAK_SHAVING_POWER);
-			final var rechargePower = this.getInt(m, Property.RECHARGE_POWER);
+			final var essId = this.getString(m, Property.ESS_ID);
+			final var meterId = this.getString(m, Property.METER_ID);
 
 			final var components = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlPeakShavingId, alias, "Controller.Asymmetric.PeakShaving",
+					new EdgeConfig.Component(ctrlPeakShavingId, alias, "Controller.TimeslotPeakshaving",
 							JsonUtils.buildJsonObject() //
-									.addProperty("ess.id", essId) //
+									.addProperty("ess", essId) //
 									.addProperty("meter.id", meterId) //
-									.addProperty("peakShavingPower", peakShavingPower) //
-									.addProperty("rechargePower", rechargePower) //
+									.onlyIf(t == ConfigurationTarget.ADD, b -> {
+										b //
+												.addProperty("startDate", "30.12.1998") //
+												.addProperty("endDate", "31.12.1998") //
+												.addProperty("startTime", "7:00") //
+												.addProperty("slowChargeStartTime", "12:00") //
+												.addProperty("endTime", "17:00") //
+												.addProperty("peakShavingPower", 10000) //
+												.addProperty("rechargePower", 5000) //
+												.addProperty("hysteresisSoc", 50) //
+										;
+									}) //
 									.build()));
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerByCentralOrderConfiguration.SchedulerComponent(ctrlPeakShavingId,
+									"Controller.TimeslotPeakshaving", this.getAppId()))) //
 					.build();
 		};
 	}
@@ -182,9 +182,9 @@ public class PhaseAccuratePeakShaving
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkIndustrial().or(checkCommercial92())) //
-				.setInstallableCheckableConfigs(
-						checkAppsNotInstalled("App.PeakShaving.PeakShaving", "App.PeakShaving.TimeSlotPeakShaving"));
+				.setCompatibleCheckableConfigs(checkIndustrial().or(checkCommercial92()))
+				.setInstallableCheckableConfigs(checkAppsNotInstalled("App.PeakShaving.PeakShaving",
+						"App.PeakShaving.PhaseAccuratePeakShaving"));
 	}
 
 	@Override

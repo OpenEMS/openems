@@ -73,6 +73,7 @@
           "peakshavingPower": "Entladung über",
           "recharge": "Beladeleistung",
           "rechargePower": "Beladung unter",
+          "hysteresisSoC": "Schwellenwert Ladezustand",
           "relationError": "Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein",
           "startDate": "Start Datum",
           "startTime": "Startzeit",
