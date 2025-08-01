@@ -9,6 +9,8 @@ import static io.openems.edge.evcs.api.Evcs.ChannelId.STATUS;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.CHARGE_STATE;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_REQUEST;
+import static io.openems.edge.evcs.api.ManagedEvcsCluster.ChannelId.EVCS_COUNT;
+import static io.openems.edge.evcs.api.ManagedEvcsCluster.ChannelId.MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE;
 import static io.openems.edge.evcs.cluster.EvcsClusterPeakShaving.ChannelId.EVCS_CLUSTER_STATUS;
 import static io.openems.edge.evcs.cluster.EvcsClusterPeakShaving.ChannelId.MAXIMUM_POWER_TO_DISTRIBUTE;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
@@ -43,6 +45,77 @@ public class EvcsClusterPeakShavingImplTest {
 	private static final DummyManagedEvcs EVCS5 = DummyManagedEvcs.ofDisabled("evcs5");
 
 	private static final int HARDWARE_POWER_LIMIT_PER_PHASE = 7000;
+
+	@Test
+	public void clusterMaximum_noEssTest() throws Exception {
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("addEvcs", EVCS0) //
+				.addReference("addEvcs", EVCS1) //
+				.addReference("meter", METER) //
+				.activate(MyConfig.create() //
+						.setId("evcsCluster0") //
+						.setEssId("") //
+						.setMeterId("meter0") //
+						.setHardwarePowerLimit(HARDWARE_POWER_LIMIT_PER_PHASE) //
+						.setEvcsIds("evcs0", "evcs1") //
+						.build()) //
+				.next(new TestCase() //
+						.input("evcs0", CHARGE_STATE, ChargeState.CHARGING) //
+						.input("meter0", ACTIVE_POWER, -6000) //
+						.input("meter0", ACTIVE_POWER_L1, -2000) //
+						.input("meter0", ACTIVE_POWER_L2, -2000) //
+						.input("meter0", ACTIVE_POWER_L3, -2000)) //
+				.next(new TestCase() //
+						.output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 27000) //
+						.output("evcsCluster0", EVCS_COUNT, 2)) //
+				.next(new TestCase() //
+						.input("meter0", ACTIVE_POWER, 4500) //
+						.input("meter0", ACTIVE_POWER_L1, 1500) //
+						.input("meter0", ACTIVE_POWER_L2, 1500) //
+						.input("meter0", ACTIVE_POWER_L3, 1500) //
+						.output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 16500)) //
+		;
+	}
+
+	@Test
+	public void clusterMaximum_maxPowerTest() throws Exception {
+	    new ComponentTest(new EvcsClusterPeakShavingImpl()) //
+	            .addReference("cm", new DummyConfigurationAdmin()) //
+	            .addReference("componentManager", new DummyComponentManager()) //
+	            .addReference("sum", new DummySum()) //
+	            .addReference("addEvcs", EVCS0) //
+	            .addReference("addEvcs", EVCS1) //
+	            .addReference("meter", METER) //
+	            .addReference("ess", ESS) //
+	            .activate(MyConfig.create() //
+	                    .setId("evcsCluster0") //
+	                    .setEssId("ess0") //
+	                    .setMeterId("meter0") //
+	                    .setHardwarePowerLimit(HARDWARE_POWER_LIMIT_PER_PHASE) //
+	                    .setEvcsIds("evcs0", "evcs1") //
+	                    .build()) //
+	            .next(new TestCase() //
+	                    .input("evcs0", CHARGE_STATE, ChargeState.CHARGING) //
+	                    .input("meter0", ACTIVE_POWER, -6000) //
+	                    .input("meter0", ACTIVE_POWER_L1, -2000) //
+	                    .input("meter0", ACTIVE_POWER_L2, -2000) //
+	                    .input("meter0", ACTIVE_POWER_L3, -2000) //
+	                    .input("ess0", ALLOWED_DISCHARGE_POWER, 0)) //
+                .next(new TestCase() //
+	                    .output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 27000)) //
+                .next(new TestCase() //
+	                    .input("evcsCluster0", MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE, 15000)) //
+	            .next(new TestCase() //
+	                    .output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 15000)) //
+	            .next(new TestCase() //
+	                    .input("evcsCluster0", MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE, -1)) //
+	            .next(new TestCase() //
+	                    .output("evcsCluster0", MAXIMUM_POWER_TO_DISTRIBUTE, 27000)) //
+	    ;
+	}
 
 	@Test
 	public void clusterMaximum_essActivePowerTest() throws Exception {
