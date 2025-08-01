@@ -1,19 +1,25 @@
 package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.session.Language;
 import io.openems.common.utils.ArrayUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
+import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
@@ -128,7 +134,7 @@ public final class IntegratedSystemProps {
 				.setTranslatedLabel("App.IntegratedSystem.feedInSettings.label") //
 				.setDefaultValue("UNDEFINED") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(getFeedInSettingsOptions());
+					field.setOptionsFromEntries(getFeedInSettingsOptions(l));
 				}));
 	}
 
@@ -279,20 +285,30 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
 	}
 
-	private static List<String> getFeedInSettingsOptions() {
-		var options = new ArrayList<String>(45);
-		options.add("UNDEFINED");
-		options.add("QU_ENABLE_CURVE");
-		options.add("PU_ENABLE_CURVE");
+	private static List<Map.Entry<String, String>> getFeedInSettingsOptions(Language language) {
+		final var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		final var format = new DecimalFormat("0.0#", DecimalFormatSymbols.getInstance(language.getLocal()));
+
+		var options = new ArrayList<Map.Entry<String, String>>(45);
+		options.add(Map.entry("UNDEFINED", "UNDEFINED"));
+		options.add(
+				Map.entry(translate(bundle, "App.IntegratedSystem.feedInSettings.quEnableCurve"), "QU_ENABLE_CURVE"));
+		options.add(
+				Map.entry(translate(bundle, "App.IntegratedSystem.feedInSettings.puEnableCurve"), "PU_ENABLE_CURVE"));
+		options.add(Map.entry(translate(bundle, "App.IntegratedSystem.feedInSettings.cosPhiFixValue", format.format(1)),
+				"LEADING_1"));
 		// LAGGING_0_99 - LAGGING_0_80
 		for (var i = 99; i >= 80; i--) {
-			options.add("LAGGING_0_" + Integer.toString(i));
+			options.add(Map.entry(
+					translate(bundle, "App.IntegratedSystem.feedInSettings.lagging", format.format(i / 100.0)),
+					"LAGGING_0_" + i));
 		}
 		// LEADING_0_80 - LEADING_0_99
 		for (var i = 80; i < 100; i++) {
-			options.add("LEADING_0_" + Integer.toString(i));
+			options.add(Map.entry(
+					translate(bundle, "App.IntegratedSystem.feedInSettings.leading", format.format(i / 100.0)),
+					"LEADING_0_" + i));
 		}
-		options.add("LEADING_1");
 		return options;
 	}
 

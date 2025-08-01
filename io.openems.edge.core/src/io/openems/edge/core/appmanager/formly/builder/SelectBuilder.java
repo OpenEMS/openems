@@ -111,6 +111,10 @@ public final class SelectBuilder extends FormlyBuilder<SelectBuilder> {
 				t -> new JsonPrimitive(t.getValue()));
 	}
 
+	public SelectBuilder setOptionsFromEntries(List<Entry<String, String>> items) {
+		return this.setOptions(items, t -> new JsonPrimitive(t.getKey()), t -> new JsonPrimitive(t.getValue()));
+	}
+
 	/**
 	 * Sets if more than one options can be selected.
 	 *
