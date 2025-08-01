@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
@@ -24,6 +25,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
 import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class TestTranslations {
@@ -128,8 +130,8 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.kebaEvse(t), true, JsonUtils.buildJsonObject()
-					.addProperty("ELECTRIC_VEHICLE_ID", UUID.randomUUID().toString())
+			this.apps.add(new TestTranslation(Apps.kebaEvse(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ELECTRIC_VEHICLE_ID", UUID.randomUUID().toString()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.clusterEvse(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.genericVehicle(t), true, new JsonObject()));
