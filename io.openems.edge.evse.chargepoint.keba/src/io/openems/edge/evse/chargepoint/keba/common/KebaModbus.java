@@ -18,8 +18,8 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public abstract class KebaModbus extends AbstractOpenemsModbusComponent
 		implements Keba, OpenemsComponent, ElectricityMeter {
 
-	/** Show DEVICE_SOFTWARE_OUTDATED for versions strictly smaller than 1.1.9. */
-	public static final SemanticVersion FIRMWARE_OUTDATED_WARNING = new SemanticVersion(1, 1, 9);
+	/** Show DEVICE_SOFTWARE_OUTDATED for versions strictly smaller than 1.2.2. */
+	public static final SemanticVersion FIRMWARE_OUTDATED_WARNING = new SemanticVersion(1, 2, 2);
 	/** Fix known bug with energy scale factors in versions below 1.2.1. */
 	public static final SemanticVersion FIRMWARE_ENERGY_SCALE_MIN_BUG = new SemanticVersion(1, 2, 1);
 

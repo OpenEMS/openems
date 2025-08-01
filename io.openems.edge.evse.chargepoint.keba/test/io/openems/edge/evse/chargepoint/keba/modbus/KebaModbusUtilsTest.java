@@ -55,18 +55,18 @@ public class KebaModbusUtilsTest {
 		assertNull(string.get());
 		assertFalse(deviceSoftwareOutdated.getAsBoolean());
 
-		handleFirmwareVersion(sut, 10108);
+		handleFirmwareVersion(sut, 10201);
 		assertEquals(1, (int) major.get());
-		assertEquals(1, (int) minor.get());
-		assertEquals(8, (int) patch.get());
-		assertEquals("1.1.8", string.get());
+		assertEquals(2, (int) minor.get());
+		assertEquals(1, (int) patch.get());
+		assertEquals("1.2.1", string.get());
 		assertTrue(deviceSoftwareOutdated.getAsBoolean());
 
-		handleFirmwareVersion(sut, 10109);
+		handleFirmwareVersion(sut, 10202);
 		assertEquals(1, (int) major.get());
-		assertEquals(1, (int) minor.get());
-		assertEquals(9, (int) patch.get());
-		assertEquals("1.1.9", string.get());
+		assertEquals(2, (int) minor.get());
+		assertEquals(2, (int) patch.get());
+		assertEquals("1.2.2", string.get());
 		assertFalse(deviceSoftwareOutdated.getAsBoolean());
 	}
 }
