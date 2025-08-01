@@ -462,4 +462,3 @@
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
 	stax2-api;version='[4.2.2,4.2.3)'
-	stax2-api;version='[4.2.2,4.2.3)',\
