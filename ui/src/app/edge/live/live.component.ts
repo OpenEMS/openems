@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { Component, effect, ElementRef, OnDestroy, ViewChild, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -15,6 +15,14 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
   standalone: false,
 })
 export class LiveComponent implements OnDestroy {
+  private route = inject(ActivatedRoute);
+  service = inject(Service);
+  protected utils = inject(Utils);
+  protected websocket = inject(Websocket);
+  private dataService = inject(DataService);
+  private router = inject(Router);
+  protected navigationService = inject(NavigationService);
+
 
   @ViewChild("modal", { read: ElementRef }) public modal!: ElementRef;
 
@@ -29,15 +37,10 @@ export class LiveComponent implements OnDestroy {
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private interval: ReturnType<typeof setInterval> | undefined;
 
-  constructor(
-    private route: ActivatedRoute,
-    public service: Service,
-    protected utils: Utils,
-    protected websocket: Websocket,
-    private dataService: DataService,
-    private router: Router,
-    protected navigationService: NavigationService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
 
     effect(() => {
       const edge = this.service.currentEdge();

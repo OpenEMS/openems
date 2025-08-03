@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, HostListener, OnDestroy, OnInit } from "@angular/core";
+import { Component, HostListener, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -26,6 +26,15 @@ import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
   standalone: false,
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  protected utils = inject(Utils);
+  private websocket = inject(Websocket);
+  private translate = inject(TranslateService);
+  private service = inject(Service);
+  private sanitizer = inject(DomSanitizer);
+  protected modalController = inject(ModalController);
+
 
   private static readonly SELECTOR = "app-single";
   public readonly spinnerId: string = SingleAppComponent.SELECTOR;
@@ -52,16 +61,10 @@ export class SingleAppComponent implements OnInit, OnDestroy {
   private useMasterKey: boolean = false;
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
-  public constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    protected utils: Utils,
-    private websocket: Websocket,
-    private translate: TranslateService,
-    private service: Service,
-    private sanitizer: DomSanitizer,
-    protected modalController: ModalController,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  public constructor() {
   }
 
   @HostListener("window:resize", ["$event"])

@@ -6,24 +6,26 @@ import { FieldType } from "@ngx-formly/core";
   encapsulation: ViewEncapsulation.None,
   template: `
     <ion-select
-        [id]="id"
-        [label]="props.label + (to.required ? '*' : '')"
-        interface="alert"
-        [interfaceOptions]="{ cssClass: 'custom-ion-alert' }"
-        justify="space-between"
-        [placeholder]="to.placeholder"
-        [formControl]="formControl"
-        [formlyAttributes]="field"
-        [multiple]="props.multiple ?? false"
-    >
-      <ng-container *ngFor="let option of props.options">
+      [id]="id"
+      [label]="props.label + (to.required ? '*' : '')"
+      interface="alert"
+      [interfaceOptions]="{ cssClass: 'custom-ion-alert' }"
+      justify="space-between"
+      [placeholder]="to.placeholder"
+      [formControl]="formControl"
+      [formlyAttributes]="field"
+      [multiple]="props.multiple ?? false"
+      >
+      @for (option of props.options; track option) {
         <ion-select-option [value]="option.value">
           {{ option.label }}
         </ion-select-option>
-      </ng-container>
+      }
     </ion-select>
-    <p *ngIf="to.description" style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">{{ to.description }}</p>
-  `,
+    @if (to.description) {
+      <p style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">{{ to.description }}</p>
+    }
+    `,
   standalone: false,
   styles: [`
       :host {

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -22,6 +22,12 @@ import { Key } from "./key";
     standalone: false,
 })
 export class KeyModalComponent implements OnInit {
+    private service = inject(Service);
+    protected modalCtrl = inject(ModalController);
+    private router = inject(Router);
+    private websocket = inject(Websocket);
+    private translate = inject(TranslateService);
+
 
     private static readonly SELECTOR = "key-modal";
 
@@ -45,13 +51,10 @@ export class KeyModalComponent implements OnInit {
     private lastValidKey: AppCenterIsKeyApplicable.Response | null = null;
     private registeredKeys: Key[] = [];
 
-    constructor(
-        private service: Service,
-        protected modalCtrl: ModalController,
-        private router: Router,
-        private websocket: Websocket,
-        private translate: TranslateService,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     /**
  * Transformes the input so that the input matches the pattern 'XXXX-XXXX-XXXX-XXXX'.

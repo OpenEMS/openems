@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig, FormlyForm } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -19,6 +19,10 @@ import { InterfaceForm, InterfaceModel, IpAddress, NetworkConfig, NetworkInfo, N
   standalone: false,
 })
 export class NetworkComponent implements OnInit {
+  private translate = inject(TranslateService);
+  private service = inject(Service);
+  private websocket = inject(Websocket);
+
 
   private static readonly SELECTOR: string = "network";
   private static readonly ETH_0: string = "eth0";
@@ -29,11 +33,10 @@ export class NetworkComponent implements OnInit {
   protected forms: InterfaceForm[] = [];
   protected ipRegex: RegExp = /^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}\/(?:3[0-2]|[0-2]?[0-9])$/;
 
-  constructor(
-    private translate: TranslateService,
-    private service: Service,
-    private websocket: Websocket,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   /**
  * Gets the dynamic ip with subnetmaks from a given network interface

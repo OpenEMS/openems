@@ -1,44 +1,50 @@
 <ion-list>
-    <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
-        <ng-container *ngFor='let item of selectedItems'>
-            <ion-item [id]="item.value" [disabled]="item.expressions.locked">
-                <ion-reorder slot="start" *ngIf="!item.expressions.locked"></ion-reorder>
-                <ion-label>
-                    {{item.label}}
-                </ion-label>
-                <ion-buttons>
-                    <ion-button (click)="removeItem(item)">
-                        <ion-icon name="trash-outline"></ion-icon>
-                    </ion-button>
-                </ion-buttons>
-            </ion-item>
-        </ng-container>
-    </ion-reorder-group>
+  <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
+    @for (item of selectedItems; track item) {
+      <ion-item [id]="item.value" [disabled]="item.expressions.locked">
+        @if (!item.expressions.locked) {
+          <ion-reorder slot="start"></ion-reorder>
+        }
+        <ion-label>
+          {{item.label}}
+        </ion-label>
+        <ion-buttons>
+          <ion-button (click)="removeItem(item)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    }
+  </ion-reorder-group>
 </ion-list>
 <ion-grid class="ion-no-margin">
-    <ion-row style="display: flex; align-items: center;">
-        <ion-col>
-            <ion-list>
-                <ion-item lines="none">
-                    <ion-label *ngIf="props.label" position="floating" color="primary"
-                        style="white-space: normal !important">
-                        {{props.label}}
-                    </ion-label>
-                    <ion-select label="Add" [(ngModel)]="itemToAdd" interface="popover" label-placement="floating"
-                        [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" [disabled]="!availableItems.length">
-                        <ion-select-option *ngFor='let item of availableItems' [value]="item">
-                            {{item.label}}
-                        </ion-select-option>
-                    </ion-select>
-                </ion-item>
-            </ion-list>
-        </ion-col>
-        <ion-col size="auto">
-            <ion-buttons>
-                <ion-button (click)="addItem()" [disabled]="!availableItems.length">
-                    <ion-icon name="add" size="large"></ion-icon>
-                </ion-button>
-            </ion-buttons>
-        </ion-col>
-    </ion-row>
+  <ion-row style="display: flex; align-items: center;">
+    <ion-col>
+      <ion-list>
+        <ion-item lines="none">
+          @if (props.label) {
+            <ion-label position="floating" color="primary"
+              style="white-space: normal !important">
+              {{props.label}}
+            </ion-label>
+          }
+          <ion-select label="Add" [(ngModel)]="itemToAdd" interface="popover" label-placement="floating"
+            [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" [disabled]="!availableItems.length">
+            @for (item of availableItems; track item) {
+              <ion-select-option [value]="item">
+                {{item.label}}
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      </ion-list>
+    </ion-col>
+    <ion-col size="auto">
+      <ion-buttons>
+        <ion-button (click)="addItem()" [disabled]="!availableItems.length">
+          <ion-icon name="add" size="large"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-col>
+  </ion-row>
 </ion-grid>

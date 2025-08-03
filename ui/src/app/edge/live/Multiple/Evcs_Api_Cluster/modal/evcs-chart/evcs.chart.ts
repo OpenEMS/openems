@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnInit, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -13,6 +13,9 @@ import { Edge, EdgeConfig } from "src/app/shared/shared";
   standalone: false,
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
+  protected translate = inject(TranslateService);
+  modalController = inject(ModalController);
+
 
   private static readonly SELECTOR = "evcsChart";
 
@@ -26,12 +29,12 @@ export class EvcsChartComponent implements OnInit, OnChanges {
   public options: BarChartOptions;
   public labels: string[];
   public datasets: Chart.ChartDataset[];
-  public chart: Chart.Chart; // This will hold our chart info
+  public chart: Chart.Chart;
 
-  constructor(
-    protected translate: TranslateService,
-    public modalController: ModalController,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]); // This will hold our chart info
+
+  constructor() { }
 
   getMaxPower() {
     const minPower = 22;

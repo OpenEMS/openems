@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, Input, inject } from "@angular/core";
 import { Service } from "src/app/shared/shared";
 
 /**
@@ -11,11 +11,16 @@ import { Service } from "src/app/shared/shared";
     standalone: false,
 })
 export class HelpLinkComponent {
+    private service = inject(Service);
+
 
     @Input({ required: true }) public label: string | null = null;
     protected _link: string | null = null;
 
-    constructor(private service: Service) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     @Input() set link(key: string | null) {
         if (!key) {

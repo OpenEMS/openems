@@ -1,4 +1,4 @@
-import { Component, effect, OnInit, signal, WritableSignal } from "@angular/core";
+import { Component, effect, OnInit, signal, WritableSignal, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -22,6 +22,13 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
   standalone: false,
 })
 export class ProfileComponent implements OnInit {
+  private service = inject(Service);
+  private route = inject(ActivatedRoute);
+  popoverController = inject(PopoverController);
+  private translate = inject(TranslateService);
+  private websocket = inject(Websocket);
+  private platFormService = inject(PlatFormService);
+
 
   private static readonly SELECTOR = "profile";
 
@@ -38,14 +45,10 @@ export class ProfileComponent implements OnInit {
   protected isLoading: WritableSignal<boolean> = signal(true);
   protected isAtLeastOwner: boolean = false;
 
-  constructor(
-    private service: Service,
-    private route: ActivatedRoute,
-    public popoverController: PopoverController,
-    private translate: TranslateService,
-    private websocket: Websocket,
-    private platFormService: PlatFormService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     effect(() => {
       const isLoading = this.isLoading();
 

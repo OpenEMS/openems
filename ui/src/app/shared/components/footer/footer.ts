@@ -1,4 +1,4 @@
-import { Component, effect, HostBinding } from "@angular/core";
+import { Component, effect, HostBinding, inject } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
 
@@ -35,6 +35,9 @@ import { Role } from "../../type/role";
   standalone: false,
 })
 export class FooterComponent {
+  protected service = inject(Service);
+  private title = inject(Title);
+
 
   @HostBinding("attr.data-isSmartPhone")
   public isSmartPhone: boolean = this.service.isSmartphoneResolution;
@@ -44,10 +47,10 @@ export class FooterComponent {
   protected displayValues: { comment: string, id: string, version: string } | null = null;
   protected isAtLeastOwner: boolean | null = null;
 
-  constructor(
-    protected service: Service,
-    private title: Title,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
 
     effect(() => {
       const edge = this.service.currentEdge();

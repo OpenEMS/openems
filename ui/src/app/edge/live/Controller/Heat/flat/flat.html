@@ -1,16 +1,15 @@
-<oe-flat-widget *ngIf="isInitialized" button (click)="presentModal()" [title]="component.alias"
+@if (isInitialized) {
+  <oe-flat-widget button (click)="presentModal()" [title]="component.alias"
     [icon]="{color: 'normal', name:'flame'}">
-
     <oe-flat-widget-line [name]="'General.STATUS' | translate" [value]="status | translate"
-        [converter]="CONVERT_POWER_2_HEAT_STATE">
+      [converter]="CONVERT_POWER_2_HEAT_STATE">
     </oe-flat-widget-line>
-
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.HEAT.HEATING_OUTPUT' | translate"
-        [channelAddress]="component.id + '/ActivePower'" [converter]="CONVERT_WATT_TO_KILOWATT">
+      [channelAddress]="component.id + '/ActivePower'" [converter]="CONVERT_WATT_TO_KILOWATT">
     </oe-flat-widget-line>
-
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.HEAT.TEMPERATURE' | translate"
-        [channelAddress]="component.id + '/Temperature'"
-        [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS">
+      [channelAddress]="component.id + '/Temperature'"
+      [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS">
     </oe-flat-widget-line>
-</oe-flat-widget>
+  </oe-flat-widget>
+}

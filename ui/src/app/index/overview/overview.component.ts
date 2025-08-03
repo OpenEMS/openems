@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, OnDestroy } from "@angular/core";
+import { Component, effect, OnDestroy, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
@@ -20,6 +20,14 @@ import { ChosenFilter } from "../filter/filter.component";
     standalone: false,
 })
 export class OverViewComponent implements ViewWillEnter, OnDestroy {
+    service = inject(Service);
+    websocket = inject(Websocket);
+    utils = inject(Utils);
+    private router = inject(Router);
+    translate = inject(TranslateService);
+    pagination = inject(Pagination);
+    private userService = inject(UserService);
+
     public environment = environment;
     /** True, if there is no access to any Edge. */
     public noEdges: boolean = false;
@@ -45,15 +53,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
     private lastReqId: string | null = null;
 
-    constructor(
-        public service: Service,
-        public websocket: Websocket,
-        public utils: Utils,
-        private router: Router,
-        public translate: TranslateService,
-        public pagination: Pagination,
-        private userService: UserService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
 
         effect(() => {
             const user = this.userService.currentUser();

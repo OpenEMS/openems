@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -15,6 +15,10 @@ import { Changelog } from "./changelog.constants";
   imports: [IonicModule, CommonModule, TranslateModule],
 })
 export class ChangelogComponent {
+  translate = inject(TranslateService);
+  service = inject(Service);
+  private route = inject(ActivatedRoute);
+
 
   public environment = environment;
 
@@ -35,11 +39,10 @@ export class ChangelogComponent {
 
   protected slice: number = 10;
   protected showAll: boolean = false;
-  constructor(
-    public translate: TranslateService,
-    public service: Service,
-    private route: ActivatedRoute,
-  ) { }
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+  constructor() { }
 
   public numberToRole(role: number): string {
     return Role[role].toLowerCase();

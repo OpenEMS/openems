@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Directive, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -15,6 +15,14 @@ import { TextIndentation } from "./modal-line/modal-line";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
+    protected websocket = inject<Websocket>(Websocket);
+    protected route = inject<ActivatedRoute>(ActivatedRoute);
+    protected service = inject<Service>(Service);
+    modalController = inject<ModalController>(ModalController);
+    protected translate = inject<TranslateService>(TranslateService);
+    formBuilder = inject<FormBuilder>(FormBuilder);
+    ref = inject(ChangeDetectorRef);
+
 
     @Input() public component: EdgeConfig.Component | null = null;
 
@@ -38,15 +46,12 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     private selector: string = uuidv4();
 
-    constructor(
-        @Inject(Websocket) protected websocket: Websocket,
-        @Inject(ActivatedRoute) protected route: ActivatedRoute,
-        @Inject(Service) protected service: Service,
-        @Inject(ModalController) public modalController: ModalController,
-        @Inject(TranslateService) protected translate: TranslateService,
-        @Inject(FormBuilder) public formBuilder: FormBuilder,
-        public ref: ChangeDetectorRef,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const ref = this.ref;
+
         ref.detach();
         setInterval(() => {
             this.ref.detectChanges(); // manually trigger change detection

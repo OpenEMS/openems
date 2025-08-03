@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { Service, Utils } from "../../../../../shared/shared";
@@ -34,11 +34,14 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     private showAnimation: boolean = false;
     private animationTrigger: boolean = false;
 
-    constructor(
-        translate: TranslateService,
-        service: Service,
-        unitpipe: UnitvaluePipe,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const translate = inject(TranslateService);
+        const service = inject(Service);
+        const unitpipe = inject(UnitvaluePipe);
+
         super("General.production", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
     }

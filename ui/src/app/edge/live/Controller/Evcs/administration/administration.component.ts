@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -10,6 +10,12 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../shared/shar
   standalone: false,
 })
 export class AdministrationComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  modalCtrl = inject(ModalController);
+  service = inject(Service);
+  private websocket = inject(Websocket);
+  translate = inject(TranslateService);
+
 
   private static readonly SELECTOR = "administration";
 
@@ -19,13 +25,10 @@ export class AdministrationComponent implements OnInit {
   // used for ion-toggle in html
   public isCheckedZoe: boolean | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    public modalCtrl: ModalController,
-    public service: Service,
-    private websocket: Websocket,
-    public translate: TranslateService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit() {
     if (this.evcsComponent.properties["minHwCurrent"] == 6000) {

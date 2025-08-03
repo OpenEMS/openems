@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { Service, Utils } from "../../../../../shared/shared";
@@ -34,11 +34,14 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     // animation variable to stop animation on destroy
     private startAnimation = null;
 
-    constructor(
-        unitpipe: UnitvaluePipe,
-        translate: TranslateService,
-        service: Service,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const unitpipe = inject(UnitvaluePipe);
+        const translate = inject(TranslateService);
+        const service = inject(Service);
+
         super("General.consumption", "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
     }

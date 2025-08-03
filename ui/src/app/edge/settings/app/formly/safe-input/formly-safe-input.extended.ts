@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
@@ -12,14 +12,17 @@ import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.compone
     standalone: false,
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
+    private modalController = inject(ModalController);
+    private changeDetectorRef = inject(ChangeDetectorRef);
+
 
     protected pathToDisplayValue: string;
     protected displayType: "string" | "boolean" | "number" | "optionGroup";
 
-    constructor(
-        private modalController: ModalController,
-        private changeDetectorRef: ChangeDetectorRef,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         super();
     }
 

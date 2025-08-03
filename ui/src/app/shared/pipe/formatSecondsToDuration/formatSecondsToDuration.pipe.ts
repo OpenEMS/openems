@@ -1,5 +1,5 @@
 import { DecimalPipe } from "@angular/common";
-import { Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform, inject } from "@angular/core";
 
 import { Converter } from "../../components/shared/converter";
 
@@ -8,8 +8,13 @@ import { Converter } from "../../components/shared/converter";
     standalone: false,
 })
 export class FormatSecondsToDurationPipe implements PipeTransform {
+    private decimalPipe = inject(DecimalPipe);
 
-    constructor(private decimalPipe: DecimalPipe) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+
+    constructor() { }
 
     transform(value: number, showMinutes?: boolean): string {
 

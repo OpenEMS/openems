@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, Input, OnInit, ViewChild, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IonReorderGroup, ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -14,6 +14,13 @@ type Priority = "CAR" | "STORAGE";
     standalone: false,
 })
 export class Evcs_Api_ClusterModalComponent implements OnInit {
+    protected service = inject(Service);
+    websocket = inject(Websocket);
+    router = inject(Router);
+    private route = inject(ActivatedRoute);
+    protected translate = inject(TranslateService);
+    private modalCtrl = inject(ModalController);
+
 
     @Input({ required: true }) public edge!: Edge;
     @Input() public config: EdgeConfig.Component | null = null;
@@ -39,14 +46,10 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     public chargeState: ChargeState;
     private chargePlug: ChargePlug;
 
-    constructor(
-        protected service: Service,
-        public websocket: Websocket,
-        public router: Router,
-        private route: ActivatedRoute,
-        protected translate: TranslateService,
-        private modalCtrl: ModalController,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
     }
 
     ngOnInit() {

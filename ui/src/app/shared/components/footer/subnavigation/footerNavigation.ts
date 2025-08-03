@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, QueryList, ViewChild, ViewChildren, inject } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 
 export type NavigationOption = {
@@ -15,6 +15,10 @@ export type NavigationOption = {
   standalone: false,
 })
 export class FooterNavigationComponent implements AfterViewInit {
+  protected location = inject(Location);
+  protected popoverCtrl = inject(PopoverController);
+  private cdr = inject(ChangeDetectorRef);
+
 
   private static readonly INTERVAL: number = 1000;
 
@@ -30,11 +34,10 @@ export class FooterNavigationComponent implements AfterViewInit {
 
   private _buttons: NavigationOption[] = [];
 
-  constructor(
-    protected location: Location,
-    protected popoverCtrl: PopoverController,
-    private cdr: ChangeDetectorRef,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   @Input() public set navigationOptions(nodes: NavigationOption[]) {

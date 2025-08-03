@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -10,6 +10,8 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
     standalone: false,
 })
 export class FormlySafeInputModalComponent implements OnInit {
+    protected modalCtrl = inject(ModalController);
+
 
     @Input({ required: true })
     protected title!: string;
@@ -21,9 +23,10 @@ export class FormlySafeInputModalComponent implements OnInit {
     protected form: FormGroup = new FormGroup({});
     protected myModel: {};
 
-    constructor(
-        protected modalCtrl: ModalController,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit(): void {
         this.myModel = Object.assign({}, this.model);

@@ -1,4 +1,4 @@
-import { Component, effect, OnInit } from "@angular/core";
+import { Component, effect, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, Service } from "../../../../shared/shared";
@@ -9,6 +9,10 @@ import { Edge, EdgeConfig, Service } from "../../../../shared/shared";
     standalone: false,
 })
 export class DelayedSellToGridChartOverviewComponent implements OnInit {
+    service = inject(Service);
+    private route = inject(ActivatedRoute);
+    private userService = inject(UserService);
+
 
     private static readonly SELECTOR = "symmetricpeakshaving-chart-overview";
     public edge: Edge | null = null;
@@ -17,11 +21,10 @@ export class DelayedSellToGridChartOverviewComponent implements OnInit {
     /** @deprecated used for new navigation migration purposes */
     protected newNavigationUrlSegment: string = "";
 
-    constructor(
-        public service: Service,
-        private route: ActivatedRoute,
-        private userService: UserService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         effect(() => {
             const isNewNavigation = this.userService.isNewNavigation();
             this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";

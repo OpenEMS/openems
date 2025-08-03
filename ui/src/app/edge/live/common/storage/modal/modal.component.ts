@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -15,6 +15,12 @@ import { environment, Environment } from "src/environments";
     standalone: false,
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
+    service = inject(Service);
+    translate = inject(TranslateService);
+    modalCtrl = inject(ModalController);
+    websocket = inject(Websocket);
+    formBuilder = inject(FormBuilder);
+
 
     // TODO after refactoring of Model: subscribe to EssActivePowerL1/L2/L3 here instead of Flat Widget
 
@@ -34,13 +40,10 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     protected chargerComponents!: EdgeConfig.Component[];
     protected readonly environment: Environment = environment;
 
-    constructor(
-        public service: Service,
-        public translate: TranslateService,
-        public modalCtrl: ModalController,
-        public websocket: Websocket,
-        public formBuilder: FormBuilder,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit() {
         this.edge.getFirstValidConfig(this.websocket).then(config => {

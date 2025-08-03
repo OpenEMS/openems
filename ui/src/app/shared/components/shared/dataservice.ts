@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Injectable, WritableSignal, signal } from "@angular/core";
+import { Injectable, WritableSignal, signal, inject } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 import { ChannelAddress, Edge, Service } from "../../shared";
 
@@ -14,7 +14,12 @@ export abstract class DataService {
   protected stopOnDestroy: Subject<void> = new Subject<void>();
   protected timestamps: string[] = [];
 
-  constructor(service: Service) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const service = inject(Service);
+
     service.getCurrentEdge().then((edge) => {
       this.edge = edge;
       edge.currentData.pipe(takeUntil(this.stopOnDestroy))

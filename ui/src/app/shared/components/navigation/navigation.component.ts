@@ -1,4 +1,4 @@
-import { Component, effect, signal, ViewChild, WritableSignal } from "@angular/core";
+import { Component, effect, signal, ViewChild, WritableSignal, inject } from "@angular/core";
 import { IonModal } from "@ionic/angular/common";
 import { ModalBreakpointChangeEventDetail } from "@ionic/core";
 import { NavigationService } from "./service/navigation.service";
@@ -10,6 +10,8 @@ import { NavigationTree } from "./shared";
     standalone: false,
 })
 export class NavigationComponent {
+    navigationService = inject(NavigationService);
+
     public static INITIAL_BREAKPOINT: number = 0.15;
     public static breakPoint: WritableSignal<number> = signal(NavigationComponent.INITIAL_BREAKPOINT);
 
@@ -20,9 +22,12 @@ export class NavigationComponent {
     protected parents: (NavigationTree | null)[] = [];
     protected isVisible: boolean = true;
 
-    constructor(
-        public navigationService: NavigationService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const navigationService = this.navigationService;
+
         effect(() => {
             const currentNode = navigationService.currentNode();
             if (!currentNode) {

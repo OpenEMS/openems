@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -10,17 +10,20 @@ import { ChannelAddress, Edge, Service, Websocket } from "../../../shared/shared
   standalone: false,
 })
 export class EnergymonitorComponent implements OnInit, OnDestroy {
+  private service = inject(Service);
+  private websocket = inject(Websocket);
+  private route = inject(ActivatedRoute);
+  private dataService = inject(DataService);
+  protected navigationService = inject(NavigationService);
+
 
   private static readonly SELECTOR = "energymonitor";
   protected edge: Edge | null = null;
 
-  constructor(
-    private service: Service,
-    private websocket: Websocket,
-    private route: ActivatedRoute,
-    private dataService: DataService,
-    protected navigationService: NavigationService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit() {
     this.service.getCurrentEdge().then(edge => {

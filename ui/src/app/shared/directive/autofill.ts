@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, ElementRef, OnInit } from "@angular/core";
+import { Directive, ElementRef, OnInit, inject } from "@angular/core";
 import { Capacitor } from "@capacitor/core";
 import { Logger } from "../shared";
 
@@ -8,8 +8,14 @@ import { Logger } from "../shared";
   standalone: false,
 })
 export class AutofillDirective implements OnInit {
+  private el = inject(ElementRef);
+  private logger = inject(Logger);
 
-  constructor(private el: ElementRef, private logger: Logger) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() { }
 
   ngOnInit(): void {
     if (Capacitor.getPlatform() !== "ios") { return; }

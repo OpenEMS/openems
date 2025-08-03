@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -19,6 +19,11 @@ import { SystemUpdateState } from "./getSystemUpdateStateResponse";
   }],
 })
 export class OeSystemUpdateComponent implements OnInit, OnDestroy {
+  private websocket = inject(Websocket);
+  private service = inject(Service);
+  private alertCtrl = inject(AlertController);
+  private translate = inject(TranslateService);
+
 
   private static readonly SELECTOR = "oe-system-update";
 
@@ -31,12 +36,10 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
   protected executeUpdate: ExecuteSystemUpdate | null = null;
   protected isWaiting: boolean;
 
-  constructor(
-    private websocket: Websocket,
-    private service: Service,
-    private alertCtrl: AlertController,
-    private translate: TranslateService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit() {
     this.executeUpdate = new ExecuteSystemUpdate(this.edge, this.websocket);

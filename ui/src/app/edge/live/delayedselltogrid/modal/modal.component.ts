@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -11,6 +11,12 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../shared/shared"
     standalone: false,
 })
 export class DelayedSellToGridModalComponent implements OnInit {
+    formBuilder = inject(FormBuilder);
+    modalCtrl = inject(ModalController);
+    service = inject(Service);
+    translate = inject(TranslateService);
+    websocket = inject(Websocket);
+
 
     private static readonly SELECTOR = "delayedselltogrid-modal";
     @Input({ required: true }) protected component!: EdgeConfig.Component;
@@ -20,13 +26,10 @@ export class DelayedSellToGridModalComponent implements OnInit {
     public formGroup: FormGroup;
     public loading: boolean = false;
 
-    constructor(
-        public formBuilder: FormBuilder,
-        public modalCtrl: ModalController,
-        public service: Service,
-        public translate: TranslateService,
-        public websocket: Websocket,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit() {
         this.formGroup = this.formBuilder.group({

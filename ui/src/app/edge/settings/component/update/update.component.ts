@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -11,6 +11,11 @@ import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/
   standalone: false,
 })
 export class ComponentUpdateComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  protected utils = inject(Utils);
+  private websocket = inject(Websocket);
+  private service = inject(Service);
+
 
   private static readonly SELECTOR = "componentUpdate";
 
@@ -23,12 +28,10 @@ export class ComponentUpdateComponent implements OnInit {
 
   private componentId: string | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    protected utils: Utils,
-    private websocket: Websocket,
-    private service: Service,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   async ngOnInit() {

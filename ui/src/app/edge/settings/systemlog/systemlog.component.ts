@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { SelectCustomEvent } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { parse } from "date-fns";
@@ -37,6 +37,11 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
   standalone: false,
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
+  protected utils = inject(Utils);
+  private websocket = inject(Websocket);
+  private service = inject(Service);
+  private translate = inject(TranslateService);
+
 
   private static readonly SELECTOR = "systemLog";
   private static readonly DEBUG_LOG_CONTROLLER_ID = "ctrlDebugLog0";
@@ -63,12 +68,10 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     source: string
   }[] = [];
 
-  constructor(
-    protected utils: Utils,
-    private websocket: Websocket,
-    private service: Service,
-    private translate: TranslateService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   public subscribe() {
     // put placeholder

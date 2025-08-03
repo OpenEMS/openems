@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -18,6 +18,16 @@ import { StatusSingleComponent } from "../status/single/status.component";
     standalone: false,
 })
 export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
+    private cdRef = inject(ChangeDetectorRef);
+    menu = inject(MenuController);
+    modalCtrl = inject(ModalController);
+    router = inject(Router);
+    service = inject(Service);
+    websocket = inject(Websocket);
+    protected navigationService = inject(NavigationService);
+    routeService = inject(RouteService);
+    protected navCtrl = inject(NavController);
+
 
     @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
@@ -33,17 +43,13 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
 
-    constructor(
-        private cdRef: ChangeDetectorRef,
-        public menu: MenuController,
-        public modalCtrl: ModalController,
-        public router: Router,
-        public service: Service,
-        public websocket: Websocket,
-        protected navigationService: NavigationService,
-        public routeService: RouteService,
-        protected navCtrl: NavController,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const navigationService = this.navigationService;
+        const routeService = this.routeService;
+
         effect(() => {
             const currentNode = navigationService.currentNode();
 

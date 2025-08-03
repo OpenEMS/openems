@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addDays, addMonths, addWeeks, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfWeek, endOfYear, isAfter, isBefore, isFuture, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from "date-fns";
@@ -46,6 +46,10 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
         `],
 })
 export class PickDateComponent implements OnInit, OnDestroy {
+    service = inject(Service);
+    translate = inject(TranslateService);
+    popoverCtrl = inject(PopoverController);
+
 
     @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
     public disableArrow: boolean | null = null;
@@ -57,12 +61,11 @@ export class PickDateComponent implements OnInit, OnDestroy {
     private changePeriodTimeout = null;
     private edge: Edge | null = null;
 
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
 
-    constructor(
-        public service: Service,
-        public translate: TranslateService,
-        public popoverCtrl: PopoverController,
-    ) { }
+
+    constructor() { }
 
     /**
  * Checks if next time period is allowed to be queried

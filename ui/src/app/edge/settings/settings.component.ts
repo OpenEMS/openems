@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
@@ -11,6 +11,10 @@ import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
   standalone: false,
 })
 export class SettingsComponent implements OnInit {
+  protected utils = inject(Utils);
+  private service = inject(Service);
+  private translate = inject(TranslateService);
+
 
   public edge: Edge | null = null;
   public environment = environment;
@@ -22,11 +26,10 @@ export class SettingsComponent implements OnInit {
 
   protected isEdgeBackend: boolean = environment.backend === "OpenEMS Edge";
 
-  constructor(
-    protected utils: Utils,
-    private service: Service,
-    private translate: TranslateService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   public ngOnInit() {

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
@@ -12,6 +12,10 @@ import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } 
     standalone: false,
 })
 export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
+    service = inject(Service);
+    modalCtrl = inject(ModalController);
+    private websocket = inject(Websocket);
+
     private static readonly SELECTOR = "Io_Api_DigitalInput_ModalComponent";
 
     @Input({ required: true }) public edge!: Edge;
@@ -19,11 +23,10 @@ export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
 
     protected digitalInputChannelsPerComponent: { componentId: string, componentAlias: string, channels: Channel[] }[];
 
-    constructor(
-        public service: Service,
-        public modalCtrl: ModalController,
-        private websocket: Websocket,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit(): void {
         this.getDigitalInputChannels().then(channelsPerComponent => {

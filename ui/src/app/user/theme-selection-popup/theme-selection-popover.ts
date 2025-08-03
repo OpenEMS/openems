@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { UserService } from "src/app/shared/service/user.service";
@@ -18,6 +18,9 @@ import { Theme as UserTheme } from "../../edge/history/shared";
   standalone: false,
 })
 export class ThemePopoverComponent {
+  protected modalCtrl = inject(ModalController);
+  private translate = inject(TranslateService);
+
   protected userTheme: UserTheme = UserService.DEFAULT_THEME; // Current theme (light, dark, system)
 
   protected readonly displayThemes = [
@@ -26,10 +29,10 @@ export class ThemePopoverComponent {
     { key: UserTheme.SYSTEM, label: this.translate.instant("General.SYSTEM_THEME"), img: "assets/img/system-mode-preview.jpg" },
   ];
 
-  constructor(
-    protected modalCtrl: ModalController,
-    private translate: TranslateService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.userTheme = this.userTheme || UserService.DEFAULT_THEME;
   }
 

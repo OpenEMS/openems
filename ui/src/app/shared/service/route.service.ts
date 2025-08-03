@@ -1,14 +1,21 @@
-import { Injectable, signal, WritableSignal } from "@angular/core";
+import { Injectable, signal, WritableSignal, inject } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 
 @Injectable()
 export class RouteService {
+    private router = inject(Router);
+
 
     public currentUrl: WritableSignal<string | null> = signal(null);
 
     private previousUrl: string | null = null;
 
-    constructor(private router: Router) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const router = this.router;
+
         this.previousUrl = this.currentUrl();
         router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {

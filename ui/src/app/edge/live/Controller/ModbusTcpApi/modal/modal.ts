@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component } from "@angular/core";
+import { ChangeDetectorRef, Component, inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -16,6 +16,15 @@ import { OverrideStatus } from "src/app/shared/type/general";
   standalone: false,
 })
 export class ModalComponent extends AbstractModal {
+  protected override websocket: Websocket;
+  protected override route: ActivatedRoute;
+  protected override service: Service;
+  override modalController: ModalController;
+  protected override translate: TranslateService;
+  override formBuilder: FormBuilder;
+  override ref: ChangeDetectorRef;
+  private platFormService = inject(PlatFormService);
+
 
   protected readonly CONVERT_TO_WATT = Converter.POWER_IN_WATT;
 
@@ -29,17 +38,27 @@ export class ModalComponent extends AbstractModal {
   protected channelRegisters = ChannelRegister;
   private profile = new ProfileComponent(this.service, this.route, null, this.translate, this.websocket, this.platFormService);
 
-  constructor(
-    protected override websocket: Websocket,
-    protected override route: ActivatedRoute,
-    protected override service: Service,
-    public override modalController: ModalController,
-    protected override translate: TranslateService,
-    public override formBuilder: FormBuilder,
-    public override ref: ChangeDetectorRef,
-    private platFormService: PlatFormService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const websocket = inject(Websocket);
+    const route = inject(ActivatedRoute);
+    const service = inject(Service);
+    const modalController = inject(ModalController);
+    const translate = inject(TranslateService);
+    const formBuilder = inject(FormBuilder);
+    const ref = inject(ChangeDetectorRef);
+
     super(websocket, route, service, modalController, translate, formBuilder, ref);
+  
+    this.websocket = websocket;
+    this.route = route;
+    this.service = service;
+    this.modalController = modalController;
+    this.translate = translate;
+    this.formBuilder = formBuilder;
+    this.ref = ref;
   }
 
 

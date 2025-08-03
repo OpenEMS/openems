@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from "@angular/core";
+import { ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -40,6 +40,12 @@ Chart.Chart.register(ChartDataLabels);
 
 @Directive()
 export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
+  service = inject(Service);
+  cdRef = inject(ChangeDetectorRef);
+  protected translate = inject(TranslateService);
+  protected route = inject(ActivatedRoute);
+  protected logger = inject(Logger);
+
 
   protected static readonly phaseColors: string[] = ["rgb(255,127,80)", "rgb(91, 92, 214)", "rgb(128,128,0)"];
 
@@ -72,13 +78,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
 
-  constructor(
-    public service: Service,
-    public cdRef: ChangeDetectorRef,
-    protected translate: TranslateService,
-    protected route: ActivatedRoute,
-    protected logger: Logger,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.service.historyPeriod.subscribe(() => {
       this.updateChart();
     });

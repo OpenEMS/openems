@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Output, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Utils } from "src/app/shared/shared";
 import { TKeyValue } from "src/app/shared/type/utility";
@@ -12,12 +12,17 @@ import { SUM_STATES } from "../shared/sumState";
   standalone: false,
 })
 export class FilterComponent {
+  private translate = inject(TranslateService);
+
 
   @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<Map<string, ChosenFilter["value"]>>();
   protected filters: Filter[] = [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)];
   protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
 
-  constructor(private translate: TranslateService) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   /**
    * Collects the search params for a {@link GetEdgesRequest}

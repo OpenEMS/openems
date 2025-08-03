@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AlertController } from "@ionic/angular";
@@ -28,6 +28,14 @@ interface MyInstance {
   standalone: false,
 })
 export class UpdateAppComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  protected utils = inject(Utils);
+  private websocket = inject(Websocket);
+  private service = inject(Service);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
+  private alertCtrl = inject(AlertController);
+
 
   private static readonly SELECTOR = "app-update";
   public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
@@ -37,15 +45,10 @@ export class UpdateAppComponent implements OnInit {
 
   private edge: Edge | null = null;
 
-  public constructor(
-    private route: ActivatedRoute,
-    protected utils: Utils,
-    private websocket: Websocket,
-    private service: Service,
-    private router: Router,
-    private translate: TranslateService,
-    private alertCtrl: AlertController,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  public constructor() {
   }
 
   public ngOnInit() {

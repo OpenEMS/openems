@@ -1,4 +1,4 @@
-import { Directive, effect, EffectRef, Inject, inject, Injector, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -7,17 +7,24 @@ import { ChannelAddress, CurrentData, Edge, Service, Websocket } from "../../sha
 
 @Directive()
 export class LiveDataService extends DataService implements OnDestroy {
+    protected websocket = inject<Websocket>(Websocket);
+    protected service: Service;
+
 
     private subscribeId: string = uuidv4();
     private subscribedChannelAddresses: ChannelAddress[] = [];
     private subscription: EffectRef | null = null;
     private injector: Injector = inject(Injector);
 
-    constructor(
-        @Inject(Websocket) protected websocket: Websocket,
-        @Inject(Service) protected service: Service,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const service = inject<Service>(Service);
+
         super(service);
+        this.service = service;
+
 
         this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;

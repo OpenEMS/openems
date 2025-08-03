@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Injector, NgModule } from "@angular/core";
+import { Injector, NgModule, inject } from "@angular/core";
 import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
@@ -185,10 +185,17 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 })
 
 export class SharedModule {
+  private injector = inject(Injector);
+
 
   public static injector: Injector;
 
-  constructor(private injector: Injector) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const injector = this.injector;
+
     SharedModule.injector = injector;
   }
 }

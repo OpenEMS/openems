@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+
 import { Component, LOCALE_ID } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -15,15 +15,14 @@ import { StorageEssChartComponent } from "./chart/esschart";
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    CommonModule,
     IonicModule,
     TranslateModule,
     ChartComponentsModule,
     PickdateComponentModule,
     HistoryDataErrorModule,
     StorageEssChartComponent,
-    FooterNavigationComponentsModule,
-  ],
+    FooterNavigationComponentsModule
+],
   providers: [
     { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
   ],

@@ -1,12 +1,15 @@
-import { ErrorHandler, Injectable, Injector } from "@angular/core";
+import { ErrorHandler, Injectable, Injector, inject } from "@angular/core";
 
 import { Logger } from "./logger";
 
 @Injectable()
 export class MyErrorHandler implements ErrorHandler {
-    constructor(
-        private injector: Injector,
-    ) { }
+    private injector = inject(Injector);
+
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     // https://v16.angular.io/api/core/ErrorHandler#errorhandler
 

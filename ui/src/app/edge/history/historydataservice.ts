@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Inject, Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
@@ -12,17 +12,24 @@ import { ChannelAddress, Edge } from "../../shared/shared";
 
 @Injectable()
 export class HistoryDataService extends DataService {
+  protected websocket = inject<Websocket>(Websocket);
+  protected service: Service;
+
 
   public queryChannelsTimeout: ReturnType<typeof setTimeout> | null = null;
   protected override timestamps: string[] = [];
   private activeQueryData: string;
   private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
 
-  constructor(
-    @Inject(Websocket) protected websocket: Websocket,
-    @Inject(Service) protected service: Service,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const service = inject<Service>(Service);
+
     super(service);
+  
+    this.service = service;
   }
 
   public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 
 @Component({
@@ -7,6 +7,8 @@ import { ModalController } from "@ionic/angular";
     standalone: false,
 })
 export class FormlySelectFieldModalComponent implements OnInit {
+    protected modalCtrl = inject(ModalController);
+
 
     @Input({ required: true }) public title!: string;
     @Input({ required: true }) public options!: { label: string, value: string, description?: string }[];
@@ -15,9 +17,10 @@ export class FormlySelectFieldModalComponent implements OnInit {
 
     protected selectedValue: string | null = null;
 
-    constructor(
-        protected modalCtrl: ModalController,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     public ngOnInit(): void {
         this.selectedValue = this.initialSelectedValue;

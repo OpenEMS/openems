@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
@@ -14,17 +14,26 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
     standalone: false,
 })
 export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
+    protected override service: Service;
+    protected override translate: TranslateService;
+    private route = inject(ActivatedRoute);
+
 
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
 
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
 
-    constructor(
-        protected override service: Service,
-        protected override translate: TranslateService,
-        private route: ActivatedRoute,
-    ) {
+
+    constructor() {
+        const service = inject(Service);
+        const translate = inject(TranslateService);
+
         super("delayedsellTogrid-chart", service, translate);
+    
+        this.service = service;
+        this.translate = translate;
     }
 
     ngOnChanges() {

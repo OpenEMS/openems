@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect } from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { AppStateTracker } from "src/app/shared/ngrx-store/states";
@@ -12,17 +12,20 @@ import { Service, Websocket } from "../../shared/shared";
   standalone: false,
 })
 export class LoadingScreenComponent {
+  service = inject(Service);
+  websocket = inject(Websocket);
+  private router = inject(Router);
+  private appStateTracker = inject(AppStateTracker);
+
 
   protected readonly spinnerId: string = "IndexComponent";
   protected readonly environment: Environment = environment;
   protected backendState: "loading" | "failed" | "authenticated" = "loading";
 
-  constructor(
-    public service: Service,
-    public websocket: Websocket,
-    private router: Router,
-    private appStateTracker: AppStateTracker,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
 
     effect(() => {
       this.backendState = this.appStateTracker.loadingState();

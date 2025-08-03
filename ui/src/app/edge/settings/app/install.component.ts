@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -24,6 +24,14 @@ import { hasPredefinedKey } from "./permissions";
   standalone: false,
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  protected utils = inject(Utils);
+  private websocket = inject(Websocket);
+  private service = inject(Service);
+  private modalController = inject(ModalController);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
+
 
   private static readonly SELECTOR = "app-install";
   public readonly spinnerId: string = InstallAppComponent.SELECTOR;
@@ -42,15 +50,10 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   private hasPredefinedKey: boolean = false;
   private isAppFree: boolean = false;
 
-  public constructor(
-    private route: ActivatedRoute,
-    protected utils: Utils,
-    private websocket: Websocket,
-    private service: Service,
-    private modalController: ModalController,
-    private router: Router,
-    private translate: TranslateService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  public constructor() { }
 
   /**
  * Displays a error toast with the string supplied from the messageBuilder.

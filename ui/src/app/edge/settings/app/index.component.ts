@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from "@angular/router";
 import { IonPopover, ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -27,6 +27,13 @@ import { canEnterKey } from "./permissions";
   standalone: false,
 })
 export class IndexComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private service = inject(Service);
+  private websocket = inject(Websocket);
+  private translate = inject(TranslateService);
+  private router = inject(Router);
+  private modalController = inject(ModalController);
+
 
   private static readonly SELECTOR = "app-index";
   /**
@@ -66,14 +73,10 @@ export class IndexComponent implements OnInit, OnDestroy {
   private hasSeenPopover: boolean = false;
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
-  public constructor(
-    private route: ActivatedRoute,
-    private service: Service,
-    private websocket: Websocket,
-    private translate: TranslateService,
-    private router: Router,
-    private modalController: ModalController,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  public constructor() { }
 
   public ngOnInit() {
     this.init();

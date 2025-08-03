@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject, Subscription } from "rxjs";
@@ -31,6 +31,12 @@ enum SystemRestartState {
     standalone: false,
 })
 export class MaintenanceComponent implements OnInit {
+    protected utils = inject(Utils);
+    private websocket = inject(Websocket);
+    protected service = inject(Service);
+    private translate = inject(TranslateService);
+    private alertCtrl = inject(AlertController);
+
 
     private static readonly SELECTOR: string = "oe-maintenance";
     private static readonly TIMEOUT: number = 3000;
@@ -50,13 +56,10 @@ export class MaintenanceComponent implements OnInit {
     protected spinnerId: string = MaintenanceComponent.SELECTOR;
     protected readonly SystemRestartState = SystemRestartState;
 
-    constructor(
-        protected utils: Utils,
-        private websocket: Websocket,
-        protected service: Service,
-        private translate: TranslateService,
-        private alertCtrl: AlertController,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     /**
  * Present confirmation alert

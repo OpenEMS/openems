@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnInit, inject } from "@angular/core";
 import { ToastController } from "@ionic/angular";
 
 @Component({
@@ -7,6 +7,8 @@ import { ToastController } from "@ionic/angular";
   standalone: false,
 })
 export class NotificationComponent implements OnInit, OnChanges {
+  private toastie = inject(ToastController);
+
 
   private static readonly PREFIX = "hide-notification-";
 
@@ -15,7 +17,10 @@ export class NotificationComponent implements OnInit, OnChanges {
 
   private hideMessage: boolean = true;
 
-  constructor(private toastie: ToastController) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit() {
     const note = localStorage.getItem(NotificationComponent.PREFIX + this.id);

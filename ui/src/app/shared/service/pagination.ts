@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive } from "@angular/core";
+import { Directive, inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { JsonRpcUtils } from "../jsonrpc/jsonrpcutils";
 import { SubscribeEdgesRequest } from "../jsonrpc/request/subscribeEdgesRequest";
@@ -9,14 +9,17 @@ import { Service } from "./service";
 
 @Directive()
 export class Pagination {
+  service = inject(Service);
+  private router = inject(Router);
+
 
   private edge: Edge | null = null;
   private count = 0;
 
-  constructor(
-    public service: Service,
-    private router: Router,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   public getAndSubscribeEdge(edge: Edge): Promise<void> {
     return new Promise<void>((resolve) => {

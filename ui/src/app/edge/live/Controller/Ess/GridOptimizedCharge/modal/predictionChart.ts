@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -15,6 +15,10 @@ import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
     standalone: false,
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
+    protected override service: Service;
+    protected override translate: TranslateService;
+    private route = inject(ActivatedRoute);
+
 
     private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 
@@ -24,12 +28,17 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     @Input({ required: true }) protected refresh!: boolean;
     @Input({ required: true }) protected override edge!: Edge;
 
-    constructor(
-        protected override service: Service,
-        protected override translate: TranslateService,
-        private route: ActivatedRoute,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const service = inject(Service);
+        const translate = inject(TranslateService);
+
         super("prediction-chart", service, translate);
+    
+        this.service = service;
+        this.translate = translate;
     }
 
     ngOnChanges() {

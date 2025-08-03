@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
@@ -21,6 +21,22 @@ import { Language } from "./shared/type/language";
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
+  private platform = inject(Platform);
+  menu = inject(MenuController);
+  modalCtrl = inject(ModalController);
+  router = inject(Router);
+  service = inject(Service);
+  private userService = inject(UserService);
+  toastController = inject(ToastController);
+  websocket = inject(Websocket);
+  private globalRouteChangeHandler = inject(GlobalRouteChangeHandler);
+  private meta = inject(Meta);
+  private appService = inject(PlatFormService);
+  private title = inject(Title);
+  private stateService = inject(AppStateTracker);
+  protected navigationService = inject(NavigationService);
+  protected navCtrl = inject(NavController);
+
 
   public environment = environment;
   public backUrl: string | boolean = "/";
@@ -34,23 +50,12 @@ export class AppComponent implements OnInit, OnDestroy {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private subscription: Subscription = new Subscription();
 
-  constructor(
-    private platform: Platform,
-    public menu: MenuController,
-    public modalCtrl: ModalController,
-    public router: Router,
-    public service: Service,
-    private userService: UserService,
-    public toastController: ToastController,
-    public websocket: Websocket,
-    private globalRouteChangeHandler: GlobalRouteChangeHandler,
-    private meta: Meta,
-    private appService: PlatFormService,
-    private title: Title,
-    private stateService: AppStateTracker,
-    protected navigationService: NavigationService,
-    protected navCtrl: NavController
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const service = this.service;
+
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
     this.subscription.add(

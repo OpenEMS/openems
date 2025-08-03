@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from "@nodro7/angular-mydatepicker";
@@ -23,6 +23,10 @@ import { Edge } from "../../edge/edge";
     ],
 })
 export class PickDatePopoverComponent implements OnInit {
+    service = inject(Service);
+    popoverCtrl = inject(PopoverController);
+    translate = inject(TranslateService);
+
 
     @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;
@@ -107,11 +111,10 @@ export class PickDatePopoverComponent implements OnInit {
     protected readonly DefaultTypes = DefaultTypes;
     private readonly TODAY = new Date();
 
-    constructor(
-        public service: Service,
-        public popoverCtrl: PopoverController,
-        public translate: TranslateService,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     public onDateChanged(event: IMyDateRangeModel) {
         this.service.historyPeriod.next(new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate));

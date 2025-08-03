@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { Component, LOCALE_ID, OnDestroy, OnInit } from "@angular/core";
+
+import { Component, LOCALE_ID, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, FormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
@@ -39,19 +39,25 @@ type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isF
   templateUrl: "./alerting.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     NgxSpinnerModule,
     FormlyModule,
     TranslateModule,
     IonicModule,
     HelpButtonComponent,
-    FormsModule,
-  ],
+    FormsModule
+],
   providers: [
     { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
   ],
 })
 export class AlertingComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  protected utils = inject(Utils);
+  private websocket = inject(Websocket);
+  private service = inject(Service);
+  private translate = inject(TranslateService);
+  formBuilder = inject(FormBuilder);
+
   protected static readonly SELECTOR = "alerting";
   private static readonly NO_ALERTING: number = 0;
   public readonly spinnerId: string = AlertingComponent.SELECTOR;
@@ -75,14 +81,12 @@ export class AlertingComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
-  public constructor(
-    private route: ActivatedRoute,
-    protected utils: Utils,
-    private websocket: Websocket,
-    private service: Service,
-    private translate: TranslateService,
-    public formBuilder: FormBuilder,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  public constructor() {
+    const translate = this.translate;
+
     Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
       translate.setTranslation(lang, translations, shouldMerge);
     });

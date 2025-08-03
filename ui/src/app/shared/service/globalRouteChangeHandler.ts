@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { Router, RoutesRecognized } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, map } from "rxjs/operators";
@@ -11,12 +11,17 @@ import { Service } from "./service";
   providedIn: "root",
 })
 export class GlobalRouteChangeHandler {
+  service = inject(Service);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
 
-  constructor(
-    public service: Service,
-    private router: Router,
-    private translate: TranslateService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() {
+    const translate = this.translate;
+
 
     this.router.events.pipe(
       filter(event => event instanceof RoutesRecognized),

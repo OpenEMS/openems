@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { filter, take } from "rxjs/operators";
@@ -21,20 +21,29 @@ import { ControllerEvseSingleShared } from "../../../shared/shared";
     standalone: false,
 })
 export class ScheduleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
+    protected override service: Service;
+    protected override translate: TranslateService;
+    private websocket = inject(Websocket);
+
 
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
 
     private currencyLabel: Currency.Label; // Default
-    private currencyUnit: Currency.Unit; // Default
+    private currencyUnit: Currency.Unit;
 
-    constructor(
-        protected override service: Service,
-        protected override translate: TranslateService,
-        private websocket: Websocket,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]); // Default
+
+    constructor() {
+        const service = inject(Service);
+        const translate = inject(TranslateService);
+
         super("schedule-chart", service, translate);
+    
+        this.service = service;
+        this.translate = translate;
     }
 
     public getChartHeight(): number {
