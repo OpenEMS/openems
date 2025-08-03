@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.TriConsumer;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 
@@ -16,16 +17,18 @@ public class SimpleEdgeHandler implements EdgeHandler {
 	private final Logger log = LoggerFactory.getLogger(SimpleEdgeHandler.class);
 	private final Map<String, EdgeConfig> data = new HashMap<>();
 
-	public synchronized void setEdgeConfig(String edgeId, EdgeConfig edgeConfig) {
+	private synchronized void setEdgeConfig(String edgeId, EdgeConfig edgeConfig) {
 		this.data.put(edgeId, edgeConfig);
 	}
 
 	/**
 	 * Sets the {@link EdgeConfig} from an {@link EventReader}.
 	 *
-	 * @param reader the {@link EventReader}
+	 * @param reader   the {@link EventReader}
+	 * @param onChange consumer which gets called when the edge config changes
 	 */
-	public synchronized void setEdgeConfigFromEvent(EventReader reader) {
+	public synchronized void setEdgeConfigFromEvent(EventReader reader,
+			TriConsumer<Edge, EdgeConfig, EdgeConfig> onChange) {
 		var edge = (Edge) reader.getProperty(Edge.Events.OnSetConfig.EDGE);
 		var newConfig = (EdgeConfig) reader.getProperty(Edge.Events.OnSetConfig.CONFIG);
 
@@ -36,7 +39,7 @@ public class SimpleEdgeHandler implements EdgeHandler {
 				return;
 			}
 			this.log.info("Edge [" + edge.getId() + "]. Update config: " + diff.toString());
-
+			onChange.accept(edge, oldConfig, newConfig);
 		} catch (OpenemsNamedException e) {
 			this.log.warn("Edge [" + edge.getId() + "]. Update config (unable to compoare old and new EdgeConfig): "
 					+ e.getMessage());

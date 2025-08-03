@@ -30,6 +30,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -357,7 +358,8 @@ public class ComponentUtilImpl implements ComponentUtil {
 		return copy;
 	}
 
-	private List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds) {
+	@Override
+	public List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
 				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
 				.filter(c -> { //
@@ -379,7 +381,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public boolean anyComponentUses(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
-				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
+				.filter(t -> {
+					return !ignoreIds.stream().anyMatch(id -> t.id().equals(id)); //
+				})
 				.anyMatch(c -> { //
 					var t = c.getComponentContext().getProperties();
 					return enumerationAsStream(t.keys()).anyMatch(key -> {

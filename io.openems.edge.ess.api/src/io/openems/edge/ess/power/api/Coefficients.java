@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 public class Coefficients {
 
@@ -31,11 +32,11 @@ public class Coefficients {
 			if (symmetricMode) {
 				// Symmetric Mode
 				for (Pwr pwr : Pwr.values()) {
-					this.coefficients.add(new Coefficient(index++, essId, Phase.ALL, pwr));
+					this.coefficients.add(new Coefficient(index++, essId, SingleOrAllPhase.ALL, pwr));
 				}
 			} else {
 				// Asymmetric Mode
-				for (Phase phase : Phase.values()) {
+				for (var phase : SingleOrAllPhase.values()) {
 					for (Pwr pwr : Pwr.values()) {
 						this.coefficients.add(new Coefficient(index++, essId, phase, pwr));
 					}
@@ -50,17 +51,17 @@ public class Coefficients {
 	 * {@link Pwr}.
 	 * 
 	 * @param essId the Ess-ID
-	 * @param phase the {@link Phase}
+	 * @param phase the {@link SingleOrAllPhase}
 	 * @param pwr   the {@link Pwr}
 	 * @return the {@link Coefficient}
 	 * @throws OpenemsException on error
 	 */
-	public Coefficient of(String essId, Phase phase, Pwr pwr) throws OpenemsException {
-		if (this.symmetricMode && phase != Phase.ALL) {
+	public Coefficient of(String essId, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException {
+		if (this.symmetricMode && phase != SingleOrAllPhase.ALL) {
 			throw new OpenemsException("Symmetric-Mode is activated. Coefficients for [" + essId + "," + phase + ","
 					+ pwr + "] is not available!");
 		}
-		for (Coefficient c : this.coefficients) {
+		for (var c : this.coefficients) {
 			if (Objects.equals(c.essId, essId) && c.phase == phase && c.pwr == pwr) {
 				return c;
 			}

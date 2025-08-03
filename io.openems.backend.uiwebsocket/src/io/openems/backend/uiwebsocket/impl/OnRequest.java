@@ -16,6 +16,7 @@ import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
 import io.openems.backend.common.jsonrpc.request.GetEmsTypeRequest;
 import io.openems.backend.common.jsonrpc.request.GetLatestSetupProtocolCoreInfoRequest;
+import io.openems.backend.common.jsonrpc.request.GetProtocolsCoreInfoRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolDataRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserAlertingConfigsRequest;
@@ -29,6 +30,7 @@ import io.openems.backend.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
 import io.openems.backend.common.jsonrpc.response.GetEmsTypeResponse;
 import io.openems.backend.common.jsonrpc.response.GetLatestSetupProtocolCoreInfoResponse;
+import io.openems.backend.common.jsonrpc.response.GetProtocolsCoreInfoResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
 import io.openems.backend.common.metadata.User;
@@ -58,6 +60,8 @@ import io.openems.common.utils.JsonUtils;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
+	private static final OpenemsNamedException RATE_LIMIT_EXCEPTION = OpenemsError.JSONRPC_TOO_MANY_REQUESTS.exception();
+
 	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 
 	private final UiWebsocketImpl parent;
@@ -70,6 +74,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
+		if (!wsData.checkLimiter(request.getMethod())) {
+			wsData.debugLog(this.log, () -> "Rate limit hit for user=%s, method=%s" //
+					.formatted(wsData.getUserId().orElse("UNKNOWN"), request.getMethod()));
+			return CompletableFuture.failedFuture(RATE_LIMIT_EXCEPTION);
+		}
 
 		// Start with authentication requests
 		CompletableFuture<? extends JsonrpcResponseSuccess> result = null;
@@ -86,8 +95,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// should be authenticated
 		var user = this.parent.assertUser(wsData, request);
-		wsData.debugLog(this.log,
-				() -> "REQUEST " + user.getId() + ": " + toShortString(simplifyJsonrpcMessage(request), 200));
+		wsData.debugLog(this.log, () -> "REQUEST %s: %s" //
+				.formatted(user.getId(), toShortString(simplifyJsonrpcMessage(request), 200)));
 
 		result = switch (request.getMethod()) {
 		case LogoutRequest.METHOD -> //
@@ -116,6 +125,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleGetSetupProtocolDataRequest(user, GetSetupProtocolDataRequest.from(request));
 		case GetLatestSetupProtocolCoreInfoRequest.METHOD ->
 			this.handleGetLatestSetupProtocolCoreInfoRequest(user, GetLatestSetupProtocolCoreInfoRequest.from(request));
+		case GetProtocolsCoreInfoRequest.METHOD ->
+			this.handleProtocolsCoreInfoRequest(user, GetProtocolsCoreInfoRequest.from(request));
 		case SubscribeEdgesRequest.METHOD -> //
 			this.handleSubscribeEdgesRequest(wsData, SubscribeEdgesRequest.from(request));
 		case GetEdgesRequest.METHOD -> //
@@ -467,8 +478,29 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		user.assertEdgeRoleIsAtLeast(GetLatestSetupProtocolCoreInfoRequest.METHOD, edgeId, Role.OWNER);
 
 		var latestSetupProtocol = this.parent.metadata.getLatestSetupProtocolCoreInfo(edgeId);
-		return CompletableFuture.completedFuture(
-				new GetLatestSetupProtocolCoreInfoResponse(request.getId(), latestSetupProtocol.orElse(null)));
+		return CompletableFuture
+				.completedFuture(new GetLatestSetupProtocolCoreInfoResponse(request.getId(), latestSetupProtocol));
+	}
+
+	/**
+	 * Handles a {@link GetLatestSetupProtocolCoreInfoRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link GetLatestSetupProtocolCoreInfoRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on Error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleProtocolsCoreInfoRequest(User user,
+			GetProtocolsCoreInfoRequest request) throws OpenemsNamedException {
+		final var edgeId = request.getEdgeId();
+		if (user.getRole(edgeId).isEmpty()) {
+			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
+			this.parent.logInfo(this.log, "Role was not defined for user=" + user.getId() + ", edge=" + edgeId);
+		}
+		user.assertEdgeRoleIsAtLeast(GetProtocolsCoreInfoRequest.METHOD, edgeId, Role.OWNER);
+
+		var setupProtocols = this.parent.metadata.getProtocolsCoreInfo(edgeId);
+		return CompletableFuture.completedFuture(new GetProtocolsCoreInfoResponse(request.getId(), setupProtocols));
 	}
 
 	/**

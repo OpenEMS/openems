@@ -3,7 +3,6 @@ package io.openems.edge.controller.evse.single;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.controller.evse.single.Utils.mergeLimits;
 import static io.openems.edge.controller.evse.single.Utils.parseSmartConfig;
 
 import java.time.Duration;
@@ -29,10 +28,10 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
-import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
+import io.openems.edge.evse.api.common.ApplySetPoint;
+import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
 
 public class EnergyScheduler {
 
@@ -56,9 +55,10 @@ public class EnergyScheduler {
 				.setScheduleContext(coc -> coc == null ? null : new ScheduleContext(coc.sessionEnergy)) //
 
 				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
-					var chargeEnergy = coc == null || !coc.isReadyForCharging || coc.appearsToBeFullyCharged //
+					var chargeEnergy = coc == null || !coc.abilities.isReadyForCharging() || coc.appearsToBeFullyCharged //
 							? 0 //
-							: calculateChargeEnergy(period, csc, ef, coc.mode, coc.limit, coc.sessionEnergyLimit);
+							: calculateChargeEnergy(period, csc, ef, coc.mode, coc.abilities.applySetPoint(),
+									coc.sessionEnergyLimit);
 					applyChargeEnergy(id, csc, ef, chargeEnergy);
 				}) //
 
@@ -130,7 +130,7 @@ public class EnergyScheduler {
 						chargeEnergy = 0;
 
 					} else {
-						chargeEnergy = calculateChargeEnergy(period, csc, ef, mode, coc.limit, null);
+						chargeEnergy = calculateChargeEnergy(period, csc, ef, mode, coc.applySetPointAbility, null);
 					}
 					applyChargeEnergy(id, csc, ef, chargeEnergy);
 				})
@@ -142,12 +142,12 @@ public class EnergyScheduler {
 	}
 
 	private static int calculateChargeEnergy(Period period, ScheduleContext csc, EnergyFlow.Model ef, Mode.Actual mode,
-			Limit limit, Integer sessionEnergyLimit) {
+			ApplySetPoint.Ability.Watt applySetPointAbility, Integer sessionEnergyLimit) {
 		// Evaluate Charge-Energy per mode
 		int chargeEnergy = switch (mode) {
-		case FORCE -> period.duration().convertPowerToEnergy(limit.getMaxPower());
-		case MINIMUM -> period.duration().convertPowerToEnergy(limit.getMinPower());
-		case SURPLUS -> calculateSurplusEnergy(period, limit, ef.production, ef.unmanagedConsumption);
+		case FORCE -> period.duration().convertPowerToEnergy(applySetPointAbility.max());
+		case MINIMUM -> period.duration().convertPowerToEnergy(applySetPointAbility.min());
+		case SURPLUS -> calculateSurplusEnergy(period, applySetPointAbility, ef.production, ef.unmanagedConsumption);
 		case ZERO -> 0;
 		};
 
@@ -170,17 +170,18 @@ public class EnergyScheduler {
 		}
 	}
 
-	private static int calculateSurplusEnergy(Period period, Limit limit, int production, int consumption) {
+	private static int calculateSurplusEnergy(Period period, ApplySetPoint.Ability.Watt applySetPointAbility,
+			int production, int consumption) {
 		// TODO consider Non-Interruptable SURPLUS
 		// TODO this would have to be calculated by EVSE-Cluster to handle distribution
 		// correctly; current calculation causes more consumption per period than will
 		// be applied in reality
 		var surplus = production - consumption;
-		if (surplus < period.duration().convertPowerToEnergy(limit.getMinPower())) {
+		if (surplus < period.duration().convertPowerToEnergy(applySetPointAbility.min())) {
 			return 0; // Not sufficient surplus power
 		}
 
-		var maxEnergy = period.duration().convertPowerToEnergy(limit.getMaxPower());
+		var maxEnergy = period.duration().convertPowerToEnergy(applySetPointAbility.max());
 		if (surplus > maxEnergy) {
 			return maxEnergy;
 		} else {
@@ -205,7 +206,8 @@ public class EnergyScheduler {
 				.map(i -> Mode.Actual.ZERO) //
 				.toArray(Mode.Actual[]::new);
 		for (var period : periodsBeforeTargetTime) {
-			remainingEnergy = calculateSurplusEnergy(period, coc.limit, period.production(), period.consumption());
+			remainingEnergy = calculateSurplusEnergy(period, coc.applySetPointAbility, period.production(),
+					period.consumption());
 			modes[period.index()] = Mode.Actual.SURPLUS;
 			if (remainingEnergy < 0) {
 				break;
@@ -219,9 +221,10 @@ public class EnergyScheduler {
 					.toList();
 			for (var period : sortedPeriods) {
 				remainingEnergy += /* Remove SURPLUS from before */
-						calculateSurplusEnergy(period, coc.limit, period.production(), period.consumption())
+						calculateSurplusEnergy(period, coc.applySetPointAbility, period.production(),
+								period.consumption())
 								/* Calculate FORCE energy */
-								- period.duration().convertPowerToEnergy(coc.limit().getMaxPower());
+								- period.duration().convertPowerToEnergy(coc.applySetPointAbility.max());
 				modes[period.index()] = Mode.Actual.FORCE;
 				if (remainingEnergy < 0) {
 					break;
@@ -263,7 +266,7 @@ public class EnergyScheduler {
 
 	public static sealed interface Config {
 
-		public static record ManualOptimizationContext(Mode.Actual mode, boolean isReadyForCharging, Limit limit,
+		public static record ManualOptimizationContext(Mode.Actual mode, CombinedAbilities abilities,
 				boolean appearsToBeFullyCharged, int sessionEnergy, int sessionEnergyLimit) implements Config {
 
 			/**
@@ -275,39 +278,34 @@ public class EnergyScheduler {
 				return jsonObjectSerializer(json -> {
 					return new ManualOptimizationContext(//
 							json.getEnum("mode", Mode.Actual.class), //
-							json.getBoolean("isReadyForCharging"), //
-							json.getObject("limit", Limit.serializer()), //
+							json.getObject("abilities", CombinedAbilities.serializer()), //
 							json.getBoolean("appearsToBeFullyCharged"), //
 							json.getInt("sessionEnergy"), //
 							json.getInt("sessionEnergyLimit") //
 					);
 				}, obj -> {
 					return buildJsonObject() //
-							.addProperty("class", obj.getClass().getSimpleName()) //
-							.addProperty("isReadyForCharging", obj.isReadyForCharging()) //
-							.add("limit", Limit.serializer().serialize(obj.limit())) //
+							.addProperty("mode", obj.mode) //
+							.add("abilities", CombinedAbilities.serializer().serialize(obj.abilities)) //
+							.addProperty("appearsToBeFullyCharged", obj.appearsToBeFullyCharged) //
+							.addProperty("sessionEnergy", obj.sessionEnergy) //
+							.addProperty("sessionEnergyLimit", obj.sessionEnergyLimit) //
 							.build();
 				});
 			}
 
-			protected static ManualOptimizationContext from(Mode.Actual mode, EvseChargePoint.ChargeParams chargePoint,
-					EvseElectricVehicle.ChargeParams electricVehicle, boolean appearsToBeFullyCharged,
+			protected static ManualOptimizationContext from(Mode.Actual mode, ChargePointAbilities chargePointAbilities,
+					ElectricVehicleAbilities electricVehicleAbilities, boolean appearsToBeFullyCharged,
 					int sessionEnergy, int sessionEnergyLimit) {
-				final boolean isReadyForCharging;
-				final Limit limit;
-				if (chargePoint == null || electricVehicle == null) {
-					isReadyForCharging = false;
-					limit = null;
-				} else {
-					isReadyForCharging = chargePoint.isReadyForCharging();
-					limit = mergeLimits(chargePoint, electricVehicle);
-				}
-				return new ManualOptimizationContext(mode, isReadyForCharging, limit, appearsToBeFullyCharged,
-						sessionEnergy, sessionEnergyLimit);
+				final var combinedAbilities = CombinedAbilities
+						.createFrom(chargePointAbilities, electricVehicleAbilities) //
+						.build();
+				return new ManualOptimizationContext(mode, combinedAbilities, appearsToBeFullyCharged, sessionEnergy,
+						sessionEnergyLimit);
 			}
 		}
 
-		public static record SmartOptimizationConfig(boolean isReadyForCharging, Limit limit,
+		public static record SmartOptimizationConfig(CombinedAbilities combinedAbilities,
 				boolean appearsToBeFullyCharged, ImmutableList<Task<Payload>> smartConfig) implements Config {
 
 			/**
@@ -318,52 +316,31 @@ public class EnergyScheduler {
 			public static JsonSerializer<SmartOptimizationConfig> serializer() {
 				return jsonObjectSerializer(json -> {
 					return new SmartOptimizationConfig(//
-							json.getBoolean("isReadyForCharging"), //
-							json.getObject("limit", Limit.serializer()), //
+							json.getObject("combinedAbilities", CombinedAbilities.serializer()), //
 							json.getBoolean("appearsToBeFullyCharged"), //
 							json.getImmutableList("smartConfig", JSCalendar.Task.serializer(Payload.serializer())) //
 					);
 				}, obj -> {
 					return buildJsonObject() //
 							.addProperty("class", obj.getClass().getSimpleName()) //
-							.addProperty("isReadyForCharging", obj.isReadyForCharging()) //
-							.add("limit", Limit.serializer().serialize(obj.limit())) //
+							.add("combinedAbilities", CombinedAbilities.serializer().serialize(obj.combinedAbilities)) //
+							.addProperty("appearsToBeFullyCharged", obj.appearsToBeFullyCharged) //
 							.add("smartConfig", JSCalendar.Tasks.serializer(Payload.serializer()) //
 									.serialize(obj.smartConfig()))
 							.build();
 				});
 			}
 
-			protected static SmartOptimizationConfig from(EvseChargePoint.ChargeParams chargePoint,
-					EvseElectricVehicle.ChargeParams electricVehicle, boolean appearsToBeFullyCharged,
+			protected static SmartOptimizationConfig from(ChargePointAbilities chargePointAbilities,
+					ElectricVehicleAbilities electricVehicleAbilities, boolean appearsToBeFullyCharged,
 					String smartConfigString) {
-				final boolean isReadyForCharging;
-				final Limit limit;
-				if (chargePoint == null || electricVehicle == null) {
-					isReadyForCharging = false;
-					limit = null;
-				} else {
-					isReadyForCharging = chargePoint.isReadyForCharging();
-					limit = mergeLimits(chargePoint, electricVehicle);
-				}
-				var smartConfig = parseSmartConfig(smartConfigString);
-				return new SmartOptimizationConfig(isReadyForCharging, limit, appearsToBeFullyCharged, smartConfig);
+				final var combinedAbilities = CombinedAbilities
+						.createFrom(chargePointAbilities, electricVehicleAbilities) //
+						.build();
+				final var smartConfig = parseSmartConfig(smartConfigString);
+				return new SmartOptimizationConfig(combinedAbilities, appearsToBeFullyCharged, smartConfig);
 			}
 		}
-
-		/**
-		 * EVSE is ready for charging.
-		 * 
-		 * @return boolean
-		 */
-		public boolean isReadyForCharging();
-
-		/**
-		 * EVSE {@link Limit}.
-		 * 
-		 * @return {@link Limit}
-		 */
-		public Limit limit();
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link Config}.
@@ -412,11 +389,15 @@ public class EnergyScheduler {
 		}
 	}
 
-	public static record SmartOptimizationContext(boolean isReadyForCharging, Limit limit,
-			boolean appearsToBeFullyCharged, ZonedDateTime targetTime, Payload targetPayload) {
+	public static record SmartOptimizationContext(boolean isReadyForCharging,
+			ApplySetPoint.Ability.Watt applySetPointAbility, boolean appearsToBeFullyCharged, ZonedDateTime targetTime,
+			Payload targetPayload) {
 
 		protected static SmartOptimizationContext from(SmartOptimizationConfig config, OneTask<Payload> target) {
-			return new SmartOptimizationContext(config.isReadyForCharging, config.limit, config.appearsToBeFullyCharged, //
+			var abilities = config.combinedAbilities();
+
+			return new SmartOptimizationContext(abilities.isReadyForCharging(), abilities.applySetPoint(),
+					config.appearsToBeFullyCharged, //
 					target != null ? target.start() : null, //
 					target != null ? target.payload() : null);
 		}

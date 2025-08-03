@@ -3,10 +3,10 @@ import { ActivatedRoute } from "@angular/router";
 import { SumState } from "src/app/index/shared/sumState";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
+import { DefaultTypes } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { Role } from "../../type/role";
 import { AbstractService } from "../abstractservice";
-import { DefaultTypes } from "../defaulttypes";
 
 export class DummyService extends AbstractService {
 

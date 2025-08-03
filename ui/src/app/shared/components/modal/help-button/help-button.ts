@@ -1,34 +1,48 @@
-// @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, Input, SimpleChange, OnChanges } from "@angular/core";
+import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
 import { environment } from "src/environments";
 
 @Component({
     selector: "oe-help-button",
     templateUrl: "./help-button.html",
-    standalone: false,
+    standalone: true,
+    imports: [
+        CommonModule,
+        IonicModule,
+    ],
 })
-export class HelpButtonComponent {
+export class HelpButtonComponent implements OnChanges {
+
+    /** Overwrites default docs link */
+    @Input() public useDefaultPrefix: boolean = false;
+    @Input() public key: keyof typeof environment.links | null = null;
 
     protected link: string | null = null;
 
     constructor(private service: Service) { }
 
-    @Input() set key(key: string) {
-        if (!(key in environment.links)) {
+    ngOnChanges(changes: { key: SimpleChange, useDocsPrefix: SimpleChange }) {
+        if (changes["key"] || changes["useDocsPrefix"]) {
+            this.setLink(changes.key.currentValue, changes.useDocsPrefix.currentValue);
+        }
+    }
+
+    private setLink(key: HelpButtonComponent["key"], docsBaseLink?: HelpButtonComponent["useDefaultPrefix"]) {
+        const docsLink = this.useDefaultPrefix ? "" : environment.docsUrlPrefix.replace("{language}", this.service.getDocsLang());
+        if (key == null || !(key in environment.links)) {
             console.error("Key [" + key + "] not found in Environment Links");
             this.link = null;
             return;
-
         }
+
         const link = environment.links[key];
         if (link === null || link === "") {
             this.link = null;
 
         } else {
-            this.link =
-                environment.docsUrlPrefix.replace("{language}", this.service.getDocsLang())
-                + environment.links[key];
+            this.link = docsLink + environment.links[key];
         }
     }
 

@@ -3,7 +3,7 @@ package io.openems.edge.ess.samsung.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @ObjectClassDefinition(//
 		name = "Samsung ESS", //
@@ -20,7 +20,7 @@ import io.openems.edge.ess.power.api.Phase;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this ESS connected to?")
-	Phase phase() default Phase.L1;
+	SingleOrAllPhase phase() default SingleOrAllPhase.L1;
 
 	@AttributeDefinition(name = "Capacity", description = "The Capacity of the ESS in Wh")
 	int capacity() default 3600;

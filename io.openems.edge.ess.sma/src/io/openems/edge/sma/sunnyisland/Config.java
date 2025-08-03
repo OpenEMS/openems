@@ -3,7 +3,7 @@ package io.openems.edge.sma.sunnyisland;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @ObjectClassDefinition(//
 		name = "ESS SMA SunnyIsland", //
@@ -25,8 +25,11 @@ import io.openems.edge.ess.power.api.Phase;
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 3;
 
-	@AttributeDefinition(name = "Symetric mode enabled?", description = "true, if three Sunny Island are configured for master-slave symmetric mode")
-	Phase phase() default Phase.L1;
+	@AttributeDefinition(name = "Phase", description = "On which phase is the ESS connected?")
+	SingleOrAllPhase phase() default SingleOrAllPhase.L1;
+
+	@AttributeDefinition(name = "Capacity", description = "Capacity of the battery in Wh")
+	int capacity() default 0;
 
 	@AttributeDefinition(name = "Read-Only mode", description = "Enables Read-Only mode")
 	boolean readOnlyMode() default false;

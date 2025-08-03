@@ -10,7 +10,6 @@ const window_env = (window as any).env as { [key: string]: string };
 
 export const environment: Environment = {
     ...theme, ...{
-
         backend: "OpenEMS Backend",
         url: window_env.websocket,
 

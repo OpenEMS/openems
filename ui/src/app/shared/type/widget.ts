@@ -17,6 +17,7 @@ export enum WidgetClass {
 
 export enum WidgetNature {
     "io.openems.edge.evcs.api.Evcs",
+    "io.openems.edge.heat.api.ManagedHeatElement",
     "io.openems.impl.controller.channelthreshold.ChannelThresholdController", // TODO deprecated
     "io.openems.edge.io.api.DigitalInput",
 }
@@ -38,6 +39,7 @@ export enum WidgetFactory {
     "Controller.IO.HeatingElement",
     "Controller.IO.Heating.Room",
     "Controller.Io.HeatPump.SgReady",
+    "Controller.Heat.Heatingelement",
     "Controller.Symmetric.PeakShaving",
     "Controller.TimeslotPeakshaving",
     "Evcs.Cluster.PeakShaving",

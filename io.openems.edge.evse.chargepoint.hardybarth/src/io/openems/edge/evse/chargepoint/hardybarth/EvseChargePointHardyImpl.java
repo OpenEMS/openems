@@ -5,8 +5,7 @@ import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
 import static io.openems.edge.bridge.http.api.HttpMethod.GET;
 import static io.openems.edge.bridge.http.api.HttpMethod.PUT;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
-import static io.openems.edge.evse.api.SingleThreePhase.THREE_PHASE;
-import static io.openems.edge.evse.api.chargepoint.Profile.ApplySetPoint.Ability.AMPERE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static java.util.Collections.emptyMap;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -25,7 +24,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.types.MeterType;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -34,11 +32,11 @@ import io.openems.edge.bridge.http.api.HttpMethod;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
+import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -144,31 +142,10 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 	}
 
 	@Override
-	public MeterType getMeterType() {
-		return MeterType.CONSUMPTION_METERED;
-	}
-
-	@Override
-	public ChargeParams getChargeParams() {
-		var isReadyForCharging = this.getIsReadyForCharging();
-		var params = createChargeParams(isReadyForCharging);
-		return params;
-	}
-
-	/**
-	 * Creates the chargeParams.
-	 * 
-	 * @param isReadyForCharging is ready for charging?
-	 * @return the {@link ChargeParams}
-	 */
-	protected static ChargeParams createChargeParams(boolean isReadyForCharging) {
-		var limit = new Limit(THREE_PHASE, 6000, 16000);
-		var abilities = ChargePointAbilities.create() //
-				.applySetPointIn(AMPERE) //
-				.build();
-		// no plug info available
-		var params = new ChargeParams(isReadyForCharging, limit, abilities);
-		return params;
+	public ChargePointAbilities getChargePointAbilities() {
+		return ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 16)) //
+				.setIsReadyForCharging(this.getIsReadyForCharging()).build();
 	}
 
 	@Override
@@ -187,4 +164,9 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 		return this.config.phaseRotation();
 	}
 
+	@Override
+	public boolean isReadOnly() {
+		// TODO implement read-only
+		return false;
+	}
 }

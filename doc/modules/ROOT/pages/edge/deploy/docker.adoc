@@ -42,7 +42,7 @@ To setup docker follow the instuctions from https://docs.docker.com/engine/insta
 
 === Create a Docker compose
 
-Paste content into a `docker-compose.yml`
+Paste content into a `docker-compose.yml` in a directory of your choice:
 
 [source,yaml]
 ----
@@ -65,7 +65,7 @@ volumes:
 
 === Run compose file
 
-To start the previously created `docker-compose.yml` run the command:
+To start the previously created `docker-compose.yml` `cd` into the directory of it and run the command:
 
 [source,bash]
 ----
