@@ -279,6 +279,16 @@ html.md {
     white-space: initial !important;
 }
 
+formly-range-type {
+    display: block;
+    width: 100%;
+}
+
+ion-range {
+    --bar-background: var(--ion-color-background-pull-to-refresh);
+    --bar-background-active: var(--ion-color-primary);
+}
+
 ion-label {
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -302,6 +312,10 @@ mat-card.single_top {
 
 table.full_width {
     width: 100%;
+}
+
+.full_height {
+    height: 100%;
 }
 
 .bold {

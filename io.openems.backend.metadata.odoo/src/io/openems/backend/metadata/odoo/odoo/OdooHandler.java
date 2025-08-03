@@ -38,7 +38,9 @@ import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
+import io.openems.backend.common.metadata.Metadata.ProtocolType;
 import io.openems.backend.common.metadata.Metadata.SetupProtocolCoreInfo;
+import io.openems.backend.common.metadata.Metadata.SetupProtocolItem;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
@@ -47,7 +49,6 @@ import io.openems.backend.metadata.odoo.Field.AlertingSetting;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
-import io.openems.backend.metadata.odoo.Field.SetupProtocolItem;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
@@ -421,7 +422,7 @@ public class OdooHandler {
 	 * @return the latest {@link SetupProtocolCoreInfo}
 	 * @throws OpenemsNamedException on error
 	 */
-	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
 		final var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
 		if (edge == null) {
 			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
@@ -429,20 +430,52 @@ public class OdooHandler {
 
 		final var setupProtocolFilter = new Domain[] {
 				new Domain(Field.SetupProtocol.EDGE, Operator.EQ, edge.getOdooId()) };
-		final var setupProtocol = OdooUtils.searchRead(this.credentials, Field.SetupProtocol.ODOO_MODEL,
-				new Field[] { Field.SetupProtocol.CREATE_DATE }, Map.of("order", "id desc", "limit", 1),
-				setupProtocolFilter);
+		final var setupProtocolCoreInfo = OdooUtils.searchRead(this.credentials, Field.SetupProtocol.ODOO_MODEL,
+				new Field[] { Field.SetupProtocol.CREATE_DATE, Field.SetupProtocol.TYPE },
+				Map.of("order", "id desc", "limit", 1), setupProtocolFilter);
 
-		if (setupProtocol.length != 1) {
-			return Optional.empty();
+		if (setupProtocolCoreInfo.length != 1) {
+			return null;
 		}
 
-		final var latestSetupProtocol = setupProtocol[0];
+		final var latestSetupProtocol = setupProtocolCoreInfo[0];
 		final var setupProtocolId = JsonUtils.getAsInt(JsonUtils.getAsJsonElement(latestSetupProtocol.get("id")));
+		final var setupProtocolType = JsonUtils
+				.getAsString(JsonUtils.getAsJsonElement(latestSetupProtocol.get("type")));
 		final var createDate = DateTime.stringToDateTime(
 				JsonUtils.getAsString(JsonUtils.getAsJsonElement(latestSetupProtocol.get("create_date"))));
 
-		return Optional.of(new SetupProtocolCoreInfo(setupProtocolId, createDate));
+		return new SetupProtocolCoreInfo(setupProtocolId,
+				ProtocolType.fromStringOrDefault(setupProtocolType, ProtocolType.SETUP_PROTOCOL), createDate);
+	}
+
+	/**
+	 * Returns the latest {@link SetupProtocolCoreInfo}.
+	 *
+	 * @param edgeId the edge id
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException {
+		final var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
+		if (edge == null) {
+			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
+		}
+
+		final var setupProtocolFilter = new Domain[] {
+				new Domain(Field.SetupProtocol.EDGE, Operator.EQ, edge.getOdooId()) };
+		final var setupProtocolCoreInfos = OdooUtils.searchRead(this.credentials, Field.SetupProtocol.ODOO_MODEL,
+				new Field[] { Field.SetupProtocol.CREATE_DATE, Field.SetupProtocol.TYPE },
+				Map.of("order", "create_date desc"), setupProtocolFilter);
+
+		return Stream.of(setupProtocolCoreInfos).map(el -> {
+			var setupProtocolId = JsonUtils.getAsJsonElement(el.get("id")).getAsInt();
+			var type = ProtocolType.fromStringOrDefault(JsonUtils.getAsJsonElement(el.get("type")).getAsString(),
+					ProtocolType.SETUP_PROTOCOL);
+			var dateTime = DateTime.stringToDateTime(
+					JsonUtils.getAsOptionalString(JsonUtils.getAsJsonElement(el.get("create_date"))).orElseThrow());
+			return new SetupProtocolCoreInfo(setupProtocolId, type, dateTime);
+		}).toList();
 	}
 
 	/**
@@ -691,6 +724,69 @@ public class OdooHandler {
 	}
 
 	/**
+	 * Creates a protocol for serial number changes.
+	 * 
+	 * @param edgeId        the id of the edge
+	 * @param serialNumbers the serial numbers which changed
+	 * @param items         additional items to add to the protocol
+	 * @throws OpenemsException on error
+	 */
+	public void createSerialNumberProtocol(int edgeId, Map<String, Map<String, String>> serialNumbers,
+			List<SetupProtocolItem> items) throws OpenemsException {
+		final Map<String, Object> setupProtocolFields = new HashMap<>();
+		setupProtocolFields.put(Field.SetupProtocol.TYPE.id(), ProtocolType.CAPACITY_EXTENSION.text);
+		setupProtocolFields.put(Field.SetupProtocol.EDGE.id(), edgeId);
+
+		final var setupProtocolId = OdooUtils.create(this.credentials, Field.SetupProtocol.ODOO_MODEL,
+				setupProtocolFields);
+
+		final var stockLots = serialNumbers.entrySet().stream() //
+				.flatMap(t -> t.getValue().entrySet().stream() //
+						.map(t2 -> new StockLot(t.getKey(), t2.getKey(), t2.getValue()))) //
+				.toList();
+
+		this.createSetupProtocolProductionLots(setupProtocolId, stockLots);
+		this.createSetupProtocolItems(setupProtocolId, items);
+	}
+
+	private record StockLot(String category, String name, String serialNumber) {
+
+	}
+
+	private void createSetupProtocolProductionLots(int setupProtocolId, List<StockLot> lots) throws OpenemsException {
+		List<StockLot> serialNumbersNotFound = new ArrayList<>();
+		int sequence = 0;
+		for (var lot : lots) {
+			Map<String, Object> lotFields = new HashMap<>();
+			lotFields.put(Field.SetupProtocolProductionLot.SETUP_PROTOCOL.id(), setupProtocolId);
+			lotFields.put(Field.SetupProtocolProductionLot.SEQUENCE.id(), sequence++);
+
+			if (lot.category() != null) {
+				lotFields.put("category", lot.category());
+			}
+			if (lot.name() != null) {
+				lotFields.put("name", lot.name());
+			}
+
+			final var serialNumber = lot.serialNumber();
+			if (serialNumber != null) {
+				var lotId = OdooUtils.search(this.credentials, Field.StockProductionLot.ODOO_MODEL, //
+						new Domain(Field.StockProductionLot.SERIAL_NUMBER, Operator.EQ, serialNumber));
+
+				if (lotId.length > 0) {
+					lotFields.put(Field.SetupProtocolProductionLot.LOT.id(), lotId[0]);
+					OdooUtils.create(this.credentials, Field.SetupProtocolProductionLot.ODOO_MODEL, lotFields);
+				} else {
+					serialNumbersNotFound.add(lot);
+				}
+			}
+
+		}
+
+		this.createNotFoundSerialNumbersStockLot(setupProtocolId, serialNumbersNotFound);
+	}
+
+	/**
 	 * Create production lots for the given setup protocol id.
 	 *
 	 * @param setupProtocolId assign to the lots
@@ -743,13 +839,39 @@ public class OdooHandler {
 			Map<String, Object> setupProtocolItem = new HashMap<>();
 			setupProtocolItem.put(Field.SetupProtocolItem.SETUP_PROTOCOL.id(), setupProtocolId);
 			setupProtocolItem.put(Field.SetupProtocolItem.SEQUENCE.id(), i);
-			setupProtocolItem.put("category", "Seriennummern wurden im System nicht gefunden");
+			setupProtocolItem.put(Field.SetupProtocolItem.CATEGORY.id(),
+					"Seriennummern wurden im System nicht gefunden");
 
 			var item = serialNumbers.get(i);
 			getAsOptionalString(item, "name") //
 					.ifPresent(name -> setupProtocolItem.put("name", name));
 			getAsOptionalString(item, "serialNumber") //
 					.ifPresent(serialNumber -> setupProtocolItem.put("value", serialNumber));
+
+			OdooUtils.create(this.credentials, Field.SetupProtocolItem.ODOO_MODEL, setupProtocolItem);
+		}
+	}
+
+	/**
+	 * Create for the given serial numbers that were not found a
+	 * {@link SetupProtocolItem}.
+	 * 
+	 * @param setupProtocolId the protocol id
+	 * @param serialNumbers   not found serial numbers
+	 * @throws OpenemsException on error
+	 */
+	private void createNotFoundSerialNumbersStockLot(int setupProtocolId, List<StockLot> serialNumbers)
+			throws OpenemsException {
+		for (var i = 0; i < serialNumbers.size(); i++) {
+			Map<String, Object> setupProtocolItem = new HashMap<>();
+			setupProtocolItem.put(Field.SetupProtocolItem.SETUP_PROTOCOL.id(), setupProtocolId);
+			setupProtocolItem.put(Field.SetupProtocolItem.SEQUENCE.id(), i);
+			setupProtocolItem.put(Field.SetupProtocolItem.CATEGORY.id(),
+					"Seriennummern wurden im System nicht gefunden");
+
+			var item = serialNumbers.get(i);
+			setupProtocolItem.put("name", item.name());
+			setupProtocolItem.put("value", item.serialNumber());
 
 			OdooUtils.create(this.credentials, Field.SetupProtocolItem.ODOO_MODEL, setupProtocolItem);
 		}
@@ -780,6 +902,36 @@ public class OdooHandler {
 					.ifPresent(view -> setupProtocolItem.put("view", view));
 			getAsOptionalString(item, "field") //
 					.ifPresent(field -> setupProtocolItem.put("field", field));
+
+			OdooUtils.create(this.credentials, Field.SetupProtocolItem.ODOO_MODEL, setupProtocolItem);
+		}
+	}
+
+	/**
+	 * Create items for the given setup protocol id.
+	 *
+	 * @param setupProtocolId assign to the items
+	 * @param items           list of setup protocol items to create
+	 * @throws OpenemsException on error
+	 */
+	private void createSetupProtocolItems(int setupProtocolId, List<SetupProtocolItem> items) throws OpenemsException {
+		for (var i = 0; i < items.size(); i++) {
+			var item = items.get(i);
+
+			Map<String, Object> setupProtocolItem = new HashMap<>();
+			setupProtocolItem.put(Field.SetupProtocolItem.SETUP_PROTOCOL.id(), setupProtocolId);
+			setupProtocolItem.put(Field.SetupProtocolItem.SEQUENCE.id(), i);
+
+			setupProtocolItem.put(Field.SetupProtocolItem.CATEGORY.id(), item.category());
+			setupProtocolItem.put(Field.SetupProtocolItem.NAME.id(), item.name());
+			setupProtocolItem.put(Field.SetupProtocolItem.VALUE.id(), item.value());
+
+			if (item.view() != null) {
+				setupProtocolItem.put(Field.SetupProtocolItem.VIEW.id(), item.view());
+			}
+			if (item.field() != null) {
+				setupProtocolItem.put(Field.SetupProtocolItem.FIELD.id(), item.field());
+			}
 
 			OdooUtils.create(this.credentials, Field.SetupProtocolItem.ODOO_MODEL, setupProtocolItem);
 		}

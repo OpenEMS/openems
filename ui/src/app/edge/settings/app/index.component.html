@@ -6,6 +6,7 @@
         <ion-label style="white-space: initial" class="ion-no-margin">
           <!-- Use short name if existing otherwise use normal name -->
           {{ app.shortName ?? app.name }}
+          <span *ngIf="edge.roleIsAtLeast('admin') && app.permissions">({{ app.permissions.canSee }})</span>
         </ion-label>
       </ion-item>
       <ion-card-content>
@@ -27,12 +28,12 @@
           </div>
         </div>
         <p *ngIf="false">
-          <small>Technischer Name: {{ app.appId }}</small><br />
-          <small>Kategorie:
+          <small>{{ 'Edge.Config.App.technicalName' | translate }}: {{ app.appId }}</small><br />
+          <small>{{ 'Edge.Config.App.category' | translate }}:
             <a *ngFor="let c of app.categorys">
               {{ c.readableName }}
             </a></small><br />
-          <small>Cardinality: {{ app.cardinality }}</small>
+          <small>{{ 'Edge.Config.App.cardinality' | translate }}: {{ app.cardinality }}</small>
         </p>
       </ion-card-content>
       <ion-accordion-group>
@@ -100,7 +101,7 @@
               <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
               <ion-text text-nowrap translate>Edge.Config.App.Key.useKey</ion-text>
               <ion-badge *ngIf="numberOfUnusedRegisteredKeys !== 0" slot="end"
-                color="secondary">{{numberOfUnusedRegisteredKeys}}</ion-badge>
+                color="dark">{{numberOfUnusedRegisteredKeys}}</ion-badge>
             </ion-item>
           </ion-card>
           <ion-popover #hasKeyPopover [isOpen]="showPopover" side="bottom" alignment="center">

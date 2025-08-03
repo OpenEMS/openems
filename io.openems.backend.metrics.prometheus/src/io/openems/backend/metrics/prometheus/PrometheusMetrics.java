@@ -1,6 +1,7 @@
 package io.openems.backend.metrics.prometheus;
 
 import io.prometheus.metrics.core.metrics.Gauge;
+import io.prometheus.metrics.core.metrics.Info;
 
 public class PrometheusMetrics {
 
@@ -42,6 +43,12 @@ public class PrometheusMetrics {
 	public static final Gauge ALERTING_MESSAGES_QUEUE = Gauge.builder() //
 			.name("alerting_messages_queue") //
 			.labelNames("component") //
+			.build();
+
+	public static final Info OPENEMS_VERSION = Info.builder() //
+			.name("openems_version") //
+			.help("OpenEMS Version") //
+			.labelNames("version") //
 			.build();
 
 }

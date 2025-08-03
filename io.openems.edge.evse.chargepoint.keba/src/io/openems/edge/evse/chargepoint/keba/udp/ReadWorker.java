@@ -2,16 +2,17 @@ package io.openems.edge.evse.chargepoint.keba.udp;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
+import java.util.function.Consumer;
 
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.evse.chargepoint.keba.udp.core.Report;
 
 public class ReadWorker extends AbstractWorker {
 
-	private static int MAX_TIME_TILL_REPLY = 15; // sec
+	private static final int MAX_TIME_TILL_REPLY = 15; // sec
 
-	private final EvseChargePointKebaUdpImpl parent;
+	private final Consumer<String> send;
+	private final Consumer<Report> validateReport;
 
 	private LocalDateTime lastReport1 = LocalDateTime.MIN;
 	private LocalDateTime lastReport2 = LocalDateTime.MIN;
@@ -20,8 +21,9 @@ public class ReadWorker extends AbstractWorker {
 	private boolean validateReport2 = false;
 	private boolean validateReport3 = false;
 
-	public ReadWorker(EvseChargePointKebaUdpImpl parent) {
-		this.parent = parent;
+	public ReadWorker(Consumer<String> send, Consumer<Report> validateReport) {
+		this.send = send;
+		this.validateReport = validateReport;
 	}
 
 	@Override
@@ -40,7 +42,7 @@ public class ReadWorker extends AbstractWorker {
 		// REPORT 1
 		if (this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(Report.REPORT1.getRequestSeconds()))) {
 			this.lastReport1 = LocalDateTime.now();
-			this.parent.send("report 1");
+			this.send.accept("report 1");
 			this.validateReport1 = true;
 			Thread.sleep(10);
 		}
@@ -48,7 +50,7 @@ public class ReadWorker extends AbstractWorker {
 		// REPORT 2
 		if (this.lastReport2.isBefore(LocalDateTime.now().minusSeconds(Report.REPORT2.getRequestSeconds()))) {
 			this.lastReport2 = LocalDateTime.now();
-			this.parent.send("report 2");
+			this.send.accept("report 2");
 			this.validateReport2 = true;
 			Thread.sleep(10);
 		}
@@ -56,7 +58,7 @@ public class ReadWorker extends AbstractWorker {
 		// REPORT 3
 		if (this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(Report.REPORT3.getRequestSeconds()))) {
 			this.lastReport3 = LocalDateTime.now();
-			this.parent.send("report 3");
+			this.send.accept("report 3");
 			this.validateReport3 = true;
 			Thread.sleep(10);
 		}
@@ -64,16 +66,16 @@ public class ReadWorker extends AbstractWorker {
 		// RESULTS
 		// Sets the state of the component if the report doesn't answer in a few seconds
 		if (this.validateReport1 && this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
-			this.currentCommunication(this.parent.readHandler.hasResultandReset(Report.REPORT1));
+			this.validateReport.accept(Report.REPORT1);
 			this.validateReport1 = false;
 		}
 		if (this.validateReport2 && this.lastReport2.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
-			this.currentCommunication(this.parent.readHandler.hasResultandReset(Report.REPORT2));
+			this.validateReport.accept(Report.REPORT2);
 			this.validateReport2 = false;
 		}
 
 		if (this.validateReport3 && this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
-			this.currentCommunication(this.parent.readHandler.hasResultandReset(Report.REPORT3));
+			this.validateReport.accept(Report.REPORT3);
 			this.validateReport3 = false;
 		}
 	}
@@ -132,23 +134,5 @@ public class ReadWorker extends AbstractWorker {
 		this.lastReport3 = LocalDateTime.MIN;
 
 		super.triggerNextRun();
-	}
-
-	/**
-	 * Set the current fail state of the EVCS to true or false.
-	 *
-	 * @param receivedAMessage return value from the ReadHandler
-	 */
-	private void currentCommunication(boolean receivedAMessage) {
-		final var keba = this.parent;
-
-		keba.channel(EvseChargePointKebaUdp.ChannelId.COMMUNICATION_FAILED).setNextValue(!receivedAMessage);
-
-		if (!receivedAMessage) {
-			// Resets all channel values except the Communication_Failed channel.
-			Arrays.stream(EvseChargePointKebaUdp.ChannelId.values()) //
-					.filter(c -> c != EvseChargePointKebaUdp.ChannelId.COMMUNICATION_FAILED) //
-					.forEach(c -> keba.channel(c).setNextValue(null));
-		}
 	}
 }

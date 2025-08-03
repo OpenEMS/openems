@@ -11,6 +11,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public final class ChannelUtils {
@@ -111,6 +112,19 @@ public final class ChannelUtils {
 				return null;
 			}
 		}
+	}
+
+	/**
+	 * Gets the Class Name of the Nature for the given Channel.
+	 * 
+	 * @param channel the {@link Channel}
+	 * @return a name like "ElectricityMeter" or empty String if not found
+	 */
+	public static String getChannelNature(Channel<?> channel) {
+		return Optional.ofNullable(channel.channelId().getClass().getEnclosingClass()) //
+				.filter(c -> c != AbstractOpenemsComponent.class && c != ChannelId.class) //
+				.map(Class::getSimpleName) //
+				.orElse("");
 	}
 
 	/**

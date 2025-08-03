@@ -4,11 +4,11 @@ import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import { Chart, ChartComponentLike, ChartDataset, ChartOptions, LegendItem, PointStyle } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { RGBColor } from "../../service/defaulttypes";
-import { ChartAxis, HistoryUtils, Utils } from "../../service/utils";
+import { RGBColor } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { EmptyObj, TPartialBy } from "../../type/utility";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { ChartAxis, HistoryUtils, Utils } from "../../utils/utils";
 import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
 import { ChartTypes } from "./chart.types";
@@ -216,7 +216,12 @@ export namespace ChartConstants {
     });
 
 
-    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => {
+    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> => {
+
+      if (dataset == null || dataset.backgroundColor == null) {
+        return { pointStyle: Chart.defaults.plugins.legend.labels.pointStyle };
+      }
+
       if ("borderDash" in dataset) {
         return { pointStyle: "circle", lineDash: [3, 3] };
       }
@@ -238,13 +243,19 @@ export namespace ChartConstants {
     export const ORANGE: string = new RGBColor(234, 147, 45).toString();
     export const PURPLE: string = new RGBColor(91, 92, 214).toString();
     export const YELLOW: string = new RGBColor(255, 206, 0).toString();
-    export const BLUE_GREY: string = new RGBColor(77, 106, 130).toString();
+    export const TURQUOISE: string = new RGBColor(0, 204, 204).toString();
     export const DARK_GREY: string = new RGBColor(169, 169, 169).toString();
+    export const BLUE_GREY: string = new RGBColor(77, 106, 130).toString();
     export const GREY: string = new RGBColor(189, 189, 189).toString();
+    export const LIGHT_GREY: string = new RGBColor(160, 160, 160).toString();
+    export const BLACK: string = new RGBColor(0, 0, 0).toString();
 
-    export const SHADES_OF_RED: string[] = [RED, "rgb(204,78,50)", "rgb(153,59,38)", "rgb(102,39,25)", "rgb(51,20,13)"];
     export const SHADES_OF_GREEN: string[] = [GREEN, "rgb(11,152,67)", "rgb(8,114,50)", "rgb(6,76,34)", "rgb(3,38,17)"];
+    export const SHADES_OF_GREY: string[] = ["rgb(215,211,211)", "rgb(168,169,173)", "rgb(125,125,125)"];
+    export const SHADES_OF_RED: string[] = [RED, "rgb(204,78,50)", "rgb(153,59,38)", "rgb(102,39,25)", "rgb(51,20,13)"];
     export const SHADES_OF_YELLOW: string[] = [YELLOW, "rgb(204,165,0)", "rgb(153,124,0)", "rgb(102,82,0)", "rgb(255,221,77)"];
+
+    export const DEFAULT_PHASES_COLORS: string[] = ["rgb(255,127,80)", "rgb(91, 92, 214)", "rgb(128,128,0)"];
   }
 
   export class NumberFormat {
