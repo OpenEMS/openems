@@ -45,11 +45,9 @@ public class CycleTasksManager {
 
 	protected static enum StateMachine {
 		INITIAL_WAIT, //
-		READ_BEFORE_WRITE, //
-		WAIT_FOR_WRITE, //
 		WRITE, //
 		WAIT_BEFORE_READ, //
-		READ_AFTER_WRITE, //
+		READ, //
 		FINISHED
 	}
 
@@ -116,13 +114,6 @@ public class CycleTasksManager {
 		this.traceLog(() -> "State: " + this.state + " -> " + StateMachine.WRITE + " (onExecuteWrite)");
 
 		this.state = StateMachine.WRITE;
-		
-		// Interrupt the WaitDelayTask if it's currently running
-		var currentWaitDelayTask = this.waitDelayHandler.getWaitDelayTask();
-		if (currentWaitDelayTask != null) {
-			currentWaitDelayTask.interrupt();
-		}
-		
 		this.waitMutexTask.release();
 	}
 
@@ -143,21 +134,6 @@ public class CycleTasksManager {
 		var nextTask = switch (this.state) {
 
 		case INITIAL_WAIT ->
-			// Waiting for planned waiting time to pass or EXECUTE_WRITE event
-			this.waitDelayHandler.getWaitDelayTask();
-
-		case READ_BEFORE_WRITE -> {
-			// Read-Task available?
-			var task = this.cycleTasks.reads().poll();
-			if (task != null) {
-				yield task;
-			}
-			// Otherwise -> next state + recursive call
-			this.state = StateMachine.WAIT_FOR_WRITE;
-			yield this.getNextTask();
-		}
-
-		case WAIT_FOR_WRITE ->
 			// Waiting for EXECUTE_WRITE event
 			this.waitMutexTask;
 
@@ -176,7 +152,7 @@ public class CycleTasksManager {
 			// Waiting for planned waiting time to pass
 			this.waitDelayHandler.getWaitDelayTask();
 
-		case READ_AFTER_WRITE -> {
+		case READ -> {
 			// Read-Task available?
 			var task = this.cycleTasks.reads().poll();
 			if (task != null) {
@@ -201,14 +177,13 @@ public class CycleTasksManager {
 	}
 
 	/**
-	 * Waiting in INITIAL_WAIT or WAIT_BEFORE_READ finished.
+	 * Waiting in WAIT_BEFORE_READ finished.
 	 */
 	private synchronized void onWaitDelayTaskFinished() {
 		var previousState = this.state;
 		this.state = switch (this.state) {
 		// Expected
-		case INITIAL_WAIT -> StateMachine.READ_BEFORE_WRITE;
-		case WAIT_BEFORE_READ -> StateMachine.READ_AFTER_WRITE;
+		case WAIT_BEFORE_READ -> StateMachine.READ;
 		// Unexpected (the State has been unexpectedly changed in-between)
 		default -> this.state;
 		};
