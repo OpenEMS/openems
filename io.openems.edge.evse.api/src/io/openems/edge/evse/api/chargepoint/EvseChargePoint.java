@@ -1,17 +1,11 @@
 package io.openems.edge.evse.api.chargepoint;
 
-import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
-import static io.openems.common.utils.JsonUtils.buildJsonObject;
-
-import com.google.gson.JsonNull;
-
-import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.evse.api.Limit;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -44,39 +38,12 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 		}
 	}
 
-	// TODO consider replace with ChargePointAbilities
-	public record ChargeParams(boolean isReadyForCharging, Limit limit, ChargePointAbilities abilities) {
-
-		/**
-		 * Returns a {@link JsonSerializer} for a {@link ChargeParams}.
-		 * 
-		 * @return the created {@link JsonSerializer}
-		 */
-		public static JsonSerializer<ChargeParams> serializer() {
-			return jsonObjectSerializer(ChargeParams.class, json -> {
-				return new ChargeParams(//
-						json.getBoolean("isReadyForCharging"), //
-						json.getObject("limit", Limit.serializer()), //
-						// TODO json.getImmutableList("abilities", ChargePointAbilities.serializer())
-						ChargePointAbilities.create().build());
-			}, obj -> {
-				return obj == null //
-						? JsonNull.INSTANCE //
-						: buildJsonObject() //
-								.addProperty("isReadyForCharging", obj.isReadyForCharging) //
-								.add("limit", Limit.serializer().serialize(obj.limit)) //
-								// TODO .add("profiles", ...) //
-								.build();
-			});
-		}
-	}
-
 	/**
-	 * Gets the {@link ChargeParams}.
+	 * Gets the {@link ChargePointAbilities}.
 	 * 
-	 * @return list of {@link ChargeParams}s
+	 * @return the {@link ChargePointAbilities}
 	 */
-	public ChargeParams getChargeParams();
+	public ChargePointAbilities getChargePointAbilities();
 
 	/**
 	 * Apply {@link ChargePointActions}.
@@ -92,6 +59,26 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	 * @return the {@link PhaseRotation}.
 	 */
 	public PhaseRotation getPhaseRotation();
+
+	/**
+	 * Is this {@link EvseChargePoint} read-only or read-write?.
+	 *
+	 * @return true for read-only
+	 */
+	public boolean isReadOnly();
+
+	/**
+	 * Gets the {@link MeterType} of an {@link EvseChargePoint}
+	 * {@link ElectricityMeter}.
+	 * 
+	 * @return the {@link MeterType}
+	 */
+	@Override
+	public default MeterType getMeterType() {
+		return this.isReadOnly() //
+				? MeterType.CONSUMPTION_METERED //
+				: MeterType.MANAGED_CONSUMPTION_METERED;
+	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#IS_READY_FOR_CHARGING}.

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -295,6 +296,16 @@ public interface Metadata {
 	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException;
 
 	/**
+	 * Creates a protocol for changes in serial numbers.
+	 * 
+	 * @param edgeId        the id of the edge
+	 * @param serialNumbers the values which changed
+	 * @param items         additional items to add to the protocol
+	 */
+	public void createSerialNumberExtensionProtocol(String edgeId, Map<String, Map<String, String>> serialNumbers,
+			List<SetupProtocolItem> items);
+
+	/**
 	 * Register a user.
 	 *
 	 * @param user {@link JsonObject} that represents an user
@@ -469,8 +480,65 @@ public interface Metadata {
 	 * @return the latest {@link SetupProtocolCoreInfo}
 	 * @throws OpenemsNamedException on error
 	 */
-	public Optional<SetupProtocolCoreInfo> getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException;
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException;
 
-	public record SetupProtocolCoreInfo(int setupProtocolId, ZonedDateTime createDate) {
+	/**
+	 * Gets the latest {@link SetupProtocolCoreInfo}.
+	 * 
+	 * @param edgeId the edgeId
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException;
+
+	public record SetupProtocolCoreInfo(int setupProtocolId, ProtocolType type, ZonedDateTime createDate) {
+	}
+
+	public record SetupProtocolItem(String category, String name, String value, String view, String field) {
+
+		public SetupProtocolItem {
+			Objects.requireNonNull(category);
+			Objects.requireNonNull(name);
+			Objects.requireNonNull(value);
+		}
+
+		public SetupProtocolItem(String category, String name, String value) {
+			this(category, name, value, null, null);
+		}
+
+	}
+
+	public enum ProtocolType {
+		SETUP_PROTOCOL("setup-protocol"), //
+		EMS_EXCHANGE("ems-exchange"), //
+		CAPACITY_EXTENSION("capacity-extension"), //
+		;
+
+		public final String text;
+
+		/**
+		 * (non-Javadoc).
+		 * 
+		 * @param text the string
+		 */
+		ProtocolType(final String text) {
+			this.text = text;
+		}
+
+		/**
+		 * Gets the ProtocolType from a given string.
+		 * 
+		 * @param input        the input string
+		 * @param defaultValue the default value
+		 * @return the protocol type if found, else the default value
+		 */
+		public static ProtocolType fromStringOrDefault(String input, ProtocolType defaultValue) {
+			for (var type : ProtocolType.values()) {
+				if (type.text.equals(input)) {
+					return type;
+				}
+			}
+			return defaultValue;
+		}
 	}
 }

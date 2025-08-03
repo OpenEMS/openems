@@ -1,13 +1,14 @@
 package io.openems.edge.controller.ess.fastfrequencyreserve.statemachine;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import java.time.ZonedDateTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.fastfrequencyreserve.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class PreActivationHandler extends StateHandler<State, Context> {
 
@@ -33,7 +34,7 @@ public class PreActivationHandler extends StateHandler<State, Context> {
 	 * @return 18% of the minimum power of the ess.
 	 */
 	private int calculateMinPower(ManagedSymmetricEss ess) {
-		return (int) (ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE) * EIGHTEENX_PERCENT_OF_MAX_POWER);
+		return (int) (ess.getPower().getMinPower(ess, ALL, ACTIVE) * EIGHTEENX_PERCENT_OF_MAX_POWER);
 	}
 
 	/**

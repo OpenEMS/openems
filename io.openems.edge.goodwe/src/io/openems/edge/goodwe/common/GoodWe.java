@@ -81,6 +81,11 @@ public interface GoodWe extends OpenemsComponent {
 		DSP_DCDC_FM_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		DSP_MPPT_BETA_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		DSP_STS_FM_VERSION(Doc.of(OpenemsType.INTEGER)), //
+		STS_VERSION(Doc.of(OpenemsType.INTEGER).onChannelChange(AbstractGoodWe::updateStsBoxEnabled)), //
+		STS_SUB_VERSION(Doc.of(OpenemsType.INTEGER).onChannelChange(AbstractGoodWe::updateStsBoxEnabled)), //
+		STS_BOX_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		// Running Data
 		V_PV3(Doc.of(OpenemsType.INTEGER) //
@@ -146,6 +151,86 @@ public interface GoodWe extends OpenemsComponent {
 		TWO_S_PV6_V(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT)), //
 		TWO_S_PV6_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+
+		/*
+		 * MPPT4
+		 */
+		MPPT4_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT4_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV7_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV7_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV8_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV8_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+
+		/*
+		 * MPPT5
+		 */
+		MPPT5_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT5_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV9_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV9_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV10_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV10_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+
+		/*
+		 * MPPT6
+		 */
+		MPPT6_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT6_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV11_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV11_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV12_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV12_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+
+		/*
+		 * MPPT7
+		 */
+		MPPT7_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT7_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV13_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV13_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV14_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV14_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+
+		/*
+		 * MPPT8
+		 */
+		MPPT8_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		MPPT8_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV15_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV15_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV16_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV16_I(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE)), //
 
 		/**
@@ -1345,6 +1430,7 @@ public interface GoodWe extends OpenemsComponent {
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
 		/**
 		 * Enable block used for multiple remote functions.
 		 * 

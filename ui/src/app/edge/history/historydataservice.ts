@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
-import { RefresherCustomEvent } from "@ionic/angular";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
 import { Service } from "src/app/shared/service/service";
@@ -23,7 +22,7 @@ export class HistoryDataService extends DataService {
     @Inject(Websocket) protected websocket: Websocket,
     @Inject(Service) protected service: Service,
   ) {
-    super();
+    super(service);
   }
 
   public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
@@ -57,7 +56,7 @@ export class HistoryDataService extends DataService {
                     allComponents[key] = value;
                   }
 
-                  this.currentValue.next({ allComponents: allComponents });
+                  this.currentValue.set({ allComponents: allComponents });
                   this.timestamps = response.result["timestamps"] ?? [];
                 }
               })
@@ -75,8 +74,10 @@ export class HistoryDataService extends DataService {
     return;
   }
 
-  public override refresh(ev: RefresherCustomEvent) {
+  public override refresh(ev: CustomEvent) {
     this.getValues(Object.values(this.channelAddresses), this.edge, "");
-    ev.target.complete();
+    setTimeout(() => {
+      (ev.target as HTMLIonRefresherElement).complete();
+    }, 1000);
   }
 }

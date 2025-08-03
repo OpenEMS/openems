@@ -1,5 +1,9 @@
 package io.openems.edge.controller.asymmetric.balancingcosphi;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L3;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,11 +20,11 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -74,15 +78,15 @@ public class ControllerAsymmetricBalancingCosPhiImpl extends AbstractOpenemsComp
 		ElectricityMeter meter = this.componentManager.getComponent(this.meterId);
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.essId);
 
-		this.addConstraint(ess, Phase.L1, meter.getActivePowerL1(), meter.getReactivePowerL1(), ess.getActivePowerL1(),
+		this.addConstraint(ess, L1, meter.getActivePowerL1(), meter.getReactivePowerL1(), ess.getActivePowerL1(),
 				ess.getReactivePowerL1());
-		this.addConstraint(ess, Phase.L2, meter.getActivePowerL2(), meter.getReactivePowerL2(), ess.getActivePowerL2(),
+		this.addConstraint(ess, L2, meter.getActivePowerL2(), meter.getReactivePowerL2(), ess.getActivePowerL2(),
 				ess.getReactivePowerL2());
-		this.addConstraint(ess, Phase.L3, meter.getActivePowerL3(), meter.getReactivePowerL3(), ess.getActivePowerL3(),
+		this.addConstraint(ess, L3, meter.getActivePowerL3(), meter.getReactivePowerL3(), ess.getActivePowerL3(),
 				ess.getReactivePowerL3());
 	}
 
-	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, Value<Integer> meterActivePower,
+	private void addConstraint(ManagedAsymmetricEss ess, SingleOrAllPhase phase, Value<Integer> meterActivePower,
 			Value<Integer> meterReactivePower, Value<Integer> essActivePower, Value<Integer> essReactivePower)
 			throws OpenemsException {
 		// Calculate the startpoint of the cosPhi line in relation to the ess zero power

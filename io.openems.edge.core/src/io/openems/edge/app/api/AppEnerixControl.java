@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -23,7 +22,6 @@ import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.AppEnerixControl.Property;
-import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -38,12 +36,10 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.OpenemsAppStatus;
-import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.Exp;
 
 @Component(name = "App.Cloud.EnerixControl")
 public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixControl, Property, BundleParameter>
@@ -53,16 +49,7 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 		CONTROLLER_ID(AppDef.componentId("ctrlEnerixControl0")), //
 		ALIAS(alias()), //
 		URL(CleverPvProps.url(CONTROLLER_ID)), //
-		PRIVACY_POLICY(AppDef.copyOfGeneric(CommonProps.installationHint((app, property, l, parameter) -> {
-			return TranslationUtil.getTranslation(parameter.bundle, //
-					"App.Cloud.EnerixControl.datasecurityHint");
-		})) //
-				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.requireTrue(l);
-
-					field.onlyShowIf(Exp.currentModelValue(CONTROLLER_ID).isNull());
-				})), //
+		PRIVACY_POLICY(CleverPvProps.privacyPolicy(CONTROLLER_ID)), //
 		;
 
 		private final AppDef<? super AppEnerixControl, ? super Property, ? super BundleParameter> def;
@@ -142,8 +129,8 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanInstall(List.of(Role.OWNER, Role.ADMIN))//
+		return OpenemsAppPermissions.create() //
+				.setCanInstall(Role.ADMIN, Role.OWNER) //
 				.build();
 	}
 

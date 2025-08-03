@@ -4,6 +4,7 @@ import { By } from "@angular/platform-browser";
 import { AngularDelegate, IonicModule, PopoverController } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
+import { RouteService } from "src/app/shared/service/route.service";
 import { Service } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
@@ -30,6 +31,7 @@ describe("PickdatePopover", () => {
                 Service,
                 PopoverController,
                 AngularDelegate,
+                RouteService,
             ],
         }).compileComponents().then(() => {
             fixture = TestBed.createComponent(PickDatePopoverComponent);

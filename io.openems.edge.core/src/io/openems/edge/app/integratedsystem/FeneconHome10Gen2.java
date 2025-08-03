@@ -1,6 +1,7 @@
 package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
@@ -9,7 +10,6 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predict
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome10Gen2.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -62,9 +62,10 @@ public class FeneconHome10Gen2 extends AbstractOpenemsAppWithProps<FeneconHome10
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
 				.setRequired(true))), //
 
-		FEED_IN_TYPE(IntegratedSystemProps.feedInType()), //
-		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
+		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType()), //
 		FEED_IN_SETTING(IntegratedSystemProps.feedInSetting()), //
+		@Deprecated
+		MAX_FEED_IN_POWER(defaultDef()), //
 
 		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
 
@@ -151,13 +152,8 @@ public class FeneconHome10Gen2 extends AbstractOpenemsAppWithProps<FeneconHome10
 			final var hasEmergencyReserve = this.getBoolean(p, Property.HAS_EMERGENCY_RESERVE);
 			final var emergencyReserveEnabled = this.getBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
 
-			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
-			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
-					? this.getInt(p, Property.MAX_FEED_IN_POWER)
-					: 0;
-
+			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
-
 			final var gridMeterCategory = this.getEnum(p, GoodWeGridMeterCategory.class, Property.GRID_METER_CATEGORY);
 
 			final Integer ctRatioFirst;
@@ -186,8 +182,8 @@ public class FeneconHome10Gen2 extends AbstractOpenemsAppWithProps<FeneconHome10
 					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), predictor(bundle, t), //
 					// battery
 					FeneconHomeComponents.battery(bundle, "battery0", modbusIdInternal),
-					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
+					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
+							shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					// meter
 					FeneconHomeComponents.gridMeter(bundle, "meter0", modbusIdExternal, gridMeterCategory,
 							ctRatioFirst),
@@ -212,7 +208,7 @@ public class FeneconHome10Gen2 extends AbstractOpenemsAppWithProps<FeneconHome10
 						emergencyReserveEnabled, emergencyReserveSoc));
 			}
 			final var dependencies = Lists.newArrayList(//
-					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
+					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
 					prepareBatteryExtension() //
 			);

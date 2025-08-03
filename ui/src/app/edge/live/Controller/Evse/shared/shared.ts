@@ -1,8 +1,48 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
-import { TimeOfUseTariffUtils } from "src/app/shared/service/utils";
+import { Converter } from "src/app/shared/components/shared/converter";
+import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
+import { environment } from "src/environments";
 
 export namespace ControllerEvseSingleShared {
+
+    /**
+     * Converts a string mode to a presentable label
+     *
+     * @param raw the raw value
+     * @returns the value for chosen mode
+     */
+    export const CONVERT_TO_MODE_LABEL = (translate: TranslateService) => {
+        return (raw: string | null): string => {
+            return Converter.IF_STRING(raw, value => {
+                switch (value) {
+                    case Mode.ZERO:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
+                    case Mode.MINIMUM:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
+                    case Mode.SURPLUS:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                    case Mode.FORCE:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
+                    default:
+                        return Converter.HIDE_VALUE(value);
+                }
+            });
+        };
+    };
+
+    export function getImgUrlByFactoryId(factoryId: string): string | null {
+        switch (factoryId) {
+            case "Evse.ChargePoint.Keba.UDP":
+                return environment.images.EVSE.KEBA_P30;
+            case "Evse.ChargePoint.Keba.Modbus":
+                return environment.images.EVSE.KEBA_P40;
+            case "Evse.ChargePoint.HardyBarth":
+                return environment.images.EVSE.HARDY_BARTH;
+            default:
+                return null;
+        }
+    }
 
     export type ScheduleChartData = {
         datasets: ChartDataset[],
