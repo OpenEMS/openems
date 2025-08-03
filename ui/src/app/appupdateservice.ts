@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { SwUpdate } from "@angular/service-worker";
 
 import { Service } from "./shared/shared";
@@ -7,16 +7,26 @@ import { Service } from "./shared/shared";
   providedIn: "root",
 })
 export class CheckForUpdateService {
+  private update = inject(SwUpdate);
+  private service = inject(Service);
 
-  constructor(private update: SwUpdate,
-    private service: Service,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() { }
 }
 // Will be used in Future
 @Injectable()
 export class LogUpdateService {
 
-  constructor(updates: SwUpdate) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() {
+    const updates = inject(SwUpdate);
+
     updates.versionUpdates.subscribe(evt => {
       switch (evt.type) {
         case "VERSION_DETECTED":

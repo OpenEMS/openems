@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnChanges, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, Input, OnChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -11,6 +11,12 @@ import { Filter } from "../shared/filter";
 
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
+  protected websocket = inject<Websocket>(Websocket);
+  protected route = inject<ActivatedRoute>(ActivatedRoute);
+  protected service = inject<Service>(Service);
+  protected modalCtrl = inject<ModalController>(ModalController);
+  private dataService = inject<DataService>(DataService);
+
 
   /** value defines value of the parameter, displayed on the right */
   @Input()
@@ -44,13 +50,10 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   private subscription: EffectRef;
   private injector = inject(Injector);
 
-  constructor(
-    @Inject(Websocket) protected websocket: Websocket,
-    @Inject(ActivatedRoute) protected route: ActivatedRoute,
-    @Inject(Service) protected service: Service,
-    @Inject(ModalController) protected modalCtrl: ModalController,
-    @Inject(DataService) private dataService: DataService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
     if (typeof value === "object") {

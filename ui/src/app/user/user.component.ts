@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { KeyValue } from "@angular/common";
-import { Component, effect, OnInit, untracked } from "@angular/core";
+import { Component, effect, OnInit, untracked, inject } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -36,6 +36,12 @@ type UserInformation = {
   standalone: false,
 })
 export class UserComponent implements OnInit {
+  translate = inject(TranslateService);
+  service = inject(Service);
+  private websocket = inject(Websocket);
+  private userService = inject(UserService);
+  private navigationService = inject(NavigationService);
+
 
   private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
   protected userTheme: UserTheme; // Theme as of "Light","Dark" or "System" Themes.
@@ -76,13 +82,10 @@ export class UserComponent implements OnInit {
   protected useNewUi: boolean | null = null;
   protected newNavigationForced: boolean = false;
 
-  constructor(
-    public translate: TranslateService,
-    public service: Service,
-    private websocket: Websocket,
-    private userService: UserService,
-    private navigationService: NavigationService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     effect(async () => {
       const user = this.userService.currentUser();
 

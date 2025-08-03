@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, Input, untracked } from "@angular/core";
+import { Component, effect, Input, untracked, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -33,6 +33,12 @@ export enum Status {
     standalone: false,
 })
 export class NavigationPageComponent {
+    modalController = inject(ModalController);
+    protected service = inject(Service);
+    protected navigationService = inject(NavigationService);
+    private websocket = inject(Websocket);
+    private translate = inject(TranslateService);
+
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
@@ -41,13 +47,10 @@ export class NavigationPageComponent {
 
     private edge: Edge | null = null;
 
-    constructor(
-        public modalController: ModalController,
-        protected service: Service,
-        protected navigationService: NavigationService,
-        private websocket: Websocket,
-        private translate: TranslateService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
 
         effect(() => {

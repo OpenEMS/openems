@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
@@ -13,18 +13,21 @@ import { environment } from "src/environments";
   standalone: false,
 })
 export class JsonrpcTestComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private service = inject(Service);
+  private websocket = inject(Websocket);
+  private userService = inject(UserService);
+
 
   private static readonly SELECTOR = "jsonrpcTest";
 
   protected endpoints: Endpoint[] = [];
   private edge: Edge | undefined;
 
-  constructor(
-    private route: ActivatedRoute,
-    private service: Service,
-    private websocket: Websocket,
-    private userService: UserService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
 
   }
 

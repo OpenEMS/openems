@@ -31,6 +31,13 @@ import { Websocket } from "./websocket";
 
 @Injectable()
 export class Service extends AbstractService {
+  private router = inject(Router);
+  spinner = inject(NgxSpinnerService);
+  private toaster = inject(ToastController);
+  translate = inject(TranslateService);
+  private _injector = inject(Injector);
+  private routeService = inject(RouteService);
+
 
   public static readonly TIMEOUT = 15_000;
 
@@ -90,16 +97,14 @@ export class Service extends AbstractService {
   private queryEnergyTimeout: any = null;
   private injector = inject(Injector);
 
-  constructor(
-    private router: Router,
-    public spinner: NgxSpinnerService,
-    private toaster: ToastController,
-    public translate: TranslateService,
-    private _injector: Injector,
-    private routeService: RouteService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
 
     super();
+    const translate = this.translate;
+
     // add language
     translate.addLangs(Language.ALL.map(l => l.key));
     // this language will be used as a fallback when a translation isn't found in the current language

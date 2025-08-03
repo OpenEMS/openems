@@ -1,10 +1,13 @@
-import { Directive, Input, TemplateRef, ViewContainerRef } from "@angular/core";
+import { Directive, Input, TemplateRef, ViewContainerRef, inject } from "@angular/core";
 
 @Directive({
     selector: "[ngVar]",
     standalone: false,
 })
 export class VarDirective {
+    private templateRef = inject<TemplateRef<any>>(TemplateRef);
+    private vcRef = inject(ViewContainerRef);
+
     private context: {
         $implicit: unknown;
         ngVar: unknown;
@@ -15,10 +18,10 @@ export class VarDirective {
 
     private hasView: boolean = false;
 
-    constructor(
-        private templateRef: TemplateRef<any>,
-        private vcRef: ViewContainerRef,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     @Input()
     set ngVar(context: unknown) {

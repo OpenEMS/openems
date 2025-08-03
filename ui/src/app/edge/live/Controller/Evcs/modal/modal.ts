@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+import { ChangeDetectorRef, Component, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonRange, ModalController, PopoverController } from "@ionic/angular";
@@ -19,6 +19,16 @@ type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
   standalone: false,
 })
 export class ModalComponent extends AbstractModal {
+  protected override websocket: Websocket;
+  protected override route: ActivatedRoute;
+  protected override service: Service;
+  override modalController: ModalController;
+  detailViewController = inject<ModalController>(ModalController);
+  popoverctrl = inject<PopoverController>(PopoverController);
+  protected override translate: TranslateService;
+  override formBuilder: FormBuilder;
+  override ref: ChangeDetectorRef;
+
 
   public readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
   public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
@@ -45,19 +55,29 @@ export class ModalComponent extends AbstractModal {
 
   protected readonly useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
 
-  constructor(
-    @Inject(Websocket) protected override websocket: Websocket,
-    @Inject(ActivatedRoute) protected override route: ActivatedRoute,
-    @Inject(Service) protected override service: Service,
-    @Inject(ModalController) public override modalController: ModalController,
-    @Inject(ModalController) public detailViewController: ModalController,
-    @Inject(PopoverController) public popoverctrl: PopoverController,
-    @Inject(TranslateService) protected override translate: TranslateService,
-    @Inject(FormBuilder) public override formBuilder: FormBuilder,
-    public override ref: ChangeDetectorRef) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const websocket = inject<Websocket>(Websocket);
+    const route = inject<ActivatedRoute>(ActivatedRoute);
+    const service = inject<Service>(Service);
+    const modalController = inject<ModalController>(ModalController);
+    const translate = inject<TranslateService>(TranslateService);
+    const formBuilder = inject<FormBuilder>(FormBuilder);
+    const ref = inject(ChangeDetectorRef);
+
     super(
       websocket, route, service, modalController, translate,
       formBuilder, ref);
+    this.websocket = websocket;
+    this.route = route;
+    this.service = service;
+    this.modalController = modalController;
+    this.translate = translate;
+    this.formBuilder = formBuilder;
+    this.ref = ref;
+
     ref.detach();
     setInterval(() => {
       this.ref.detectChanges(); // manually trigger change detection

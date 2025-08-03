@@ -1,4 +1,8 @@
-<oe-chart [title]="component.alias"  *ngIf="isInitialized && component">
-  <detailChart [isOnlyChart]="true"></detailChart>
-</oe-chart>
-<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>
+@if (isInitialized && component) {
+  <oe-chart [title]="component.alias" >
+    <detailChart [isOnlyChart]="true"></detailChart>
+  </oe-chart>
+}
+@if (isInitialized) {
+  <oe-footer-subnavigation [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>
+}

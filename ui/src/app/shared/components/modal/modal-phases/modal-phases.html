@@ -1,4 +1,4 @@
-<ng-container *ngFor="let phase of phases">
+@for (phase of phases; track phase) {
   <oe-modal-line [name]="phase.name" [textIndent]="TextIndentation.SINGLE">
     <oe-modal-line-item [channelAddress]="component.id + '/Voltage' + phase.key" [roleIsAtLeast]="Role.INSTALLER"
       [converter]="Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT">
@@ -10,4 +10,4 @@
       [converter]="CONVERT_TO_POSITIVE_WATT">
     </oe-modal-line-item>
   </oe-modal-line>
-</ng-container>
+}

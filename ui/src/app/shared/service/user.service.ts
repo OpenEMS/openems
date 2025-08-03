@@ -1,4 +1,4 @@
-import { Directive, effect, signal, WritableSignal } from "@angular/core";
+import { Directive, effect, signal, WritableSignal, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";
 import { ThemePopoverComponent } from "src/app/user/theme-selection-popup/theme-selection-popover";
@@ -14,6 +14,9 @@ import { Service } from "./service";
 
 @Directive()
 export class UserService {
+    private modalCtrl = inject(ModalController);
+    private service = inject(Service);
+
 
     public static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
     public currentUser: WritableSignal<User | null> = signal(null);
@@ -21,10 +24,10 @@ export class UserService {
     /** @deprecated determines if applying new ui or old*/
     public isNewNavigation: WritableSignal<boolean> = signal(false);
 
-    constructor(
-        private modalCtrl: ModalController,
-        private service: Service,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
 
         // Prohibits switching colors on init
         this.updateTheme(localStorage.getItem("THEME") as UserTheme);

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
@@ -16,6 +16,10 @@ import { CategorizedComponents, EdgeConfig } from "../../edge/edgeconfig";
     standalone: false,
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
+    modalCtrl = inject(ModalController);
+    service = inject(Service);
+    private websocket = inject(Websocket);
+
     private static readonly SELECTOR = "statussingle";
 
     public subscribedInfoChannels: ChannelAddress[] = [];
@@ -27,11 +31,10 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
-    constructor(
-        public modalCtrl: ModalController,
-        public service: Service,
-        private websocket: Websocket,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnDestroy() {
         this.edge?.unsubscribeChannels(this.websocket, StatusSingleComponent.SELECTOR);

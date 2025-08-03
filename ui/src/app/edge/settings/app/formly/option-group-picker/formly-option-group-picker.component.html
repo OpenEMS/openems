@@ -1,51 +1,63 @@
 <ng-template #inside>
-    <ion-segment [value]="selectedGroup?.group">
-        <ng-container *ngFor="let optionGroup of optionGroups; let i = index">
-            <ion-segment-button (click)="selectedIndex = i" [value]="optionGroup.group">
-                <ion-text translate style="white-space: initial">
-                    {{ optionGroup.title }}
-                </ion-text>
-            </ion-segment-button>
-        </ng-container>
-    </ion-segment>
-    <div *ngFor="let optionGroup of optionGroups; let i = index">
-        <div *ngIf="selectedIndex === i">
-            <ion-row *ngFor="let option of optionGroup.options">
-                <ion-col>
-                    <ion-item [disabled]="option.disabled">
-                        <div *ngIf="multi; else noMulti">
-                            <ion-checkbox labelPlacement="start" (ionChange)="valueChangeCheckbox(option);"
-                                [checked]="option.selected" class="ion-margin-end"></ion-checkbox>
-                        </div>
-                        <ng-template #noMulti>
-                            <ion-radio slot="start" [value]="option.value"></ion-radio>
-                        </ng-template>
-                        {{ option.title }}
-                    </ion-item>
-                </ion-col>
+  <ion-segment [value]="selectedGroup?.group">
+    @for (optionGroup of optionGroups; track optionGroup; let i = $index) {
+      <ion-segment-button (click)="selectedIndex = i" [value]="optionGroup.group">
+        <ion-text translate style="white-space: initial">
+          {{ optionGroup.title }}
+        </ion-text>
+      </ion-segment-button>
+    }
+  </ion-segment>
+  @for (optionGroup of optionGroups; track optionGroup; let i = $index) {
+    <div>
+      @if (selectedIndex === i) {
+        <div>
+          @for (option of optionGroup.options; track option) {
+            <ion-row>
+              <ion-col>
+                <ion-item [disabled]="option.disabled">
+                  @if (multi) {
+                    <div>
+                      <ion-checkbox labelPlacement="start" (ionChange)="valueChangeCheckbox(option);"
+                      [checked]="option.selected" class="ion-margin-end"></ion-checkbox>
+                    </div>
+                  } @else {
+                    <ion-radio slot="start" [value]="option.value"></ion-radio>
+                  }
+                  {{ option.title }}
+                </ion-item>
+              </ion-col>
             </ion-row>
+          }
         </div>
+      }
     </div>
+  }
 </ng-template>
 
-<div *ngIf="optionGroups.length === 0; elseShowOptions">
+@if (optionGroups.length === 0) {
+  <div>
     <!-- no options set -->
     <ion-grid>
-        <ion-row class="ion-justify-content-center">
-            <ion-col size="12" class="ion-text-center">
-                <ion-label>
-                    <h1> {{ to.missingOptionsText }} </h1>
-                </ion-label>
-            </ion-col>
-        </ion-row>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="12" class="ion-text-center">
+          <ion-label>
+            <h1> {{ to.missingOptionsText }} </h1>
+          </ion-label>
+        </ion-col>
+      </ion-row>
     </ion-grid>
-</div>
+  </div>
+} @else {
+  <ng-template [ngTemplateOutlet]="ShowOptions"></ng-template>
+}
 
-<div #elseShowOptions *ngIf="multi; else singleSelect">
+@if (multi) {
+  <div #elseShowOptions>
     <template [ngTemplateOutlet]="inside"></template>
-</div>
-<ng-template #singleSelect>
-    <ion-radio-group #elseShowOptions [(ngModel)]="selectedValue" [value]="selectedValue" (ionChange)="valueChange()">
-        <template [ngTemplateOutlet]="inside"></template>
-    </ion-radio-group>
-</ng-template>
+  </div>
+} @else {
+  <ion-radio-group #elseShowOptions [(ngModel)]="selectedValue" [value]="selectedValue" (ionChange)="valueChange()">
+    <template [ngTemplateOutlet]="inside"></template>
+  </ion-radio-group>
+}

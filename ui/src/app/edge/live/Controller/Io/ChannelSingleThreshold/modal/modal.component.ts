@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, Input, OnInit } from "@angular/core";
+import { Component, effect, Input, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -20,6 +20,13 @@ type inputMode = "SOC" | "GRIDSELL" | "GRIDBUY" | "PRODUCTION" | "OTHER";
   ],
 })
 export class Controller_Io_ChannelSingleThresholdModalComponent implements OnInit {
+  service = inject(Service);
+  modalCtrl = inject(ModalController);
+  translate = inject(TranslateService);
+  websocket = inject(Websocket);
+  formBuilder = inject(FormBuilder);
+  private dataService = inject(DataService);
+
 
   @Input({ required: true }) public edge!: Edge;
   @Input({ required: true }) public config!: EdgeConfig;
@@ -38,14 +45,12 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
   public inputMode = null;
   public invert: number | null = null;
 
-  constructor(
-    public service: Service,
-    public modalCtrl: ModalController,
-    public translate: TranslateService,
-    public websocket: Websocket,
-    public formBuilder: FormBuilder,
-    private dataService: DataService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const dataService = this.dataService;
+
 
     effect(() => {
       const currValue = dataService.currentValue();

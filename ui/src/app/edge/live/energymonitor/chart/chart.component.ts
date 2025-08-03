@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
 import { Subject, fromEvent } from "rxjs";
 import { debounceTime, delay, takeUntil } from "rxjs/operators";
 import { Service } from "src/app/shared/shared";
@@ -15,6 +15,8 @@ import { StorageSectionComponent } from "./section/storage.component";
   standalone: false,
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
+  private service = inject(Service);
+
 
   @ViewChild(ConsumptionSectionComponent, { static: true })
   public consumptionSection: ConsumptionSectionComponent;
@@ -40,9 +42,10 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
-  constructor(
-    private service: Service,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
   @Input()
   set currentData(currentData: CurrentData) {
     this.service.stopSpinner(this.spinnerId);

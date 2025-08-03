@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Directive, Input, OnChanges, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -11,6 +11,12 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
 export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
+  protected websocket = inject<Websocket>(Websocket);
+  protected route = inject<ActivatedRoute>(ActivatedRoute);
+  service = inject<Service>(Service);
+  protected modalController = inject<ModalController>(ModalController);
+  protected translate = inject<TranslateService>(TranslateService);
+
 
   @Input({ required: true })
   public period!: DefaultTypes.HistoryPeriod;
@@ -29,13 +35,10 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   private selector: string = uuidv4();
 
-  constructor(
-    @Inject(Websocket) protected websocket: Websocket,
-    @Inject(ActivatedRoute) protected route: ActivatedRoute,
-    @Inject(Service) public service: Service,
-    @Inject(ModalController) protected modalController: ModalController,
-    @Inject(TranslateService) protected translate: TranslateService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   public ngOnInit() {
     this.service.getCurrentEdge().then(edge => {

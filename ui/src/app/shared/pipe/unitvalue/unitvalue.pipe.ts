@@ -1,5 +1,5 @@
 import { DecimalPipe } from "@angular/common";
-import { Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform, inject } from "@angular/core";
 
 import { Language } from "../../type/language";
 
@@ -8,8 +8,13 @@ import { Language } from "../../type/language";
     standalone: false,
 })
 export class UnitvaluePipe implements PipeTransform {
+    private decimalPipe = inject(DecimalPipe);
 
-    constructor(private decimalPipe: DecimalPipe) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+
+    constructor() { }
 
     transform(value: any, unit: string): any {
         if (value == null || value == undefined

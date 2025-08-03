@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FieldWrapper } from "@ngx-formly/core";
 import { Service } from "src/app/shared/shared";
 
@@ -8,10 +8,13 @@ import { Service } from "src/app/shared/shared";
     standalone: false,
 })
 export class FormlyFieldModalComponent extends FieldWrapper {
+    protected service = inject(Service);
 
-    constructor(
-        protected service: Service,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+
+    constructor() {
         super();
     }
 

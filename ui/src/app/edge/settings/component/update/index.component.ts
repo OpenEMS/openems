@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
 import { EdgeConfig, Service, Utils } from "../../../../shared/shared";
@@ -15,6 +15,9 @@ interface MyCategorizedComponents extends CategorizedComponents {
   standalone: false,
 })
 export class IndexComponent implements OnInit {
+  private service = inject(Service);
+  private translate = inject(TranslateService);
+
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
@@ -23,10 +26,10 @@ export class IndexComponent implements OnInit {
 
   public showAllEntries = false;
 
-  constructor(
-    private service: Service,
-    private translate: TranslateService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   public ngOnInit() {

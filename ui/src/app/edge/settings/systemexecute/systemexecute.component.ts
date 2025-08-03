@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
@@ -22,6 +22,13 @@ const COMMANDS: { [key: string]: CommandFunction; } = {
   standalone: false,
 })
 export class SystemExecuteComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  protected utils = inject(Utils);
+  private websocket = inject(Websocket);
+  private service = inject(Service);
+  private translate = inject(TranslateService);
+  private formBuilder = inject(FormBuilder);
+
 
   private static readonly SELECTOR = "systemExecute";
 
@@ -63,14 +70,10 @@ export class SystemExecuteComponent implements OnInit {
     },
   }];
 
-  constructor(
-    private route: ActivatedRoute,
-    protected utils: Utils,
-    private websocket: Websocket,
-    private service: Service,
-    private translate: TranslateService,
-    private formBuilder: FormBuilder,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   ngOnInit() {

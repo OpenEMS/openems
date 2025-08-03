@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, effect, OnDestroy, OnInit } from "@angular/core";
+import { AfterContentChecked, ChangeDetectorRef, Component, effect, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
@@ -23,6 +23,15 @@ import { Edge, Service, Utils, Websocket } from "../shared/shared";
   standalone: false,
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
+  service = inject(Service);
+  websocket = inject(Websocket);
+  utils = inject(Utils);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private cdref = inject(ChangeDetectorRef);
+  protected modalCtrl = inject(ModalController);
+  private userService = inject(UserService);
+
   private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
   public currentThemeMode: UserTheme;
   public environment = environment;
@@ -35,16 +44,12 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
 
-  constructor(
-    public service: Service,
-    public websocket: Websocket,
-    public utils: Utils,
-    private router: Router,
-    private route: ActivatedRoute,
-    private cdref: ChangeDetectorRef,
-    protected modalCtrl: ModalController,
-    private userService: UserService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const userService = this.userService;
+
     effect(() => {
       const user = this.userService.currentUser();
       this.currentThemeMode = userService.getValidBrowserTheme(user?.getThemeFromSettings() ?? localStorage.getItem("THEME") as UserTheme);

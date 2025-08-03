@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect } from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { Subject, takeUntil, timer } from "rxjs";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { UserService } from "src/app/shared/service/user.service";
@@ -15,6 +15,11 @@ import { GetUpdateState, UpdateState } from "./jsonrpc/getUpdateState";
   standalone: false,
 })
 export class SystemComponent {
+  protected utils = inject(Utils);
+  private service = inject(Service);
+  private userService = inject(UserService);
+  private websocket = inject(Websocket);
+
 
   private static readonly SELECTOR = "system";
   private static readonly REFRESH_UPDATE_STATE_INTERVAL: number = 5_000; // 5s
@@ -30,12 +35,10 @@ export class SystemComponent {
   protected canSeeAdditionalUpdates: boolean = false;
   protected updateables: UpdateableState[] = [];
 
-  constructor(
-    protected utils: Utils,
-    private service: Service,
-    private userService: UserService,
-    private websocket: Websocket,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     effect(async (onCleanup) => {
       const subjectOnCleanup = new Subject<void>();
       onCleanup(() => {

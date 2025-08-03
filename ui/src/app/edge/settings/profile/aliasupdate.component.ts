@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -11,6 +11,12 @@ import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
     standalone: false,
 })
 export class AliasUpdateComponent implements OnInit {
+    private service = inject(Service);
+    private route = inject(ActivatedRoute);
+    private websocket = inject(Websocket);
+    private translate = inject(TranslateService);
+    private formBuilder = inject(FormBuilder);
+
 
     public component: EdgeConfig.Component | null = null;
 
@@ -20,13 +26,10 @@ export class AliasUpdateComponent implements OnInit {
 
     private edge: Edge;
 
-    constructor(
-        private service: Service,
-        private route: ActivatedRoute,
-        private websocket: Websocket,
-        private translate: TranslateService,
-        private formBuilder: FormBuilder,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {

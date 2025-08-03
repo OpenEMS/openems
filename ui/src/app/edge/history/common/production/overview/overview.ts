@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -11,18 +11,29 @@ import { ChannelAddress, EdgeConfig, Service } from "../../../../../shared/share
   standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
+  override service: Service;
+  protected override route: ActivatedRoute;
+  override modalCtrl: ModalController;
+  private router = inject(Router);
+  private translate = inject(TranslateService);
+
   protected chargerComponents: EdgeConfig.Component[] = [];
   protected productionMeterComponents: EdgeConfig.Component[] = [];
   protected navigationButtons: NavigationOption[] = [];
 
-  constructor(
-    public override service: Service,
-    protected override route: ActivatedRoute,
-    public override modalCtrl: ModalController,
-    private router: Router,
-    private translate: TranslateService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const service = inject(Service);
+    const route = inject(ActivatedRoute);
+    const modalCtrl = inject(ModalController);
+
     super(service, route, modalCtrl);
+  
+    this.service = service;
+    this.route = route;
+    this.modalCtrl = modalCtrl;
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {

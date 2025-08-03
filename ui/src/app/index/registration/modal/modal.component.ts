@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -14,19 +14,22 @@ import { environment } from "src/environments";
   standalone: false,
 })
 export class RegistrationModalComponent implements OnInit {
+  private formBuilder = inject(FormBuilder);
+  modalCtrl = inject(ModalController);
+  private translate = inject(TranslateService);
+  private service = inject(Service);
+  private websocket = inject(Websocket);
+
 
   protected formGroup: FormGroup;
   protected activeSegment: string = "installer";
   protected readonly countries = COUNTRY_OPTIONS(this.translate);
   protected docsLink: string | null = null;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    public modalCtrl: ModalController,
-    private translate: TranslateService,
-    private service: Service,
-    private websocket: Websocket,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit() {
     this.formGroup = this.getForm(this.activeSegment);

@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
@@ -40,6 +40,8 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
     standalone: false,
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
+    protected override service: Service;
+
 
     public chargeAnimationTrigger: boolean = false;
     public dischargeAnimationTrigger: boolean = false;
@@ -51,12 +53,17 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     private showChargeAnimation: boolean = false;
     private showDischargeAnimation: boolean = false;
 
-    constructor(
-        translate: TranslateService,
-        protected override service: Service,
-        unitpipe: UnitvaluePipe,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const translate = inject(TranslateService);
+        const service = inject(Service);
+        const unitpipe = inject(UnitvaluePipe);
+
         super("Edge.Index.Energymonitor.storage", "down", "#009846", translate, service, "Storage");
+        this.service = service;
+
         this.unitpipe = unitpipe;
     }
 

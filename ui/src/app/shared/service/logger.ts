@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { Changelog } from "src/app/changelog/view/component/changelog.constants";
 import { environment } from "src/environments";
@@ -17,14 +17,17 @@ export enum Level {
 
 @Injectable()
 export class Logger {
+    private service = inject(Service);
+    private router = inject(Router);
+
 
     private previousMessage: LogMessageNotification["params"] | undefined;
     private messageCounter: number = 0;
 
-    public constructor(
-        private service: Service,
-        private router: Router,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    public constructor() { }
 
     /**
      * Log a messag at the DEBUG level.

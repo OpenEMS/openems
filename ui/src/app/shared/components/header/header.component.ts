@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -18,6 +18,17 @@ import { StatusSingleComponent } from "../status/single/status.component";
     standalone: false,
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
+    private cdRef = inject(ChangeDetectorRef);
+    menu = inject(MenuController);
+    modalCtrl = inject(ModalController);
+    router = inject(Router);
+    routeService = inject(RouteService);
+    service = inject(Service);
+    websocket = inject(Websocket);
+    protected navigationService = inject(NavigationService);
+    protected navCtrl = inject(NavController);
+    private menuCtrl = inject(MenuController);
+
 
     @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
@@ -33,18 +44,10 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
 
-    constructor(
-        private cdRef: ChangeDetectorRef,
-        public menu: MenuController,
-        public modalCtrl: ModalController,
-        public router: Router,
-        public routeService: RouteService,
-        public service: Service,
-        public websocket: Websocket,
-        protected navigationService: NavigationService,
-        protected navCtrl: NavController,
-        private menuCtrl: MenuController,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
 
         effect(() => {
             this.showBackButton = this.navigationService.headerOptions().showBackButton;

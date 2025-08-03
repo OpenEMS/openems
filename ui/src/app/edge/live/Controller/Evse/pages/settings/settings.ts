@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -25,16 +25,19 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 })
 
 export class EvseSettingsComponent extends AbstractFormlyComponent {
+    private route = inject(ActivatedRoute);
+    private service = inject(Service);
+
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     // Increased skip count
     private component: EdgeConfig.Component | null = null;
     private energySessionLimitChannel: ChannelAddress | null = null;
 
-    constructor(
-        private route: ActivatedRoute,
-        private service: Service,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         super();
     }
 

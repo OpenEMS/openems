@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -15,6 +15,14 @@ import { DefaultTypes } from "../../type/defaulttypes";
   standalone: false,
 })
 export class ChartComponent implements OnInit, OnChanges {
+  protected service = inject(Service);
+  protected userService = inject(UserService);
+  private route = inject(ActivatedRoute);
+  popoverCtrl = inject(PopoverController);
+  protected translate = inject(TranslateService);
+  protected modalCtr = inject(ModalController);
+  private ref = inject(ChangeDetectorRef);
+
 
   @Input() public title: string = "";
   @Input() public showPhases: boolean | null = null;
@@ -30,15 +38,10 @@ export class ChartComponent implements OnInit, OnChanges {
   protected showPopover: boolean = false;
   protected newNavigationUrlSegment: string;
 
-  constructor(
-    protected service: Service,
-    protected userService: UserService,
-    private route: ActivatedRoute,
-    public popoverCtrl: PopoverController,
-    protected translate: TranslateService,
-    protected modalCtr: ModalController,
-    private ref: ChangeDetectorRef,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit() {
     this.service.getCurrentEdge().then(edge => {

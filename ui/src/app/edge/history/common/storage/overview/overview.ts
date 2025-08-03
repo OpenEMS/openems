@@ -1,5 +1,5 @@
-import { CommonModule } from "@angular/common";
-import { Component, LOCALE_ID } from "@angular/core";
+
+import { Component, LOCALE_ID, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IonicModule, ModalController } from "@ionic/angular";
@@ -19,32 +19,42 @@ import { StorageTotalChartComponent } from "../chart/totalchart";
     templateUrl: "./overview.html",
     standalone: true,
     imports: [
-        ReactiveFormsModule,
-        CommonModule,
-        IonicModule,
-        TranslateModule,
-        ChartComponentsModule,
-        PickdateComponentModule,
-        HistoryDataErrorModule,
-        StorageTotalChartComponent,
-        FooterNavigationComponentsModule,
-    ],
+    ReactiveFormsModule,
+    IonicModule,
+    TranslateModule,
+    ChartComponentsModule,
+    PickdateComponentModule,
+    HistoryDataErrorModule,
+    StorageTotalChartComponent,
+    FooterNavigationComponentsModule
+],
     providers: [
         { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
     ],
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
+    override service: Service;
+    protected override route: ActivatedRoute;
+    override modalCtrl: ModalController;
+    private router = inject(Router);
+
 
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected navigationButtons: NavigationOption[] = [];
 
-    constructor(
-        public override service: Service,
-        protected override route: ActivatedRoute,
-        public override modalCtrl: ModalController,
-        private router: Router,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const service = inject(Service);
+        const route = inject(ActivatedRoute);
+        const modalCtrl = inject(ModalController);
+
         super(service, route, modalCtrl);
+    
+        this.service = service;
+        this.route = route;
+        this.modalCtrl = modalCtrl;
     }
 
     protected override afterIsInitialized() {

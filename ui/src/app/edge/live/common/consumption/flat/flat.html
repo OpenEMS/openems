@@ -1,38 +1,34 @@
-<ng-container class="all-edges-shadow" *ngIf="isInitialized">
+@if (isInitialized) {
+  <ng-container class="all-edges-shadow">
     <oe-flat-widget [icon]="{name: 'oe-consumption', color: 'warning'}" [title]="'General.consumption' | translate"
-        button (click)="presentModal()">
-
-        <!-- Evcss -->
-        <ng-container *ngIf="evcss.length > 0">
-            <ng-container *ngFor="let component of evcss, let i = index">
-                <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ChargePower'"
-                    [converter]="CONVERT_WATT_TO_KILOWATT">
-                </oe-flat-widget-line>
-            </ng-container>
-        </ng-container>
-
-        <!-- ConsumptionMeters -->
-        <ng-container *ngIf="consumptionMeters.length > 0">
-            <ng-container *ngFor="let component of consumptionMeters">
-                <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActivePower'"
-                    [converter]="CONVERT_WATT_TO_KILOWATT">
-                </oe-flat-widget-line>
-            </ng-container>
-        </ng-container>
-
-        <!-- If at least Evcss or ConsumptionMeters -->
-        <ng-container *ngIf="evcss.length !== 0 || consumptionMeters.length !== 0; else noMeters">
-            <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-            <oe-flat-widget-line [name]="'General.otherConsumption' | translate" [value]="otherPower"
-                [converter]="CONVERT_WATT_TO_KILOWATT">
-            </oe-flat-widget-line>
-        </ng-container>
-
-        <!-- For no Evcss and ConsumptionMeters -->
-        <ng-template #noMeters>
-            <oe-flat-widget-line [value]="sumActivePower" [converter]="CONVERT_WATT_TO_KILOWATT">
-            </oe-flat-widget-line>
-        </ng-template>
-
+      button (click)="presentModal()">
+      <!-- Evcss -->
+      @if (evcss.length > 0) {
+        @for (component of evcss; track component; let i = $index) {
+          <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ChargePower'"
+            [converter]="CONVERT_WATT_TO_KILOWATT">
+          </oe-flat-widget-line>
+        }
+      }
+      <!-- ConsumptionMeters -->
+      @if (consumptionMeters.length > 0) {
+        @for (component of consumptionMeters; track component) {
+          <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActivePower'"
+            [converter]="CONVERT_WATT_TO_KILOWATT">
+          </oe-flat-widget-line>
+        }
+      }
+      <!-- If at least Evcss or ConsumptionMeters -->
+      @if (evcss.length !== 0 || consumptionMeters.length !== 0) {
+        <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+        <oe-flat-widget-line [name]="'General.otherConsumption' | translate" [value]="otherPower"
+          [converter]="CONVERT_WATT_TO_KILOWATT">
+        </oe-flat-widget-line>
+      } @else {
+        <oe-flat-widget-line [value]="sumActivePower" [converter]="CONVERT_WATT_TO_KILOWATT">
+        </oe-flat-widget-line>
+      }
+      <!-- For no Evcss and ConsumptionMeters -->
     </oe-flat-widget>
-</ng-container>
+  </ng-container>
+}

@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, Output, signal, WritableSignal } from "@angular/core";
+import { Component, effect, EventEmitter, Output, signal, WritableSignal, inject } from "@angular/core";
 import { RouteService } from "src/app/shared/service/route.service";
 import { NavigationService } from "../service/navigation.service";
 import { NavigationTree } from "../shared";
@@ -9,15 +9,18 @@ import { NavigationTree } from "../shared";
     standalone: false,
 })
 export class NavigationBreadCrumbsComponent {
+    protected navigationService = inject(NavigationService);
+    protected routeService = inject(RouteService);
+
 
     @Output() public navigate: EventEmitter<NavigationTree> = new EventEmitter();
     protected breadCrumbs: WritableSignal<(NavigationTree | null)[]> = signal([]);
     protected isVisible: boolean = false;
 
-    constructor(
-        protected navigationService: NavigationService,
-        protected routeService: RouteService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
 
         effect(() => {
             const currentNode = this.navigationService.currentNode();

@@ -1,4 +1,4 @@
-import { Component, effect, Input, OnInit } from "@angular/core";
+import { Component, effect, Input, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
@@ -10,6 +10,10 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
     standalone: false,
 })
 export class DelayedSellToGridWidgetComponent implements OnInit {
+    service = inject(Service);
+    private route = inject(ActivatedRoute);
+    private userService = inject(UserService);
+
 
     private static readonly SELECTOR = "delayedSellToGridWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
@@ -21,11 +25,10 @@ export class DelayedSellToGridWidgetComponent implements OnInit {
     /** @deprecated migration purposes*/
     protected newNavigationUrlSegment: string = "";
 
-    constructor(
-        public service: Service,
-        private route: ActivatedRoute,
-        private userService: UserService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         effect(() => {
             const isNewNavigation = this.userService.isNewNavigation();
             this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";

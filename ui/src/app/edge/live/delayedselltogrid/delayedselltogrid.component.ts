@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -12,6 +12,12 @@ import { DelayedSellToGridModalComponent } from "./modal/modal.component";
     standalone: false,
 })
 export class DelayedSellToGridComponent implements OnInit, OnDestroy {
+    private route = inject(ActivatedRoute);
+    private websocket = inject(Websocket);
+    protected translate = inject(TranslateService);
+    modalCtrl = inject(ModalController);
+    service = inject(Service);
+
 
     private static readonly SELECTOR = "delayedselltogrid";
 
@@ -21,13 +27,10 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 
     public component: EdgeConfig.Component | null = null;
 
-    constructor(
-        private route: ActivatedRoute,
-        private websocket: Websocket,
-        protected translate: TranslateService,
-        public modalCtrl: ModalController,
-        public service: Service,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {

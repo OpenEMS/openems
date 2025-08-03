@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, Producttype, Service, Utils } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
@@ -17,6 +17,9 @@ import { environment } from "src/environments";
     standalone: false,
 })
 export class OfflineComponent implements OnInit {
+    service = inject(Service);
+    private translate = inject(TranslateService);
+
 
     protected edge: Edge | null = null;
     protected timeSinceOffline: string | null = null;
@@ -24,10 +27,10 @@ export class OfflineComponent implements OnInit {
     protected readonly environment = environment;
     protected readonly Producttype = Producttype;
 
-    constructor(
-        public service: Service,
-        private translate: TranslateService,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     /**
      * Formats a valid

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper } from "@ngx-formly/core";
 import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.component";
@@ -9,12 +9,15 @@ import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.com
     standalone: false,
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
+    private modalController = inject(ModalController);
+
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
 
     // this wrapper is used to display a select which has more
     // detailed information about an item when selecting them
-    constructor(
-        private modalController: ModalController,
-    ) {
+    constructor() {
         super();
 
     }

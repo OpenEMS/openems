@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnDestroy, OnInit } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -15,6 +15,16 @@ import { DataService } from "../shared/dataservice";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
+    protected websocket = inject<Websocket>(Websocket);
+    protected route = inject<ActivatedRoute>(ActivatedRoute);
+    protected service = inject<Service>(Service);
+    protected modalController = inject<ModalController>(ModalController);
+    protected translate = inject<TranslateService>(TranslateService);
+    protected dataService = inject(DataService);
+    protected formBuilder = inject(FormBuilder);
+    protected router = inject(Router);
+    protected userService = inject(UserService);
+
 
     @Input()
     protected componentId: string;
@@ -40,18 +50,11 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     private injector = inject(Injector);
     private subscription: EffectRef[] = [];
 
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
 
-    constructor(
-        @Inject(Websocket) protected websocket: Websocket,
-        @Inject(ActivatedRoute) protected route: ActivatedRoute,
-        @Inject(Service) protected service: Service,
-        @Inject(ModalController) protected modalController: ModalController,
-        @Inject(TranslateService) protected translate: TranslateService,
-        protected dataService: DataService,
-        protected formBuilder: FormBuilder,
-        protected router: Router,
-        protected userService: UserService,
-    ) {
+
+    constructor() {
 
         effect(() => {
             const isNewNavigation = this.userService.isNewNavigation();

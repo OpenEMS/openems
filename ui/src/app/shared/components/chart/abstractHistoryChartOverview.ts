@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Directive, OnChanges, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -9,6 +9,10 @@ import { DefaultTypes } from "../../type/defaulttypes";
 
 @Directive()
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
+  service = inject(Service);
+  protected route = inject(ActivatedRoute);
+  modalCtrl = inject(ModalController);
+
 
   /**
    * True after this.edge, this.config and this.component are set.
@@ -22,12 +26,11 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
   protected showTotal: boolean = true;
   protected showPhases: boolean = false;
 
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
 
-  constructor(
-    public service: Service,
-    protected route: ActivatedRoute,
-    public modalCtrl: ModalController,
-  ) { }
+
+  constructor() { }
 
   public ngOnInit() {
     this.service.getCurrentEdge().then(edge => {

@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from "@angular/core";
+import { Component, OnChanges, OnInit, SimpleChanges, inject } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Service } from "src/app/shared/shared";
@@ -38,6 +38,9 @@ interface DailySchedule {
   styleUrls: ["./tariff-table.scss"],
 })
 export class FormlyTariffTableTypeComponent extends FieldType implements OnInit, OnChanges {
+  private translate = inject(TranslateService);
+  private service = inject(Service);
+
 
   protected tariffData: YearData[] = [];
   protected expandedQuarters: { [key: string]: boolean } = {};
@@ -53,7 +56,10 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
       high: "FORMLY_FORM.TARIFF_TABLE.TARIFFS.HIGH",
     };
 
-  constructor(private translate: TranslateService, private service: Service) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     super();
   }
 

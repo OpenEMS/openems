@@ -1,5 +1,5 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input, SimpleChange, OnChanges } from "@angular/core";
+
+import { Component, Input, SimpleChange, OnChanges, inject } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
 import { environment } from "src/environments";
@@ -9,11 +9,12 @@ import { environment } from "src/environments";
     templateUrl: "./help-button.html",
     standalone: true,
     imports: [
-        CommonModule,
-        IonicModule,
-    ],
+    IonicModule
+],
 })
 export class HelpButtonComponent implements OnChanges {
+    private service = inject(Service);
+
 
     /** Overwrites default docs link */
     @Input() public useDefaultPrefix: boolean = false;
@@ -21,7 +22,10 @@ export class HelpButtonComponent implements OnChanges {
 
     protected link: string | null = null;
 
-    constructor(private service: Service) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnChanges(changes: { key: SimpleChange, useDocsPrefix: SimpleChange }) {
         if (changes["key"] || changes["useDocsPrefix"]) {

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -14,6 +14,12 @@ type AutomaticEnableMode = "automaticRecommendationCtrlEnabled" | "automaticForc
   standalone: false,
 })
 export class Controller_Io_HeatpumpModalComponent implements OnInit {
+  private websocket = inject(Websocket);
+  protected translate = inject(TranslateService);
+  formBuilder = inject(FormBuilder);
+  modalCtrl = inject(ModalController);
+  service = inject(Service);
+
 
   @Input() public edge: Edge | null = null;
   @Input() public component: EdgeConfig.Component | null = null;
@@ -21,13 +27,10 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
   public formGroup: FormGroup | null = null;
   public loading: boolean = false;
 
-  constructor(
-    private websocket: Websocket,
-    protected translate: TranslateService,
-    public formBuilder: FormBuilder,
-    public modalCtrl: ModalController,
-    public service: Service,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit() {
     this.formGroup = this.formBuilder.group({

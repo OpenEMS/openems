@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
@@ -13,6 +13,9 @@ import { calculateActiveTimeOverPeriod } from "../shared";
     standalone: false,
 })
 export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
+    override service: Service;
+    private route = inject(ActivatedRoute);
+
 
     private static readonly SELECTOR = "chpsocWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
@@ -22,11 +25,15 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
     public edge: Edge | null = null;
     public component: EdgeConfig.Component | null = null;
 
-    constructor(
-        public override service: Service,
-        private route: ActivatedRoute,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const service = inject(Service);
+
         super(service);
+    
+        this.service = service;
     }
 
     ngOnInit() {

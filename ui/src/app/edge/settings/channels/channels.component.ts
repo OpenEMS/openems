@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { PersistencePriority } from "src/app/shared/components/edge/edgeconfig";
@@ -17,6 +17,12 @@ import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } 
   standalone: false,
 })
 export class ChannelsComponent {
+  private service = inject(Service);
+  private websocket = inject(Websocket);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  protected translate = inject(TranslateService);
+
 
   private static readonly SELECTOR = "channels";
   private static readonly URL_PREFIX = "channels";
@@ -35,13 +41,10 @@ export class ChannelsComponent {
   private subscribedChannels = new Map<string, ChannelAddress>();
   private persistencePriority: string = PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
 
-  constructor(
-    private service: Service,
-    private websocket: Websocket,
-    private route: ActivatedRoute,
-    private router: Router,
-    protected translate: TranslateService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   private static readonly ERROR_COMPONENT_COULD_NOT_BE_FOUND = (componentId: string) => `[ComponentId] ${componentId} doesn't exist on this edge`;
 

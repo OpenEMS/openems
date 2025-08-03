@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -12,6 +12,12 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/s
     standalone: false,
 })
 export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
+    service = inject(Service);
+    translate = inject(TranslateService);
+    modalCtrl = inject(ModalController);
+    formBuilder = inject(FormBuilder);
+    websocket = inject(Websocket);
+
 
     @Input({ required: true }) protected component!: EdgeConfig.Component;
     @Input({ required: true }) protected edge!: Edge;
@@ -20,13 +26,10 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
     public formGroup: FormGroup;
     public loading: boolean = false;
 
-    constructor(
-        public service: Service,
-        public translate: TranslateService,
-        public modalCtrl: ModalController,
-        public formBuilder: FormBuilder,
-        public websocket: Websocket,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit() {
         this.formGroup = this.formBuilder.group({

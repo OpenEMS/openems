@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Injectable, signal, WritableSignal } from "@angular/core";
+import { Injectable, signal, WritableSignal, inject } from "@angular/core";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { AlertController, ToastController } from "@ionic/angular";
@@ -15,6 +15,11 @@ import { Websocket } from "./shared/shared";
 
 @Injectable()
 export class PlatFormService {
+  private alertCtrl = inject(AlertController);
+  private translate = inject(TranslateService);
+  private deviceService = inject(DeviceDetectorService);
+  private toaster = inject(ToastController);
+
 
   public static readonly platform: string = Capacitor.getPlatform();
 
@@ -25,12 +30,10 @@ export class PlatFormService {
 
   public isActiveAgain: WritableSignal<boolean> = signal(false);
 
-  constructor(
-    private alertCtrl: AlertController,
-    private translate: TranslateService,
-    private deviceService: DeviceDetectorService,
-    private toaster: ToastController,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     PlatFormService.deviceInfo = this.deviceService.getDeviceInfo();
     PlatFormService.isMobile = this.deviceService.isMobile();
   }

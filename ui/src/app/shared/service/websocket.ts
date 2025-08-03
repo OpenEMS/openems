@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Injectable, signal, WritableSignal } from "@angular/core";
+import { Injectable, signal, WritableSignal, inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -31,6 +31,13 @@ import { WsData } from "./wsdata";
 
 @Injectable()
 export class Websocket implements WebsocketInterface {
+  private service = inject(Service);
+  private translate = inject(TranslateService);
+  private cookieService = inject(CookieService);
+  private router = inject(Router);
+  private userService = inject(UserService);
+  private pagination = inject(Pagination);
+
 
   public static readonly REQUEST_TIMEOUT = 500;
 
@@ -51,14 +58,12 @@ export class Websocket implements WebsocketInterface {
 
   private socket: WebSocketSubject<any>;
 
-  constructor(
-    private service: Service,
-    private translate: TranslateService,
-    private cookieService: CookieService,
-    private router: Router,
-    private userService: UserService,
-    private pagination: Pagination,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const service = this.service;
+
     service.websocket = this;
 
     // try to auto connect using token or session_id

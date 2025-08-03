@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, Input, inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -26,6 +26,11 @@ export enum Status {
     standalone: false,
 })
 export class ModalComponent {
+    modalController = inject(ModalController);
+    private websocket = inject(Websocket);
+    private service = inject(Service);
+    private translate = inject(TranslateService);
+
 
     /** Title in Header */
     @Input({ required: true }) public title!: string | null;
@@ -43,12 +48,10 @@ export class ModalComponent {
 
     private edge: Edge | null = null;
 
-    constructor(
-        public modalController: ModalController,
-        private websocket: Websocket,
-        private service: Service,
-        private translate: TranslateService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
     }
 

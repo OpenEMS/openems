@@ -1,5 +1,5 @@
-import { CommonModule } from "@angular/common";
-import { Component, LOCALE_ID } from "@angular/core";
+
+import { Component, LOCALE_ID, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule, ModalController } from "@ionic/angular";
@@ -18,21 +18,25 @@ import tr from "./translation.json";
     templateUrl: "./overview.html",
     standalone: true,
     imports: [
-        ReactiveFormsModule,
-        CommonModule,
-        IonicModule,
-        TranslateModule,
-        ChartComponentsModule,
-        PickdateComponentModule,
-        HistoryDataErrorModule,
-        ChartComponent,
-    ],
+    ReactiveFormsModule,
+    IonicModule,
+    TranslateModule,
+    ChartComponentsModule,
+    PickdateComponentModule,
+    HistoryDataErrorModule,
+    ChartComponent
+],
     providers: [
         { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
 
     ],
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
+    override service: Service;
+    protected override route: ActivatedRoute;
+    override modalCtrl: ModalController;
+    private translate = inject(TranslateService);
+
 
     protected readonly STATES: string = `
     1.${this.translate.instant("Edge.Index.Widgets.HeatPump.lock")}
@@ -42,13 +46,19 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
     `;
     protected chartType: "line" | "bar" = "line";
 
-    constructor(
-        public override service: Service,
-        protected override route: ActivatedRoute,
-        public override modalCtrl: ModalController,
-        private translate: TranslateService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const service = inject(Service);
+        const route = inject(ActivatedRoute);
+        const modalCtrl = inject(ModalController);
+
         super(service, route, modalCtrl);
+        this.service = service;
+        this.route = route;
+        this.modalCtrl = modalCtrl;
+
         Language.setAdditionalTranslationFile(tr, this.translate).then(({ lang, translations, shouldMerge }) => {
             this.translate.setTranslation(lang, translations, shouldMerge);
         });

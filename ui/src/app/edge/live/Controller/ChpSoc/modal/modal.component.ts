@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { RangeValue } from "@ionic/core";
@@ -15,6 +15,12 @@ type mode = "MANUAL_ON" | "MANUAL_OFF" | "AUTOMATIC";
     standalone: false,
 })
 export class Controller_ChpSocModalComponent implements OnInit {
+    service = inject(Service);
+    websocket = inject(Websocket);
+    router = inject(Router);
+    protected translate = inject(TranslateService);
+    modalCtrl = inject(ModalController);
+
 
     private static readonly SELECTOR = "chpsoc-modal";
 
@@ -28,13 +34,10 @@ export class Controller_ChpSocModalComponent implements OnInit {
         upper: null,
     };
 
-    constructor(
-        public service: Service,
-        public websocket: Websocket,
-        public router: Router,
-        protected translate: TranslateService,
-        public modalCtrl: ModalController,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     ngOnInit() {
         this.thresholds["lower"] = this.component.properties["lowThreshold"];

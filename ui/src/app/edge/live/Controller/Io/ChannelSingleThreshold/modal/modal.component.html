@@ -11,11 +11,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ng-container *ngIf="service.currentEdge() as edge">
-  <ng-container *ngIf="edge.currentData | async as currentData">
-    <ng-container *ngIf="currentData.summary as sum">
+@if (service.currentEdge(); as edge) {
+  @if (edge.currentData | async; as currentData) {
+    @if (currentData.summary; as sum) {
       <ion-content>
-        <ng-container *ngIf="!loading">
+        @if (!loading) {
           <ion-card-content class="underline">
             <table class="full_width">
               <tr>
@@ -23,16 +23,21 @@
                   General.state
                 </td>
                 <td style="width: 35%" class="align_right">
-                  <ng-container [ngSwitch]="currentData.channel[outputChannel]">
-                    <span *ngSwitchCase="1" translate>General.on</span>
-                    <span *ngSwitchCase="0" translate>General.off</span>
-                    <ion-icon *ngSwitchDefault name="help-outline"></ion-icon>
-                  </ng-container>
+                  @switch (currentData.channel[outputChannel]) {
+                    @case (1) {
+                      <span translate>General.on</span>
+                    }
+                    @case (0) {
+                      <span translate>General.off</span>
+                    }
+                    @default {
+                      <ion-icon name="help-outline"></ion-icon>
+                    }
+                  }
                 </td>
               </tr>
             </table>
           </ion-card-content>
-
           <ion-card-content class="underline">
             <table class="full_width">
               <tr>
@@ -47,7 +52,7 @@
                   General.on
                 </ion-label>
                 <ion-icon [color]="component.properties['mode'] === 'ON' ? 'success' : 'normal'" style="width:40px"
-                  name="power-outline"></ion-icon>
+                name="power-outline"></ion-icon>
               </ion-segment-button>
               <ion-segment-button value="AUTOMATIC">
                 <ion-label translate>
@@ -62,13 +67,13 @@
                   General.off
                 </ion-label>
                 <ion-icon [color]="component.properties['mode'] === 'OFF' ? 'danger' : 'normal'" name="power-outline"
-                  style="width: 40px"></ion-icon>
+                style="width: 40px"></ion-icon>
               </ion-segment-button>
             </ion-segment>
           </ion-card-content>
-          <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && !loading">
+          @if (component.properties['mode'] === 'AUTOMATIC' && !loading) {
             <form [formGroup]="formGroup">
-              <ng-container *ngIf="inputMode?.value === 'OTHER'">
+              @if (inputMode?.value === 'OTHER') {
                 <ion-card-content class="underline">
                   <table class="full_width">
                     <tr>
@@ -82,8 +87,8 @@
                     </tr>
                   </table>
                 </ion-card-content>
-              </ng-container>
-              <ng-container *ngIf="inputMode.value !== 'OTHER'">
+              }
+              @if (inputMode.value !== 'OTHER') {
                 <ion-card-content class="ion-no-padding">
                   <ion-row>
                     <ion-col class="ion-no-padding" size="12">
@@ -100,9 +105,8 @@
                     </ion-col>
                   </ion-row>
                 </ion-card-content>
-              </ng-container>
-
-              <ng-container *ngIf="inputMode.value !== 'SOC' && inputMode.value !== 'PRODUCTION'">
+              }
+              @if (inputMode.value !== 'SOC' && inputMode.value !== 'PRODUCTION') {
                 <ion-card-content class="underline" style="padding-top: 0;">
                   <table class="full_width">
                     <tr>
@@ -118,51 +122,64 @@
                       </td>
                     </tr>
                   </table>
-                  <table class="full_width"
-                    *ngIf="formGroup.controls.switchedLoadPower.dirty && formGroup.controls.inputMode.value === 'GRIDSELL'">
-                    <tr>
-                      <td style="width: 100%">
-                        <ion-text color="danger" translate>
-                          Edge.Index.Widgets.Singlethreshold.moreThanMaxPower
-                        </ion-text>
-                      </td>
-                    </tr>
-                  </table>
+                  @if (formGroup.controls.switchedLoadPower.dirty && formGroup.controls.inputMode.value === 'GRIDSELL') {
+                    <table class="full_width"
+                      >
+                      <tr>
+                        <td style="width: 100%">
+                          <ion-text color="danger" translate>
+                            Edge.Index.Widgets.Singlethreshold.moreThanMaxPower
+                          </ion-text>
+                        </td>
+                      </tr>
+                    </table>
+                  }
                 </ion-card-content>
-              </ng-container>
-
+              }
               <ion-card-content class="underline">
                 <table class="full_width">
                   <tr>
                     <td style="width: 65%" translate>
-                      Edge.Index.Widgets.Singlethreshold.currentValue</td>
-                    <ng-container [ngSwitch]="inputMode.value">
-                      <td style="width: 35%" class="align_right" *ngSwitchCase="'SOC'">
-                        {{ sum.storage.soc | unitvalue:'%' }}
-                      </td>
-                      <td style="width: 35%" class="align_right" *ngSwitchCase="'GRIDSELL'">
-                        {{ sum.grid.sellActivePower | unitvalue: 'W' }}
-                      </td>
-                      <td style="width: 35%" class="align_right" *ngSwitchCase="'GRIDBUY'">
-                        {{ sum.grid.buyActivePower | unitvalue: 'W' }}
-                      </td>
-                      <td style="width: 35%" class="align_right" *ngSwitchCase="'PRODUCTION'">
-                        {{ sum.production.activePower | unitvalue: 'W' }}
-                      </td>
-                      <td style="width: 35%" class="align_right" *ngSwitchCase="'OTHER'">
-                        {{ currentData.channel[component.properties['inputChannelAddress']] }}
-                        <div *ngIf="inputChannelUnit">
-                          &nbsp;{{inputChannelUnit}}
-                        </div>
-                      </td>
-                    </ng-container>
+                    Edge.Index.Widgets.Singlethreshold.currentValue</td>
+                    @switch (inputMode.value) {
+                      @case ('SOC') {
+                        <td style="width: 35%" class="align_right">
+                          {{ sum.storage.soc | unitvalue:'%' }}
+                        </td>
+                      }
+                      @case ('GRIDSELL') {
+                        <td style="width: 35%" class="align_right">
+                          {{ sum.grid.sellActivePower | unitvalue: 'W' }}
+                        </td>
+                      }
+                      @case ('GRIDBUY') {
+                        <td style="width: 35%" class="align_right">
+                          {{ sum.grid.buyActivePower | unitvalue: 'W' }}
+                        </td>
+                      }
+                      @case ('PRODUCTION') {
+                        <td style="width: 35%" class="align_right">
+                          {{ sum.production.activePower | unitvalue: 'W' }}
+                        </td>
+                      }
+                      @case ('OTHER') {
+                        <td style="width: 35%" class="align_right">
+                          {{ currentData.channel[component.properties['inputChannelAddress']] }}
+                          @if (inputChannelUnit) {
+                            <div>
+                              &nbsp;{{inputChannelUnit}}
+                            </div>
+                          }
+                        </td>
+                      }
+                    }
                   </tr>
                 </table>
-                <ng-container *ngIf="inputMode.value === 'SOC'">
+                @if (inputMode.value === 'SOC') {
                   <table class="full_width">
                     <tr>
                       <td style="width: 65%;" translate>
-                        Edge.Index.Widgets.Singlethreshold.threshold</td>
+                      Edge.Index.Widgets.Singlethreshold.threshold</td>
                       <td style="width: 35%" class="align_right">
                         {{ threshold.value | unitvalue:'%' }}
                       </td>
@@ -181,8 +198,8 @@
                       </ion-range>
                     </tr>
                   </table>
-                </ng-container>
-                <ng-container *ngIf="inputMode?.value !== 'SOC'">
+                }
+                @if (inputMode?.value !== 'SOC') {
                   <table class="full_width">
                     <tr>
                       <td style="width: 65%" translate>
@@ -200,9 +217,8 @@
                       </td>
                     </tr>
                   </table>
-                </ng-container>
+                }
               </ion-card-content>
-
               <ion-card-content class="underline">
                 <table class="full_width">
                   <tr>
@@ -212,56 +228,56 @@
                   </tr>
                 </table>
                 <!-- regular behaviour for invert if GridSell is not selected -->
-                <ion-segment *ngIf="inputMode !== null && inputMode.value !== 'GRIDSELL'" formControlName="invert"
-                  scrollable="false" [value]="formGroup.controls['invert'].value">
-                  <ion-segment-button [value]="false">
-                    <ion-label>
-                      <ng-container *ngIf="inputMode?.value === 'SOC'; else noSocFalse">
+                @if (inputMode !== null && inputMode.value !== 'GRIDSELL') {
+                  <ion-segment formControlName="invert"
+                    scrollable="false" [value]="formGroup.controls['invert'].value">
+                    <ion-segment-button [value]="false">
+                      <ion-label>
+                        @if (inputMode?.value === 'SOC') {
+                          <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
+                          {{ threshold.value | unitvalue:'%' }}
+                        } @else {
+                          <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
+                          {{ threshold.value | unitvalue:'W'}}
+                        }
+                      </ion-label>
+                      <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
+                    </ion-segment-button>
+                    <ion-segment-button [value]="true">
+                      <ion-label>
+                        @if (inputMode?.value === 'SOC') {
+                          <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
+                          {{ threshold.value | unitvalue:'%' }}
+                        } @else {
+                          <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
+                          {{ threshold.value | unitvalue:'W' }}
+                        }
+                      </ion-label>
+                      <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
+                    </ion-segment-button>
+                  </ion-segment>
+                }
+                <!-- invert behaviour for invert if GridSell is selected -->
+                @if (formGroup?.controls['invert']?.value !== null && inputMode && inputMode.value === 'GRIDSELL') {
+                  <ion-segment
+                    formControlName="invert" scrollable="false" [value]="invert.value">
+                    <ion-segment-button [value]="true">
+                      <ion-label>
                         <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
-                        {{ threshold.value | unitvalue:'%' }}
-                      </ng-container>
-                      <ng-template #noSocFalse>
-                        <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
-                        {{ threshold.value | unitvalue:'W'}}
-                      </ng-template>
-                    </ion-label>
-                    <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
-                  </ion-segment-button>
-                  <ion-segment-button [value]="true">
-                    <ion-label>
-                      <ng-container *ngIf="inputMode?.value === 'SOC'; else noSocTrue">
-                        <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
-                        {{ threshold.value | unitvalue:'%' }}
-                      </ng-container>
-                      <ng-template #noSocTrue>
+                        {{ threshold.value | unitvalue:'W' }}
+                      </ion-label>
+                      <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
+                    </ion-segment-button>
+                    <ion-segment-button [value]="false">
+                      <ion-label>
                         <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
                         {{ threshold.value | unitvalue:'W' }}
-                      </ng-template>
-                    </ion-label>
-                    <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
-                  </ion-segment-button>
-                </ion-segment>
-                <!-- invert behaviour for invert if GridSell is selected -->
-                <ion-segment
-                  *ngIf="formGroup?.controls['invert']?.value !== null && inputMode && inputMode.value === 'GRIDSELL'"
-                  formControlName="invert" scrollable="false" [value]="invert.value">
-                  <ion-segment-button [value]="true">
-                    <ion-label>
-                      <span translate>Edge.Index.Widgets.Singlethreshold.switchOnAbove</span>
-                      {{ threshold.value | unitvalue:'W' }}
-                    </ion-label>
-                    <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
-                  </ion-segment-button>
-                  <ion-segment-button [value]="false">
-                    <ion-label>
-                      <span translate>Edge.Index.Widgets.Singlethreshold.switchOnBelow</span>
-                      {{ threshold.value | unitvalue:'W' }}
-                    </ion-label>
-                    <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
-                  </ion-segment-button>
-                </ion-segment>
+                      </ion-label>
+                      <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
+                    </ion-segment-button>
+                  </ion-segment>
+                }
               </ion-card-content>
-
               <ion-card-content>
                 <table class="full_width">
                   <tr>
@@ -280,19 +296,23 @@
                 </table>
               </ion-card-content>
             </form>
-            <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center"
-              slot="fixed">
-              <ion-fab-button (click)="applyChanges()">
-                <ion-icon size="large" name="checkmark-circle-outline">
-                </ion-icon>
-              </ion-fab-button>
-            </ion-fab>
-          </ng-container>
-        </ng-container>
-        <ion-grid *ngIf="loading">
-          <ion-progress-bar type="indeterminate"></ion-progress-bar>
-        </ion-grid>
+            @if (formGroup.dirty) {
+              <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="center"
+                slot="fixed">
+                <ion-fab-button (click)="applyChanges()">
+                  <ion-icon size="large" name="checkmark-circle-outline">
+                  </ion-icon>
+                </ion-fab-button>
+              </ion-fab>
+            }
+          }
+        }
+        @if (loading) {
+          <ion-grid>
+            <ion-progress-bar type="indeterminate"></ion-progress-bar>
+          </ion-grid>
+        }
       </ion-content>
-    </ng-container>
-  </ng-container>
-</ng-container>
+    }
+  }
+}

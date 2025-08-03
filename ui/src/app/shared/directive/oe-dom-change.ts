@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, Output } from "@angular/core";
+import { Directive, ElementRef, EventEmitter, Output, inject } from "@angular/core";
 
 /**
  * Used to react to dom changes on this element
@@ -8,13 +8,18 @@ import { Directive, ElementRef, EventEmitter, Output } from "@angular/core";
     standalone: true,
 })
 export class DomChangeDirective {
+    private elementRef = inject(ElementRef);
+
 
     @Output()
     public ngDomChange = new EventEmitter();
 
     private changes: MutationObserver;
 
-    constructor(private elementRef: ElementRef) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         const element = this.elementRef.nativeElement;
 
         this.changes = new MutationObserver((mutations: MutationRecord[]) => {

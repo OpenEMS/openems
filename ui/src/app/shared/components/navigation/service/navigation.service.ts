@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Directive, effect, signal, untracked, WritableSignal } from "@angular/core";
+import { Directive, effect, signal, untracked, WritableSignal, inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { User } from "src/app/shared/jsonrpc/shared";
@@ -12,20 +12,26 @@ import { NavigationTree } from "../shared";
 
 @Directive()
 export class NavigationService {
+    private service = inject(Service);
+    private userService = inject(UserService);
+    private routeService = inject(RouteService);
+    private router = inject(Router);
+    private location = inject(Location);
+    private translate = inject(TranslateService);
+
 
     public navigationTree: WritableSignal<NavigationTree | null> = signal(null);
     public currentNode: WritableSignal<NavigationTree | null> = signal(null);
     public position: WritableSignal<"left" | "bottom" | "disabled" | null> = signal(null);
     public headerOptions: WritableSignal<{ showBackButton: boolean }> = signal({ showBackButton: false });
 
-    constructor(
-        private service: Service,
-        private userService: UserService,
-        private routeService: RouteService,
-        private router: Router,
-        private location: Location,
-        private translate: TranslateService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const service = this.service;
+        const translate = this.translate;
+
 
         this.setPosition();
 

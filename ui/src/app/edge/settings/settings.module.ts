@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { ChangelogComponent } from "src/app/changelog/view/component/changelog.component";
 import tr from "src/app/edge/settings/shared/translation.json";
@@ -54,8 +54,15 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SettingsModule {
+  private translate = inject(TranslateService);
 
-  constructor(private translate: TranslateService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() {
+    const translate = this.translate;
+
     Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
       translate.setTranslation(lang, translations, shouldMerge);
     });

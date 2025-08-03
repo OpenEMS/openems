@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, effect } from "@angular/core";
+import { ChangeDetectorRef, Component, effect, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -16,19 +16,34 @@ import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from 
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
+    private websocket = inject(Websocket);
+    override service: Service;
+    override cdRef: ChangeDetectorRef;
+    protected override translate: TranslateService;
+    protected override route: ActivatedRoute;
+    protected override logger: Logger;
+
 
     private currencyUnit: Currency.Unit | null = null;
-    private currencyLabel: Currency.Label; // Default
+    private currencyLabel: Currency.Label;
 
-    constructor(
-        private websocket: Websocket,
-        public override service: Service,
-        public override cdRef: ChangeDetectorRef,
-        protected override translate: TranslateService,
-        protected override route: ActivatedRoute,
-        protected override logger: Logger,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]); // Default
+
+    constructor() {
+        const service = inject(Service);
+        const cdRef = inject(ChangeDetectorRef);
+        const translate = inject(TranslateService);
+        const route = inject(ActivatedRoute);
+        const logger = inject(Logger);
+
         super(service, cdRef, translate, route, logger);
+        this.service = service;
+        this.cdRef = cdRef;
+        this.translate = translate;
+        this.route = route;
+        this.logger = logger;
+
         effect(() => {
             const edge = this.service.currentEdge();
 

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CategorizedComponents, CategorizedFactories } from "src/app/shared/components/edge/edgeconfig";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
@@ -17,6 +17,10 @@ interface MyCategorizedFactories extends CategorizedFactories {
   standalone: false,
 })
 export class IndexComponent implements OnInit {
+  private translate = inject(TranslateService);
+  private service = inject(Service);
+  private websocket = inject(Websocket);
+
 
   private static readonly SELECTOR = "indexComponentInstall";
 
@@ -26,11 +30,10 @@ export class IndexComponent implements OnInit {
 
   private edge: Edge;
 
-  constructor(
-    private translate: TranslateService,
-    private service: Service,
-    private websocket: Websocket,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   async ngOnInit() {

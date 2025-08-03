@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, OnInit } from "@angular/core";
+import { Component, effect, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
@@ -14,6 +14,12 @@ import { environment } from "src/environments";
   standalone: false,
 })
 export class HistoryComponent implements OnInit {
+  service = inject(Service);
+  translate = inject(TranslateService);
+  private route = inject(ActivatedRoute);
+  private dataService = inject(DataService);
+  protected navigationService = inject(NavigationService);
+
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
@@ -35,13 +41,10 @@ export class HistoryComponent implements OnInit {
   protected errorResponse: JsonrpcResponseError | null = null;
   protected isModbusTcpWidgetAllowed: boolean = false;
 
-  constructor(
-    public service: Service,
-    public translate: TranslateService,
-    private route: ActivatedRoute,
-    private dataService: DataService,
-    protected navigationService: NavigationService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
 
     effect(() => {
       const edge = this.service.currentEdge();

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
@@ -12,17 +12,20 @@ import { ChartOptionsPopoverComponent } from "./popover/popover.component";
     standalone: false,
 })
 export class ChartOptionsComponent {
+    service = inject(Service);
+    translate = inject(TranslateService);
+    popoverCtrl = inject(PopoverController);
+
 
     @Input({ required: true }) public showPhases!: boolean | null;
     @Input({ required: true }) public showTotal!: boolean | null;
     @Output() public setShowPhases = new EventEmitter<boolean>();
     @Output() public setShowTotal = new EventEmitter<boolean>();
 
-    constructor(
-        public service: Service,
-        public translate: TranslateService,
-        public popoverCtrl: PopoverController,
-    ) { }
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() { }
 
     async presentPopover(ev: any) {
         const componentProps = {};

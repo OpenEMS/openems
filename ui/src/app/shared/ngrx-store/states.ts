@@ -1,4 +1,4 @@
-import { Injectable, WritableSignal, effect, signal } from "@angular/core";
+import { Injectable, WritableSignal, effect, signal, inject } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { differenceInSeconds } from "date-fns";
@@ -24,17 +24,20 @@ export enum States {
     providedIn: "root",
 })
 export class AppStateTracker {
+    protected router = inject(Router);
+    private websocket = inject(Websocket);
+    private routeService = inject(RouteService);
+
     private static readonly LOG_PREFIX: string = "AppState";
     private static readonly TIME_TILL_TIMEOUT: number = 10;
     private static readonly ENABLE_ROUTING: boolean = true;
     public loadingState: WritableSignal<"failed" | "loading" | "authenticated"> = signal("loading");
     private lastTimeStamp: Date | null = null;
 
-    constructor(
-        protected router: Router,
-        private websocket: Websocket,
-        private routeService: RouteService,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
         if (!localStorage.getItem("AppState")) {
             console.log(`${AppStateTracker.LOG_PREFIX} Log deactivated`);
         }

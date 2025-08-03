@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Directive, Input, OnChanges, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -15,6 +15,14 @@ import { Filter } from "../shared/filter";
 
 @Directive()
 export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
+    protected websocket = inject<Websocket>(Websocket);
+    protected route = inject<ActivatedRoute>(ActivatedRoute);
+    protected service = inject<Service>(Service);
+    protected modalCtrl = inject<ModalController>(ModalController);
+    protected translate = inject<TranslateService>(TranslateService);
+    formBuilder = inject<FormBuilder>(FormBuilder);
+    private ref = inject(ChangeDetectorRef);
+
 
     /** FormGroup */
     @Input({ required: true }) public formGroup!: FormGroup;
@@ -66,15 +74,12 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** Selector needed for Subscribe (Identifier) */
     private selector: string = uuidv4();
 
-    constructor(
-        @Inject(Websocket) protected websocket: Websocket,
-        @Inject(ActivatedRoute) protected route: ActivatedRoute,
-        @Inject(Service) protected service: Service,
-        @Inject(ModalController) protected modalCtrl: ModalController,
-        @Inject(TranslateService) protected translate: TranslateService,
-        @Inject(FormBuilder) public formBuilder: FormBuilder,
-        private ref: ChangeDetectorRef,
-    ) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const ref = this.ref;
+
         ref.detach();
         setInterval(() => {
             this.ref.detectChanges(); // manually trigger change detection

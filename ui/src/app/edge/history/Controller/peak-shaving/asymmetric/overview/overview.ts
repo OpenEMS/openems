@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+
 import { Component, LOCALE_ID } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -15,15 +15,14 @@ import { ChartComponent } from "../chart/chart";
     templateUrl: "./overview.html",
     standalone: true,
     imports: [
-        ReactiveFormsModule,
-        CommonModule,
-        IonicModule,
-        TranslateModule,
-        ChartComponentsModule,
-        PickdateComponentModule,
-        HistoryDataErrorModule,
-        ChartComponent,
-    ],
+    ReactiveFormsModule,
+    IonicModule,
+    TranslateModule,
+    ChartComponentsModule,
+    PickdateComponentModule,
+    HistoryDataErrorModule,
+    ChartComponent
+],
     providers: [
         { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
     ],

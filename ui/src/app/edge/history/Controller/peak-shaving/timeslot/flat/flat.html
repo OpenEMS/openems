@@ -1,4 +1,6 @@
-<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" button
-  routerLink="/device/{{edge.id}}/history/{{componentId}}/timeslotpeakshavingchart"
-  [icon]="{name:'trending-down-outline', color: 'normal', size: 'large'}">
-</oe-flat-widget>
+@if (isInitialized) {
+  <oe-flat-widget [title]="component.alias" button
+    routerLink="/device/{{edge.id}}/history/{{componentId}}/timeslotpeakshavingchart"
+    [icon]="{name:'trending-down-outline', color: 'normal', size: 'large'}">
+  </oe-flat-widget>
+}

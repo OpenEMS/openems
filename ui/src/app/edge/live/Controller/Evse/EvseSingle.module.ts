@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from "@angular/common";
-import { NgModule } from "@angular/core";
+import { NgModule, inject } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import tr from "src/app/edge/live/Controller/Evse/shared/translation.json";
@@ -44,8 +44,15 @@ import { EvseSettingsComponent } from "./pages/settings/settings";
   ],
 })
 export class ControllerEvseSingle {
+  private translate = inject(TranslateService);
 
-  constructor(private translate: TranslateService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() {
+    const translate = this.translate;
+
     Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
       translate.setTranslation(lang, translations, shouldMerge);
     });

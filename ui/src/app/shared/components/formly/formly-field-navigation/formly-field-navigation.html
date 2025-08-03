@@ -1,58 +1,65 @@
-<oe-navigation-view [formGroup]="form" [component]="props.options[0].component"
-    *ngIf="props && props.options[0].component" (emitForm)="setForm($event)">
+@if (props && props.options[0].component) {
+  <oe-navigation-view [formGroup]="form" [component]="props.options[0].component"
+    (emitForm)="setForm($event)">
     <ngx-spinner name="formly-field-modal"></ngx-spinner>
-    <ng-container *ngFor="let entry of props.options">
-        <ng-container *ngFor="let line of entry.lines">
-            <ng-container [ngSwitch]="line.type">
-
-                <!-- OeFormlyField.ChannelLine -->
-                <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
-                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
-                    [converter]="line.converter">
-                </oe-modal-line>
-
-                <!-- OeFormlyField.ChildrenLine -->
-                <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
-                    [textIndent]="line.indentation ?? '0%'" [name]="line.name">
-                    <ng-container *ngFor="let lineItem of line.children">
-                        <!-- OeFormlyField.Item -->
-                        <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
-                            [converter]="lineItem.converter">
-                        </oe-modal-line-item>
-                    </ng-container>
-                </oe-modal-line>
-
-                <!-- OeFormlyField.InfoLine -->
-                <oe-modal-info-line *ngSwitchCase="'info-line'" [info]="line.name">
-                </oe-modal-info-line>
-
-                <!-- OeFormlyField.HorizontalLine -->
-                <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
-
-                <oe-modal-value-line *ngSwitchCase="'value-from-channels-line'"
-                    [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'"
-                    [valueCallback]="line.value" [filter]="line.filter" [name]="line.name"></oe-modal-value-line>
-
-                <!-- FormGrouped -->
-                <ng-container *ngSwitchCase="'value-from-form-control-line'">
-                    <oe-modal-line [controlName]="line.controlName" [formGroup]="form" [name]="line.name"
-                        [control]="{type: 'TEXT', valueConverter: line.converter}">
-                    </oe-modal-line>
-                </ng-container>
-
-                <ng-container *ngSwitchCase="'buttons-from-form-control-line'">
-                    <oe-modal-buttons *ngIf="form.controls[line.controlName] !== null" [formGroup]="form"
-                        [controlName]="line.controlName" [component]="component" [buttons]="line.buttons"
-                        [channelAddress]="line.channel?.toString() ?? null">
-                    </oe-modal-buttons>
-                </ng-container>
-
-                <!-- OeFormlyField.RangeButtonFromFormControlLine -->
-                <oe-modal-line *ngSwitchCase="'range-button-from-form-control-line'" [controlName]="line.controlName"
-                    [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
-                </oe-modal-line>
-
-            </ng-container>
-        </ng-container>
-    </ng-container>
-</oe-navigation-view>
+    @for (entry of props.options; track entry) {
+      @for (line of entry.lines; track line) {
+        @switch (line.type) {
+          <!-- OeFormlyField.ChannelLine -->
+          @case ('channel-line') {
+            <oe-modal-line [filter]="line.filter"
+              [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
+              [converter]="line.converter">
+            </oe-modal-line>
+          }
+          <!-- OeFormlyField.ChildrenLine -->
+          @case ('children-line') {
+            <oe-modal-line [filter]="line.filter"
+              [textIndent]="line.indentation ?? '0%'" [name]="line.name">
+              @for (lineItem of line.children; track lineItem) {
+                <!-- OeFormlyField.Item -->
+                <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
+                  [converter]="lineItem.converter">
+                </oe-modal-line-item>
+              }
+            </oe-modal-line>
+          }
+          <!-- OeFormlyField.InfoLine -->
+          @case ('info-line') {
+            <oe-modal-info-line [info]="line.name">
+            </oe-modal-info-line>
+          }
+          <!-- OeFormlyField.HorizontalLine -->
+          @case ('horizontal-line') {
+            <oe-modal-horizontal-line></oe-modal-horizontal-line>
+          }
+          @case ('value-from-channels-line') {
+            <oe-modal-value-line
+              [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'"
+            [valueCallback]="line.value" [filter]="line.filter" [name]="line.name"></oe-modal-value-line>
+          }
+          <!-- FormGrouped -->
+          @case ('value-from-form-control-line') {
+            <oe-modal-line [controlName]="line.controlName" [formGroup]="form" [name]="line.name"
+              [control]="{type: 'TEXT', valueConverter: line.converter}">
+            </oe-modal-line>
+          }
+          @case ('buttons-from-form-control-line') {
+            @if (form.controls[line.controlName] !== null) {
+              <oe-modal-buttons [formGroup]="form"
+                [controlName]="line.controlName" [component]="component" [buttons]="line.buttons"
+                [channelAddress]="line.channel?.toString() ?? null">
+              </oe-modal-buttons>
+            }
+          }
+          <!-- OeFormlyField.RangeButtonFromFormControlLine -->
+          @case ('range-button-from-form-control-line') {
+            <oe-modal-line [controlName]="line.controlName"
+              [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
+            </oe-modal-line>
+          }
+        }
+      }
+    }
+  </oe-navigation-view>
+}
