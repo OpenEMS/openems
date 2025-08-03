@@ -1,0 +1,7 @@
+= Heatingelement MyPv
+
+Implements a MyPv heating element.
+
+See https://www.my-pv.com/de/
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heat.mypv[Source Code icon:github[]]

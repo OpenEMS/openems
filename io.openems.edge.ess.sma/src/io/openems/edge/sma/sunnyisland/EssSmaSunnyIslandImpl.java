@@ -36,15 +36,15 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.sma.enums.PowerSupplyStatus;
 import io.openems.edge.sma.enums.SetControlMode;
@@ -98,25 +98,18 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		}
 
 		// Evaluate 'SinglePhase'
-		switch (config.phase()) {
-		case ALL:
-			this.singlePhase = null;
-			break;
-		case L1:
-			this.singlePhase = SinglePhase.L1;
-			break;
-		case L2:
-			this.singlePhase = SinglePhase.L2;
-			break;
-		case L3:
-			this.singlePhase = SinglePhase.L3;
-			break;
-		}
+		this.singlePhase = switch (config.phase()) {
+		case ALL -> null;
+		case L1 -> SinglePhase.L1;
+		case L2 -> SinglePhase.L2;
+		case L3 -> SinglePhase.L3;
+		};
 
 		if (this.singlePhase != null) {
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
 		}
 
+		this._setCapacity(Math.max(0, config.capacity()));
 		this._setGridMode(GridMode.ON_GRID);
 	}
 
@@ -144,7 +137,11 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
-		if (this.config.phase() == Phase.ALL) {
+		if (this.config.readOnlyMode()) {
+			return;
+		}
+
+		if (this.config.phase() == SingleOrAllPhase.ALL) {
 			return;
 		}
 
@@ -178,7 +175,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 									}
 									int value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
 									// Evaluate symmetric/single-phase mode
-									if (this.config.phase() == Phase.ALL) {
+									if (this.config.phase() == SingleOrAllPhase.ALL) {
 										// assuming 3 phases are done by Master/Slave
 										return 3 * value;
 

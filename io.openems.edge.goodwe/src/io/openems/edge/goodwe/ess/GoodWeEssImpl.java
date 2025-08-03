@@ -168,15 +168,17 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public Integer getSurplusPower() {
-		// TODO logic is insufficient
-		if (this.getSoc().orElse(0) < 99) {
-			return null;
-		}
 		var productionPower = this.calculatePvProduction();
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
-		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
+		// Surplus power is the PV production that cannot be fed into the battery. "+" because
+		// allowed charge power is always negative by convention
+		var surplus = productionPower + this.getAllowedChargePower().orElse(0);
+		if (surplus < 0) {
+			return null;
+		}
+		return surplus;
 	}
 
 	@Override

@@ -5,8 +5,8 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()

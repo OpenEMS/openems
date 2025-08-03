@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, Currency, CurrentData, EdgeConfig } from "src/app/shared/shared";
-import { Controller_Ess_TimeOfUseTariffUtils } from "../Ess_TimeOfUseTariff";
+import { Controller_Ess_TimeOfUseTariffUtils } from "../utils";
 
 @Component({
     templateUrl: "./modal.html",

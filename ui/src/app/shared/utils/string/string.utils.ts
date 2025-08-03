@@ -1,4 +1,3 @@
-
 export namespace StringUtils {
 
     export const INVALID_STRING = "Passed value is not of type string";

@@ -99,10 +99,9 @@ public class PredictorLstmImpl extends AbstractPredictor
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), //
-				new String[] { config.channelAddress() }, config.logVerbosity());
-
 		var channelAddress = ChannelAddress.fromString(config.channelAddress());
+		super.activate(context, config.id(), config.alias(), config.enabled(), //
+				config.logVerbosity(), channelAddress);
 		this.channelForPrediction = channelAddress;
 
 		/*

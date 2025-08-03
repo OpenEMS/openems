@@ -857,7 +857,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			endpoint.setDescription("""
 					Deletes a AppInstance.
 					""".stripIndent()) //
-					.setGuards(EdgeGuards.roleIsAtleast(Role.INSTALLER));
+					.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
 
 		}, call -> this.handleDeleteAppInstanceRequest(call.get(EdgeKeys.USER_KEY), call.getRequest()));
 
@@ -971,9 +971,17 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			requestProperties.add(entry.getKey(), entry.getValue());
 		}
 
+		final var mappedRequestProperties = new JsonObject();
+
+		// change keys to keys of app properties for updateInstance Method!
+		for (var entry : requestProperties.entrySet()) {
+			final var mappedKey = app.mapPropName(entry.getKey(), request.componentId(), appInstance);
+			mappedRequestProperties.add(mappedKey, entry.getValue());
+		}
+
 		// build UpdateAppInstance Request and pass the request to the
 		// handleUpdateAppInstanceRequest Method
-		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, requestProperties);
+		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, mappedRequestProperties);
 		this.handleUpdateAppInstanceRequest(user, req);
 	}
 

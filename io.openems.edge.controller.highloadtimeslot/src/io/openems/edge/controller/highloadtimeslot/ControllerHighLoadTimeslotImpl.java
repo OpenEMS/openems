@@ -1,5 +1,10 @@
 package io.openems.edge.controller.highloadtimeslot;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,9 +28,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -127,7 +129,7 @@ public class ControllerHighLoadTimeslotImpl extends AbstractOpenemsComponent
 			 * charge with configured charge-power
 			 */
 			this.logInfo(this.log, "Outside High-Load timeslot. Charge with [" + this.chargePower + "]");
-			var minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+			var minPower = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 			if (minPower >= 0) {
 				this.logInfo(this.log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
 				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
@@ -230,16 +232,14 @@ public class ControllerHighLoadTimeslotImpl extends AbstractOpenemsComponent
 	 */
 	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower
-		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-				activePower);
+		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, ACTIVE, activePower);
 		if (calculatedPower != activePower) {
 			this.logInfo(this.log, "- Applying [" + calculatedPower + " W] instead of [" + activePower + "] W");
 		}
 
 		// set result
-		ess.addPowerConstraintAndValidate("HighLoadTimeslot P", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				calculatedPower); //
-		ess.addPowerConstraintAndValidate("HighLoadTimeslot Q", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0);
+		ess.addPowerConstraintAndValidate("HighLoadTimeslot P", ALL, ACTIVE, EQUALS, calculatedPower); //
+		ess.addPowerConstraintAndValidate("HighLoadTimeslot Q", ALL, REACTIVE, EQUALS, 0);
 	}
 
 }

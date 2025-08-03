@@ -2,10 +2,11 @@
 import { ChangeDetectorRef, Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { ModalController, PopoverController } from "@ionic/angular";
+import { IonRange, ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
@@ -39,9 +40,10 @@ export class ModalComponent extends AbstractModal {
   protected isEnergySinceBeginningAllowed: boolean = false;
   protected isChargingEnabled: boolean = false;
   protected sessionLimit: number;
-  protected helpKey: string;
   protected awaitingHysteresis: boolean;
   protected isReadWrite: boolean = true;
+
+  protected readonly useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
 
   constructor(
     @Inject(Websocket) protected override websocket: Websocket,
@@ -62,20 +64,10 @@ export class ModalComponent extends AbstractModal {
     }, 0);
   }
 
-  public static getHelpKey(factoryId: string): string {
-    switch (factoryId) {
-      case "Evcs.Keba.KeContact":
-        return "EVCS_KEBA_KECONTACT";
-      case "Evcs.HardyBarth":
-        return "EVCS_KEBA_KECONTACT";
-      case "Evcs.IesKeywattSingle":
-        return "EVCS_OCPP_IESKEYWATTSINGLE";
-      default:
-        return null;
-    }
-  }
+  protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.TO_KILO_WATT_HOURS(val);
+  protected readonly WATT_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.POWER_IN_WATT(val);
 
-  async presentPopover() {
+  protected async presentPopover() {
     const popover = await this.popoverctrl.create({
       component: PopoverComponent,
       componentProps: {
@@ -85,7 +77,7 @@ export class ModalComponent extends AbstractModal {
     return await popover.present();
   }
 
-  async presentModal() {
+  protected async presentModal() {
     const modal = await this.detailViewController.create({
       component: AdministrationComponent,
       componentProps: {
@@ -105,7 +97,6 @@ export class ModalComponent extends AbstractModal {
       .find(element => "evcs.id" in element.properties && element.properties["evcs.id"] == this.component.id);
 
     this.evcsComponent = this.config.getComponent(this.component.id);
-    this.helpKey = ModalComponent.getHelpKey(this.evcsComponent?.factoryId);
 
     return [
       // channels for modal component, subscribe here for better UX
@@ -129,7 +120,7 @@ export class ModalComponent extends AbstractModal {
   protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
     this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
-    this.isReadWrite = !this.component.properties["readOnly"];
+    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);

@@ -9,6 +9,9 @@ const baseConfig: CapacitorConfig = {
     androidScheme: 'https',
     iosScheme: 'https',
   },
+  android: {
+    adjustMarginsForEdgeToEdge: 'auto'
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1000,
