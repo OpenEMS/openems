@@ -4,6 +4,9 @@ import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInter
 import static io.openems.edge.bridge.modbus.api.ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.junit.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -24,9 +27,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 
 public class BridgeModbusTcpImplTest {
 
@@ -102,7 +102,7 @@ public class BridgeModbusTcpImplTest {
 	@Test
 	public void testTriggerLogIllegalArgumentException() throws Exception {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);
-		var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		var port = findRandomOpenPortOnAllLocalInterfaces();
 		ModbusSlave slave = null;
 		PrintStream originalOut = System.out;
 		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -113,7 +113,8 @@ public class BridgeModbusTcpImplTest {
 			slave = ModbusSlaveFactory.createTCPSlave(port, 1);
 			var processImage = new SimpleProcessImage(UNIT_ID);
 			Register register100 = new SimpleRegister(123);
-			Register register101 = new SimpleRegister(Integer.MAX_VALUE); // this will cause the IllegalArgumentException
+			// This will cause an IllegalArgumentException
+			Register register101 = new SimpleRegister(Integer.MAX_VALUE);
 			processImage.addRegister(100, register100);
 			processImage.addRegister(101, register101);
 			slave.addProcessImage(UNIT_ID, processImage);
@@ -132,9 +133,9 @@ public class BridgeModbusTcpImplTest {
 							.setLogVerbosity(LogVerbosity.NONE) //
 							.build());
 			test.addComponent(new MyModbusComponent("device0", sut, UNIT_ID));
-				test //
-						.next(new TestCase() //
-								.onAfterProcessImage(sleep)); //
+			test //
+					.next(new TestCase() //
+							.onAfterProcessImage(sleep)); //
 			assertTrue(outContent.toString().contains("IllegalArgumentException"));
 
 		} finally {
@@ -156,6 +157,7 @@ public class BridgeModbusTcpImplTest {
 			REGISTER_100(Doc.of(OpenemsType.INTEGER)), //
 			REGISTER_101(Doc.of(OpenemsType.SHORT)), //
 			;
+
 			private final Doc doc;
 
 			private ChannelId(Doc doc) {
