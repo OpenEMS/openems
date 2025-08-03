@@ -1,6 +1,7 @@
 import { formatNumber } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 
 import { AbstractModalLine } from "../abstract-modal-line";
 import { TextIndentation } from "../modal-line/modal-line";
@@ -9,6 +10,7 @@ import { TextIndentation } from "../modal-line/modal-line";
   /** If multiple items in line use this */
   selector: "oe-modal-meter-phases",
   templateUrl: "./modal-phases.html",
+  standalone: false,
 })
 export class ModalPhasesComponent extends AbstractModalLine {
 
@@ -46,8 +48,8 @@ export class ModalPhasesComponent extends AbstractModalLine {
    * @returns converted value
    */
   protected CONVERT_TO_POSITIVE_WATT = (value: number | null): string => {
-
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     value = Utils.absSafely(value) ?? 0;
-    return formatNumber(value, "de", "1.0-0") + " W";
+    return formatNumber(value, locale, "1.0-0") + " W";
   };
 }

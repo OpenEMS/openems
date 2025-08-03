@@ -2,8 +2,8 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { YAxisType } from "src/app/shared/service/utils";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { YAxisType } from "src/app/shared/utils/utils";
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
@@ -11,6 +11,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "delayedselltogridgchart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 

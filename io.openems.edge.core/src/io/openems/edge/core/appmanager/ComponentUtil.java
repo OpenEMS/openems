@@ -104,6 +104,14 @@ public interface ComponentUtil {
 	public List<NetworkInterface<?>> getInterfaces() throws OpenemsNamedException;
 
 	/**
+	 * Gets all components, that have the given String in its configuration.
+	 * @param value the String that should be looking in the configurations
+	 * @param ignoreIds the id's of the components which configuration should be ignored
+	 * @return a list of {@link OpenemsComponent} with the given String in its configuration
+	 */
+	public List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds);
+
+	/**
 	 * Checks if any component has the given String in its configuration.
 	 *
 	 * @param value     that no component should have

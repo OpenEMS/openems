@@ -5,7 +5,6 @@ import java.time.Clock;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
@@ -36,9 +35,9 @@ public record GlobalContextV1(//
 		}
 
 		/**
-		 * The {@link EnergyScheduleHandler} of the {@link TimeOfUseTariffController}.
+		 * The {@link EnergyScheduleHandlerV1} of the {@link TimeOfUseTariffController}.
 		 * 
-		 * @param energyScheduleHandler the {@link EnergyScheduleHandler}
+		 * @param energyScheduleHandler the {@link EnergyScheduleHandlerV1}
 		 * @return myself
 		 */
 		public Builder setEnergyScheduleHandler(EnergyScheduleHandlerV1 energyScheduleHandler) {

@@ -40,7 +40,9 @@
                         <ion-grid>
                             <ion-row class="ion-justify-content-center">
                                 <ion-col>
-                                    <ion-searchbar [(ngModel)]="query" (ionChange)="searchOnChange()">
+                                    <ion-searchbar mode="md"
+                                        style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
+                                        [(ngModel)]="query" (ionInput)="searchOnChange()" [debounce]="1000">
                                     </ion-searchbar>
                                 </ion-col>
                             </ion-row>
@@ -48,13 +50,15 @@
                             <!-- Filter -->
                             <ng-container *ngIf="(service.metadata | async)?.user as user">
                                 <oe-filter (setSearchParams)="searchOnChange($event)"
-                                    *ngIf="user.globalRole === 'admin'"></oe-filter>
+                                    *ngIf="isAtLeastInstaller"></oe-filter>
                             </ng-container>
 
                             <ion-row class="ion-justify-content-center">
                                 <ion-col>
                                     <ion-list lines="full">
-                                        <ion-spinner *ngIf="loading" [name]="'crescent'"></ion-spinner>
+                                        <ion-item *ngIf="loading" lines="none">
+                                            <ion-spinner [name]="'crescent'"></ion-spinner>
+                                        </ion-item>
 
                                         <ng-container *ngFor="let edge of filteredEdges; let i=index">
                                             <ion-item lines="inset" [routerLink]="['/device', edge.id]"
@@ -72,13 +76,13 @@
                                                 </ion-label>
                                                 <ion-label>
                                                     <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
-                                                        <p>ID: {{ edge.id }}</p>
-                                                        <p class="ion-text-wrap">
+                                                        <p class="custom-theme-text">ID: {{ edge.id }}</p>
+                                                        <p class="ion-text-wrap" class="custom-theme-text">
                                                             <ion-text translate>Index.TYPE</ion-text>: {{
                                                             edge.producttype }}
                                                         </p>
                                                     </ng-container>
-                                                    <p class="ion-text-wrap">
+                                                    <p class="ion-text-wrap" class="custom-theme-text">
                                                         <ion-text translate>Index.LOGGED_IN_AS</ion-text>: {{
                                                         edge.getRoleString() }}
                                                     </p>
@@ -88,7 +92,8 @@
                                         </ng-container>
                                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
                                             [disabled]="limitReached">
-                                            <ion-infinite-scroll-content [name]="'crescent'" ngClass="custom-spinner">
+                                            <ion-infinite-scroll-content [loadingSpinner]="'crescent'"
+                                                ngClass="custom-spinner">
                                             </ion-infinite-scroll-content>
                                         </ion-infinite-scroll>
 
@@ -101,7 +106,7 @@
 
                 <!-- Add-Button for desktop devices -->
                 <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
-                    *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
+                    testId="ibn-button" *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
                     <ion-fab-button size="large">
                         <ion-icon name="add-outline"></ion-icon>
                     </ion-fab-button>
@@ -113,7 +118,7 @@
                 </ion-fab>
 
                 <!-- Add-Button for mobile devices -->
-                <ion-fab style="position: fixed;" horizontal="end" vertical="bottom"
+                <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" testId="ibn-button"
                     *ngIf="loggedInUserCanInstall && this.service.isSmartphoneResolution">
                     <ion-fab-button size="small">
                         <ion-icon name="add-outline"></ion-icon>

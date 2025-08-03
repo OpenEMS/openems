@@ -3,7 +3,7 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Icon } from "src/app/shared/type/widget";
 import { CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
@@ -37,6 +37,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
             transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
+    standalone: false,
 })
 export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -54,7 +55,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super("General.grid", "left", "#1d1d1d", translate, service, "Grid");
+        super("General.grid", "left", "var(--ion-color-dark)", translate, service, "Grid");
         this.unitpipe = unitpipe;
     }
 

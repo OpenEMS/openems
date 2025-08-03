@@ -1,6 +1,8 @@
 // @ts-strict-ignore
 import { DecimalPipe } from "@angular/common";
 
+import { TranslateService } from "@ngx-translate/core";
+import { Utils } from "../../shared";
 import { Language } from "../../type/language";
 
 export class TimeUtils {
@@ -53,5 +55,19 @@ export class TimeUtils {
     } else {
       return decimalPipe.transform(seconds, "1.0-0") + " s";
     }
+  }
+
+  public static getDaysFromMilliSeconds(ms: number) {
+    return Utils.floorSafely(Utils.divideSafely(ms, 24 * 60 * 60 * 1000));
+  }
+  public static getHoursFromMilliSeconds(ms: number) {
+    return Utils.floorSafely(Utils.divideSafely(ms, 60 * 60 * 1000));
+  }
+  public static getMinutesFromMilliSeconds(ms: number) {
+    return Utils.roundSafely(Utils.divideSafely(ms, 60 * 1000));
+  }
+
+  public static getDurationText(ms: number, translate: TranslateService, singular: string, plural: string) {
+    return `${ms} ${translate.instant(ms > 1 ? plural : singular)}`;
   }
 }

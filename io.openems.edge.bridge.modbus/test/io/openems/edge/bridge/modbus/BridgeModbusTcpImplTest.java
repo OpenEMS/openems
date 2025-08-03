@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus;
 
+import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInterfaces;
 import static io.openems.edge.bridge.modbus.api.ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED;
 import static org.junit.Assert.assertTrue;
 
@@ -23,7 +24,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.TestUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -37,7 +37,7 @@ public class BridgeModbusTcpImplTest {
 	public void test() throws Exception {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);
 
-		var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		var port = findRandomOpenPortOnAllLocalInterfaces();
 		ModbusSlave slave = null;
 		try {
 			/*
@@ -89,6 +89,8 @@ public class BridgeModbusTcpImplTest {
 							.onAfterProcessImage(sleep) //
 							.output("device0", MyModbusComponent.ChannelId.REGISTER_100, null) //
 							.output("device0", MODBUS_COMMUNICATION_FAILED, false)); //
+
+			test.deactivate();
 
 		} finally {
 			if (slave != null) {

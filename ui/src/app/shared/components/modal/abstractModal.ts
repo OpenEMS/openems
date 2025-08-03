@@ -54,8 +54,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
-        this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.edge.unsubscribeFromChannels(this.websocket, this.getChannelAddresses());
         this.subscription.unsubscribe();
 
         // Unsubscribe from CurrentData subject
@@ -65,11 +64,13 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     public ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
-            this.service.getConfig().then(config => {
+            this.service.getConfig().then(async config => {
 
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
+
+                await this.updateComponent(config);
 
                 // If component is passed
                 let channelAddresses: ChannelAddress[] = [];
@@ -77,7 +78,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 // get the channel addresses that should be subscribed
                 channelAddresses = this.getChannelAddresses();
                 if (this.component != null) {
-                    this.component = config.components[this.component.id];
+                    this.component = EdgeConfig.Component.of(config.components[this.component.id]);
 
                     const channelIds = this.getChannelIds();
                     for (const channelId of channelIds) {
@@ -106,6 +107,11 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
             });
         });
     }
+
+    protected updateComponent(config: EdgeConfig) {
+        return;
+    }
+
     protected onIsInitialized() { }
 
     /**

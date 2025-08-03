@@ -3,20 +3,23 @@ package io.openems.edge.io.shelly.shellyplus1pm;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -34,10 +37,9 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -47,11 +49,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "IO.Shelly.Plus1PM", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoShellyPlus1Pm, DigitalOutput,
 		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
@@ -68,10 +70,10 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 	private SinglePhase phase = null;
 	private String baseUrl;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(cardinality = MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
 
@@ -123,7 +125,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
+		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
 	}
 
 	@Override
@@ -133,10 +135,8 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-			-> this.calculateEnergy();
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-			-> this.executeWrite(this.getRelayChannel(), 0);
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		case TOPIC_CYCLE_EXECUTE_WRITE -> this.executeWrite(this.getRelayChannel(), 0);
 		}
 	}
 
@@ -237,5 +237,4 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-
 }

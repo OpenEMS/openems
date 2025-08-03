@@ -1,6 +1,13 @@
 package io.openems.edge.timeofusetariff.rabotcharge;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
+import static io.openems.edge.timeofusetariff.rabotcharge.TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_API_URL;
+import static io.openems.edge.timeofusetariff.rabotcharge.TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_PRIZE_COMPONENT_URL;
+import static io.openems.edge.timeofusetariff.rabotcharge.TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_TOKEN_URL;
 import static io.openems.edge.timeofusetariff.rabotcharge.TimeOfUseTariffRabotChargeImpl.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -15,7 +22,6 @@ import io.openems.common.types.HttpStatus;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -95,21 +101,20 @@ public class TimeOfUseTariffRabotChargeImplTest {
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 
-		final var endpointFetcher = DummyBridgeHttpFactory.dummyEndpointFetcher();
+		final var endpointFetcher = dummyEndpointFetcher();
 		endpointFetcher.addEndpointHandler(endpoint -> {
 
-			if (endpoint.url().equals(TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_TOKEN_URL.toEncodedString())) {
+			if (endpoint.url().equals(RABOT_CHARGE_TOKEN_URL.toEncodedString())) {
 				return HttpResponse.ok(JsonUtils.buildJsonObject() //
 						.addProperty("access_token", "FJAWognawn") //
 						.build().toString());
 			}
 
-			if (endpoint.url().equals(TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_API_URL.toEncodedString())) {
+			if (endpoint.url().equals(RABOT_CHARGE_API_URL.toEncodedString())) {
 				return HttpResponse.ok(DUMMY_PRICES);
 			}
 
-			if (endpoint.url()
-					.startsWith(TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_PRIZE_COMPONENT_URL.toEncodedString())) {
+			if (endpoint.url().startsWith(RABOT_CHARGE_PRIZE_COMPONENT_URL.toEncodedString())) {
 				return HttpResponse.ok(JsonUtils.buildJsonObject() //
 						.addProperty("taxAndFeeKwHPrice", 3.44) //
 						.addProperty("gridFeeKwHPrice", 7.89) //
@@ -120,10 +125,10 @@ public class TimeOfUseTariffRabotChargeImplTest {
 			throw HttpError.ResponseError.notFound();
 		});
 
-		final var executor = DummyBridgeHttpFactory.dummyBridgeHttpExecutor();
+		final var executor = dummyBridgeHttpExecutor();
 
-		final var factory = DummyBridgeHttpFactory.ofBridgeImpl(//
-				() -> DummyBridgeHttpFactory.cycleSubscriber(), //
+		final var factory = ofBridgeImpl(//
+				() -> cycleSubscriber(), //
 				() -> endpointFetcher, //
 				() -> executor //
 		);
@@ -159,7 +164,7 @@ public class TimeOfUseTariffRabotChargeImplTest {
 		assertFalse(prices.isEmpty());
 
 		// To check if a value is present in map.
-		assertEquals(214.2929, prices.getFirst(), 0.001);
+		assertEquals(164.666, prices.getFirst(), 0.001);
 	}
 
 	@Test

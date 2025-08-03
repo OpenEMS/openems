@@ -4,14 +4,16 @@ import { TranslateService } from "@ngx-translate/core";
 import { BoxAnnotationOptions } from "chartjs-plugin-annotation";
 import { GridSectionComponent } from "src/app/edge/live/energymonitor/chart/section/grid.component";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAnnotationState } from "src/app/shared/type/general";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "gridchart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -99,7 +101,7 @@ export class ChartComponent extends AbstractHistoryChart {
             name: translate.instant("General.gridSellAdvanced"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data["_sum/GridSellActiveEnergy"] ?? null,
             converter: () => data["GridSell"],
-            color: "rgba(0,0,200)",
+            color: ChartConstants.Colors.PURPLE,
             stack: 1,
           },
           {
@@ -108,7 +110,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null;
             },
             converter: () => data["GridBuy"],
-            color: "rgb(0,0,0)",
+            color: ChartConstants.Colors.BLUE_GREY,
             stack: 0,
           },
           offGridData ? ({

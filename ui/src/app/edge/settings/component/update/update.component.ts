@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/
 @Component({
   selector: ComponentUpdateComponent.SELECTOR,
   templateUrl: "./update.component.html",
+  standalone: false,
 })
 export class ComponentUpdateComponent implements OnInit {
 
@@ -36,7 +37,7 @@ export class ComponentUpdateComponent implements OnInit {
     const config = await this.service.getConfig();
     this.componentId = componentId;
     const component = config.components[componentId];
-    this.componentIcon = config.getFactoryIcon(this.factory);
+    this.componentIcon = config.getFactoryIcon(this.factory, this.service.translate);
     const fields: FormlyFieldConfig[] = [];
     const model = {};
 

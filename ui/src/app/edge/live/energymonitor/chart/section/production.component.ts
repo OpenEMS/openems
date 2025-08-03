@@ -3,8 +3,8 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
-import { DefaultTypes } from "../../../../../shared/service/defaulttypes";
 import { Service, Utils } from "../../../../../shared/shared";
+import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
 @Component({
@@ -24,6 +24,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
             transition("hide => show", animate("0ms ease-in")),
         ]),
     ],
+    standalone: false,
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -38,7 +39,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super("General.production", "up", "#36aed1", translate, service, "Common_Production");
+        super("General.production", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
     }
 

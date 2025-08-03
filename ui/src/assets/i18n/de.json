@@ -1,6 +1,9 @@
 {
   "About": {
-    "build": "Dieser Build",
+    "DESCRIPTION": "Dieses Energiemanagementsystem basiert auf OpenEMS, dem Open Source Energy Management System. OpenEMS ist eine modulare Plattform zur Überwachung und Steuerung von Energiesystemen. Die Entwicklung wird von der OpenEMS Association e.V. koordiniert.",
+    "CONTACT": "Für Fragen oder Anregungen nutzen Sie bitte das <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community-Forum</a>.",
+    "BUILD": "Dieser Build",
+    "ENERGY_MANAGEMENT": "Energiemanagementsystem",
     "currentDevelopments": "Aktuelle Entwicklungen",
     "developed": "Diese Benutzeroberfläche wird als Open-Source-Software entwickelt.",
     "faq": "Häufig gestellte Fragen (FAQ)",
@@ -70,6 +73,7 @@
           "peakshavingPower": "Entladung über",
           "recharge": "Beladeleistung",
           "rechargePower": "Beladung unter",
+          "hysteresisSoC": "Schwellenwert Ladezustand",
           "relationError": "Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein",
           "startDate": "Start Datum",
           "startTime": "Startzeit",
@@ -167,6 +171,7 @@
           "starting": "Startet",
           "status": "Status",
           "totalCharge": "Gesamte Beladung",
+          "totalDischarge": "Gesamte Entladung",
           "totalChargingPower": "Gesamte Ladeleistung",
           "unknown": "Unbekannt",
           "unplugged": "Ausgesteckt",
@@ -209,13 +214,33 @@
           "activeLevel": "Aktives Level",
           "endtime": "Endzeit",
           "energy": "Energie",
-          "guaranteeMinimumHeating": "Minimale Beheizung garantieren",
+          "guaranteeMinimumHeating": "Minimale Heizdauer garantieren",
           "heatingelement": "Heizelement",
           "minimalEnergyAmount": "Minimale Energiemenge",
           "minimumRunTime": "Mindestlaufzeit",
           "priority": "Priorität",
           "time": "Zeit",
-          "timeCountdown": "Spätester Start"
+          "timeCountdown": "Spätester Start",
+          "GUARANTEE_HEATING": "Minimale Heizenergie garantieren",
+          "MINIMAL_ENERGY_LIMIT": "Minimales Energielimit",
+          "ACTIVED_FORCED_LIMIT": "Aktiv (Zusatzenergie)",
+          "DONE": "Fertig",
+          "UNREACHABLE": "Unerreichbar",
+          "CALIBRATION": "Kalibrierung",
+          "CALIBRATION_DESCRIPTION": "Der Heizstab wird kalibriert, um die Leistung der einzelnen Level des Zählers zu bekommen",
+          "HEATING_POWER": "Heizleistung",
+          "MESSAGE_UNREACHABLE": "Das Energielimit kann nicht in der Zeit erreicht werden",
+          "ENERGY_SINCE_BEGINNING": "Energie seit Beginn"
+        },
+        "HEAT": {
+          "TEMPERATURE": "Wassertemperatur",
+          "TEMPERATURE_UNIT": "Wassertemperatur in °C",
+          "NO_HEATING": "heizt nicht",
+          "HEATING": "heizt",
+          "HEATING_OUTPUT": "Heizleistung",
+          "HEATING_ENERGY": "Heizenergie",
+          "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen Ihres AC-Thor Heizstabes können Sie in der MyPV-App vornehmen.",
+          "TARGET_TEMPERATURE_REACHED": "Zieltemperatur erreicht"
         },
         "HeatPump": {
           "aboveSoc": "und ab Ladezustand von",
@@ -254,11 +279,23 @@
           },
           "OVERALL_SYSTEM": "Gesamtsystem"
         },
-        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller"
+        "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
+        "SCHEDULE": {
+          "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
+        },
+        "STORAGE": {
+          "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
+          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
+        }
       },
       "RETROFITTING": {
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
         "OPTIMAL": "Kapazitätserweiterung",
+        "REFERENCING_OF_STORAGE": {
+          "HEADER": "Bitte beachten Sie vor einer Kapazitätserweiterung eine Referenzierung des Speichers durchzuführen",
+          "CONTENT": "Vor einer Kapazitätserweiterung muss eine Referenzierung des Speichers in den Tagen vor der Kapazitätserweiterung zwingend stattfinden. D.h., dass dieser vollständig entladen (SOC: 0 %) und anschließend vollständig beladen werden muss (SOC: 100 %).",
+          "TO_INSTRUCTIONS": "Link zur Anleitung"
+        },
         "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
         "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
@@ -323,21 +360,27 @@
       "Index": {
         "addComponents": "Komponenten installieren",
         "adjustComponents": "Komponenten konfigurieren",
+        "alerting": "Benachrichtigung",
         "bridge": "Verbindungen und Geräte",
+        "COMMENT": "Kommentar",
+        "CONFIGURATION": "Konfiguration",
         "controller": "Anwendungen",
         "dataStorage": "Datenspeicher",
         "executeSimulator": "Simulationen ausführen",
+        "GENERAL_DATA": "Allgemeine Daten",
         "liveLog": "Live Systemprotokoll",
         "log": "Log",
         "manualControl": "Manuelle Steuerung",
+        "ROLE": "Rolle",
         "renameComponents": "Komponenten umbenennen",
+        "SYSTEM": "System",
         "scheduler": "Anwendungsplaner",
         "simulator": "Simulator",
         "systemExecute": "System-Befehl ausführen",
         "systemProfile": "Anlagenprofil",
-        "alerting": "Benachrichtigung",
+        "PRODUCT_TYPE": "Produkt-Typ",
         "networkConfiguration": "Netzwerkkonfiguration",
-        "SYSTEM": "System"
+        "EXPORT_CHANNELS": "Export-Kanäle"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
@@ -402,6 +445,7 @@
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
+        "DELETE_CONFIRM": "entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
         "errorCompatible": "Kompatibilitäts fehler",
@@ -431,7 +475,12 @@
         "successUpdate": "App erfolgreich aktualisiert",
         "failUpdate": "Fehler während der Aktualisierung: {{error}}",
         "successDelete": "App erfolgreich entfernt",
-        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}"
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
+        "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden.",
+        "technicalName": "Technischer Name",
+        "category": "Kategorie",
+        "cardinality": "Kardinalität"
       }
     },
     "Service": {
@@ -452,7 +501,11 @@
       "addIP": "Statische IP-Adressen hinzufügen",
       "validAddressWarning": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24",
       "advancedMode": "erweiterte Ansicht",
-      "submit": "Anwenden"
+      "submit": "Anwenden",
+      "DHCP": {
+        "INFO": "Die angezeigte IP-Adresse wurde dynamisch über DHCP (Dynamic Host Configuration Protocol) vergeben. Sie ist nicht dauerhaft und kann sich bei einem Neustart des Geräts oder Routers ändern.",
+        "ADDRESS": "DHCP Adresse"
+      }
     },
     "title": "{{ edgeShortName }}",
     "FOOTER": {
@@ -460,9 +513,20 @@
     }
   },
   "General": {
+    "EDIT": "Bearbeiten",
+    "THEME_SELECTION": {
+      "TITLE": "Licht aus, Komfort an!",
+      "DESCRIPTION": "Ab sofort steht dir unser Monitoring im <b>Darkmode</b> zur Verfügung.<hr>Einfach umschalten und loslegen!"
+    },
+    "LIGHT": "Hell",
+    "DARK": "Dunkel",
+    "RESET": "Zurücksetzen",
+    "SAVE": "Speichern",
+    "SYSTEM_THEME": "System",
     "active": "Aktiv",
-    "actualPower": "E-Auto Beladung",
+    "actualPower": "E-Auto-Beladung",
     "ALL": "Alle",
+    "CURRENT_STATUS": "Aktueller Status",
     "apply": "Übernehmen",
     "autarchy": "Autarkie",
     "automatic": "Automatisch",
@@ -480,10 +544,12 @@
     "currentValue": "Aktueller Wert",
     "dateFormat": "dd.MM.yyyy",
     "digitalInputs": "Digitaleingänge",
+    "HEAT_PUMP": "Wärmepumpe",
     "numberOfComponents": "Anzahl der Komponenten",
     "directConsumption": "Direktverbrauch",
     "energyLimit": "Energielimit",
     "fault": "Fehler",
+    "FOR": "für",
     "grid": "Netz",
     "gridBuy": "Netzbezug",
     "gridBuyAdvanced": "Bezug",
@@ -520,9 +586,12 @@
     "selfConsumption": "Eigenverbrauch",
     "soc": "Ladezustand",
     "state": "Zustand",
+    "STATUS": "Status",
     "storageSystem": "Speichersystem",
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
+    "TOTAL_CHARGE": "Gesamte Beladung",
+    "TOTAL_DISCHARGE": "Gesamte Entladung",
     "totalState": "Gesamtstatus",
     "VISIBLE_FOR_ADMINS_ONLY": "Sichtbar nur für Service & Administration",
     "warning": "Warnung",
@@ -557,11 +626,20 @@
       "netherlands": "Niederlande",
       "sweden": "Schweden",
       "switzerland": "Schweiz",
-      "czech": "Tschechische Republik"
+      "czech": "Tschechische Republik",
+      "GREECE": "Griechenland"
     },
     "yes": "Ja",
     "no": "Nein",
     "value": "Wert",
+    "STATE_MACHINE": {
+      "GO_STOPPED": "Stoppt...",
+      "GO_RUNNING": "Startet...",
+      "RUNNING": "Gestartet",
+      "STOPPED": "Gestoppt",
+      "UNDEFINED": "Unbekannt",
+      "ERROR": "Fehler"
+    },
     "SUM_STATE": "Systemzustand",
     "SYSTEM": "System",
     "RESTART": "Neu starten",
@@ -574,7 +652,16 @@
       "DAYS": "Tage"
     },
     "CHARGE": "Beladung",
-    "DISCHARGE": "Entladung"
+    "DISCHARGE": "Entladung",
+    "INSTALL": "Installieren",
+    "FROM": "Von",
+    "TO": "Bis"
+  },
+  "OFFLINE": {
+    "EDGE": {
+      "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart abgeschlossen wurde."
+    }
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
@@ -631,8 +718,9 @@
       "FUNCTION_TEST": "Funktionstest",
       "GRID_METER": "Netzzähler",
       "GRID_OPTIMIZED_CHARGE": "Netzdienliche Beladung",
+      "TIME_OF_USE_TARIFF": "Dynamischer Stromtarif",
       "LEGEND": "Legende",
-      "NOT_YET_CONFIGURED": "noch nicht konfiguriert / ausgeführt",
+      "NOT_YET_CONFIGURED": "noch nicht konfiguriert/ausgeführt",
       "PARTIAL_CONFIGURATION": "Es konnten nicht alle Komponenten richtig konfiguriert werden.",
       "PRE_CONFIGURED": "vorkonfiguriert / Warnung",
       "PROGNOSIS": "Prognose",
@@ -667,7 +755,8 @@
       "TITLE_COMMERCIAL": "Vorsicherung Netzanschlusspunkt / Zählervorsicherung",
       "TITLE_HOME": "Vorsicherung Hausanschlusszähler",
       "VALUE": "Wert [A]",
-      "METER_LABEL": "Netzanschlusspunkt Zählertyp"
+      "METER_LABEL": "Netzanschlusspunkt Zählertyp",
+      "METER": "Zähler"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "Standort",
@@ -694,7 +783,7 @@
       "BOTH_SELECTED_LABEL": "Beide Anschlüsse (\"PV{{ pv1 }}\" und \"PV{{ pv2 }}\") belegt",
       "DEVICE_CONNECTION_CHECKED": "Das Stromspeichersystem ist an das Stromnetz angeschlossen",
       "ENERGY_FLOW_METER": {
-        "LABEL": "Installierter Netzzähler"
+        "LABEL": "Netz"
       }
     },
     "CONFIGURATION_SYSTEM": {
@@ -711,7 +800,8 @@
       "MAX": "Bitte geben Sie einen Wert kleiner als {{ max }} ein.",
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
-      "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt."
+      "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt.",
+      "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat"
     },
     "FORWARD": "weiter",
     "LOAD": "laden...",
@@ -727,6 +817,7 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Typ",
+      "LIMITATION": "Limitierung",
       "CONSTANT_VALUE": "Cos φ Festwert",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamische Begrenzung der Einspeisung aktiviert?",
       "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
@@ -741,9 +832,11 @@
       "QU_ENABLED_CURVE": "Blindleistungs-Spannungskennlinie Q(U)",
       "SHADE_MANAGEMENT_DEACTIVATED": "Schattenmanagement deaktivert",
       "TITLE": "Einspeisemanagement",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
+      "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
-      "NO_LIMITATION": "Kein Einspeisemanagement"
+      "NO_LIMITATION": "Kein Einspeisemanagement",
+      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -804,7 +897,7 @@
       "ENTER_VALID_ADDRESS": "Um die Einstellungen zu übernehmen, geben Sie gültige Werte ein.",
       "ERROR_SENDING": "Fehler beim Versenden des Protokolls.",
       "INVERTER": "Wechselrichter",
-      "NEXT_BUTTON_DESCRIPTION": "Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch an die FENECON GmbH übermittelt.",
+      "NEXT_BUTTON_DESCRIPTION": "Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch versendet.",
       "NUMBER_OF_MODULES_PER_TOWER": "Anzahl Module pro Turm",
       "NUMBER_OF_TOWERS": "Anzahl Türme",
       "READ_DESCRIPTION": "Bitte überprüfen Sie die \"Voreinstellungen\". Bitte lesen Sie die Beschreibung der Felder.",
@@ -825,7 +918,12 @@
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
       "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Netztrennstelle",
-      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein."
+      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein.",
+      "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
+      "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
+      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen.",
+      "DOUBLE_SOCKET_LABEL": "Im Doppelsockel verbaut",
+      "DOUBLE_SOCKET": "Doppelsockel"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -854,13 +952,27 @@
     "CONFIGURATION_ENERGY_FLOW_METER": {
       "TITLE": "Auswahl Energieflussrichtungszähler",
       "METER": {
-        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A (Standardlieferumfang)",
+        "WITH_CT": "Home 3-Phasensensor mit Stromwandler 120 A ({{type}})",
         "WITHOUT_CT": "Home 3-Phasensensor ohne Stromwandler (Optional)",
-        "LABEL": "Zähler"
+        "LABEL": "Zähler",
+        "INTEGRATED": "Integrierter Home 3-Phasensensor mit Stromwandler ({{type}})",
+        "TYPE": {
+          "STANDARD": "Standardlieferumfang",
+          "OPTIONAL": "Optional"
+        }
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
-    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden."
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Weitere Erzeuger können im Anschluss über das App Center konfiguriert werden.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Dimmung nach §14a EnWG",
+      "IS_ACTIVATE": "Möglichkeit der Dimmung nach §14a EnWG aktivieren",
+      "INFO_NOTE": "Um eine Überlastung des Netzes zu vermeiden, erhält der Netzbetreiber bei allen, seit dem 01.01.2024 installierten Verbrauchseinrichtungen, zukünftig die Möglichkeit, diese auf eine Netzbezugsleistung des Stromspeichers von 4,2 kW zu dimmen.",
+      "IS_ACTIVATE_LABEL": "Die Verdrahtung ist entsprechend der Montageanleitung anzubringen."
+    }
+  },
+  "LIVE": {
+    "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
   },
   "LOADING_SCREEN": {
     "LOADING": "Wird geladen",
@@ -889,6 +1001,10 @@
     "overview": "Alle Systeme",
     "settings": "Einstellungen",
     "user": "Benutzer",
+    "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
+    "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
+    "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
+    "DEFAULT_EDGE_LONG_NAME": "Open Energy Management System",
     "changelog": "Changelog",
     "otherUser": "Weitere Benutzer"
   },
@@ -944,8 +1060,30 @@
     "admin": "Administrator"
   },
   "SETTINGS": {
+    "CATEGORY": {
+      "TITLE": {
+        "METER": "Zähler",
+        "SIMULATORS": "Simulatoren",
+        "STORAGE_SYSTEMS": "Speichersysteme",
+        "EXTERNAL_INTERFACES": "Externe Schnittstellen",
+        "STORAGE_SYSTEM_CONTROL": "Speichersystem-Steuerung",
+        "CLOUD_INTERFACES": "Cloud-Schnittstellen",
+        "EV_CHARGING_STATION": "E-Auto-Ladestation",
+        "EV_CHARGING_STATION_CONTROL": "E-Auto-Ladestation-Steuerung",
+        "IOs": "I/Os",
+        "IO-CONTROL": "I/O-Steuerung",
+        "TEMPERATURE_SENSORS": "Temperatursensoren",
+        "DEVICE_INTERFACES": "Geräte-Schnittstellen",
+        "DEDICATED_CONTROLLERS": "Spezial-Controller",
+        "STANDARD_COMPONENTS": "Standard-Komponenten",
+        "OTHERS": "Weitere"
+      }
+    },
     "SYSTEM_UPDATE": {
       "INSTALLED_VERSION": "Installierte Version:",
+      "CREATE_COMPONENT": "Komponente anlegen",
+      "UPDATE_COMPONENT": "Aktualisiere Komponente",
+      "DELETE_COMPONENT": "Lösche Komponente",
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
       "NEW_VERSION_INSTALLING": "Neueste Version installieren",
       "NEW_VERSION": "Neueste Version:",
@@ -1009,5 +1147,29 @@
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "Ist erforderlich",
+      "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente"
+    }
+  },
+  "FORMLY_FORM": {
+    "TARIFF_TABLE": {
+      "TARIFFS": {
+        "LOW": "Niedriglasttarifstufe",
+        "STANDARD": "Standardtarifstufe",
+        "HIGH": "Hochlasttarifstufe"
+      },
+      "GROSS_PREIS_TITLE": "Brutto-Preis für das Jahr {{ year }}*",
+      "ADD_TIME_SLOT": "Zeitfenster hinzufügen",
+      "PRICE_ITEMS": "Preisartikel",
+      "ADD_YEAR": "{{ year }} Jahr hinzufügen",
+      "REMOVE_YEAR": "{{ year }} Jahr entfernen",
+      "TITLE": "{{ year }} Netzentgelte",
+      "ERROR_MESSAGES": {
+        "INVALID_TIME_INPUT": "Die „Bis“-Zeit kann nicht größer oder gleich der „Von“-Zeit sein."
+      }
+    }
   }
 }

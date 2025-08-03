@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -109,7 +111,7 @@ public abstract non-sealed class AbstractTask<//
 	 * 
 	 * @param bridge  the {@link AbstractModbusBridge}
 	 * @param request the typed {@link ModbusRequest}
-	 * @return the typed {@link ModbusResponse}
+	 * @return the typed {@link ModbusResponse}, null if Bridge is stopped
 	 * @throws OpenemsException on error
 	 */
 	protected RESPONSE executeRequest(AbstractModbusBridge bridge, REQUEST request) throws Exception {
@@ -309,8 +311,8 @@ public abstract non-sealed class AbstractTask<//
 				.append(";ref=").append(startAddress).append("/0x").append(Integer.toHexString(startAddress)) //
 				.append(";length=").append(length); //
 		switch (logVerbosity) {
-		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_DURATION_TRACE_EVENTS -> {
-		}
+		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_DURATION_TRACE_EVENTS //
+			-> doNothing();
 		case READS_AND_WRITES_VERBOSE -> {
 			if (request != null) {
 				var hexString = this.payloadToString(request);
@@ -359,13 +361,16 @@ public abstract non-sealed class AbstractTask<//
 	 * @param unitId     the Modbus Unit-ID
 	 * @param clazz      the class of the response
 	 * @param request    the {@link ModbusRequest}
-	 * @return the {@link ModbusResponse}
+	 * @return the {@link ModbusResponse}; null if Bridge is stopped
 	 * @throws Exception on error
 	 */
 	private static <RESPONSE extends ModbusResponse> RESPONSE sendRequest(AbstractModbusBridge bridge, int unitId,
 			Class<RESPONSE> clazz, ModbusRequest request) throws Exception {
 		request.setUnitID(unitId);
 		var transaction = bridge.getNewModbusTransaction();
+		if (transaction == null) {
+			return null;
+		}
 		transaction.setRequest(request);
 		transaction.execute();
 

@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -10,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -20,9 +22,13 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -44,6 +50,37 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 )
 public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCentralOrderAggregateTask {
 
+	private record SchedulerByCentralOrderExecutionConfiguration(//
+			List<SchedulerComponent> insertOrder //
+	) implements AggregateTask.AggregateTaskExecutionConfiguration {
+
+		private SchedulerByCentralOrderExecutionConfiguration {
+			Objects.requireNonNull(insertOrder);
+		}
+
+		@Override
+		public String identifier() {
+			return "SchedulerByCentralOrder";
+		}
+
+		@Override
+		public JsonElement toJson() {
+			if (this.insertOrder.isEmpty()) {
+				return JsonNull.INSTANCE;
+			}
+			return JsonUtils.buildJsonObject() //
+					.add("insertOrder", this.insertOrder.stream() //
+							.map(t -> JsonUtils.buildJsonObject() //
+									.addProperty("id", t.id()) //
+									.addProperty("factoryId", t.factoryId()) //
+									.addPropertyIfNotNull("createdByAppId", t.createdByAppId()) //
+									.build())
+							.collect(JsonUtils.toJsonArray()))
+					.build();
+		}
+
+	}
+
 	private final ComponentManager componentManager;
 	private final ComponentUtil componentUtil;
 	private final AppManagerUtil appManagerUtil;
@@ -62,17 +99,20 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					.thenByFactoryId("Controller.Ess.Limiter14a") //
 					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
-					.thenByFactoryId("Controller.Ess.FixStateOfCharge")//
+					.thenByFactoryId("Controller.Ess.FixStateOfCharge") //
 					.thenByFactoryId("Controller.Ess.EmergencyCapacityReserve") //
 					.thenBy(new SchedulerOrderDefinition() //
 							.filterByFactoryId("Controller.Api.ModbusTcp.ReadWrite") //
 							.thenByCreatedAppId("App.Ess.GeneratingPlantController") //
 							.rest()) //
+					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") //
 					.thenByFactoryId("Controller.Api.Rest.ReadWrite") //
+					.thenByFactoryId("Controller.Clever-PV") //
 					.thenByFactoryId("Controller.Ess.GridOptimizedCharge") //
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
 					.thenByFactoryId("Controller.Evcs") //
 					.thenByFactoryId("Controller.Ess.Time-Of-Use-Tariff") //
+					.thenByFactoryId("Controller.TimeslotPeakshaving") //
 					.thenByFactoryId("Controller.Symmetric.Balancing") //
 			;
 		}
@@ -98,7 +138,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 
 		private static final int[] EMPTY_INT_ARRAY = new int[0];
 
-		private static sealed class PositionReturnType {
+		private abstract static sealed class PositionReturnType {
 
 			public static final PositionReturnType right(int... index) {
 				return new Right(index);
@@ -118,19 +158,14 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 				public Right(int[] index) {
 					this.index = index;
 				}
-
 			}
 
 			private static final class Remove extends PositionReturnType {
-
 				public static final Remove INSTANCE = new Remove();
-
 			}
 
 			private static final class Next extends PositionReturnType {
-
 				public static final Next INSTANCE = new Next();
-
 			}
 
 		}
@@ -278,19 +313,20 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			while (iterator.hasNext()) {
 				final var index = iterator.nextIndex();
 				final var predicate = iterator.next();
-				final var result = predicate.apply(o);
+				final PositionReturnType result = predicate.apply(o);
 
-				if (result instanceof PositionReturnType.Next) {
-					continue;
-				}
-				if (result instanceof PositionReturnType.Remove) {
+				switch (result) {
+				case PositionReturnType.Next next -> doNothing();
+
+				case PositionReturnType.Remove remove -> {
 					return EMPTY_INT_ARRAY;
 				}
-				if (result instanceof PositionReturnType.Right right) {
+				case PositionReturnType.Right right -> {
 					final var array = new int[right.index.length + 1];
 					array[0] = index;
 					System.arraycopy(right.index, 0, array, 1, right.index.length);
 					return array;
+				}
 				}
 			}
 			return EMPTY_INT_ARRAY;
@@ -414,6 +450,11 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		}
 
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, this.getIdsToRemove(otherAppConfigurations));
+	}
+
+	@Override
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
+		return new SchedulerByCentralOrderExecutionConfiguration(this.schedulerComponents);
 	}
 
 	private List<String> getIdsToRemove(List<AppConfiguration> otherAppConfigurations) {

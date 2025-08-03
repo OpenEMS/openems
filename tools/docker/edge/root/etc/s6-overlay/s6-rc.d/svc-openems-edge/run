@@ -4,4 +4,13 @@
 exec \
     s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z 127.0.0.1 8080" \
         s6-setuidgid abc \
-             /usr/bin/java -jar -Dfelix.cm.dir=/var/opt/openems/config -Dopenems.data.dir=/var/opt/openems/data /opt/openems/openems-edge.jar
+             /usr/bin/java \
+                -Dosgi.clean=true \
+                -Dorg.apache.felix.eventadmin.Timeout=0 \
+                -Dorg.apache.felix.http.host=0.0.0.0 \
+                -Dorg.apache.felix.http.port=8080 \
+                -Dfelix.cm.dir=/var/opt/openems/config \
+                -Dopenems.data.dir=/var/opt/openems/data \
+                -XX:+HeapDumpOnOutOfMemoryError \
+                -XX:+ExitOnOutOfMemoryError \
+                -jar /opt/openems/openems-edge.jar

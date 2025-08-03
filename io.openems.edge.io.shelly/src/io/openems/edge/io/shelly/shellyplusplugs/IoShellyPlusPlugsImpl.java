@@ -3,20 +3,22 @@ package io.openems.edge.io.shelly.shellyplusplugs;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
+import static io.openems.edge.io.shelly.common.Utils.executeWrite;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
-
-import java.util.Objects;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -29,15 +31,13 @@ import com.google.gson.JsonElement;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -47,11 +47,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "IO.Shelly.Plus.PlugS", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements IoShellyPlusPlugs, DigitalOutput,
 		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
@@ -68,10 +68,10 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 	private SinglePhase phase = null;
 	private String baseUrl;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(cardinality = MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
 
@@ -123,7 +123,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
+		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
 	}
 
 	@Override
@@ -133,14 +133,12 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-			-> this.calculateEnergy();
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-			-> this.executeWrite();
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		case TOPIC_CYCLE_EXECUTE_WRITE -> executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge, 0);
 		}
 	}
 
-	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
+	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
 		Boolean relayStatus = null;
@@ -178,32 +176,6 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 	}
 
 	/**
-	 * Execute on Cycle Event "Execute Write".
-	 */
-	private void executeWrite() {
-		var channel = this.getRelayChannel();
-		var readValue = channel.value().get();
-		var writeValue = channel.getNextWriteValueAndReset();
-		if (writeValue.isEmpty()) {
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			return;
-		}
-		var index = 0;
-		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-
-		this.httpBridge.get(url).whenComplete((t, e) -> {
-			this._setSlaveCommunicationFailed(e != null);
-			if (e == null) {
-				this.logDebug(this.log, "Executed write successfully for URL: " + url);
-			} else {
-				this.logError(this.log, "Failed to execute write for URL: " + url + "; Error: " + e.getMessage());
-			}
-		});
-	}
-
-	/**
 	 * Calculate the Energy values from ActivePower.
 	 */
 	private void calculateEnergy() {
@@ -235,5 +207,4 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-
 }

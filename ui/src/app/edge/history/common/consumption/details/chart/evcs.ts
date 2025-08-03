@@ -4,12 +4,13 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, Edge, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "evcsChart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class EvcsChartDetailsComponent extends AbstractHistoryChart {
 
@@ -26,7 +27,7 @@ export class EvcsChartDetailsComponent extends AbstractHistoryChart {
                 name: component.alias,
                 nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data[component.id + "/ActiveConsumptionEnergy"],
                 converter: () => data[component.id],
-                color: "rgb(0,152,204)",
+                color: ChartConstants.Colors.GREEN,
                 hiddenOnInit: false,
                 stack: 2,
             }],

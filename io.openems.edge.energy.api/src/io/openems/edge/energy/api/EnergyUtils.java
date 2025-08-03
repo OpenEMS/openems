@@ -1,12 +1,11 @@
 package io.openems.edge.energy.api;
 
-import static io.openems.edge.common.type.TypeUtils.multiply;
-import static io.openems.edge.common.type.TypeUtils.orElse;
-import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
-import static java.util.Arrays.stream;
+import java.util.stream.Stream;
 
-import java.util.Objects;
-import java.util.stream.IntStream;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 
 public class EnergyUtils {
 
@@ -25,7 +24,7 @@ public class EnergyUtils {
 	}
 
 	/**
-	 * Finds the first valley in an array of doubles, e.g. prices.
+	 * Finds the last index of the first valley in an array of doubles, e.g. prices.
 	 * 
 	 * @param fromIndex start searching from this index
 	 * @param values    the values array
@@ -71,55 +70,38 @@ public class EnergyUtils {
 	}
 
 	/**
-	 * Converts power [W] to energy [Wh/15 min].
+	 * Finds indexes of valleys in an array of doubles, e.g. prices.
 	 * 
-	 * @param power the power value
-	 * @return the energy value
+	 * @param values the values array
+	 * @return a list of valleys
 	 */
-	public static int toEnergy(int power) {
-		return power / PERIODS_PER_HOUR;
+	public static int[] findValleyIndexes(double[] values) {
+		final var result = ImmutableSet.<Integer>builder();
+		int valley = 0;
+		int peak = 0;
+		while (true) {
+			valley = findFirstValleyIndex(peak, values);
+			peak = findFirstPeakIndex(valley, values);
+			if (peak == valley) {
+				break;
+			}
+			result.add(valley);
+		}
+		return result.build().stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	/**
-	 * Converts energy [Wh/15 min] to power [W].
+	 * From a list of {@link EnergyScheduleHandler}s, filters only the ones of type
+	 * {@link EnergyScheduleHandler.WithDifferentModes}.
 	 * 
-	 * @param energy the energy value
-	 * @return the power value
+	 * @param eshs list of {@link EnergyScheduleHandler}s
+	 * @return new stream of {@link EnergyScheduleHandler.WithDifferentModes}s
 	 */
-	public static Integer toPower(Integer energy) {
-		return multiply(energy, PERIODS_PER_HOUR);
-	}
-
-	/**
-	 * Interpolate an Array of {@link Integer}s.
-	 * 
-	 * <p>
-	 * Replaces nulls with previous value. If first entry is null, it is set to
-	 * first available value. If all values are null, all are set to 0.
-	 * 
-	 * @param values the values
-	 * @return values without nulls
-	 */
-	public static int[] interpolateArray(Integer[] values) {
-		var firstNonNull = stream(values) //
-				.filter(Objects::nonNull) //
-				.findFirst();
-		var lastNonNullIndex = IntStream.range(0, values.length) //
-				.filter(i -> values[i] != null) //
-				.reduce((first, second) -> second); //
-		if (lastNonNullIndex.isEmpty()) {
-			return new int[0];
-		}
-		var result = new int[lastNonNullIndex.getAsInt() + 1];
-		if (firstNonNull.isEmpty()) {
-			// all null
-			return result;
-		}
-		int last = firstNonNull.get();
-		for (var i = 0; i < result.length; i++) {
-			int value = orElse(values[i], last);
-			result[i] = last = value;
-		}
-		return result;
+	public static Stream<EnergyScheduleHandler.WithDifferentModes> filterEshsWithDifferentModes(
+			ImmutableList<EnergyScheduleHandler> eshs) {
+		return eshs.stream() //
+				.filter(EnergyScheduleHandler.WithDifferentModes.class::isInstance) //
+				.map(EnergyScheduleHandler.WithDifferentModes.class::cast);
+		// TODO only ESHs with actually more than one Mode
 	}
 }

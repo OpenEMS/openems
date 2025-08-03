@@ -1,28 +1,32 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { WorkMode } from "src/app/shared/type/general";
-
 import { ModalComponent } from "../modal/modal";
+import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State } from "../util/utils";
+
 
 @Component({
     selector: "Controller_Io_HeatingElement",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
     private static PROPERTY_MODE: string = "_PropertyMode";
+    protected readonly CONVERT_HEATING_ELEMENT_RUNSTATE = getRunStateConverter(this.translate);
 
-    protected activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
     protected mode: string;
-    protected state: string;
-    protected runState: Status;
+    protected runState: State;
     protected workMode: WorkMode;
+    protected level: Level;
     protected readonly WorkMode = WorkMode;
+    protected readonly Level = Level;
+    protected readonly State = State;
     protected readonly CONVERT_SECONDS_TO_DATE_FORMAT = Utils.CONVERT_SECONDS_TO_DATE_FORMAT;
-    private outputChannelArray: ChannelAddress[] = [];
+    protected outputChannelArray: ChannelAddress[] = [];
+    protected consumptionMeter: EdgeConfig.Component = null;
 
     async presentModal() {
         const modal = await this.modalController.create({
@@ -48,16 +52,20 @@ export class FlatComponent extends AbstractFlatWidget {
         const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, "ForceStartAtSecondsOfDay"),
             ...this.outputChannelArray,
+            new ChannelAddress(this.component.id, "Level"),
             new ChannelAddress(this.component.id, "Status"),
             new ChannelAddress(this.component.id, FlatComponent.PROPERTY_MODE),
             new ChannelAddress(this.component.id, "_PropertyWorkMode"),
+
         ];
+
         return channelAddresses;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
 
         this.workMode = currentData.allComponents[this.component.id + "/" + "_PropertyWorkMode"];
+        this.consumptionMeter = this.config.getComponent(this.component.properties["meter.id"]) ?? null;
 
         // get current mode
         switch (currentData.allComponents[this.component.id + "/" + FlatComponent.PROPERTY_MODE]) {
@@ -75,36 +83,15 @@ export class FlatComponent extends AbstractFlatWidget {
             }
         }
 
-        // check if 'at least' one outputChannelPhase equals 1
-        let value = 0;
-        this.outputChannelArray.forEach(element => {
-            if (currentData.allComponents[element.toString()] == 1) {
-                value += 1;
-            }
-        });
+        this.level = currentData.allComponents[this.component.id + "/" + "Level"];
 
-        // Get current state
-        this.activePhases.next(value);
-        if (this.activePhases.value > 0) {
-            this.state = "General.active";
-
-            // Check forced heat
-            // TODO: Use only Status if edge version is latest [2022.8]
+        if (this.edge.isVersionAtLeast("2022.8")) {
             this.runState = currentData.allComponents[this.component.id + "/" + "Status"];
 
-            if (this.runState == Status.ActiveForced) {
-                this.state = "Edge.Index.Widgets.Heatingelement.activeForced";
+            if (this.consumptionMeter) {
+                const activePower = currentData.allComponents[this.consumptionMeter.id + "/ActivePower"];
+                this.runState = getInactiveIfPowerIsLow(this.runState, activePower);
             }
-        } else if (this.activePhases.value == 0) {
-            this.state = "General.inactive";
         }
     }
-
-}
-
-export enum Status {
-    "Undefined" = -1,
-    "Inactive" = 0,
-    "Active" = 1,
-    "ActiveForced" = 2,
 }

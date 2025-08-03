@@ -2,14 +2,20 @@ import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { Converter } from "src/app/shared/components/shared/converter";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { Phase } from "src/app/shared/components/shared/phase";
 
 import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../shared/shared";
+import { LiveDataService } from "../../../livedataservice";
 
 @Component({
   templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+  standalone: false,
+  providers: [
+    { provide: DataService, useClass: LiveDataService },
+  ],
 })
 export class ModalComponent extends AbstractFormlyComponent {
 

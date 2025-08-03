@@ -2,7 +2,7 @@ package io.openems.edge.io.shelly.shellyplusplugs;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

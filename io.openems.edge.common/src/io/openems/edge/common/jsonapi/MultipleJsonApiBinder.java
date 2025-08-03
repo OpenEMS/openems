@@ -19,8 +19,8 @@ public class MultipleJsonApiBinder {
 	 * logs a warning.
 	 * 
 	 * <p>
-	 * Commonly used like this with OSGi injection to bind all {@link JsonApi}
-	 * which target the specific {@code ENTRY_POINT}:<br>
+	 * Commonly used like this with OSGi injection to bind all {@link JsonApi} which
+	 * target the specific {@code ENTRY_POINT}:<br>
 	 * 
 	 * <pre>
 	 * {@code @Reference}(//

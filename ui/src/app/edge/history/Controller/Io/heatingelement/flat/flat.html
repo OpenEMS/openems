@@ -1,8 +1,14 @@
-<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame', color: 'danger'}" button
+<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
     routerLink="/device/{{edge.id}}/history/{{componentId}}/heatingelementchart">
     <ng-container *ngFor="let i of [1,2,3]">
         <oe-flat-widget-line [name]="('Edge.History.ACTIVE_DURATION_WITH_LEVEL'| translate: {level: i})"
             [channelAddress]="component.id + '/Level' + i + 'CumulatedTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
         </oe-flat-widget-line>
     </ng-container>
+    <ng-container *ngIf="consumptionMeter && consumptionMeter.isEnabled">
+        <oe-flat-widget-line [name]="'General.consumption' | translate" [channelAddress]="consumptionMeter.id + '/ActiveProductionEnergy'"
+        [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
+        </oe-flat-widget-line>
+    </ng-container>
 </oe-flat-widget>
+

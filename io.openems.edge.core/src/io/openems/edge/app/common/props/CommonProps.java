@@ -31,7 +31,7 @@ public final class CommonProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a alias.
+	 * Creates a {@link AppDef} for an alias.
 	 * 
 	 * @return the {@link AppDef}
 	 */
@@ -44,7 +44,7 @@ public final class CommonProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a installation hint. Only displays the text of
+	 * Creates a {@link AppDef} for an installation hint. Only displays the text of
 	 * the supplier with a checkbox to accept these conditions. Also does not safe
 	 * the value.
 	 * 
@@ -59,7 +59,7 @@ public final class CommonProps {
 	public static final <//
 			APP extends OpenemsApp, //
 			PROP extends Nameable, //
-			PARAM extends BundleParameter> AppDef<APP, PROP, PARAM> installationHint(//
+			PARAM extends BundleProvider> AppDef<APP, PROP, PARAM> installationHint(//
 					final FieldValuesSupplier<APP, PROP, PARAM, String> firstText, //
 					final FieldValuesSupplier<APP, PROP, PARAM, String>... otherTexts //
 	) {
@@ -80,9 +80,7 @@ public final class CommonProps {
 									.build());
 						});
 						fields.add(JsonFormlyUtil.buildCheckboxFromNameable(property) //
-								.isRequired(true) //
-								.requireTrue(l) //
-								.setLabel(TranslationUtil.getTranslation(parameter.bundle, "acceptCondition.label")) //
+								.setLabel(TranslationUtil.getTranslation(parameter.bundle(), "acceptCondition.label")) //
 								.build());
 						field.setFieldGroup(fields.build());
 					});
@@ -91,9 +89,9 @@ public final class CommonProps {
 	}
 
 	/**
-	 * Creates a installation hint to warn the user that the current app is not an
+	 * Creates an installation hint to warn the user that the current app is not an
 	 * official app from the company of this edge. This can be used for apps which
-	 * are in a early beta testing stage.
+	 * are in an early beta testing stage.
 	 * 
 	 * @param <APP>   the type of the {@link OpenemsApp}
 	 * @param <PROP>  the type of the {@link Nameable}

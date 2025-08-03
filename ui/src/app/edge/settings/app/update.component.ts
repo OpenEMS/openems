@@ -2,6 +2,7 @@
 import { Component, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { AlertController } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
@@ -24,6 +25,7 @@ interface MyInstance {
 @Component({
   selector: UpdateAppComponent.SELECTOR,
   templateUrl: "./update.component.html",
+  standalone: false,
 })
 export class UpdateAppComponent implements OnInit {
 
@@ -42,6 +44,7 @@ export class UpdateAppComponent implements OnInit {
     private service: Service,
     private router: Router,
     private translate: TranslateService,
+    private alertCtrl: AlertController,
   ) {
   }
 
@@ -124,6 +127,25 @@ export class UpdateAppComponent implements OnInit {
         instance.isUpdating = false;
         this.service.stopSpinner(instance.instanceId);
       });
+  }
+
+  protected async submitDelete(instance: MyInstance) {
+    const translate = this.translate;
+
+    const alert = this.alertCtrl.create({
+      subHeader: translate.instant("Edge.Config.App.DELETE_CONFIRM_HEADLINE"),
+      message: translate.instant("Edge.Config.App.DELETE_CONFIRM_DESCRIPTION"),
+      buttons: [{
+        text: translate.instant("General.cancel"),
+        role: "cancel",
+      },
+      {
+        text: translate.instant("Edge.Config.App.DELETE_CONFIRM"),
+        handler: () => this.delete(instance),
+      }],
+      cssClass: "alertController",
+    });
+    (await alert).present();
   }
 
   protected delete(instance: MyInstance) {

@@ -36,8 +36,6 @@ import io.openems.common.utils.JsonUtils;
 /**
  * Represents a JSON-RPC Response for 'queryHistoricTimeseriesExportXlxs'.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -464,7 +462,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 
 					if (XlsxUtils.isNotNull(values.get(channelAddress))) {
 						XlsxUtils.addFloatValueNotRounded(ws, rowCount, righestColumn,
-								JsonUtils.getAsFloat(values.get(channelAddress)) / ratio);
+								roundToDecimals(JsonUtils.getAsFloat(values.get(channelAddress)) / ratio));
 					} else {
 						XlsxUtils.addStringValue(ws, rowCount, righestColumn, "-");
 					}
@@ -517,8 +515,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		protected static void addKwhValueIfnotNull(Worksheet ws, int row, int col, JsonElement jsonElement,
 				ResourceBundle translationBundle) throws OpenemsNamedException {
 			if (XlsxUtils.isNotNull(jsonElement)) {
-				XlsxUtils.addStringValueRightAligned(ws, row, col,
-						String.format("%.1f", JsonUtils.getAsFloat(jsonElement) / 1000));
+				XlsxUtils.addFloatValue(ws, row, col, roundToDecimals(JsonUtils.getAsFloat(jsonElement) / 1000f));
 			} else {
 				XlsxUtils.addStringValueItalic(ws, row, col, translationBundle.getString("notAvailable"));
 			}
@@ -560,6 +557,16 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		 */
 		protected static void addFloatValue(Worksheet ws, int row, int col, float value) {
 			ws.value(row, col, Math.round(value));
+		}
+
+		/**
+		 * Rounds a float number to two decimal places.
+		 *
+		 * @param value the float number to be rounded
+		 * @return the value rounded to two decimal places
+		 */
+		protected static float roundToDecimals(float value) {
+			return Math.round(value * 100) / 100.0f;
 		}
 
 		/**

@@ -1,10 +1,10 @@
 // @ts-strict-ignore
 import * as Chart from "chart.js";
-/* eslint-disable import/no-duplicates */
+
 // cf. https://github.com/import-js/eslint-plugin-import/issues/1479
 import { differenceInDays, differenceInMinutes, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
-/* eslint-enable import/no-duplicates */
+
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Service } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
@@ -13,6 +13,12 @@ export interface Dataset {
     label: string;
     data: number[];
     hidden: boolean;
+}
+
+export enum Theme {
+    LIGHT = "light",
+    DARK = "dark",
+    SYSTEM = "system",
 }
 
 export const EMPTY_DATASET = [{
@@ -131,7 +137,7 @@ export type ChartOptions = {
             ticks: {
                 source?: string,
                 maxTicksLimit?: number
-            }
+            },
         }]
     },
     tooltips: {
@@ -151,6 +157,12 @@ export type ChartOptions = {
 
 export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     responsive: true,
+
+    // Important for point style on chart hover for line chart
+    interaction: {
+        mode: "index",  // Detect x-axis alignment
+        intersect: false,  // Allow hovering over line, not just points
+    },
     maintainAspectRatio: false,
     elements: {
         point: {
@@ -179,17 +191,38 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
         },
         legend: {
             display: true,
-
             position: "bottom",
             labels: {
+                textAlign: "center",
+                usePointStyle: true,
+
+                // Height and width of the legend pointstyle
+                boxWidth: 7,
+                boxHeight: 7,
+
                 color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
                 generateLabels: (chart: Chart.Chart) => { return null; },
             },
             onClick: (event, legendItem, legend) => { },
         },
         tooltip: {
+            itemSort: (a, b) => {
+                // Force sorting by dataset index (same as legend order)
+                return a.datasetIndex - b.datasetIndex;
+            },
+            usePointStyle: true,
             intersect: false,
             mode: "index",
+
+            // Height and width of the legend pointstyle
+            boxWidth: 10,
+            boxHeight: 10,
+            boxPadding: 3,
+
+            // Hide tooltip arrow and create distance from tooltip to currently selected x axis point
+            caretPadding: 20,
+            caretSize: 0,
+
             filter: function (item, data, test, some) {
                 const value = item.dataset.data[item.dataIndex] as number;
                 return !isNaN(value) && value !== null;
@@ -207,8 +240,7 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             stacked: true,
             offset: false,
             type: "time",
-            ticks: {
-            },
+            ticks: {},
             bounds: "data",
             adapters: {
                 date: {
@@ -233,6 +265,11 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
                     year: "yyyy", // 2015,
                 },
             },
+        },
+    },
+    layout: {
+        padding: {
+            top: 35, // Increase the top padding to create room for the title
         },
     },
 });

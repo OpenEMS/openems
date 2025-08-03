@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.common.types.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(//
 		name = "IO Shelly Plus Plug S", //
@@ -19,7 +19,7 @@ import io.openems.edge.meter.api.SinglePhase;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this Shelly Plug connected to?")
 	SinglePhase phase() default SinglePhase.L1;
 

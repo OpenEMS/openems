@@ -1,10 +1,13 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../../shared/shared";
 
 @Component({
   selector: EnergymonitorComponent.SELECTOR,
   templateUrl: "./energymonitor.component.html",
+  standalone: false,
 })
 export class EnergymonitorComponent implements OnInit, OnDestroy {
 
@@ -15,6 +18,8 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
     private service: Service,
     private websocket: Websocket,
     private route: ActivatedRoute,
+    private dataService: DataService,
+    protected navigationService: NavigationService,
   ) { }
 
   ngOnInit() {
@@ -25,7 +30,7 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
         ? [new ChannelAddress("_sum", "EssMinDischargePower"), new ChannelAddress("_sum", "EssMaxDischargePower")]
         : [new ChannelAddress("_sum", "EssMaxApparentPower")];
 
-      edge.subscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR, [
+      this.dataService.getValues([
         // Ess
         new ChannelAddress("_sum", "EssSoc"), new ChannelAddress("_sum", "EssActivePower"),
         ...essMinMaxChannels,
@@ -35,7 +40,7 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
         new ChannelAddress("_sum", "ProductionActivePower"), new ChannelAddress("_sum", "ProductionDcActualPower"), new ChannelAddress("_sum", "ProductionAcActivePower"), new ChannelAddress("_sum", "ProductionMaxActivePower"),
         // Consumption
         new ChannelAddress("_sum", "ConsumptionActivePower"), new ChannelAddress("_sum", "ConsumptionMaxActivePower"),
-      ]);
+      ], edge);
     });
   }
 

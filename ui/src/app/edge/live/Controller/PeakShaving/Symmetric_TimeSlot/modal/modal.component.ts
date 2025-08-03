@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/s
 @Component({
     selector: "timeslotpeakshaving-modal",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements OnInit {
 
@@ -35,6 +36,10 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern("^(?:[1-9][0-9]*|0)$"),
+                Validators.required,
+            ])),
+            hysteresisSoc: new FormControl(this.component.properties.hysteresisSoc, Validators.compose([
+                Validators.pattern("^(100|[1-9]?[0-9])$"),
                 Validators.required,
             ])),
             slowChargePower: new FormControl((this.component.properties.slowChargePower) * -1),

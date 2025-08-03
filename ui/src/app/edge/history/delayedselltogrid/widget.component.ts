@@ -1,11 +1,13 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, effect, Input, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 @Component({
     selector: DelayedSellToGridWidgetComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class DelayedSellToGridWidgetComponent implements OnInit {
 
@@ -16,10 +18,19 @@ export class DelayedSellToGridWidgetComponent implements OnInit {
     public edge: Edge | null = null;
     public component: EdgeConfig.Component | null = null;
 
+    /** @deprecated migration purposes*/
+    protected newNavigationUrlSegment: string = "";
+
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-    ) { }
+        private userService: UserService,
+    ) {
+        effect(() => {
+            const isNewNavigation = this.userService.isNewNavigation();
+            this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+        });
+    }
 
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {

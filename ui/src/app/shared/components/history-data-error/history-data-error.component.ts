@@ -14,6 +14,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
         </ng-container>
     </ion-label>
 </ion-item>`,
+    standalone: false,
 })
 export class HistoryDataErrorComponent {
 

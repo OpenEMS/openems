@@ -91,11 +91,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		this.topicPrefix = createTopicPrefix(config);
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(),
-				config.certPem(), config.privateKeyPem(), config.trustStorePem()).thenAccept(client -> {
-					this.mqttClient = client;
-					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
-				});
+
 		this.scheduleReconnect();
 	}
 
@@ -152,7 +148,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		super.logInfo(log, message);
+		super.logWarn(log, message);
 	}
 
 	@Override

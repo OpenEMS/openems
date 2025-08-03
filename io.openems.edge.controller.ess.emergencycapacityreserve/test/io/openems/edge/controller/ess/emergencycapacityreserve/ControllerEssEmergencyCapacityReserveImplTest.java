@@ -18,6 +18,7 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine.State;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -30,6 +31,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -44,6 +46,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("sum", new DummySum()) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
@@ -59,6 +62,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("sum", new DummySum()) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
@@ -75,6 +79,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -90,6 +95,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -108,6 +114,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -118,7 +125,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 22) //
 						.input("ess0", MAX_APPARENT_POWER, 10000) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 21) //
 						.output(STATE_MACHINE, State.NO_LIMIT)); //
@@ -151,6 +158,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -161,7 +169,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 22) //
 						.input("ess0", MAX_APPARENT_POWER, 10000) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 21) //
 						.output(STATE_MACHINE, State.NO_LIMIT)) //
@@ -175,10 +183,10 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 						.input("ess0", SOC, 16) //
 						.output(STATE_MACHINE, State.BELOW_RESERVE_SOC)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 20) //
-						.output(STATE_MACHINE, State.FORCE_CHARGE)) //
-				.next(new TestCase() //
 						.input("ess0", SOC, 21) //
+						.output(STATE_MACHINE, State.FORCE_CHARGE_PV)) //
+				.next(new TestCase() // overcharges by 1%
+						.input("ess0", SOC, 22) //
 						.output(STATE_MACHINE, State.AT_RESERVE_SOC)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 22) //
@@ -195,6 +203,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -221,6 +230,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -231,7 +241,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 22) //
 						.input("ess0", MAX_APPARENT_POWER, 10000) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 21) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
@@ -289,6 +299,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -299,7 +310,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 22) //
 						.input("ess0", MAX_APPARENT_POWER, 10000) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 20) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
@@ -333,6 +344,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -343,7 +355,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 22) //
 						.input("ess0", MAX_APPARENT_POWER, 10000) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 19) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
@@ -366,12 +378,13 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9300)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 19) //
-						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 8800)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 8800)) //
+						.output(STATE_MACHINE, State.FORCE_CHARGE_PV)//
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9200)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9200)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 19) //
-						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 8300)//
-						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 8300)) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9100)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9100)) //
 				.deactivate();
 	}
 
@@ -381,6 +394,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -391,7 +405,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 22) //
 						.input("ess0", MAX_APPARENT_POWER, 10000) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 16) //
 						.output(STATE_MACHINE, State.NO_LIMIT)//
@@ -415,7 +429,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 16) //
 						.input(PRODUCTION_AC_ACTIVE_POWER, 100) //
-						.output(STATE_MACHINE, State.FORCE_CHARGE)//
+						.output(STATE_MACHINE, State.FORCE_CHARGE_PV)//
 						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9200)//
 						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9200)) //
 				.next(new TestCase() //
@@ -424,11 +438,11 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9100)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 21) //
-						.output(STATE_MACHINE, State.FORCE_CHARGE) //
+						.output(STATE_MACHINE, State.FORCE_CHARGE_PV) //
 						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9000) //
 						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9000)) //
-				.next(new TestCase() //
-						.input("ess0", SOC, 21) //
+				.next(new TestCase() // has to overcharge by 2%
+						.input("ess0", SOC, 22) //
 						.output(STATE_MACHINE, State.AT_RESERVE_SOC) //
 						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 8900) //
 						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 8900)) //
@@ -451,6 +465,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
 						.withMaxApparentPower(10000)) //
 				.activate(MyConfig.create() //
@@ -461,7 +476,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
 						.input("ess0", SOC, 16)) //
@@ -483,6 +498,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
 						.withMaxApparentPower(10000)) //
 				.activate(MyConfig.create() //
@@ -492,7 +508,7 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 						.setReserveSocEnabled(true) //
 						.build()) //
 				.next(new TestCase() //
-						.output(STATE_MACHINE, State.NO_LIMIT)) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 21)) //
 				.next(new TestCase() //
@@ -542,4 +558,98 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.deactivate();
 	}
 
+	@Test
+	public void testGridChargingOn() throws Exception {
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("meta", new DummyMeta("_meta") //
+						.withIsEssChargeFromGridAllowed(true)) //
+				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
+						.withMaxApparentPower(10000)) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setEssId("ess0") //
+						.setReserveSoc(20) //
+						.setReserveSocEnabled(true) //
+						.build()) //
+				// From Above
+				.next(new TestCase() //
+						.input("ess0", SOC, 22) //
+						.input("ess0", MAX_APPARENT_POWER, 10000) //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 19) //
+						.output(STATE_MACHINE, State.NO_LIMIT)//
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, null)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, null)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 19) //
+						.output(STATE_MACHINE, State.ABOVE_RESERVE_SOC)//
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9900)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9900)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 19) //
+						.output(STATE_MACHINE, State.AT_RESERVE_SOC)//
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9800)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9800)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 19) //
+						.output(STATE_MACHINE, State.BELOW_RESERVE_SOC)//
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9300)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9300)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 18).output(STATE_MACHINE, State.FORCE_CHARGE_PV)
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, 9200)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, 9200) //
+				)//
+				.next(new TestCase()//
+						.input("ess0", SOC, 18).output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000) //
+				)//
+				.next(new TestCase()//
+						.input("ess0", SOC, 18)//
+						.output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000) //
+				)
+				// From Below
+				.next(new TestCase()//
+						.input("ess0", SOC, 15).output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -1100)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -1100) //
+				)
+				// let ramp run its course
+				.next(new TestCase()//
+						.input("ess0", SOC, 14), //
+						200)
+				// active power now 50% of max
+				.next(new TestCase()//
+						.input("ess0", SOC, 14).output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -5000)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -5000) //
+				)//
+				.next(new TestCase()//
+						.input("ess0", SOC, 17)//
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -4900)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -4900) //
+				)
+				// let ramp run its course
+				.next(new TestCase()//
+						.input("ess0", SOC, 17), //
+						100)
+				// active power now 10% of max
+				.next(new TestCase()//
+						.input("ess0", SOC, 17).output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
+						.output("ess0", SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000)//
+						.output(DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS, -1000) //
+				)
+				// Still in Force Charge Grid (PV only form above)
+				.next(new TestCase()//
+						.input("ess0", SOC, 19)//
+						.output(STATE_MACHINE, State.FORCE_CHARGE_GRID) //
+				);
+	}
 }

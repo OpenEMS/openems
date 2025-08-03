@@ -1,6 +1,12 @@
 package io.openems.edge.io.shelly.shellyplug;
 
+import static io.openems.common.utils.JsonUtils.getAsBoolean;
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsLong;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+import static java.lang.Math.round;
 
 import java.util.Objects;
 
@@ -21,7 +27,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bridge.http.api.HttpResponse;
@@ -29,9 +34,9 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -102,7 +107,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.getRelayChannel(), this.getActivePowerChannel());
+		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
 	}
 
 	@Override
@@ -128,17 +133,18 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			return;
 		}
 		try {
-			final var relays = JsonUtils.getAsJsonArray(result.data(), "relays");
-			final var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			final var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
-			final var meters = JsonUtils.getAsJsonArray(result.data(), "meters");
-			final var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
-			final var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
-			final var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
+			var relays = getAsJsonArray(result.data(), "relays");
+			var relay1 = getAsJsonObject(relays.get(0));
+			var relayIson = getAsBoolean(relay1, "ison");
+			var meters = getAsJsonArray(result.data(), "meters");
+			var meter1 = getAsJsonObject(meters.get(0));
+			var power = round(getAsFloat(meter1, "power"));
+			var energy = getAsLong(meter1, "total")/* Unit: Wm */ / 60 /* Wh */;
 
 			this._setRelay(relayIson);
 			this._setActivePower(power);
 			this._setActiveProductionEnergy(energy);
+
 		} catch (OpenemsNamedException e) {
 			this._setRelay(null);
 			this._setActivePower(null);
@@ -179,5 +185,4 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	public SinglePhase getPhase() {
 		return this.phase;
 	}
-
 }

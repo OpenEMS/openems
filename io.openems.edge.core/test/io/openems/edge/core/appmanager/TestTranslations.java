@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,13 +15,18 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome15;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
+import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
+import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class TestTranslations {
 
@@ -28,12 +34,13 @@ public class TestTranslations {
 
 	}
 
+	private AppManagerTestBundle testBundle;
 	private List<TestTranslation> apps;
 
 	@Before
 	public void beforeEach() throws Exception {
 		this.apps = new ArrayList<>();
-		new AppManagerTestBundle(null, null, t -> {
+		this.testBundle = new AppManagerTestBundle(null, null, t -> {
 			this.apps.add(new TestTranslation(Apps.feneconHome10(t), true, TestFeneconHome10.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome20(t), true, TestFeneconHome20.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
@@ -41,11 +48,29 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome10Gen2(t), true, TestFeneconHome10Gen2.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome15(t), true, TestFeneconHome15.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterMaster(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterSlave(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk110(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(
+					new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("BIDDING_ZONE", "GERMANY") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.groupeE(t), true, JsonUtils.buildJsonObject() //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.octopusGo(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("STANDARD_PRICE", 27.6) //
+					.addProperty("LOW_PRICE", 14.8) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.octopusHeat(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HIGH_PRICE", 34.6) //
+					.addProperty("STANDARD_PRICE", 27.6) //
+					.addProperty("LOW_PRICE", 14.8) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
@@ -68,10 +93,22 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.techbaseCm4Max(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4s(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.enerixControl(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
+			this.apps.add(new TestTranslation(Apps.cleverPv(t), true, JsonUtils.buildJsonObject()//
+					.addProperty("URL", "url")//
+					.build()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //
 					.add("COMPONENT_IDS", new JsonArray()) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.modbusRtuApiReadOnly(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("PORT_NAME", "port") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.modbusRtuApiReadWrite(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("PORT_NAME", "port") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadWrite(t), true, JsonUtils.buildJsonObject() //
@@ -82,12 +119,26 @@ public class TestTranslations {
 					.addProperty("BUCKET", "bucket")//
 					.build()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.hardyBarthEvcsReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.kebaEvcsReadonly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.goeEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.heidelbergEvcsReadOnlyEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.mennekesEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.kebaEvse(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ELECTRIC_VEHICLE_ID", UUID.randomUUID().toString()) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.clusterEvse(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.genericVehicle(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.kmtronic8Channel(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.ioGpio(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.heatPump(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
 					.addProperty("OUTPUT_CHANNEL_2", "io0/Relay2") //
@@ -101,7 +152,6 @@ public class TestTranslations {
 					.addProperty("OUTPUT_CHANNEL_PHASE_L3", "io0/Relay3") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.gridOptimizedCharge(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("MAXIMUM_SELL_TO_GRID_POWER", 60) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.selfConsumptionOptimization(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
@@ -124,7 +174,13 @@ public class TestTranslations {
 					.addProperty("MODBUS_ID", "modbus0") //
 					.addProperty("MODBUS_UNIT_ID", 5) //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.eastronMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.janitzaMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.kdkMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.pqPlusMeter(t), false, new JsonObject()));
@@ -158,6 +214,10 @@ public class TestTranslations {
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("METER_ID", "meter0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.timeSlotPeakShaving(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.addProperty("METER_ID", "meter0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));
@@ -170,8 +230,10 @@ public class TestTranslations {
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("INPUT_CHANNEL_ADDRESS", "io0/Relay1") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
 			return this.apps.stream().map(TestTranslation::app).toList();
-		});
+		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}
 
 	@Test
@@ -200,10 +262,13 @@ public class TestTranslations {
 	private void testTranslations(Language l) throws Exception {
 		final var debugTranslator = TranslationUtil.enableDebugMode();
 
+		this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.OpenemsHardware.CM4S.Gen2", "key", "", new JsonObject()));
+
 		for (var entry : this.apps) {
 			final var app = entry.app();
 			if (entry.validateAppAssistant()) {
-				app.getAppAssistant(DUMMY_ADMIN);
+				app.getAppAssistant(new User("admin", "admin", l, Role.ADMIN));
 			}
 			if (entry.config() != null) {
 				app.getAppConfiguration(ConfigurationTarget.ADD, entry.config(), l);

@@ -9,7 +9,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.formly.enums.Validation;
 import io.openems.edge.core.appmanager.formly.enums.Wrappers;
@@ -28,8 +27,8 @@ import io.openems.edge.core.appmanager.formly.enums.Wrappers;
  * 		"required": true,
  * 		"min": 0,
  * 		"max": 100,
- * 		"minLenght": 6,
- * 		"maxLenght": 18,
+ * 		"minLength": 6,
+ * 		"maxLength": 18,
  * 		"pattern": /(\d{1,3}\.){3}\d{1,3}/
  * 	},
  * 	"validation": {
@@ -48,7 +47,6 @@ import io.openems.edge.core.appmanager.formly.enums.Wrappers;
  */
 public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 
-	private JsonObject validation = null;
 	private InputType type = InputType.TEXT;
 
 	public InputBuilder(Nameable property) {
@@ -115,7 +113,7 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 	 * @return this
 	 * @throws IllegalArgumentException if the type is not set to password or text
 	 */
-	public InputBuilder setMinLenght(int minLength) {
+	public InputBuilder setMinLength(int minLength) {
 		if (this.type == InputType.NUMBER) {
 			throw new IllegalArgumentException("Value minLength can only be set on Password or Text inputs!");
 		}
@@ -130,7 +128,7 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 	 * @return this
 	 * @throws IllegalArgumentException if the type is not set to password or text
 	 */
-	public InputBuilder setMaxLenght(int maxLength) {
+	public InputBuilder setMaxLength(int maxLength) {
 		if (this.type == InputType.NUMBER) {
 			throw new IllegalArgumentException("Value maxLength can only be set on Password or Text inputs!");
 		}
@@ -140,9 +138,9 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 
 	/**
 	 * Sets the validation of the Input.
+	 * 
 	 * <p>
 	 * e. g. to set the validation of an IP use {@link Validation#IP}
-	 * </p>
 	 *
 	 * @param validation the validation to be set
 	 * @return this
@@ -191,7 +189,11 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		case WATT -> TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l), "watt");
 		default -> unit.symbol;
 		};
-		this.templateOptions.addProperty("unit", unitString);
+		return this.setUnit(unitString);
+	}
+
+	public InputBuilder setUnit(String unit) {
+		this.templateOptions.addProperty("unit", unit);
 		this.addWrapper(Wrappers.INPUT_WITH_UNIT);
 		return this;
 	}
@@ -226,6 +228,14 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		return this;
 	}
 
+	public InputBuilder setStep(double step) {
+		if (this.type != InputType.NUMBER) {
+			throw new IllegalArgumentException("Step can only be set on Number inputs");
+		}
+		this.templateOptions.addProperty("step", step);
+		return this;
+	}
+
 	@Override
 	protected String getType() {
 		return "input";
@@ -236,14 +246,6 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		if (this.type != InputType.TEXT) {
 			this.templateOptions.addProperty("type", this.type.getFormlyTypeName());
 		}
-		if (this.validation != null && this.validation.size() > 0) {
-			this.jsonObject.add("validation", this.validation);
-		}
 		return super.build();
 	}
-
-	protected final JsonObject getValidation() {
-		return this.validation = JsonFormlyUtil.single(this.validation);
-	}
-
 }

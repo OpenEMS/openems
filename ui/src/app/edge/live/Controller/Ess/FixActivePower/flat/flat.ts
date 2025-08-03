@@ -1,14 +1,15 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 import { ModalComponent } from "../modal/modal";
 
 @Component({
   selector: "Controller_Ess_FixActivePower",
   templateUrl: "./flat.html",
+  standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 

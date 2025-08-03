@@ -1,7 +1,7 @@
 <ion-footer>
-  <ion-item #container color="primary" lines="none"
-    style="--min-height: initial !important;font-size: inherit;  font-size: 14px !important;">
-    <ion-grid style="padding-top: 0; padding-bottom: 0;">
+  <ion-item #container lines="none" style="font-size: inherit;" style="--background: var(--ion-color-toolbar-primary);"
+    color="secondary">
+    <ion-grid style="padding-top: 0;" class="ion-padding-bottom">
       <ion-row class="ion-justify-content-center" style="padding-top: 0; padding-bottom: 0;">
         <ion-col *ngIf="backButton" style="text-align: center;" #myIonCol>
           <ion-button color="primary" (click)="location.back()">
@@ -14,12 +14,11 @@
             <ion-row style="padding-top: 0; padding-bottom: 0;">
               <ion-col #buttonCol [size-lg]="popoverButtons.length > 0 ? '11':'12'"
                 [size-md]="popoverButtons.length > 0 ? '8':'4'" [size-sm]="popoverButtons.length > 0 ? '6':'6'">
-                <ion-button color="primary" style="--border-color:white" id="{{button.id}}"
-                  *ngFor="let button of (buttons)" (click)="button.callback()" #subnavigationbuttons>
+                <ion-button style="--border-color:white;" id="{{button.id}}" *ngFor="let button of (buttons)"
+                  (click)="button.callback()" #subnavigationbuttons>
                   {{button.alias ?? button.id}}
                 </ion-button>
-                <ion-button *ngIf="popoverButtons.length > 0" color="primary" id="overflow-popover"
-                  (click)="this.showPopover = true;" #popoverButtons>
+                <ion-button *ngIf="popoverButtons.length > 0" (click)="this.showPopover = true;" #popoverButtons>
                   ...
                 </ion-button>
                 <ion-popover [ngClass]="'custom-ion-popover'" dismissOnSelect="true" [isOpen]="showPopover" side="top"

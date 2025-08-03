@@ -1,0 +1,38 @@
+{
+  "de": {
+    "EVSE_SINGLE": {
+      "SETTINGS": {
+        "ENERGY_LIMIT": "Energielimit"
+      },
+      "HOME": {
+        "MODE": {
+          "LABEL": "Modus",
+          "ZERO": "Aus",
+          "MINIMUM": "Minimal",
+          "SURPLUS": "PV",
+          "FORCE": "Schnell"
+        },
+        "POWER": "Power",
+        "ENERGY_SINCE_START": "Energie seit Ladebeginn"
+      }
+    }
+  },
+  "en": {
+    "EVSE_SINGLE": {
+      "SETTINGS": {
+        "ENERGY_LIMIT": "Energy limit"
+      },
+      "HOME": {
+        "MODE": {
+          "LABEL": "Mode",
+          "ZERO": "Off",
+          "MINIMUM": "Minimal",
+          "SURPLUS": "PV",
+          "FORCE": "Fast"
+        },
+        "POWER": "Leistung",
+        "ENERGY_SINCE_START": "Energy since the last charge start"
+      }
+    }
+  }
+}

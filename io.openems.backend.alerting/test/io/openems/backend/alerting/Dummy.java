@@ -176,10 +176,10 @@ public class Dummy {
 	}
 
 	public static class EventAdminImpl implements EventAdmin {
-		private List<Event> lastEvents = new ArrayList<>();
+		private final List<Event> lastEvents;
 
 		public EventAdminImpl() {
-
+			this.lastEvents = new ArrayList<>();
 		}
 
 		@Override
@@ -224,14 +224,14 @@ public class Dummy {
 		 * Try to advance the Clock to a specific amount of minutes after
 		 * initialization. If the given point is ahead, the time will leap by the
 		 * missing amount. If the given point is behind, nothing will happen.
+		 * 
 		 * <p>
 		 * A return value >=0 means, the clock has advanced the given amount in minutes
 		 * with this call.
-		 * </p>
+		 * 
 		 * <p>
 		 * A return value <0 means, the clock has already advanced the given amount
 		 * above.
-		 * </p>
 		 *
 		 * @param point to advance to
 		 * @return difference

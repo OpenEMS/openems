@@ -374,7 +374,10 @@
         "deleteApp": "アプリを削除します",
         "updateApp": "アプリを更新します",
         "errorInstallable": "インストールエラー",
-        "errorCompatible": "互換性エラー"
+        "errorCompatible": "互換性エラー",
+        "technicalName": "技術名",
+        "category": "カテゴリ",
+        "cardinality": "カーディナリティ"
       }
     },
     "Service": {
@@ -647,7 +650,7 @@
       "QU_ENABLED_CURVE": "反応電力-q（u）特性",
       "SHADE_MANAGEMENT_DEACTIVATED": "シェード管理は無効になっていますか？",
       "TITLE": "フィードイン管理",
-      "EXTERNAL_CONTROLLER_RECIEVER": "リップルコントロールレシーバー",
+      "EXTERNAL_CONTROLLER_RECEIVER": "リップルコントロールレシーバー",
       "PLACE_HOLDER": "オプションを選択",
       "NO_LIMITATION": "フィードイン管理がない"
     },

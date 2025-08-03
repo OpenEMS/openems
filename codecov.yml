@@ -1,3 +1,8 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
 coverage:
   round: up
   precision: 2
@@ -5,7 +10,17 @@ coverage:
     project:
       default:
         target: auto
+        threshold: 0.3%
+        branches:
+          - "!main"
+          - "!develop"
+    patch:
+      default:
+        target: 75%
         threshold: 10%
+        branches:
+          - "!main"
+          - "!develop"
 
 comment:
   layout: "condensed_header, diff"
@@ -20,8 +35,10 @@ component_management:
     statuses:
       - type: project
         target: auto
+        threshold: 0.1%
         branches:
           - "!main"
+          - "!develop"
   individual_components:
     - component_id: openems_backend
       name: "OpenEMS Backend"

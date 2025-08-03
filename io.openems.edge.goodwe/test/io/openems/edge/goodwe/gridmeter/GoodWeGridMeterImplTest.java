@@ -1,5 +1,8 @@
 package io.openems.edge.goodwe.gridmeter;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L3;
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO;
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L1;
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L1;
@@ -7,6 +10,7 @@ import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeter.ChannelId.METER_C
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeterCategory.COMMERCIAL_METER;
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeterCategory.SMART_METER;
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.calculateRatio;
+import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.getGoodweTypeSpecificResults;
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.getPhaseConnectionValue;
 import static org.junit.Assert.assertEquals;
 
@@ -17,7 +21,8 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
+import io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.GoodWeTypeAndVersionSpecific;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public class GoodWeGridMeterImplTest {
@@ -61,33 +66,61 @@ public class GoodWeGridMeterImplTest {
 	@Test
 	public void testMeterConnectStateConverter() throws Exception {
 
-		var l1Result = getPhaseConnectionValue(Phase.L1, 0x0124);
-		var l2Result = getPhaseConnectionValue(Phase.L2, 0x0124);
-		var l3Result = getPhaseConnectionValue(Phase.L3, 0x0124);
+		var l1Result = getPhaseConnectionValue(L1, 0x0124);
+		var l2Result = getPhaseConnectionValue(L2, 0x0124);
+		var l3Result = getPhaseConnectionValue(L3, 0x0124);
 
 		assertEquals(4, (int) l1Result);
 		assertEquals(2, (int) l2Result);
 		assertEquals(1, (int) l3Result);
 
-		l1Result = getPhaseConnectionValue(Phase.L1, 0x0524);
-		l2Result = getPhaseConnectionValue(Phase.L2, 0x0462);
-		l3Result = getPhaseConnectionValue(Phase.L3, 0x1647);
+		l1Result = getPhaseConnectionValue(L1, 0x0524);
+		l2Result = getPhaseConnectionValue(L2, 0x0462);
+		l3Result = getPhaseConnectionValue(L3, 0x1647);
 
 		assertEquals(4, (int) l1Result);
 		assertEquals(6, (int) l2Result);
 		assertEquals(6, (int) l3Result);
 
-		var l1NoResult = getPhaseConnectionValue(Phase.L1, 0x000);
-		var l2NoResult = getPhaseConnectionValue(Phase.L2, 0x000);
-		var l3NoResult = getPhaseConnectionValue(Phase.L3, 0x000);
+		var l1NoResult = getPhaseConnectionValue(L1, 0x000);
+		var l2NoResult = getPhaseConnectionValue(L2, 0x000);
+		var l3NoResult = getPhaseConnectionValue(L3, 0x000);
 
 		assertEquals(0, (int) l1NoResult);
 		assertEquals(0, (int) l2NoResult);
 		assertEquals(0, (int) l3NoResult);
 
-		var noResult = getPhaseConnectionValue(Phase.L3, 0x000);
+		var noResult = getPhaseConnectionValue(L3, 0x000);
 
 		assert noResult == 0x000;
+	}
+
+	@Test
+	public void testGetGoodweTypeSpecificReluts() throws Exception {
+		assertEquals(new GoodWeTypeAndVersionSpecific(false /* handleDspVersion4 */, false /* extendedPowerValues */),
+				getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 3));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(false, false),
+				getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 0));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, false),
+				getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 6));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, 10));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(false, false),
+				getGoodweTypeSpecificResults(GoodWeType.GOODWE_5K_BT, null));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				getGoodweTypeSpecificResults(GoodWeType.FENECON_FHI_29_9_DAH, 3));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				getGoodweTypeSpecificResults(GoodWeType.UNDEFINED, 0));
+
+		assertEquals(new GoodWeTypeAndVersionSpecific(true, true),
+				getGoodweTypeSpecificResults(GoodWeType.UNDEFINED, null));
+
 	}
 
 	@Test
@@ -97,6 +130,9 @@ public class GoodWeGridMeterImplTest {
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(36003, 0, 1) // States
 						.withRegisters(35123, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) // F_GRID_R etc.
+						.withRegisters(35011, // Deprecated GoodWe type register as String
+								new int[] { 0, 0x4757, 0x354B, 0x2D42, 0x5400 })
+
 						.withRegister(35016, 4) // DSP Version
 						.withRegisters(36005, //
 								/* ACTIVE_POWER */ -1000 /* L1 */, -1320 /* L2 */, 1610 /* L3 */, //
@@ -114,6 +150,7 @@ public class GoodWeGridMeterImplTest {
 						.setExternalMeterRatioValueB(0) //
 						.build()) //
 
+				.next(new TestCase(), 2) //
 				.next(new TestCase() //
 						.output(GoodWeGridMeter.ChannelId.HAS_NO_METER, false) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1000) // inverted
@@ -121,7 +158,7 @@ public class GoodWeGridMeterImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, -1610) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 710)) //
 
-				.next(new TestCase(), 5) // Wait for 36052
+				.next(new TestCase(), 3) // Wait for 36052
 				.next(new TestCase() //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 200_000) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 220_000) //
@@ -147,6 +184,11 @@ public class GoodWeGridMeterImplTest {
 			assertEquals(16, e2cConverter.elementToChannel(16));
 			// negative to positive
 			assertEquals(16, e2cConverter.elementToChannel(-16));
+		}
+		{
+			var e2cConverter = GoodWeGridMeterImpl.createAdjustCurrentSign(() -> new Value<Integer>(null, 5000));
+			// null stays null
+			assertEquals(null, e2cConverter.elementToChannel(null));
 		}
 	}
 
@@ -189,7 +231,7 @@ public class GoodWeGridMeterImplTest {
 						.setExternalMeterRatioValueB(5) //
 						.build()) //
 				.next(new TestCase() //
-						.output(EXTERNAL_METER_RATIO, 3000));
+						.output(EXTERNAL_METER_RATIO, null));
 	}
 
 	@Test

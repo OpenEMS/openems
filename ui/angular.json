@@ -8,14 +8,11 @@
       "sourceRoot": "src",
       "projectType": "application",
       "prefix": "app",
-      "schematics": {},
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "allowedCommonJsDependencies": [
-              "chart.js"
-            ],
+            "allowedCommonJsDependencies": ["chart.js"],
             "baseHref": "/",
             "budgets": [
               {
@@ -44,7 +41,14 @@
               "aot": true,
               "buildOptimizer": true,
               "extractLicenses": true,
-              "optimization": true,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
               "sourceMap": false,
               "serviceWorker": true
@@ -61,12 +65,15 @@
                   "glob": "**/*.svg",
                   "input": "node_modules/ionicons/dist/ionicons/svg",
                   "output": "./svg"
+                },
+                {
+                  "glob": "**/*.js",
+                  "input": "src/themes/shared",
+                  "output": ""
                 }
               ],
               "stylePreprocessorOptions": {
-                "includePaths": [
-                  "src/themes/openems/scss"
-                ]
+                "includePaths": ["src/themes/openems/scss"]
               },
               "styles": [
                 "src/themes/openems/scss/variables.scss",
@@ -83,6 +90,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-dev.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -95,6 +106,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-prod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -107,6 +122,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-dev.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -119,6 +138,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-prod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -131,6 +154,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-docker.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -143,6 +170,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-docker.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -155,6 +186,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/gitpod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             }
@@ -186,10 +221,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         },
         "test": {
@@ -212,13 +244,5 @@
   },
   "cli": {
     "analytics": false
-  },
-  "schematics": {
-    "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
-    },
-    "@ionic/angular-toolkit:page": {
-      "styleext": "scss"
-    }
   }
 }

@@ -1,8 +1,7 @@
 package io.openems.edge.energy.api.simulation;
 
-import static io.openems.edge.energy.api.simulation.GlobalSimulationsContext.calculatePeriodDurationHourFromIndex;
-import static io.openems.edge.energy.api.simulation.GlobalSimulationsContext.generateProductionPrediction;
-import static org.junit.Assert.assertArrayEquals;
+import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
+import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.calculatePeriodDurationHourFromIndex;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
@@ -61,27 +60,21 @@ public class GlobalSimulationsContextTest {
 				11.4, 12.4, 13.4, 14.4, 15.4, 16.4, 17.4, 18.4 //
 		);
 
-		var gsc = GlobalSimulationsContext.create() //
-				.setClock(CLOCK) //
+		var goc = GlobalOptimizationContext.create() //
+				.setComponentManager(cm) //
+				.setRiskLevel(MEDIUM) //
 				.setEnergyScheduleHandlers(ImmutableList.of()) //
 				.setSum(sum) //
 				.setPredictorManager(predictorManager) //
 				.setTimeOfUseTariff(prices) //
 				.build();
 
-		assertEquals(1000 /* -4000 W */, gsc.ess().maxChargeEnergy());
-		assertEquals(1250 /* 5000 W */, gsc.ess().maxDischargeEnergy());
-		assertEquals(28, gsc.periods().size());
-		var p0 = gsc.periods().get(0);
+		assertEquals(4000 /* -W */, goc.ess().maxChargePower());
+		assertEquals(5000 /* W */, goc.ess().maxDischargePower());
+		assertEquals(28, goc.periods().size());
+		var p0 = goc.periods().get(0);
 		assertEquals(2000 /* Wh */, p0.production());
 		assertEquals(1000 /* Wh */, p0.consumption());
-	}
-
-	@Test
-	public void testGenerateProductionPrediction() {
-		final var arr = new Integer[] { 1, 2, 3 };
-		assertArrayEquals(arr, generateProductionPrediction(arr, 2));
-		assertArrayEquals(new Integer[] { 1, 2, 3, 0 }, generateProductionPrediction(arr, 4));
 	}
 
 	@Test

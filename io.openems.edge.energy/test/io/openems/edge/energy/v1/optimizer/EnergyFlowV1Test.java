@@ -52,14 +52,14 @@ public class EnergyFlowV1Test {
 				.setEssMaxSocEnergy(20000) //
 				.setEssMaxChargeEnergy(5000) //
 				.setEssMaxDischargeEnergy(5000) //
-				.seMaxBuyFromGrid(4000) //
+				.setMaxBuyFromGrid(4000) //
 				.setPrices(0);
 
 		// essChargeInChargeGrid = 2375
 	}
 
-	private static EnergyFlowV1 execute(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function, int essInitial,
-			ParamsV1.Builder pb) {
+	private static EnergyFlowV1 execute(TriFunction<ParamsV1, OptimizePeriod, Integer, EnergyFlowV1> function,
+			int essInitial, ParamsV1.Builder pb) {
 		var p = pb.build();
 		return function.apply(p, p.optimizePeriods().get(0), essInitial);
 	}
@@ -186,7 +186,7 @@ public class EnergyFlowV1Test {
 		var e = execute(EnergyFlowV1::withBalancing, 3000, P //
 				.setProductions(1000) //
 				.setConsumptions(4900) //
-				.seMaxBuyFromGrid(1600));
+				.setMaxBuyFromGrid(1600));
 		assertEnergyFlow(e);
 		assertEquals(2000, e.ess());
 		assertEquals(1900, e.grid()); // ESS Limit has higher priority
@@ -250,7 +250,7 @@ public class EnergyFlowV1Test {
 		var e = execute(EnergyFlowV1::withChargeGrid, 10000, P //
 				.setProductions(1000) //
 				.setConsumptions(2000) //
-				.seMaxBuyFromGrid(1600));
+				.setMaxBuyFromGrid(1600));
 		assertEnergyFlow(e);
 		assertEquals(-600, e.ess());
 		assertEquals(1600, e.grid()); // Limited by maxBuyFromGrid

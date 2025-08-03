@@ -1,84 +1,123 @@
 <ion-app>
   <app-header></app-header>
-  <ion-menu type="overlay" side="start" contentId="content">
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-          <ion-menu-button autoHide="false"></ion-menu-button>
-        </ion-buttons>
-        <ion-title translate>Menu.menu</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <ion-list>
-
-        <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active" routerLink="/user"
-          (click)="menu.close()">
-          <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
-          </ion-icon>
-          <ion-label class="ion-text-wrap" color="dark">
-            <p>{{ user.name }}</p>
-            <ion-text color="medium">
-              <p>{{ user.id }}</p>
-            </ion-text>
-          </ion-label>
-        </ion-item>
-
-        <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
-        <ng-container *ngIf="(service.metadata | async) as service">
-          <ng-container *ngIf="isUserAllowedToSeeOverview">
-            <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
-              <ion-label translate>Menu.overview </ion-label>
-            </ion-item>
-          </ng-container>
-        </ng-container>
-
-        <nav *ngIf="(service.currentEdge | async) as edge">
-          <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-            <ion-label translate>Menu.edgeSettings</ion-label>
-          </ion-item>
-        </nav>
-      </ion-list>
-    </ion-content>
-  </ion-menu>
   <ion-content>
-    <ng-container *ngIf="websocket.status === 'connecting' || websocket.status === 'failed'">
+    <ng-container *ngIf="navigationService.position() === 'disabled'">
+      <ng-template *ngTemplateOutlet="sidemenu">
+      </ng-template>
+      <ion-content>
+        <ng-template *ngTemplateOutlet="content">
+        </ng-template>
+      </ion-content>
+    </ng-container>
+    <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main"
+      *ngIf="navigationService.position() === 'left'">
+      <ng-container *ngTemplateOutlet="sidemenu">
+      </ng-container>
+
+      <div id="main">
+        <ng-template *ngTemplateOutlet="content"></ng-template>
+      </div>
+    </ion-split-pane>
+
+    <ng-container *ngIf="navigationService.position() === 'bottom'">
+      <ng-container *ngTemplateOutlet="content">
+      </ng-container>
+      <ng-container *ngTemplateOutlet="sidemenu">
+      </ng-container>
+    </ng-container>
+  </ion-content>
+
+  <oe-navigation></oe-navigation>
+  <ng-container *ngTemplateOutlet="footer"></ng-container>
+</ion-app>
+
+<ng-template #content>
+  <ng-container *ngIf="websocket.status === 'connecting' || websocket.status === 'failed'">
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="12" size-md="6">
+          <ion-card [ngSwitch]="websocket.status">
+
+            <!-- Trying to connect to backend -->
+            <ion-item color="light" *ngSwitchCase="'connecting'">
+              <ion-icon slot="start" name="wifi-outline"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                <h2 translate>Index.connectionInProgress</h2>
+              </ion-label>
+            </ion-item>
+
+            <!-- Connection failed -->
+            <ion-item color="light" *ngSwitchCase="'failed'">
+              <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.connectionFailed</h2>
+                <p color="light">{{ environment.url }}</p>
+              </ion-label>
+            </ion-item>
+
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ng-container>
+
+  <systemLog *ngIf="isSystemLogEnabled"></systemLog>
+
+  <!-- Show Sub-Views -->
+  <ion-router-outlet id="content"></ion-router-outlet>
+</ng-template>
+
+<ng-template #sidemenu>
+  <ion-menu menuId="main-menu" [contentId]="navigationService.position === 'left' ? 'main': 'content'"
+    [type]="navigationService.position === 'left' ? '': 'overlay'" side="start">
+    <ion-list>
+      <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active"
+        (click)="navCtrl.navigateRoot('/user');menu.close()">
+        <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
+        </ion-icon>
+        <ion-label>
+          <p style="color:var(--ion-text-color);">{{ user.name }}</p>
+          <ion-text>
+            <p style="color:var(--ion-text-color-shade);">{{ user.id }}</p>
+          </ion-text>
+        </ion-label>
+      </ion-item>
+
+      <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
+      <ng-container *ngIf="(service.metadata | async) as service">
+        <ng-container *ngIf="isUserAllowedToSeeOverview">
+          <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
+            <ion-label translate>Menu.overview </ion-label>
+          </ion-item>
+        </ng-container>
+      </ng-container>
+
+      <nav *ngIf="service.currentEdge() as edge">
+        <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
+          <ion-label translate>Menu.edgeSettings</ion-label>
+        </ion-item>
+      </nav>
+
+      @if(!service.isSmartphoneResolution && navigationService.position() === "left"){
+      <oe-navigation-chips (navigate)="navigationService.navigateTo($event)"></oe-navigation-chips>
+      }
+    </ion-list>
+  </ion-menu>
+</ng-template>
+
+<ng-template #footer>
+  <ion-footer *ngIf="isSystemOutage">
+    <ion-toolbar color="warning">
       <ion-grid>
         <ion-row class="ion-justify-content-center">
           <ion-col size="12" size-md="6">
-            <ion-card [ngSwitch]="websocket.status">
-
-              <!-- Trying to connect to backend -->
-              <ion-item color="light" *ngSwitchCase="'connecting'">
-                <ion-icon slot="start" name="wifi-outline"></ion-icon>
-                <ion-label class="ion-text-wrap">
-                  <h2 translate>Index.connectionInProgress</h2>
-                </ion-label>
-              </ion-item>
-
-              <!-- Connection failed -->
-              <ion-item color="light" *ngSwitchCase="'failed'">
-                <ion-icon slot="start" name="close-circle-outline"></ion-icon>
-                <ion-label class="ion-text-wrap">
-                  <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.connectionFailed</h2>
-                  <p color="light">{{ environment.url }}</p>
-                </ion-label>
-              </ion-item>
-
-            </ion-card>
+            <span translate>General.SystemOutage</span>
+            <span>&nbsp;</span>
+            <a href="https://status.fenecon.de/" target="_blank">status.fenecon.de</a>
           </ion-col>
         </ion-row>
       </ion-grid>
-    </ng-container>
-
-    <systemLog *ngIf="isSystemLogEnabled"></systemLog>
-
-    <!-- Show Sub-Views -->
-    <ion-router-outlet id="content"></ion-router-outlet>
-
-    <!-- Side Menu  -->
-
-  </ion-content>
-
-  <oe-footer *ngIf="isUserAllowedToSeeFooter && !isHistoryDetailView"></oe-footer>
-</ion-app>
+    </ion-toolbar>
+  </ion-footer>
+  <oe-footer #appFooter slot="fixed" *ngIf="isUserAllowedToSeeFooter && !isHistoryDetailView"></oe-footer>
+</ng-template>

@@ -5,7 +5,8 @@ import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
-import { PipeModule } from "../pipe/pipe";
+import { DomChangeDirective } from "../directive/oe-dom-change";
+import { PipeModule } from "../pipe/pipe.module";
 import { ChartModule } from "./chart/chart.module";
 import { FlatWidgetComponent } from "./flat/flat";
 import { FlatWidgetHorizontalLineComponent } from "./flat/flat-widget-horizontal-line/flat-widget-horizontal-line";
@@ -17,6 +18,9 @@ import { FooterComponent } from "./footer/footer";
 import { FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
 import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
 import { ModalModule } from "./modal/modal.module";
+import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
+import { NavigationChipsComponent } from "./navigation/chips/chips";
+import { NavigationPageComponent as NavigationViewComponent } from "./navigation/view/view";
 import { PickdateModule } from "./pickdate/pickdate.module";
 import { NotificationComponent } from "./shared/notification/notification";
 
@@ -25,14 +29,15 @@ import { NotificationComponent } from "./shared/notification/notification";
         BrowserModule,
         IonicModule,
         PipeModule,
-        ReactiveFormsModule,
-        RouterModule,
         TranslateModule,
         HistoryDataErrorModule,
         FooterNavigationModule,
         ChartModule,
         PickdateModule,
+        ReactiveFormsModule,
+        RouterModule,
         ModalModule,
+        DomChangeDirective,
     ],
     declarations: [
 
@@ -47,6 +52,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         // Others
         NotificationComponent,
         FooterComponent,
+        NavigationViewComponent,
+        NavigationChipsComponent,
+        NavigationBreadCrumbsComponent,
     ],
     exports: [
         // Flat
@@ -65,6 +73,10 @@ import { NotificationComponent } from "./shared/notification/notification";
         ChartModule,
         PickdateModule,
         ModalModule,
+        NavigationViewComponent,
+        NavigationChipsComponent,
+        NavigationBreadCrumbsComponent,
+        DomChangeDirective,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 

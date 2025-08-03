@@ -1,5 +1,8 @@
 package io.openems.edge.controller.ess.fixstateofcharge.api;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -39,8 +42,6 @@ import io.openems.edge.controller.ess.fixstateofcharge.statemachine.Context;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.timedata.api.Timedata;
 
 public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
@@ -203,6 +204,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	 */
 	private void applyTargetPower(Float targetPower, float rampPower, int maxApparentPower)
 			throws OpenemsNamedException {
+		final var ess = this.getEss();
 		var activePower = this.rampFilter.getFilteredValueAsInteger(targetPower, rampPower);
 
 		this._setDebugSetActivePowerRaw(activePower);
@@ -221,22 +223,12 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		activePower = this.calculateAcLimit(activePower);
 
 		// Fit into min/max "EssPower"
-		if (this.getEss() instanceof ManagedSymmetricEss) {
-			var e = (ManagedSymmetricEss) this.getEss();
-			var maxCharge = e.getPower().getMinPower(e, Phase.ALL, Pwr.ACTIVE);
-			var maxDischarge = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-			activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
-		} else {
-			activePower = TypeUtils.fitWithin(maxApparentPower * -1, maxApparentPower, activePower);
-		}
+		var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
+		var maxDischarge = ess.getPower().getMaxPower(ess, ALL, ACTIVE);
+		activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
 
-		if (activePower > 0) {
-			this.getEss().setActivePowerEquals(activePower);
-		} else if (activePower < 0) {
-			this.getEss().setActivePowerEquals(activePower);
-		} else {
-			this.getEss().setActivePowerEquals(activePower);
-		}
+		// Apply Power
+		ess.setActivePowerEquals(activePower);
 
 		// Set debug channels
 		this._setDebugSetActivePower(activePower);

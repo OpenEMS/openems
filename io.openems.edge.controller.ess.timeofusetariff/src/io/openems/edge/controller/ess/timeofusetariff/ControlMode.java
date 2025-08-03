@@ -15,11 +15,20 @@ public enum ControlMode {
 			StateMachine.BALANCING, //
 			StateMachine.DELAY_DISCHARGE, //
 			StateMachine.CHARGE_GRID //
+	),
+	/**
+	 * Active Discharge to grid.
+	 */
+	DISCHARGE_TO_GRID(//
+			StateMachine.BALANCING, //
+			StateMachine.DELAY_DISCHARGE, //
+			StateMachine.CHARGE_GRID, //
+			StateMachine.DISCHARGE_GRID //
 	);
 
-	public final StateMachine[] states;
+	public final StateMachine[] modes;
 
-	private ControlMode(StateMachine... states) {
-		this.states = states;
+	private ControlMode(StateMachine... modes) {
+		this.modes = modes;
 	}
 }

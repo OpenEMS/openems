@@ -1,4 +1,4 @@
-import { Component, HostBinding, OnInit } from "@angular/core";
+import { Component, effect, HostBinding } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
 
@@ -26,14 +26,15 @@ import { Role } from "../../type/role";
       }
 
       :is(ion-item) {
-        --min-height: initial !important;
+
         font-size: inherit;
       }
     }
   `],
   templateUrl: "footer.html",
+  standalone: false,
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent {
 
   @HostBinding("attr.data-isSmartPhone")
   public isSmartPhone: boolean = this.service.isSmartphoneResolution;
@@ -46,7 +47,20 @@ export class FooterComponent implements OnInit {
   constructor(
     protected service: Service,
     private title: Title,
-  ) { }
+  ) {
+
+    effect(() => {
+      const edge = this.service.currentEdge();
+
+      if (!edge) {
+        this.edge = null;
+        return;
+      }
+      this.edge = edge;
+
+      this.setDisplayValues(edge);
+    });
+  }
 
   private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
     const result = {
@@ -71,25 +85,21 @@ export class FooterComponent implements OnInit {
     return result;
   }
 
-  ngOnInit() {
-    this.service.currentEdge.subscribe((edge) => {
-      this.edge = edge;
+  private setDisplayValues(edge: Edge) {
 
-      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
-        this.user = metadata.user;
+    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
+      this.user = metadata.user;
 
-        let title = environment.edgeShortName;
-        if (edge) {
-          this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
+      let title = environment.edgeShortName;
+      if (edge) {
+        this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
 
-          if (this.user.hasMultipleEdges) {
-            title += " | " + edge.id;
-          }
+        if (this.user.hasMultipleEdges) {
+          title += " | " + edge.id;
         }
+      }
 
-        this.title.setTitle(title);
-      });
+      this.title.setTitle(title);
     });
   }
-
 }

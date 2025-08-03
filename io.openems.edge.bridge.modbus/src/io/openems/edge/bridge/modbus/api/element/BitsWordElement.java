@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,6 +34,8 @@ public class BitsWordElement extends AbstractSingleWordElement<BitsWordElement, 
 	/** Holds the ChannelWrapper; 'null' if not explicitly defined. */
 	private final ChannelWrapper[] channels = new ChannelWrapper[16];
 
+	private Function<Boolean[], Boolean[]> valueManipulator = Function.identity();
+
 	public BitsWordElement(int address, AbstractOpenemsModbusComponent component) {
 		super(OpenemsType.INTEGER, address);
 		this.component = component;
@@ -43,6 +46,7 @@ public class BitsWordElement extends AbstractSingleWordElement<BitsWordElement, 
 				value = new Boolean[16];
 			}
 
+			value = this.valueManipulator.apply(value);
 			for (var bitIndex = 0; bitIndex < 16; bitIndex++) {
 				// Get Wrapper
 				var wrapper = this.channels[bitIndex];
@@ -54,6 +58,17 @@ public class BitsWordElement extends AbstractSingleWordElement<BitsWordElement, 
 				wrapper.channel().setNextValue(value[bitIndex]);
 			}
 		});
+	}
+
+	/**
+	 * Defines a convert method to manipulate the bit values.
+	 * 
+	 * @param converter the defined function how to manipulate the value
+	 * @return myself for builder pattern
+	 */
+	public BitsWordElement convert(Function<Boolean[], Boolean[]> converter) {
+		this.valueManipulator = converter;
+		return this;
 	}
 
 	@Override

@@ -1,7 +1,9 @@
 // @ts-strict-ignore
+import { TranslateService } from "@ngx-translate/core";
 import { compareVersions } from "compare-versions";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
+import { hasUpdateAppVersion } from "src/app/edge/settings/app/permissions";
 import { SumState } from "src/app/index/shared/sumState";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
 import { CurrentDataNotification } from "../../jsonrpc/notification/currentDataNotification";
@@ -17,6 +19,7 @@ import { GetEdgeConfigRequest } from "../../jsonrpc/request/getEdgeConfigRequest
 import { GetPropertiesOfFactoryRequest } from "../../jsonrpc/request/getPropertiesOfFactoryRequest";
 import { SubscribeChannelsRequest } from "../../jsonrpc/request/subscribeChannelsRequest";
 import { SubscribeSystemLogRequest } from "../../jsonrpc/request/subscribeSystemLogRequest";
+import { UpdateAppConfigRequest } from "../../jsonrpc/request/updateAppConfigRequest";
 import { UpdateComponentConfigRequest } from "../../jsonrpc/request/updateComponentConfigRequest";
 import { GetChannelResponse } from "../../jsonrpc/response/getChannelResponse";
 import { Channel, GetChannelsOfComponentResponse } from "../../jsonrpc/response/getChannelsOfComponentResponse";
@@ -25,6 +28,8 @@ import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getProper
 import { ChannelAddress, EdgePermission, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { NavigationId, NavigationTree } from "../navigation/shared";
+import { Name } from "../shared/name";
 import { CurrentData } from "./currentdata";
 import { EdgeConfig } from "./edgeconfig";
 
@@ -39,6 +44,7 @@ export class Edge {
   // determine if subscribe on channels was successful
   // used in live component to hide elements while no channel data available
   public subscribeChannelsSuccessful: boolean = false;
+  public isSubscribed: boolean = false;
 
   // holds config
   private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
@@ -47,6 +53,7 @@ export class Edge {
   private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
   private isRefreshConfigBlocked: boolean = false;
   private subscribeChannelsTimeout: any = null;
+
 
   constructor(
     public readonly id: string,
@@ -60,7 +67,9 @@ export class Edge {
     public readonly firstSetupProtocol: Date,
   ) { }
 
-
+  setIsSubscribed(isSubscribed: boolean) {
+    this.isSubscribed = isSubscribed;
+  }
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
    *
@@ -71,6 +80,13 @@ export class Edge {
       this.refreshConfig(websocket);
     }
     return this.config;
+  }
+
+  /**
+   * Gets the current config. If not available null.
+   */
+  public getCurrentConfig(): EdgeConfig | null {
+    return this.config.value;
   }
 
   /**
@@ -325,6 +341,31 @@ export class Edge {
   }
 
   /**
+   * Updates the configuration of a OpenEMS Edge App.
+   *
+   * @param ws          the Websocket
+   * @param componentId the OpenEMS Edge Component-ID that the app is searched by
+   * @param properties  the properties to be updated.
+   */
+  public updateAppConfig(ws: Websocket, componentId: string, properties: { name: string, value: string | number | boolean }[]): Promise<JsonrpcResponseSuccess> {
+    let request;
+    if (!hasUpdateAppVersion(this)) {
+      request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
+    } else {
+      const jsonObject = properties.reduce((acc, current) => {
+        acc[current.name] = current.value;
+        return acc;
+      }, {});
+      const payload = new UpdateAppConfigRequest({ componentId: componentId, properties: jsonObject });
+      request = new ComponentJsonApiRequest({
+        componentId: "_appManager",
+        payload: payload,
+      });
+    }
+    return this.sendRequest(ws, request);
+  }
+
+  /**
    * Mark this edge as online or offline
    *
    * @param isOnline
@@ -369,11 +410,62 @@ export class Edge {
 
   /**
    * Gets the Role of the Edge as a human-readable string.
-   *
-   * @returns the name of the role
-   */
+  *
+  * @returns the name of the role
+  */
   public getRoleString(): string {
     return Role[this.role].toLowerCase();
+  }
+
+  /**
+   * Gets the navigation tree
+   *
+   * @param navigationTree current navigation tree
+   * @param translate the translate
+   * @returns the new navigation tree
+   */
+  public async createNavigationTree(translate: TranslateService, edge: Edge): Promise<NavigationTree> {
+    const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (translate) => [
+      NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [],
+      null,
+    ];
+
+    const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree(translate).slice() as ConstructorParameters<typeof NavigationTree>;
+    const navigationTree = new NavigationTree(..._baseNavigationTree);
+
+    // TODO find automated way to create reference for parents
+    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+
+    if (edge.isOnline === false) {
+      return navigationTree;
+    }
+
+    const conf = await this.config.getValue();
+    const baseMode: NavigationTree["mode"] = "label";
+    for (const [componentId, component] of Object.entries(conf.components)) {
+      switch (component.factoryId) {
+        case "Evse.Controller.Single":
+          navigationTree.setChild(NavigationId.LIVE,
+            new NavigationTree(
+              componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+              ...(this.roleIsAtLeast(Role.ADMIN)
+                ? [new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
+                : []),
+
+              new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
+              new NavigationTree("settings", "settings", { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
+            ], navigationTree));
+          break;
+        case "Controller.IO.Heating.Room":
+          navigationTree.setChild(NavigationId.LIVE,
+            new NavigationTree(
+              componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+              navigationTree,));
+          break;
+      }
+    }
+
+    return navigationTree;
   }
 
   /**
@@ -428,4 +520,5 @@ export class Edge {
       }, 100);
     }
   }
+
 }

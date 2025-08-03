@@ -34,6 +34,10 @@ public class CurrentDataNotification extends JsonrpcNotification {
 		this.data = data;
 	}
 
+	public Map<String, JsonElement> getData() {
+		return this.data;
+	}
+
 	@Override
 	public JsonObject getParams() {
 		return this.data.entrySet().stream() //

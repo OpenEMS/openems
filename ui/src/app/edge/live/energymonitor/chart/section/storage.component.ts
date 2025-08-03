@@ -4,8 +4,8 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
-import { DefaultTypes } from "../../../../../shared/service/defaulttypes";
 import { Service, Utils } from "../../../../../shared/shared";
+import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
 @Component({
@@ -37,6 +37,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
             transition("hide => show", animate("0ms ease-out")),
         ]),
     ],
+    standalone: false,
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
