@@ -126,11 +126,15 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Keba", "") //
 			.put("App.Evcs.Keba.ReadOnly", "") //
+			.put("App.Evcs.Goe.ReadOnly", "") //
 			.put("App.Evcs.Heidelberg.ReadOnly", "") //
 			.put("App.Evcs.Mennekes.ReadOnly", "") //
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //
 			.put("App.Hardware.IoGpio", "") //
+			.put("App.Evse.ElectricVehicle.Generic", "") //
+			.put("App.Evse.ChargePoint.Keba", "") //
+			.put("App.Evse.Controller.Cluster", "") //
 			.put("App.Hardware.KMtronic8Channel", "") //
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //
@@ -163,6 +167,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.PvInverter.SolarEdge", "") //
 			.put("App.PeakShaving.PeakShaving", "") //
 			.put("App.PeakShaving.PhaseAccuratePeakShaving", "") //
+			.put("App.PeakShaving.TimeSlotPeakShaving", "")//
 			.put("App.Ess.FixActivePower", "") //
 			.put("App.Ess.FixStateOfCharge", "") //
 			.put("App.Ess.PowerPlantController", "") //

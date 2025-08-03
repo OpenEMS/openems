@@ -94,7 +94,6 @@ public interface BatteryInverterRefuStore88k
 		W_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		HZ(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ).accessMode(AccessMode.READ_ONLY)), //
 		HZ_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
-		VA(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE).accessMode(AccessMode.READ_ONLY)), //
 		VA_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
 		VA_R(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).accessMode(AccessMode.READ_ONLY)), //
 		VA_R_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
@@ -376,10 +375,6 @@ public interface BatteryInverterRefuStore88k
 
 	public default Channel<Integer> getAcCurrent() {
 		return this.channel(BatteryInverterRefuStore88k.ChannelId.A);
-	}
-
-	public default Channel<Integer> getApparentPower() {
-		return this.channel(BatteryInverterRefuStore88k.ChannelId.VA);
 	}
 
 	public default OperatingState getOperatingState() {

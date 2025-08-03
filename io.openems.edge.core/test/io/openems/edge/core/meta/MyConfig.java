@@ -10,8 +10,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 
-		private CurrencyConfig currency = CurrencyConfig.EUR;
+		private CurrencyConfig currency;
+		private GridFeedInLimitationType gridFeedInLimitationType = GridFeedInLimitationType.NO_LIMITATION;
 		private boolean isEssChargeFromGridAllowed;
+		private int maximumGridFeedInLimit = 0;
 		private int gridConnectionPointFuseLimit;
 		private SubdivisionCode subdivisionCode = SubdivisionCode.UNDEFINED;
 		private String placeName = "";
@@ -35,6 +37,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setGridConnectionPointFuseLimit(int gridConnectionPointFuseLimit) {
 			this.gridConnectionPointFuseLimit = gridConnectionPointFuseLimit;
+			return this;
+		}
+
+		public Builder setGridFeedInLimitationType(GridFeedInLimitationType gridFeedInLimitationType) {
+			this.gridFeedInLimitationType = gridFeedInLimitationType;
 			return this;
 		}
 
@@ -95,6 +102,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public GridFeedInLimitationType gridFeedInLimitationType() {
+		return this.builder.gridFeedInLimitationType;
+	}
+
+	@Override
 	public boolean isEssChargeFromGridAllowed() {
 		return this.builder.isEssChargeFromGridAllowed;
 	}
@@ -102,6 +114,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int gridConnectionPointFuseLimit() {
 		return this.builder.gridConnectionPointFuseLimit;
+	}
+
+	@Override
+	public int maximumGridFeedInLimit() {
+		return this.builder.maximumGridFeedInLimit;
 	}
 
 	@Override

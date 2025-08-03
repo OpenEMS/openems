@@ -11,10 +11,14 @@ import java.time.ZoneId;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.oem.OpenemsEdgeOem;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.types.Coordinates;
@@ -55,7 +59,7 @@ public interface Meta extends ModbusSlave {
 				.persistencePriority(VERY_LOW)),
 		/**
 		 * Edge currency.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meta
 		 * <li>Type: Currency
@@ -66,14 +70,39 @@ public interface Meta extends ModbusSlave {
 
 		/**
 		 * Is it allowed to charge the ESS from Grid?.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meta
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		IS_ESS_CHARGE_FROM_GRID_ALLOWED(Doc.of(BOOLEAN)//
-				.persistencePriority(HIGH));
+		IS_ESS_CHARGE_FROM_GRID_ALLOWED(Doc.of(BOOLEAN) //
+				.persistencePriority(HIGH)), //
+
+		/**
+		 * Grid feed limitation type.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: GridFeedInLimitationType
+		 * </ul>
+		 */
+		GRID_FEED_IN_LIMITATION_TYPE(Doc.of(GridFeedInLimitationType.values()) //
+				.persistencePriority(HIGH)), //
+
+		/**
+		 * Maximum grid feed in limit.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Integer
+		 * <li>Unit: Watt
+		 * </ul>
+		 */
+		MAXIMUM_GRID_FEED_IN_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(HIGH)) //
+		;
 
 		private final Doc doc;
 
@@ -90,7 +119,7 @@ public interface Meta extends ModbusSlave {
 	/**
 	 * Provides a default implementation for
 	 * {@link ModbusSlave#getModbusSlaveTable(AccessMode)}.
-	 * 
+	 *
 	 * @param accessMode the {@link AccessMode}
 	 * @param oem        the {@link OpenemsEdgeOem}
 	 * @return the {@link ModbusSlaveNatureTable}
@@ -149,6 +178,35 @@ public interface Meta extends ModbusSlave {
 
 	/**
 	 * Gets whether charging the ESS from grid is allowed. See
+	 * {@link ChannelId#GRID_FEED_IN_LIMITATION_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<GridFeedInLimitationType> getGridFeedInLimitationType() {
+		return this.getGridFeedInLimitationTypeChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_FEED_IN_LIMITATION_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<GridFeedInLimitationType> getGridFeedInLimitationTypeChannel() {
+		return this.channel(ChannelId.GRID_FEED_IN_LIMITATION_TYPE);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GRID_FEED_IN_LIMITATION_TYPE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridFeedInLimitationType(GridFeedInLimitationType value) {
+		this.getGridFeedInLimitationTypeChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets whether charging the ESS from grid is allowed. See
 	 * {@link ChannelId#IS_ESS_CHARGE_FROM_GRID_ALLOWED}.
 	 *
 	 * @return the Channel {@link Value}
@@ -168,9 +226,38 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaximumGridFeedInLimitChannel() {
+		return this.channel(ChannelId.MAXIMUM_GRID_FEED_IN_LIMIT);
+	}
+
+	/**
+	 * Gets the feed to grid power limit.
+	 * {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default int getMaximumGridFeedInLimit() {
+		return this.getMaximumGridFeedInLimitChannel().value().orElse(0);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaximumGridFeedInLimit(int value) {
+		this.getMaximumGridFeedInLimitChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the maximum current allowed at the Grid Connection Point (GCP), i.e. the
 	 * rating of the fuses.
-	 * 
+	 *
 	 * @return the limit in A
 	 */
 	public int getGridConnectionPointFuseLimit();

@@ -745,7 +745,7 @@ export namespace HistoryUtils {
     borderDash?: [number, number],
     /** Hides shadow of chart lines, default false */
     hideShadow?: boolean,
-    /** axisId from yAxes  */
+    /** axisId from yAxes, default {@link ChartAxis.LEFT} */
     yAxisId?: ChartAxis,
     /** overrides global chartConfig for this dataset */
     custom?: T,

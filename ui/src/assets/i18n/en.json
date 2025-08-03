@@ -72,6 +72,7 @@
           "peakshaving": "Peak-Shaving",
           "peakshavingPower": "Discharge above",
           "recharge": "Recharge Power",
+          "hysteresisSoC": "Threshold SoC",
           "rechargePower": "Charge below",
           "relationError": "Discharge limit must be greater than or equal to the charge limit",
           "startDate": "Start date",
@@ -805,6 +806,7 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Choose",
+      "LIMITATION": "Limitation",
       "CONSTANT_VALUE": "Cos φ value",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
       "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
@@ -908,7 +910,9 @@
       "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number.",
       "BATTERY_TOWER_CLUSTER": "Battery {{ batteryNumber }} Tower {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Please check the {{ key }} serialnumber in {{ header }}",
-      "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes."
+      "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes.",
+      "DOUBLE_SOCKET_LABEL": "Installed in the double socket",
+      "DOUBLE_SOCKET": "Double socket"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -1125,7 +1129,8 @@
   },
   "GENERAL": {
     "FORMLY": {
-      "REQUIRED": "Is required"
+      "REQUIRED": "Is required",
+      "INITIALIZING_ERROR": "Error initializing component"
     }
   },
   "FORMLY_FORM": {

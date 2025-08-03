@@ -23,7 +23,11 @@ public interface BridgeModbus extends OpenemsComponent {
 		 * can be reduced by this amount, without causing CYCLE_TIME_IS_TOO_SHORT.
 		 */
 		CYCLE_DELAY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.MILLISECONDS)); //
+				.unit(Unit.MILLISECONDS)),
+
+		BRIDGE_IS_STOPPED(Doc.of(Level.INFO) //
+				.text("Modbus Communication is stopped")) //
+		;
 
 		private final Doc doc;
 
