@@ -38,7 +38,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		this.parent = parent;
 		this.config = config;
 		this.minWaitSecondsBetweenRetries = new Random().nextInt(config.maxWaitSeconds()) + config.minWaitSeconds();
-		this.lastTry = System.nanoTime() - this.minWaitSecondsBetweenRetries * 1_000_000_000L;
+		this.lastTry = 0;
 	}
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent) {
