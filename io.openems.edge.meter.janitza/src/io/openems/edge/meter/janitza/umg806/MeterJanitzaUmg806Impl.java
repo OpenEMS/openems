@@ -29,7 +29,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 /**
  * Implements the Janitza UMG 806 power analyzer.
