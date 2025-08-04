@@ -85,11 +85,34 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
                 powerChannel: new ChannelAddress(emergencyReserveComponent.id, "ActualReserveSoc"),
             });
         }
+        const chargeDischargeLimiterComponent: EdgeConfig.Component | null = config
+            .getComponentsByFactory("Controller.Ess.ChargeDischargeLimiter")
+            .filter(component => component.isEnabled)[0] ?? null;
+        const isChargeDischargeLimiterEnabled = config.getPropertyFromComponent<boolean>(chargeDischargeLimiterComponent, "isChargeDischargeLimiterEnabled");
+        if (chargeDischargeLimiterComponent && isChargeDischargeLimiterEnabled) {
+            input.push({
+                name: "MinSoc",
+                powerChannel: new ChannelAddress(chargeDischargeLimiterComponent.id, "MinSoc"),
+
+            });
+            input.push({
+                name: "MaxSoc",
+                powerChannel: new ChannelAddress(chargeDischargeLimiterComponent.id, "MaxSoc"),
+
+            });
+            input.push({
+                name: "BalancingSoc",
+                powerChannel: new ChannelAddress(chargeDischargeLimiterComponent.id, "BalancingSoc"),
+
+            });
+        }
 
         return {
             input: input,
+
             output: (data: HistoryUtils.ChannelData) => {
 
+                //console.log("ChannelData für Chart Totalcharts.ts:", data);
                 let totalData: number[] = [];
 
                 if (chartType === "line") {
@@ -134,6 +157,30 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
                         name: translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
                         converter: () => data["EmergencyReserve"]?.map(el => Utils.multiplySafely(el, 1000)),
                         color: ChartConstants.Colors.BLACK,
+                        yAxisId: ChartAxis.RIGHT,
+                        borderDash: [3, 3],
+                    });
+                }
+
+                if (chargeDischargeLimiterComponent && isChargeDischargeLimiterEnabled) {
+                    output.push({
+                        name: translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MAX_SOC_VALUE"),
+                        converter: () => data["MaxSoc"].map(el => Utils.multiplySafely(el, 1000)),
+                        color: ChartConstants.Colors.SHADES_OF_YELLOW[0],
+                        yAxisId: ChartAxis.RIGHT,
+                        borderDash: [3, 3],
+                    });
+                    output.push({
+                        name: translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.MIN_SOC_VALUE"),
+                        converter: () => data["MinSoc"].map(el => Utils.multiplySafely(el, 1000)),
+                        color: ChartConstants.Colors.SHADES_OF_YELLOW[1],
+                        yAxisId: ChartAxis.RIGHT,
+                        borderDash: [3, 3],
+                    });
+                    output.push({
+                        name: translate.instant("INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE"),
+                        converter: () => data["BalancingSoc"].map(el => Utils.multiplySafely(el, 1000)),
+                        color: ChartConstants.Colors.SHADES_OF_YELLOW[2],
                         yAxisId: ChartAxis.RIGHT,
                         borderDash: [3, 3],
                     });

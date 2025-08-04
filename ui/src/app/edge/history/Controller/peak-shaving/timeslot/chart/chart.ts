@@ -69,6 +69,7 @@ export class ChartComponent extends AbstractHistoryChart {
     return {
       input: input,
       output: (data: HistoryUtils.ChannelData) => {
+        //console.log("ChannelData für Chart peakshaving TimeSlot:", data);
         const output: HistoryUtils.DisplayValue[] = [
           {
             name: translate.instant("General.gridBuyAdvanced"),

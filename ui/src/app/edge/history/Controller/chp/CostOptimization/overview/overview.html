@@ -1,0 +1,5 @@
+<oe-chart [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" *ngIf="isInitialized && component"
+    [period]="service.historyPeriod" [title]="component.alias">
+    <oe-controller-chp-cost-optimization-chart [isOnlyChart]="true"
+        [component]="component"></oe-controller-chp-cost-optimization-chart>
+</oe-chart>

@@ -35,7 +35,7 @@ export class ChartComponent extends AbstractHistoryChart {
   public static getChartData(config: EdgeConfig, component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {
 
     AssertionUtils.assertIsDefined(component);
-    console.log("[ThresholdPeakshavingChartComponent] non-empty data", this);
+    //console.log("[ThresholdPeakshavingChartComponent] non-empty data", this);
     const meterId = config.getPropertyFromComponent<string>(component, "meter.id");
     const componentId = component.id;
     const input: HistoryUtils.InputChannel[] = [
@@ -65,10 +65,6 @@ export class ChartComponent extends AbstractHistoryChart {
         powerChannel: new ChannelAddress(componentId, "_PropertyPeakShavingPower"),
       },
       {
-        name: "StateMachine",
-        powerChannel: new ChannelAddress(componentId, "StateMachine"),
-      },
-      {
         name: "EssSoc",
         powerChannel: new ChannelAddress(componentId, "EssSoc"),
       },
@@ -81,15 +77,6 @@ export class ChartComponent extends AbstractHistoryChart {
     return {
       input: input,
       output: (data: HistoryUtils.ChannelData) => {
-
-        let fillColor = "rgba(110, 246, 5, 1)";
-        switch (data["StateMachine"]?.[0]) {
-          case -1: fillColor = "rgba(255, 0, 0, 0.2)"; break; // UNDEFINED
-          case 0: fillColor = "rgba(249, 28, 28, 0)"; break;     // StandBy
-          case 1: fillColor = "rgba(255, 0, 0, 0.2)"; break; // ERROR
-          case 2: fillColor = "rgba(255, 223, 0, 0.2)"; break; // Peakshaver active
-          case 3: fillColor = "rgba(31, 250, 31, 0.2)"; break;   // Charging active
-        };
 
         return [
           // main dataset
