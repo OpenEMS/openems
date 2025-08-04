@@ -9,10 +9,10 @@ import static io.openems.common.types.OpenemsType.LONG;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -111,15 +111,6 @@ public interface ControllerIoHeatingElement extends Controller, OpenemsComponent
 	}
 
 	/**
-	 * Sets the next value on {@link ChannelId#SESSION_ENERGY} Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setSessionEnergy(double value) {
-		this.channel(ChannelId.SESSION_ENERGY).setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#WAITING_FOR_CALIBRATION}.
 	 * 
 	 * @return the Channel
@@ -139,15 +130,6 @@ public interface ControllerIoHeatingElement extends Controller, OpenemsComponent
 	}
 
 	/**
-	 * Sets the next value on {@link ChannelId#WAITING_FOR_CALIBRATION} Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setWaitingForCalibration(boolean value) {
-		this.channel(ChannelId.WAITING_FOR_CALIBRATION).setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#LEVEL}.
 	 * 
 	 * @return the Channel
@@ -164,104 +146,4 @@ public interface ControllerIoHeatingElement extends Controller, OpenemsComponent
 	public default Value<Level> getLevel() {
 		return this.getLevelChannel().value();
 	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#LEVEL}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setLevel(Level value) {
-		this.channel(ChannelId.LEVEL).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#FORCE_START_AT_SECONDS_OF_DAY}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setForceStartAtSecondsOfDay(Integer value) {
-		this.channel(ChannelId.FORCE_START_AT_SECONDS_OF_DAY).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#AWAITING_HYSTERESIS}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setAwaitingHysteresis(boolean value) {
-		this.channel(ChannelId.AWAITING_HYSTERESIS).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#STATUS}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setStatus(Status value) {
-		this.channel(ChannelId.STATUS).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#PHASE1_TIME}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setPhase1Time(int value) {
-		this.channel(ChannelId.PHASE1_TIME).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#PHASE2_TIME}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setPhase2Time(int value) {
-		this.channel(ChannelId.PHASE2_TIME).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#PHASE3_TIME}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setPhase3Time(int value) {
-		this.channel(ChannelId.PHASE3_TIME).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#TOTAL_PHASE_TIME}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setTotalPhaseTime(int value) {
-		this.channel(ChannelId.TOTAL_PHASE_TIME).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#LEVEL1_TIME}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setLevel1Time(int value) {
-		this.channel(ChannelId.LEVEL1_TIME).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#LEVEL2_TIME}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setLevel2Time(int value) {
-		this.channel(ChannelId.LEVEL2_TIME).setNextValue(value);
-	}
-
-	/**
-	 * Sets the next value on {@link ChannelId#LEVEL3_TIME}.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setLevel3Time(int value) {
-		this.channel(ChannelId.LEVEL3_TIME).setNextValue(value);
-	}
-
 }

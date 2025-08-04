@@ -18,7 +18,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
@@ -139,35 +139,32 @@ public class TestFeneconHome10 {
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
 
-		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
 		assertEquals("ENABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
 	@Test
 	public void testFeedInTypeDynamicLimitation() throws Exception {
 		final var properties = fullSettings();
-		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
+		properties.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
 
-		assertEquals("ENABLE", batteryInverterProps.get("feedPowerEnable"));
 		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
 	@Test
 	public void testFeedInTypeNoLimitation() throws Exception {
 		final var properties = fullSettings();
-		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
+		properties.addProperty("FEED_IN_TYPE", ExternalLimitationType.NO_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
 
-		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
 		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
 	}
 

@@ -24,7 +24,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.types.MeterType;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -143,11 +142,6 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 	}
 
 	@Override
-	public MeterType getMeterType() {
-		return MeterType.CONSUMPTION_METERED;
-	}
-
-	@Override
 	public ChargePointAbilities getChargePointAbilities() {
 		return ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 16)) //
@@ -170,4 +164,9 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 		return this.config.phaseRotation();
 	}
 
+	@Override
+	public boolean isReadOnly() {
+		// TODO implement read-only
+		return false;
+	}
 }
