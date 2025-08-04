@@ -46,7 +46,7 @@ public class ControllerIoHeatingElementImplTest3 {
 						.setMinimumSwitchingTime(60) //
 						.setMinEnergylimit(5000) //
 						.setEndTimeWithMeter("00:00") //
-						.setMeterid("dummy-meter") //
+						.setMeterid("dummyMeter") //
 						.setScheduler("") // 
 						.build()); //
 	}

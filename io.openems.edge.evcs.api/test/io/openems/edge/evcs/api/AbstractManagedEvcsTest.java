@@ -33,7 +33,7 @@ public class AbstractManagedEvcsTest {
 	 * therefore a ClockProvider function in every EVCS (.timeleap(clock, 31,
 	 * ChronoUnit.SECONDS))
 	 */
-	private static final ThrowingRunnable<Exception> SLEEP = () -> Thread.sleep(1510);
+	private static final ThrowingRunnable<Exception> SLEEP = () -> Thread.sleep(2000);
 
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyEvcsPower EVCS_POWER_WITH_FILTER = new DummyEvcsPower(new RampFilter());

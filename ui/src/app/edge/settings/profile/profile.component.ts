@@ -2,7 +2,6 @@ import { Component, effect, OnInit, signal, WritableSignal } from "@angular/core
 import { ActivatedRoute } from "@angular/router";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { format } from "date-fns";
 import { PlatFormService } from "src/app/platform.service";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
@@ -10,8 +9,7 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { GetLatestSetupProtocolCoreInfoRequest } from "src/app/shared/jsonrpc/request/getLatestSetupProtocolCoreInfoRequest";
 import { GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
-import { GetLatestSetupProtocolCoreInfoResponse } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
-import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { getFileName, GetLatestSetupProtocolCoreInfoResponse } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { environment } from "../../../../environments";
 import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../shared/shared";
@@ -35,7 +33,7 @@ export class ProfileComponent implements OnInit {
 
   public components: CategorizedComponents[] | null = null;
 
-  protected latestSetupProtocolData: Pick<GetLatestSetupProtocolCoreInfoResponse["result"], "setupProtocolId"> & { createDate: Date | null } | null = null;
+  protected latestSetupProtocolData: GetLatestSetupProtocolCoreInfoResponse["result"] | null = null;
   protected spinnerId: string = ProfileComponent.SELECTOR;
   protected isLoading: WritableSignal<boolean> = signal(true);
   protected isAtLeastOwner: boolean = false;
@@ -115,7 +113,6 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const edge = await this.service.getCurrentEdge();
     const blob: Blob | null = this.platFormService.convertBase64ToBlob(setupProtocol);
 
     if (!blob) {
@@ -123,7 +120,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const fileName = `IBN-${edge.id}-${format(edge.firstSetupProtocol, "dd.MM.yyyy")}.pdf`;
+    const fileName = getFileName(this.latestSetupProtocolData.setupProtocolType, this.latestSetupProtocolData.createDate, this.edge);
     this.platFormService.downloadAsPdf(blob, fileName);
     this.isLoading.set(false);
   }
@@ -140,7 +137,8 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    this.latestSetupProtocolData = { setupProtocolId: setupProtocolData.result.setupProtocolId, createDate: DateUtils.stringToDate(setupProtocolData.result.createDate.toString()) };
+    const result = setupProtocolData.result;
+    this.latestSetupProtocolData = { setupProtocolType: result.setupProtocolType, setupProtocolId: result.setupProtocolId, createDate: result.createDate };
     this.isLoading.set(false);
   }
 }

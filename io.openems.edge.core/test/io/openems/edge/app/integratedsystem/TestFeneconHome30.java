@@ -17,7 +17,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
@@ -153,7 +153,7 @@ public class TestFeneconHome30 {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
-						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //
 						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 						.addProperty("HAS_EMERGENCY_RESERVE", true) //
@@ -169,7 +169,7 @@ public class TestFeneconHome30 {
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(response.instance().instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
-						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //
 						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 						.addProperty("HAS_EMERGENCY_RESERVE", true) //
@@ -185,42 +185,39 @@ public class TestFeneconHome30 {
 	@Test
 	public void testFeedInTypeRippleControlReceiver() throws Exception {
 		final var properties = fullSettings();
-		properties.addProperty("FEED_IN_TYPE", FeedInType.EXTERNAL_LIMITATION.name());
+		properties.addProperty("FEED_IN_TYPE", ExternalLimitationType.EXTERNAL_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
 
-		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
 		assertEquals("ENABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
 	@Test
 	public void testFeedInTypeDynamicLimitation() throws Exception {
 		final var properties = fullSettings();
-		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
+		properties.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
 
-		assertEquals("ENABLE", batteryInverterProps.get("feedPowerEnable"));
 		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
 	@Test
 	public void testFeedInTypeNoLimitation() throws Exception {
 		final var properties = fullSettings();
-		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
+		properties.addProperty("FEED_IN_TYPE", ExternalLimitationType.NO_LIMITATION.name());
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties));
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
 				.getComponentContext().getProperties();
 
-		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
 		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
@@ -325,7 +322,7 @@ public class TestFeneconHome30 {
 	public static final JsonObject fullSettings() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 				.addProperty("HAS_AC_METER", true) //
@@ -350,7 +347,7 @@ public class TestFeneconHome30 {
 	public static final JsonObject fullSettingsWithoutEmergencyReserve() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 				.addProperty("HAS_AC_METER", true) //
@@ -374,7 +371,7 @@ public class TestFeneconHome30 {
 	public static final JsonObject minSettings() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 				.addProperty("HAS_AC_METER", false) //

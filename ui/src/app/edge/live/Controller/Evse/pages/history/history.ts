@@ -26,6 +26,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 export class ModalComponent extends AbstractModal {
 
     protected showNewFooter: boolean = true;
+    protected showStatusChart: boolean = false;
     protected label: string | null = null;
     protected meterId: string | null = null;
 
@@ -47,6 +48,8 @@ export class ModalComponent extends AbstractModal {
             this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
                 this.component = config.getComponent(params.componentId);
                 this.meterId = this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id")?.id ?? null;
+                const timeOfUseCtrl = this.config.getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff")?.[0] ?? null;
+                this.showStatusChart = timeOfUseCtrl !== null;
                 res();
             });
         });

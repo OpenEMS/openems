@@ -48,10 +48,12 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 	@AttributeDefinition(name = "Enable/disable Off-Grid outlet", description = "Enable/disable Off-Grid outlet")
 	EnableDisable backupEnable() default EnableDisable.ENABLE;
 
-	@AttributeDefinition(name = "Enable/disable Dynamic Feed-To-Grid Limit", description = "Enable/disable a Feed-To-Grid limit for dynamic limitation at the grid meter")
+	@Deprecated
+	@AttributeDefinition(name = "Enable/disable Dynamic Feed-To-Grid Limit", description = "Enable/disable a Feed-To-Grid limit for dynamic limitation at the grid meter. (deprecated, use=Meta#gridFeedInLimitationType)")
 	EnableDisable feedPowerEnable() default EnableDisable.DISABLE;
 
-	@AttributeDefinition(name = "Feed-To-Grid Power Limit", description = "Feed-To-Grid Power Limit (Only positive [0 - 29999])")
+	@Deprecated
+	@AttributeDefinition(name = "Feed-To-Grid Power Limit", description = "Feed-To-Grid Power Limit (Only positive [0 - 29999]) (deprecated, use=Meta#maximumGridFeedInLimit)")
 	int feedPowerPara() default 0;
 
 	@AttributeDefinition(name = "Feed-To-Grid Settings", description = "This is the selection of inverter power settings")

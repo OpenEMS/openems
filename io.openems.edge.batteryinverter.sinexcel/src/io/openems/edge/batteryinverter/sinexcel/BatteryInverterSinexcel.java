@@ -354,10 +354,6 @@ public interface BatteryInverterSinexcel extends OffGridBatteryInverter, Managed
 		// AC L3 Power Factor
 		COS_PHI_L3(Doc.of(OpenemsType.FLOAT) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		// AC Apperent Power
-		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.VOLT_AMPERE)), //
 		// AC Power Factor
 		COS_PHI(Doc.of(OpenemsType.FLOAT) //
 				.accessMode(AccessMode.READ_ONLY)), //

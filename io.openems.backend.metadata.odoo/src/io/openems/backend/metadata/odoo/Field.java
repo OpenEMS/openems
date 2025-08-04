@@ -533,7 +533,13 @@ public interface Field {
 
 	public enum SetupProtocolItem implements Field {
 		SETUP_PROTOCOL("setup_protocol_id", true), //
-		SEQUENCE("sequence", true);
+		SEQUENCE("sequence", true), //
+		CATEGORY("category", false), //
+		NAME("name", false), //
+		VALUE("value", false), //
+		VIEW("view", false), //
+		FIELD("field", false), //
+		;
 
 		public static final String ODOO_MODEL = "openems.setup_protocol_item";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

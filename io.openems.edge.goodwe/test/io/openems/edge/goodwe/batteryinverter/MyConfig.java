@@ -145,11 +145,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.backupEnable;
 	}
 
+	@Deprecated
 	@Override
 	public EnableDisable feedPowerEnable() {
 		return this.builder.feedPowerEnable;
 	}
 
+	@Deprecated
 	@Override
 	public int feedPowerPara() {
 		return this.builder.feedPowerPara;

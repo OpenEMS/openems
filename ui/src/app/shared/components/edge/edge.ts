@@ -424,19 +424,21 @@ export class Edge {
    * @param translate the translate
    * @returns the new navigation tree
    */
-  public async createNavigationTree(translate: TranslateService): Promise<NavigationTree> {
+  public async createNavigationTree(translate: TranslateService, edge: Edge): Promise<NavigationTree> {
     const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (translate) => [
       NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [],
       null,
     ];
-
-    // return baseNavigationTree;
 
     const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree(translate).slice() as ConstructorParameters<typeof NavigationTree>;
     const navigationTree = new NavigationTree(..._baseNavigationTree);
 
     // TODO find automated way to create reference for parents
     navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+
+    if (edge.isOnline === false) {
+      return navigationTree;
+    }
 
     const conf = await this.config.getValue();
     const baseMode: NavigationTree["mode"] = "label";

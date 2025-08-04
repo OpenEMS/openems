@@ -25,6 +25,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStoppable;
 
 /** Experimental approach**/
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ import java.util.Objects;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class BridgeModbusTcpImpl extends AbstractModbusBridge
-		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
+		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler, StartStoppable {
 
 	/** The configured IP address. */
 	private InetAddress ipAddress = null;
@@ -69,7 +70,8 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
-				BridgeModbusTcp.ChannelId.values() //
+				BridgeModbusTcp.ChannelId.values(), //
+				StartStoppable.ChannelId.values() //
 		);
 	}
 
@@ -121,6 +123,10 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		if (this.isStopped()) {
+			return null;
+		}
+
 		var connection = this.getModbusConnection();
 		var transaction = new ModbusTCPTransaction(connection);
 		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);

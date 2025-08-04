@@ -7,7 +7,7 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Mode, WorkMode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { Utils } from "src/app/shared/utils/utils";
-import { getInactiveIfPowerIsLow, getRunStateConverter, State, Unit, Level } from "../util/utils";
+import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State, Unit } from "../util/utils";
 
 @Component({
     selector: "heatingelement-modal",
@@ -146,7 +146,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
             this.maxPower = Math.round(totalPower / 1000) * ModalComponent.PREDICTED_PV_PRODUCTION_HOUR;
         }
 
-        const currentEnergy =  currentData.allComponents[this.component.id + "/SessionEnergy"];
+        const currentEnergy = currentData.allComponents[this.component.id + "/SessionEnergy"];
         this.requiredPower = this.getRequiredPower(currentEnergy);
         this.isUnreachable = this.requiredPower !== null ? this.requiredPower > totalPower * ModalComponent.POWER_OVERSHOOT_FACTOR : false;
         this.runState = getInactiveIfPowerIsLow(this.runState, activePower);

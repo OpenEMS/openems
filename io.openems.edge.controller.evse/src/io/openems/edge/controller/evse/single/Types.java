@@ -24,18 +24,19 @@ public class Types {
 		/** True if Current has been set, but no ActivePower was measured. */
 		private boolean appearsToBeFullyCharged = false;
 
-		private record Entry(Integer activePower, int setPoint) {
+		private record Entry(Integer activePower, int setPoint, boolean isReadyForCharging) {
 		}
 
 		/**
 		 * Adds a {@link Entry} to {@link History} and clears outdated entries.
 		 * 
-		 * @param now         the timestamp
-		 * @param activePower the measured {@link EvseChargePoint} ActivePower
-		 * @param setPoint    the {@link SetPoint} value
+		 * @param now                the timestamp
+		 * @param activePower        the measured {@link EvseChargePoint} ActivePower
+		 * @param setPoint           the {@link SetPoint} value
+		 * @param isReadyForCharging {@link EvseChargePoint.ChannelId#IS_READY_FOR_CHARGING}
 		 */
-		public synchronized void addEntry(Instant now, Integer activePower, int setPoint) {
-			this.entries.put(now, new Entry(activePower, setPoint));
+		public synchronized void addEntry(Instant now, Integer activePower, int setPoint, boolean isReadyForCharging) {
+			this.entries.put(now, new Entry(activePower, setPoint, isReadyForCharging));
 
 			// Clear outdated entries; update entriesFullyInitialized
 			var outdatedEntries = this.entries.headMap(now.minusSeconds(MAX_AGE));
@@ -83,6 +84,16 @@ public class Types {
 					.allMatch(sp -> sp != 0);
 		}
 
+		/**
+		 * Any {@link EvseChargePoint.ChannelId#IS_READY_FOR_CHARGING}?.
+		 * 
+		 * @return boolean
+		 */
+		public boolean anyNotReadyForCharging() {
+			return this.entries.values().stream() //
+					.anyMatch(e -> e.isReadyForCharging);
+		}
+
 		public synchronized boolean getAppearsToBeFullyCharged() {
 			return this.appearsToBeFullyCharged;
 		}
@@ -107,6 +118,10 @@ public class Types {
 		public static Hysteresis from(History history) {
 			final var entries = history.getEntries();
 			if (entries.isEmpty()) {
+				return Hysteresis.INACTIVE;
+			}
+			if (history.anyNotReadyForCharging()) {
+				// Allow charging if EV just became ready
 				return Hysteresis.INACTIVE;
 			}
 			var lastValue = entries.lastEntry().getValue();

@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, effect, Input } from "@angular/core";
+import { Component, effect, Input, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../shared";
 import { NavigationComponent } from "../navigation.component";
 import { NavigationService } from "../service/navigation.service";
+import { ViewUtils } from "./shared/shared";
 
 export enum Status {
     SUCCESS,
@@ -13,6 +14,9 @@ export enum Status {
     PENDING,
 }
 
+/**
+ * Always use conditionally rendering, this component doesnt wait for async events to be resolved first
+ */
 @Component({
     selector: "oe-navigation-view",
     templateUrl: "./view.html",
@@ -43,28 +47,16 @@ export class NavigationPageComponent {
         protected navigationService: NavigationService,
         private websocket: Websocket,
         private translate: TranslateService,
-        private cdr: ChangeDetectorRef
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
 
         effect(() => {
-            const position = this.navigationService.position();
-            this.contentHeight = NavigationPageComponent.calculateHeight(position);
+            const breakpoint = NavigationComponent.breakPoint();
+            if (breakpoint > NavigationComponent.INITIAL_BREAKPOINT) {
+                return;
+            }
+            this.contentHeight = ViewUtils.getViewHeight(untracked(() => this.navigationService.position()));
         });
-    }
-
-    public static calculateHeight(position: string | null): number {
-        if (position == null) {
-            return 100;
-        }
-
-        const HEADER_HEIGHT_WITH_PICKDATE_BREADCRUMBS = 10;
-        if (position === "bottom") {
-            return 100 - ((NavigationComponent.INITIAL_BREAKPOINT * 100) + HEADER_HEIGHT_WITH_PICKDATE_BREADCRUMBS);
-        }
-
-        // !IMPORTANT TODO: Calculate container height dynamically
-        return 100 - ((NavigationComponent.INITIAL_BREAKPOINT * 100));
     }
 
     // Changes applied together
@@ -96,5 +88,8 @@ export class NavigationPageComponent {
         }
         this.formGroup.markAsPristine();
     }
-}
 
+    protected onDomChange() {
+        this.contentHeight = ViewUtils.getViewHeight(this.navigationService.position());
+    }
+}

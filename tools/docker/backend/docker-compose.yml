@@ -21,7 +21,7 @@ services:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
     environment:
-      - UI_WEBSOCKET=ws://<hostname>:8082  # Replace <hostname> with the actual hostname or IP
+      - UI_WEBSOCKET=ws://<hostname>:8082 # Replace <hostname> with the actual hostname or IP
     ports:
       - 80:80
       - 443:443

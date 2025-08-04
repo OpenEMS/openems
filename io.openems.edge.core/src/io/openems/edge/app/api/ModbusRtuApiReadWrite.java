@@ -76,7 +76,7 @@ public class ModbusRtuApiReadWrite extends AbstractOpenemsAppWithProps<ModbusRtu
 		ALIAS(alias()), //
 		API_TIMEOUT(ModbusApiProps.apiTimeout() //
 				.setRequired(true)), //
-		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID) //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, true) //
 				.setRequired(true)), //
 		PORT_NAME(ModbusApiProps.portName() //
 				.setRequired(true)), //

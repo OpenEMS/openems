@@ -1,5 +1,6 @@
 package io.openems.edge.evse.api.chargepoint;
 
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -58,6 +59,26 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	 * @return the {@link PhaseRotation}.
 	 */
 	public PhaseRotation getPhaseRotation();
+
+	/**
+	 * Is this {@link EvseChargePoint} read-only or read-write?.
+	 *
+	 * @return true for read-only
+	 */
+	public boolean isReadOnly();
+
+	/**
+	 * Gets the {@link MeterType} of an {@link EvseChargePoint}
+	 * {@link ElectricityMeter}.
+	 * 
+	 * @return the {@link MeterType}
+	 */
+	@Override
+	public default MeterType getMeterType() {
+		return this.isReadOnly() //
+				? MeterType.CONSUMPTION_METERED //
+				: MeterType.MANAGED_CONSUMPTION_METERED;
+	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#IS_READY_FOR_CHARGING}.

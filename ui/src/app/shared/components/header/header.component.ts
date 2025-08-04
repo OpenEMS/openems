@@ -43,6 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public websocket: Websocket,
         protected navigationService: NavigationService,
         protected navCtrl: NavController,
+        private menuCtrl: MenuController,
     ) {
 
         effect(() => {
@@ -210,5 +211,9 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ngOnDestroy() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    protected toggleMenu() {
+        this.menu.toggle();
     }
 }

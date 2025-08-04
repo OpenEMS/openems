@@ -115,6 +115,8 @@ public class MetaImpl extends AbstractOpenemsComponent
 		this.config = config;
 		this._setCurrency(Currency.fromCurrencyConfig(config.currency()));
 		this._setIsEssChargeFromGridAllowed(config.isEssChargeFromGridAllowed());
+		this._setMaximumGridFeedInLimit(config.maximumGridFeedInLimit());
+		this._setGridFeedInLimitationType(config.gridFeedInLimitationType().getGridFeedInLimitationType());
 	}
 
 	@Override

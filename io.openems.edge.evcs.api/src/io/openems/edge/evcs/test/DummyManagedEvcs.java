@@ -96,6 +96,17 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 		return this;
 	}
 
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedEvcs withActiveProductionEnergy(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, value);
+		return this;
+	}
+
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {

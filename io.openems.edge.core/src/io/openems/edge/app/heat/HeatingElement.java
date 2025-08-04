@@ -88,31 +88,30 @@ import io.openems.edge.meter.api.ElectricityMeter;
  * Describes a App for a RTU Heating Element.
  *
  * <pre>
- * {
- * "appId":"App.Heat.HeatingElement",
- * "alias":"Heizstab",
- * "instanceId": UUID,
- * "image": base64,
- * "properties":{
- * "CTRL_IO_HEATING_ELEMENT_ID": "ctrlIoHeatingElement0",
- * "OUTPUT_CHANNEL_PHASE_L1": "io0/Relay1",
- * "OUTPUT_CHANNEL_PHASE_L2": "io0/Relay2",
- * "OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3",
- * "POWER_PER_PHASE": 2000,
- * "HYSTERESIS": 60,
- * "IS_ELEMENT_MEASURED": false,
- *
- * },
- * "dependencies": [
- * {
- * "key": "RELAY",
- * "instanceId": UUID
- * }
- * ],
- * "appDescriptor": {
- * "websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
- * }
- * }
+ 	{
+		 "appId":"App.Heat.HeatingElement",
+		 "alias":"Heizstab",
+		 "instanceId": UUID,
+		 "image": base64,
+		 "properties":{
+		 "CTRL_IO_HEATING_ELEMENT_ID": "ctrlIoHeatingElement0",
+		 "OUTPUT_CHANNEL_PHASE_L1": "io0/Relay1",
+		 "OUTPUT_CHANNEL_PHASE_L2": "io0/Relay2",
+		 "OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3",
+		 "POWER_PER_PHASE": 2000,
+		 "HYSTERESIS": 60,
+		 "IS_ELEMENT_MEASURED": false,
+ 		},
+ 		"dependencies": [
+ 			{
+				 "key": "RELAY",
+				 "instanceId": UUID
+ 			}
+ 		],
+ 		"appDescriptor": {
+ 			"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
+ 		}
+ 	}
  * </pre>
  */
 

@@ -1,5 +1,7 @@
 /** Utility generic types */
 
+import { Signal } from "@angular/core";
+
 /** Generic Type for a key-value pair */
 export type TKeyValue<T> = {
     key: string,
@@ -30,5 +32,11 @@ export type TRange<N extends number, Acc extends number[] = []> = Acc["length"] 
     ? Acc[number]
     : TRange<N, [...Acc, Acc["length"]]>;
 
+export type TIntRange<F extends number, T extends number> = Exclude<TRange<T>, TRange<F>>;
+
 /** Empty Obj */
 export type EmptyObj = Record<PropertyKey, never>;
+
+// Type helpers
+/** Creates new type from signal */
+export type TSignalValue<T> = T extends Signal<infer V> ? V : never;

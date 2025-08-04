@@ -1,5 +1,9 @@
 package io.openems.edge.app.peakshaving;
 
+import static io.openems.edge.core.appmanager.validator.Checkables.checkAppsNotInstalled;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustrial;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -38,11 +42,10 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.validator.Checkables;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
- * Describes a asymmetric peak shaving app.
+ * Describes an asymmetric peak shaving app.
  *
  * <pre>
   {
@@ -179,7 +182,9 @@ public class PhaseAccuratePeakShaving
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(Checkables.checkHome().invert());
+				.setCompatibleCheckableConfigs(checkIndustrial().or(checkCommercial92())) //
+				.setInstallableCheckableConfigs(
+						checkAppsNotInstalled("App.PeakShaving.PeakShaving", "App.PeakShaving.TimeSlotPeakShaving"));
 	}
 
 	@Override

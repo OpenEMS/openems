@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
@@ -50,7 +49,7 @@ public class AppManagerImplTest {
 
 		// Battery-Inverter Settings
 		final var safetyCountry = "AUSTRIA";
-		final var maxFeedInPower = 10000;
+		final var maxFeedInPower = -1;
 		final var feedInSetting = "LAGGING_0_95";
 
 		var componentConfig = JsonUtils.buildJsonObject() //
@@ -128,8 +127,8 @@ public class AppManagerImplTest {
 								.addProperty("modbusUnitId", 247) //
 								.addProperty("safetyCountry", safetyCountry) //
 								.addProperty("backupEnable", "DISABLE") //
-								.addProperty("feedPowerEnable", "ENABLE") //
-								.addProperty("feedPowerPara", 10000) //
+								.addProperty("feedPowerEnable", "DISABLE") //
+								.addProperty("feedPowerPara", -1) //
 								.addProperty("controlMode", "SMART") //
 								.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 								.addProperty("setfeedInPowerSettings", "LAGGING_0_95") //
@@ -250,7 +249,6 @@ public class AppManagerImplTest {
 								.addProperty("instanceId", UUID.randomUUID().toString()) //
 								.add("properties", JsonUtils.buildJsonObject() //
 										.addProperty("SAFETY_COUNTRY", safetyCountry) //
-										.addProperty("MAX_FEED_IN_POWER", maxFeedInPower) //
 										.addProperty("FEED_IN_SETTING", feedInSetting) //
 										.addProperty("HAS_AC_METER", false) //
 										.addProperty("HAS_DC_PV1", false) //
@@ -266,7 +264,6 @@ public class AppManagerImplTest {
 								.addProperty("instanceId", UUID.randomUUID().toString()) //
 								.add("properties", JsonUtils.buildJsonObject() //
 										.addProperty("SELL_TO_GRID_LIMIT_ENABLED", true) //
-										.addProperty("MAXIMUM_SELL_TO_GRID_POWER", maxFeedInPower) //
 										.addProperty("MODE", "AUTOMATIC") //
 										.build()) //
 								.build())
@@ -305,7 +302,7 @@ public class AppManagerImplTest {
 	}
 
 	@Test
-	public void testAppValidateWorker() throws OpenemsException, Exception {
+	public void testAppValidateWorker() throws Exception {
 		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 

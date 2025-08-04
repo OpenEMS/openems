@@ -269,7 +269,7 @@ public interface BatteryBmw extends Battery, ModbusComponent, OpenemsComponent, 
 		INSULATION_RESISTANCE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.KILOOHM) //
-				.text("Insulation Resistanc")), //
+				.text("Insulation Resistance")), //
 
 		DISCHARGE_MAX_CURRENT_HIGH_RESOLUTION(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY) //

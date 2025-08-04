@@ -9,8 +9,8 @@
                 <oe-modal-line [name]="'EVSE_SINGLE.HOME.MODE.LABEL' | translate" [converter]="CONVERT_TO_MODE_LABEL"
                     [channelAddress]="component.id + '/_PropertyMode'">
                 </oe-modal-line>
-                <oe-modal-line *ngIf="meterId" [name]="'EVSE_SINGLE.HOME.POWER' | translate"
-                    [converter]="Converter.POWER_IN_WATT" [channelAddress]="meterId + '/ActivePower'">
+                <oe-modal-line *ngIf="chargePoint" [name]="'EVSE_SINGLE.HOME.POWER' | translate"
+                    [converter]="Converter.POWER_IN_WATT" [channelAddress]="chargePoint.id + '/ActivePower'">
                 </oe-modal-line>
                 <oe-modal-line [name]="'EVSE_SINGLE.HOME.ENERGY_SINCE_START' | translate"
                     [converter]="Converter.TO_WATT_HOURS" [channelAddress]="component.id + '/SessionEnergy'">

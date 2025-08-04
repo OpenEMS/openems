@@ -317,4 +317,30 @@ public class UtilsTest {
 				+ "[phase=THREE_PHASE, min=0, max=0, step=1], phaseSwitch=null]], activePower=null, setPointInWatt=0, actions=UNDEFINED}}",
 				powerDistribution.toString());
 	}
+
+	@Test
+	public void test7() {
+		var sut = CalculateTester.generateControllers(5) //
+				.set(0, c -> c //
+						.setActualMode(Mode.Actual.SURPLUS) //
+						.setChargePointAbilities(cp -> cp //
+								.setIsReadyForCharging(false))) //
+				.set(1, c -> c //
+						.setActualMode(Mode.Actual.FORCE) //
+						.setChargePointAbilities(cp -> cp //
+								.setIsReadyForCharging(false))) //
+				.set(2, c -> c //
+						.setActualMode(Mode.Actual.ZERO) // zero stays zero
+						.setChargePointAbilities(cp -> cp //
+								.setIsReadyForCharging(false))) //
+				.set(3, c -> c //
+						.setActualMode(Mode.Actual.MINIMUM) //
+						.setAppearsToBeFullyCharged(true)) //
+				.set(4, c -> c //
+						.setActualMode(Mode.Actual.FORCE)) // not-limited
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertArrayEquals(new int[] { 6000, 6000, 0, 6000, 16000 }, sut.getApplySetPoints());
+	}
+
 }

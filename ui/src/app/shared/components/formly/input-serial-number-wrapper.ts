@@ -60,4 +60,12 @@ export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper {
     protected setFocus(focused: boolean): void {
         this.isFocused = focused;
     }
+
+    protected onCheckboxChange(checked: boolean): void {
+        this.props.checkbox.value = checked;
+
+        if (this.props.checkbox.updateFn) {
+            this.props.checkbox.updateFn(checked);
+        }
+    }
 }

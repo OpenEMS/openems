@@ -21,4 +21,8 @@ export class ObjectUtils {
     public static findObjectWithProperty<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
         return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
     }
+
+    public static isObjectNullOrEmpty(obj: Record<string, any> | null | undefined): boolean {
+        return obj == null || Object.keys(obj).length === 0;
+    }
 }

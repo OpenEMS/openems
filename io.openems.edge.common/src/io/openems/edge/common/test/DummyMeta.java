@@ -71,6 +71,17 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	/**
+	 * Set {@link Meta.ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyMeta withMaximumGridFeedInLimit(int value) {
+		TestUtils.withValue(this, Meta.ChannelId.MAXIMUM_GRID_FEED_IN_LIMIT, value);
+		return this.self();
+	}
+
+	/**
 	 * Set the Grid-Connection-Point Fuse limit.
 	 *
 	 * @param value the value

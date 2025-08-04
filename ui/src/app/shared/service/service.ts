@@ -205,6 +205,16 @@ export class Service extends AbstractService {
     });
   }
 
+  public getNextConfig(): Promise<EdgeConfig> {
+    return new Promise<EdgeConfig>((resolve, reject) => {
+      this.getCurrentEdge().then(edge => {
+        edge.getFirstValidConfig(this.websocket)
+          .then(resolve)
+          .catch(reject);
+      }).catch(reason => reject(reason));
+    });
+  }
+
   public onLogout() {
     this.currentEdge.set(null);
 

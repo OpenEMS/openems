@@ -2,7 +2,7 @@ package io.openems.edge.evcs.keba.udp;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.evcs.api.PhaseRotation;
-import io.openems.edge.evcs.keba.udp.Config;
+import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -15,6 +15,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int minHwCurrent;
 		private PhaseRotation phaseRotation;
 		private boolean useDisplay;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -23,7 +24,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setReadOnly(boolean readOnly) {
 			this.readOnly = readOnly;
 			return this;
@@ -54,6 +55,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -81,11 +87,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean debugMode() {
-		return this.builder.debugMode;
-	}
-
-	@Override
 	public String ip() {
 		return this.builder.ip;
 	}
@@ -103,5 +104,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean useDisplay() {
 		return this.builder.useDisplay;
+	}
+
+	@Override
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
 	}
 }

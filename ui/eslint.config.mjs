@@ -103,7 +103,8 @@ export default [{
         "prefix": [
           "app",
           "oe",
-          "ngVar"
+          "ngVar",
+          "ngDomChange"
         ],
         "style": "camelCase"
       }

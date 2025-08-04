@@ -58,23 +58,21 @@ public class ControllerHeatingElementImplTest6 {
 
 	@Test
 	public void testWithFixedValues() throws Exception {
-		var test = prepareTest();
-
-		test.next(new TestCase() //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 5200) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1700) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1800) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1700) //
-				.output(LEVEL, Level.LEVEL_3), 5); //
-
-		test.next(new TestCase() //
-				.input(GRID_ACTIVE_POWER, -5300) //
-				.timeleap(CLOCK, 5, SECONDS) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-				.output(LEVEL, Level.LEVEL_3)) //
+		prepareTest() //
+				.next(new TestCase() //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 5200) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1700) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1800) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1700) //
+						.output(LEVEL, Level.LEVEL_3), 5) //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, -5300) //
+						.timeleap(CLOCK, 5, SECONDS) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+						.output(LEVEL, Level.LEVEL_3)) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -4000) //
 						.timeleap(CLOCK, 6 * 60, MINUTES) //

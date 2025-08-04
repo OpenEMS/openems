@@ -15,7 +15,7 @@ WORKDIR /src
 ENV OEMS_EDGE_OUTPUT=/opt/openems-edge.jar
 RUN --mount=type=bind,target=.,readwrite \
     --mount=type=cache,target=/root/.gradle \
-        ./gradlew --no-build-cache buildEdge
+    ./gradlew --no-build-cache buildEdge
 
 ### Build jar container base
 FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container

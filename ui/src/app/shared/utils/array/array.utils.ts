@@ -92,4 +92,8 @@ export namespace ArrayUtils {
   export function sanitize<T>(arr: T[]): T[] {
     return arr.filter(el => el != null);
   }
+
+  export namespace ReducerFunctions {
+    export const sum = ((acc: number, val: number) => acc + val);
+  }
 }

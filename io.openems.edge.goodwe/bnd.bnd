@@ -5,6 +5,7 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	com.fazecast.jSerialComm,\
 	io.openems.common,\
 	io.openems.edge.battery.api,\
 	io.openems.edge.battery.fenecon.home,\

@@ -1077,6 +1077,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
                   this.initializeChart();
                 }
                 resolve(responseToReturn);
+              }).catch(() => {
+                this.initializeChart();
               });
           })
         );
@@ -1240,6 +1242,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           this.setChartLabel();
         }).catch(() => {
 
+          this.initializeChart();
           // Show empty chart
           resolve();
         }).finally(() => resolve());
@@ -1268,6 +1271,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         resolve();
       }).catch(() => {
 
+        this.initializeChart();
         // Show empty chart
         resolve();
       }).finally(() => resolve());
