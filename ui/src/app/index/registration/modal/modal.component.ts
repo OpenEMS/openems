@@ -105,6 +105,14 @@ export class RegistrationModalComponent implements OnInit {
       });
   }
 
+  protected togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  protected toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
   /**
    * Get from depending on given role.
    * If no role matches then the default (owner) from will be returnd.
@@ -149,13 +157,5 @@ export class RegistrationModalComponent implements OnInit {
       return null;
     }
     return link.replace("{language}", this.service.getDocsLang());
-  }
-
-  protected togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
-
-  protected toggleConfirmPasswordVisibility() {
-    this.showConfirmPassword = !this.showConfirmPassword;
   }
 }
