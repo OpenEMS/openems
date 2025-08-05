@@ -73,79 +73,91 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.unit(Unit.WATT)//
 				.accessMode(AccessMode.WRITE_ONLY)),
 
-		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_INPUT_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_INPUT_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_INPUT_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+		CURRENT_INPUT_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+		CURRENT_INPUT_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+		CURRENT_INPUT_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		FREQUENCY_L1(Doc.of(OpenemsType.INTEGER) //
+		FREQUENCY_INPUT_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HERTZ) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		FREQUENCY_L2(Doc.of(OpenemsType.INTEGER) //
+		FREQUENCY_INPUT_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HERTZ) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		FREQUENCY_L3(Doc.of(OpenemsType.INTEGER) //
+		FREQUENCY_INPUT_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HERTZ) //
 				.accessMode(AccessMode.READ_ONLY)),
-
-		VOLTAGE_OUT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY)),
-
-		VOLTAGE_OUT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY)),
-
-		VOLTAGE_OUT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY)),
-
-		CURRENT_OUT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY)),
-
-		CURRENT_OUT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY)),
-
-		CURRENT_OUT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_ONLY)),
-
-		FREQUENCY_OUT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
-				.accessMode(AccessMode.READ_ONLY)),
-
-		POWER_OUT_L1(Doc.of(OpenemsType.INTEGER) //
+		
+		ACTIVE_POWER_INPUT_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		POWER_OUT_L2(Doc.of(OpenemsType.INTEGER) //
+		ACTIVE_POWER_INPUT_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
-		POWER_OUT_L3(Doc.of(OpenemsType.INTEGER) //
+		ACTIVE_POWER_INPUT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)),		
+
+		VOLTAGE_OUTPUT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		VOLTAGE_OUTPUT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		VOLTAGE_OUTPUT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		CURRENT_OUTPUT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		CURRENT_OUTPUT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		CURRENT_OUTPUT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		FREQUENCY_OUTPUT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.HERTZ) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		ACTIVE_POWER_OUTPUT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		ACTIVE_POWER_OUTPUT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)),
+
+		ACTIVE_POWER_OUTPUT_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
@@ -291,35 +303,35 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 
 		SUSTAIN_ACTIVE(Doc.of(ActiveInactive.values()).accessMode(AccessMode.READ_ONLY)),
 
-		ENERGY_FROM_AC_IN_1_TO_AC_OUT(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_AC_IN_1_TO_AC_OUT(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY)
+				.persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_AC_IN_1_TO_BATTERY(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_AC_IN_1_TO_BATTERY(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
+				.accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_AC_IN_2_TO_AC_OUT(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_AC_IN_2_TO_AC_OUT(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY)
+				.persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_AC_IN_2_TO_BATTERY(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_AC_IN_2_TO_BATTERY(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
+				.accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_AC_OUT_TO_AC_IN_1(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_AC_OUT_TO_AC_IN_1(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY)
+				.persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_AC_OUT_TO_AC_IN_2(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_AC_OUT_TO_AC_IN_2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY)
+				.persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_BATTERY_TO_AC_IN_1(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_BATTERY_TO_AC_IN_1(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
+				.accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_BATTERY_TO_AC_IN_2(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_BATTERY_TO_AC_IN_2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS)
+				.accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_BATTERY_TO_AC_OUT(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_BATTERY_TO_AC_OUT(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY)
+				.persistencePriority(PersistencePriority.HIGH)),
 
-		ENERGY_FROM_AC_OUT_TO_BATTERY(
-				Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY).persistencePriority(PersistencePriority.HIGH)),
+		ENERGY_FROM_AC_OUT_TO_BATTERY(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY)
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		LOW_CELL_VOLTAGE_IMMINENT(Doc.of(Alarm.values()) // 0=OK;1=Warning
 				.accessMode(AccessMode.READ_ONLY)),
@@ -347,12 +359,11 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.accessMode(AccessMode.READ_ONLY)),
 		AC_INPUT2_IGNORED(Doc.of(EnableDisable.values()) // 0=AC input not ignored;1=AC input ignored
 				.accessMode(AccessMode.READ_ONLY)),
-/*
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
-				.text("Running the Logic failed")), //
-*/
+		/*
+		 * STATE_MACHINE(Doc.of(State.values()) //
+		 * .text("Current State of State-Machine")), // RUN_FAILED(Doc.of(Level.FAULT)
+		 * // .text("Running the Logic failed")), //
+		 */
 
 		/**
 		 * current capacity of battery. Does not make use of emergency capacity
@@ -369,8 +380,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
-		 * current useable soc of ess.
-		 * Values from controllers are (ctrlEmergencyCapacityReserves and ctrlLimitTotalDischarges) are substracted
+		 * current useable soc of ess. Values from controllers are
+		 * (ctrlEmergencyCapacityReserves and ctrlLimitTotalDischarges) are substracted
 		 *
 		 * <ul>
 		 * <li>Interface: VictronBattery
@@ -401,14 +412,72 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 			return this.doc;
 		}
 	}
+	
+
+	/**
+	 * Gets the Channel for ActivePower on AC In L1.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerInputL1Channel() {
+		return this.channel(ChannelId.ACTIVE_POWER_INPUT_L1);
+	}
+
+	/**
+	 * Gets the ActivePower on AC In L1 in [W].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePowerInputL1() {
+		return this.getActivePowerInputL1Channel().value();
+	}	
+	
+
+	/**
+	 * Gets the Channel for ActivePower on AC In L2.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerInputL2Channel() {
+		return this.channel(ChannelId.ACTIVE_POWER_INPUT_L2);
+	}
+
+	/**
+	 * Gets the ActivePower on AC In L2 in [W].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePowerInputL2() {
+		return this.getActivePowerInputL2Channel().value();
+	}	
+	
+
+	/**
+	 * Gets the Channel for ActivePower on AC In L3.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerInputL3Channel() {
+		return this.channel(ChannelId.ACTIVE_POWER_INPUT_L3);
+	}
+
+	/**
+	 * Gets the ActivePower on AC In L3 in [W].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePowerInputL3() {
+		return this.getActivePowerInputL3Channel().value();
+	}	
+		
 
 	/**
 	 * Gets the Channel for Voltage on L1.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getVoltageL1Channel() {
-		return this.channel(ChannelId.VOLTAGE_L1);
+	public default IntegerReadChannel getVoltageInputL1Channel() {
+		return this.channel(ChannelId.VOLTAGE_INPUT_L1);
 	}
 
 	/**
@@ -416,8 +485,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getVoltageL1() {
-		return this.getVoltageL1Channel().value();
+	public default Value<Integer> getVoltageInputL1() {
+		return this.getVoltageInputL1Channel().value();
 	}
 
 	/**
@@ -425,8 +494,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getVoltageL2Channel() {
-		return this.channel(ChannelId.VOLTAGE_L2);
+	public default IntegerReadChannel getVoltageInputL2Channel() {
+		return this.channel(ChannelId.VOLTAGE_INPUT_L2);
 	}
 
 	/**
@@ -434,8 +503,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getVoltageL2() {
-		return this.getVoltageL2Channel().value();
+	public default Value<Integer> getVoltageInputL2() {
+		return this.getVoltageInputL2Channel().value();
 	}
 
 	/**
@@ -443,8 +512,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getVoltageL3Channel() {
-		return this.channel(ChannelId.VOLTAGE_L3);
+	public default IntegerReadChannel getVoltageInputL3Channel() {
+		return this.channel(ChannelId.VOLTAGE_INPUT_L3);
 	}
 
 	/**
@@ -452,8 +521,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getVoltageL3() {
-		return this.getVoltageL3Channel().value();
+	public default Value<Integer> getVoltageInputL3() {
+		return this.getVoltageInputL3Channel().value();
 	}
 
 	/**
@@ -461,8 +530,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getCurrentL1Channel() {
-		return this.channel(ChannelId.CURRENT_L1);
+	public default IntegerReadChannel getCurrentInputL1Channel() {
+		return this.channel(ChannelId.CURRENT_INPUT_L1);
 	}
 
 	/**
@@ -470,8 +539,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getCurrentL1() {
-		return this.getCurrentL1Channel().value();
+	public default Value<Integer> getCurrentInputL1() {
+		return this.getCurrentInputL1Channel().value();
 	}
 
 	/**
@@ -479,8 +548,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getCurrentL2Channel() {
-		return this.channel(ChannelId.CURRENT_L2);
+	public default IntegerReadChannel getCurrentInputL2Channel() {
+		return this.channel(ChannelId.CURRENT_INPUT_L2);
 	}
 
 	/**
@@ -488,8 +557,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getCurrentL2() {
-		return this.getCurrentL2Channel().value();
+	public default Value<Integer> getCurrentInputL2() {
+		return this.getCurrentInputL2Channel().value();
 	}
 
 	/**
@@ -497,8 +566,8 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getCurrentL3Channel() {
-		return this.channel(ChannelId.CURRENT_L3);
+	public default IntegerReadChannel getCurrentInputL3Channel() {
+		return this.channel(ChannelId.CURRENT_INPUT_L3);
 	}
 
 	/**
@@ -506,9 +575,179 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getCurrentL3() {
-		return this.getCurrentL3Channel().value();
+	public default Value<Integer> getCurrentInputL3() {
+		return this.getCurrentInputL3Channel().value();
 	}
+// ******************  AC Out
+	
+
+	/**
+	 * Gets the Channel for ActivePower on AC In L1.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerOutputL1Channel() {
+		return this.channel(ChannelId.ACTIVE_POWER_OUTPUT_L1);
+	}
+
+	/**
+	 * Gets the ActivePower on AC In L1 in [W].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePowerOutputL1() {
+		return this.getActivePowerOutputL1Channel().value();
+	}	
+	
+
+	/**
+	 * Gets the Channel for ActivePower on AC In L2.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerOutputL2Channel() {
+		return this.channel(ChannelId.ACTIVE_POWER_OUTPUT_L2);
+	}
+
+	/**
+	 * Gets the ActivePower on AC In L2 in [W].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePowerOutputL2() {
+		return this.getActivePowerOutputL2Channel().value();
+	}	
+	
+
+	/**
+	 * Gets the Channel for ActivePower on AC In L3.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerOutputL3Channel() {
+		return this.channel(ChannelId.ACTIVE_POWER_OUTPUT_L3);
+	}
+
+	/**
+	 * Gets the ActivePower on AC In L3 in [W].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePowerOutputL3() {
+		return this.getActivePowerOutputL3Channel().value();
+	}	
+	
+	
+	
+
+	/**
+	 * Gets the Channel for Voltage on L1.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getVoltageOutputL1Channel() {
+		return this.channel(ChannelId.VOLTAGE_OUTPUT_L1);
+	}
+
+	/**
+	 * Gets the Voltage on L1 in [V].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltageOutputL1() {
+		return this.getVoltageOutputL1Channel().value();
+	}
+
+	/**
+	 * Gets the Channel for Voltage on L2.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getVoltageOutputL2Channel() {
+		return this.channel(ChannelId.VOLTAGE_OUTPUT_L2);
+	}
+
+	/**
+	 * Gets the Voltage on L2 in [V].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltageOutputL2() {
+		return this.getVoltageOutputL2Channel().value();
+	}
+
+	/**
+	 * Gets the Channel for Voltage on L3.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getVoltageOutputL3Channel() {
+		return this.channel(ChannelId.VOLTAGE_OUTPUT_L3);
+	}
+
+	/**
+	 * Gets the Voltage on L3 in [V].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltageOutputL3() {
+		return this.getVoltageOutputL3Channel().value();
+	}
+
+	/**
+	 * Gets the Channel for Current on L1.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentOutputL1Channel() {
+		return this.channel(ChannelId.CURRENT_OUTPUT_L1);
+	}
+
+	/**
+	 * Gets the Current on L1 in [A].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrentOutputL1() {
+		return this.getCurrentOutputL1Channel().value();
+	}
+
+	/**
+	 * Gets the Channel for Current on L2.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentOutputL2Channel() {
+		return this.channel(ChannelId.CURRENT_OUTPUT_L2);
+	}
+
+	/**
+	 * Gets the Current on L2 in [A].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrentOutputL2() {
+		return this.getCurrentOutputL2Channel().value();
+	}
+
+	/**
+	 * Gets the Channel for Current on L3.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentOutputL3Channel() {
+		return this.channel(ChannelId.CURRENT_OUTPUT_L3);
+	}
+	
+	
+	/**
+	 * Gets the Current on L2 in [A].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrentOutputL3() {
+		return this.getCurrentOutputL3Channel().value();
+	}	
 
 	// Set Active Power
 	public default void _setActivePower(Short value) throws OpenemsNamedException {
@@ -696,9 +935,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 
 	public void unsetBattery(VictronBattery battery);
 
-    //public VictronBatteryInverter getBatteryInverter();
-
-
+	// public VictronBatteryInverter getBatteryInverter();
 
 	@Override
 	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -749,8 +986,5 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	}
 
 	public SinglePhase getPhase();
-
-
-
 
 }
