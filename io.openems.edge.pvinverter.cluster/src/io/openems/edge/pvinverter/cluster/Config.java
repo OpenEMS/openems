@@ -3,6 +3,8 @@ package io.openems.edge.pvinverter.cluster;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.types.MeterType;
+
 @ObjectClassDefinition(//
 		name = "PV-Inverter Cluster", //
 		description = "Combines several PV-Inverters to one.")
@@ -16,6 +18,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Meter-Type", description = "Production meter (=default)")
+	MeterType meterType() default MeterType.PRODUCTION;
+
+	@AttributeDefinition(name = "Add to Sum?", description = "Should the data of this cluster be added to the Sum?")
+	boolean addToSum() default true;
 
 	@AttributeDefinition(name = "PV-Inverter-IDs", description = "IDs of PvInverter devices.")
 	String[] pvInverter_ids();
