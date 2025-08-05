@@ -90,7 +90,7 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this.config = config;
-		this._setGeneratorMaxActivePower(this.config.activePower());
+		this._setGeneratorMaxActivePower(this.config.maxActivePower());
 		this._setRegulationSteps(this.config.regulationSteps());
 	}
 

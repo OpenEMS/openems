@@ -107,6 +107,11 @@
           <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </chpsocWidget>
         </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.CHP.CostOptimization'">
+          <oe-controller-chp-cost-optimization [componentId]="widget.componentId">
+            <pre>Controller.CHP.CostOptimization</pre>
+          </oe-controller-chp-cost-optimization>
+        </ion-col>
       </ng-container>
     </ion-row>
   </ion-grid>

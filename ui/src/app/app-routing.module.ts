@@ -11,6 +11,7 @@ import { DetailsOverviewComponent } from "./edge/history/common/production/detai
 import { OverviewComponent as ProductionChartOverviewComponent } from "./edge/history/common/production/overview/overview";
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from "./edge/history/common/selfconsumption/overview/overview";
 import { OverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/history/Controller/ChannelThreshold/overview/overview";
+import { OverviewComponent as ChpCostOptimizationChartOverviewComponent } from "./edge/history/Controller/chp/CostOptimization/overview/overview";
 import { OverviewComponent as GridOptimizedChargeChartOverviewComponent } from "./edge/history/Controller/Ess/GridoptimizedCharge/overview/overview";
 import { OverviewComponent as TimeOfUseTariffOverviewComponent } from "./edge/history/Controller/Ess/TimeOfUseTariff/overview/overview";
 import { OverviewComponent as HeatchartOverviewComponent, OverviewComponent as HeatmypvchartOverviewComponent } from "./edge/history/Controller/Heat/overview/overview";
@@ -69,6 +70,7 @@ export const history: (customHeaders: boolean) => Routes = (customHeaders) => [{
     { path: "", component: EdgeHistoryComponent, data: { ...(customHeaders ? { navbarTitleToBeTranslated: "General.HISTORY" } : {}) } },
     // History Chart Pages
     { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
+    { path: ":componentId/chpcostoptimizationchart", component: ChpCostOptimizationChartOverviewComponent },
     { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
     { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
     { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },

@@ -60,8 +60,8 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	private Instant lastStartHysteresisTime = Instant.MIN;
 	private State state = State.UNDEFINED;
 	private Integer gridPowerWithoutChp = 0;
-	private Integer applyPowerTarget = null;
-	private Integer lastApplyPowerTarget = null;	
+	private Integer applyPowerTarget = 0;
+	//private Integer lastApplyPowerTarget = null;	
 	private Double currentPrice = null;	
 	private Double currentEnergyCost = 0.0;	
 
@@ -138,6 +138,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this._setEnergyCosts(currentEnergyCosts); // save value in channel
 		this._setChpActivePower(chpActivePower); // save value in channel
 		this._setAwaitingDeviceHysteresis(this.chp.getAwaitingHysteresis().get());
+		
 
 		switch (this.state) {
 		case ERROR:
@@ -182,6 +183,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				//} else {
 					// do nothing
 				//}
+				this._setActivePowerTarget(this.applyPowerTarget);
 				this.chp.applyPower(this.applyPowerTarget);				
 			}
 
@@ -199,7 +201,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			
 	  		if (this.config.mode() == Mode.MANUAL_OFF) {
 				// stop chp
-				this.applyPowerTarget = null;
+				this.applyPowerTarget = 0;
 				this.chp.applyPower(this.applyPowerTarget);
 				this.changeState(State.CHP_INACTIVE);
 				// Start Timer
@@ -222,7 +224,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 					this._setAwaitingStartHysteresis(true);
 				} else {
 					// stop chp
-					this.applyPowerTarget = null;
+					this.applyPowerTarget = 0;
 					this.chp.applyPower(this.applyPowerTarget);
 					this.changeState(State.CHP_INACTIVE);
 					// Start Timer
@@ -231,7 +233,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				}
 			}
 			
-			this.lastApplyPowerTarget = this.applyPowerTarget;
+			// this.lastApplyPowerTarget = this.applyPowerTarget;
 			break;
 		case CHP_INACTIVE: // stopped
 			
@@ -303,7 +305,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		}
 
 
-		return currentEnergyCost;
+		return Math.round(currentEnergyCost *1000.0)/1000.0;
 	}
 
 	@Deactivate
@@ -365,9 +367,11 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		// return null;
-		return "Current Energy costs: " + this.getEnergyCostsWithoutChp().asString() + " €/h"+
+		return "Current Energy costs: " + this.getEnergyCosts().asString() + " €/h"+
+		"Current Energy costs without CHP: " + this.getEnergyCostsWithoutChp().asString() + " €/h"+				
 				" State: " + this.state +
-				" TargetPower: " + this.getActivePowerTarget().asString() 
+				" TargetPower: " + this.getActivePowerTarget().asString() +
+				" ChpActivePower: " + this.getChpActivePower().asString() 
 				
 				
 				;

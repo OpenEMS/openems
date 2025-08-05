@@ -27,6 +27,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean debugMode() default true;	
 
 
-	String webconsole_configurationFactory_nameHint() default "io.openems.edge.chp.ecpower.manager [{id}]";
+	String webconsole_configurationFactory_nameHint() default "CHP EC Power Manager [{id}]";
 
 }
