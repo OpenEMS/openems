@@ -18,17 +18,17 @@ import { DetailsOverviewComponent as DigitalOutputDetailsOverviewComponent } fro
 import { OverviewComponent as DigitalOutputChartOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/overview/overview";
 import { OverviewComponent as HeatingelementChartOverviewComponent } from "./edge/history/Controller/Io/heatingelement/overview/overview";
 import { OverviewComponent as ModbusTcpApiOverviewComponent } from "./edge/history/Controller/ModbusTcpApi/overview/overview";
+import { OverviewComponent as AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/asymmetric/overview/overview";
+import { OverviewComponent as SymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/symmetric/overview/overview";
+import { OverviewComponent as TimeslotPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/timeslot/overview/overview";
 import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
 import { HistoryComponent as EdgeHistoryComponent } from "./edge/history/history.component";
 import { HistoryDataService } from "./edge/history/historydataservice";
 import { HistoryParentComponent } from "./edge/history/historyparent.component";
-import { AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component";
-import { SymmetricPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component";
-import { TimeslotPeakshavingChartOverviewComponent } from "./edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component";
-import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/Evse/modal/forecast/forecast";
-import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/modal/history/history";
-import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/modal/modal";
-import { ModalComponent as EvseSettingsComponent } from "./edge/live/Controller/Evse/modal/settings/settings";
+import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/Evse/pages/forecast/forecast";
+import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/pages/history/history";
+import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/pages/home";
+import { EvseSettingsComponent } from "./edge/live/Controller/Evse/pages/settings/settings";
 import { ModalComponent as IoHeatingRoomComponent } from "./edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
 import { LiveDataService } from "./edge/live/livedataservice";
@@ -59,6 +59,45 @@ import { hasEdgeRole } from "./shared/guards/functional-guards";
 import { Role } from "./shared/type/role";
 import { UserComponent } from "./user/user.component";
 
+export const history: (customHeaders: boolean) => Routes = (customHeaders) => [{
+  path: "history", providers: [{
+    useClass: HistoryDataService,
+    provide: DataService,
+  }],
+  component: HistoryParentComponent, children: [
+    { path: "", component: EdgeHistoryComponent, data: { ...(customHeaders ? { navbarTitleToBeTranslated: "General.HISTORY" } : {}) } },
+    // History Chart Pages
+    { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
+    { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
+    { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
+    { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
+    { path: ":componentId/heatmypvchart", component: HeatmypvchartOverviewComponent },
+    { path: ":componentId/heatchart", component: HeatchartOverviewComponent },
+    { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
+    { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
+    { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
+    { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
+    { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
+    { path: "autarchychart", component: AutarchyChartOverviewComponent },
+    { path: "consumptionchart", component: ConsumptionChartOverviewComponent },
+    { path: "consumptionchart/:componentId", component: ConsumptionDetailsOverviewComponent },
+    { path: "consumptionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
+    { path: "gridchart", component: GridChartOverviewComponent },
+    { path: "gridchart/:componentId", component: GridDetailsOverviewComponent },
+    { path: "gridchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
+    { path: "productionchart", component: ProductionChartOverviewComponent },
+    { path: "productionchart/:componentId", component: DetailsOverviewComponent },
+    { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
+    { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
+    { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },
+
+    // Controllers
+    { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },
+    { path: "digitaloutputchart", component: DigitalOutputChartOverviewComponent },
+    { path: "digitaloutputchart/:componentId", component: DigitalOutputDetailsOverviewComponent },
+  ],
+}];
+
 export const routes: Routes = [
 
   // TODO should be removed in the future
@@ -88,46 +127,11 @@ export const routes: Routes = [
           { path: "evse/:componentId/settings", component: EvseSettingsComponent },
           { path: "evse/:componentId/forecast", component: EvseForecastComponent },
           { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
-        ],
-      },
-      {
-        path: "history", providers: [{
-          useClass: HistoryDataService,
-          provide: DataService,
-        }], component: HistoryParentComponent, children: [
-          { path: "", component: EdgeHistoryComponent },
-          // History Chart Pages
-          { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
-          { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
-          { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
-          { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
-          { path: ":componentId/heatmypvchart", component: HeatmypvchartOverviewComponent },
-          { path: ":componentId/heatchart", component: HeatchartOverviewComponent },
-          { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
-          { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
-          { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
-          { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
-          { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
-          { path: "autarchychart", component: AutarchyChartOverviewComponent },
-          { path: "consumptionchart", component: ConsumptionChartOverviewComponent },
-          { path: "consumptionchart/:componentId", component: ConsumptionDetailsOverviewComponent },
-          { path: "consumptionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-          { path: "gridchart", component: GridChartOverviewComponent },
-          { path: "gridchart/:componentId", component: GridDetailsOverviewComponent },
-          { path: "gridchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-          { path: "productionchart", component: ProductionChartOverviewComponent },
-          { path: "productionchart/:componentId", component: DetailsOverviewComponent },
-          { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-          { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
-          { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },
-
-          // Controllers
-          { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },
-          { path: "digitaloutputchart", component: DigitalOutputChartOverviewComponent },
-          { path: "digitaloutputchart/:componentId", component: DigitalOutputDetailsOverviewComponent },
+          ...history(true),
         ],
       },
 
+      ...history(false),
       { path: "settings", data: { navbarTitleToBeTranslated: "Menu.edgeSettings" }, component: EdgeSettingsComponent },
       { path: "settings/channels", component: EdgeSettingsChannelsComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Channels" } },
       { path: "settings/component.install", component: EdgeSettingsComponentInstallIndexComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.addComponents" } },

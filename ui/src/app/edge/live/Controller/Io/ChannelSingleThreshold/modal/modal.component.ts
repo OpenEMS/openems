@@ -1,17 +1,23 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, effect, Input, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { LiveDataService } from "src/app/edge/live/livedataservice";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { FormUtils } from "src/app/shared/utils/form/form.utils";
 
 type mode = "ON" | "AUTOMATIC" | "OFF";
 type inputMode = "SOC" | "GRIDSELL" | "GRIDBUY" | "PRODUCTION" | "OTHER";
 
 @Component({
-  selector: "Io_ChannelSingleThresholdModalComponent",
+  selector: "oe-controller-io-channelsinglethreshold-modal",
   templateUrl: "./modal.component.html",
   standalone: false,
+  providers: [
+    { provide: DataService, useClass: LiveDataService },
+  ],
 })
 export class Controller_Io_ChannelSingleThresholdModalComponent implements OnInit {
 
@@ -30,7 +36,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
   public threshold = null;
   public switchedLoadPower = null;
   public inputMode = null;
-  public invert = null;
+  public invert: number | null = null;
 
   constructor(
     public service: Service,
@@ -38,7 +44,18 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     public translate: TranslateService,
     public websocket: Websocket,
     public formBuilder: FormBuilder,
+    private dataService: DataService,
   ) {
+
+    effect(() => {
+      const currValue = dataService.currentValue();
+      const invert = currValue.allComponents[new ChannelAddress(this.component.id, "_PropertyInvert").toString()] == 1;
+
+      const formControl = FormUtils.findFormControlSafely(this.formGroup, "invert");
+      if (!formControl.dirty) {
+        this.formGroup.controls["invert"].setValue(invert);
+      }
+    });
   }
 
   ngOnInit() {
@@ -58,13 +75,15 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
         Validators.required,
       ])),
       inputMode: new FormControl(this.getInputMode()),
-      invert: new FormControl(this.component.properties.invert, Validators.requiredTrue),
+      invert: new FormControl(null, Validators.requiredTrue),
     });
     this.minimumSwitchingTime = this.formGroup.controls["minimumSwitchingTime"];
     this.threshold = this.formGroup.controls["threshold"];
     this.switchedLoadPower = this.formGroup.controls["switchedLoadPower"];
     this.inputMode = this.formGroup.controls["inputMode"];
-    this.invert = this.formGroup.controls["invert"];
+    this.invert = this.component.properties["invert"];
+
+    this.dataService.getValues([new ChannelAddress(this.component.id, "_PropertyInvert")], this.edge, "");
   }
 
   public updateInputMode(event: CustomEvent) {
@@ -166,7 +185,6 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
               this.component.properties.threshold = this.inputMode.value == "GRIDSELL" ? this.threshold.value * -1 : this.threshold.value;
               this.component.properties.switchedLoadPower = this.switchedLoadPower.value;
               this.component.properties.inputChannelAddress = this.convertToChannelAddress(this.inputMode.value) != this.component.properties.inputChannelAddress ? this.convertToChannelAddress(this.inputMode.value) : this.component.properties.inputChannelAddress;
-              this.component.properties.invert = this.invert.value;
               this.loading = false;
               this.service.toast(this.translate.instant("General.changeAccepted"), "success");
             }).catch(reason => {
@@ -175,7 +193,6 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
               this.threshold.setValue(this.component.properties.threshold);
               this.switchedLoadPower.setValue(this.component.properties.switchedLoadPower);
               this.inputMode.setValue(this.convertToInputMode(this.component.properties.inputChannelAddress, this.component.properties.threshold));
-              this.invert.setValue(this.component.properties.invert);
               this.loading = false;
               this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
               console.warn(reason);

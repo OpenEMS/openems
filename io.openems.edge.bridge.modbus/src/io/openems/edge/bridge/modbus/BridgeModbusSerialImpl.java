@@ -29,6 +29,7 @@ import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStoppable;
 
 /**
  * Provides a service for connecting to, querying and writing to a Modbus/RTU
@@ -45,7 +46,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
-		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
+		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler, StartStoppable {
 
 	/** The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3'). */
 	private String portName = "";
@@ -81,7 +82,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
-				BridgeModbusSerial.ChannelId.values() //
+				BridgeModbusSerial.ChannelId.values(), //
+				StartStoppable.ChannelId.values() //
 		);
 	}
 
@@ -127,6 +129,11 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		if (this.isStopped()) {
+			this.closeModbusConnection();
+			return null;
+		}
+
 		var connection = this.getModbusConnection();
 		var transaction = new ModbusSerialTransaction(connection);
 		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);

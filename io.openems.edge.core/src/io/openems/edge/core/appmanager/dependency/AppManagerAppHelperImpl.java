@@ -624,7 +624,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		try {
 			final var oldInstances = new TreeMap<AppIdKey, ExistingDependencyConfig>();
 			// get all existing app dependencies
-			this.foreachExistingDependency(oldInstance, ConfigurationTarget.UPDATE, language, null, dc -> {
+			this.foreachExistingDependency(oldInstance, ConfigurationTarget.VALIDATE, language, null, dc -> {
 				if (!dc.isDependency()) {
 					return true;
 				}
@@ -633,6 +633,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			});
 			return oldInstances;
 		} catch (OpenemsNamedException e) {
+			this.log.warn("Unable to get all old dependencies", e);
 			return Collections.emptyMap();
 		}
 	}

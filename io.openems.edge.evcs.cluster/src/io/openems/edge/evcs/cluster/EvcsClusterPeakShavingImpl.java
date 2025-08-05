@@ -371,8 +371,10 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 					var guaranteedPower = this.getGuaranteedPower(managedEvcs);
 					var status = managedEvcs.getStatus();
 					switch (status) {
-					case ERROR, STARTING, UNDEFINED, NOT_READY_FOR_CHARGING, ENERGY_LIMIT_REACHED ->
-						managedEvcs.setChargePowerLimit(0);
+					case ERROR, STARTING, UNDEFINED, ENERGY_LIMIT_REACHED //
+						-> managedEvcs.setChargePowerLimit(0);
+					case NOT_READY_FOR_CHARGING //
+						-> managedEvcs.setChargePowerLimit(MINIMUM_CHARGE_POWER_GUARANTEE);
 					case READY_FOR_CHARGING -> {
 						// Check if there is enough power for an initial charge
 						if (totalPowerLimit - initialChargePower - this.getActivePower().orElse(0) >= guaranteedPower) {

@@ -44,6 +44,7 @@ subprojects {
 	
 	tasks.withType(Test) {
 		maxParallelForks = 2
+		failOnNoDiscoveredTests = false
 		reports {
 			html.required = false
 			junitXml.required = false

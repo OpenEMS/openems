@@ -735,7 +735,7 @@ public class AppDef<APP extends OpenemsApp, //
 	/**
 	 * Appends the given predicates and collections them into one which checks that
 	 * every predicate returns true to determine if the current field should be
-	 * show.
+	 * shown.
 	 * 
 	 * @param isAllowedToSeePredicate the {@link FieldValuesBiPredicate}
 	 * @return this
@@ -960,11 +960,11 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Binds a property bidirectional.
 	 * 
 	 * <p>
-	 * The property itself will not be stored in the app configuration only in the
+	 * The property itself will not be stored in the app configuration but in the
 	 * component. If the user doesn't provide the value of a property and there is a
-	 * bidirectional binding for it it will be filled up with the value of the
-	 * bidirectional binding. If there is no component id in the configuration or
-	 * the component doesn't exist or the property of the value is null then null is
+	 * bidirectional binding for it, it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration, the
+	 * component doesn't exist or the property of the value is null then null is
 	 * returned inside the bidirectional function.
 	 * 
 	 * @param propOfComponentId        the key to get the component id from a
@@ -985,11 +985,11 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Binds a property bidirectional.
 	 * 
 	 * <p>
-	 * The property itself will not be stored in the app configuration only in the
+	 * The property itself will not be stored in the app configuration but in the
 	 * component. If the user doesn't provide the value of a property and there is a
-	 * bidirectional binding for it it will be filled up with the value of the
-	 * bidirectional binding. If there is no component id in the configuration or
-	 * the component doesn't exist or the property of the value is null then null is
+	 * bidirectional binding for it, it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration, the
+	 * component doesn't exist, or the property of the value is null then null is
 	 * returned inside the bidirectional function.
 	 * 
 	 * @param propOfComponentId        the key to get the component id from a
@@ -1016,11 +1016,11 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Binds a property bidirectional.
 	 * 
 	 * <p>
-	 * The property itself will not be stored in the app configuration only in the
+	 * The property itself will not be stored in the app configuration but in the
 	 * component. If the user doesn't provide the value of a property and there is a
-	 * bidirectional binding for it it will be filled up with the value of the
-	 * bidirectional binding. If there is no component id in the configuration or
-	 * the component doesn't exist or the property of the value is null then null is
+	 * bidirectional binding for it, it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration, the
+	 * component doesn't exist, or the property of the value is null then null is
 	 * returned inside the bidirectional function.
 	 * 
 	 * @param componentId              the componentId
@@ -1040,11 +1040,11 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Binds a property bidirectional.
 	 * 
 	 * <p>
-	 * The property itself will not be stored in the app configuration only in the
+	 * The property itself will not be stored in the app configuration but in the
 	 * component. If the user doesn't provide the value of a property and there is a
-	 * bidirectional binding for it it will be filled up with the value of the
-	 * bidirectional binding. If there is no component id in the configuration or
-	 * the component doesn't exist or the property of the value is null then null is
+	 * bidirectional binding for it, it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration, the
+	 * component doesn't exist, or the property of the value is null then null is
 	 * returned inside the bidirectional function.
 	 * 
 	 * @param componentId              the componentId
@@ -1066,11 +1066,11 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Binds a property bidirectional.
 	 * 
 	 * <p>
-	 * The property itself will not be stored in the app configuration only in the
+	 * The property itself will not be stored in the app configuration but in the
 	 * component. If the user doesn't provide the value of a property and there is a
-	 * bidirectional binding for it it will be filled up with the value of the
-	 * bidirectional binding. If there is no component id in the configuration or
-	 * the component doesn't exist or the property of the value is null then null is
+	 * bidirectional binding for it, it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration, the
+	 * component doesn't exist, or the property of the value is null then null is
 	 * returned inside the bidirectional function.
 	 * 
 	 * @param componentIdSupplier      the componentId supplier

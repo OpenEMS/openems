@@ -103,7 +103,8 @@ export default [{
         "prefix": [
           "app",
           "oe",
-          "ngVar"
+          "ngVar",
+          "ngDomChange"
         ],
         "style": "camelCase"
       }
@@ -123,7 +124,8 @@ export default [{
       "error",
       {
         "args": "none",
-        "ignoreRestSiblings": true
+        "ignoreRestSiblings": true,
+        "varsIgnorePattern": "^_"
       }
     ],
     "@typescript-eslint/no-explicit-any": 0,
