@@ -138,15 +138,15 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.accessMode(AccessMode.READ_ONLY)),
 
 		POWER_OUT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		POWER_OUT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		POWER_OUT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //

@@ -158,6 +158,8 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
 			// .put(DefaultSunSpecModel.S_160, Priority.LOW) //
