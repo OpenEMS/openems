@@ -511,9 +511,11 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		var acPowerInputL2 = this.getActivePowerInputL2().orElse(null);
 		var acPowerInputL3 = this.getActivePowerInputL3().orElse(null);
 
-		var acPowerOutputL1 = this.getActivePowerOutputL1().orElse(0);
-		var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0);
-		var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0);
+		var acPowerOutputL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0);
+		var acPowerOutputL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
+		var acPowerOutputL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
+		//var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0);
+		//var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0);
 
 		if (acPowerInputL1 != null && acPowerInputL2 != null && acPowerInputL3 != null && acPowerOutputL1 != null
 				&& acPowerOutputL2 != null && acPowerOutputL3 != null) {
@@ -680,7 +682,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						this.m(VictronEss.ChannelId.CURRENT_INPUT_LIMIT, new SignedWordElement(22),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 
-						// Output Powers
 						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L1, new SignedWordElement(23),
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L2, new SignedWordElement(24),
@@ -799,7 +800,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						this.m(VictronEss.ChannelId.PREFER_RENEWABLE_ENERGY, new UnsignedWordElement(102)),
 						this.m(VictronEss.ChannelId.SELECT_REMOTE_GENERATOR, new UnsignedWordElement(103)),
 						this.m(VictronEss.ChannelId.REMOTE_GENERATOR_SELECTED, new UnsignedWordElement(104))),
-
+				
 				new FC16WriteRegistersTask(37, //
 						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
 						new DummyRegisterElement(38, 39),

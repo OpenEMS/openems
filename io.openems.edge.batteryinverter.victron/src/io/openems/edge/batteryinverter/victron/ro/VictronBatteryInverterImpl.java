@@ -454,9 +454,12 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 						this.m(VictronBatteryInverter.ChannelId.AC_PV_ON_INPUT_POWER_L2, new UnsignedWordElement(812)),
 						this.m(VictronBatteryInverter.ChannelId.AC_PV_ON_INPUT_POWER_L3, new UnsignedWordElement(813)),
 						new DummyRegisterElement(814, 816),
+						
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L1, new UnsignedWordElement(817)),
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L2, new UnsignedWordElement(818)),
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L3, new UnsignedWordElement(819)),
+						
+					
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L1, new SignedWordElement(820)),
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L2, new SignedWordElement(821)),
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L3, new SignedWordElement(822)),
