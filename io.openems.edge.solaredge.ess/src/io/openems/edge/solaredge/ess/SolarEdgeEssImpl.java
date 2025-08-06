@@ -480,13 +480,13 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	}
 	
 	/**
-	 * Check if Battery Actual Power (=Charge/Discharge Power) has changed within the last 10 seconds.
+	 * Check if Battery Actual Power (=Charge/Discharge Power) has changed within the last 20 seconds.
 	 */
 	private boolean batteryActualPowerChanged() {
 		final IntegerReadChannel batteryPowerChannel = this.channel(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_POWER);
 		var nextBatteryPowerValue = batteryPowerChannel.getNextValue();
 		var pastBatteryPowerValues = batteryPowerChannel.getPastValues()
-									.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(10), true); //
+									.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(20), true); //
 		
 		for (Value<Integer> value : pastBatteryPowerValues.values()) {
 			if(value.isDefined() && Math.abs(value.get()-nextBatteryPowerValue.get()) > 50 /* W */) {
