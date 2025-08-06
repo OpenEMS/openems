@@ -775,7 +775,8 @@
       "BALANCING_WANTED": "Kalibrierung erwünscht",
       "BALANCING_ACTIVE": "Kalibrierung aktiv",
       "BALANCING_REMAINING_SECONDS": "Restzeit: ",
-      "CHARGED_ENERGY_SINCE_LAST_BALANCING": "Geladene Energie seit der letzten Kalibrierung: "
+      "CHARGED_ENERGY_SINCE_LAST_BALANCING": "Geladene Energie seit der letzten Kalibrierung: ",
+      "PRICE_LIMIT": "Balancing verzögert weil Preis zu hoch"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Batterie-Wechselrichter",

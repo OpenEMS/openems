@@ -73,7 +73,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int balancingHysteresisTime = 0;
 	private State state = State.UNDEFINED;
 
-	
 	private boolean debugMode = false;
 	private Integer slowChargePower = null;
 	private Integer slowDisChargePower = null;
@@ -82,7 +81,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private int taperStartSoc = 0;
 	private int taperPercent = 3; // decrease charge power during the last X percent before hitting the max. Soc
 	private int fullChargePower = 0;
-	
+
 	@Reference
 	private ComponentManager componentManager;
 
@@ -100,10 +99,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			target = "(enabled=true)")
 	private List<ControllerEssThresholdPeakshaver> ctrlEssThresholdPeakshavers = new CopyOnWriteArrayList<>();
 
-	
 	@Reference
-	private TimeOfUseTariff timeOfUseTariff;		
-	
+	private TimeOfUseTariff timeOfUseTariff;
+
 	public ControllerEssChargeDischargeLimiterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -183,19 +181,20 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		// Initial values
 		this.slowChargePower = 500;
 		this.slowDisChargePower = 500;
-		this.fullChargePower = 500;		
+		this.fullChargePower = 500;
 
-		if(this.ess == null || this.ess.getAllowedChargePower().get() == null) {
+		if (this.ess == null || this.ess.getAllowedChargePower().get() == null) {
 			this.changeState(State.UNDEFINED);
-			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");			
+			this.logDebug(this.log,
+					"Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");
 			return;
-		}		
+		}
 
 		// Charge power must be positive
-		if(this.ess.getAllowedChargePower().get() > 0) {
-			this.logDebug(this.log, "Unable to set slow charge / discharge power");			
+		if (this.ess.getAllowedChargePower().get() > 0) {
+			this.logDebug(this.log, "Unable to set slow charge / discharge power");
 			return;
-		}		
+		}
 
 		this.slowChargePower = this.ess.getAllowedChargePower().get() / 20;
 		this.slowDisChargePower = this.ess.getAllowedDischargePower().get() / 20;
@@ -215,8 +214,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.changeState(State.ERROR);
 			this.log.error("ESS is null in run method! Aborting execution.");
 			return;
-		}		
-		
+		}
+
 		Integer currentSoc = ess.getSoc().get();
 		Integer currentActivePower = this.getEssChargePower().get(); // no matter if AC or DC charging
 		Integer calculatedPower = 0; // No constraints
@@ -302,11 +301,11 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			}
 			break;
 		case ABOVE_MAX_SOC:
-			
+
 			if (this.slowDisChargePower != null && this.autoDischarge) {
 				calculatedPower = this.slowDisChargePower; // discharge slowly if autoDischarge is configured
 			}
-			
+
 			if (currentSoc == this.maxSoc) {
 				this.changeState(State.MAX_SOC_REACHED);
 			} else if (currentSoc < this.maxSoc) {
@@ -334,6 +333,28 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			// Check again if balancing is necessary
 			if (!shouldBalance()) {
 				this.changeState(State.NORMAL);
+				break;
+			}
+
+			if (!isWithinPriceLimit()) {
+				this.changeState(State.PRICE_LIMIT);
+				break;
+			}
+
+			this.changeState(State.FORCE_CHARGE_ACTIVE);
+
+			break;
+		case PRICE_LIMIT:
+
+			// Check again if balancing is necessary
+			if (!shouldBalance()) {
+				this.changeState(State.NORMAL);
+				break;
+			}
+
+			// no transition if price exceeds limit
+			if (!isWithinPriceLimit()) {
+				this.logDebug(this.log, "Balancing is desired but price exceeds limit \n");
 				break;
 			}
 
@@ -373,7 +394,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				//
 				this._setBalancingRemainingSeconds(this.balancingRemainingTime);
 
-				if (currentSoc < (this.forceChargeSoc -1)) {
+				if (currentSoc < (this.forceChargeSoc - 1)) {
 					// SOC dropped below forceChargeSoc: reset balancing
 					this.logDebug(this.log, "SOC dropped below " + this.forceChargeSoc + "%. Restarting balancing.");
 					this.changeState(State.BALANCING_WANTED);
@@ -415,7 +436,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this.balancingRemainingTime = this.balancingHysteresisTime; // Reset remaining balancing time
 
 		if (fullReset) {
-			this.logDebug(this.log, "\nBalancing finished. Going back to normal operation. Energy counters ");			
+			this.logDebug(this.log, "\nBalancing finished. Going back to normal operation. Energy counters ");
 			this.resetChargedEnergy = true; // Flag to reset charged energy
 			this.cumulatedchargedEnergy = 0; // Optional: reset cumulative charge energy here
 		}
@@ -428,6 +449,29 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				.getSeconds();
 
 		return this.balancingTime >= this.balancingHysteresisTime;
+	}
+
+	private boolean isWithinPriceLimit() {
+		Integer currentPrice = 0;
+
+		if (config.maxPrice() == 0) {
+			return true;
+		}
+
+		if (this.timeOfUseTariff == null) {
+			this.log.warn("TimeOfUseTariff service is null.");
+			return true; // Ignore check if no ToU controller is available and no price can be obtained
+		}
+		currentPrice = (int) Math.round(this.timeOfUseTariff.getPrices().getFirst() / 10); // Price in €/MWh.
+																							// Divided to ct/kWh
+		// balancing is not desired
+		if (currentPrice > config.maxPrice()) {
+			this.logDebug(this.log, "Balancing is deactivated due to high price. Configured limit: " + config.maxPrice()
+					+ " Current price: " + currentPrice + "[ct/kWh]");
+			return false;
+		}
+		return true;
+
 	}
 
 	/**
@@ -443,19 +487,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	private boolean shouldBalance() {
 
 		Integer chargedEnergy = this.getChargedEnergy().get();
-		Integer currentPrice = 0;
-		
-		if (this.timeOfUseTariff == null) {
-			this.log.warn("TimeOfUseTariff service is null.");
-		} else {
-			currentPrice = (int) Math.round(this.timeOfUseTariff.getPrices().getFirst()/10); // Price in €/MWh. Divided to ct/kWh	
-		}
-		
+
 		if (chargedEnergy == null) {
 			this.logDebug(this.log, "ERROR: Cannot determine charged energy");
 			return false;
 		}
-		
+
 		// are there any peakshavers active
 		if (this.isPeakshavingActive() == true) {
 			this.logDebug(this.log, "Balancing is deactivated due to active peakshaving");
@@ -467,13 +504,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.logDebug(this.log, "Balancing is deactivated due to config setting");
 			return false;
 		}
-		
-		// balancing is not desired
-		if (config.maxPrice() != 0 && currentPrice > config.maxPrice() ) {
-			this.logDebug(this.log, "Balancing is deactivated due to high price. Configured limit: " + config.maxPrice() + " Current price: " + currentPrice + "[ct/kWh]" );
-			return false;
-		}
-		
 
 		if (this.state == State.BALANCING_ACTIVE) {
 			this.logDebug(this.log, "Balancing already active");
@@ -522,8 +552,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			case FORCE_CHARGE_ACTIVE, BALANCING_ACTIVE -> {
 				// Fit calculated power within min/max limits and apply
-				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, SingleOrAllPhase.ALL, Pwr.ACTIVE,
-						calculatedPower);
+				calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, SingleOrAllPhase.ALL,
+						Pwr.ACTIVE, calculatedPower);
 				ess.setActivePowerLessOrEquals(calculatedPower);
 
 			}
@@ -536,6 +566,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			case BALANCING_WANTED -> // do nothing
 				{
 
+				}
+			case PRICE_LIMIT -> // do nothing
+				{
+					// Waiting for price to fall below maxPrice. No constraints applied now.
 				}
 			case UNDEFINED -> // do nothing
 				{
@@ -621,7 +655,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.cumulatedchargedEnergy = 0;
 			this.resetChargedEnergy = false;
 		}
-		this.logDebug(this.log, "Writing charged energy " + this.cumulatedchargedEnergy + "[Wh]" );
+		this.logDebug(this.log, "Writing charged energy " + this.cumulatedchargedEnergy + "[Wh]");
 		// Set the updated charged energy in the controller's channel
 		this._setChargedEnergy(this.cumulatedchargedEnergy);
 
@@ -636,33 +670,32 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.logInfo(this.log, message);
 		}
 	}
-	
+
 	private boolean isPeakshavingActive() {
-	    // Check all connected peakshaving controllers to determine if any are active
-	    if (this.ctrlEssThresholdPeakshavers == null || this.ctrlEssThresholdPeakshavers.isEmpty()) {
-	        this.logDebug(this.log, "No peakshaving controllers connected.");
-	        return false;
-	    }
+		// Check all connected peakshaving controllers to determine if any are active
+		if (this.ctrlEssThresholdPeakshavers == null || this.ctrlEssThresholdPeakshavers.isEmpty()) {
+			this.logDebug(this.log, "No peakshaving controllers connected.");
+			return false;
+		}
 
-	    for (ControllerEssThresholdPeakshaver peakshaver : this.ctrlEssThresholdPeakshavers) {
-	        if (peakshaver == null) {
-	            this.logDebug(this.log, "ERROR: A peakshaver instance is null.");
-	            continue; // Skip null entries without breaking the loop
-	        }
+		for (ControllerEssThresholdPeakshaver peakshaver : this.ctrlEssThresholdPeakshavers) {
+			if (peakshaver == null) {
+				this.logDebug(this.log, "ERROR: A peakshaver instance is null.");
+				continue; // Skip null entries without breaking the loop
+			}
 
-	        String state = peakshaver.getStateMachine() != null ? peakshaver.getStateMachine().toString() : "null";
-	        this.logDebug(this.log, "Peakshaver state: " + state);
+			String state = peakshaver.getStateMachine() != null ? peakshaver.getStateMachine().toString() : "null";
+			this.logDebug(this.log, "Peakshaver state: " + state);
 
-	        if ("PEAKSHAVING_ACTIVE".equals(state)) { // Use .equals for string comparison
-	            this.logDebug(this.log, "Peakshaving Controller " + peakshaver.alias() + " is active.");
-	            return true;
-	        }
-	    }
+			if ("PEAKSHAVING_ACTIVE".equals(state)) { // Use .equals for string comparison
+				this.logDebug(this.log, "Peakshaving Controller " + peakshaver.alias() + " is active.");
+				return true;
+			}
+		}
 
-	    this.logDebug(this.log, "No active peakshaving controllers detected.");
-	    return false;
+		this.logDebug(this.log, "No active peakshaving controllers detected.");
+		return false;
 	}
-
 
 	@Override
 	public String getEssId() {

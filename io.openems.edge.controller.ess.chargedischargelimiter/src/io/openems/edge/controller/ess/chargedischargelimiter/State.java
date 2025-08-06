@@ -12,7 +12,8 @@ public enum State implements OptionsEnum {
 	MAX_SOC_REACHED(5, "Maximum SoC limit reached"),	
 	FORCE_CHARGE_ACTIVE(6, "Force-Charge-to-SoC"), // ESS is charging to configured balancing point
 	BALANCING_WANTED(7, "Balancing wanted"),
-	BALANCING_ACTIVE(8, "Balancing active");
+	BALANCING_ACTIVE(8, "Balancing active"),
+	PRICE_LIMIT(9, "Price exceeds configured limit");
 
 
 	private final int value;

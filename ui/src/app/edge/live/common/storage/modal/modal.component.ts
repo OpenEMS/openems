@@ -123,12 +123,13 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                     NORMAL = 0,                 // Normal operation
                                     ERROR = 1,                  //
                                     BELOW_MIN_SOC = 2,          // ESS SoC is below configured minimum
-                                    ABOVE_MAX_SOC = 3,           // Above configured Max-SoC")
-                                    MIN_SOC_REACHED = 4,       // balancing procedure is desired
-                                    MAX_SOC_REACHED = 5,       // balancing is active
+                                    ABOVE_MAX_SOC = 3,          // Above configured Max-SoC")
+                                    MIN_SOC_REACHED = 4,        // balancing procedure is desired
+                                    MAX_SOC_REACHED = 5,        // balancing is active
                                     FORCE_CHARGE_ACTIVE = 6,    // ESS is charging to configured balancing point
                                     BALANCING_WANTED = 7,       // balancing procedure is desired
                                     BALANCING_ACTIVE = 8,       // balancing is active
+                                    PRICE_LIMIT = 9,            // balancing delayed due to high price
                                 }
                                 const minSoc = currentData.channel[controller.id + "/_PropertyMinSoc"];
                                 const maxSoc = currentData.channel[controller.id + "/_PropertyMaxSoc"];
@@ -236,6 +237,8 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                 return "warning"; // Leichtes Orange f�r SOC-Warnungen
             case 8:  // BALANCING_ACTIVE
                 return "primary"; // Blinkendes Orange f�r aktives Balancing
+            case 9:  // PRICE_LIMIT
+                return "warning"; // Blinkendes Orange f�r aktives Balancing
             default:
                 return ""; // Keine Farbe
         }
