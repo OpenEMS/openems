@@ -8,10 +8,13 @@
 :source-highlighter: highlight.js
 :icons: font
 
+This guide will show you how to setup https://www.jetbrains.com/idea/download/[IntelliJ IDEA] for OpenEMS development.
+
+NOTE: Make sure you have the correct version of the Java Development Kit (JDK) installed on your system.
+
 == Setup IntelliJ IDEA for OpenEMS Edge and Backend
 
 . Prepare Intellij IDEA
-.. Download Java Development Kit (JDK) 11 and install it. We recommend the https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[OpenJDK Temurin builds by the Adoptium project]
 .. We use the Amdatu Plugin. Please confirm that the plugin is compatible with the latest version. See the https://plugins.jetbrains.com/plugin/10639-amdatu/versions[Amdatu homepage icon:external-link[]].
 .. With the toolbox you can select the right version https://www.jetbrains.com/toolbox-app/download/[Intellij Version icon:external-link[]].
 .. To avoid incompatible updates, you may disable Auto-Updates in the Toolbox. It is also possible to select a earlier version if the update was done accidentally
