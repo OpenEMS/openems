@@ -8,113 +8,57 @@
 :source-highlighter: highlight.js
 :icons: font
 
-There are three ways to get started with OpenEMS. 
-You can either setup your development environment and compile OpenEMS Edge from source, you can use pre-built https://github.com/OpenEMS/openems/releases[Release] packages, or you can use the https://github.com/OpenEMS/openems/tree/main/tools/docker/[Docker] images.
-How to use the Docker images is described in the README linked above.
-For the other two ways, keep reading.
-Either way, once finished you will have a working instance of OpenEMS Edge, with simulated energy storage and photovoltaic system, as well as an OpenEMS UI for monitoring the simulator inside your web browser. 
-Finally OpenEMS Backend is added to simulate a cloud backend that connects UI and Edge.
-If you chose to setup the development environment, skip the first section and go to <<download-the-source-code>>.
+The Getting Started guide will show you how to run https://github.com/OpenEMS/openems/releases/[pre-built OpenEMS versions] and complete basic configuration tasks. You will learn how to run a simulated PV + battery system in OpenEMS Edge, use OpenEMS UI to monitor your instance and optionally integrate the OpenEMS Backend for remote monitoring.
 
-== Running the pre-built OpenEMS Edge
+We also provide https://hub.docker.com/u/openems[Docker images] as a convenient way to try out OpenEMS if you are familiar with container environments. How to run these images will not be covered in detail in this guide. However, many of the configuration steps will be the same as described below.
 
-. Go to the https://github.com/OpenEMS/openems/releases/[OpenEMS' release Page] on GitHub and download the latest `openems-edge.jar`.
+NOTE: If you want to actively develop and extend OpenEMS, follow the xref:development/overview.adoc[developer guide] to setup a development environment.
+
+[IMPORTANT]
+====
+This setup is intended for testing purposes only. It is not recommended to run OpenEMS in production this way.
+
+To use OpenEMS in production, choose one of the following options:
+
+* Deploy OpenEMS Edge to xref:edge/deploy/systemd.adoc[Debian/Ubuntu] or to xref:edge/deploy/docker.adoc[Docker]
+* Deploy OpenEMS Backend to xref:backend/deploy/systemd.adoc[Debian/Ubuntu] or to xref:backend/deploy/docker.adoc[Docker]
+====
+
+== Install Java
+
+OpenEMS requires Java 21 to run. If it is not pre-installed on your system, we recommend using https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[Eclipse Temurin by Adoptium].
+
+You can check the installed version by running the following command from your terminal:
+
+```
+java -version
+```
+
+The output should look similar to this:
+
+```
+openjdk version "21.0.8" 2025-07-15 LTS
+OpenJDK Runtime Environment Temurin-21.0.8+9 (build 21.0.8+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, sharing)
+```
+
+== OpenEMS Edge
+
+OpenEMS Edge is the actual energy management system running on your local device. It is the first component that you will set up.
+
+=== Running the pre-built OpenEMS Edge
+
+. Go to the https://github.com/OpenEMS/openems/releases/[OpenEMS release page] on GitHub and download the latest `openems-edge.jar`.
 . Open up your Terminal and go to the directory you downloaded the packages to.
 . Start OpenEMS Edge with the following command `java -jar openems-edge.jar`
 
-NOTE: Make sure the right java Version (21.0) is installed and active on your system. 
-On most systems `java -version` in your CLI will show the active version.
-On how to change the active version, refer to your system documentation.
+If OpenEMS Edge starts successfully, you should see the below warning in the log. That is perfectly fine! We will take care of this in a moment when we configure your new instance.
 
-. If you see the following warning in your terminal: *There are no schedulers configured!* OpenEMS Edge runs perfectly. :-)
-. Now you can continue with <<starting-a-simulation>>
+```
+WARN  [ms.edge.core.cycle.CycleWorker] [_cycle] There are no Schedulers configured!
+```
 
-== Download the source code [[download-the-source-code]]
-
-. Download any https://git-scm.com[git client icon:external-link[]] and install it. Our recommendation is https://www.sourcetreeapp.com/[Sourcetree by Atlassian icon:external-link[]]
-
-. Clone the OpenEMS git repository
-
-.. In Sourcetree:
-
-... press btn:[File] -> btn:[Clone]
-... enter the git repository path `https://github.com/OpenEMS/openems.git`
-... select a target directory, for example `C:\Users\your.user\git\openems`
-... and press btn:[Clone].
-+
-.Cloning the git repository using Sourcetree
-image::sourcetree.png[Cloning the git repository using Sourcetree]
-
-.. Alternatively: with the git command line utility
-
-... open a console
-... change to the target directory
-... execute `git clone https://github.com/OpenEMS/openems.git`
-
-. Git is downloading the complete source code for you.
-
-NOTE: OpenEMS uses the **git** version control system via the popular GitHub platform. It's worth learning some basic git commands and workflows. If you want to start with your own OpenEMS developments, just create a copy using the GitHub https://docs.github.com/en/get-started/quickstart/fork-a-repo[fork a repo] feature, and https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork[create a pull request] to get feedback on your work and contribute to the project. 
-
-== Setup Eclipse IDE for OpenEMS Edge and Backend
-
-NOTE: Eclipse IDE is the recommended development environment for newcomers to OpenEMS. If you are more familiar with IntelliJ IDEA, feel free to use it. Follow xref:intellij.adoc[this guide].
-
-. Prepare Eclipse IDE
-.. Download Java Development Kit (JDK) 21 and install it. We recommend the https://adoptium.net/de/temurin/releases/?version=21[OpenJDK Temurin builds by the Adoptium project]
-.. Download https://www.eclipse.org/downloads/[Eclipse for Java icon:external-link[]], install and start it
-.. On first start you will get asked to create a workspace.
-Select your source code directory (`C:\Users\your.user\git\openems` in our example) and press btn:[Launch].
-+
-.Creating a workspace in Eclipse IDE
-image::eclipse-workspace.png[Creating a workspace in Eclipse IDE]
-
-.. Install http://bndtools.org[BndTools icon:external-link[]] in Eclipse:
-+
-Menu: btn:[Help] → btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn:[Bndtools] → press btn:[Install]
-
-.. Configure Eclipse IDE to use JDK 21.
-+
-- In the Menu select btn:[Windows] → btn:[Preferences]
-- Select btn:[Java] - btn:[Installed JREs] in the navigation tree
-- Press the btn:[Add...] button
-- Keep btn:[Standard VM] selected and press btn:[Next >]
-- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-21.0.3.9-hotspot`)
-- Press the btn:[Finish] button
-- Back in the Preferences window, tick the newly added JDK 21 and press btn:[Apply and Close]
-+
-.Creating a workspace in Eclipse IDE
-image::eclipse-select-jdk.png[Set the Java Development Kit in Eclipse IDE]
-
-. Import OpenEMS component projects (OSGi bundles):
-+
-Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd Workspace] → your source code directory should have been selected as *Root Directory* automatically → btn:[Finish] → "Switch to Bndtools perspective?" btn:[Yes]
-
-. Eclipse will now spend some time importing and building OpenEMS Edge and Backend. Close the *Welcome* window to follow the progress till you eventually see the full tree of OpenEMS projects (or bundles) in the *Bndtools Explorer* and all errors and warnings in the *Problems* tab disappear.
-
-// TODO add Setup of Checkstyle
-
-== Run OpenEMS Edge from Eclipse IDE
-
-. Run OpenEMS Edge
-.. In Eclipse IDE open the project btn:[io.openems.edge.application] and double click on btn:[EdgeApp.bndrun].
-+
-.io.openems.edge.application project in Eclipse IDE
-image::eclipse-io.openems.edge.application.png[io.openems.edge.application project in Eclipse IDE]
-+
-NOTE: Instead of navigating through the projects tree, you can simply use the keyboard shortcut btn:[Ctrl] + btn:[Shift] + btn:[R] to start the "Open Resource" dialog. Enter "EdgeApp.bndrun" there and press btn:[Enter] to open the file.
-+
-The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For now it should not be necessary to edit it, but it hides some useful settings under the btn:[Source] tab:
-+
-- `org.osgi.service.http.port=8080`: start the Apache Felix Web Console on port `8080`
-- `felix.cm.dir=c:/openems/config`: persist configurations in the folder `c:/openems/config`. Adjust this if you are working on Linux to keep your configurations after restart
-- `openems.data.dir=c:/openems/data`: this is where bundles are allowed to persist data. It is used e.g. by the RRD4j timedata storage
-
-.. Click on btn:[Run OSGi] to run OpenEMS Edge. You should see log outputs in the **Console** tab inside Eclipse IDE.
-+
-.OpenEMS Edge initial log output
-image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
-
-== Starting a simulation [[starting-a-simulation]]
+=== Basic configuration
 
 . Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]]
 +
@@ -162,6 +106,22 @@ INFO  [ntroller.debuglog.DebugLogImpl] [ctrlDebugLog0] _sum[State:Ok]
 ```
 +
 NOTE: It is 'once per second', because the Cycle-Time is defined as "1000 ms" by default. Adjust the setting in the _**Core Cycle (Core.Cycle)**_ component to change this.
+
+. Configure the websocket Api Controller: _**Controller Api Websocket**_. The default values can be accepted without changes.
++
+.Configuration of Controller Api Websocket
+image::config-controller-api-websocket.png[Configuration of Controller Api Websocket]
++
+The log shows:
++
+```
+INFO  [onent.AbstractOpenemsComponent] [ctrlApiWebsocket0] Activate Controller.Api.Websocket
+INFO  [socket.AbstractWebsocketServer] Starting [Websocket Api] websocket server [port=8085]
+```
++
+NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to OpenEMS Edge locally.
+
+=== Starting a simulation
 
 . Configure a simulated standard-load-profile datasource using _**Simulator DataSource: CSV Predefined**_. Select `H0_HOUSEHOLD_SUMMER_WEEKDAY_STANDARD_LOAD_PROFILE` as the `Source`.
 +
@@ -224,20 +184,6 @@ INFO  [ntroller.debuglog.DebugLogImpl] [ctrlDebugLog0] _sum[State:Ok Ess SoC:50 
 +
 NOTE: Values will differ slightly for you, but note how the Controller now tells the battery to discharge (`Ess SoC:49 %|L:593 W`), trying to balance the Grid power to "0 W" (`Grid L:15 W`):
 
-. Configure the websocket Api Controller: _**Controller Api Websocket**_. The default values can be accepted without changes.
-+
-.Configuration of Controller Api Websocket
-image::config-controller-api-websocket.png[Configuration of Controller Api Websocket]
-+
-The log shows:
-+
-```
-INFO  [onent.AbstractOpenemsComponent] [ctrlApiWebsocket0] Activate Controller.Api.Websocket
-INFO  [socket.AbstractWebsocketServer] Starting [Websocket Api] websocket server [port=8085]
-```
-+
-NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to OpenEMS Edge locally.
-
 == Run OpenEMS UI
 
 NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI or xref:ui/deploy.adoc[deploy the OpenEMS UI as docker image].
@@ -263,28 +209,21 @@ image::openems-ui-edge-overview2.png[OpenEMS UI Energymonitor screen]
 
 Instead of having Edge and UI talk to each other directly, the communication can also be proxied via Backend.
 
-=== Run and configure OpenEMS Backend
+=== Running the pre-built OpenEMS Backend
 
-. In Eclipse IDE open the project btn:[io.openems.backend.application] and double click on btn:[BackendApp.bndrun].
-+
-.io.openems.backend.application project in Eclipse IDE
-image::eclipse-io.openems.backend.application.png[io.openems.backend.application project in Eclipse IDE]
+. Go to the https://github.com/OpenEMS/openems/releases/[OpenEMS release page] on GitHub and download the latest `openems-backend.jar`.
+. Open up your Terminal and go to the directory you downloaded the packages to.
+. Start OpenEMS Backend with the following command `java -jar openems-backend.jar`
 
-. Click on btn:[Run OSGi] to run OpenEMS Backend. You should see log outputs on the console inside Eclipse IDE.
-+
-.OpenEMS Backend initial log output
-image::eclipse-backend-initial-log-output.png[OpenEMS Backend initial log output]
-+
-NOTE: Disable the two icon buttons "Show Console When Standard Out changes" and "Show Console When Standard Error changes" next to the _Console_ tab to avoid constant switching between the output of OpenEMS Edge and OpenEMS Backend.
+=== Configure OpenEMS Backend
 
-. Configure the Backend
-.. Open the http://localhost:8079/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
+. Open the http://localhost:8079/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
 +
 NOTE: Apache Felix Web Console for OpenEMS Backend is started on port 8079 by default. This is configured using the `org.osgi.service.http.port` setting in BackendApp.bndrun.
 +
 Login with username *admin* and password *admin*.
 
-.. Configure Edge.Websocket
+. Configure Edge.Websocket
 +
 NOTE: The _**Edge.Websocket**_ service is responsible for the communication between OpenEMS Backend and OpenEMS Edge.
 +
@@ -293,7 +232,7 @@ In the example we are configuring the `Port '8081'`. This port needs to match wi
 .Configuration of Backend Edge.Websocket
 image::config-backend-edge.websocket.png[Configuration of Backend Edge.Websocket]
 
-.. Configure Ui.Websocket
+. Configure Ui.Websocket
 +
 NOTE: The _**Ui.Websocket**_ service is responsible for the communication between OpenEMS Backend and OpenEMS UI.
 +
@@ -302,7 +241,7 @@ In the example we are configuring the `Port '8082'`. This port needs to match wi
 .Configuration of Backend Ui.Websocket
 image::config-backend-ui.websocket.png[Configuration of Backend Ui.Websocket]
 
-.. Configure Timedata
+. Configure Timedata
 +
 NOTE: The *Timedata* service provider is responsible for holding the current and historic data of each connected Edge device.
 +
@@ -311,7 +250,7 @@ In the example we are configuring the _**Timedata.Dummy**_ service. The default 
 .Configuration of Backend Timedata.Dummy
 image::config-backend-timedata.dummy.png[Configuration of Backend Timedata.Dummy]
 
-.. Configure Metadata
+. Configure Metadata
 +
 NOTE: The *Metadata* service provider is responsible for authentication of Edge devices and Users connecting via UI.
 +
@@ -320,7 +259,7 @@ image::config-backend-metadata.dummy.png[Configuration of Backend Metadata.Dummy
 +
 NOTE: In the example we are configuring the _**Metadata.Dummy**_ service. It takes no configuration parameters, so just press btn:[Save]. In a production system you would want to use a real implementation like _**Metadata.File**_, which uses a static JSON file as input, or _**Metadata.Odoo**_, which uses the *Odoo* business software for authentication and IoT device management. This will require the https://github.com/OpenEMS/odoo-openems[Odoo-OpenEMS-Addon] to be installed on your Odoo instance. See the https://gitpod.io/#https://github.com/OpenEMS/openems/tree/main[OpenEMS Live-Demo Gitpod workspace] for a full, production ready example configuration. For more information see → xref:simulation/gitpod.adoc[Gitpod Workspace]
 
-.. Backend is ready
+. Backend is ready
 +
 You should have seen some important log messages by now, that indicate that the OpenEMS Backend is ready to accept connections:
 ```
@@ -373,9 +312,9 @@ _(You need to have completed the xref:ui/setup-ide.adoc[OpenEMS UI guide] for th
 . Restart OpenEMS UI in 'local backend mode':
 +
 `ng serve -c openems-backend-dev`
-
++
 NOTE: OpenEMS UI can work both for local connections to OpenEMS Edge as well as cloud connections to OpenEMS Backend. The switch requires some basic parameters that are defined in 'environment' files `ui/src/themes/openems/environments`. The possible parameters for `ng serve -c...` are defined in the `ui/angular.json` file. 
-
++
 . Open a browser at http://localhost:4200
 
 . You should see OpenEMS UI Login. Log in with any email / username and password.
@@ -395,12 +334,14 @@ image::openems-ui-backend-overview.png[OpenEMS UI Overview screen]
 .OpenEMS UI Live screen
 image::openems-ui-backend-live.png[OpenEMS UI Live screen]
 
-## Next steps
+== Next steps
 
-Now that you setup a complete development environment and have a working instance of OpenEMS Edge, OpenEMS Backend an OpenEMS UI, you can continue implementing your first device driver in OpenEMS. We provide a tutorial that explains the steps to implement an electric meter in OpenEMS Edge that is connected via Modbus/TCP.
+Congratulations! You now have a working local simulation of OpenEMS Edge, OpenEMS Backend and OpenEMS UI. We encourage you to play around with it on your own to get more familiar with how everything works.
 
-The meter itself is simulated using a small Modbus slave application, so no external hardware is required for this guide. → xref:edge/implement.adoc[Implementing a Device]
+You may want to remove the simulated components and connect real devices to OpenEMS Edge. To do this, it is recommended to setup OpenEMS using the xref:edge/deploy/systemd.adoc[deployment guide] mentioned at the top of this page. Follow the same approach that you used to add simulated components, but make sure your Edge instance has access to the devices and configure the components with needed parameters (i.e. IP address, etc.).
 
-## Help
+Alternatively, read the xref:development/overview.adoc[developer guide] to learn how to set up a development environment for OpenEMS. This will allow you to implement your own device drivers and extend OpenEMS functionality.
+
+== Help
 
 If you experienced any problems or doubts, please get in touch with us on the https://community.openems.io/[OpenEMS Community] forum.
