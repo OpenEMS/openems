@@ -277,13 +277,13 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		this._setAllowedDischargePower(MaxChargePower);
 		
 		this.logDebug(this.log, "OpenEMS Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3 +
-		" \n Substract AC Out Power " + this.getActivePowerOutputL1().orElse(0) + "|L2: " + this.getActivePowerOutputL2().orElse(0) + "|L3: " + this.getActivePowerOutputL3().orElse(0));		
+		" \n Substract AC Out Power " + this.batteryInverter.getAcConsumptionPowerL1().orElse(0) + "|L2: " + this.batteryInverter.getAcConsumptionPowerL2().orElse(0) + "|L3: " + this.batteryInverter.getAcConsumptionPowerL3().orElse(0));		
 		// at this point we add AC Out power values
 		// i.e. -300W (charge battery)
 		// 100W AC Out we have to draw 300W from grid
-		activePowerL1 -= this.getActivePowerOutputL1().orElse(0);
-		activePowerL2 -= this.getActivePowerOutputL2().orElse(0);
-		activePowerL3 -= this.getActivePowerOutputL3().orElse(0);
+		activePowerL1 -= this.batteryInverter.getAcConsumptionPowerL1().orElse(0);
+		activePowerL2 -= this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
+		activePowerL3 -= this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
 
 		
 		
@@ -435,7 +435,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		// at this point we add AC Out power values
 		// i.e. -300W (charge battery)
 		// 100W AC Out we have to draw 300W from grid
-		activePowerTarget = activePowerTarget - (this.getActivePowerOutputL1().orElse(0) + this.getActivePowerOutputL2().orElse(0) + this.getActivePowerOutputL3().orElse(0));		
+		//activePowerTarget = activePowerTarget - (this.getActivePowerOutputL1().orElse(0) + this.getActivePowerOutputL2().orElse(0) + this.getActivePowerOutputL3().orElse(0));
+		activePowerTarget = activePowerTarget - (this.batteryInverter.getAcConsumptionPowerL1().orElse(0) +this.batteryInverter.getAcConsumptionPowerL2().orElse(0)   +this.batteryInverter.getAcConsumptionPowerL3().orElse(0)     );		
 		
 		this.logDebug(this.log, "Symm. PowerWanted after subtraction of AC Out: " + activePowerTarget);		
 		
@@ -565,7 +566,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this._setMyActivePower();
-			this.calculateEnergy();
+			//this.calculateEnergy();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this._setMyActivePower();

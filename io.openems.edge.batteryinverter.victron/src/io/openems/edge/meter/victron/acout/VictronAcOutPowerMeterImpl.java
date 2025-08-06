@@ -12,11 +12,15 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
+
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -24,9 +28,11 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -38,8 +44,11 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+})
 public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
-		implements ElectricityMeter, OpenemsComponent, ModbusSlave {
+		implements VictronAcOutPowerMeter, ElectricityMeter, OpenemsComponent, ModbusSlave, EventHandler {
 
 	private Config config;
 
@@ -50,6 +59,7 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
+				VictronAcOutPowerMeter.ChannelId.values(),
 				ModbusComponent.ChannelId.values() //
 		);
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
@@ -81,6 +91,27 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public MeterType getMeterType() {
 		return this.config.type();
+	}
+
+	private void setEnergyValues() {
+		// Both values should sum up to total energy
+		Integer energyFromAcInToAcOut = this.getEnergyFromAcInToAcOut().get();
+		Integer energyFromBatteryToAcOut = this.getEnergyFromBatteryToAcOut().get();
+		
+		// ToDo: both values are equal! They should not be...
+
+		if (energyFromAcInToAcOut == null || energyFromBatteryToAcOut == null) {
+			return;
+		}
+		this._setActiveConsumptionEnergy(energyFromAcInToAcOut );
+
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+
+		this.setEnergyValues();
+
 	}
 
 	@Override
@@ -120,7 +151,15 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(24),
 								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())),
 						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(25),
-								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))));
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())),
+						new DummyRegisterElement(26, 73),
+
+						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT, new UnsignedDoublewordElement(74),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(76, 89), this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT,
+								new UnsignedDoublewordElement(90), ElementToChannelConverter.SCALE_FACTOR_2)
+
+				));
 	}
 
 	@Override
