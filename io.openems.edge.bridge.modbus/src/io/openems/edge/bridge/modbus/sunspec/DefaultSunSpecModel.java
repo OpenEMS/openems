@@ -4195,7 +4195,6 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	}
 
 	public static enum S213_Evt implements SunSpecBitPoint {
-		UNDEFINED(new BitPoint(-1, "S213_EVT_UNDEFINED", "Undefined")), //
 		POWER_FAILURE(new BitPoint(2, "S213_EVT_POWER_FAILURE", "Power_Failure")), //
 		UNDER_VOLTAGE(new BitPoint(3, "S213_EVT_UNDER_VOLTAGE", "Under_Voltage")), //
 		LOW_P_F(new BitPoint(4, "S213_EVT_LOW_P_F", "Low_PF")), //
