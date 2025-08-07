@@ -37,6 +37,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
 import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
@@ -105,8 +106,8 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 			return;
 		}
 
-		// Subscribe to check auth status on activation
-		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log);
+		// Subscribe to check auth status and model validation on activation
+		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLYPLUSPLUG);
 		
 		// Subscribe for regular status updates
 		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);

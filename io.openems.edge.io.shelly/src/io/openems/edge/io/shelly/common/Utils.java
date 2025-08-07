@@ -2,11 +2,13 @@ package io.openems.edge.io.shelly.common;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsString;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -122,21 +124,24 @@ public class Utils {
 	}
 
 	/**
-	 * Subscribes to the /shelly endpoint once to check for authentication status.
+	 * Subscribes to the /shelly endpoint once to check for authentication status
+	 * and device model.
 	 * Sets the AUTH_ENABLED_WARNING channel and logs a warning if authentication is
 	 * enabled.
+	 * Validates the device model against expected models for the component type.
 	 * 
-	 * @param baseUrl    the base URL of the Shelly device
-	 * @param httpBridge the HTTP bridge for making requests
-	 * @param component  the ShellyCommon component
-	 * @param logger     the logger for logging messages
+	 * @param baseUrl        the base URL of the Shelly device
+	 * @param httpBridge     the HTTP bridge for making requests
+	 * @param component      the ShellyCommon component
+	 * @param logger         the logger for logging messages
+	 * @param expectedModels the set of expected model IDs for this component type
 	 */
 	public static void subscribeAuthenticationCheck(String baseUrl, BridgeHttp httpBridge, ShellyCommon component,
-			Logger logger) {
+			Logger logger, Set<String> expectedModels) {
 		httpBridge.get(baseUrl + "/shelly").thenAccept(response -> {
 			try {
 				var json = JsonUtils.parseToJsonObject(response.data());
-				processShellyInfo(json, component, logger);
+				processShellyInfo(json, component, logger, expectedModels);
 			} catch (OpenemsNamedException e) {
 				// Log error but don't fail - authentication check is not critical
 				logger.debug("Failed to parse /shelly response: " + e.getMessage());
@@ -149,13 +154,30 @@ public class Utils {
 	}
 
 	/**
-	 * Process the response from /shelly endpoint to check authentication status.
+	 * Subscribes to the /shelly endpoint once to check for authentication status.
+	 * Sets the AUTH_ENABLED_WARNING channel and logs a warning if authentication is
+	 * enabled.
 	 * 
-	 * @param json      the parsed JSON response
-	 * @param component the ShellyCommon component
-	 * @param logger    the logger for logging messages
+	 * @param baseUrl    the base URL of the Shelly device
+	 * @param httpBridge the HTTP bridge for making requests
+	 * @param component  the ShellyCommon component
+	 * @param logger     the logger for logging messages
 	 */
-	private static void processShellyInfo(JsonElement json, ShellyCommon component, Logger logger) {
+	public static void subscribeAuthenticationCheck(String baseUrl, BridgeHttp httpBridge, ShellyCommon component,
+			Logger logger) {
+		subscribeAuthenticationCheck(baseUrl, httpBridge, component, logger, null);
+	}
+
+	/**
+	 * Process the response from /shelly endpoint to check authentication status
+	 * and device model.
+	 * 
+	 * @param json           the parsed JSON response
+	 * @param component      the ShellyCommon component
+	 * @param logger         the logger for logging messages
+	 * @param expectedModels the set of expected model IDs for this component type (can be null)
+	 */
+	private static void processShellyInfo(JsonElement json, ShellyCommon component, Logger logger, Set<String> expectedModels) {
 		try {
 			var jsonObj = getAsJsonObject(json);
 
@@ -174,9 +196,36 @@ public class Utils {
 			var gen = jsonObj.has("gen") ? jsonObj.get("gen").getAsString() : "unknown";
 			component.channel(ShellyCommon.ChannelId.DEVICE_GENERATION).setNextValue(gen);
 
+			// Get device model
+			var model = getAsString(jsonObj, "model");
+			component.channel(ShellyCommon.ChannelId.DEVICE_MODEL).setNextValue(model);
+
+			// Validate device model if expected models are provided
+			if (expectedModels != null && !expectedModels.isEmpty()) {
+				boolean modelMatches = expectedModels.contains(model);
+				component._setWrongDeviceModel(!modelMatches);
+				
+				if (!modelMatches) {
+					logger.error(
+							"Wrong Shelly device model detected for component [{}]. Expected models: {}, but got: {}. Please configure the correct Shelly component type.",
+							component.id(), expectedModels, model);
+				}
+			}
+
 		} catch (OpenemsNamedException e) {
 			logger.debug("Error parsing /shelly response: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Process the response from /shelly endpoint to check authentication status.
+	 * 
+	 * @param json      the parsed JSON response
+	 * @param component the ShellyCommon component
+	 * @param logger    the logger for logging messages
+	 */
+	private static void processShellyInfo(JsonElement json, ShellyCommon component, Logger logger) {
+		processShellyInfo(json, component, logger, null);
 	}
 
 }

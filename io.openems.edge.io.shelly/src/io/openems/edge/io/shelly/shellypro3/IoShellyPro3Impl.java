@@ -28,6 +28,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
 import io.openems.edge.io.shelly.common.Utils;
 
 @Designate(ocd = Config.class, factory = true)
@@ -72,8 +73,8 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 
-		// Subscribe to check auth status on activation
-		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log);
+		// Subscribe to check auth status and model validation on activation
+		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLYPRO3);
 
 		for (int i = 0; i < 3; i++) {
 			final int relayIndex = i;

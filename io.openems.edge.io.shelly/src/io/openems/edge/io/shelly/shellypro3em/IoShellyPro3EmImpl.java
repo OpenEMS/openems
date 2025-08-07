@@ -34,6 +34,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
 import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -91,8 +92,8 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		this.httpBridge = this.httpBridgeFactory.get();
 
 		if (this.isEnabled()) {
-			// Subscribe to check auth status on activation
-			Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log);
+			// Subscribe to check auth status and model validation on activation
+			Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLYPRO3EM);
 			
 			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/EM.GetStatus?id=0", this::processHttpResult);
 		}
