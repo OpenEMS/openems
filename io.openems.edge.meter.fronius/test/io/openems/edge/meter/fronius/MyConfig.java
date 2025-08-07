@@ -1,8 +1,8 @@
 package io.openems.edge.meter.fronius;
 
-import io.openems.common.utils.ConfigUtils;
-import io.openems.common.types.MeterType;
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
+import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,7 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String modbusId = null;
 		private int modbusUnitId;
-		public MeterType type;
+		private MeterType type;
 
 		private Builder() {
 		}
