@@ -52,7 +52,7 @@ export class ModalComponent extends AbstractModal {
         return new Promise<void>((res) => {
             this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
                 this.component = config.getComponent(params.componentId);
-                this.chargePoint = this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
+                this.chargePoint = config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
                 res();
             });
         });

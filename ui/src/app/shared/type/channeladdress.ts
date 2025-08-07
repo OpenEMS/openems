@@ -15,8 +15,20 @@ export class ChannelAddress {
         return new ChannelAddress(array[0], array[1]);
     }
 
+    /**
+     * Parses a string to a ChannelAddress
+     *
+     * @param address in the form 'Component-ID/Channel-ID'
+     */
+    public static fromStringSafely(address: string | null): ChannelAddress | null {
+        if (address == null) {
+            return null;
+        }
+        const array = address.split("/", 2);
+        return new ChannelAddress(array[0], array[1]);
+    }
+
     public toString() {
         return this.componentId + "/" + this.channelId;
     }
-
 }

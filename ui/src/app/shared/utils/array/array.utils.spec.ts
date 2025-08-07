@@ -24,4 +24,18 @@ describe("Array-Utils", () => {
 
     expect(() => ArrayUtils.sortedAlphabetically(inputArr, null)).toThrow();
   });
+
+  it("#sum", () => {
+    // Standard summation with positive integers
+    expect([1, 2, 3, 4].reduce(ArrayUtils.ReducerFunctions.sum, 0)).toEqual(10);
+
+    // Summation with negative numbers
+    expect([10, -2, -5, 3].reduce(ArrayUtils.ReducerFunctions.sum, 0)).toEqual(6);
+
+    // An empty array should return the initial value (0)
+    expect([].reduce(ArrayUtils.ReducerFunctions.sum, 0)).toEqual(0);
+
+    // Summation with floating-point numbers
+    expect([1.5, 2.5, 1.0].reduce(ArrayUtils.ReducerFunctions.sum, 0)).toEqual(5);
+  });
 });
