@@ -10,14 +10,22 @@ public class Config {
 	public final String alias;
 	public final boolean enabled;
 	public final int invalidateElementsAfterReadErrors;
+	public final int cycleTime;
+	public final int minSleepTime;
 	public final LogHandler log;
 
+	public Config(String id, String alias, boolean enabled, LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
+		this(id, alias, enabled, logVerbosity, invalidateElementsAfterReadErrors, 0, 0);
+	}
+
 	public Config(String id, String alias, boolean enabled, LogVerbosity logVerbosity,
-			int invalidateElementsAfterReadErrors) {
+			int invalidateElementsAfterReadErrors, int cycleTime, int minSleepTime) {
 		this.id = id;
 		this.alias = alias;
 		this.enabled = enabled;
 		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
+		this.cycleTime = cycleTime;
+		this.minSleepTime = minSleepTime;
 		this.log = new LogHandler(this, logVerbosity);
 	}
 
