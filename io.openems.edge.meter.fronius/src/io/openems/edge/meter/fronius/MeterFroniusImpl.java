@@ -23,17 +23,17 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S213;
+import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.meter.AbstractSunSpecMeter;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.common.types.MeterType;
-import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -44,11 +44,11 @@ import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 				"type=GRID" //
 		})
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 
 public class MeterFroniusImpl extends AbstractSunSpecMeter
-implements MeterFronius, ElectricityMeter, ModbusComponent, OpenemsComponent {
+		implements MeterFronius, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
@@ -93,6 +93,7 @@ implements MeterFronius, ElectricityMeter, ModbusComponent, OpenemsComponent {
 	protected void deactivate() {
 		super.deactivate();
 	}
+
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString();
