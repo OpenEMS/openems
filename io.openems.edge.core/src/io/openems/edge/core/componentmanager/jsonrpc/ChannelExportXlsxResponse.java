@@ -1,5 +1,7 @@
 package io.openems.edge.core.componentmanager.jsonrpc;
 
+import static io.openems.edge.common.channel.ChannelUtils.getChannelNature;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -21,12 +23,10 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.StateChannelDoc;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -145,10 +145,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 			default -> CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, doc.getType().toString());
 			};
 
-			final var nature = Optional.ofNullable(channel.channelId().getClass().getEnclosingClass()) //
-					.filter(c -> c != AbstractOpenemsComponent.class && c != ChannelId.class) //
-					.map(Class::getSimpleName) //
-					.orElse("");
+			final var nature = getChannelNature(channel);
 
 			return new ChannelRow(channelId, value, unit, description, readSource, access, type, nature);
 		}

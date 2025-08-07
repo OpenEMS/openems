@@ -10,6 +10,7 @@ public class ReflectionUtilsTest {
 
 	private static class ParentClass {
 
+		@SuppressWarnings("unused")
 		private String parentMethod() {
 			return "parent";
 		}
@@ -18,6 +19,7 @@ public class ReflectionUtilsTest {
 
 	private static class ChildClass extends ParentClass {
 
+		@SuppressWarnings("unused")
 		private String childMethod() {
 			return "child";
 		}
