@@ -230,7 +230,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 				// Callback: forward actions
 				this.chargePoint.apply(actions);
 				this.history.addEntry(Instant.now(), this.chargePoint.getActivePower().get(),
-						actions.applySetPoint().value());
+						actions.applySetPoint().value(), actions.abilities().isReadyForCharging());
 			});
 
 			this.stateMachine.run(context);

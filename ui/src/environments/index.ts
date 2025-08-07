@@ -30,10 +30,9 @@ export interface Environment {
     },
     readonly links: {
         readonly COMMON_STORAGE: string | null,
+        readonly DATA_PROTECTION: string | null,
         readonly FORGET_PASSWORD: string,
-        readonly EVCS_KEBA_KECONTACT: string,
-        readonly EVCS_HARDY_BARTH: string,
-        readonly EVCS_OCPP_IESKEYWATTSINGLE: string,
+        readonly EVCS: string | null,
         readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string,
         readonly CONTROLLER_CHP_SOC: string
         readonly CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: string,
@@ -86,6 +85,10 @@ export interface Environment {
                     readonly COMMERCIAL_92: string,
                     readonly COMMERCIAL_92_CLUSTER: string,
                 },
+                readonly INDUSTRIAL?: {
+                    S: string,
+                    L: string
+                }
             },
 
             readonly RUNDSTEUER: {
@@ -115,6 +118,14 @@ export interface Environment {
         },
         readonly ENERGY_JOURNEY: {
             readonly HOME_10: {
+                readonly DE: string,
+                readonly EN: string,
+            },
+            readonly HOME_6_10_15: {
+                readonly DE: string,
+                readonly EN: string,
+            },
+            readonly HOME_20_30: {
                 readonly DE: string,
                 readonly EN: string,
             }

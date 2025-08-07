@@ -28,7 +28,7 @@ import io.openems.edge.evcs.api.PhaseRotation;
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
-	int modbusUnitId() default 1;
+	int modbusUnitId() default 255;
 
 	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.", required = true)
 	int minHwCurrent() default 6000;

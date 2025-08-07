@@ -59,12 +59,13 @@ import { hasEdgeRole } from "./shared/guards/functional-guards";
 import { Role } from "./shared/type/role";
 import { UserComponent } from "./user/user.component";
 
-export const history: Routes = [{
+export const history: (customHeaders: boolean) => Routes = (customHeaders) => [{
   path: "history", providers: [{
     useClass: HistoryDataService,
     provide: DataService,
-  }], component: HistoryParentComponent, children: [
-    { path: "", component: EdgeHistoryComponent },
+  }],
+  component: HistoryParentComponent, children: [
+    { path: "", component: EdgeHistoryComponent, data: { ...(customHeaders ? { navbarTitleToBeTranslated: "General.HISTORY" } : {}) } },
     // History Chart Pages
     { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
     { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
@@ -126,11 +127,11 @@ export const routes: Routes = [
           { path: "evse/:componentId/settings", component: EvseSettingsComponent },
           { path: "evse/:componentId/forecast", component: EvseForecastComponent },
           { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
-          ...history,
+          ...history(true),
         ],
       },
 
-      ...history,
+      ...history(false),
       { path: "settings", data: { navbarTitleToBeTranslated: "Menu.edgeSettings" }, component: EdgeSettingsComponent },
       { path: "settings/channels", component: EdgeSettingsChannelsComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Channels" } },
       { path: "settings/component.install", component: EdgeSettingsComponentInstallIndexComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.addComponents" } },

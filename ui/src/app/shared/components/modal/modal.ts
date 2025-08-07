@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
+import { HelpButtonComponent } from "./help-button/help-button";
 
 export enum Status {
     SUCCESS,
@@ -35,7 +36,9 @@ export class ModalComponent {
         callback: () =>
             {}, icon: Icon
     } | null = null;
-    @Input() protected helpKey: string | null = null;
+    @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
+
+    @Input() protected useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
     public readonly Role = Role;
 
     private edge: Edge | null = null;
