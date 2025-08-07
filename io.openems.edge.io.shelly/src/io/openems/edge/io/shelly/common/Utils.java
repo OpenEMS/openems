@@ -125,10 +125,9 @@ public class Utils {
 
 	/**
 	 * Subscribes to the /shelly endpoint once to check for authentication status
-	 * and device model.
-	 * Sets the AUTH_ENABLED_WARNING channel and logs a warning if authentication is
-	 * enabled.
-	 * Validates the device model against expected models for the component type.
+	 * and device model. Sets the AUTH_ENABLED_WARNING channel and logs a warning if
+	 * authentication is enabled. Validates the device model against expected models
+	 * for the component type.
 	 * 
 	 * @param baseUrl        the base URL of the Shelly device
 	 * @param httpBridge     the HTTP bridge for making requests
@@ -169,15 +168,17 @@ public class Utils {
 	}
 
 	/**
-	 * Process the response from /shelly endpoint to check authentication status
-	 * and device model.
+	 * Process the response from /shelly endpoint to check authentication status and
+	 * device model.
 	 * 
 	 * @param json           the parsed JSON response
 	 * @param component      the ShellyCommon component
 	 * @param logger         the logger for logging messages
-	 * @param expectedModels the set of expected model IDs for this component type (can be null)
+	 * @param expectedModels the set of expected model IDs for this component type
+	 *                       (can be null)
 	 */
-	private static void processShellyInfo(JsonElement json, ShellyCommon component, Logger logger, Set<String> expectedModels) {
+	private static void processShellyInfo(JsonElement json, ShellyCommon component, Logger logger,
+			Set<String> expectedModels) {
 		try {
 			var jsonObj = getAsJsonObject(json);
 
@@ -204,7 +205,7 @@ public class Utils {
 			if (expectedModels != null && !expectedModels.isEmpty()) {
 				boolean modelMatches = expectedModels.contains(model);
 				component._setWrongDeviceModel(!modelMatches);
-				
+
 				if (!modelMatches) {
 					logger.error(
 							"Wrong Shelly device model detected for component [{}]. Expected models: {}, but got: {}. Please configure the correct Shelly component type.",
@@ -215,17 +216,6 @@ public class Utils {
 		} catch (OpenemsNamedException e) {
 			logger.debug("Error parsing /shelly response: " + e.getMessage());
 		}
-	}
-
-	/**
-	 * Process the response from /shelly endpoint to check authentication status.
-	 * 
-	 * @param json      the parsed JSON response
-	 * @param component the ShellyCommon component
-	 * @param logger    the logger for logging messages
-	 */
-	private static void processShellyInfo(JsonElement json, ShellyCommon component, Logger logger) {
-		processShellyInfo(json, component, logger, null);
 	}
 
 }

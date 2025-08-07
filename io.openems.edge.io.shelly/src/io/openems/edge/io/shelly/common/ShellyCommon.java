@@ -9,8 +9,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 /**
  * Common interface for all Shelly devices.
  * 
- * <p>Provides standard channels for authentication warnings and device status
- * that are common across all Shelly devices.
+ * <p>
+ * Provides standard channels for authentication warnings and device status that
+ * are common across all Shelly devices.
  */
 public interface ShellyCommon extends OpenemsComponent {
 
@@ -24,21 +25,22 @@ public interface ShellyCommon extends OpenemsComponent {
 		 * <li>Level: WARNING
 		 * </ul>
 		 */
-		AUTH_ENABLED_WARNING(Doc.of(Level.WARNING) //
+		AUTH_ENABLED_WARNING(Doc.of(Level.WARNING)//
 				.text("Shelly authentication is enabled. Please disable authentication in Shelly settings for OpenEMS to work properly.")),
-		
+
 		/**
 		 * Device Generation Info.
 		 *
 		 * <ul>
 		 * <li>Interface: ShellyCommon
 		 * <li>Type: String
-		 * <li>Description: Shows the device generation (gen field from /shelly endpoint)
+		 * <li>Description: Shows the device generation (gen field from /shelly
+		 * endpoint)
 		 * </ul>
 		 */
-		DEVICE_GENERATION(Doc.of(io.openems.common.types.OpenemsType.STRING) //
+		DEVICE_GENERATION(Doc.of(io.openems.common.types.OpenemsType.STRING)//
 				.text("Device generation")),
-		
+
 		/**
 		 * Device Model.
 		 *
@@ -48,9 +50,9 @@ public interface ShellyCommon extends OpenemsComponent {
 		 * <li>Description: Shows the device model (model field from /shelly endpoint)
 		 * </ul>
 		 */
-		DEVICE_MODEL(Doc.of(io.openems.common.types.OpenemsType.STRING) //
+		DEVICE_MODEL(Doc.of(io.openems.common.types.OpenemsType.STRING)//
 				.text("Device model")),
-		
+
 		/**
 		 * Wrong Device Model Warning.
 		 *
@@ -60,7 +62,7 @@ public interface ShellyCommon extends OpenemsComponent {
 		 * <li>Level: FAULT
 		 * </ul>
 		 */
-		WRONG_DEVICE_MODEL(Doc.of(Level.FAULT) //
+		WRONG_DEVICE_MODEL(Doc.of(Level.FAULT)//
 				.text("Wrong Shelly device model detected. The configured component type does not match the actual device."));
 
 		private final Doc doc;
@@ -103,7 +105,7 @@ public interface ShellyCommon extends OpenemsComponent {
 	public default void _setAuthEnabledWarning(boolean value) {
 		this.getAuthEnabledWarningChannel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#WRONG_DEVICE_MODEL}.
 	 *

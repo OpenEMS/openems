@@ -3,8 +3,8 @@ package io.openems.edge.io.shelly.common;
 import java.util.Set;
 
 /**
- * Defines the expected device models for each Shelly component type.
- * These model IDs are retrieved from the /shelly endpoint.
+ * Defines the expected device models for each Shelly component type. These
+ * model IDs are retrieved from the /shelly endpoint.
  */
 public class ShellyDeviceModels {
 
@@ -53,12 +53,15 @@ public class ShellyDeviceModels {
 	public static final Set<String> SHELLYPLUS1L = Set.of("S3SW-0A1X1EUL");
 	public static final Set<String> SHELLYPLUS1PM = Set.of("SNSW-001P16EU", "S3SW-001P16EU", "S4SW-001P16EU");
 	public static final Set<String> SHELLYPLUS2L = Set.of("S3SW-0A2X4EUL");
-	public static final Set<String> SHELLYPLUS2PM_RELAY = Set.of("SNSW-002P16EU", "SNSW-102P16EU", "S3SW-002P16EU", "SNSW-002P15UL", "S4SW-002P16EU");
-	public static final Set<String> SHELLYPLUS2PM_ROLLER = Set.of("SNSW-002P16EU", "SNSW-102P16EU", "S3SW-002P16EU", "SNSW-002P15UL", "S4SW-002P16EU");
+	public static final Set<String> SHELLYPLUS2PM_RELAY = Set.of("SNSW-002P16EU", "SNSW-102P16EU", "S3SW-002P16EU",
+			"SNSW-002P15UL", "S4SW-002P16EU");
+	public static final Set<String> SHELLYPLUS2PM_ROLLER = Set.of("SNSW-002P16EU", "SNSW-102P16EU", "S3SW-002P16EU",
+			"SNSW-002P15UL", "S4SW-002P16EU");
 	public static final Set<String> SHELLYPLUSSHUTTER = Set.of("S3SH-0A2P4EU");
 	public static final Set<String> SHELLYPLUSEM = Set.of("S3EM-002CXCEU");
 	public static final Set<String> SHELLYPLUS3EM63 = Set.of("S3EM-002CXCEU");
-	public static final Set<String> SHELLYPLUSPLUG = Set.of("SNPL-00112EU", "SNPL-10112EU", "S3PL-00112EU", "SNPL-00110IT", "SNPL-00112UK", "S3PL-20112EU");
+	public static final Set<String> SHELLYPLUSPLUG = Set.of("SNPL-00112EU", "SNPL-10112EU", "S3PL-00112EU",
+			"SNPL-00110IT", "SNPL-00112UK", "S3PL-20112EU");
 	public static final Set<String> SHELLYPLUSPLUGUS = Set.of("SNPL-00116US");
 	public static final Set<String> SHELLYPLUSSTRIP = Set.of("S4PL-00416EU");
 	public static final Set<String> SHELLYPLUSI4 = Set.of("SNSN-0024X", "S3SN-0024X");
