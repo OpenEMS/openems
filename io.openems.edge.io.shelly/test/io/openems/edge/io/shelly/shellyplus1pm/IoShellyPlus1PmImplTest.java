@@ -12,6 +12,7 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.io.shelly.common.ShellyCommon;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -21,6 +22,23 @@ public class IoShellyPlus1PmImplTest {
 	public void test() throws Exception {
 		final var sut = new IoShellyPlus1PmImpl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
+		
+		// Pre-set the response for the /shelly endpoint that will be called during activation
+		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+			{
+				"name": "shellyplus1pm-test",
+				"id": "shellyplus1pm-12345",
+				"mac": "AA:BB:CC:DD:EE:FF",
+				"model": "SNSW-101P16EU",
+				"gen": 2,
+				"fw_id": "20230912-114516/v1.14.0-gcb84623",
+				"ver": "1.14.0",
+				"app": "Plus1PM",
+				"auth_en": false,
+				"auth_domain": "shellyplus1pm-12345"
+			}
+		"""));
+		
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
@@ -117,7 +135,9 @@ public class IoShellyPlus1PmImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
 						.output(IoShellyPlus1Pm.ChannelId.RELAY, null) //
-						.output(IoShellyPlus1Pm.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
+						.output(IoShellyPlus1Pm.ChannelId.SLAVE_COMMUNICATION_FAILED, false) //
+						.output(ShellyCommon.ChannelId.AUTH_ENABLED_WARNING, false) //
+						.output(ShellyCommon.ChannelId.DEVICE_GENERATION, "2")) //
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
@@ -141,7 +161,9 @@ public class IoShellyPlus1PmImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
 						.output(IoShellyPlus1Pm.ChannelId.RELAY, null) //
-						.output(IoShellyPlus1Pm.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
+						.output(IoShellyPlus1Pm.ChannelId.SLAVE_COMMUNICATION_FAILED, true) //
+						.output(ShellyCommon.ChannelId.AUTH_ENABLED_WARNING, false) //
+						.output(ShellyCommon.ChannelId.DEVICE_GENERATION, "2")) //
 
 				.next(new TestCase("Write") //
 						.onBeforeControllersCallbacks(() -> sut.setRelay(true)) //
@@ -155,6 +177,42 @@ public class IoShellyPlus1PmImplTest {
 						})) //
 
 				.deactivate();
+	}
+	
+	@Test
+	public void testAuthenticationWarning() throws Exception {
+		final var sut = new IoShellyPlus1PmImpl();
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+		
+		// Pre-set the response for the /shelly endpoint with authentication enabled
+		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+			{
+				"name": "shellyplus1pm-test",
+				"id": "shellyplus1pm-12345",
+				"mac": "AA:BB:CC:DD:EE:FF",
+				"model": "SNSW-101P16EU",
+				"gen": 2,
+				"fw_id": "20230912-114516/v1.14.0-gcb84623",
+				"ver": "1.14.0",
+				"app": "Plus1PM",
+				"auth_en": true,
+				"auth_domain": "shellyplus1pm-12345"
+			}
+		"""));
+		
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("timedata", new DummyTimedata("timedata0")) //
+				.activate(MyConfig.create() //
+						.setId("io0") //
+						.setIp("127.0.0.1") //
+						.setType(CONSUMPTION_METERED) //
+						.setPhase(L1) //
+						.build()) //
+				.next(new TestCase("Authentication enabled warning") //
+						.output(ShellyCommon.ChannelId.AUTH_ENABLED_WARNING, true) //
+						.output(ShellyCommon.ChannelId.DEVICE_GENERATION, "2")) //
+				.deactivate();//
 	}
 
 }
