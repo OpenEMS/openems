@@ -167,6 +167,7 @@
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.eastron',\
+	bnd.identity;id='io.openems.edge.meter.fronius',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
@@ -213,7 +214,6 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.victron',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
-	bnd.identity;id='io.openems.edge.meter.fronius';version=latest,\
 	
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
@@ -372,6 +372,7 @@
 	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.eastron;version=snapshot,\
+	io.openems.edge.meter.fronius;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.phoenixcontact;version=snapshot,\
@@ -439,7 +440,7 @@
 	io.openems.wrapper.javax.activation;version=snapshot,\
 	io.openems.wrapper.jenetics;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
-	io.openems.wrapper.olcut;version=snapshot,\
+	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.paho-mqttv5;version=snapshot,\
 	io.openems.wrapper.retrofit-adapter-rxjava3;version=snapshot,\
@@ -490,5 +491,4 @@
 	org.owasp.encoder;version='[1.4.0,1.4.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
-	stax2-api;version='[4.2.2,4.2.3)',\
-	io.openems.edge.meter.fronius;version=snapshot
+	stax2-api;version='[4.2.2,4.2.3)'
