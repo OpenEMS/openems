@@ -16,6 +16,7 @@ import { FlatWidgetLineDividerComponent } from "./flat/flat-widget-line-divider/
 import { FlatWidgetPercentagebarComponent } from "./flat/flat-widget-percentagebar/flat-widget-percentagebar";
 import { FooterComponent } from "./footer/footer";
 import { FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
+import { PasswordInputComponent } from "./formly/password-input/password-input";
 import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
 import { ModalModule } from "./modal/modal.module";
 import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
@@ -49,6 +50,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         FlatWidgetLineItemComponent,
         FlatWidgetPercentagebarComponent,
 
+        // Formly
+        PasswordInputComponent,
+
         // Others
         NotificationComponent,
         FooterComponent,
@@ -64,6 +68,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         FlatWidgetLineDividerComponent,
         FlatWidgetLineItemComponent,
         FlatWidgetPercentagebarComponent,
+
+        // Formly
+        PasswordInputComponent,
 
         // Others
         NotificationComponent,
