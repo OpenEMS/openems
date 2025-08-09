@@ -63,7 +63,7 @@ export class SystemExecuteComponent implements OnInit {
     },
   }];
 
-  protected showPassword: boolean = false;
+  protected passwordControl: FormControl = new FormControl("");
 
   constructor(
     private route: ActivatedRoute,
@@ -117,7 +117,7 @@ export class SystemExecuteComponent implements OnInit {
       this.stderr = [];
       const executeSystemCommandRequest = new ExecuteSystemCommandRequest({
         username: username.value,
-        password: password.value,
+        password: this.passwordControl.value,
         timeoutSeconds: timeoutSeconds.value,
         runInBackground: runInBackground.value,
         command: command.value,
@@ -145,8 +145,5 @@ export class SystemExecuteComponent implements OnInit {
     });
   }
 
-  protected togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
 
 }

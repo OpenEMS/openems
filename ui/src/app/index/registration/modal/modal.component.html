@@ -74,23 +74,24 @@
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="password" [type]="showPassword ? 'text' : 'password'"
-                        [placeholder]="'Register.Form.password' | translate" label-placement="floating"
-                        [label]="('Register.Form.password' | translate) + ' * '"></ion-input>
-                    <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()"
-                      [attr.aria-label]="(showPassword ? 'Register.Form.hidePassword' : 'Register.Form.showPassword') | translate">
-                      <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-                    </ion-button>
+                    <oe-password-input
+                      [control]="passwordControl"
+                      [placeholder]="'Register.Form.password' | translate"
+                      [label]="('Register.Form.password' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hidePassword' | translate">
+                    </oe-password-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
-                        [placeholder]="'Register.Form.confirmPassword' | translate" label-placement="floating"
-                        [label]="('Register.Form.confirmPassword' | translate) + ' * '">
-                    </ion-input>
-                    <ion-button slot="end" fill="clear" (click)="toggleConfirmPasswordVisibility()"
-                      [attr.aria-label]="(showConfirmPassword ? 'Register.Form.hideConfirmPassword' : 'Register.Form.showConfirmPassword') | translate">
-                      <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-                    </ion-button>
+                    <oe-password-input
+                      [control]="confirmPasswordControl"
+                      [placeholder]="'Register.Form.confirmPassword' | translate"
+                      [label]="('Register.Form.confirmPassword' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showConfirmPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hideConfirmPassword' | translate">
+                    </oe-password-input>
                 </ion-item>
                 <oe-checkbox [form]="{formGroup: formGroup, controlName: 'acceptPrivacyPolicy'}" [attributes]="{labelPlacement: 'end', text: 'Register.Form.user.acceptPrivacyPolicy' | translate: {
                         link: docsLink
@@ -162,23 +163,24 @@
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="password" [type]="showPassword ? 'text' : 'password'"
-                        [placeholder]="'Register.Form.password' | translate" label-placement="floating"
-                        [label]="('Register.Form.password' | translate) + ' * '"></ion-input>
-                    <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()"
-                      [attr.aria-label]="(showPassword ? 'Register.Form.hidePassword' : 'Register.Form.showPassword') | translate">
-                      <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-                    </ion-button>
+                    <oe-password-input
+                      [control]="passwordControl"
+                      [placeholder]="'Register.Form.password' | translate"
+                      [label]="('Register.Form.password' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hidePassword' | translate">
+                    </oe-password-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
-                        [placeholder]="'Register.Form.confirmPassword' | translate" label-placement="floating"
-                        [label]="('Register.Form.confirmPassword' | translate) + ' * '">
-                    </ion-input>
-                    <ion-button slot="end" fill="clear" (click)="toggleConfirmPasswordVisibility()"
-                      [attr.aria-label]="(showConfirmPassword ? 'Register.Form.hideConfirmPassword' : 'Register.Form.showConfirmPassword') | translate">
-                      <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-                    </ion-button>
+                    <oe-password-input
+                      [control]="confirmPasswordControl"
+                      [placeholder]="'Register.Form.confirmPassword' | translate"
+                      [label]="('Register.Form.confirmPassword' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showConfirmPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hideConfirmPassword' | translate">
+                    </oe-password-input>
                 </ion-item>
             </ng-container>
             <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->

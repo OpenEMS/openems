@@ -20,7 +20,7 @@
 
             <!-- OpenEMS Edge Login -->
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Edge'">
-              <form (ngSubmit)="doLogin({ password: password.value})">
+              <form (ngSubmit)="doLogin({ password: passwordControl.value})">
                 <div class="ion-padding">
                   <ion-item>
                     <ion-text class="ion-text-wrap" color="medium" translate>
@@ -28,13 +28,14 @@
                     </ion-text>
                   </ion-item>
                   <ion-item>
-                    <ion-label position="floating" translate>Login.passwordLabel</ion-label>
-                    <ion-input #password required [type]="showPassword ? 'text' : 'password'" [placeholder]="'Login.passwordLabel' | translate"
-                      value="user"></ion-input>
-                    <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()"
-                        [attr.aria-label]="(showPassword ? 'Login.hidePassword' : 'Login.showPassword') | translate">
-                        <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-                    </ion-button>
+                    <oe-password-input
+                      [control]="passwordControl"
+                      [placeholder]="'Login.passwordLabel' | translate"
+                      [label]="'Login.passwordLabel' | translate"
+                      [required]="true"
+                      [ariaLabelShow]="'Login.showPassword' | translate"
+                      [ariaLabelHide]="'Login.hidePassword' | translate">
+                    </oe-password-input>
                   </ion-item>
 
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
@@ -49,7 +50,7 @@
 
             <!-- OpenEMS Backend Login -->
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
-              <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
+              <form (ngSubmit)="doLogin({ username: username.value, password: passwordControl.value})">
                 <ion-item>
                   <ion-input #username required type="input"
                     [placeholder]="'E-Mail / ' + ('Login.passwordLabel' | translate)"
@@ -57,13 +58,14 @@
                   </ion-input>
                 </ion-item>
                 <ion-item>
-                  <ion-input #password required [type]="showPassword ? 'text' : 'password'" [placeholder]="'Login.passwordLabel' | translate"
-                    label-placement="floating" [label]="'Login.passwordLabel' | translate">
-                  </ion-input>
-                  <ion-button slot="end" fill="clear" (click)="togglePasswordVisibilityBackend()"
-                    [attr.aria-label]="(showPassword ? 'Login.hidePassword' : 'Login.showPassword') | translate">
-                    <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-                  </ion-button>
+                  <oe-password-input
+                    [control]="passwordControl"
+                    [placeholder]="'Login.passwordLabel' | translate"
+                    [label]="'Login.passwordLabel' | translate"
+                    [required]="true"
+                    [ariaLabelShow]="'Login.showPassword' | translate"
+                    [ariaLabelHide]="'Login.hidePassword' | translate">
+                  </oe-password-input>
                 </ion-item>
 
                 <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
