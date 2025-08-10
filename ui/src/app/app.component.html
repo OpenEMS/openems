@@ -14,9 +14,10 @@
       <ng-container *ngTemplateOutlet="sidemenu">
       </ng-container>
 
-      <div id="main">
-        <ng-template *ngTemplateOutlet="content"></ng-template>
-      </div>
+      <ion-content id="main">
+        <ng-template *ngTemplateOutlet="content">
+        </ng-template>
+      </ion-content>
     </ion-split-pane>
 
     <ng-container *ngIf="navigationService.position() === 'bottom'">
@@ -89,6 +90,22 @@
           <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
             <ion-label translate>Menu.overview </ion-label>
           </ion-item>
+        </ng-container>
+        <ng-container *ngIf="service.edges as edges">
+          <ion-accordion-group>
+            <ion-accordion>
+              <ion-item slot="header" lines="full">
+                <ion-label translate>Menu.edges</ion-label>
+              </ion-item>
+              <ion-list slot="content">
+                <ion-item *ngFor="let edgeEntry of edges | keyvalue" lines="inset"
+                  [routerLink]="['/device', edgeEntry.key]" routerLinkActive="active"
+                  (click)="onSelectEdge(edgeEntry.value)">
+                  <ion-label>{{ edgeEntry.value.comment }}</ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-accordion>
+          </ion-accordion-group>
         </ng-container>
       </ng-container>
 
