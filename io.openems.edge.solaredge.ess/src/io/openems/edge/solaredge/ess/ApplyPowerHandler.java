@@ -122,7 +122,7 @@ public class ApplyPowerHandler {
 			// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
 			// charge battery
 			// On Surplus Feed-In PV == Set-Point => CHARGE_BAT 0
-			var result = pvProduction - activePowerSetPoint;
+			var result = round((pvProduction - activePowerSetPoint)*DISCHARGE_EFFICIENCY_FACTOR);
 			if(result>solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
 				// limit to max charge power
 				result = solarEdge.getBattery1MaxChargeContinuesPower().orElse(0);
