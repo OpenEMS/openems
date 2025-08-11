@@ -95,7 +95,7 @@ public class ApplyPowerHandler {
 		// Is Balancing to zero active?
 		var diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
 
-		if (diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1) {
+		if ((diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1) && activePowerSetPoint != 0) {
 			// avoid rounding errors
 			return handleInternalMode(solarEdge);
 		}	
