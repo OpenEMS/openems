@@ -11,6 +11,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Port", description = "The port of the REST server.")
 	int port() default Backend2BackendRest.DEFAULT_PORT;
 
+	@AttributeDefinition(name = "IP Address", description = "The IP address to listen on.")
+	String ip() default Backend2BackendRest.DEFAULT_IP;
+
 	String webconsole_configurationFactory_nameHint() default "Backend2Backend Rest";
 
 }

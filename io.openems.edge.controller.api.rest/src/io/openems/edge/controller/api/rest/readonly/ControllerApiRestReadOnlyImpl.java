@@ -51,7 +51,7 @@ public class ControllerApiRestReadOnlyImpl extends AbstractRestApi
 		this.restHandler = this.restHandlerFactory.get();
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(), 0, /* no timeout */
-				config.port(), config.connectionlimit());
+				config.ip(), config.port(), config.connectionlimit());
 	}
 
 	@Override

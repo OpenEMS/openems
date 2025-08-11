@@ -100,7 +100,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(), this.config.requestLimit());
+			this.server = new WebsocketServer(this, this.getName(), this.config.ip(), this.config.port(), this.config.poolSize(), this.config.requestLimit());
 			this.server.start();
 			this.uiWebsocketValidator.start(this.server);
 		}
