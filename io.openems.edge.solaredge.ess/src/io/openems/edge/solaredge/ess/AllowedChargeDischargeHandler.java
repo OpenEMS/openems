@@ -38,24 +38,46 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		var batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
 		var batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
 
+		// Inverter limits
+		var maxApparentPower = parent.getMaxApparentPower().orElse(0);
+
 		// PV-Production
 		Integer pvProduction = 0;
 		for (SolarEdgeCharger charger : parent.chargers) {
 			pvProduction = TypeUtils.sum(pvProduction, charger.getActualPowerChannel().getNextValue().orElse(0));
 		}
 		
-		// Calculates Maximum Allowed AC-Charge Power as positive numbers
-		if(parent.getSoc().orElse(100) >= 100) batteryAllowedChargePower = 0;
-		else batteryAllowedChargePower = TypeUtils.subtract(batteryAllowedChargePower,
-				TypeUtils.min(batteryAllowedChargePower /* avoid negative number for `subtract` */, pvProduction));			
+		// Block battery charging on battery full
+		if(parent.getSoc().orElse(100) >= 100)
+			batteryAllowedChargePower = 0;
+		
+		// Block battery discharging on battery empty
+		if(parent.getSoc().orElse(0) <= 10)
+			batteryAllowedDischargePower = 0;
+
+		// Calculates Maximum Allowed AC-Charge Power as positive numbers (or negative when force discharge is active)
+		//   Force discharge: pvProduction>batteryAllowedChargePower requires a minimum discharge
+		var acAllowedChargePower = batteryAllowedChargePower - pvProduction;
 		
 		// Calculates Maximum Allowed AC-Discharge Power as positive numbers
-		if(parent.getSoc().orElse(0) > 10) batteryAllowedDischargePower = batteryAllowedDischargePower + pvProduction;
-		else batteryAllowedDischargePower = pvProduction;
-		
+		var acAllowedDischargePower = TypeUtils.min(batteryAllowedDischargePower + pvProduction,parent.getMaxApparentPower().orElse(0));
+
+		// Force Discharge active?
+		if (acAllowedChargePower < 0) {
+
+			// Limit forced DischargePower to maxApparentPower
+			if(Math.abs(acAllowedChargePower)>maxApparentPower) acAllowedChargePower = maxApparentPower*(-1);
+
+			// Make sure AllowedDischargePower is greater-or-equals absolute AllowedChargePower
+			acAllowedDischargePower = Math.max(Math.abs(acAllowedChargePower), acAllowedDischargePower);
+		} else {
+
+			// Limit acChargerPower to maxApparentPower
+			if(acAllowedChargePower>maxApparentPower) acAllowedChargePower = maxApparentPower;
+		}
+
 		// Apply AllowedChargePower and AllowedDischargePower
-		this.parent._setAllowedChargePower(batteryAllowedChargePower * -1 /* invert charge power */);
-		this.parent._setAllowedDischargePower(batteryAllowedDischargePower);
+		this.parent._setAllowedChargePower(acAllowedChargePower * -1 /* invert charge power */);
+		this.parent._setAllowedDischargePower(acAllowedDischargePower);
 	}
-	
 }
