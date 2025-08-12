@@ -42,7 +42,7 @@
     "date-fns": "^4.1.0",
     "file-saver-es": "^2.0.5",
     "ng2-charts": "8.0.0",
-    "ngx-cookie-service": "19.1.2",
+    "ngx-cookie-service": "20.1.0",
     "ngx-device-detector": "^9.0.0",
     "ngx-spinner": "^19.0.0",
     "roboto-fontface": "^0.10.0",
