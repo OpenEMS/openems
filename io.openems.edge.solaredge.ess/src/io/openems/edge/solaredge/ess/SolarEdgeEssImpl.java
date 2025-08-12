@@ -81,7 +81,6 @@ import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.solaredge.ess.charger.SolarEdgeCharger;
 import io.openems.edge.solaredge.ess.common.AbstractSunSpecEss;
-import io.openems.edge.solaredge.ess.common.AverageCalculator;
 import io.openems.edge.solaredge.ess.common.SolarEdgeSunSpecModel;
 import io.openems.edge.solaredge.ess.common.SolarEdgeSunSpecModel.S101;
 import io.openems.edge.solaredge.ess.common.SolarEdgeSunSpecModel.S102;
@@ -120,8 +119,6 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);	
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 	private final SetPvExportLimitHandler setPvExportLimitHandler = new SetPvExportLimitHandler(this);
-	
-	private AverageCalculator pvProductionAverageCalculator;
 	
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 	protected final Set<SolarEdgeCharger> chargers = new HashSet<>();
@@ -206,8 +203,6 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			return;
 		}
 		
-		this.pvProductionAverageCalculator = new AverageCalculator(60*1000/this.getCycleTime()); // 60s average
-
 		this._setGridMode(GridMode.ON_GRID);
 		this.addStaticModbusTasks(this.getModbusProtocol());
 	}
@@ -437,24 +432,23 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	 */
 	public void calculateAndSetActualPvPower() {
 		try {
-			final IntegerReadChannel activeDcPowerChannel = this.channel(SolarEdgeEss.ChannelId.INVERTER_ACTIVE_DC_POWER);
-			final IntegerReadChannel batteryPowerChannel = this.channel(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_POWER);
-			int lastPvPower = activeDcPowerChannel.getNextValue().getOrError()+batteryPowerChannel.getNextValue().getOrError();
-			this.pvProductionAverageCalculator.addValue(lastPvPower > 0 ? lastPvPower : 0);
-			
-			int pvProduction = 0;
 			if(this.batteryActualPowerChanged())
 			{
-				// Get Actual PV Power as average
-				pvProduction = this.pvProductionAverageCalculator.getAverage();		
-				pvProduction = ignoreImpossibleMinPower(pvProduction);
+				// Do not update pvProduction channel if battery actual power has changed
+				return;
 			}
-			else
-			{
-				// Get Actual PV Power from last value
-				pvProduction = lastPvPower;
-				pvProduction = ignoreImpossibleMinPower(pvProduction);
-			}
+
+			final IntegerReadChannel activeDcPowerChannel = this.channel(SolarEdgeEss.ChannelId.INVERTER_ACTIVE_DC_POWER);
+			final IntegerReadChannel batteryPowerChannel = this.channel(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_POWER);
+
+			var pastActiveDcPowerValues = activeDcPowerChannel.getPastValues()
+			.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(3), true); //
+			var pastBatteryPowerValues = batteryPowerChannel.getPastValues()
+			.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(3), true); //
+
+			// get the pv power from data which are 3 seconds old
+			int pvProduction = ignoreImpossibleMinPower(pastActiveDcPowerValues.values().stream().findFirst().get().getOrError()
+									+ pastBatteryPowerValues.values().stream().findFirst().get().getOrError());
 			
 			for (SolarEdgeCharger charger : this.chargers) {			
 				charger.getActualPowerChannel().setNextValue(pvProduction);
@@ -480,13 +474,13 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	}
 	
 	/**
-	 * Check if Battery Actual Power (=Charge/Discharge Power) has changed within the last 30 seconds.
+	 * Check if Battery Actual Power (=Charge/Discharge Power) has changed within the last 3 seconds.
 	 */
 	private boolean batteryActualPowerChanged() {
 		final IntegerReadChannel batteryPowerChannel = this.channel(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_POWER);
 		var nextBatteryPowerValue = batteryPowerChannel.getNextValue();
 		var pastBatteryPowerValues = batteryPowerChannel.getPastValues()
-									.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(30), true); //
+									.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(3), true); //
 		
 		for (Value<Integer> value : pastBatteryPowerValues.values()) {
 			if(value.isDefined() && Math.abs(value.get()-nextBatteryPowerValue.get()) > 50 /* W */) {
