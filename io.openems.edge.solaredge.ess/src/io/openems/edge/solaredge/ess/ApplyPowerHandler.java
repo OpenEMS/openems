@@ -109,12 +109,13 @@ public class ApplyPowerHandler {
 		// curtail)
 		if (activePowerSetPoint < 0) {
 			var result = activePowerSetPoint * -1 + pvProduction;
-			if(result>solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
-				// limit to max charge power
-				result = solarEdge.getBattery1MaxChargeContinuesPower().orElse(0);
-			} else if(solarEdge.getSoc().orElse(100)>=100) {
+			if(solarEdge.getSoc().orElse(100)>=100) {
 				// battery full, limit charge power to zero
 				result = 0;
+			}
+			else if(result>solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
+				// limit to max charge power
+				result = solarEdge.getBattery1MaxChargeContinuesPower().orElse(0);
 			}
 			return new Result(CommandMode.CHARGE_BAT, result, 0);
 		}
@@ -123,12 +124,13 @@ public class ApplyPowerHandler {
 			// charge battery
 			// On Surplus Feed-In PV == Set-Point => CHARGE_BAT 0
 			var result = round((pvProduction - activePowerSetPoint)*DISCHARGE_EFFICIENCY_FACTOR);
-			if(result>solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
-				// limit to max charge power
-				result = solarEdge.getBattery1MaxChargeContinuesPower().orElse(0);
-			} else if(result !=0 && solarEdge.getSoc().orElse(100)>=100) {
+			if(solarEdge.getSoc().orElse(100)>=100) {
 				// battery full, limit charge power to zero -> required for Set-Point 0
 				result = 0;
+			}
+			else if(result>solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
+				// limit to max charge power
+				result = solarEdge.getBattery1MaxChargeContinuesPower().orElse(0);
 			}
 			return new Result(CommandMode.CHARGE_BAT, result, 0);
 		} else {
@@ -136,12 +138,13 @@ public class ApplyPowerHandler {
 			// discharge battery
 			var result = round((activePowerSetPoint - pvProduction)/DISCHARGE_EFFICIENCY_FACTOR);			
 			//log.info("[3] activePowerSetPoint: "+activePowerSetPoint+ ", pvProducution: "+pvProduction+", allowed "+solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)+", DISCHARGE_BAT "+result+" ("+(activePowerSetPoint-pvProduction)+")");
-			if(result>solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)) {
-				// limit to max discharge power
-				result = solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0);
-			} else if(solarEdge.getSoc().orElse(0)<=10) {
+			if(solarEdge.getSoc().orElse(0)<=10) {
 				// battery empty (=SOC equals or less than soc_min of 10), limit charge power to zero -> required for Set-Point 0
 				result = 0;
+			}
+			else if(result>solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)) {
+				// limit to max discharge power
+				result = solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0);
 			}
 			return new Result(CommandMode.DISCHARGE_BAT, 0, result);
 		}
