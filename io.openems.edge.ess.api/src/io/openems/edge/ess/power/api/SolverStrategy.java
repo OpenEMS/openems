@@ -10,7 +10,8 @@ public enum SolverStrategy implements OptionsEnum {
 	OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER(2,
 			"Optimize By Keeping Target Direction And Maximizing In Order"), //
 	OPTIMIZE_BY_KEEPING_ALL_EQUAL(3, "Optimize By Keeping All Inverters Equal"),
-	OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL(4, "Optimize By Keeping All Inverters Nearly Equal"); //
+	OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL(4, "Optimize By Keeping All Inverters Nearly Equal"), //
+	OPTIMIZE_BY_PREFERRING_DC_POWER(5, "Optimize By Preferring Inverter DC Power"); //
 
 	private final int value;
 	private final String name;

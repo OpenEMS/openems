@@ -747,4 +747,16 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		return this.getPower()
 				.addConstraintAndValidate(this.createPowerConstraint(description, phase, pwr, relationship, value));
 	}
+
+	/**
+	 * Gets the PV production.
+	 *
+	 * <p>
+	 * Returns null if the PV production is not available.
+	 *
+	 * @return production power
+	 */
+	public default Integer getPvProduction() {
+		return null;
+	}
 }
