@@ -32,6 +32,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.SumOptions;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
@@ -49,7 +50,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS //
 })
 public class PvInverterClusterImpl extends AbstractOpenemsComponent implements PvInverterCluster,
-		ManagedSymmetricPvInverter, VirtualMeter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		ManagedSymmetricPvInverter, VirtualMeter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, SumOptions {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterClusterImpl.class);
 
