@@ -755,7 +755,9 @@
     "passwordPlaceholder": "パスワード",
     "passwordReset": "パスワードのリセット",
     "authenticationFailed": "認証に失敗しました",
-    "user": "ユーザー"
+    "user": "ユーザー",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを非表示"
   },
   "Menu": {
     "aboutUI": "Openemsについて",
@@ -803,7 +805,11 @@
       "phone": "電話番号",
       "email": "Eメール",
       "password": "パスワード",
-      "confirmPassword": "パスワードを認証する"
+      "confirmPassword": "パスワードを認証する",
+      "showPassword": "パスワードを表示",
+      "hidePassword": "パスワードを非表示",
+      "showConfirmPassword": "確認パスワードを表示",
+      "hideConfirmPassword": "確認パスワードを非表示"
     },
     "button": "作成",
     "errors": {
@@ -830,6 +836,17 @@
       "UPDATE_PROGRESS": "進行中の更新。",
       "UPDATE_SEARCH": "アップデートの確認...",
       "UPDATE_TIME": "（これには最大10分かかることがあります）"
+    }
+  },
+  "GENERAL": {
+    "FORMLY": {
+      "REQUIRED": "必須"
+    }
+  },
+  "ADMIN": {
+    "PASSWORD": {
+      "SHOW": "パスワードを表示",
+      "HIDE": "パスワードを非表示"
     }
   }
 }

@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { AfterContentChecked, ChangeDetectorRef, Component, effect, OnDestroy, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
 import { ModalController, ViewWillEnter } from "@ionic/angular";
@@ -29,7 +29,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   public form: FormGroup;
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
-  protected showPassword: boolean = false;
+  protected passwordControl: FormControl = new FormControl("");
   protected readonly operatingSystem = PlatFormService.deviceInfo.os;
   protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -161,6 +161,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
   }
+
 
   protected async showPopoverOrRedirectToStore(operatingSystem: "android" | "ios") {
     const link: string | null = PlatFormService.getAppStoreLink();
