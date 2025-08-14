@@ -7,12 +7,12 @@ import { FormControl } from "@angular/forms";
   standalone: false,
 })
 export class PasswordInputComponent {
-  @Input() control!: FormControl;
-  @Input() placeholder: string = "";
-  @Input() label: string = "";
-  @Input() required: boolean = false;
-  @Input() ariaLabelShow: string = "Show password";
-  @Input() ariaLabelHide: string = "Hide password";
+  @Input() public control!: FormControl;
+  @Input() public placeholder: string = "";
+  @Input() public label: string = "";
+  @Input() public required: boolean = false;
+  @Input() public ariaLabelShow: string = "Show password";
+  @Input() public ariaLabelHide: string = "Hide password";
 
   protected showPassword: boolean = false;
 
