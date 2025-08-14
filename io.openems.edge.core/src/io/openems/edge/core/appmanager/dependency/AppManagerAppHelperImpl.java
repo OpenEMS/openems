@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -625,7 +624,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		try {
 			final var oldInstances = new TreeMap<AppIdKey, ExistingDependencyConfig>();
 			// get all existing app dependencies
-			this.foreachExistingDependency(oldInstance, ConfigurationTarget.UPDATE, language, null, dc -> {
+			this.foreachExistingDependency(oldInstance, ConfigurationTarget.VALIDATE, language, null, dc -> {
 				if (!dc.isDependency()) {
 					return true;
 				}
@@ -634,6 +633,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			});
 			return oldInstances;
 		} catch (OpenemsNamedException e) {
+			this.log.warn("Unable to get all old dependencies", e);
 			return Collections.emptyMap();
 		}
 	}
@@ -997,8 +997,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		Function<AppConfiguration, List<Task<?>>> notExistingTask = config -> {
 			return Optional.ofNullable(config) //
 					.map(c -> c.tasks().stream() //
-							.filter(t -> Stream.of(this.tasks) //
-									.anyMatch(ot -> ot.getClass().isAssignableFrom(t.aggregateTaskClass()))) //
+							.filter(t -> this.tasks.stream() //
+									.noneMatch(ot -> ot.getClass().isAssignableFrom(t.aggregateTaskClass()))) //
 							.collect(Collectors.toList()) //
 			).orElse(Lists.newArrayList());
 		};
@@ -1189,6 +1189,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				if (sub != null && appConfig.specificInstanceId != null) {
 					a = this.getInstance(appConfig.specificInstanceId);
 				}
+
 				config = this.getNewAppConfigWithReplacedIds(app, a, //
 						new OpenemsAppInstance(app.getAppId(), appConfig.alias,
 								appConfig.specificInstanceId == null ? UUID.randomUUID() : appConfig.specificInstanceId,

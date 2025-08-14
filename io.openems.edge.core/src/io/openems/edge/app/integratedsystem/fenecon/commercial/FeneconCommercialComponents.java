@@ -94,6 +94,35 @@ public final class FeneconCommercialComponents {
 	}
 
 	/**
+	 * Creates a default modbus bridge component to the grid meter and external
+	 * meters for a FENECON Commercial 92 Cluster Master.
+	 *
+	 * @param bundle   the translation bundle
+	 * @param t        the current {@link ConfigurationTarget}
+	 * @param modbusId the id of the external modbus bridge
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component modbusToGridMeterAndExternal(//
+			final ResourceBundle bundle, //
+			final ConfigurationTarget t, //
+			final String modbusId //
+	) {
+		return new EdgeConfig.Component(modbusId, translate(bundle, "App.IntegratedSystem.modbus2.alias"),
+				"Bridge.Modbus.Serial", //
+				JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("baudRate", 9600) //
+						.addProperty("databits", 8) //
+						.addProperty("parity", Parity.NONE) //
+						.addProperty("portName", "/dev/busUSB2") //
+						.addProperty("stopbits", "ONE") //
+						.onlyIf(t == ConfigurationTarget.ADD, b -> b//
+								.addProperty("invalidateElementsAfterReadErrors", 1) //
+								.addProperty("logVerbosity", "NONE"))
+						.build());
+	}
+
+	/**
 	 * Creates a default gridMeter dependency for a FENECON Commercial 92.
 	 * 
 	 * @param bundle      the translation bundle

@@ -24,7 +24,8 @@
             <td style="width: 30%" class="align_right" *ngIf="control.type === 'INPUT'" [formGroup]="formGroup">
                 <ion-item>
                     <ion-input class="regularFont" type="number" style="text-align: right;"
-                        [formControlName]="controlName" label-placement="floating" label="&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;">
+                        [formControlName]="controlName" label-placement="floating"
+                        label="&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;">
                     </ion-input>
                 </ion-item>
             </td>
@@ -48,6 +49,12 @@
                     </ion-select>
                 </ng-container>
             </td>
+
+            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" *ngIf="control.type === 'TEXT'"
+                [formGroup]="formGroup" class="align_right">
+                <ng-container>{{formGroup.controls[controlName].value | converter:control.valueConverter }}
+                </ng-container>
+            </td>
         </ng-container>
 
         <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
@@ -60,18 +67,29 @@
         </ng-template>
     </tr>
     <tr *ngIf="formGroup">
-
         <!-- 'RANGE' Line, provides a range button from min to max -->
         <td style="width: 100%" *ngIf="control?.type === 'RANGE'">
             <ng-container [formGroup]="formGroup">
-                <ion-range style="width: 100%" color="dark" pin="true" [min]="control.properties.min ?? 1"
-                    [max]="control.properties.max ?? 100" [step]="control.properties.step ?? 1"
-                    style="padding-top: 8px;" [formControlName]="controlName" debounce="500">
+                <ion-range style="width: 100%" color="dark" pin="true" [min]="control.properties.tickMin ?? 1"
+                    [max]="control.properties.tickMax ?? 100" [step]="control.properties.step ?? 1"
+                    style="padding-top: 8px;" [formControlName]="controlName" debounce="500"
+                    [pinFormatter]="control.properties.pinFormatter ?? DEFAULT_PIN_FORMATTER" [pin]="true"
+                    [snaps]="control.properties?.snaps ?? false">
                     <ion-label slot="start">
-                        {{ control.properties.min | unitvalue:control.properties.unit}}
+                        @if(control.properties.unit){
+                        {{ control.properties.tickMin| unitvalue:control.properties.unit}}
+                        }@else{
+                        {{ control.properties.tickMin
+                        | converter:control.properties.tickFormatter ? control.properties.tickFormatter : null}}
+                        }
                     </ion-label>
                     <ion-label slot="end">
-                        {{ control.properties.max | unitvalue:control.properties.unit}}
+                        @if(control.properties.unit){
+                        {{ control.properties.tickMax| unitvalue:control.properties.unit}}
+                        }@else{
+                        {{ control.properties.tickMax
+                        | converter:control.properties.tickFormatter ? control.properties.tickFormatter : null}}
+                        }
                     </ion-label>
                 </ion-range>
             </ng-container>

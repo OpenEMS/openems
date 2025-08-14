@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { AfterViewChecked, Component, Input } from "@angular/core";
+import { Component, effect, Input, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../shared";
 import { NavigationComponent } from "../navigation.component";
 import { NavigationService } from "../service/navigation.service";
+import { ViewUtils } from "./shared/shared";
 
 export enum Status {
     SUCCESS,
@@ -13,6 +14,9 @@ export enum Status {
     PENDING,
 }
 
+/**
+ * Always use conditionally rendering, this component doesnt wait for async events to be resolved first
+ */
 @Component({
     selector: "oe-navigation-view",
     templateUrl: "./view.html",
@@ -28,7 +32,7 @@ export enum Status {
     `],
     standalone: false,
 })
-export class NavigationPageComponent implements AfterViewChecked {
+export class NavigationPageComponent {
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
@@ -39,17 +43,20 @@ export class NavigationPageComponent implements AfterViewChecked {
 
     constructor(
         public modalController: ModalController,
-        private websocket: Websocket,
-        private service: Service,
+        protected service: Service,
         protected navigationService: NavigationService,
+        private websocket: Websocket,
         private translate: TranslateService,
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
-    }
 
-
-    ngAfterViewChecked() {
-        this.contentHeight = this.calculateHeight();
+        effect(() => {
+            const breakpoint = NavigationComponent.breakPoint();
+            if (breakpoint > NavigationComponent.INITIAL_BREAKPOINT) {
+                return;
+            }
+            this.contentHeight = ViewUtils.getViewHeight(untracked(() => this.navigationService.position()));
+        });
     }
 
     // Changes applied together
@@ -82,10 +89,7 @@ export class NavigationPageComponent implements AfterViewChecked {
         this.formGroup.markAsPristine();
     }
 
-    private calculateHeight(): number {
-
-        // !IMPORTANT TODO: Calculate container height
-        return 100 - (this.navigationService.position == "bottom" ? (NavigationComponent.INITIAL_BREAKPOINT * 100) : 5);
+    protected onDomChange() {
+        this.contentHeight = ViewUtils.getViewHeight(this.navigationService.position());
     }
 }
-

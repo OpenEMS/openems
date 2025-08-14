@@ -32,14 +32,17 @@ public class DeviceHardwareFilterTest {
 					this.deviceHardwareAppWithoutIo = Apps.techbaseCm4Max(t), //
 					this.ioApp = Apps.ioGpio(t) //
 			);
-		});
+		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 
 		this.hardwareFilter = new DeviceHardwareFilter(this.test.appManagerUtil);
+
+		this.test.addComponentAggregateTask();
 	}
 
 	@Test
 	public void testApplyWithHardwareInstance() throws Exception {
-		this.test.tryInstallWithMinConfig(this.deviceHardwareApp);
+		final var response = this.test.tryInstallWithMinConfig(this.deviceHardwareApp);
+		assertTrue(response.warnings().isEmpty());
 
 		final var ioInstance = this.test.findFirst(this.ioApp.getAppId());
 		final var ioId = ioInstance.properties.get(IoGpio.Property.IO_ID.name()).getAsString();

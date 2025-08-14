@@ -1,11 +1,12 @@
 package io.openems.backend.alerting.scheduler;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public interface TimedExecutor {
 
-	public static class TimedTask implements Comparable<TimedTask> {
+	class TimedTask implements Comparable<TimedTask> {
 		protected final ZonedDateTime executeAt;
 		protected final Consumer<ZonedDateTime> task;
 
@@ -20,6 +21,18 @@ public interface TimedExecutor {
 				return 1;
 			}
 			return this.executeAt.compareTo(other.executeAt);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof TimedTask other
+					&& this.executeAt.equals(other.executeAt)
+					&& this.task.equals(other.task);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.executeAt, this.task);
 		}
 	}
 
@@ -48,5 +61,4 @@ public interface TimedExecutor {
 	 * @return current {@link ZonedDateTime}
 	 */
 	public ZonedDateTime now();
-
 }

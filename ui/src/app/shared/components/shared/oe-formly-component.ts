@@ -1,4 +1,4 @@
-import { Directive, inject, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,8 +8,9 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } fro
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
+import { FormUtils } from "../../utils/form/form.utils";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { TextIndentation } from "../modal/modal-line/modal-line";
+import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";
 import { DataService } from "./dataservice";
 
@@ -17,14 +18,18 @@ import { DataService } from "./dataservice";
 export abstract class AbstractFormlyComponent implements OnDestroy {
 
   protected readonly translate: TranslateService;
+  protected SKIP_COUNT: number = 2;
   protected dataService: DataService;
   protected fields: FormlyFieldConfig[] = [];
   protected form: FormGroup = new FormGroup({});
+  protected formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-modal";
 
   protected stopOnDestroy: Subject<void> = new Subject<void>();
 
   /** Skips next two currentData events */
   protected skipCurrentData: boolean = false;
+  private injector: Injector = inject(Injector);
+  private subscription: EffectRef | null = null;
 
   constructor() {
     const service = SharedModule.injector.get<Service>(Service);
@@ -44,6 +49,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
         .subscribe((config) => {
           const view = this.generateView(config, edge.role, this.translate);
           this.form = this.getFormGroup();
+
           this.fields = [{
             type: "input",
             props: {
@@ -51,22 +57,23 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
                 title: view.title,
               },
               required: true,
-              options: [{ lines: view.lines }],
+              options: [{ lines: view.lines, component: view.component }],
               onSubmit: (fg: FormGroup) => {
                 this.applyChanges(fg, service, websocket, view.component ?? null, view.edge ?? null);
               },
             },
-            wrappers: ["formly-field-modal"],
+            className: "ion-full-height",
+            wrappers: [this.formlyWrapper],
             form: this.form,
           }];
         });
     });
   }
 
-  public ngOnDestroy() {
+  public async ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
-    this.dataService?.unsubscribeFromChannels(this.getChannelAddresses());
+    this.dataService?.unsubscribeFromChannels(await this.getChannelAddresses());
   }
 
   /**
@@ -76,7 +83,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    * @returns {Promise<void>} A Promise that resolves without a value.
    */
   public async subscribeChannels(service: Service): Promise<void> {
-    const channelAddresses = this.getChannelAddresses();
+    const channelAddresses = await this.getChannelAddresses();
     const edge = await service.getCurrentEdge();
     AssertionUtils.assertIsDefined(edge);
 
@@ -89,22 +96,24 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    *
    * @note skips 2 currentData events, because changes are not instantly applied
    * after a {@link UpdateComponentConfigRequest} that the new value is returned with the notification event: currentData
+   *
+   * @workaround still needed, due to no event returned after component update
    */
   protected async fetchCurrentData(service: Service) {
     let skipCount = 0;
-    this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy), filter(() => {
-      if (this.skipCurrentData && skipCount < 2) {
+    this.subscription = effect(() => {
+      const val = this.dataService.currentValue();
+      if (this.skipCurrentData && skipCount < this.SKIP_COUNT) {
         skipCount++;
-        return false;
+        return;
       }
 
       this.skipCurrentData = false; // Reset after skipping 2 values
       service.stopSpinner("formly-field-modal");
       skipCount = 0;
-      return true;
-    })).subscribe((currentData) => {
-      this.onCurrentData(currentData);
-    });
+      this.onCurrentData(val);
+
+    }, { injector: this.injector });
   }
 
 
@@ -120,7 +129,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    *
    * @returns the channel addresses to subscribe
    */
-  protected getChannelAddresses(): ChannelAddress[] { return []; }
+  protected async getChannelAddresses(): Promise<ChannelAddress[]> { return []; }
 
   /**
    * Applys the formGroup changes
@@ -136,9 +145,9 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    * @param edge the edge
    */
   protected applyChanges(fg: FormGroup<any>, service: Service, websocket: Websocket, component: EdgeConfig.Component | null, edge: Edge | null) {
-
     AssertionUtils.assertIsDefined(component);
     AssertionUtils.assertIsDefined(edge);
+
 
     const updateComponentArray: { name: string, value: any }[] = [];
     service.startSpinner("formly-field-modal");
@@ -169,6 +178,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
       }).finally(() => {
         this.skipCurrentData = true;
         fg.markAsPristine();
+        service.stopSpinner("formly-field-modal");
       });
   }
 
@@ -181,6 +191,29 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    **/
   protected getFormGroup() {
     return new FormGroup({});
+  }
+
+  /**
+   * Sets the formControls value to a given channel value
+   *
+   * @param fg the formGroup
+   * @param formControlName the control name to change
+   * @param currentData the current data
+   * @param channel the channel to use
+   * @returns the new formGroup
+   */
+  protected setFormControlSafely<T>(fg: FormGroup, formControlName: string, currentData: CurrentData, channel: ChannelAddress | null) {
+    if (this.skipCurrentData || fg.dirty || fg.touched || !channel || currentData.allComponents[channel.toString()] == null) {
+      return;
+    }
+
+    const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
+    const currFormControlValue: T | null = currentData.allComponents[channel.toString()];
+
+    if (currFormControlValue != null && (prevFormControlValue !== currFormControlValue)) {
+      fg.controls[formControlName].setValue(currFormControlValue);
+      fg.controls[formControlName].markAsTouched();
+    }
   }
 
   /**
@@ -207,7 +240,9 @@ export type OeFormlyField =
   | OeFormlyField.ChannelLine
   | OeFormlyField.HorizontalLine
   | OeFormlyField.ValueFromChannelsLine
-  | OeFormlyField.ButtonsFromFormControlLine;
+  | OeFormlyField.ValueFromFormControlLine
+  | OeFormlyField.ButtonsFromFormControlLine
+  | OeFormlyField.RangeButtonFromFormControlLine;
 
 export namespace OeFormlyField {
 
@@ -253,6 +288,19 @@ export namespace OeFormlyField {
     name: string,
     controlName: string,
     buttons: ButtonLabel[];
+  };
+
+  export type RangeButtonFromFormControlLine = {
+    type: "range-button-from-form-control-line",
+    controlName: string,
+    properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
+    // channel: string,
+  };
+  export type ValueFromFormControlLine = {
+    type: "value-from-form-control-line",
+    controlName: string,
+    name: string,
+    converter: Converter,
   };
 
   export type HorizontalLine = {

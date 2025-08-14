@@ -1,8 +1,8 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 import { ModalComponent } from "../modal/modal";
 
@@ -90,7 +90,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
     this.evcsComponent = this.config.getComponent(this.component.id);
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] != 3 ? true : false;
-    this.isReadWrite = !this.component.properties["readOnly"];
+    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
     this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
 
     // Check if Energy since beginning is allowed

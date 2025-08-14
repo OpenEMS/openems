@@ -5,8 +5,8 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "consumptionchart",
@@ -37,14 +37,28 @@ export class ChartComponent extends AbstractHistoryChart {
       });
     });
 
+    const heatComponents: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+      .filter(component =>
+        !(component.factoryId === "Controller.Heat.Heatingelement") &&
+        !component.isEnabled === false);
+
+    inputChannel.push(
+      ...heatComponents.map(component => ({
+        name: component.id + "/ActivePower",
+        powerChannel: new ChannelAddress(component.id, "ActivePower"),
+        energyChannel: new ChannelAddress(component.id, "ActiveProductionEnergy"),
+      }))
+    );
+
     const consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => {
         const natureIds = config.getNatureIdsByFactoryId(component.factoryId);
         const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
         const isDeprecatedEvcs = natureIds.includes("io.openems.edge.evcs.api.DeprecatedEvcs");
+        const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
 
         return component.isEnabled && config.isTypeConsumptionMetered(component) &&
-          (!isEvcs || (isEvcs && !isDeprecatedEvcs));
+          (isEvcs === false || (isEvcs === true && isDeprecatedEvcs === false)) && isHeat === false;
       });
 
     consumptionMeters.forEach(meter => {
@@ -89,6 +103,21 @@ export class ChartComponent extends AbstractHistoryChart {
           });
         });
 
+        const heatComponentColors: string[] = ChartConstants.Colors.SHADES_OF_GREEN;
+        heatComponents.forEach((component, index) => {
+          datasets.push({
+            name: component.alias,
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues?.result.data[component.id + "/ActiveProductionEnergy"];
+            },
+            converter: () => {
+              return data[component.id + "/ActivePower"] ?? null;
+            },
+            color: heatComponentColors[index % (heatComponentColors.length - 1)],
+            stack: 2,
+          });
+        });
+
         const consumptionMeterColors: string[] = ChartConstants.Colors.SHADES_OF_YELLOW;
         consumptionMeters.forEach((meter, index) => {
           datasets.push({
@@ -105,14 +134,14 @@ export class ChartComponent extends AbstractHistoryChart {
         });
 
         // other consumption
-        if (consumptionMeters.length > 0 || evcsComponents.length > 0) {
+        if (consumptionMeters.length > 0 || evcsComponents.length > 0 || heatComponents.length > 0) {
           datasets.push({
             name: translate.instant("General.otherConsumption"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, consumptionMeters);
+              return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, heatComponents, consumptionMeters);
             },
             converter: () => {
-              return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
+              return Utils.calculateOtherConsumption(data, evcsComponents, heatComponents, consumptionMeters);
             },
             color: ChartConstants.Colors.GREY,
             stack: 1,

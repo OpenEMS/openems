@@ -1,3 +1,4 @@
+import { Role } from "src/app/shared/type/role";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 import { Flag } from "./flag/flag";
 
@@ -32,6 +33,10 @@ import { Flag } from "./flag/flag";
  *          "status": string,
  *          "errorCompatibleMessages": string[],
  *          "errorInstallableMessages": string[]
+ *       },
+ *       "permissions": {
+ *          "canSee": Role,
+ *          "canDelete": Role
  *       },
  *       "image: string (base64),
  *       "instanceIds": UUID[]
@@ -72,9 +77,15 @@ export namespace GetApps {
         shortName?: string,
         image?: string,
         imageUrl?: string,
+        permissions?: Permissions,
         status: Status,
         instanceIds: string[],
         flags: Flag[]
+    }
+
+    export interface Permissions {
+        canSee: Role,
+        canDelete: Role,
     }
 
     export interface Status {

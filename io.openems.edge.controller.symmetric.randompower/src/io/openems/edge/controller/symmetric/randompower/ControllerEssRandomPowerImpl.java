@@ -1,5 +1,9 @@
 package io.openems.edge.controller.symmetric.randompower;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.osgi.service.component.ComponentContext;
@@ -16,9 +20,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -61,12 +62,9 @@ public class ControllerEssRandomPowerImpl extends AbstractOpenemsComponent
 		var randomPower = ThreadLocalRandom.current().nextInt(this.config.minPower(), this.config.maxPower() + 1);
 
 		// adjust value so that it fits into Min/MaxActivePower
-		randomPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, randomPower);
+		randomPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, ACTIVE, randomPower);
 
-		/*
-		 * set result
-		 */
-		ess.addPowerConstraintAndValidate("SymmetricRandomPower", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-				randomPower); //
+		// set result
+		ess.addPowerConstraintAndValidate("SymmetricRandomPower", ALL, ACTIVE, EQUALS, randomPower); //
 	}
 }

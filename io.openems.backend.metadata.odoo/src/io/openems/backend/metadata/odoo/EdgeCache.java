@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
@@ -123,6 +124,15 @@ public class EdgeCache {
 	 */
 	public Collection<Edge> getAllEdges() {
 		return Collections.unmodifiableCollection(this.edgeIdToEdge.values());
+	}
+
+	/**
+	 * Generates a {@link UpdateMetadataCache.Notification}.
+	 * 
+	 * @return the notification
+	 */
+	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		return new UpdateMetadataCache.Notification(this.apikeyToEdgeId);
 	}
 
 }

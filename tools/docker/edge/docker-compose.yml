@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   openems-edge:
     image: openems/edge:latest
@@ -22,7 +20,7 @@ services:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
     environment:
-      - UI_WEBSOCKET=ws://localhost:8085
+      - UI_WEBSOCKET=ws://<hostname>:8085 # Replace <hostname> with the actual hostname or IP
     ports:
       - 80:80
       - 443:443
