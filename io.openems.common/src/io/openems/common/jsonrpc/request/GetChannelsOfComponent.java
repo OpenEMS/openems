@@ -7,8 +7,14 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Stream;
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
@@ -104,6 +110,10 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 			// category = ChannelCategory.STATE
 			Level level, //
 
+			// category = ChannelCategory.OPENEMS_TYPE
+			// type = OpenemsType.STRING
+			List<String> stringOptions,
+
 			// category = ChannelCategory.ENUM
 			List<OptionsEnumEntry> options //
 	) {
@@ -130,6 +140,22 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 		 */
 		public static JsonSerializer<GetChannelsOfComponent.ChannelRecord> serializer() {
 			return jsonObjectSerializer(GetChannelsOfComponent.ChannelRecord.class, json -> {
+				ChannelCategory jsonCategory = json.getEnum("category", ChannelCategory.class);
+				List<String> stringOptions = null;
+				List<OptionsEnumEntry> options = null;
+				if (jsonCategory == ChannelCategory.ENUM) {
+					options = json.getNullableJsonObjectPath("options").mapIfPresent(o -> o.collectStringKeys(
+							mapping(t -> new OptionsEnumEntry(t.getKey(), t.getValue().getAsInt()), toList())));
+				} else if (jsonCategory == ChannelCategory.OPENEMS_TYPE) {
+					JsonArray jsonArray = json.getJsonArrayOrNull("options");
+					if (jsonArray != null) {
+						Gson googleJson = new Gson();
+						Type listType = new TypeToken<List<String>>() {
+						}.getType();
+						stringOptions = googleJson.fromJson(jsonArray, listType);
+					}
+				}
+
 				return new GetChannelsOfComponent.ChannelRecord(//
 						json.getString("id"), //
 						json.getObject("accessMode", accessModeSerializer()), //
@@ -137,12 +163,26 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 						json.getString("text"), //
 						json.getEnum("type", OpenemsType.class), //
 						json.getObject("unit", unitSerializer()), //
-						json.getEnum("category", ChannelCategory.class), //
+						jsonCategory, //
 						json.getEnumOrNull("level", Level.class), //
-						json.getNullableJsonObjectPath("options").mapIfPresent(o -> o.collectStringKeys(
-								mapping(t -> new OptionsEnumEntry(t.getKey(), t.getValue().getAsInt()), toList()))) //
+						stringOptions, //
+						options //
 				);
 			}, obj -> {
+				JsonElement optionsJson = null;
+				if (obj.options() != null) {
+					optionsJson = obj.options().stream() //
+							.collect(toJsonObject(OptionsEnumEntry::name, i -> new JsonPrimitive(i.value())));
+				} else if (obj.stringOptions() != null) {
+					JsonArray optionsArray = new JsonArray();
+					ListIterator<String> it = obj.stringOptions().listIterator();
+					while (it.hasNext()) {
+						optionsArray.add(it.next());
+					}
+					optionsJson = optionsArray;
+				}
+				final JsonElement optionsJsonFinal = optionsJson;
+
 				return JsonUtils.buildJsonObject() //
 						.addProperty("id", obj.id()) //
 						.add("accessMode", accessModeSerializer().serialize(obj.accessMode())) //
@@ -152,8 +192,7 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 						.add("unit", unitSerializer().serialize(obj.unit())) //
 						.addProperty("category", obj.category()) //
 						.onlyIf(obj.level() != null, t -> t.addProperty("level", obj.level())) //
-						.onlyIf(obj.options() != null, t -> t.add("options", obj.options().stream() //
-								.collect(toJsonObject(OptionsEnumEntry::name, i -> new JsonPrimitive(i.value()))))) //
+						.onlyIf(optionsJsonFinal != null, t -> t.add("options", optionsJsonFinal)) //
 						.build();
 			});
 		}

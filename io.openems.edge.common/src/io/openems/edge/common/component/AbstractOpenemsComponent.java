@@ -1,8 +1,11 @@
 package io.openems.edge.common.component;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -17,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -317,6 +322,18 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 						return doc;
 					}
 				};
+				try {
+					JsonArray jsonOptions = property.toJson().getAsJsonObject("schema")
+							.getAsJsonObject("templateOptions").getAsJsonArray("options");
+					List<String> options = new ArrayList<String>();
+					Iterator<JsonElement> it = jsonOptions.iterator();
+					while (it.hasNext()) {
+						options.add(it.next().getAsJsonObject().get("value").getAsString());
+					}
+					doc.stringOptions(options);
+				} catch (Exception e) {
+					// errors can be ignored, as optional property
+				}
 				channel = this.addChannel(channelId);
 			}
 
