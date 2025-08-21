@@ -3624,555 +3624,494 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	}
 
 	public static enum S213 implements SunSpecPoint {
-		A(new ScaledValuePoint(//
+		A(new ValuePoint(//
 				"S213_A", //
 				"Amps", //
 				"Total AC Current", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.AMPERE, //
-				"A_SF")), //
-		APH_A(new ScaledValuePoint(//
+				Unit.AMPERE)), //
+		APH_A(new ValuePoint(//
 				"S213_APH_A", //
 				"Amps PhaseA", //
 				"Phase A Current", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.AMPERE, //
-				"A_SF")), //
-		APH_B(new ScaledValuePoint(//
+				Unit.AMPERE)), //
+		APH_B(new ValuePoint(//
 				"S213_APH_B", //
 				"Amps PhaseB", //
 				"Phase B Current", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.AMPERE, //
-				"A_SF")), //
-		APH_C(new ScaledValuePoint(//
+				Unit.AMPERE)), //
+		APH_C(new ValuePoint(//
 				"S213_APH_C", //
 				"Amps PhaseC", //
 				"Phase C Current", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.AMPERE, //
-				"A_SF")), //
-		PH_V(new ScaledValuePoint(//
+				Unit.AMPERE)), //
+		PH_V(new ValuePoint(//
 				"S213_PH_V", //
 				"Voltage LN", //
 				"Line to Neutral AC Voltage (average of active phases)", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		PH_VPH_A(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		PH_VPH_A(new ValuePoint(//
 				"S213_PH_VPH_A", //
 				"Phase Voltage AN", //
 				"Phase Voltage AN", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		PH_VPH_B(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		PH_VPH_B(new ValuePoint(//
 				"S213_PH_VPH_B", //
 				"Phase Voltage BN", //
 				"Phase Voltage BN", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		PH_VPH_C(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		PH_VPH_C(new ValuePoint(//
 				"S213_PH_VPH_C", //
 				"Phase Voltage CN", //
 				"Phase Voltage CN", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		PPV(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		PPV(new ValuePoint(//
 				"S213_PPV", //
 				"Voltage LL", //
 				"Line to Line AC Voltage (average of active phases)", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		P_P_VPH_A_B(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		P_P_VPH_A_B(new ValuePoint(//
 				"S213_P_P_VPH_A_B", //
 				"Phase Voltage AB", //
 				"Phase Voltage AB", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		P_P_VPH_B_C(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		P_P_VPH_B_C(new ValuePoint(//
 				"S213_P_P_VPH_B_C", //
 				"Phase Voltage BC", //
 				"Phase Voltage BC", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		P_P_VPH_C_A(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		P_P_VPH_C_A(new ValuePoint(//
 				"S213_P_P_VPH_C_A", //
 				"Phase Voltage CA", //
 				"Phase Voltage CA", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.VOLT, //
-				"V_SF")), //
-		HZ(new ScaledValuePoint(//
+				Unit.VOLT)), //
+		HZ(new ValuePoint(//
 				"S213_HZ", //
 				"Hz", //
 				"Frequency", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.HERTZ, //
-				"Hz_SF")), //
-		W(new ScaledValuePoint(//
+				Unit.HERTZ)), //
+		W(new ValuePoint(//
 				"S213_W", //
 				"Watts", //
 				"Total Real Power", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.WATT, //
-				"W_SF")), //
-		WPH_A(new ScaledValuePoint(//
+				Unit.WATT)), //
+		WPH_A(new ValuePoint(//
 				"S213_WPH_A", //
 				"Watts phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.WATT, //
-				"W_SF")), //
-		WPH_B(new ScaledValuePoint(//
+				Unit.WATT)), //
+		WPH_B(new ValuePoint(//
 				"S213_WPH_B", //
 				"Watts phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.WATT, //
-				"W_SF")), //
-		WPH_C(new ScaledValuePoint(//
+				Unit.WATT)), //
+		WPH_C(new ValuePoint(//
 				"S213_WPH_C", //
 				"Watts phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.WATT, //
-				"W_SF")), //
-		VA(new ScaledValuePoint(//
+				Unit.WATT)), //
+		VA(new ValuePoint(//
 				"S213_VA", //
 				"VA", //
 				"AC Apparent Power", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE, //
-				"VA_SF")), //
-		V_APH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE)), //
+		V_APH_A(new ValuePoint(//
 				"S213_V_APH_A", //
 				"VA phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE, //
-				"VA_SF")), //
-		V_APH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE)), //
+		V_APH_B(new ValuePoint(//
 				"S213_V_APH_B", //
 				"VA phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE, //
-				"VA_SF")), //
-		V_APH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE)), //
+		V_APH_C(new ValuePoint(//
 				"S213_V_APH_C", //
 				"VA phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE, //
-				"VA_SF")), //
-		VAR(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE)), //
+		VAR(new ValuePoint(//
 				"S213_VAR", //
 				"VAR", //
 				"Reactive Power", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE, //
-				"VAR_SF")), //
-		V_A_RPH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE)), //
+		V_A_RPH_A(new ValuePoint(//
 				"S213_V_A_RPH_A", //
 				"VAR phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE, //
-				"VAR_SF")), //
-		V_A_RPH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE)), //
+		V_A_RPH_B(new ValuePoint(//
 				"S213_V_A_RPH_B", //
 				"VAR phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE, //
-				"VAR_SF")), //
-		V_A_RPH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE)), //
+		V_A_RPH_C(new ValuePoint(//
 				"S213_V_A_RPH_C", //
 				"VAR phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE, //
-				"VAR_SF")), //
-		PF(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE)), //
+		PF(new ValuePoint(//
 				"S213_PF", //
 				"PF", //
 				"Power Factor", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.NONE, //
-				"PF_SF")), //
-		P_FPH_A(new ScaledValuePoint(//
+				Unit.NONE)), //
+		P_FPH_A(new ValuePoint(//
 				"S213_P_FPH_A", //
 				"PF phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.NONE, //
-				"PF_SF")), //
-		P_FPH_B(new ScaledValuePoint(//
+				Unit.NONE)), //
+		P_FPH_B(new ValuePoint(//
 				"S213_P_FPH_B", //
 				"PF phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.NONE, //
-				"PF_SF")), //
-		P_FPH_C(new ScaledValuePoint(//
+				Unit.NONE)), //
+		P_FPH_C(new ValuePoint(//
 				"S213_P_FPH_C", //
 				"PF phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.NONE, //
-				"PF_SF")), //
-		TOT_WH_EXP(new ScaledValuePoint(//
+				Unit.NONE)), //
+		TOT_WH_EXP(new ValuePoint(//
 				"S213_TOT_WH_EXP", //
 				"Total Watt-hours Exported", //
 				"Total Real Energy Exported", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_WH_EXP_PH_A(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_WH_EXP_PH_A(new ValuePoint(//
 				"S213_TOT_WH_EXP_PH_A", //
 				"Total Watt-hours Exported phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_WH_EXP_PH_B(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_WH_EXP_PH_B(new ValuePoint(//
 				"S213_TOT_WH_EXP_PH_B", //
 				"Total Watt-hours Exported phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_WH_EXP_PH_C(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_WH_EXP_PH_C(new ValuePoint(//
 				"S213_TOT_WH_EXP_PH_C", //
 				"Total Watt-hours Exported phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_WH_IMP(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_WH_IMP(new ValuePoint(//
 				"S213_TOT_WH_IMP", //
 				"Total Watt-hours Imported", //
 				"Total Real Energy Imported", //
 				FLOAT32, //
 				true, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_WH_IMP_PH_A(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_WH_IMP_PH_A(new ValuePoint(//
 				"S213_TOT_WH_IMP_PH_A", //
 				"Total Watt-hours Imported phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_WH_IMP_PH_B(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_WH_IMP_PH_B(new ValuePoint(//
 				"S213_TOT_WH_IMP_PH_B", //
 				"Total Watt-hours Imported phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_WH_IMP_PH_C(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_WH_IMP_PH_C(new ValuePoint(//
 				"S213_TOT_WH_IMP_PH_C", //
 				"Total Watt-hours Imported phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.CUMULATED_WATT_HOURS, //
-				"TotWh_SF")), //
-		TOT_V_AH_EXP(new ScaledValuePoint(//
+				Unit.CUMULATED_WATT_HOURS)), //
+		TOT_V_AH_EXP(new ValuePoint(//
 				"S213_TOT_V_AH_EXP", //
 				"Total VA-hours Exported", //
 				"Total Apparent Energy Exported", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_AH_EXP_PH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_AH_EXP_PH_A(new ValuePoint(//
 				"S213_TOT_V_AH_EXP_PH_A", //
 				"Total VA-hours Exported phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_AH_EXP_PH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_AH_EXP_PH_B(new ValuePoint(//
 				"S213_TOT_V_AH_EXP_PH_B", //
 				"Total VA-hours Exported phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_AH_EXP_PH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_AH_EXP_PH_C(new ValuePoint(//
 				"S213_TOT_V_AH_EXP_PH_C", //
 				"Total VA-hours Exported phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_AH_IMP(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_AH_IMP(new ValuePoint(//
 				"S213_TOT_V_AH_IMP", //
 				"Total VA-hours Imported", //
 				"Total Apparent Energy Imported", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_AH_IMP_PH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_AH_IMP_PH_A(new ValuePoint(//
 				"S213_TOT_V_AH_IMP_PH_A", //
 				"Total VA-hours Imported phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_AH_IMP_PH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_AH_IMP_PH_B(new ValuePoint(//
 				"S213_TOT_V_AH_IMP_PH_B", //
 				"Total VA-hours Imported phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_AH_IMP_PH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_AH_IMP_PH_C(new ValuePoint(//
 				"S213_TOT_V_AH_IMP_PH_C", //
 				"Total VA-hours Imported phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_HOURS, //
-				"TotVAh_SF")), //
-		TOT_V_ARH_IMP_Q1(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_HOURS)), //
+		TOT_V_ARH_IMP_Q1(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q1", //
 				"Total VAR-hours Imported Q1", //
 				"Total Reactive Energy Imported Quadrant 1", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_IMP_Q1PH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_IMP_Q1PH_A(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q1PH_A", //
 				"Total VAr-hours Imported Q1 phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_IMP_Q1PH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_IMP_Q1PH_B(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q1PH_B", //
 				"Total VAr-hours Imported Q1 phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_IMP_Q1PH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_IMP_Q1PH_C(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q1PH_C", //
 				"Total VAr-hours Imported Q1 phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_IMP_Q2(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_IMP_Q2(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q2", //
 				"Total VAr-hours Imported Q2", //
 				"Total Reactive Power Imported Quadrant 2", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_IMP_Q2PH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_IMP_Q2PH_A(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q2PH_A", //
 				"Total VAr-hours Imported Q2 phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_IMP_Q2PH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_IMP_Q2PH_B(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q2PH_B", //
 				"Total VAr-hours Imported Q2 phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_IMP_Q2PH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_IMP_Q2PH_C(new ValuePoint(//
 				"S213_TOT_V_ARH_IMP_Q2PH_C", //
 				"Total VAr-hours Imported Q2 phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q3(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q3(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q3", //
 				"Total VAr-hours Exported Q3", //
 				"Total Reactive Power Exported Quadrant 3", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q3PH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q3PH_A(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q3PH_A", //
 				"Total VAr-hours Exported Q3 phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q3PH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q3PH_B(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q3PH_B", //
 				"Total VAr-hours Exported Q3 phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q3PH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q3PH_C(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q3PH_C", //
 				"Total VAr-hours Exported Q3 phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q4(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q4(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q4", //
 				"Total VAr-hours Exported Q4", //
 				"Total Reactive Power Exported Quadrant 4", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q4PH_A(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q4PH_A(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q4PH_A", //
 				"Total VAr-hours Exported Q4 Imported phase A", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q4PH_B(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q4PH_B(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q4PH_B", //
 				"Total VAr-hours Exported Q4 Imported phase B", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
-		TOT_V_ARH_EXP_Q4PH_C(new ScaledValuePoint(//
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+		TOT_V_ARH_EXP_Q4PH_C(new ValuePoint(//
 				"S213_TOT_V_ARH_EXP_Q4PH_C", //
 				"Total VAr-hours Exported Q4 Imported phase C", //
 				"", //
 				FLOAT32, //
 				false, //
 				READ_ONLY, //
-				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
-				"TotVArh_SF")), //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
 		EVT(new BitFieldPoint(//
 				"S213_EVT", //
 				"Events", //
