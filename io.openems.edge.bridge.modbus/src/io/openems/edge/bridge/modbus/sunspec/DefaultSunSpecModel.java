@@ -111,8 +111,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 			105 /* length */, DefaultSunSpecModel.S204.values(), SunSpecModelType.METER), //
 	S_213("wye-connect three phase (abcn) meter", //
 			"", //
-			124 /* length */, DefaultSunSpecModel.S213.values(), SunSpecModelType.METER //
-	), //
+			124 /* length */, DefaultSunSpecModel.S213.values(), SunSpecModelType.METER), //
 	S_305("GPS", //
 			"Include to support location measurements", //
 			36 /* length */, DefaultSunSpecModel.S305.values(), SunSpecModelType.ENVIRONMENTAL), //
