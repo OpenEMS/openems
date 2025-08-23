@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/io/openems/edge/meter/fronius/Config.java=UTF-8
-encoding//src/io/openems/edge/meter/fronius/MeterFronius.java=UTF-8
-encoding//src/io/openems/edge/meter/fronius/MeterFroniusImpl.java=UTF-8
-encoding//test/io/openems/edge/meter/fronius/MeterFroniusImplTest.java=UTF-8
-encoding//test/io/openems/edge/meter/fronius/MyConfig.java=UTF-8
-encoding/<project>=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/readme.adoc=UTF-8
