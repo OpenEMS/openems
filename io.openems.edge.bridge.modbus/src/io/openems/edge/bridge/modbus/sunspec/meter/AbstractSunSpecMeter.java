@@ -96,8 +96,6 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 		return "L:" + this.getActivePower().asString();
 	}
 
-	// TODO INVERT
-
 	@Override
 	protected void onSunSpecInitializationCompleted() {
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
