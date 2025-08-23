@@ -4,7 +4,6 @@ import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
-import io.openems.edge.sma.ess.sunnyisland.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

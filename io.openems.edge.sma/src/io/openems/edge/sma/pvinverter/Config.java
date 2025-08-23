@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.sma;
+package io.openems.edge.sma.pvinverter;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

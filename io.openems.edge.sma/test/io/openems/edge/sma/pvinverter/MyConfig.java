@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.sma;
+package io.openems.edge.sma.pvinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;

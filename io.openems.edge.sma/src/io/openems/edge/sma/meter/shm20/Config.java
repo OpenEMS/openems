@@ -1,4 +1,4 @@
-package io.openems.edge.meter.sma.shm20;
+package io.openems.edge.sma.meter.shm20;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

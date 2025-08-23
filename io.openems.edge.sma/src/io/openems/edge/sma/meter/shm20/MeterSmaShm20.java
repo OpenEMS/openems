@@ -1,4 +1,4 @@
-package io.openems.edge.meter.sma.shm20;
+package io.openems.edge.sma.meter.shm20;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
