@@ -75,7 +75,7 @@ public class MeterFroniusImpl extends AbstractSunSpecMeter
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, config.invert())) {
 			return;
 		}
 	}
