@@ -14,8 +14,9 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
 
-public interface IoShelly1 extends DigitalOutput, OpenemsComponent, EventHandler {
+public interface IoShelly1 extends DigitalOutput, OpenemsComponent, ShellyCommon, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**

@@ -10,6 +10,7 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.io.shelly.common.ShellyCommon;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -19,6 +20,23 @@ public class IoShellyPro3EmImplTest {
 	public void test() throws Exception {
 		final var sut = new IoShellyPro3EmImpl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
+		
+		// Pre-set the response for the /shelly endpoint that will be called during activation
+		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+			{
+				"name": "shellypro3em-test",
+				"id": "shellypro3em-12345",
+				"mac": "AA:BB:CC:DD:EE:FF",
+				"model": "SPEM-003CEBEU400",
+				"gen": 2,
+				"fw_id": "20230912-114516/v1.14.0-gcb84623",
+				"ver": "1.14.0",
+				"app": "Pro3EM",
+				"auth_en": false,
+				"auth_domain": "shellypro3em-12345"
+			}
+		"""));
+		
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
@@ -79,7 +97,9 @@ public class IoShellyPro3EmImplTest {
 						.output(IoShellyPro3Em.ChannelId.NO_LOAD, false) //
 						.output(IoShellyPro3Em.ChannelId.PHASE_SEQUENCE_ERROR, false) //
 						.output(IoShellyPro3Em.ChannelId.POWER_METER_FAILURE, false) //
-						.output(IoShellyPro3Em.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
+						.output(IoShellyPro3Em.ChannelId.SLAVE_COMMUNICATION_FAILED, false) //
+						.output(ShellyCommon.ChannelId.AUTH_ENABLED_WARNING, false) //
+						.output(ShellyCommon.ChannelId.DEVICE_GENERATION, "2")) //
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
@@ -105,8 +125,45 @@ public class IoShellyPro3EmImplTest {
 						.output(IoShellyPro3Em.ChannelId.NO_LOAD, false) //
 						.output(IoShellyPro3Em.ChannelId.PHASE_SEQUENCE_ERROR, false) //
 						.output(IoShellyPro3Em.ChannelId.POWER_METER_FAILURE, false) //
-						.output(IoShellyPro3Em.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
+						.output(IoShellyPro3Em.ChannelId.SLAVE_COMMUNICATION_FAILED, true) //
+						.output(ShellyCommon.ChannelId.AUTH_ENABLED_WARNING, false) //
+						.output(ShellyCommon.ChannelId.DEVICE_GENERATION, "2")) //
 
 				.deactivate();
+	}
+	
+	@Test
+	public void testAuthenticationWarning() throws Exception {
+		final var sut = new IoShellyPro3EmImpl();
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+		
+		// Pre-set the response for the /shelly endpoint with authentication enabled
+		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+			{
+				"name": "shellypro3em-test",
+				"id": "shellypro3em-12345",
+				"mac": "AA:BB:CC:DD:EE:FF",
+				"model": "SPEM-003CEBEU400",
+				"gen": 2,
+				"fw_id": "20230912-114516/v1.14.0-gcb84623",
+				"ver": "1.14.0",
+				"app": "Pro3EM",
+				"auth_en": true,
+				"auth_domain": "shellypro3em-12345"
+			}
+		"""));
+		
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("timedata", new DummyTimedata("timedata0")) //
+				.activate(MyConfig.create() //
+						.setId("io0") //
+						.setIp("127.0.0.1") //
+						.setType(GRID) //
+						.build()) //
+				.next(new TestCase("Authentication enabled warning") //
+						.output(ShellyCommon.ChannelId.AUTH_ENABLED_WARNING, true) //
+						.output(ShellyCommon.ChannelId.DEVICE_GENERATION, "2")) //
+				.deactivate();//
 	}
 }
