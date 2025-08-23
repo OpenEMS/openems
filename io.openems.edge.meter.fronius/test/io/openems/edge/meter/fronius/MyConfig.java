@@ -1,4 +1,4 @@
-package io.openems.edge.solaredge.gridmeter;
+package io.openems.edge.meter.fronius;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
@@ -9,7 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String modbusId;
+		private String modbusId = null;
 		private int modbusUnitId;
 		private MeterType type;
 		private boolean invert;
@@ -49,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 *
+	 * 
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

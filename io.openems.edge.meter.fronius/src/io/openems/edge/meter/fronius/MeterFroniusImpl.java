@@ -1,4 +1,4 @@
-package io.openems.edge.solaredge.gridmeter;
+package io.openems.edge.meter.fronius;
 
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
@@ -32,46 +32,42 @@ import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "SolarEdge.Grid-Meter", //
+		name = "Meter.Fronius", //
 		immediate = true, //
 		configurationPolicy = REQUIRE, //
 		property = { //
 				"type=GRID" //
 		})
 @EventTopics({ //
-		TOPIC_CYCLE_EXECUTE_WRITE //
-})
-public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
-		implements SolarEdgeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
+		TOPIC_CYCLE_EXECUTE_WRITE })
+
+public class MeterFroniusImpl extends AbstractSunSpecMeter
+		implements MeterFronius, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_201, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_202, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_204, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_213, Priority.HIGH) //
 			.build();
 
-	private static final int READ_FROM_MODBUS_BLOCK = 2;
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Override
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	private Config config;
+	private Config config = null;
 
-	public SolarEdgeGridMeterImpl() {
+	public MeterFroniusImpl() throws OpenemsException {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				SolarEdgeGridMeter.ChannelId.values() //
+				MeterFronius.ChannelId.values() //
 		);
 	}
 
