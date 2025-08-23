@@ -141,6 +141,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
+	bnd.identity;id='io.openems.edge.fronius',\
 	bnd.identity;id='io.openems.edge.goodwe',\
 	bnd.identity;id='io.openems.edge.heat.askoma',\
 	bnd.identity;id='io.openems.edge.heat.mypv',\
@@ -164,7 +165,6 @@
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.eastron',\
-	bnd.identity;id='io.openems.edge.meter.fronius',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
@@ -183,7 +183,6 @@
 	bnd.identity;id='io.openems.edge.predictor.production.linearmodel',\
 	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
-	bnd.identity;id='io.openems.edge.pvinverter.fronius',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.kostal',\
 	bnd.identity;id='io.openems.edge.pvinverter.sma',\
@@ -332,6 +331,7 @@
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
+	io.openems.edge.fronius;version=snapshot,\
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.heat.api;version=snapshot,\
 	io.openems.edge.heat.askoma;version=snapshot,\
@@ -358,7 +358,6 @@
 	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.eastron;version=snapshot,\
-	io.openems.edge.meter.fronius;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.phoenixcontact;version=snapshot,\
@@ -379,7 +378,6 @@
 	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
-	io.openems.edge.pvinverter.fronius;version=snapshot,\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.pvinverter.kostal;version=snapshot,\
 	io.openems.edge.pvinverter.sma;version=snapshot,\
