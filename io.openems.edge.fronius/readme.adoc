@@ -1,6 +1,6 @@
 = Fronius
 
-== PV-Inverter
+== PV Inverter
 
 Tested on
 - Fronius Symo

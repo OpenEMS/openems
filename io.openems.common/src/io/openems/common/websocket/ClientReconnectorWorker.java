@@ -2,10 +2,6 @@ package io.openems.common.websocket;
 
 import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.lang.reflect.Field;
-import java.net.Socket;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -86,7 +82,8 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		var end = System.nanoTime();
 		if (success) {
 			this.debugLog = null;
-			this.parent.logInfo(this.log, "Connected successfully [" + TimeUnit.NANOSECONDS.toSeconds(end - start) + "s]");
+			this.parent.logInfo(this.log,
+					"Connected successfully [" + TimeUnit.NANOSECONDS.toSeconds(end - start) + "s]");
 		} else {
 			this.debugLog = "Connection failed";
 			this.log.info("Connection failed");
