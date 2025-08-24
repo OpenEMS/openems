@@ -558,6 +558,7 @@
       "GRID_METER": "グリッドメーター",
       "GRID_OPTIMIZED_CHARGE": "グリッドに優しい充電",
       "LEGEND": "伝説",
+      "LEGEND_DESCRIPTION": "運転状態の凡例",
       "NOT_YET_CONFIGURED": "まだ構成 /チェックされていません",
       "PARTIAL_CONFIGURATION": "すべてのコンポーネントを正しく構成できるわけではありません。",
       "PRE_CONFIGURED": "事前に設定された /警告",
