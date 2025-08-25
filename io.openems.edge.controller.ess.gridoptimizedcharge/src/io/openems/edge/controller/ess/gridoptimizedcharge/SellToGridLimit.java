@@ -64,7 +64,7 @@ public class SellToGridLimit {
 			// Set the power limitation constraint
 			this.parent.ess.setActivePowerLessOrEquals(sellToGridLimit);
 		} catch (OpenemsNamedException e) {
-			state = SellToGridLimitState.NO_FEASABLE_SOLUTION;
+			state = SellToGridLimitState.NO_FEASIBLE_SOLUTION;
 		}
 
 		// Set channels
