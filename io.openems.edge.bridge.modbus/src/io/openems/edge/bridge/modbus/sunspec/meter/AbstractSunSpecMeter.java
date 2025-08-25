@@ -189,68 +189,68 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 
 		if (this.invert) {
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 					DIRECT_1_TO_1, //
 					exp);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 					DIRECT_1_TO_1, //
 					expPhA);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 					DIRECT_1_TO_1, //
 					expPhB);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 					DIRECT_1_TO_1, //
 					expPhC);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 					DIRECT_1_TO_1, //
 					imp);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 					DIRECT_1_TO_1, //
 					impPhA);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 					DIRECT_1_TO_1, //
 					impPhB);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 					DIRECT_1_TO_1, //
 					impPhC);
 		} else {
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 					DIRECT_1_TO_1, //
 					exp);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 					DIRECT_1_TO_1, //
 					expPhA);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 					DIRECT_1_TO_1, //
 					expPhB);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 					DIRECT_1_TO_1, //
 					expPhC);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 					DIRECT_1_TO_1, //
 					imp);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 					DIRECT_1_TO_1, //
 					impPhA);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 					DIRECT_1_TO_1, //
 					impPhB);
 			this.mapFirstPointToChannel(//
-					ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 					DIRECT_1_TO_1, //
 					impPhC);
 		}
