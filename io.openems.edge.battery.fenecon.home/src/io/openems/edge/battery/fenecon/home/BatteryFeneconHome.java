@@ -559,7 +559,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("BCU Fault Hardware Fault")),
 
 		// Bcu HW Fault Detail
-		HW_AFE_COMMUNICAITON_FAULT(Doc.of(Level.WARNING) //
+		HW_AFE_COMMUNICATION_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW AFE Communication Fault")),
 		HW_ACTOR_DRIVER_FAULT(Doc.of(Level.WARNING) //
