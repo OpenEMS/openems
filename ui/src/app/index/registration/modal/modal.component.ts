@@ -19,6 +19,8 @@ export class RegistrationModalComponent implements OnInit {
   protected activeSegment: string = "installer";
   protected readonly countries = COUNTRY_OPTIONS(this.translate);
   protected docsLink: string | null = null;
+  protected passwordControl: FormControl = new FormControl("");
+  protected confirmPasswordControl: FormControl = new FormControl("");
 
   constructor(
     private formBuilder: FormBuilder,
@@ -51,8 +53,8 @@ export class RegistrationModalComponent implements OnInit {
       return;
     }
 
-    const password = this.formGroup.value.password;
-    const confirmPassword = this.formGroup.value.confirmPassword;
+    const password = this.passwordControl.value;
+    const confirmPassword = this.confirmPasswordControl.value;
 
     if (password != confirmPassword) {
       this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), "danger");
@@ -103,6 +105,7 @@ export class RegistrationModalComponent implements OnInit {
       });
   }
 
+
   /**
    * Get from depending on given role.
    * If no role matches then the default (owner) from will be returnd.
@@ -148,5 +151,4 @@ export class RegistrationModalComponent implements OnInit {
     }
     return link.replace("{language}", this.service.getDocsLang());
   }
-
 }

@@ -30,7 +30,14 @@
                 </ion-input>
               </ion-item>
               <ion-item>
-                <ion-input formControlName="password" type="password" label="Password"></ion-input>
+                <oe-password-input
+                  [control]="passwordControl"
+                  placeholder="Password"
+                  label="Password"
+                  [required]="false"
+                  [ariaLabelShow]="'ADMIN.PASSWORD.SHOW' | translate"
+                  [ariaLabelHide]="'ADMIN.PASSWORD.HIDE' | translate">
+                </oe-password-input>
               </ion-item>
               <ion-item>
                 <ion-input formControlName="timeoutSeconds" type="number" label="Timeout"></ion-input>
