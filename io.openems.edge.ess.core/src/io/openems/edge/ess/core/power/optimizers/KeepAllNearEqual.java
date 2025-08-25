@@ -48,10 +48,16 @@ public class KeepAllNearEqual {
 		var reactivePowerSolved = solvePowerIfNotNaN(setReactivePower, essList, Pwr.REACTIVE, direction);
 
 		var mergedResult = mergeResults(coefficients, esss, activePowerSolved, reactivePowerSolved);
+		if (mergedResult == null) {
+			return null;
+		}
 
 		var result = Arrays.stream(mergedResult)//
 				.map(d -> reverseAbsoluteData(d, direction))//
 				.toArray();
+		if (result.length == 0) {
+			return null;
+		}
 		return new PointValuePair(result, 0);
 	}
 

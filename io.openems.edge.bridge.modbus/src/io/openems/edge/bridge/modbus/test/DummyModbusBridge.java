@@ -27,6 +27,7 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
 import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplier;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
 
 public class DummyModbusBridge extends AbstractModbusBridge implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
 
@@ -167,6 +168,22 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 			for (var b : a) {
 				this.withRegister(startAddress++, b);
 			}
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the value of a FC3HoldingRegister in Float32 format.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       float values
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegistersFloat32(int startAddress, float... values) {
+		for (var value : values) {
+			var b = ModbusRecordFloat32.toByteArray(value);
+			this.withRegister(startAddress++, b[0], b[1]);
+			this.withRegister(startAddress++, b[2], b[3]);
 		}
 		return this;
 	}
