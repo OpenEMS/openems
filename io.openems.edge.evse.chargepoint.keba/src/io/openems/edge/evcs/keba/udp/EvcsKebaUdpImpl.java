@@ -216,7 +216,8 @@ public class EvcsKebaUdpImpl extends AbstractManagedEvcsComponent implements Keb
 		if (current < 6000) {
 			current = 0;
 		}
-		return this.send("currtime " + current + " 1");
+		//return this.send("currtime " + current + " 1");
+		return this.send("currtime " + current + " 100"); // Current value for x seconds
 	}
 
 	@Override

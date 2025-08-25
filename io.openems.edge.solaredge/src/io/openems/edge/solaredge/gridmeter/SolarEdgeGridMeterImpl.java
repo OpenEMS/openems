@@ -19,6 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -27,6 +28,9 @@ import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.meter.AbstractSunSpecMeter;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -42,7 +46,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
-		implements SolarEdgeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
+		implements SolarEdgeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
@@ -93,5 +97,14 @@ public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
 	@Override
 	public MeterType getMeterType() {
 		return this.config.type();
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(ElectricityMeter.class, accessMode, 100) //
+						.build());
 	}
 }
