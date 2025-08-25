@@ -40,7 +40,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class MeterOpenWbImpl extends AbstractOpenemsComponent
-		implements MeterOpenWb, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		implements MeterOpenWb, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -134,4 +134,15 @@ public class MeterOpenWbImpl extends AbstractOpenemsComponent
 	public MeterType getMeterType() {
 		return this.meterType;
 	}
+
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(MeterOpenDtu.class, accessMode, 100) //
+						.build());
+	}
+
 }
