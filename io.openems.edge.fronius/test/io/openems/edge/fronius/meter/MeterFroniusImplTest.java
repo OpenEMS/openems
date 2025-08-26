@@ -122,21 +122,21 @@ public class MeterFroniusImplTest {
 						.output("S213PFphB", 15F) //
 						.output("S213PFphC", 16F) //
 						.output("S213TotWhExp", 17F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 17L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 21L) //
 						.output("S213TotWhExpPhA", 18F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, 18L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, 22L) //
 						.output("S213TotWhExpPhB", 19F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, 19L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, 23L) //
 						.output("S213TotWhExpPhC", 20F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, 20L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, 24L) //
 						.output("S213TotWhImp", 21F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 21L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 17L) //
 						.output("S213TotWhImpPhA", 22F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, 22L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, 18L) //
 						.output("S213TotWhImpPhB", 23F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, 23L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, 19L) //
 						.output("S213TotWhImpPhC", 24F) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, 24L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, 20L) //
 						.output("S213TotVAhExp", 25F) //
 						.output("S213TotVAhExpPhA", 26F) //
 						.output("S213TotVAhExpPhB", 27F) //
@@ -215,14 +215,14 @@ public class MeterFroniusImplTest {
 						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, -11) //
 						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, -12) //
 
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 21L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, 22L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, 23L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, 24L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 17L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, 18L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, 19L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, 20L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 17L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, 18L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, 19L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, 20L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 21L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, 22L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, 23L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, 24L) //
 				);
 	}
 }
