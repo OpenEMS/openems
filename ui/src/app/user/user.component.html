@@ -82,7 +82,8 @@
             <ion-item lines="none">
               <ion-button style="padding-top: 0.3em" slot="start" (click)="enableAndDisableEditMode()"
                 [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
-                <ion-label>{{ getEditButtonText() | translate }}</ion-label>
+                <ion-label>{{isEditModeDisabled ? ('General.EDIT' | translate) :('General.RESET' |
+                  translate)}}</ion-label>
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
