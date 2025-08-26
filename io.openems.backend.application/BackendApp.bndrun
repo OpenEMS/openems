@@ -70,7 +70,7 @@
 	com.squareup.okhttp3;version='[5.1.0,5.1.1)',\
 	com.squareup.okhttp3.logging;version='[5.1.0,5.1.1)',\
 	com.squareup.okio;version='[3.16.0,3.16.1)',\
-	com.zaxxer.HikariCP;version='[7.0.1,7.0.2)',\
+	com.zaxxer.HikariCP;version='[7.0.2,7.0.3)',\
 	io.openems.backend.alerting;version=snapshot,\
 	io.openems.backend.application;version=snapshot,\
 	io.openems.backend.b2brest;version=snapshot,\
