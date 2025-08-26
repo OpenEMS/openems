@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Edge PV-Inverter KOSTAL PIKO
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.http,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.pvinverter.api,\
+	org.jsoup:jsoup
+
+-testpath: \
+	${testpath},\
