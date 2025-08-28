@@ -1,0 +1,3 @@
+= OpenWB Series2 Meter
+
+This bundle implements requesting power, voltage and current from an OpenWB Series2 with one internal charge point.
