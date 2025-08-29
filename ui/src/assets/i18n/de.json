@@ -73,6 +73,7 @@
           "peakshavingPower": "Entladung über",
           "recharge": "Beladeleistung",
           "rechargePower": "Beladung unter",
+          "hysteresisSoC": "Schwellenwert Ladezustand",
           "relationError": "Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein",
           "startDate": "Start Datum",
           "startTime": "Startzeit",
@@ -476,7 +477,10 @@
         "successDelete": "App erfolgreich entfernt",
         "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
         "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
-        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden.",
+        "technicalName": "Technischer Name",
+        "category": "Kategorie",
+        "cardinality": "Kardinalität"
       }
     },
     "Service": {
@@ -648,7 +652,10 @@
       "DAYS": "Tage"
     },
     "CHARGE": "Beladung",
-    "DISCHARGE": "Entladung"
+    "DISCHARGE": "Entladung",
+    "INSTALL": "Installieren",
+    "FROM": "Von",
+    "TO": "Bis"
   },
   "OFFLINE": {
     "EDGE": {
@@ -810,6 +817,7 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Typ",
+      "LIMITATION": "Limitierung",
       "CONSTANT_VALUE": "Cos φ Festwert",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamische Begrenzung der Einspeisung aktiviert?",
       "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
@@ -913,7 +921,9 @@
       "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein.",
       "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
-      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen."
+      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen.",
+      "DOUBLE_SOCKET_LABEL": "Im Doppelsockel verbaut",
+      "DOUBLE_SOCKET": "Doppelsockel"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -1140,7 +1150,26 @@
   },
   "GENERAL": {
     "FORMLY": {
-      "REQUIRED": "Ist erforderlich"
+      "REQUIRED": "Ist erforderlich",
+      "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente"
+    }
+  },
+  "FORMLY_FORM": {
+    "TARIFF_TABLE": {
+      "TARIFFS": {
+        "LOW": "Niedriglasttarifstufe",
+        "STANDARD": "Standardtarifstufe",
+        "HIGH": "Hochlasttarifstufe"
+      },
+      "GROSS_PREIS_TITLE": "Brutto-Preis für das Jahr {{ year }}*",
+      "ADD_TIME_SLOT": "Zeitfenster hinzufügen",
+      "PRICE_ITEMS": "Preisartikel",
+      "ADD_YEAR": "{{ year }} Jahr hinzufügen",
+      "REMOVE_YEAR": "{{ year }} Jahr entfernen",
+      "TITLE": "{{ year }} Netzentgelte",
+      "ERROR_MESSAGES": {
+        "INVALID_TIME_INPUT": "Die „Bis“-Zeit kann nicht größer oder gleich der „Von“-Zeit sein."
+      }
     }
   }
 }

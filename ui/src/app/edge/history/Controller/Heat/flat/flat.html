@@ -1,5 +1,5 @@
 <oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
-    routerLink="/device/{{edge.id}}/history/{{componentId}}/heatchart">
+    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/heatchart'">
 
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.HEAT.HEATING_ENERGY'| translate"
         [channelAddress]="component.id + '/ActiveProductionEnergy'" [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">

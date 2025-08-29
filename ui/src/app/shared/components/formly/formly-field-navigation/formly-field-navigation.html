@@ -1,5 +1,5 @@
 <oe-navigation-view [formGroup]="form" [component]="props.options[0].component"
-    *ngIf="props && props.options[0].component">
+    *ngIf="props && props.options[0].component" (emitForm)="setForm($event)">
     <ngx-spinner name="formly-field-modal"></ngx-spinner>
     <ng-container *ngFor="let entry of props.options">
         <ng-container *ngFor="let line of entry.lines">

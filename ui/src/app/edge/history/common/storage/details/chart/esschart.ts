@@ -67,7 +67,7 @@ export class StorageEssChartComponent extends AbstractHistoryChart {
         const emergencyReserveComponent: EdgeConfig.Component | null = config
             .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
             .filter(component =>
-                component != null && component.isEnabled && config.hasComponentPropertyValue<string>(essComponent, "ess.id", essComponent.id))[0] ?? null;
+                component != null && component.isEnabled && essComponent.hasPropertyValue("ess.id", essComponent.id))[0] ?? null;
         const isReserveSocEnabled = config.getPropertyFromComponent<boolean>(emergencyReserveComponent, "isReserveSocEnabled");
         if (emergencyReserveComponent && isReserveSocEnabled) {
             input.push({

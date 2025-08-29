@@ -13,15 +13,11 @@ public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvs
 
 	private ChargePointAbilities chargePointAbilities;
 	private PhaseRotation phaseRotation;
+	private boolean isReadOnly;
 
 	protected AbstractDummyEvseChargePoint(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(id, firstInitialChannelIds, furtherInitialChannelIds);
-	}
-
-	@Override
-	public MeterType getMeterType() {
-		return MeterType.MANAGED_CONSUMPTION_METERED;
 	}
 
 	/**
@@ -65,5 +61,26 @@ public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvs
 	public SELF withIsReadyForCharging(Boolean isReadyForCharging) {
 		withValue(this, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, isReadyForCharging);
 		return this.self();
+	}
+
+	/**
+	 * Set isReadOnly.
+	 * 
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withIsReadOnly(boolean value) {
+		this.isReadOnly = value;
+		return this.self();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this.isReadOnly;
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return EvseChargePoint.super.getMeterType();
 	}
 }
