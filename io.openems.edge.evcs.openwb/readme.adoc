@@ -1,3 +1,3 @@
 = OpenWB Series2 EVCS component
 
-This bundle implements requesting power, voltage, current, plug state, charge state and energy from an OpenWB Series2 with one internal charge point.
+This bundle implements requesting power, voltage, current, plug state, charge state and energy from one internal charge point of an OpenWB Series2.
