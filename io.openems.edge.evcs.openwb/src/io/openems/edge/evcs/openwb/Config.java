@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 
 @ObjectClassDefinition(name = "Evcs OpenWB", //
-		description = "Implements the metering component for OpenWB Series2 with internal chargepoint via HTTP API")
+		description = "Implements the evcs component for OpenWB Series2 with internal chargepoints via HTTP API")
 @interface Config {
 	
 	   enum ChargePoint{
@@ -38,6 +38,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Chargepoint", description = "Number of the internal chargepoint.")
 	ChargePoint chargePoint() default ChargePoint.CP0;
 
-	String webconsole_configurationFactory_nameHint() default "Meter OpenWB[{id}]";
+	String webconsole_configurationFactory_nameHint() default "Evcs OpenWB[{id}]";
 
 }
