@@ -3,9 +3,22 @@ package io.openems.edge.evcs.openwb;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+
+
 @ObjectClassDefinition(name = "Evcs OpenWB", //
 		description = "Implements the metering component for OpenWB Series2 with internal chargepoint via HTTP API")
 @interface Config {
+	
+	   enum ChargePoint{
+	       CP0(0), CP1(1);
+	       private int value;
+	       private ChargePoint(int value) {
+	            this.value = value;
+	       }
+	       public int getValue(){
+	        return value;
+	       }
+	   }
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "evcsOpenWB0";
@@ -21,6 +34,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Port", description = "Port of the OpenWB")
 	int port() default 8443;
+
+	@AttributeDefinition(name = "Chargepoint", description = "Number of the internal chargepoint.")
+	ChargePoint chargePoint() default ChargePoint.CP0;
 
 	String webconsole_configurationFactory_nameHint() default "Meter OpenWB[{id}]";
 
