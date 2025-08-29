@@ -48,13 +48,13 @@ public class ReadWorker extends AbstractCycleWorker {
 	private Evcs evcs;
 	private ElectricityMeter meter;
 
-	protected ReadWorker(EvcsOpenWbImpl parent, Inet4Address ipAddress, int port)
+	protected ReadWorker(EvcsOpenWbImpl parent, Inet4Address ipAddress, int port, int chargePoint)
 			throws NoSuchAlgorithmException, KeyManagementException {
 		this.parent = parent;
 		this.meter = ((ElectricityMeter) this.parent);
 		this.evcs = ((Evcs) this.parent);
 
-		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/v1?topic=openWB/internal_chargepoint/0/get/";
+		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/v1?topic=openWB/internal_chargepoint/"+ chargePoint +"/get/";
 		this.energyStartSession = null;
 		
 		this.evcs._setStatus(Status.NOT_READY_FOR_CHARGING);

@@ -83,7 +83,7 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 
 		this.meterType = MeterType.CONSUMPTION_METERED;
 		
-		this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ipAddress()), config.port());
+		this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ipAddress()), config.port(), config.chargePoint().getValue());
 		this.worker.activate(config.id());
 	}
 
