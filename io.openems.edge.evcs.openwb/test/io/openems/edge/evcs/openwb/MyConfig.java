@@ -59,4 +59,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.port;
 	}
 
+	@Override
+	public ChargePoint chargePoint() {
+		return ChargePoint.CP0;
+	}
+
 }
