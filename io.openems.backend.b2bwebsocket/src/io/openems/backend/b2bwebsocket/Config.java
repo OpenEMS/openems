@@ -17,5 +17,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
         @AttributeDefinition(name = "Compression Level", description = "Compression level for permessage-deflate (0-9)")
         int compressionLevel() default 1;
 
-        String webconsole_configurationFactory_nameHint() default "Backend2Backend Websocket";
+	String webconsole_configurationFactory_nameHint() default "Backend2Backend Websocket";
 }

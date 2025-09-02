@@ -89,7 +89,7 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 
 		this.onRequest = this.onRequestFactory.get();
 		this.onRequest.setOnCall(call -> {
-		call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
+			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
 		});
 		this.onRequest.setDebug(config.debugMode());
 		this.startServer(config.port(), POOL_SIZE, config.compressionLevel());

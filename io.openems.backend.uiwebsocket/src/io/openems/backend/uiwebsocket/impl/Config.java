@@ -20,5 +20,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Request Limit", description = "Limit of Requests per second, before they get discarded by the Limiter")
 	int requestLimit() default 20;
 
-        String webconsole_configurationFactory_nameHint() default "Ui Websocket";
+	String webconsole_configurationFactory_nameHint() default "Ui Websocket";
 }

@@ -270,7 +270,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	@Override
 	public synchronized void stop() {
 		if (!this.isStarted) {
-		return;
+			return;
 		}
 		this.isStarted = false;
 
@@ -284,7 +284,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				return;
 			} catch (NullPointerException | InterruptedException e) {
 				this.logWarn(this.log,
-					"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+						"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e1) {
