@@ -120,7 +120,6 @@ public class TimeOfUseTariffEwsImpl extends AbstractOpenemsComponent
 	 * Sets the values of specific channels based on the provided parameters.
 	 * 
 	 * @param httpStatusCode   The HTTP status code received from the API.
-	 * @param filterIsRequired A boolean indicating whether filter is required.
 	 */
 	private void setChannelValues(int httpStatusCode) {
 		var authenticationFailed = false;
