@@ -102,6 +102,7 @@ import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.EntsoE;
+import io.openems.edge.app.timeofusetariff.Ews;
 import io.openems.edge.app.timeofusetariff.GroupeE;
 import io.openems.edge.app.timeofusetariff.RabotCharge;
 import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
@@ -287,6 +288,16 @@ public final class Apps {
 	 */
 	public static final EntsoE entsoE(AppManagerTestBundle t) {
 		return app(t, EntsoE::new, "App.TimeOfUseTariff.ENTSO-E");
+	}
+
+	/**
+	 * Test method for creating a {@link Ews}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Ews ews(AppManagerTestBundle t) {
+		return app(t, Ews::new, "App.TimeOfUseTariff.Ews");
 	}
 
 	/**
