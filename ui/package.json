@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "2025.9.0-SNAPSHOT",
+  "version": "2025.10.0-SNAPSHOT",
   "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
@@ -21,7 +21,7 @@
     "@capacitor/filesystem": "^7.1.2",
     "@capacitor/ios": "^7.4.2",
     "@capacitor/splash-screen": "^7.0.1",
-    "@date-fns/tz": "^1.2.0",
+    "@date-fns/tz": "^1.4.1",
     "@ionic/angular": "^7.8.6",
     "@ngx-formly/core": "^6.3.12",
     "@ngx-formly/ionic": "^6.3.12",

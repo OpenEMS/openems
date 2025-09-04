@@ -130,7 +130,7 @@ public class DelayCharge {
 			// Set the power limitation constraint
 			this.parent.ess.setActivePowerGreaterOrEquals(delayChargeMaxChargePower);
 		} catch (OpenemsNamedException e) {
-			state = DelayChargeState.NO_FEASABLE_SOLUTION;
+			state = DelayChargeState.NO_FEASIBLE_SOLUTION;
 		}
 
 		// Avoid charging with low power

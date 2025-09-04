@@ -140,10 +140,6 @@ export class UserComponent implements OnInit {
     this.enableAndDisableFormFields();
   }
 
-  public getEditButtonText(): string {
-    return this.isEditModeDisabled ? "General.EDIT" : "General.RESET";
-  }
-
   public enableAndDisableFormFields(): boolean {
     this.userInformationFields = this.userInformationFields.map(field => {
       field.props.disabled = !field.props.disabled;
