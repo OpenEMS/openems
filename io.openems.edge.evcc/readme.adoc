@@ -1,0 +1,5 @@
+= Implements the usage of the evcc API to utilize existing solar forecast and grid tariff data
+
+There are multiple classes available to provide already available information:
+* grid tariff 
+* solar forecast
