@@ -132,18 +132,18 @@ public class ResolveOpenemsHardware implements Runnable {
 			// validate
 			if (hardwareApps.size() > 1) {
 				// more than 1 installed => impossible
-				this.appManagerImpl._setHardwareMissmatch(true);
+				this.appManagerImpl._setHardwareMismatch(true);
 				return;
 			}
 
 			final var installedHardwareApp = hardwareApps.get(0);
 			if (installedHardwareApp.appId.equals(this.requireApp)) {
 				// installed hardware app matches the on in the properties file
-				this.appManagerImpl._setHardwareMissmatch(false);
+				this.appManagerImpl._setHardwareMismatch(false);
 				return;
 			}
 
-			this.appManagerImpl._setHardwareMissmatch(true);
+			this.appManagerImpl._setHardwareMismatch(true);
 			return;
 		}
 
@@ -155,10 +155,10 @@ public class ResolveOpenemsHardware implements Runnable {
 					true);
 
 			this.log.trace("Installed '" + this.requireApp + "' successfully");
-			this.appManagerImpl._setHardwareMissmatch(false);
+			this.appManagerImpl._setHardwareMismatch(false);
 		} catch (Exception e) {
 			this.log.error("Installation of '" + this.requireApp + "' failed", e);
-			this.appManagerImpl._setHardwareMissmatch(true);
+			this.appManagerImpl._setHardwareMismatch(true);
 		}
 
 	}
