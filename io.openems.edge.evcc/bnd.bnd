@@ -18,4 +18,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.weather.api,\
 	io.openems.edge.weather.api
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.common

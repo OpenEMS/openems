@@ -45,8 +45,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		property = { "type=CONSUMPTION_METERED" } //
 )
 @EventTopics(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
-public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenemsComponent implements
-		LoadpointConsumptionSinglePhaseMeterEvcc, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenemsComponent
+		implements LoadpointConsumptionSinglePhaseMeterEvcc, SinglePhaseMeter, ElectricityMeter, OpenemsComponent,
+		TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -106,9 +107,10 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 		if (!this.isEnabled()) {
 			return;
 		}
-
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateEnergy();
+			break;
 		}
 	}
 
@@ -124,7 +126,6 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 
 			int chargePower = 0;
 
-			// Gesamtleistung
 			if (lp.has("chargePower")) {
 				chargePower = (int) Math.round(getAsDouble(lp, "chargePower"));
 				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.CONSUMPTION_POWER)
@@ -134,7 +135,6 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 				this._setActivePower(null);
 			}
 
-			// Aktive Phasen
 			int phases = lp.has("phasesActive") ? lp.get("phasesActive").getAsInt() : 0;
 			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_PHASES).setNextValue(phases);
 			double calculatedPower = chargePower;
@@ -142,17 +142,14 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 				calculatedPower = chargePower / phases;
 			}
 
-			// konsumierte Energie (Gesamt)
 			int totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsInt() : 0;
 			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.CONSUMPTION_ENERGY)
 					.setNextValue(totalImport);
 
-			// konsumierte Energie (Sitzung)
 			int sessionEnergy = lp.has("sessionEnergy") ? lp.get("sessionEnergy").getAsInt() : 0;
 			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_SESSION_ENERGY)
 					.setNextValue(sessionEnergy);
 
-			// Spannungen pro Phase setzen
 			if (lp.has("chargeVoltages") && lp.get("chargeVoltages").isJsonArray()) {
 				var voltages = lp.getAsJsonArray("chargeVoltages");
 
@@ -185,12 +182,10 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 			} else {
 				this.logDebug(this.log, "chargeVoltages not provided or null – defaulting voltages");
 
-				// Spannung in mV setzen
 				var voltage = 230;
 				this._setVoltage(voltage * 1000);
 			}
 
-			// Stromstärken pro Phase setzen (übernommen oder berechnet)
 			if (lp.has("chargeCurrents") && lp.get("chargeCurrents").isJsonArray()) {
 				var currents = lp.getAsJsonArray("chargeCurrents");
 
@@ -212,7 +207,6 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 			} else {
 				this.logDebug(this.log, "chargeCurrents not provided or null – estimating phase current mapping.");
 
-				// Stromstärke in mA setzen
 				if (phases > 0) {
 					this._setCurrent((int) (calculatedPower * 1000000 / this.getVoltage().get()));
 				} else {
@@ -227,13 +221,12 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 	}
 
 	private void calculateEnergy() {
-		// Calculate Energy
 		final var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			this.calculateProductionEnergy.update(null);
 			this.calculateConsumptionEnergy.update(null);
 		} else if (activePower <= 0) {
-			this.calculateProductionEnergy.update(activePower);
+			this.calculateProductionEnergy.update(activePower * -1);
 			this.calculateConsumptionEnergy.update(0);
 		} else {
 			this.calculateProductionEnergy.update(0);

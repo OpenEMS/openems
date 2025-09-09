@@ -43,11 +43,11 @@
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.commercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
-	bnd.identity;id='io.openems.edge.battery.pylontech',\
-	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
+	bnd.identity;id='io.openems.edge.battery.pylontech',\
+	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
 	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
@@ -98,8 +98,8 @@
 	bnd.identity;id='io.openems.edge.controller.io.analog',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
-	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
+	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
 	bnd.identity;id='io.openems.edge.controller.levl',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
@@ -203,6 +203,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
+	bnd.identity;id='io.openems.edge.weather.openmeteo',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo'
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
@@ -305,6 +306,7 @@
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.samsung;version=snapshot,\
+	io.openems.edge.evcc;version=snapshot,\
 	io.openems.edge.evcs.alpitronic.hypercharger;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
@@ -458,5 +460,4 @@
 	org.owasp.encoder;version='[1.3.1,1.3.2)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
-	stax2-api;version='[4.2.2,4.2.3)',\
-	io.openems.edge.evcc;version=snapshot
+	stax2-api;version='[4.2.2,4.2.3)'
