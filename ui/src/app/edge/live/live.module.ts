@@ -22,7 +22,8 @@ import { Controller_Ess_TimeOfUseTariff } from "./Controller/Ess/TimeOfUseTariff
 import { AdministrationComponent } from "./Controller/Evcs/administration/administration.component";
 import { Controller_Evcs } from "./Controller/Evcs/Evcs";
 import { ControllerEvseSingle } from "./Controller/Evse/EvseSingle.module";
-import { Controller_Io_ChannelSingleThresholdComponent } from "./Controller/Io/ChannelSingleThreshold/Io_ChannelSingleThreshold";
+import { ControllerHeat } from "./Controller/Heat/HeatMyPv";
+import { Controller_Io_ChannelSingleThresholdComponent } from "./Controller/Io/ChannelSingleThreshold/flat/flat";
 import { Controller_Io_ChannelSingleThresholdModalComponent } from "./Controller/Io/ChannelSingleThreshold/modal/modal.component";
 import { ControllerIoFixDigitalOutput } from "./Controller/Io/FixDigitalOutput/fix-digital-output.module";
 import { Controller_Io_HeatingElement } from "./Controller/Io/HeatingElement/Io_HeatingElement";
@@ -62,6 +63,7 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Controller_Ess_TimeOfUseTariff,
     Controller_Evcs,
     ControllerEvseSingle,
+    ControllerHeat,
     Controller_Io_HeatingElement,
     Controller_Io_HeatingRoom,
     ControllerIoFixDigitalOutput,

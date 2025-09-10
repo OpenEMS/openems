@@ -27,8 +27,8 @@ import io.openems.edge.core.appmanager.formly.enums.Wrappers;
  * 		"required": true,
  * 		"min": 0,
  * 		"max": 100,
- * 		"minLenght": 6,
- * 		"maxLenght": 18,
+ * 		"minLength": 6,
+ * 		"maxLength": 18,
  * 		"pattern": /(\d{1,3}\.){3}\d{1,3}/
  * 	},
  * 	"validation": {
@@ -113,7 +113,7 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 	 * @return this
 	 * @throws IllegalArgumentException if the type is not set to password or text
 	 */
-	public InputBuilder setMinLenght(int minLength) {
+	public InputBuilder setMinLength(int minLength) {
 		if (this.type == InputType.NUMBER) {
 			throw new IllegalArgumentException("Value minLength can only be set on Password or Text inputs!");
 		}
@@ -128,7 +128,7 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 	 * @return this
 	 * @throws IllegalArgumentException if the type is not set to password or text
 	 */
-	public InputBuilder setMaxLenght(int maxLength) {
+	public InputBuilder setMaxLength(int maxLength) {
 		if (this.type == InputType.NUMBER) {
 			throw new IllegalArgumentException("Value maxLength can only be set on Password or Text inputs!");
 		}
@@ -228,6 +228,14 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		return this;
 	}
 
+	public InputBuilder setStep(double step) {
+		if (this.type != InputType.NUMBER) {
+			throw new IllegalArgumentException("Step can only be set on Number inputs");
+		}
+		this.templateOptions.addProperty("step", step);
+		return this;
+	}
+
 	@Override
 	protected String getType() {
 		return "input";
@@ -240,5 +248,4 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 		}
 		return super.build();
 	}
-
 }

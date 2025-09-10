@@ -26,12 +26,11 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatio
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
 
@@ -59,7 +58,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome20.PropertyParent;
 import io.openems.edge.common.component.ComponentManager;
@@ -96,7 +95,7 @@ import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
     "image": base64,
     "properties":{
       "SAFETY_COUNTRY": {@link SafetyCountry},
-      "FEED_IN_TYPE": {@link FeedInType},
+      "FEED_IN_TYPE": {@link ExternalLimitationType},
       "MAX_FEED_IN_POWER":5000,
       "FEED_IN_SETTING":"PU_ENABLE_CURVE",
       "GRID_METER_CATEGORY":"SMART_METER",
@@ -146,8 +145,9 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
 				.setRequired(true))), //
 
-		FEED_IN_TYPE(feedInType()), //
-		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
+		FEED_IN_TYPE(externalLimitationType()), //
+		@Deprecated
+		MAX_FEED_IN_POWER(defaultDef()), //
 		FEED_IN_SETTING(feedInSetting()), //
 
 		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
@@ -285,11 +285,8 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
 
-			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
+			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
-			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
-					? this.getInt(p, Property.MAX_FEED_IN_POWER)
-					: 0;
 
 			final var gridMeterCategory = this.getEnum(p, GoodWeGridMeterCategory.class, Property.GRID_METER_CATEGORY);
 			final Integer ctRatioFirst;
@@ -315,8 +312,8 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 
 			final var components = Lists.<EdgeConfig.Component>newArrayList(//
 					battery(bundle, batteryId, modbusIdInternal), //
-					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtection), //
+					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
+							shadowManagementDisabled, safetyCountry, feedInSetting, naProtection), //
 					ess(bundle, essId, batteryId, batteryInverterId), //
 					io(bundle, modbusIdInternal), //
 					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
@@ -355,7 +352,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			}
 
 			final var dependencies = Lists.newArrayList(//
-					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
+					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
 					prepareBatteryExtension() //
 			);

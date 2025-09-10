@@ -22,6 +22,8 @@ public class GetAppAssistantTest {
 					Apps::tibber, //
 					Apps::modbusTcpApiReadOnly, //
 					Apps::modbusTcpApiReadWrite, //
+					Apps::modbusRtuApiReadOnly, //
+					Apps::modbusRtuApiReadWrite, //
 					Apps::restJsonApiReadOnly, //
 					Apps::hardyBarthEvcs, //
 					Apps::kebaEvcs, //

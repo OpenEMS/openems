@@ -4,8 +4,8 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared/service/utils";
 import { ChannelAddress } from "../../../../../shared/shared";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared/utils/utils";
 
 @Component({
   selector: "productionTotalChart",

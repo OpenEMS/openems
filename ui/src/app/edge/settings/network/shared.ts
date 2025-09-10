@@ -10,10 +10,16 @@ export type NetworkInterface = {
   addresses?: IpAddress[]
 };
 
+export type NetworkInfoInterface = {
+  hardwareInterface: string,
+  ips: { family: string, address: string, subnetmask: number, dynamic?: boolean }[]
+};
+
 export type IpAddress = {
   label: string,
   address: string,
-  subnetmask: string
+  subnetmask: string,
+  dynamic?: boolean
 };
 
 export type InterfaceForm = {
@@ -33,6 +39,10 @@ export type NetworkConfig = {
   interfaces: {
     [name: string]: NetworkInterface;
   }
+};
+export type NetworkInfo = {
+  networkInterfaces: NetworkInfoInterface[],
+  routes: []
 };
 
 export namespace NetworkUtils {

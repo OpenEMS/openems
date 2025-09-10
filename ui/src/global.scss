@@ -257,9 +257,7 @@ html.md {
     --ion-default-font: $font-family;
 }
 
-//252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content {
-    width: 251px;
     position: center;
     overflow-y: hidden;
     overflow-x: hidden;
@@ -279,6 +277,16 @@ html.md {
 
 .white-space-initial {
     white-space: initial !important;
+}
+
+formly-range-type {
+    display: block;
+    width: 100%;
+}
+
+ion-range {
+    --bar-background: var(--ion-color-background-pull-to-refresh);
+    --bar-background-active: var(--ion-color-primary);
 }
 
 ion-label {
@@ -304,6 +312,10 @@ mat-card.single_top {
 
 table.full_width {
     width: 100%;
+}
+
+.full_height {
+    height: 100%;
 }
 
 .bold {

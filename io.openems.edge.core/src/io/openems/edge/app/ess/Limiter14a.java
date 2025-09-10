@@ -130,7 +130,7 @@ public class Limiter14a extends AbstractOpenemsAppWithProps<Limiter14a, Property
 
 			final var id = this.getId(t, p, Property.CTRL_ESS_LIMITER_14A_ID);
 
-			final var alias = this.getString(p, Property.ALIAS);
+			final var alias = this.getString(p, l, Property.ALIAS);
 			final var essId = this.getString(p, Property.ESS_ID);
 			final var inputAddress = this.getString(p, Property.INPUT_CHANNEL_ADDRESS);
 

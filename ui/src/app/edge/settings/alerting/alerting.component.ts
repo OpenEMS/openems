@@ -16,6 +16,7 @@ import { AlertingSettingResponse, GetUserAlertingConfigsResponse } from "src/app
 import { User } from "src/app/shared/jsonrpc/shared";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
+import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
@@ -246,10 +247,10 @@ export class AlertingComponent implements OnInit, OnDestroy {
 
   private setupCurrentUser(response: AlertingSettingResponse) {
     this.currentUserInformation = this.asDetailedSettings(response);
-    this.currentUserForm = this.generateForm(this.currentUserInformation);
+    this.currentUserForm = this.generateForm(this.currentUserInformation, this.edge.role);
   }
 
-  private generateForm(settings: DetailedAlertingSetting): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
+  private generateForm(settings: DetailedAlertingSetting, edgeRole: Role): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any, } {
     const delays: Delay[] = this.defaultValues[AlertingType.OFFLINE];
 
     if (!this.isValidDelay(AlertingType.OFFLINE, settings.offlineEdgeDelay)) {
@@ -271,7 +272,7 @@ export class AlertingComponent implements OnInit, OnDestroy {
         key: "currentUser",
         type: "input",
         templateOptions: {
-          options: currentUserRows(this.defaultValues, this.translate),
+          options: currentUserRows(this.defaultValues, this.translate, edgeRole),
         },
         wrappers: ["formly-current-user-alerting"],
       },

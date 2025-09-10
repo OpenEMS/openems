@@ -5,9 +5,9 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from "src/app/edge/history/shared";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "predictionChart",

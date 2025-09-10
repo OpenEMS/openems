@@ -1,10 +1,12 @@
 package io.openems.backend.common.metadata;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -17,6 +19,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.event.BackendEventConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -79,6 +82,15 @@ public interface Metadata {
 	 * @return an {@link EdgeHandler}
 	 */
 	public EdgeHandler edge();
+
+	/**
+	 * Generates a {@link UpdateMetadataCache.Notification}.
+	 * 
+	 * @return the notification
+	 */
+	public default UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		return UpdateMetadataCache.Notification.empty();
+	}
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
@@ -284,6 +296,16 @@ public interface Metadata {
 	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException;
 
 	/**
+	 * Creates a protocol for changes in serial numbers.
+	 * 
+	 * @param edgeId        the id of the edge
+	 * @param serialNumbers the values which changed
+	 * @param items         additional items to add to the protocol
+	 */
+	public void createSerialNumberExtensionProtocol(String edgeId, Map<String, Map<String, String>> serialNumbers,
+			List<SetupProtocolItem> items);
+
+	/**
 	 * Register a user.
 	 *
 	 * @param user {@link JsonObject} that represents an user
@@ -451,4 +473,72 @@ public interface Metadata {
 	 */
 	public void logGenericSystemLog(GenericSystemLog systemLog);
 
+	/**
+	 * Gets the latest {@link SetupProtocolCoreInfo}.
+	 * 
+	 * @param edgeId the edgeId
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException;
+
+	/**
+	 * Gets the latest {@link SetupProtocolCoreInfo}.
+	 * 
+	 * @param edgeId the edgeId
+	 * @return the latest {@link SetupProtocolCoreInfo}
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException;
+
+	public record SetupProtocolCoreInfo(int setupProtocolId, ProtocolType type, ZonedDateTime createDate) {
+	}
+
+	public record SetupProtocolItem(String category, String name, String value, String view, String field) {
+
+		public SetupProtocolItem {
+			Objects.requireNonNull(category);
+			Objects.requireNonNull(name);
+			Objects.requireNonNull(value);
+		}
+
+		public SetupProtocolItem(String category, String name, String value) {
+			this(category, name, value, null, null);
+		}
+
+	}
+
+	public enum ProtocolType {
+		SETUP_PROTOCOL("setup-protocol"), //
+		EMS_EXCHANGE("ems-exchange"), //
+		CAPACITY_EXTENSION("capacity-extension"), //
+		;
+
+		public final String text;
+
+		/**
+		 * (non-Javadoc).
+		 * 
+		 * @param text the string
+		 */
+		ProtocolType(final String text) {
+			this.text = text;
+		}
+
+		/**
+		 * Gets the ProtocolType from a given string.
+		 * 
+		 * @param input        the input string
+		 * @param defaultValue the default value
+		 * @return the protocol type if found, else the default value
+		 */
+		public static ProtocolType fromStringOrDefault(String input, ProtocolType defaultValue) {
+			for (var type : ProtocolType.values()) {
+				if (type.text.equals(input)) {
+					return type;
+				}
+			}
+			return defaultValue;
+		}
+	}
 }

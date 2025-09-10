@@ -1,12 +1,14 @@
-<ion-content style="font-size: 1em;">
-
-    <oe-navigation-breadcrumbs *ngIf="navigationService.position === 'left'"
+<ion-header (ngDomChange)="onDomChange()">
+    <oe-navigation-breadcrumbs *ngIf="navigationService.position() === 'left'"
         (navigate)="navigationService.navigateTo($event)"></oe-navigation-breadcrumbs>
+    <ng-content select="[header]"></ng-content>
+</ion-header>
+<ion-content style="font-size: 1em;" *ngIf="contentHeight !== null">
 
     <!-- If FromGroup is used -->
-    <form [formGroup]="formGroup" *ngIf="formGroup"
-        style="position: absolute; overflow-y: auto; height: 100%; overflow-x:hidden; width: 100%;"
-        [style.height]="contentHeight + '%'" class="ion-padding">
+    <form [formGroup]="formGroup" *ngIf="formGroup && contentHeight !== null"
+        style="position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
+        [style.height]="contentHeight + 'px'" class="ion-padding">
 
         <!-- For gap between header and content  -->
         <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
@@ -14,7 +16,8 @@
         </ng-container>
 
         <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
-        <ion-fab *ngIf="formGroup?.dirty" vertical="bottom" horizontal="end" style="display: flex">
+        <ion-fab *ngIf="formGroup?.dirty" vertical="bottom" class="ion-padding-bottom"
+            [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'" style="display: flex">
             <ion-fab-button (click)="applyChanges()">
                 <ion-icon size="large" name="checkmark-circle-outline">
                 </ion-icon>
@@ -25,7 +28,7 @@
     <!-- If FormGroup not used -->
     <ng-container *ngIf="!formGroup">
         <div style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
-            [style.height]="contentHeight + '%'">
+            [style.height]="contentHeight + 'px'">
             <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
         </div>
     </ng-container>

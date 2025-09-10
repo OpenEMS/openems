@@ -239,6 +239,22 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 		return this.self();
 	}
 
+	private final T readonlyIf(String expression) {
+		this.getExpressionProperties().addProperty("props.readonly", expression);
+		return this.self();
+	}
+
+	/**
+	 * Makes the current input readonly if the given {@link ExpressionBuilder}
+	 * returns true.
+	 * 
+	 * @param expression the {@link BooleanExpression} to set
+	 * @return this
+	 */
+	public final T readonlyIf(BooleanExpression expression) {
+		return this.readonlyIf(expression.expression());
+	}
+
 	public final T setLabelExpression(StringExpression expression) {
 		this.getExpressionProperties().addProperty("templateOptions.label", expression.expression());
 		return this.self();

@@ -1,5 +1,8 @@
 package io.openems.edge.ess.core.power.data;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
@@ -11,9 +14,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.Data;
 import io.openems.edge.ess.core.power.solver.LinearConstraintsSolver;
 import io.openems.edge.ess.power.api.Inverter;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class TargetDirectionTest {
@@ -37,21 +37,21 @@ public class TargetDirectionTest {
 	@Test
 	public void testGetTargetDirection() throws Exception {
 		// #1
-		data.addSimpleConstraint("", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0);
+		data.addSimpleConstraint("", ess0.id(), ALL, ACTIVE, EQUALS, 0);
 		assertEquals(TargetDirection.KEEP_ZERO, //
 				TargetDirection.from(data.getInverters(), data.getCoefficients(),
 						data.getConstraintsForAllInverters()));
 		data.initializeCycle();
 
 		// #2
-		data.addSimpleConstraint("", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -1);
+		data.addSimpleConstraint("", ess0.id(), ALL, ACTIVE, EQUALS, -1);
 		assertEquals(TargetDirection.CHARGE, //
 				TargetDirection.from(data.getInverters(), data.getCoefficients(),
 						data.getConstraintsForAllInverters()));
 		data.initializeCycle();
 
 		// #3
-		data.addSimpleConstraint("", ess0.id(), Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 1);
+		data.addSimpleConstraint("", ess0.id(), ALL, ACTIVE, EQUALS, 1);
 		assertEquals(TargetDirection.DISCHARGE, //
 				TargetDirection.from(data.getInverters(), data.getCoefficients(),
 						data.getConstraintsForAllInverters()));

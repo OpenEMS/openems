@@ -112,6 +112,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
 					.thenByFactoryId("Controller.Evcs") //
 					.thenByFactoryId("Controller.Ess.Time-Of-Use-Tariff") //
+					.thenByFactoryId("Controller.TimeslotPeakshaving") //
 					.thenByFactoryId("Controller.Symmetric.Balancing") //
 			;
 		}

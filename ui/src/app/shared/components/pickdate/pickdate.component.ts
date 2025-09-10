@@ -4,8 +4,8 @@ import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addDays, addMonths, addWeeks, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfWeek, endOfYear, isAfter, isBefore, isFuture, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from "date-fns";
 
-import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
+import { DefaultTypes } from "../../type/defaulttypes";
 import { DateUtils } from "../../utils/date/dateutils";
 import { PickDatePopoverComponent } from "./popover/popover.component";
 

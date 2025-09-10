@@ -1,10 +1,8 @@
 package io.openems.edge.evse.api.chargepoint.dummy;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Profile.Command;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
@@ -27,7 +25,7 @@ public class DummyEvseChargePoint extends AbstractDummyEvseChargePoint<DummyEvse
 	}
 
 	@Override
-	public void apply(int current, ImmutableList<Command> profileCommands) {
+	public void apply(ChargePointActions actions) {
 		// TODO Auto-generated method stub
 	}
 }
