@@ -31,6 +31,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SinglePhase;
+import io.openems.edge.evcc.loadpoint.LoadpointConsumptionMeterEvcc;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -132,6 +133,7 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 						.setNextValue(chargePower);
 				this._setActivePower(chargePower);
 			} else {
+				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_POWER).setNextValue(null);
 				this._setActivePower(null);
 			}
 
@@ -233,6 +235,21 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 			this.calculateConsumptionEnergy.update(activePower);
 		}
 	}
+
+//  GoodWe consumption meter implementation - to be compared
+//	private void calculateEnergy() {
+//		var activePower = this.getActivePower().get();
+//		if (activePower == null) {
+//			this.calculateProductionEnergy.update(null);
+//			this.calculateConsumptionEnergy.update(null);
+//		} else if (activePower > 0) {
+//			this.calculateProductionEnergy.update(activePower);
+//			this.calculateConsumptionEnergy.update(0);
+//		} else {
+//			this.calculateProductionEnergy.update(0);
+//			this.calculateConsumptionEnergy.update(activePower * -1);
+//		}
+//	}
 
 	@Override
 	public Timedata getTimedata() {

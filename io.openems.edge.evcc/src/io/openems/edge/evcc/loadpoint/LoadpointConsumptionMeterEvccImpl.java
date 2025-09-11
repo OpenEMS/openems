@@ -59,7 +59,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-	
+
 	private MeterType meterType;
 
 	public LoadpointConsumptionMeterEvccImpl() {
@@ -69,6 +69,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				LoadpointConsumptionMeterEvcc.ChannelId.values() //
 		);
 
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
@@ -124,6 +125,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_POWER).setNextValue(chargePower);
 				this._setActivePower(chargePower);
 			} else {
+				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_POWER).setNextValue(null);
 				this._setActivePower(null);
 			}
 
@@ -196,26 +198,31 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			} else {
 				this.logDebug(this.log, "chargeCurrents not provided or null – estimating phase current mapping.");
 
-				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(null);
-				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(null);
-				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(null);
-
 				if (phases > 0) {
-					this._setCurrentL1((int) (calculatedPower * 1000000 / this.getVoltageL1().get()));
+					int currentL1 = (int) (calculatedPower * 1000000 / this.getVoltageL1().get());
+					this._setCurrentL1(currentL1);
+					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(currentL1);
 				} else {
 					this._setCurrentL1(null);
+					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(null);
 				}
 
 				if (phases > 1) {
-					this._setCurrentL2((int) (calculatedPower * 1000000 / this.getVoltageL2().get()));
+					int currentL2 = (int) (calculatedPower * 1000000 / this.getVoltageL2().get());
+					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(currentL2);
+					this._setCurrentL2(currentL2);
 				} else {
 					this._setCurrentL2(null);
+					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(null);
 				}
 
 				if (phases > 2) {
-					this._setCurrentL3((int) (calculatedPower * 1000000 / this.getVoltageL3().get()));
+					int currentL3 = (int) (calculatedPower * 1000000 / this.getVoltageL3().get());
+					this._setCurrentL3(currentL3);
+					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(currentL3);
 				} else {
 					this._setCurrentL3(null);
+					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(null);
 				}
 			}
 
@@ -255,6 +262,22 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			this.calculateConsumptionEnergy.update(activePower);
 		}
 	}
+
+//  GoodWe consumption meter implementation - to be compared
+//	private void calculateEnergy() { 
+//		var activePower =
+//		this.getActivePower().get();
+//		if (activePower == null) {
+//			this.calculateProductionEnergy.update(null);
+//			this.calculateConsumptionEnergy.update(null);
+//		} else if (activePower > 0) {
+//			this.calculateProductionEnergy.update(activePower);
+//			this.calculateConsumptionEnergy.update(0);
+//		} else {
+//			this.calculateProductionEnergy.update(0);
+//			this.calculateConsumptionEnergy.update(activePower * -1);
+//		}
+//	}
 
 	@Override
 	public Timedata getTimedata() {
