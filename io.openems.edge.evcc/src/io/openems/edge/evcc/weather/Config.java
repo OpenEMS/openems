@@ -7,7 +7,7 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 @ObjectClassDefinition(
     name = "Weather evcc",
-    description = "Fetches weather-related values from evcc API."
+    description = "Fetches solar forecasts from evcc API."
 )
 @interface Config {
 
