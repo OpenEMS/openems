@@ -60,8 +60,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public ChargePoint chargePoint() {
-		return ChargePoint.CP0;
+	public OpenWBEnums.ChargePoint chargePoint() {
+		return OpenWBEnums.ChargePoint.CP0;
 	}
 
 }
