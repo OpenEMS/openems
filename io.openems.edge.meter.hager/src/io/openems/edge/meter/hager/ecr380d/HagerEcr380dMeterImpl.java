@@ -65,6 +65,7 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 	protected HagerEcr380dMeterImpl() {
 		super(OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				HagerEcr380dMeter.ChannelId.values()//
 		);
 	}
@@ -79,7 +80,7 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 
 	@Override
 	public String debugLog() {
-		Value<Integer> p = this.getActivePower();
+		final Value<Integer> p = this.getActivePower();
 		return "P=" + (p.isDefined() ? p.get() + " W" : "-");
 	}
 
