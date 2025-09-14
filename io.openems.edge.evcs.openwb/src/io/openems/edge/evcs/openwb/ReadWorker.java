@@ -54,7 +54,7 @@ public class ReadWorker extends AbstractCycleWorker {
 		this.meter = ((ElectricityMeter) this.parent);
 		this.evcs = ((Evcs) this.parent);
 
-		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/v1?topic=openWB/internal_chargepoint/"+ chargePoint +"/get/";
+		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/v1?topic=openWB/internal_chargepoint/" + chargePoint + "/get/";
 		this.energyStartSession = null;
 		
 		this.evcs._setStatus(Status.NOT_READY_FOR_CHARGING);
@@ -93,8 +93,8 @@ public class ReadWorker extends AbstractCycleWorker {
 		Integer currentL1 = null;
 		Integer currentL2 = null;
 		Integer currentL3 = null;
-		Boolean charge_state = null;
-		Boolean plug_state = null;
+		Boolean chargeState = null;
+		Boolean plugState = null;
 		Integer energyTotal = null;
 
 		final var communicationError = new AtomicBoolean(false);
@@ -151,8 +151,8 @@ public class ReadWorker extends AbstractCycleWorker {
 				 *
 				 */
 				energyTotal = Math.round(JsonUtils.getAsFloat(this.getResponse(URL_IMPORTED), "message"));
-				if(energyStartSession != null) {
-					this.evcs._setEnergySession((int) Math.max(0, energyTotal - energyStartSession));					
+				if(this.energyStartSession != null) { 
+					this.evcs._setEnergySession((int) Math.max(0, energyTotal - this.energyStartSession));					
 				}
 				
 				/*
@@ -161,18 +161,18 @@ public class ReadWorker extends AbstractCycleWorker {
 				 *
 				 */
 
-				plug_state = JsonUtils.getAsBoolean(this.getResponse(URL_GET_PLUG_STATE), "message");
+				plugState = JsonUtils.getAsBoolean(this.getResponse(URL_GET_PLUG_STATE), "message");
 				
-				charge_state = JsonUtils.getAsBoolean(this.getResponse(URL_GET_CHARGE_STATE), "message");
+				chargeState = JsonUtils.getAsBoolean(this.getResponse(URL_GET_CHARGE_STATE), "message");
 
-				if (charge_state) {
+				if (chargeState) {
 					this.evcs._setStatus(Status.CHARGING);
-					if (this.evcs.getStatus() == Status.NOT_READY_FOR_CHARGING) {//Session starts if plugged in
-						energyStartSession = energyTotal;
+					if (this.evcs.getStatus() == Status.NOT_READY_FOR_CHARGING) { //Session starts if plugged in
+						this.energyStartSession = energyTotal;
 					}
-				} else if (plug_state) {
-					if (this.evcs.getStatus() == Status.NOT_READY_FOR_CHARGING) {//Session starts if plugged in
-						energyStartSession = energyTotal;
+				} else if (plugState) {
+					if (this.evcs.getStatus() == Status.NOT_READY_FOR_CHARGING) { //Session starts if plugged in
+						this.energyStartSession = energyTotal;
 					}
 
 					this.evcs._setStatus(Status.READY_FOR_CHARGING);
