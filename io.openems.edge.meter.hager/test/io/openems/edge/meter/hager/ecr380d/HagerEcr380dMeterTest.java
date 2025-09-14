@@ -11,7 +11,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
 /**
- * Minimaler Smoke-Test mit DummyModbusBridge.
+ * minimal smoke test with {@link DummyModbusBridge}.
  */
 public class HagerEcr380dMeterTest {
 
@@ -28,17 +28,6 @@ public class HagerEcr380dMeterTest {
 					.setModbusId(MID)
 					.setType(MeterType.GRID)
 					.build()
-//					new Config() {
-//				@Override public Class<? extends java.lang.annotation.Annotation> annotationType(){ return HagerMeterImpl.Config.class; }
-//				@Override public String id() { return CID; }
-//				@Override public String alias() { return ""; }
-//				@Override public boolean enabled() { return true; }
-//				@Override public MeterType type() { return MeterType.GRID; }
-//				@Override public String modbus_id() { return MID; }
-//				@Override public int modbusUnitId() { return 1; }
-//				@Override public String Modbus_target() { return "(enabled=true)"; }
-//				@Override public String webconsole_configurationFactory_nameHint() { return "Meter Hager [{id}]"; }
-//			})
 			)
 			.next(new TestCase())
 			.deactivate();
