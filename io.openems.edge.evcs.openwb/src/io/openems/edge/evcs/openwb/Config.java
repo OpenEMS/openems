@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int port() default 8443;
 
 	@AttributeDefinition(name = "Chargepoint", description = "Number of the internal chargepoint.")
-	OpenWBEnums.ChargePoint chargePoint() default OpenWBEnums.ChargePoint.CP0;
+	OpenWbEnums.ChargePoint chargePoint() default OpenWbEnums.ChargePoint.CP0;
 
 	String webconsole_configurationFactory_nameHint() default "Evcs OpenWB[{id}]";
 
