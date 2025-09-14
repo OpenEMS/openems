@@ -162,9 +162,9 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		return new FC3ReadRegistersTask(//
 				INSTANTANEOUS_MEASURES_START_ADDRESS, //
 				Priority.HIGH,
-				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
-				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0001), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
-				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0002), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
+				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
+				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x0001), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
+				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x0002), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
 				this.m(HagerEcr380dMeter.ChannelId.V_L1_L2), //
 				this.m(HagerEcr380dMeter.ChannelId.V_L2_L3), //
 				this.m(HagerEcr380dMeter.ChannelId.V_L3_L1), //
@@ -237,8 +237,8 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 	 * @return the element parameter
 	 */
 	private ModbusRegisterElement<?,?> m(HagerEcr380dMeter.ChannelId channelId) {
-		return channelId.converter() != null ? 
-				this.m(channelId, channelId.address(), channelId.converter()) //
+		return channelId.converter() != null //
+				? this.m(channelId, channelId.address(), channelId.converter()) //
 				: this.m(channelId, channelId.address());
 	}
 }
