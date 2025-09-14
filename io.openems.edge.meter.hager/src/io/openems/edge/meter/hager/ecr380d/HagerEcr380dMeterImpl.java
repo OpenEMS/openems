@@ -128,13 +128,13 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 	protected ModbusProtocol defineModbusProtocol() {
 		final ModbusProtocol modbusProtocol = new ModbusProtocol(this);
 		
-		modbusProtocol.addTask(getInstantaneousMeasuresTask());
+		modbusProtocol.addTask(this.getInstantaneousMeasuresTask());
 				
-		modbusProtocol.addTask(getEnergyTask());
+		modbusProtocol.addTask(this.getEnergyTask());
 		
-		modbusProtocol.addTask(getEnergyByPahseTask());
+		modbusProtocol.addTask(this.getEnergyByPahseTask());
 		
-		modbusProtocol.addTask(getDeviceTask());
+		modbusProtocol.addTask(this.getDeviceTask());
 
 		return modbusProtocol;
 	}
@@ -143,18 +143,18 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		return new FC3ReadRegistersTask(//
 				DEVICE_START_ADDRESS, //
 				Priority.LOW,
-				m(HagerEcr380dMeter.ChannelId.VENDOR_NAME), //
-				m(HagerEcr380dMeter.ChannelId.PRODUCT_CODE), //
-				m(HagerEcr380dMeter.ChannelId.SW_VERSION), //
-				m(HagerEcr380dMeter.ChannelId.VENDOR_URL), //
-				m(HagerEcr380dMeter.ChannelId.PRODUCT_NAME), //
-				m(HagerEcr380dMeter.ChannelId.MODEL_NAME), //
-				m(HagerEcr380dMeter.ChannelId.APPLICATION_NAME), //
-				m(HagerEcr380dMeter.ChannelId.HW_VERSION), //
-				m(HagerEcr380dMeter.ChannelId.PRODUCTION_CODE_SERIAL_NUMBER), //
-				m(HagerEcr380dMeter.ChannelId.PRODUCTION_SITE_CODE), //
-				m(HagerEcr380dMeter.ChannelId.PRODUCTION_DAY_OF_YEAR), //
-				m(HagerEcr380dMeter.ChannelId.PRODUCTION_YEAR) //
+				this.m(HagerEcr380dMeter.ChannelId.VENDOR_NAME), //
+				this.m(HagerEcr380dMeter.ChannelId.PRODUCT_CODE), //
+				this.m(HagerEcr380dMeter.ChannelId.SW_VERSION), //
+				this.m(HagerEcr380dMeter.ChannelId.VENDOR_URL), //
+				this.m(HagerEcr380dMeter.ChannelId.PRODUCT_NAME), //
+				this.m(HagerEcr380dMeter.ChannelId.MODEL_NAME), //
+				this.m(HagerEcr380dMeter.ChannelId.APPLICATION_NAME), //
+				this.m(HagerEcr380dMeter.ChannelId.HW_VERSION), //
+				this.m(HagerEcr380dMeter.ChannelId.PRODUCTION_CODE_SERIAL_NUMBER), //
+				this.m(HagerEcr380dMeter.ChannelId.PRODUCTION_SITE_CODE), //
+				this.m(HagerEcr380dMeter.ChannelId.PRODUCTION_DAY_OF_YEAR), //
+				this.m(HagerEcr380dMeter.ChannelId.PRODUCTION_YEAR) //
 		);
 	}
 	
@@ -162,38 +162,38 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		return new FC3ReadRegistersTask(//
 				INSTANTANEOUS_MEASURES_START_ADDRESS, //
 				Priority.HIGH,
-				m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
-				m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0001), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
-				m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0002), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
-				m(HagerEcr380dMeter.ChannelId.V_L1_L2), //
-				m(HagerEcr380dMeter.ChannelId.V_L2_L3), //
-				m(HagerEcr380dMeter.ChannelId.V_L3_L1), //
-				m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(0x0006), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
+				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0001), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
+				this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement( 0x0002), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)),
+				this.m(HagerEcr380dMeter.ChannelId.V_L1_L2), //
+				this.m(HagerEcr380dMeter.ChannelId.V_L2_L3), //
+				this.m(HagerEcr380dMeter.ChannelId.V_L3_L1), //
+				this.m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(0x0006), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
 				new DummyRegisterElement(0x0007, 0x0008), //
-				m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0x0009), ElementToChannelConverter.DIRECT_1_TO_1), //
-				m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0x000B), ElementToChannelConverter.DIRECT_1_TO_1), //
-				m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x000D), ElementToChannelConverter.DIRECT_1_TO_1), //
-				m(HagerEcr380dMeter.ChannelId.I_NEUTRAL), //
-				m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0x0011), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0x0013), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(HagerEcr380dMeter.ChannelId.S_SUM), //
-				m(HagerEcr380dMeter.ChannelId.PF_SUM_IEC), //
-				m(HagerEcr380dMeter.ChannelId.PF_SUM_IEEE), //
-				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0x0019), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0x001B), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0x001D), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0x001F), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0x0021), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0x0023), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
-				m(HagerEcr380dMeter.ChannelId.S_L1), //
-				m(HagerEcr380dMeter.ChannelId.S_L2), //
-				m(HagerEcr380dMeter.ChannelId.S_L3), //
-				m(HagerEcr380dMeter.ChannelId.PF_L1_IEC), //
-				m(HagerEcr380dMeter.ChannelId.PF_L2_IEC), //
-				m(HagerEcr380dMeter.ChannelId.PF_L3_IEC), //
-				m(HagerEcr380dMeter.ChannelId.PF_L1_IEEE), //
-				m(HagerEcr380dMeter.ChannelId.PF_L2_IEEE), //
-				m(HagerEcr380dMeter.ChannelId.PF_L3_IEEE) //
+				this.m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0x0009), ElementToChannelConverter.DIRECT_1_TO_1), //
+				this.m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0x000B), ElementToChannelConverter.DIRECT_1_TO_1), //
+				this.m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x000D), ElementToChannelConverter.DIRECT_1_TO_1), //
+				this.m(HagerEcr380dMeter.ChannelId.I_NEUTRAL), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0x0011), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0x0013), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(HagerEcr380dMeter.ChannelId.S_SUM), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_SUM_IEC), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_SUM_IEEE), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0x0019), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0x001B), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0x001D), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0x001F), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0x0021), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0x0023), ElementToChannelScaleFactorConverter.MULTIPLY(10.0d)), //
+				this.m(HagerEcr380dMeter.ChannelId.S_L1), //
+				this.m(HagerEcr380dMeter.ChannelId.S_L2), //
+				this.m(HagerEcr380dMeter.ChannelId.S_L3), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_L1_IEC), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_L2_IEC), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_L3_IEC), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_L1_IEEE), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_L2_IEEE), //
+				this.m(HagerEcr380dMeter.ChannelId.PF_L3_IEEE) //
 		);
 	}
 	
@@ -201,12 +201,12 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		return new FC3ReadRegistersTask(//
 				ENERGY_START_ADDRESS, //
 				Priority.HIGH, //
-				m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(HagerEcr380dMeter.ChannelId.ER_PLUS_SUM), //
-				m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0x0004), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(HagerEcr380dMeter.ChannelId.ER_MINUS_SUM), //
-				m(HagerEcr380dMeter.ChannelId.EA_PLUS_DETAILED_SUM), //
-				m(HagerEcr380dMeter.ChannelId.EA_MINUS_DETAILED_SUM) //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(HagerEcr380dMeter.ChannelId.ER_PLUS_SUM), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0x0004), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(HagerEcr380dMeter.ChannelId.ER_MINUS_SUM), //
+				this.m(HagerEcr380dMeter.ChannelId.EA_PLUS_DETAILED_SUM), //
+				this.m(HagerEcr380dMeter.ChannelId.EA_MINUS_DETAILED_SUM) //
 		);
 	}
 
@@ -214,28 +214,31 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		return new FC3ReadRegistersTask(//
 				ENERGY_PER_PHASE_START_ADDRESS, //
 				Priority.HIGH, //
-				m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, new UnsignedDoublewordElement(0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(0x0002), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(0x0004), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(0x0006), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(0x0008), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(0x000A), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
-				m(HagerEcr380dMeter.ChannelId.ER_PLUS_L1),
-				m(HagerEcr380dMeter.ChannelId.ER_PLUS_L2),
-				m(HagerEcr380dMeter.ChannelId.ER_PLUS_L3),
-				m(HagerEcr380dMeter.ChannelId.ER_MINUS_L1),
-				m(HagerEcr380dMeter.ChannelId.ER_MINUS_L2),
-				m(HagerEcr380dMeter.ChannelId.ER_MINUS_L3)
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, new UnsignedDoublewordElement(0x0000), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, new UnsignedDoublewordElement(0x0002), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, new UnsignedDoublewordElement(0x0004), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(0x0006), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(0x0008), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(0x000A), ElementToChannelScaleFactorConverter.MULTIPLY(1000.0d)), //
+				this.m(HagerEcr380dMeter.ChannelId.ER_PLUS_L1),
+				this.m(HagerEcr380dMeter.ChannelId.ER_PLUS_L2),
+				this.m(HagerEcr380dMeter.ChannelId.ER_PLUS_L3),
+				this.m(HagerEcr380dMeter.ChannelId.ER_MINUS_L1),
+				this.m(HagerEcr380dMeter.ChannelId.ER_MINUS_L2),
+				this.m(HagerEcr380dMeter.ChannelId.ER_MINUS_L3)
 				
 		);
 	}
 
 	/**
 	 * Helper method to create a modbus register by a {@link HagerEcr380dMeter.ChannelId}.
+	 * 
+	 * @param channelId The channel description
+	 * @return the element parameter
 	 */
 	private ModbusRegisterElement<?,?> m(HagerEcr380dMeter.ChannelId channelId) {
 		return channelId.converter() != null ? 
-				m(channelId, channelId.address(), channelId.converter()) //
-				: m(channelId, channelId.address());
+				this.m(channelId, channelId.address(), channelId.converter()) //
+				: this.m(channelId, channelId.address());
 	}
 }
