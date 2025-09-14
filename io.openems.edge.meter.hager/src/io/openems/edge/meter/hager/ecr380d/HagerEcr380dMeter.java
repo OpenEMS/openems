@@ -132,6 +132,9 @@ public interface HagerEcr380dMeter extends ElectricityMeter, OpenemsComponent {
 		}
 
 		/**
+		 * Accessor method for the {@link Doc} instance of this channel.
+		 * 
+		 * @return the Doc instance
 		 * @see ChannelId#doc()
 		 */
 		@Override
@@ -140,7 +143,7 @@ public interface HagerEcr380dMeter extends ElectricityMeter, OpenemsComponent {
 		}
 
 		/**
-		 * Accessor method for the modbus register number 
+		 * Accessor method for the modbus register number of this channel.
 		 * 
 		 * @return the modbus register number for this channel
 		 */
@@ -149,7 +152,7 @@ public interface HagerEcr380dMeter extends ElectricityMeter, OpenemsComponent {
 		}
 		
 		/**
-		 * Accessor method for the modbus channel converter
+		 * Accessor method for the modbus channel converter of this channel.
 		 * 
 		 * @return the converter for this channel
 		 */
