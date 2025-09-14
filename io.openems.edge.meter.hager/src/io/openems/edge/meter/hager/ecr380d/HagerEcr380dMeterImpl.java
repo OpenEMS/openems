@@ -132,7 +132,7 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 				
 		modbusProtocol.addTask(this.getEnergyTask());
 		
-		modbusProtocol.addTask(this.getEnergyByPahseTask());
+		modbusProtocol.addTask(this.getEnergyByPhaseTask());
 		
 		modbusProtocol.addTask(this.getDeviceTask());
 
@@ -210,7 +210,7 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		);
 	}
 
-	private FC3ReadRegistersTask getEnergyByPahseTask() {
+	private FC3ReadRegistersTask getEnergyByPhaseTask() {
 		return new FC3ReadRegistersTask(//
 				ENERGY_PER_PHASE_START_ADDRESS, //
 				Priority.HIGH, //
