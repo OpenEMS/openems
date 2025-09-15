@@ -92,14 +92,14 @@ public class HagerEcr380dMeterTest {
 						0x0000, 0x0000,//
 						0x0000, 0x0000,//
 						0x0000, 0x0000);
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0000, "Hager                           ");
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0010, "ECR380D                         ");
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0022, "http://www.hager.de             ");
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0032, "3P Meter 80A 4M                 ");
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0042, "AGARDIO RJ45 MID                ");
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0052, "APL                             ");
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0064, "12345678                        ");
-		withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0074, "DE  ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0000, "Hager                           ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0010, "ECR380D                         ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0022, "http://www.hager.de             ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0032, "3P Meter 80A 4M                 ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0042, "AGARDIO RJ45 MID                ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0052, "APL                             ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0064, "12345678                        ");
+		this.withRegister(bridge, HagerEcr380dMeter.DEVICE_START_ADDRESS | 0x0074, "DE  ");
 		
 		this.componentTest = new ComponentTest(new HagerEcr380dMeterImpl())
 			.addReference("cm", new io.openems.edge.common.test.DummyConfigurationAdmin())
@@ -160,7 +160,7 @@ public class HagerEcr380dMeterTest {
 	
 	private void withRegister(DummyModbusBridge bridge, int address, String value) {
 		final byte[] registers = value.getBytes();
-		for (int i = 0; i < registers.length; i+=2) {
+		for (int i = 0; i < registers.length; i += 2) {
 			bridge.withRegister(address++, registers[i], registers[i + 1]);
 		}
 	}
