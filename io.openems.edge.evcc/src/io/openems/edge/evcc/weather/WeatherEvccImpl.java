@@ -61,7 +61,7 @@ public class WeatherEvccImpl extends AbstractOpenemsComponent implements Weather
 			return;
 		}
 
-		this.forecastService = new EvccForecastService(config.apiUrl(), this.httpBridge, this.clock);
+		this.forecastService = new EvccForecastService(config.apiUrl(), this.httpBridge, this.clock, config);
 	}
 
 	@Deactivate

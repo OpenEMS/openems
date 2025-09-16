@@ -34,9 +34,15 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
         description = "URL of the evcc API endpoint to fetch weather data"
     )
     String apiUrl() default "http://localhost:7070/api/tariff/solar";
+
+    @AttributeDefinition(
+        name = "Power factor (kWp)",
+        description = "Value for power factor used for evcc's solar forecast."
+    )
+    double factor() default 10.0;
     
-	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
-	LogVerbosity logVerbosity() default LogVerbosity.NONE;
+    @AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+    LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
     String webconsole_configurationFactory_nameHint() default "Weather evcc [{id}]";
 }
