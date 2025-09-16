@@ -44,7 +44,7 @@ public class WeatherEvccImplTest {
 		new ComponentTest(sut).addReference("httpBridgeFactory", factory)
 				.addReference("componentManager", new DummyComponentManager(clock))
 				.activate(MyConfig.create().setId("weatherEvcc0").setApiUrl("http://evcc:7070/api/tariff/solar")
-						.setLogVerbosity(LogVerbosity.NONE).build())
+						.setFactor(1).setLogVerbosity(LogVerbosity.NONE).build())
 
 				.next(new TestCase("Initial fetch and verify values").timeleap(clock, 10, ChronoUnit.SECONDS)
 						.onAfterProcessImage(() -> {
