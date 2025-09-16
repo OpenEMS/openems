@@ -263,22 +263,6 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 		}
 	}
 
-//  GoodWe consumption meter implementation - to be compared
-//	private void calculateEnergy() { 
-//		var activePower =
-//		this.getActivePower().get();
-//		if (activePower == null) {
-//			this.calculateProductionEnergy.update(null);
-//			this.calculateConsumptionEnergy.update(null);
-//		} else if (activePower > 0) {
-//			this.calculateProductionEnergy.update(activePower);
-//			this.calculateConsumptionEnergy.update(0);
-//		} else {
-//			this.calculateProductionEnergy.update(0);
-//			this.calculateConsumptionEnergy.update(activePower * -1);
-//		}
-//	}
-
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
