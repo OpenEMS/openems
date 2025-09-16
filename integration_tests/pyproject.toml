@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "openems-integration-tests"
+version = "0.1.0"
+description = ""
+authors = ["Felix Remmel <felix.remmel@voltfang.de>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.32.3"
+polling = "^0.3.2"
+pytest = "^8.3.3"
+decorator = "^5.2.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+
+[tool.pytest.ini_options]
+markers = [
+    "ems_config(path): Defines EMS configurations stored in openems_integration_tests/ems_configurations. If none is provided, the default configuration openems_integration_tests/ems_configuration/default is used.",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
