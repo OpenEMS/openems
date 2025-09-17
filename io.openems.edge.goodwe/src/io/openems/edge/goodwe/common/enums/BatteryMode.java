@@ -5,7 +5,7 @@ import io.openems.common.types.OptionsEnum;
 public enum BatteryMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NO_BATTERY(0, "NO Battery,inverter disconnects to Battery"), //
-	STANDBY(1, "Standby,no diacharging and no charging"), //
+	STANDBY(1, "Standby,no discharging and no charging"), //
 	DISCHARGING(2, "Discharging"), //
 	CHARGING(3, "Charging");
 

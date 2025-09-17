@@ -66,7 +66,7 @@ public class ResolveOpenemsHardwareTest {
 		completed.join();
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
-		assertFalse(this.appManagerTestBundle.sut.getHardwareMissmatchChannel().getNextValue().get());
+		assertFalse(this.appManagerTestBundle.sut.getHardwareMismatchChannel().getNextValue().get());
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class ResolveOpenemsHardwareTest {
 		completed.join();
 
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
-		assertTrue(this.appManagerTestBundle.sut.getHardwareMissmatchChannel().getNextValue().get());
+		assertTrue(this.appManagerTestBundle.sut.getHardwareMismatchChannel().getNextValue().get());
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class ResolveOpenemsHardwareTest {
 		completed.join();
 
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
-		assertFalse(this.appManagerTestBundle.sut.getHardwareMissmatchChannel().getNextValue().get());
+		assertFalse(this.appManagerTestBundle.sut.getHardwareMismatchChannel().getNextValue().get());
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class ResolveOpenemsHardwareTest {
 		completed.join();
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
-		assertTrue(this.appManagerTestBundle.sut.getHardwareMissmatchChannel().getNextValue().get());
+		assertTrue(this.appManagerTestBundle.sut.getHardwareMismatchChannel().getNextValue().get());
 	}
 
 	private void setHardwareApp(String appId) throws Exception {
