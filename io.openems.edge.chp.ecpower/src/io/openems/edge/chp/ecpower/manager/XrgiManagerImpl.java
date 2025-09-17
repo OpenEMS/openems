@@ -1,5 +1,11 @@
 package io.openems.edge.chp.ecpower.manager;
 
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.chp.ecpower.control.XrgiControl;
 import io.openems.edge.chp.ecpower.ro.XrgiRo;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -44,9 +49,18 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 
 	private final Logger log = LoggerFactory.getLogger(XrgiManagerImpl.class);
 
-	@Reference(name = "XrgiRo", policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile XrgiRo xrgiRo = null;
-
+    // Eine (!) MULTIPLE-Referenz auf XrgiRo
+    @Reference(
+            name = "XrgiRo",
+            service = XrgiRo.class,
+            policy = ReferencePolicy.DYNAMIC,
+            policyOption = ReferencePolicyOption.GREEDY,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            bind = "bindRo",
+            unbind = "unbindRo"
+    )
+    private final Map<String, XrgiRo> xrgiRos = new ConcurrentHashMap<>();
+	
 	@Reference(name = "XrgiControl", policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile XrgiControl xrgiControl = null;
 
@@ -69,9 +83,29 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		if (!config.xrgiRo_id().isEmpty()) {
-			OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "XrgiRo", config.xrgiRo_id());
-		}
+        // IDs from config. Only non-empty (distinct)
+        List<String> ids = Stream.of(
+                        config.xrgiRo0_id(),
+                        config.xrgiRo1_id(),
+                        config.xrgiRo2_id(),
+                        config.xrgiRo3_id())
+                .filter(s -> s != null && !s.isBlank())
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 
+        if (!ids.isEmpty()) {
+            // 
+            OpenemsComponent.updateReferenceFilter(
+            	    this.cm, this.servicePid(), "XrgiRo",
+            	    ids.toArray(new String[0]) // z.B. {"xrgiRo0","xrgiRo1"}
+            	);
+            	if (config.debugMode()) log.info("[XrgiManager] XrgiRo targets = {}", ids);
+        } else {
+            // Nichts binden: Filter, der garantiert nichts matched
+            OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "XrgiRo", "(!(id=*))");
+            if (config.debugMode()) log.info("[XrgiManager] XrgiRo target filter = (!(id=*))");
+        }	
 
 		if (!config.xrgiControl_id().isEmpty()) {
 			OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "XrgiControl", config.xrgiControl_id());
@@ -85,22 +119,25 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+        xrgiRos.clear();
+        state = State.UNDEFINED;		
 	}
 
 	
-	@Override
-	public void applyPower(int activePowerTarget) {
-		this.applyPower((Integer) activePowerTarget);
-	}
+    @Override
+    public void applyPower(int activePowerTarget) {
+        this.applyPower((Integer) activePowerTarget);
+    }
 
-	@Override
-	public void applyPower(Integer activePowerTarget) {
-		if (this.xrgiControl == null || this.xrgiRo == null) {
-			log.warn("XrgiControl or XrgiRO is not set!");
-			return;
-		}
-		this.xrgiControl.applyPower(activePowerTarget);		
-	}
+    @Override
+    public void applyPower(Integer activePowerTarget) {
+        if (this.xrgiControl == null || xrgiRos.isEmpty()) {
+            log.warn("[XrgiManager] XrgiControl or XrgiRo missing (control={}, roCount={}) – skip applyPower",
+                    xrgiControl != null, xrgiRos.size());
+            return;
+        }
+        this.xrgiControl.applyPower(activePowerTarget);
+    }
 
 	@Override
 	public void handleEvent(Event event) {
@@ -109,6 +146,7 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS:
 			//this._setActivePower(this.xrgiRo.getActivePower().get());
 			//this.applyPower(19000);
+			this.updateGeneratorPowerSum();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.checkState();
@@ -125,15 +163,33 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 		}
 	}
 	
-	public void checkState() {
-		if (this.xrgiRo == null) {
-			this.state = State.ERROR;
-		}
-		
-		if (this.xrgiControl == null) {
-			this.state = State.ERROR;
-		}
-	}
+    public void checkState() {
+        if (xrgiRos.isEmpty() || this.xrgiControl == null) {
+            this.state = State.ERROR;
+        } else {
+            this.state = State.NORMAL;
+        }
+    }
+	
+	
+    // ===== DS bind/unbind für MULTIPLE =====
+    void bindRo(XrgiRo ro) {
+        if (ro == null) return;
+        xrgiRos.put(ro.id(), ro);
+        if (config != null && config.debugMode()) {
+            log.info("[XrgiManager] bound {}", ro.id());
+        }
+    }
+
+    void unbindRo(XrgiRo ro) {
+        if (ro == null) return;
+        xrgiRos.remove(ro.id());
+        if (config != null && config.debugMode()) {
+            log.info("[XrgiManager] unbound {}", ro.id());
+        }
+    }	
+	
+	
 
 	/**
 	 * Uses Info Log for further debug features.
@@ -145,25 +201,39 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 		}
 	}
 
-	@Override
-	public String debugLog() {
+    @Override
+    public String debugLog() {
+        if (xrgiRos.isEmpty()) {
+            log.warn("[XrgiManager] No XRGI bound");
+            return "NO XRGI";
+        }
+        if (this.xrgiControl == null) {
+            log.warn("[XrgiManager] xrgiControl not set");
+            return "NO xrgiControl";
+        }
 
-		if (this.xrgiRo == null) {
-			log.warn("xrgiRo is not set!");
-			return "NO XRGI";
-		}
+        String perUnit = xrgiRos.keySet().stream().sorted()
+                .map(id -> "Power " + id + ": " + xrgiRos.get(id).getActivePower().asString())
+                .collect(Collectors.joining("\n"));
 
-		if (this.xrgiControl == null) {
-			log.warn("xrgiControl is not set!");
-			return "NO xrgiControl";
-		}
-		// return null;
-		return "Power: " + this.xrgiRo.getActivePower().asString();
-	}
+        int total = xrgiRos.values().stream()
+                .mapToInt(ro -> ro.getActivePower().orElse(0))
+                .sum();
 
-	@Override
-	public Value<Integer> getGeneratorActivePower() {
-		return this.xrgiRo.getActivePower();
-	}
+        return "\n" + perUnit + "\nTotal Power: " + total;
+    }
+
+    private void updateGeneratorPowerSum() {
+        int total = xrgiRos.values().stream()
+                .mapToInt(ro -> ro.getActivePower().orElse(0))
+                .sum();
+        this._setGeneratorActivePower(total);
+    }
+
+    // Exponiert den Summen-Channel als Value<Integer>
+//    @Override
+    //public Value<Integer> getGeneratorActivePower() {
+        //return this.getGeneratorActivePower();
+    //}
 
 }

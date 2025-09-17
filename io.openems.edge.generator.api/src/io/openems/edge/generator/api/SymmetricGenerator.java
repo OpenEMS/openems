@@ -15,13 +15,14 @@ public interface SymmetricGenerator extends   OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		 
-		GENRATOR_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		GENERATOR_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		
-		GENRATOR_HEAT_POWER(Doc.of(OpenemsType.INTEGER) //
+		GENERATOR_HEAT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
+	
 		;
 
 		private final Doc doc;
@@ -39,7 +40,7 @@ public interface SymmetricGenerator extends   OpenemsComponent {
 
 	//
 	public default IntegerReadChannel getGeneratorActivePowerChannel() {
-		return this.channel(ChannelId.GENRATOR_ACTIVE_POWER);
+		return this.channel(ChannelId.GENERATOR_ACTIVE_POWER);
 	}
 
 	/**
@@ -71,8 +72,6 @@ public interface SymmetricGenerator extends   OpenemsComponent {
 		this.getGeneratorActivePowerChannel().setNextValue(value);
 	}		
 	
-	
-
 
 
 }

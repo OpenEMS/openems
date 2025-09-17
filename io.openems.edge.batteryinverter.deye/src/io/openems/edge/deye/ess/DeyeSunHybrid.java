@@ -442,16 +442,16 @@ public interface DeyeSunHybrid
 		        .unit(Unit.AMPERE)
 		        .accessMode(AccessMode.WRITE_ONLY)), // register 128	    
 
-	    GENERATOR_CHARGING_ENABLE(Doc.of(EnableDisable.values())
+	    GENERATOR_CHARGING_ENABLE(Doc.of(OpenemsType.BOOLEAN)
 	        .accessMode(AccessMode.READ_ONLY)), // register 129
 	    
-	    SET_GENERATOR_CHARGING_ENABLE(Doc.of(EnableDisable.values())
+	    SET_GENERATOR_CHARGING_ENABLE(Doc.of(OpenemsType.BOOLEAN)
 		        .accessMode(AccessMode.WRITE_ONLY)), // register 129
 	    
-	    GRID_CHARGING_ENABLE(Doc.of(EnableDisable.values())
+	    GRID_CHARGING_ENABLE(Doc.of(OpenemsType.BOOLEAN)
 	        .accessMode(AccessMode.READ_ONLY)), // register 130
 	    
-	    SET_GRID_CHARGING_ENABLE(Doc.of(EnableDisable.values())
+	    SET_GRID_CHARGING_ENABLE(Doc.of(OpenemsType.BOOLEAN)
 		        .accessMode(AccessMode.WRITE_ONLY)), // register 130	    
 
 	    // Power management & sell‑mode settings (read-only)
@@ -1094,12 +1094,47 @@ public interface DeyeSunHybrid
 		return this.getGridChargeCurrentChannel().value();
 	}	
 	
-	public default void  setGridChargeCurrent(int value) {
-		this.getSetGridChargeCurrentChannel().value();
+	public default void  setGridChargeCurrent(int value)  throws OpenemsNamedException  {
+		this.getSetGridChargeCurrentChannel().setNextWriteValue(value);
 	}	
 	
+	// Generator charging enabled
+	// Getter for BooleanWriteChannels 
+	public default BooleanWriteChannel getSetGeneratorCharingEnabledChannel() {
+	    return this.channel(ChannelId.SET_GENERATOR_CHARGING_ENABLE);
+	}
+	
+	// Getter für BooleanReadeChannels der Time-of-Use-Bits
+	public default BooleanReadChannel getGeneratorCharingEnabledChannel() {
+	    return this.channel(ChannelId.GENERATOR_CHARGING_ENABLE);
+	}
+	
+	public default Boolean getGeneratorCharingEnabled()  {
+		   return this.getGeneratorCharingEnabledChannel().value().get();
+		}	
 
+	public default void setGeneratorCharingEnabled(Boolean value) throws OpenemsNamedException {
+	    this.getSetGeneratorCharingEnabledChannel().setNextWriteValue(value);
+	}	
 
+	// Grid charging enabled
+	// Getter for BooleanWriteChannels 
+	public default BooleanWriteChannel getSetGridCharingEnabledChannel() {
+	    return this.channel(ChannelId.SET_GRID_CHARGING_ENABLE);
+	}
+	
+	// Getter für BooleanReadeChannels der Time-of-Use-Bits
+	public default BooleanReadChannel getGridCharingEnabledChannel() {
+	    return this.channel(ChannelId.GRID_CHARGING_ENABLE);
+	}
+	
+	public default Boolean getGridCharingEnabled()  {
+		   return this.getGridCharingEnabledChannel().value().get();
+		}	
+
+	public default void setGridCharingEnabled(Boolean value) throws OpenemsNamedException {
+	    this.getSetGridCharingEnabledChannel().setNextWriteValue(value);
+	}		
 
 
 	// Getter für BooleanWriteChannels der Time-of-Use-Bits

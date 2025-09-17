@@ -1,0 +1,553 @@
+package io.openems.edge.deye.ess;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.deye.battery.DeyeSunBattery;
+import io.openems.edge.deye.dccharger.DeyeDcCharger;
+
+import io.openems.edge.deye.enums.WorkState;
+import io.openems.edge.deye.enums.EnableDisable;
+import io.openems.edge.deye.enums.EnergyManagementModel;
+import io.openems.edge.deye.enums.LimitControlFunction;
+
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+
+public class ApplyPowerHandler {
+
+	private final DeyeSunHybridImpl ess;
+	private final DeyeSunBattery battery;
+	private final DeyeDcCharger dcCharger;
+	private final Logger log;
+
+	private int sellPSet = 1000; // value in Reg 154 (W)
+	private int sellPSetLast = 0;
+
+	private AverageCalculator batteryTargetPowerAvg = new AverageCalculator(5);
+
+	private int maxTargetW = 0; // save max Target power for error analysis
+	private int maxBatteryPower = 0; // save max current battery power for error analysis
+	private int maxGridPower = 0;
+	private int maxPvPower = 0;
+	private int batteryVoltageRaw = 0;
+	private int maxActivePower = 0;
+
+	private int minTargetW = 0; // save min Target power for error analysis
+	private int minBatteryPower = 0; // save min current battery power for error analysis
+	private int minGridPower = 0;
+	private int minPvPower = 0;
+	private int minActivePower = 0;
+	private int iSet = 0;
+	private int iSetLast = 0;
+	private boolean valueSkipped = false;
+
+	private static final int DEADBAND_W = 200;
+	
+	private long last109Ms = 0, last108Ms = 0, last128Ms = 0, last154Ms = 0,lastCriticalMs = 0;
+	private static final long MIN_CURR_INTERVAL_MS = 300;
+	private static final long KEEPALIVE_MS = 4000;
+	private static final long CRITICAL_HOLDOFF_MS = 800; // 
+	private long criticalQuietUntilMs = 0;	
+	private long lastKeepAliveMs = 0;
+	
+	
+	// Zero crossing boost
+	private Integer lastSign = null;             // -1=Laden, +1=Entladen, 0=Idle
+	private long flipBoostUntilMs = 0;           // bis wann Avg. deaktiviert ist
+	private static final long FLIP_BOOST_MS = 1200;
+	
+	
+	
+	
+	
+
+	public ApplyPowerHandler(DeyeSunHybridImpl ess, DeyeSunBattery battery, DeyeDcCharger dcCharger) {
+		this.ess = ess;
+		this.battery = battery;
+		this.dcCharger = dcCharger;
+		this.log = this.ess.getLogger();
+
+	}
+
+	public void apply(int activePowerTarget, int reactivePower, int configuredMaxApparentPower)
+			throws OpenemsNamedException {
+		if (!ess.isManaged()) {
+			log.debug("[ApplyPower] ESS not managed – skipping.");
+			return;
+		}
+
+		if (ess.getWorkState() != WorkState.NORMAL) {
+			log.error("ESS not in normal state. Skipping ApplyPower");
+			return;
+		}
+		
+
+
+		Integer maxApparentPower = ess.getMaxApparentPower().get();
+		Integer batteryPower = battery.getDcPower().get(); // assume that this DcDischargePower
+		Integer powerAcGrid = ess.getGridOutPower().get(); // power to or from grid, negative while power to grid
+		Integer activePower = ess.getActivePower().orElse(0); // Total inverter AC power out of battery, PV. Includes
+		Integer dcDischargePower = ess.getDcDischargePower().orElse(0); //
+		Integer soc = ess.getSoc().orElse(50); // 50: conservative guessing
+		int pvPower = (dcCharger != null) ? dcCharger.getActualPower().orElse(0) : 0; // set to 0W if no dcCharger
+																						// attached
+		Integer batteryVoltageRaw = battery.getBatteryVoltage().get();
+		Integer maxAllowedChargePower = ess.getAllowedChargePower().get();
+		Integer maxAllowedDischargePower = ess.getAllowedDischargePower().get();
+
+		if (Stream.of(batteryVoltageRaw, batteryPower, powerAcGrid, pvPower, maxAllowedChargePower,
+				maxAllowedDischargePower).anyMatch(Objects::isNull)) {
+			return;
+		}
+
+		if (maxAllowedChargePower == null || maxAllowedDischargePower == null) {
+			ess.logDebug(log, "Max charge/discharge values not available. Skipping ApplyPower");
+			return;
+		}
+
+		if (maxApparentPower == null) {
+			ess.logDebug(log, "Max Apparent power not available. Skipping ApplyPower");
+			return;
+		}
+
+		if (batteryPower == null) {
+			ess.logDebug(log, "battery power not available. Skipping ApplyPower");
+			return;
+		}
+
+		if (powerAcGrid == null) {
+			ess.logDebug(log, "Grid out power not available. Skipping ApplyPower");
+			return;
+		}
+		int essErrorAc = activePowerTarget - activePower; // >0: mehr AC liefern (entladen); <0: weniger AC (laden)
+
+		/*
+		 * 
+		 * int essPowerTarget = activePowerTarget - (activePower - dcDischargePower);
+		 * int essPowerTarget1 = activePowerTarget - pvPower; // batteryPowerTarget =
+		 * 1000; int pseudoPvPower = activePower - dcDischargePower;
+		 * 
+		 * // ideally self-consumption of the inverter ~100W int balancingPower =
+		 * activePowerTarget - powerAcGrid - activePower;
+		 * 
+		 * // Deadband jetzt rein auf ESS.ActivePower (Grid ignoriert) if
+		 * (Math.abs(essErrorAc) < 200) { if (this.ess.getEnergyManagementModel() !=
+		 * EnergyManagementModel.LOAD_FIRST) {
+		 * this.ess.setEnergyManagementModel(EnergyManagementModel.LOAD_FIRST); } if
+		 * (this.ess.getLimitControlFunction() != LimitControlFunction.BUILT_IN) {
+		 * this.ess.setLimitControlFunction(LimitControlFunction.BUILT_IN); }
+		 * this.batteryTargetPowerAvg.addValue(0); int targetPower =
+		 * this.batteryTargetPowerAvg.getAverage(); int iSet = 0;
+		 * this.ess.setTargetActivePower(targetPower); this.ess.setTargetCurrent(iSet);
+		 * return; }
+		 */
+		// Effizienzen + Eigenbedarf (fein justierbar)
+		final double ETA_C = 0.92; // AC->DC beim Laden
+		final double ETA_D = 0.94; // DC->AC beim Entladen
+		final int P_IDLE = 120; // WR-Eigenaufnahme (W)
+
+		// PV-Feed-Forward (AC). Falls kein dcCharger: Fallback aus Messgrößen
+		// int usedPvPower = (pvPower > 0) ? pvPower : TypeUtils.max(0, activePower -
+		// dcDischargePower);
+
+		int usedPvPower = activePower - dcDischargePower;
+
+		// 1) Feed-Forward: welcher AC-Anteil soll von der Batterie kommen, wenn PV so
+		// bleibt?
+		int ffAc = activePowerTarget - usedPvPower;
+		
+
+
+		// in DC umrechnen (Vorzeichenkonvention: targetPower >0 = Entladen; <0 = Laden)
+		int targetPower; // DC in W
+		if (ffAc >= 0) {
+			// Entladen nötig: AC / η_D
+			targetPower = (int) Math.ceil(ffAc / ETA_D);
+		} else {
+			// Laden nötig: AC / η_C (leichte Überkompensation um Eigenbedarf)
+			targetPower = (int) Math.floor(ffAc / ETA_C) - P_IDLE; // bleibt negativ
+		}
+		
+		int targetPowerRaw = targetPower;  
+		int signNow = (targetPowerRaw > 0) ? 1 : (targetPowerRaw < 0 ? -1 : 0);		
+		
+		if (lastSign != null && signNow != 0 && signNow != lastSign) {
+		    this.batteryTargetPowerAvg = new AverageCalculator(5); // Reset
+		    flipBoostUntilMs = nowMs() + FLIP_BOOST_MS;
+		}
+		lastSign = signNow;		
+		
+		this.batteryTargetPowerAvg.addValue(targetPowerRaw);
+		if (nowMs() < flipBoostUntilMs) {
+		    targetPower = targetPowerRaw;   // Switch without delay
+		} else {
+		    targetPower = this.batteryTargetPowerAvg.getAverage();
+		}
+
+		// 2) Feedback-Korrektur aus aktuellem ESS-Fehler (AC)
+		int fbAc = essErrorAc;
+		int fbDc = (fbAc >= 0) ? (int) Math.ceil(fbAc / ETA_D) : (int) Math.floor(fbAc / ETA_C);
+
+		// kleine Gewichtung, um Modellfehler/Drift rauszunehmen
+		targetPower += (int) Math.round(0.3 * fbDc);
+
+		// 3) Leistungsgrenzen anwenden (KEIN PV-Abzug!)
+		if (maxAllowedChargePower == null || maxAllowedDischargePower == null) {
+			ess.logDebug(log, "Max charge/discharge values not available. Skipping ApplyPower");
+			return;
+		}
+		if (targetPower >= 0) {
+			// limit discharge
+			targetPower = Math.min(targetPower, maxAllowedDischargePower);
+		} else {
+			// limit charge
+			targetPower = Math.max(targetPower, maxAllowedChargePower);
+		}
+
+		// 4) Glätten wie bisher
+		this.batteryTargetPowerAvg.addValue(targetPower);
+		targetPower = this.batteryTargetPowerAvg.getAverage();
+
+		// 5) Strom-Sollwert aus VBAT (0.01 V/LSB -> /100.0)
+		double batteryVoltage = (batteryVoltageRaw != null ? batteryVoltageRaw : 5200) / 1000.0; // z.B. 5380 -> 53.80 V
+		double iTarget = (batteryVoltage > 0) ? (targetPower / batteryVoltage) : 0.0;
+		int iSet;
+
+		if (iTarget >= 0) {
+			iSet = (int) Math.ceil(iTarget); // Entladen
+		} else {
+			iSet = (int) Math.floor(iTarget); // Laden (negativ, beim Setzen dann Math.abs(...))
+		}
+
+		// Never 0 to avoid PV limitation
+		iSet = Math.max(5, Math.min(100, Math.abs(iSet)));
+
+		int sellAc = (int)Math.round(Math.max(0, targetPower) * ETA_D); // DC→AC
+		sellPSet = quantize50(Math.max(0, Math.min(8000, sellAc)));     // 50W Raster
+
+	    boolean due108 = due(last108Ms, MIN_CURR_INTERVAL_MS);
+	    boolean due109 = due(last109Ms, MIN_CURR_INTERVAL_MS);
+	    boolean due128 = due(last128Ms, MIN_CURR_INTERVAL_MS);
+	    boolean due154 = due(last154Ms, MIN_CURR_INTERVAL_MS);
+	    boolean force = keepAliveDue();
+	    boolean force154 = force || (nowMs() < flipBoostUntilMs);	    
+
+
+		if (iTarget > 0) { // Entladen
+			iSet = (int) Math.ceil(iTarget);
+			
+			// If value is 0 inverter lowers PV production!!! wtf!
+			if (battery.getBmsMaxChargeCurrent().get() == null || battery.getBmsMaxChargeCurrent().get() < 5) {
+				battery.setBmsMaxChargeCurrent(5);
+			}			
+
+			// 109
+			if (iSetLast != iSet && due109 || force) {
+				// Reg 109 // Channel is in A
+				battery.setBmsMaxDischargeCurrent(Math.abs(iSet));
+				iSetLast = iSet;
+				last109Ms = System.currentTimeMillis(); 
+			}
+
+			// Reg 129
+			if (!criticalQuiet() && this.ess.getGeneratorCharingEnabled() != false) {
+				this.ess.setGeneratorCharingEnabled(false);
+				markCriticalWrite();
+			}
+			
+			// Reg 130
+			if (!criticalQuiet() && this.ess.getGridCharingEnabled() != true) {
+				this.ess.setGridCharingEnabled(true);
+				markCriticalWrite();				
+			}			
+			
+			// register 141
+			// 0 -> BATTERY_FIRST
+			// 1 -> LOAD_FIRST
+			if (!criticalQuiet() && this.ess.getEnergyManagementModel() != EnergyManagementModel.LOAD_FIRST) {
+				this.ess.setEnergyManagementModel(EnergyManagementModel.LOAD_FIRST);
+				markCriticalWrite();				
+			}			
+			
+			// Reg 142
+			if (!criticalQuiet() && this.ess.getLimitControlFunction() != LimitControlFunction.SELLING_ACTIVE) {
+				this.ess.setLimitControlFunction(LimitControlFunction.SELLING_ACTIVE);
+			}			
+
+			// Reg 145
+			// 0 -Enabled
+			// 1-Disabled
+			if (!criticalQuiet() && this.ess.getSolarSellMode() != EnableDisable.DISABLED) {
+				this.ess.setSolarSellMode(EnableDisable.DISABLED);
+				markCriticalWrite();
+			}
+
+			// Reg 166
+			if (!criticalQuiet() && this.ess.getSellModeTimePoint1Capacity().get() != 5) {
+				this.ess.setSellModeTimePoint1Capacity(5);
+				markCriticalWrite();
+			}
+
+			//154
+			boolean changed154 = (sellPSet != sellPSetLast);
+			if (!criticalQuiet() && (changed154 && due154)) {			
+
+				this.ess.setSellModeTimePoint1Power(sellPSet);
+				sellPSetLast = sellPSet;
+				last154Ms = System.currentTimeMillis(); //
+				markCriticalWrite();				
+			}
+
+			if (!criticalQuiet() && this.ess.getChargeModeTimePoint1().get() != 0) {
+				// 172
+				this.ess.setChargeModeTimePoint1(0);
+				markCriticalWrite();
+			}
+
+		} else if (iTarget < 0) { // Laden
+			iSet = (int) Math.floor(iTarget);
+			
+			// Reg 108
+			if (iSetLast != iSet && due108 || force) {
+				 // Channel is in A
+				battery.setBmsMaxChargeCurrent(Math.abs(iSet));
+				iSetLast = iSet;
+				last108Ms = System.currentTimeMillis();				
+			}
+			
+			// Reg 109
+			// If value is 0 inverter lowers PV production!!! wtf!
+			if (battery.getBmsMaxDischargeCurrent().get() == null || battery.getBmsMaxDischargeCurrent().get() < 5) {
+				battery.setBmsMaxDischargeCurrent(5);
+			}
+			
+			// Reg 128
+			if (iSetLast != iSet && due128 || force) {
+				this.ess.setGridChargeCurrent(Math.abs(iSet));
+				iSetLast = iSet;
+				last128Ms = System.currentTimeMillis();				
+			}			
+		
+
+			// Reg 129
+			if (!criticalQuiet() && this.ess.getGeneratorCharingEnabled() != true) {
+				this.ess.setGeneratorCharingEnabled(true);
+				markCriticalWrite();
+			}
+
+			// Reg 130
+			if (!criticalQuiet() && this.ess.getGridCharingEnabled() != true) {
+				this.ess.setGridCharingEnabled(true);
+				markCriticalWrite();
+			}
+
+			// register 141
+			// 0 -> BATTERY_FIRST
+			// 1 -> LOAD_FIRST
+			if (!criticalQuiet() && this.ess.getEnergyManagementModel() != EnergyManagementModel.LOAD_FIRST) {
+				this.ess.setEnergyManagementModel(EnergyManagementModel.LOAD_FIRST);
+				markCriticalWrite();
+			}			
+			
+			// Reg 142
+			if (!criticalQuiet() && this.ess.getLimitControlFunction() != LimitControlFunction.SELLING_ACTIVE) {
+				this.ess.setLimitControlFunction(LimitControlFunction.SELLING_ACTIVE);
+				markCriticalWrite();
+			}
+			
+			// Reg 145
+			// 0 -Enabled
+			// 1-Disabled
+			if (!criticalQuiet() && this.ess.getSolarSellMode() != EnableDisable.ENABLED) {
+				this.ess.setSolarSellMode(EnableDisable.ENABLED);
+				markCriticalWrite();
+			}
+			
+			// 154
+			boolean changed154to0 = (sellPSetLast != 0);
+			if (!criticalQuiet() && (changed154to0 && due154)) {
+			    this.ess.setSellModeTimePoint1Power(0);
+			    sellPSetLast = 0;
+			    last154Ms = System.currentTimeMillis(); // <- neu
+			    markCriticalWrite();
+			}
+
+			// Reg 166
+			if (!criticalQuiet() && this.ess.getSellModeTimePoint1Capacity().get() != 100) {
+				this.ess.setSellModeTimePoint1Capacity(100);
+				markCriticalWrite();
+			}
+
+			if (!criticalQuiet() && this.ess.getChargeModeTimePoint1().get() != 1) {
+				// 172
+				this.ess.setChargeModeTimePoint1(1);
+				markCriticalWrite();
+			}
+
+			// int iSet = (int) Math.ceil(iTarget);
+			// register 142
+
+			// ToDo: unclear of the use
+			// used for charge from grid and discharging
+			// this.ess.setChargeDischargeMode(true, Math.abs(essPowerTarget));
+
+		} else {
+			// Reg 130
+			if (this.ess.getGridCharingEnabled() != true) {
+				this.ess.setGridCharingEnabled(true);
+			}
+			// Reg 145
+			// 0 -Enabled
+			// 1-Disabled
+			if (this.ess.getSolarSellMode() != EnableDisable.ENABLED) {
+				this.ess.setSolarSellMode(EnableDisable.ENABLED);
+			}		
+			
+			// 154
+			if (this.ess.getSellModeTimePoint1Power().get() != maxApparentPower) {
+				this.ess.setSellModeTimePoint1Power(0); // if set to 0 PV is limited!? WTF!
+			}
+			
+			// Reg 166
+			if (this.ess.getSellModeTimePoint1Capacity().get() != 100) {
+				this.ess.setSellModeTimePoint1Capacity(100);
+			}
+			
+			// Reg 172
+			if (this.ess.getChargeModeTimePoint1().get() != 0) {
+				this.ess.setChargeModeTimePoint1(0);
+			}
+		}
+
+		// feeding channels
+		this.ess.setTargetActivePower(targetPower);
+		this.ess.setTargetCurrent(iSet);
+
+		this.ess.logDebug(log,
+				"\n->  Target Power (AC Req): " + activePowerTarget  + "\r\n"
+				+ "  PvPower : " + pvPower + " Battery target (AC ff): " + ffAc + "\r\n"
+				+ "  ActivePower : " + activePower + "\r\n"
+				+ "  GridPower   : " + powerAcGrid + "\r\n"
+				+ "  DcDischargePower : " + dcDischargePower + "\r\n"
+				+ "  current BatteryPower: " + batteryPower + "\r\n"
+				+ "  I target (A): " + iSet + "\r\n"
+				+ "  Pbat_target_DC : " + targetPower + "\r\n"
+				+ "  SellPSet154 (AC, 50W) : " + sellPSetLast + "\r\n"
+				+ "  Energy Management Model: " + this.ess.getEnergyManagementModel()  + "\r\n"
+				+ "  Limit Control Function: " + this.ess.getLimitControlFunction() + "\r\n"
+				+ "  TimeOfUseSellingEnabled : " + this.ess.getTimeOfUseSellingEnabled()  + "\r\n"
+						+ "SellModeTimePoint1 " + this.ess.getSellModeTimePoint1().get() + "/"
+						+ this.ess.getSellModeTimePoint1Power().get() + "W/" + this.ess.getSellModeTimePoint1Capacity()
+						+ "\n" + "SellModeTimePoint2 " + this.ess.getSellModeTimePoint2().get() + "/"
+						+ this.ess.getSellModeTimePoint2Power().get() + "W/" + this.ess.getSellModeTimePoint2Capacity()
+						+ "\n" + "SellModeTimePoint3 " + this.ess.getSellModeTimePoint3().get() + "/"
+						+ this.ess.getSellModeTimePoint3Power().get() + "W/" + this.ess.getSellModeTimePoint3Capacity()
+						+ "\n" + "SellModeTimePoint4 " + this.ess.getSellModeTimePoint4().get() + "/"
+						+ this.ess.getSellModeTimePoint4Power().get() + "W/" + this.ess.getSellModeTimePoint4Capacity()
+						+ "\n" + "SellModeTimePoint5 " + this.ess.getSellModeTimePoint5().get() + "/"
+						+ this.ess.getSellModeTimePoint5Power().get() + "W/" + this.ess.getSellModeTimePoint5Capacity()
+						+ "\n" + "SellModeTimePoint6 " + this.ess.getSellModeTimePoint6().get() + "/"
+						+ this.ess.getSellModeTimePoint6Power().get() + "W/" + this.ess.getSellModeTimePoint6Capacity()
+						+ "\n" + "RemoteLockState : " + this.ess.getRemoteLockState() + "\n" + "EnableSwitch : "
+						+ this.ess.getEnableSwitchState() + "\n" + "LimitControlFunction : "
+						+ this.ess.getLimitControlFunction() + "\n" + "SolarSellMode : " + this.ess.getSolarSellMode()
+						+ "\n" + "EnableGridCharge : " + this.ess.getEnableGridChargeState() + "\n"
+
+		);
+
+	}
+
+	/**
+	 * Limits the requested power to what the battery can actually provide.
+	 */
+	private int applyBatteryLimits(int requestedPower) {
+		if (battery == null) {
+			return requestedPower;
+		}
+
+		Integer allowedChargePower = ess.getAllowedChargePower().get();
+		Integer allowedDischargePower = ess.getAllowedDischargePower().get();
+
+		if (allowedChargePower == null || allowedDischargePower == null) {
+			return requestedPower;
+		}
+
+		if (requestedPower < 0) { // charging
+
+			return (int) Math.max(requestedPower, -allowedChargePower);
+		} else { // discharging
+			return (int) Math.min(requestedPower, allowedDischargePower);
+		}
+	}
+
+	/**
+	 * Calculate and store Max-AC-Export and -Import channels.
+	 *
+	 * @param maxApparentPower the max apparent power
+	 */
+	protected void calculateMaxAcPower(int maxApparentPower) {
+		if (this.battery == null || this.ess == null || this.dcCharger == null) {
+			return;
+		}
+
+		Integer allowedChargePower = ess.getAllowedChargePower().orElse(0);
+		Integer allowedDischargePower = ess.getAllowedDischargePower().orElse(0);
+
+		int pvProduction = TypeUtils.max(0, dcCharger.getActualPower().orElse(0));
+
+		// Battery charging, substract PV
+		long maxAcImport = allowedChargePower - Math.min(allowedChargePower, pvProduction);
+		long maxAcExport = allowedDischargePower + pvProduction;
+
+		//
+		maxAcImport = Math.min(maxAcImport, maxApparentPower);
+		maxAcExport = Math.min(maxAcExport, maxApparentPower);
+
+		this.ess._setMaxAcImport((int) -maxAcImport); // negativ bei Import
+		this.ess._setMaxAcExport((int) maxAcExport);
+	}
+
+	private void setActivePower(int activePowerWatt) throws OpenemsNamedException {
+
+		var maxApparentPower = this.ess.getMaxApparentPower().get();
+
+		if (maxApparentPower == null) {
+			this.ess.logDebug(log, "Max Apparent Power is not available. Cannot set value");
+			return;
+		}
+
+		// Prozentwert berechnen
+		int activePowerPercent = (int) ((double) activePowerWatt / maxApparentPower * 100);
+
+		// Prozentwert auf gültigen Bereich beschränken
+		activePowerPercent = Math.max(0, Math.min(100, activePowerPercent));
+
+		// Wert an Register 77 übergeben
+		IntegerWriteChannel setActivePowerRegulationChannel = this.ess
+				.channel(DeyeSunHybrid.ChannelId.ACTIVE_POWER_REGULATION);
+		setActivePowerRegulationChannel.setNextWriteValue(activePowerPercent);
+
+		// Debug Log für Überprüfung
+		this.ess.logDebug(log, "Set Active Power: " + activePowerWatt + " W (" + activePowerPercent + "%)");
+	}
+
+	private boolean keepAliveDue() {
+	    long now = System.currentTimeMillis();
+	    if (now - lastKeepAliveMs >= KEEPALIVE_MS) { lastKeepAliveMs = now; return true; }
+	    return false;
+	}			
+	
+	private boolean due(long lastMs, long gap) { return (System.currentTimeMillis() - lastMs) >= gap; }	
+	
+	private static long nowMs() { return System.currentTimeMillis(); }	
+	
+	private static int quantize50(int w) {
+	    return ((w + 25) / 50) * 50; // auf nächstes Vielfaches von 50 runden
+	}
+	
+	private boolean criticalQuiet() { return nowMs() < criticalQuietUntilMs; }
+	private void markCriticalWrite() { criticalQuietUntilMs = nowMs() + CRITICAL_HOLDOFF_MS; }	
+}

@@ -55,6 +55,8 @@ import io.openems.edge.deye.enums.EmsPowerMode;
 	@AttributeDefinition(name = "Min battery capacity [Ah]", description = "Value is stored to hardware")
 	int minBatteryCapacity() default 5; // Ah	
 	
+	@AttributeDefinition(name = "Deadband for internal regulation [W]", description = "Built-in regulation is activated if target power is below that value. Set to 0 if internal regulation is not desired")
+	int deadBand() default 200; // 	
 
 	String webconsole_configurationFactory_nameHint() default "Deye Battery Inverter [{id}]";
 }

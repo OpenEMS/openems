@@ -21,7 +21,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.startstop.StartStop;
+//import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.deye.enums.BatteryChargeMode;
 import io.openems.edge.deye.enums.BatteryOperateMode;
 import io.openems.edge.deye.enums.BatteryRunState;
@@ -51,7 +51,7 @@ public interface DeyeSunBattery
 		RUN_STATE(Doc.of(BatteryRunState.values()) //
 				.text("Current State of State-Machine").persistencePriority(HIGH)), //	
 		
-		START_STOP(Doc.of(StartStop.values())),
+		//START_STOP(Doc.of(StartStop.values())),
 
 	    // BMS Status Registers (read-only)
 	    BMS_CHARGING_VOLTAGE(Doc.of(OpenemsType.INTEGER)
@@ -61,10 +61,10 @@ public interface DeyeSunBattery
 	            .unit(Unit.MILLIVOLT)
 	            .accessMode(AccessMode.READ_WRITE)),	    
 	    BMS_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIAMPERE)
+	            .unit(Unit.AMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
 	    BMS_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIAMPERE)
+	            .unit(Unit.AMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
 	    BMS_BATTERY_SOC(Doc.of(OpenemsType.INTEGER)
 	            .unit(Unit.PERCENT)
@@ -75,10 +75,10 @@ public interface DeyeSunBattery
 	    BMS_BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER)
 	            .unit(Unit.MILLIAMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_MAX_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+	    OFF_GRID_BATTERY_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
 	            .unit(Unit.MILLIAMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_MAX_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+	    OFF_GRID_BATTERY_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
 	            .unit(Unit.MILLIAMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
 	    BMS_BATTERY_ALARM(Doc.of(OpenemsType.INTEGER)
@@ -676,6 +676,42 @@ public interface DeyeSunBattery
 	public default void setBatteryMaxDischargeCurrent(int value) throws OpenemsNamedException {
 	    this.getSetBatteryMaxDischargeCurrentChannel().setNextWriteValue(value);
 	}	
+	
+	//
+	// Getter / Setter BMS max. Discharge Current
+	//
+	public default IntegerReadChannel getBmsMaxDischargeCurrentChannel() {
+	    return this.channel(ChannelId.BMS_DISCHARGE_CURRENT_LIMIT);
+	}
+
+	public default IntegerWriteChannel getSetBmsMaxDischargeCurrentChannel() {
+	    return this.channel(ChannelId.BMS_DISCHARGE_CURRENT_LIMIT);
+	}
+
+	public default Value<Integer> getBmsMaxDischargeCurrent() {
+	    return this.getBmsMaxDischargeCurrentChannel().value();
+	}
+
+	public default void setBmsMaxDischargeCurrent(int value) throws OpenemsNamedException {
+	    this.getSetBmsMaxDischargeCurrentChannel().setNextWriteValue(value);
+	}	
+
+	// Charge current limit
+	public default IntegerReadChannel getBmsMaxChargeCurrentChannel() {
+	    return this.channel(ChannelId.BMS_CHARGE_CURRENT_LIMIT);
+	}
+
+	public default IntegerWriteChannel getSetBmsMaxChargeCurrentChannel() {
+	    return this.channel(ChannelId.BMS_CHARGE_CURRENT_LIMIT);
+	}
+
+	public default Value<Integer> getBmsMaxChargeCurrent() {
+	    return this.getBmsMaxChargeCurrentChannel().value();
+	}
+
+	public default void setBmsMaxChargeCurrent(int value) throws OpenemsNamedException {
+	    this.getSetBmsMaxChargeCurrentChannel().setNextWriteValue(value);
+	}		
 	
 	public int getConfiguredMaxChargeCurrent();
 	

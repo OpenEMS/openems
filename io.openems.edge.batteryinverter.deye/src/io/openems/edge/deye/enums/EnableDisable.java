@@ -3,8 +3,8 @@ package io.openems.edge.deye.enums;
 import io.openems.common.types.OptionsEnum;
 public enum EnableDisable implements OptionsEnum{
 	UNDEFINED(-1, "Undefined"), //
-	DISABLED(0, "Disabled"), //
-	ENABLED(1, "Enabled"); //	
+	ENABLED(0, "Enabled"), //
+	DISABLED(1, "Disabled"); //	
 
 	private final int value;
 	private final String name;

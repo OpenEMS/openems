@@ -1,1 +1,149 @@
 = Deye Battery Inverter
+ApplyPowerHandler – Workflow & Tuning Guide
+
+== Purpose
+Drive a Deye hybrid inverter via OpenEMS to meet an AC active power target using the battery, while:
+reacting quickly to setpoint changes (feed-forward),
+correcting residual error (feedback),
+respecting charge/discharge limits,
+smoothing battery DC power,
+updating inverter “mode flags” periodically,
+managing current setpoints and the export limit (Reg 154),
+preventing PV curtailment when the battery is full.
+
+== One-cycle workflow (each apply() tick)
+Guards
+Skip if ESS not managed or not in WorkState.NORMAL.
+Read inputs
+maxApparentPower, batteryPower, powerAcGrid, activePower, dcDischargePower, pvPower, batteryVoltageRaw, allowedCharge/Discharge, soc.
+If any mandatory values are missing, return.
+Feed-forward AC share → DC battery target
+usedPvPower = activePower - dcDischargePower (AC not from battery).
+ffAc = activePowerTarget - usedPvPower (AC that should come from battery).
+Convert to DC with efficiencies:
+If ffAc ≥ 0 (discharge): targetPowerDc = ceil(ffAc/ETA_D)
+Else (charge): targetPowerDc = floor(ffAc/ETA_C) - P_IDLE
+Feedback correction
+essErrorAc = activePowerTarget - activePower
+fbDc = (essErrorAc ≥ 0) ? ceil(essErrorAc/ETA_D) : floor(essErrorAc/ETA_C)
+targetPowerDc += round(0.3 * fbDc) (tunable; see §6)
+Hard limits (battery capability)
+Discharge: clamp to maxAllowedDischargePower
+Charge: clamp to maxAllowedChargePower
+Smoothing
+Push into AverageCalculator(5); use the average as targetPowerDc.
+Current setpoint (A)
+vbat = batteryVoltageRaw / 1000.0 (units: V)
+iTarget = targetPowerDc / vbat
+Rounding: discharge → ceil, charge → floor
+Magnitude clamp: iSetAbs = min(100, max(5, abs(iTarget))))
+(never 0 A to avoid PV throttle side-effects)
+Sell power (Reg 154), 50 W grid
+sellAc = round(max(0, targetPowerDc) * ETA_D)
+sellPSetQuant = quantize50( clamp_0_8000(sellAc) )
+(this is the export limit used while discharging; during charge it will be 0—unless SoC=100%, see §4.)
+Mode decision (idle ignored)
+lastMode = DISCHARGE if targetPowerDc > 0
+lastMode = CHARGE if targetPowerDc < 0
+If first run, initialize from desiredMode.
+Periodic flag writes (registers 129/130/141/142/145/166/172)
+Every SET_FLAGS_MS (600 ms): writeFlagsFor(lastMode)
+(This keeps inverter state “sticky” even if the device forgets.)
+Timed writes for currents & export limit
+Current registers (debounced min 300 ms, or forced every 4 s keepalive):
+DISCHARGE: Reg 109 (BMS Max Discharge A); also ensure 108 ≥ 5 A.
+CHARGE: Reg 108 (BMS Max Charge A) and Reg 128 (Grid Charge A); ensure 109 ≥ 5 A.
+Export limit Reg 154:
+DISCHARGE: write sellPSetQuant
+CHARGE: write 0 unless SoC=100% (then write max allowed, see §4).
+All writes are gated by due(lastX, MIN_CURR_INTERVAL_MS) or keepalive.
+Diagnostics
+Debug log prints all key inputs, computed targets, last written values, and flag states.
+
+== Register map (as used)
+
+108 – BMS Max Charge Current (A)
+
+109 – BMS Max Discharge Current (A)
+
+128 – Grid Charge Current (A)
+
+129 – Generator Charging Enabled (bool)
+
+130 – Grid Charging Enabled (bool)
+
+141 – Energy Management Model (LOAD_FIRST)
+
+142 – Limit Control Function (SELLING_ACTIVE)
+
+145 – Solar Sell Mode (ENABLED during charge, DISABLED during discharge)
+
+154 – TimePoint1 Sell Power (W, 0–8000, 50 W steps)
+
+166 – TimePoint1 Capacity (your code uses 5 in discharge, 100 in charge)
+
+172 – TimePoint1 Charge Mode (0 discharge, 1 charge)
+
+Note: the class writes these in batches each cycle (flags every 600 ms; currents/154 on change with 300 ms debounce + 4 s keepalive).
+
+== PV-throttling fix at SoC=100%
+
+Some inverter firmwares throttle PV if the battery is full and export power is set to 0 in charge mode.
+The handler prevents that:
+In CHARGE and SoC >= 100 → Reg 154 is written to maximum allowed (sellCapMax = quantized maxApparentPower, capped at 8 kW).
+Otherwise in CHARGE → Reg 154 = 0.
+This preserves PV production at full SoC while still honoring mode semantics.
+
+== Timing & debouncing
+
+MIN_CURR_INTERVAL_MS = 300
+Minimum gap between writes of 108/109/128/154 (per register).
+
+KEEPALIVE_MS = 4000
+Forces a refresh write even if the value did not change, to keep hardware in sync.
+
+SET_FLAGS_MS = 600
+Periodic refresh of flags (129/130/141/142/145/166/172) to avoid stale states.
+
+iSetLast, sellPSetLast
+Prevent redundant writes and reduce bus traffic.
+
+== Tuning knobs & typical symptoms
+
+Feedback gain (currently 0.3):
+Too high → slight over/under delivery (e.g., +20…+50 W discharge bias).
+Too low → slower settling after disturbances.
+Start with 0.20…0.30.
+Smoothing window (AverageCalculator(5)):
+Larger window → steadier battery power, slower reaction.
+Smaller window → snappier, more oscillation.
+Efficiencies (ETA_C=0.92, ETA_D=0.94) & idle (P_IDLE=120):
+If systematic offset in charge or discharge, adjust these slightly.
+Current limits clamp ([5…100] A):
+Minimum 5 A avoids PV curtail quirks.
+Increase max only if BMS & wiring allow it.
+Reg 154 quantization (50 W):
+Rounding up can create +25…+50 W export bias.
+If you want “never overshoot,” quantize down (floor) for discharge.
+
+== Known behaviors & design choices
+
+Idle (very small targets) is treated as “stick with last mode.” This avoids chatter.
+If you need an explicit idle band, add a deadband before deciding desiredMode.
+Generator/ Grid charging flags (129/130) are kept enabled in both modes per your latest code, to prevent any implicit blocks.
+Never write 0 A to 108/109: avoids side-effects on PV control in some firmwares.
+Voltage scaling is /1000.0 (confirmed).
+
+== Troubleshooting checklist
+
+Flags don’t “stick”: Check SET_FLAGS_MS and confirm logs show periodic writes; verify 141=LOAD_FIRST, 142=SELLING_ACTIVE, 145 matches mode.
+PV drops at SoC=100%: Ensure CHARGE path writes Reg 154 to sellCapMax (log shows “154: …”).
+Overshoot in discharge (~+50 W): Lower feedback gain (e.g., 0.20) and/or quantize 154 down for discharge.
+Currents ignored: Confirm 108/109/128 are actually changing (look for lastXXXMs updating). Increase keepalive if needed.
+
+== Suggested test scenarios
+
+Step change up/down in activePowerTarget with PV=0 → observe settling, check 109/154 writes.
+PV ramp (simulate clouds): verify feed-forward keeps grid near target.
+SoC=99.5→100% while charging with high PV: confirm Reg 154 jumps to sellCapMax and PV stays high.
+Edge limits (close to maxAllowedCharge/Discharge): confirm clamping in logs.

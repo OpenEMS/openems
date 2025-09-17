@@ -134,8 +134,8 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 	// private final AllowedChargeDischargeHandler allowedChargeDischargeHandler =
 	// new AllowedChargeDischargeHandler(this,this.battery);
-	private ApplyPowerHandler applyPowerHandler = null;
-	private AllowedChargeDischargeHandler allowedChargeDischargeHandler = null;
+	private volatile ApplyPowerHandler applyPowerHandler = null;
+	private volatile AllowedChargeDischargeHandler allowedChargeDischargeHandler = null;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -191,11 +191,18 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		// this.channel(DeyeSunHybrid.ChannelId.SET_GRID_LOAD_OFF_POWER);
 		// setGridLoadOffPowerChannel.setNextWriteValue(93);
 
+	    if (this.battery == null) {
+	        this.applyPowerHandler = null;
+	        this.allowedChargeDischargeHandler = null;
+	        return;
+	    }		
+		
 		if (this.applyPowerHandler != null) {
-			this.applyPowerHandler.apply(activePower, reactivePower, this.config.maxApparentPower());
+			this.applyPowerHandler.apply(activePower, reactivePower, this.config.maxApparentPower(),this.config.deadBand());
 		}
 
 	}
+
 
 	public EmsPowerMode getEmsPowerMode() {
 		return this.config.emsPowerMode();
@@ -211,7 +218,11 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 
 
-				new FC16WriteRegistersTask(141,
+				new FC16WriteRegistersTask(128,
+						m(DeyeSunHybrid.ChannelId.SET_GRID_CHARGE_CURRENT, new UnsignedWordElement(128)),
+						m(DeyeSunHybrid.ChannelId.SET_GENERATOR_CHARGING_ENABLE, new UnsignedWordElement(129)),
+						m(DeyeSunHybrid.ChannelId.SET_GRID_CHARGING_ENABLE, new UnsignedWordElement(130)),
+						new DummyRegisterElement(131,140),
 						m(DeyeSunHybrid.ChannelId.ENERGY_MANAGEMENT_MODEL, new UnsignedWordElement(141)),
 						m(DeyeSunHybrid.ChannelId.LIMIT_CONTROL_FUNCTION, new UnsignedWordElement(142)),
 						m(DeyeSunHybrid.ChannelId.POWER_TO_GRID_TARGET, new UnsignedWordElement(143)),
@@ -274,7 +285,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(20).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
-				new FC3ReadRegistersTask(60, Priority.HIGH,
+				new FC3ReadRegistersTask(60, Priority.LOW,
 
 						m(DeyeSunHybrid.ChannelId.REMOTE_LOCK_STATE, new UnsignedWordElement(60)),
 
@@ -336,7 +347,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 						m(DeyeSunHybrid.ChannelId.SOLAR_SELL_MODE, new UnsignedWordElement(145))),
 				// m(DeyeSunHybrid.ChannelId.TIME_OF_USE_SELLING_ENABLED, new
 				// UnsignedWordElement(146)),
-				new FC3ReadRegistersTask(146, Priority.HIGH,
+				new FC3ReadRegistersTask(146, Priority.LOW,
 						m(new BitsWordElement(146, this).bit(0, DeyeSunHybrid.ChannelId.TIME_OF_USE_SELLING_ENABLED) // Common
 																														// switch
 								.bit(1, DeyeSunHybrid.ChannelId.TIME_OF_USE_MONDAY) //
@@ -505,7 +516,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 			this.calculateEnergy();
 			break;
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			// this.calculateAllowedChargeDischargePower();
 			this.getAndSetChannels();
 			this.allowedChargeDischargeHandler.accept(this.componentManager);
@@ -528,6 +539,12 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		// TODO this should be smarter: set in energy saving mode if there was no output
 		// power for a while and we don't need emergency power.
 		if (this.getWorkState() != WorkState.NORMAL || this.lastDefineWorkState == null) {
+			
+			this.logDebug(this.log, "Battery: " + this.battery
+					+ " Running: " + this.battery.isStarted()
+					+ " RunState: " +  this.battery.getRunState().toString()
+					+ ""
+					+ "");
 			
 			if (this.battery == null || this.battery.getStartStop() != StartStop.START || this.battery.getRunState() != BatteryRunState.NORMAL ) {
 				this.changeState(WorkState.WARNING);
@@ -601,6 +618,10 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		return true;
 	}
 
+	public int getDeadBand() {
+		return this.config.deadBand();
+	}
+	
 	@Override
 	public Power getPower() {
 		return this.power;
@@ -773,6 +794,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 			// Allow Charge from grid / generator
 			this.setChargeModeTimePoint1(3);
+			this.setChargeModeTimePoint2(3);
 			//this.setLimitControlFunction(LimitControlFunction.SELLING_ACTIVE); 
 			
 			// max power to grid including pv production

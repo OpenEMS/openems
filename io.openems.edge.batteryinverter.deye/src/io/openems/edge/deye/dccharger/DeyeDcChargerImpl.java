@@ -47,7 +47,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Deye.Dc.Charger", //
+		name = "Deye.DcCharger", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -120,7 +120,7 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(667, Priority.LOW, //
+				new FC3ReadRegistersTask(667, Priority.HIGH, //
 						m(DeyeDcCharger.ChannelId.ACTIVE_POWER_GENERATOR, new UnsignedWordElement(667)),
 						new DummyRegisterElement(668, 671),
 
@@ -174,7 +174,7 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 			
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			// this.calculateProductionEnergy.update(this.getActivePower().get());
-			this.calculateActualPower();
+			//this.calculateActualPower();
 			break;			
 		}
 	}

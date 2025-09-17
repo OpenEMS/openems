@@ -14,11 +14,20 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
 
-	@AttributeDefinition(name = "xrgiRo-ID", description = "ID of the XrgiRo device")
-	String xrgiRo_id() default "xrgiRo0";	
+	@AttributeDefinition(name = "xrgiRo0-ID", description = "ID of the first XrgiRo device")
+	String xrgiRo0_id() default "xrgiRo0";
+	
+	@AttributeDefinition(name = "xrgiRo1-ID", description = "ID of the second XrgiRo device. Leave empty for none")
+	String xrgiRo1_id() default "";	
+	
+	@AttributeDefinition(name = "xrgiRo2-ID", description = "ID of the third XrgiRo device. Leave empty for none")
+	String xrgiRo2_id() default "";
+	
+	@AttributeDefinition(name = "xrgiRo3-ID", description = "ID of the fourth XrgiRo device. Leave empty for none")
+	String xrgiRo3_id() default "";
 	
 	@AttributeDefinition(name = "xrgiControl-ID", description = "ID of the Xrgi control device")
-	String xrgiControl_id() default "xrgiControl";		
+	String xrgiControl_id() default "xrgiControl0";		
 	
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;

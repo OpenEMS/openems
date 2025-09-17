@@ -1,9 +1,5 @@
 package io.openems.edge.controller.chp.costoptimization;
 
-import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
-import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
-import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
-
 import java.time.Duration;
 import java.time.Instant;
 
@@ -74,8 +70,16 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private TimeOfUseTariff timeOfUseTariff;
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
-	private ElectricityMeter gridMeter;
+	@Reference(
+		    name = "gridMeter",
+		    service = ElectricityMeter.class,
+		    policy = ReferencePolicy.DYNAMIC,
+		    policyOption = ReferencePolicyOption.GREEDY,
+		    cardinality = ReferenceCardinality.OPTIONAL,
+		    bind = "bindGridMeter",
+		    unbind = "unbindGridMeter"
+		)
+	private volatile ElectricityMeter gridMeter;
 
 	@Reference
 	private ManagedSymmetricGenerator chp;
@@ -93,15 +97,14 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		// update filter for 'chp manager device'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chp", config.chp_id())) {
-			return;
-		}
+	    boolean updated = false;
+	    updated |= OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chp", config.chp_id());
+	    updated |= OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.meter_id());
+	    if (updated) return; // DS reconfig kommt gleich nochmal
 
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.meter_id())) {
-			return;
-		}
+	    var props = context.getProperties();
+	    log.info("[CHP CostOpt] gridMeter.target={}", props.get("gridMeter.target"));
+	    log.info("[CHP CostOpt] chp.target={}",       props.get("chp.target"));
 	}
 
 	@Override
@@ -340,8 +343,12 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	}
 
 	private boolean checkOperationalValues() {
-		this.logDebug(this.log, "" + "gridMeter: " + this.gridMeter + "chp: " + this.chp + "gridActivePower: "
-				+ (this.gridMeter != null ? this.gridMeter.getActivePower().get() : null));
+		this.logDebug(this.log, "" + " gridMeter: " + this.gridMeter + " chp: " + this.chp + " gridActivePower: "
+				+ (this.gridMeter != null ? this.gridMeter.getActivePower().get() : null)
+				+ (this.chp != null ? this.chp.getGeneratorActivePower().get() : null)				
+				
+				
+				);
 
 		if (this.chp == null || this.gridMeter == null || this.gridMeter.getMeterType() != MeterType.GRID
 				|| this.timeOfUseTariff == null || this.gridMeter.getActivePower().get() == null || this.chp.getGeneratorActivePower().get() == null) {
@@ -352,6 +359,17 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		return true;
 
 	}
+	
+	void bindGridMeter(ElectricityMeter m) {
+	    this.gridMeter = m;
+	    log.info("[CHP CostOpt] gridMeter bound: id={}, type={}", m.id(), m.getMeterType());
+	}
+	void unbindGridMeter(ElectricityMeter m) {
+	    if (this.gridMeter == m) {
+	        this.gridMeter = null;
+	        log.info("[CHP CostOpt] gridMeter unbound: id={}", m.id());
+	    }
+	}	
 
 	/**
 	 * Uses Info Log for further debug features.
