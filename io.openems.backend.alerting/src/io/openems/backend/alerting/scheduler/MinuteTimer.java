@@ -43,11 +43,11 @@ public class MinuteTimer implements TimedExecutor {
 	 * @param sub to add
 	 */
 	public void subscribe(Consumer<ZonedDateTime> sub) {
-		this.subscriber.add(sub);
-		if (this.subscriber.size() > 0) {
+		if (sub != null) {
+			this.subscriber.add(sub);
 			this.start();
 		}
-	}
+    }
 
 	/**
 	 * Remove subscriber from every minute execution.
@@ -58,7 +58,7 @@ public class MinuteTimer implements TimedExecutor {
 		if (sub != null) {
 			this.subscriber.remove(sub);
 		}
-		if (this.subscriber.size() == 0) {
+		if (this.subscriber.isEmpty()) {
 			this.stop();
 		}
 	}
@@ -85,8 +85,8 @@ public class MinuteTimer implements TimedExecutor {
 	 */
 	@Override
 	public void cancel(TimedTask task) {
-		if (task != null) {
-			this.singleTasks.remove(task);
+		if (task != null && !this.singleTasks.remove(task)) {
+			this.log.debug("Task {} not found in singleTasks", task);
 		}
 	}
 
@@ -103,8 +103,11 @@ public class MinuteTimer implements TimedExecutor {
 	}
 
 	private void logDebugInfos() {
+		if (!this.log.isDebugEnabled()) {
+			return;
+		}
 		if (this.cycleCount % 5 == 0) {
-			this.log.debug("MinuteTimer[ Now:%s, Ticks:%s ]".formatted(this.now(), this.cycleCount));
+			this.log.debug("MinuteTimer[ Now:{}, Ticks:{} ]", this.now(), this.cycleCount);
 		}
 	}
 
@@ -130,8 +133,8 @@ public class MinuteTimer implements TimedExecutor {
 		for (var sub : this.subscriber) {
 			try {
 				sub.accept(now);
-			} catch (Throwable t) {
-				this.log.error(t.getMessage(), t);
+			} catch (Exception ex) {
+				this.log.error(ex.getMessage(), ex);
 			}
 		}
 	}
@@ -141,8 +144,8 @@ public class MinuteTimer implements TimedExecutor {
 				&& this.singleTasks.peek().executeAt.isBefore(now)) {
 			try {
 				this.singleTasks.poll().task.accept(now);
-			} catch (Throwable t) {
-				this.log.error(t.getMessage(), t);
+			} catch (Exception ex) {
+				this.log.error(ex.getMessage(), ex);
 			}
 		}
 	}

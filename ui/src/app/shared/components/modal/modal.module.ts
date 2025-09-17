@@ -7,6 +7,7 @@ import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
 import { PipeComponentsModule } from "../../pipe/pipe.module";
+import { OeImageComponent } from "../oe-img/oe-img";
 import { HelpButtonComponent } from "./help-button/help-button";
 import { HelpLinkComponent } from "./help-link/help-link";
 import { ModalComponent } from "./modal";
@@ -19,7 +20,7 @@ import { ModalValueLineComponent } from "./modal-value-line/modal-value-line";
 import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-horizontal-line";
 
 @NgModule({
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, IonicModule, PipeComponentsModule, TranslateModule, HelpButtonComponent],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, IonicModule, PipeComponentsModule, TranslateModule, HelpButtonComponent, OeImageComponent],
   declarations: [
     ModalButtonsComponent,
     ModalInfoLineComponent,
@@ -40,6 +41,7 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
     ModalLineItemComponent,
     ModalPhasesComponent,
     ModalValueLineComponent,
+    OeImageComponent,
     HelpLinkComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

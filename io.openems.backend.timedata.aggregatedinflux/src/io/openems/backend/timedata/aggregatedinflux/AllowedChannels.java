@@ -19,7 +19,7 @@ public final class AllowedChannels {
 
 	static {
 		final var io = new Namespace("io", 0, 10);
-		final var ess = new Namespace("ess", 0, 17);
+		final var ess = new Namespace("ess", 0, 31);
 		final var evcs = new Namespace("evcs", 0, 10);
 		final var meter = new Namespace("meter", 0, 20);
 		final var ctrlEvseSingle = new Namespace("ctrlEvseSingle", 0, 10);
@@ -64,6 +64,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ess, "Soc", DataType.LONG)) //
 				.putAll(multiChannels(ess, "ActivePower", DataType.LONG)) //
 				.putAll(multiChannels(ess, "ReactivePower", DataType.LONG)) //
+				.putAll(multiChannels(ess, "DcDischargePower", DataType.LONG)) //
 				.putAll(multiChannels(ctrlIoHeatingElement, "Level", DataType.LONG)) //
 				.put("ctrlGridOptimizedCharge0/DelayChargeMaximumChargeLimit", DataType.LONG) //
 				.putAll(multiChannels(charger, "ActualPower", DataType.LONG)) //
@@ -166,6 +167,8 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ctrlIoHeatPump, "LockStateTime", DataType.LONG)) //
 				.putAll(multiChannels(ess, "ActiveChargeEnergy", DataType.LONG)) //
 				.putAll(multiChannels(ess, "ActiveDischargeEnergy", DataType.LONG)) //
+				.putAll(multiChannels(ess, "DcChargeEnergy", DataType.LONG)) //
+				.putAll(multiChannels(ess, "DcDischargeEnergy", DataType.LONG)) //
 				.putAll(multiChannels(ctrlApiModbusTcp, "CumulatedActiveTime", DataType.LONG)) //
 				.putAll(multiChannels(ctrlApiModbusTcp, "CumulatedInactiveTime", DataType.LONG)) //
 				.put("ctrlEssLimiter14a0/CumulatedRestrictionTime", DataType.LONG) //

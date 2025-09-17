@@ -43,7 +43,7 @@ export namespace DateUtils {
    * @param date the date
    * @returns the date if valid, else null
    */
-  export function stringToDate(date: string) {
+  export function stringToDate(date: string): Date | null {
     return isNaN(new Date(date)?.getTime()) ? null : new Date(date);
   }
 
@@ -91,6 +91,21 @@ export namespace DateUtils {
       return isBefore(date, compareDate);
     }
     return false;
+  }
+
+  /**
+   * Formats a date range for quarters.
+   *
+   * @param fromDate The start date of the quarter.
+   * @param toDate The end date of the quarter.
+   * @param dateFormat The desired date format string (e.g., "dd.MM.yyyy").
+   * @returns A formatted date range string (e.g., "01.01.2024 - 31.03.2024").
+   */
+  export function formatQuarterDateRange(fromDate: Date, toDate: Date, dateFormat: string): string | null {
+    if (!fromDate || !toDate) {
+      return null;
+    }
+    return `${format(fromDate, dateFormat)} - ${format(toDate, dateFormat)}`;
   }
 
   /**

@@ -1,10 +1,12 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import static io.openems.common.utils.StringUtils.definedOrElse;
+import static io.openems.edge.timeofusetariff.api.TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
 import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
+import static io.openems.edge.timeofusetariff.entsoe.Utils.parseToSchedule;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.processPrices;
 
 import java.io.IOException;
@@ -172,9 +174,14 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 		this.config = config;
 
-		var schedule = AncillaryCosts.parseToSchedule(config.biddingZone(), config.ancillaryCosts(),
-				msg -> this.logWarn(this.log, msg));
-		this.helper = new TouManualHelper(schedule, 0.0);
+		try {
+			var schedule = parseToSchedule(config.biddingZone(), config.ancillaryCosts(),
+					msg -> this.logWarn(this.log, msg));
+			this.helper = new TouManualHelper(schedule, 0.0);
+		} catch (OpenemsNamedException e) {
+			this.logWarn(this.log, "Unable to parse Schedule: " + e.getMessage());
+			this.helper = EMPTY_TOU_MANUAL_HELPER;
+		}
 
 	}
 

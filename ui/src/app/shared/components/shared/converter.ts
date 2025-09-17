@@ -95,6 +95,34 @@ export namespace Converter {
   };
 
   /**
+  * Formats a apparent power value as Volt-Ampere [VA].
+  *
+  * Value 1000 -> "1.000 VA".
+  * Value null -> "-".
+  *
+  * @param value the power value
+  * @returns formatted value; '-' for null
+  */
+  export const POWER_IN_VOLT_AMPERE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_VOLT_AMPERE(value));
+  };
+
+  /**
+  * Formats a apparent power value as Volt-Ampere [VA].
+  *
+  * Value 1000 -> "1.000 VA".
+  * Value null -> "-".
+  *
+  * @param value the power value
+  * @returns formatted value; '-' for null
+  */
+  export const POWER_IN_VOLT_AMPERE_REACTIVE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_VOLT_AMPERE_REACTIVE(value));
+  };
+
+  /**
    * Formats a Power value as Watt [W].
    *
    * Value 1000 -> "1.000 W".
@@ -312,6 +340,35 @@ export namespace Converter {
       return IF_NUMBER(raw, value => {
         return TimeUtils.formatSecondsToDuration(value, locale);
       });
+    };
+  };
+
+  /**
+   * Converts the runState of the heating element to the tranlsated state
+   *
+   * @param translate the current language to be translated to
+   * @returns converted value
+   */
+  export const CONVERT_HEATING_ELEMENT_RUNSTATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case 0:
+          return translate.instant("General.inactive");
+        case 1:
+          return translate.instant("General.active");
+        case 2:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.activeForced");
+        case 3:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.ACTIVED_FORCED_LIMIT");
+        case 4:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.DONE");
+        case 5:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.UNREACHABLE");
+        case 6:
+          return translate.instant("Edge.Index.Widgets.Heatingelement.CALIBRATION");
+        default:
+          return "";
+      };
     };
   };
 

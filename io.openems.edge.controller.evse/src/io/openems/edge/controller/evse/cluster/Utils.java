@@ -24,6 +24,7 @@ import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
 import io.openems.edge.evse.api.common.ApplySetPoint;
@@ -129,6 +130,18 @@ public class Utils {
 		}
 
 		/**
+		 * Stream all {@link Entry}s with non-null {@link Params} which are NOT ready
+		 * for charging.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamNonActives() {
+			return this.streamWithParams() //
+					.filter(e -> !e.params.combinedAbilities().isReadyForCharging()
+							|| e.params.appearsToBeFullyCharged());
+		}
+
+		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
 		 * charging and in {@link Mode.Actual#SURPLUS} mode.
 		 * 
@@ -191,6 +204,7 @@ public class Utils {
 
 		initializeSetPoints(powerDistribution);
 		distributeSurplusPower(powerDistribution, distributionStrategy, sum);
+		permitNonActives(powerDistribution);
 
 		// Build Actions
 		powerDistribution.streamWithParams().forEach(e -> {
@@ -208,17 +222,6 @@ public class Utils {
 	 * @param powerDistribution the {@link PowerDistribution}
 	 */
 	private static void initializeSetPoints(PowerDistribution powerDistribution) {
-		// Set all to MINIMUM by default
-		// Example: apply min value if car appears to be fully charged. Makes no
-		// difference in power, but allows the car to start pre-heating, etc.
-		powerDistribution.streamWithParams().forEach(e -> {
-			var min = e.params.combinedAbilities().applySetPoint().min();
-			e.setPointInWatt = switch (e.params.actualMode()) {
-			case FORCE, MINIMUM -> min;
-			case SURPLUS, ZERO -> 0;
-			};
-		});
-		// Set Actives to actual setting
 		powerDistribution.streamActives().forEach(e -> {
 			var asp = e.params.combinedAbilities().applySetPoint();
 			e.setPointInWatt = switch (e.params.actualMode()) {
@@ -252,6 +255,29 @@ public class Utils {
 		distributeSurplusRemainingPower(powerDistribution, distributionStrategy, remainingDistributablePower);
 
 		distributeToApplySetPointStep(powerDistribution);
+	}
+
+	/**
+	 * For EVs that are Non-Active but not configured as {@link Mode#ZERO}, still
+	 * set the minimum Set-Point to allow pre-heating, etc.
+	 * 
+	 * <p>
+	 * This applies to
+	 * 
+	 * <ul>
+	 * <li>not {@link ChargePointAbilities#isReadyForCharging()}
+	 * <li>{@link Params#appearsToBeFullyCharged()}
+	 * </ul>
+	 * 
+	 * @param powerDistribution the {@link PowerDistribution}
+	 */
+	private static void permitNonActives(PowerDistribution powerDistribution) {
+		powerDistribution.streamNonActives().forEach(e -> {
+			e.setPointInWatt = switch (e.params.actualMode()) {
+			case MINIMUM, FORCE, SURPLUS -> e.params.combinedAbilities().applySetPoint().min();
+			case ZERO -> 0;
+			};
+		});
 	}
 
 	/**

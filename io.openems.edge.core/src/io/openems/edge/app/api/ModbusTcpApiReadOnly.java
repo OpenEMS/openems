@@ -72,7 +72,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsAppWithProps<ModbusTcpA
 							.getComponentIdsByFactory("Controller.Api.ModbusTcp.ReadWrite").size() == 0;
 					return new JsonPrimitive(active);
 				})), //
-		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID) //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, false) //
 				.setRequired(true)) //
 		;
 

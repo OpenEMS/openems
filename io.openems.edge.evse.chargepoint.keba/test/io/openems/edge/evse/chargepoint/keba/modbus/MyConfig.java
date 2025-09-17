@@ -1,5 +1,7 @@
 package io.openems.edge.evse.chargepoint.keba.modbus;
 
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
@@ -16,7 +18,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private SingleOrThreePhase wiring;
 		private boolean p30hasS10PhaseSwitching;
 		private LogVerbosity logVerbosity;
-
+		private int modbusUnitId = 1;
+		
 		private Builder() {
 		}
 
@@ -92,6 +95,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String Modbus_target() {
+		return generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
 	public PhaseRotation phaseRotation() {
 		return this.builder.phaseRotation;
 	}
@@ -104,5 +112,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean p30hasS10PhaseSwitching() {
 		return this.builder.p30hasS10PhaseSwitching;
+	}
+
+	@Override
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
 }

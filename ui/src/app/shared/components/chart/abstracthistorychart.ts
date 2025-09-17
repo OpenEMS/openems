@@ -416,7 +416,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       return AbstractHistoryChart.getToolTipsSuffix(label, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, translate, config);
     };
 
-    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>): Chart.TooltipLabelStyle | void => {
+    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
       let backgroundColor = item.dataset.backgroundColor;
 
       if (Array.isArray(backgroundColor)) {
@@ -1077,11 +1077,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
                   this.initializeChart();
                 }
                 resolve(responseToReturn);
+              }).catch(() => {
+                this.initializeChart();
               });
-          }),
+          })
         );
     });
-
   }
 
   /**
@@ -1239,6 +1240,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           this.channelData = displayValues.channelData;
           this.beforeSetChartLabel();
           this.setChartLabel();
+        }).catch(() => {
+
+          this.initializeChart();
+          // Show empty chart
+          resolve();
         }).finally(() => resolve());
     });
   }
@@ -1262,6 +1268,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
         this.beforeSetChartLabel();
         this.setChartLabel();
+        resolve();
+      }).catch(() => {
+
+        this.initializeChart();
+        // Show empty chart
         resolve();
       }).finally(() => resolve());
     });
