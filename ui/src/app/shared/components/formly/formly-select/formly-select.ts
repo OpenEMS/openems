@@ -22,6 +22,7 @@ import { FieldType } from "@ngx-formly/core";
         </ion-select-option>
       </ng-container>
     </ion-select>
+    <p *ngIf="to.description" style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">{{ to.description }}</p>
   `,
   standalone: false,
   styles: [`
@@ -34,6 +35,14 @@ import { FieldType } from "@ngx-formly/core";
             .alert-checkbox-label{
               color: var(--ion-text-color) !important;
             }
+        }
+        ion-select::part(label) {
+          max-width: 100% !important;
+          white-space: normal !important;
+        }
+
+        ion-select::part(text) {
+          flex: 1;
         }
       `],
 })

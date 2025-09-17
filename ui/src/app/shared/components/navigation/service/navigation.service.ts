@@ -1,35 +1,84 @@
-import { Directive, effect, signal, WritableSignal } from "@angular/core";
+import { Location } from "@angular/common";
+import { Directive, effect, signal, untracked, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
-import { RouteService } from "../../../service/previousRouteService";
-import { Service, Websocket } from "../../../shared";
+import { TranslateService } from "@ngx-translate/core";
+import { User } from "src/app/shared/jsonrpc/shared";
+import { RouteService } from "src/app/shared/service/route.service";
+import { UserService } from "src/app/shared/service/user.service";
+import { Edge, EdgeConfig, Service } from "../../../shared";
 import { ArrayUtils } from "../../../utils/array/array.utils";
 import { AssertionUtils } from "../../../utils/assertions/assertions.utils";
-import { NavigationId, NavigationTree } from "../shared";
+import { NavigationTree } from "../shared";
 
 @Directive()
 export class NavigationService {
 
-    public navigationNodes: WritableSignal<NavigationTree | null> = signal(null);
+    public navigationTree: WritableSignal<NavigationTree | null> = signal(null);
     public currentNode: WritableSignal<NavigationTree | null> = signal(null);
-    public headerOptions: { showBackButton: boolean } = { showBackButton: false };
-    public position: "left" | "bottom" | null = null;
+    public position: WritableSignal<"left" | "bottom" | "disabled" | null> = signal(null);
+    public headerOptions: WritableSignal<{ showBackButton: boolean }> = signal({ showBackButton: false });
 
     constructor(
         private service: Service,
+        private userService: UserService,
         private routeService: RouteService,
         private router: Router,
-        private websocket: Websocket
+        private location: Location,
+        private translate: TranslateService,
     ) {
 
+        this.setPosition();
+
         effect(async () => {
-            const currentEdge = this.service.currentEdge();
-            const currentUrl = this.routeService.currentUrl();
-            currentEdge?.getFirstValidConfig(websocket).then(config => {
-                const nodes = config.navigation;
-                this.navigationNodes.set(nodes);
-                this.initNavigation(currentUrl, nodes);
+            const _currentUrl = this.routeService.currentUrl();
+            const currentEdge = await this.service.getCurrentEdge();
+            currentEdge?.getFirstValidConfig(service.websocket).then(async (config: EdgeConfig) => {
+                this.updateNavigationNodes(_currentUrl, currentEdge, translate);
             });
         });
+    }
+
+    public static isNewNavigation(user: User | null, edge: Edge | null) {
+        return (user && user.getUseNewUIFromSettings()) || NavigationService.forceNewNavigation(edge);
+    }
+
+    public static forceNewNavigation(edge: Edge | null): boolean {
+        const config = edge?.getCurrentConfig() ?? null;
+
+        if (config == null) {
+            return false;
+        }
+        return config.hasFactories(["Evse.Controller.Single"]);
+    }
+
+    /**
+     * Creates a navigation Tree
+     *
+     * @param components the edgeconfig components
+     * @param factories the edgeconfig factories
+     * @param edge the current edge
+     * @param translate the translate service
+     * @returns a navigationTree
+     */
+    private static async createNavigationTree(edge: Edge, translate: TranslateService): Promise<NavigationTree | null> {
+        if (edge == null) {
+            return Promise.resolve(null);
+        }
+        return await edge.createNavigationTree(translate, edge);
+    }
+
+    /**
+     * Updates the navigation nodes
+     *
+     * @param config the edge config
+     * @param currentEdge the current edge
+     * @param translate the translate service
+     * @param currentUrl the current url
+     */
+    public async updateNavigationNodes(currenUrl: string | null, edge: Edge, translate: TranslateService) {
+        const navigationTree = await NavigationService.createNavigationTree(edge, translate);
+        this.navigationTree.set(navigationTree);
+        this.initNavigation(currenUrl, navigationTree);
     }
 
     /**
@@ -45,15 +94,28 @@ export class NavigationService {
         const currentSegments = currentUrl.split("/");
         const newSegments = link.routerLink.split("/");
 
-        if (ArrayUtils.containsStrings(currentSegments, newSegments)) {
+        if (ArrayUtils.containsAllStrings(currentSegments, newSegments)) {
 
             // Navigate backward
             const prevRoute = this.getPrevRoute(currentSegments, link.routerLink);
             this.router.navigate(prevRoute);
         } else {
+
             // Navigate forward
-            this.router.navigate([...currentSegments, ...newSegments]);
+            const startIndex = currentSegments.findIndex(el => newSegments.find(i => i == el));
+            const newRoute = [...currentSegments.slice(0, startIndex), ...newSegments];
+            this.router.navigate(newRoute);
         }
+    }
+
+    /**
+     * Navigates back to the previous page.
+     *
+     * Uses Angular's Location service to go back one step in the browser history.
+     *
+     */
+    public goBack(): void {
+        this.location.back();
     }
 
     /**
@@ -62,17 +124,24 @@ export class NavigationService {
      * @param currentUrl the current url
      * @param nodes the navigation tree
      */
-    private async initNavigation(currentUrl: string | null, nodes: NavigationTree) {
-        const activeNode = this.findActiveNode(nodes, currentUrl);
+    private async initNavigation(currentUrl: string | null, navigationTree: NavigationTree | null) {
+        const activeNode = this.findActiveNode(navigationTree, currentUrl);
+        this.setPosition();
+        this.headerOptions.set({ showBackButton: activeNode == null });
+        this.currentNode.set(NavigationTree.of(activeNode));
+    }
 
-        if (nodes && nodes.children && nodes.children.length > 0) {
-            this.position = this.service.isSmartphoneResolution ? "bottom" : "left";
+    /**
+     * Sets the navigation position
+     */
+    private setPosition() {
+        const user = this.userService.currentUser();
+
+        if (NavigationService.isNewNavigation(user, untracked(() => this.service.currentEdge()))) {
+            this.position.set(this.service.isSmartphoneResolution ? "bottom" : "left");
         } else {
-            this.position = null;
+            this.position.set("disabled");
         }
-
-        this.headerOptions.showBackButton = activeNode == null;
-        this.currentNode.set(activeNode);
     }
 
     /**
@@ -157,7 +226,7 @@ export class NavigationService {
          * @param url the current router url
          * @returns the navigationId if found, else null
          */
-        function getNavigationId(tree: NavigationTree | null, url: string | null): string | NavigationId | null {
+        function getNavigationIds(tree: NavigationTree | null, url: string | null): NavigationTree | null {
             if (!tree || !url) {
                 return null;
             }
@@ -167,38 +236,11 @@ export class NavigationService {
 
             const foundNode = ArrayUtils.containsAllStrings(some.slice(0, urlSegments.length), urlSegments);
             if (foundNode) {
-                return tree.id;
-            }
-
-            for (const child of tree.children) {
-                const result = getNavigationId(child, url);
-
-                if (result) {
-                    return result;
-                }
-            }
-
-            return null;
-        }
-
-        /**
-         * Finds the node by navigationId
-         *
-         * @param navigationId the navigationId to find
-         * @param tree the navigation tree to search
-         * @returns
-         */
-        function findNavigationNodeByNavigationId(navigationId: NavigationId | string, tree: NavigationTree | null): NavigationTree | null {
-            if (!tree) {
-                return null;
-            }
-
-            if (tree.id === navigationId) {
                 return tree;
             }
 
             for (const child of tree.children) {
-                const result = findNavigationNodeByNavigationId(navigationId, child);
+                const result = getNavigationIds(child, url);
 
                 if (result) {
                     return result;
@@ -210,11 +252,11 @@ export class NavigationService {
 
         const _nodes = structuredClone(nodes);
         const flattenedNavigationTree: NavigationTree | null = convertRelativeToAbsoluteLink(_nodes);
-        const navigationId = getNavigationId(flattenedNavigationTree, currentUrl);
-        if (!navigationId) {
+        const currentNavigationNode = getNavigationIds(flattenedNavigationTree, currentUrl);
+
+        if (!currentNavigationNode) {
             return null;
         }
-
-        return findNavigationNodeByNavigationId(navigationId, nodes);
+        return currentNavigationNode;
     }
 }

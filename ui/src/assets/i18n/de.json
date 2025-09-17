@@ -73,6 +73,7 @@
           "peakshavingPower": "Entladung über",
           "recharge": "Beladeleistung",
           "rechargePower": "Beladung unter",
+          "hysteresisSoC": "Schwellenwert Ladezustand",
           "relationError": "Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein",
           "startDate": "Start Datum",
           "startTime": "Startzeit",
@@ -170,6 +171,7 @@
           "starting": "Startet",
           "status": "Status",
           "totalCharge": "Gesamte Beladung",
+          "totalDischarge": "Gesamte Entladung",
           "totalChargingPower": "Gesamte Ladeleistung",
           "unknown": "Unbekannt",
           "unplugged": "Ausgesteckt",
@@ -212,13 +214,33 @@
           "activeLevel": "Aktives Level",
           "endtime": "Endzeit",
           "energy": "Energie",
-          "guaranteeMinimumHeating": "Minimale Beheizung garantieren",
+          "guaranteeMinimumHeating": "Minimale Heizdauer garantieren",
           "heatingelement": "Heizelement",
           "minimalEnergyAmount": "Minimale Energiemenge",
           "minimumRunTime": "Mindestlaufzeit",
           "priority": "Priorität",
           "time": "Zeit",
-          "timeCountdown": "Spätester Start"
+          "timeCountdown": "Spätester Start",
+          "GUARANTEE_HEATING": "Minimale Heizenergie garantieren",
+          "MINIMAL_ENERGY_LIMIT": "Minimales Energielimit",
+          "ACTIVED_FORCED_LIMIT": "Aktiv (Zusatzenergie)",
+          "DONE": "Fertig",
+          "UNREACHABLE": "Unerreichbar",
+          "CALIBRATION": "Kalibrierung",
+          "CALIBRATION_DESCRIPTION": "Der Heizstab wird kalibriert, um die Leistung der einzelnen Level des Zählers zu bekommen",
+          "HEATING_POWER": "Heizleistung",
+          "MESSAGE_UNREACHABLE": "Das Energielimit kann nicht in der Zeit erreicht werden",
+          "ENERGY_SINCE_BEGINNING": "Energie seit Beginn"
+        },
+        "HEAT": {
+          "TEMPERATURE": "Wassertemperatur",
+          "TEMPERATURE_UNIT": "Wassertemperatur in °C",
+          "NO_HEATING": "heizt nicht",
+          "HEATING": "heizt",
+          "HEATING_OUTPUT": "Heizleistung",
+          "HEATING_ENERGY": "Heizenergie",
+          "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen Ihres AC-Thor Heizstabes können Sie in der MyPV-App vornehmen.",
+          "TARGET_TEMPERATURE_REACHED": "Zieltemperatur erreicht"
         },
         "HeatPump": {
           "aboveSoc": "und ab Ladezustand von",
@@ -455,7 +477,10 @@
         "successDelete": "App erfolgreich entfernt",
         "failDelete": "Entfernen der App fehlgeschlagen: {{error}}",
         "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
-        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden."
+        "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden.",
+        "technicalName": "Technischer Name",
+        "category": "Kategorie",
+        "cardinality": "Kardinalität"
       }
     },
     "Service": {
@@ -476,7 +501,11 @@
       "addIP": "Statische IP-Adressen hinzufügen",
       "validAddressWarning": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24",
       "advancedMode": "erweiterte Ansicht",
-      "submit": "Anwenden"
+      "submit": "Anwenden",
+      "DHCP": {
+        "INFO": "Die angezeigte IP-Adresse wurde dynamisch über DHCP (Dynamic Host Configuration Protocol) vergeben. Sie ist nicht dauerhaft und kann sich bei einem Neustart des Geräts oder Routers ändern.",
+        "ADDRESS": "DHCP Adresse"
+      }
     },
     "title": "{{ edgeShortName }}",
     "FOOTER": {
@@ -561,6 +590,8 @@
     "storageSystem": "Speichersystem",
     "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
+    "TOTAL_CHARGE": "Gesamte Beladung",
+    "TOTAL_DISCHARGE": "Gesamte Entladung",
     "totalState": "Gesamtstatus",
     "VISIBLE_FOR_ADMINS_ONLY": "Sichtbar nur für Service & Administration",
     "warning": "Warnung",
@@ -621,7 +652,10 @@
       "DAYS": "Tage"
     },
     "CHARGE": "Beladung",
-    "DISCHARGE": "Entladung"
+    "DISCHARGE": "Entladung",
+    "INSTALL": "Installieren",
+    "FROM": "Von",
+    "TO": "Bis"
   },
   "OFFLINE": {
     "EDGE": {
@@ -783,6 +817,7 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Typ",
+      "LIMITATION": "Limitierung",
       "CONSTANT_VALUE": "Cos φ Festwert",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamische Begrenzung der Einspeisung aktiviert?",
       "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
@@ -800,7 +835,8 @@
       "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
       "NO_LIMITATION": "Kein Einspeisemanagement",
-      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)"
+      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -885,7 +921,9 @@
       "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein.",
       "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
-      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen."
+      "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen.",
+      "DOUBLE_SOCKET_LABEL": "Im Doppelsockel verbaut",
+      "DOUBLE_SOCKET": "Doppelsockel"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -1112,7 +1150,26 @@
   },
   "GENERAL": {
     "FORMLY": {
-      "REQUIRED": "Ist erforderlich"
+      "REQUIRED": "Ist erforderlich",
+      "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente"
+    }
+  },
+  "FORMLY_FORM": {
+    "TARIFF_TABLE": {
+      "TARIFFS": {
+        "LOW": "Niedriglasttarifstufe",
+        "STANDARD": "Standardtarifstufe",
+        "HIGH": "Hochlasttarifstufe"
+      },
+      "GROSS_PREIS_TITLE": "Brutto-Preis für das Jahr {{ year }}*",
+      "ADD_TIME_SLOT": "Zeitfenster hinzufügen",
+      "PRICE_ITEMS": "Preisartikel",
+      "ADD_YEAR": "{{ year }} Jahr hinzufügen",
+      "REMOVE_YEAR": "{{ year }} Jahr entfernen",
+      "TITLE": "{{ year }} Netzentgelte",
+      "ERROR_MESSAGES": {
+        "INVALID_TIME_INPUT": "Die „Bis“-Zeit kann nicht größer oder gleich der „Von“-Zeit sein."
+      }
     }
   }
 }

@@ -22,6 +22,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -133,9 +134,17 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 
-		if (!this.getActualEnergy().isDefined()) {
-			this.initializeCumulatedEnergyFromTimedata();
-			return;
+		// Initialize MPPTs with deprecated PV relatives.
+		switch (this.config.mpptPort()) {
+			case MPPT_1, MPPT_2, MPPT_3 -> {
+				if (!this.getActualEnergy().isDefined()) {
+					this.initializeCumulatedEnergyFromTimedata();
+					return;
+				}
+			}
+			default -> {
+				FunctionUtils.doNothing();
+			}
 		}
 
 		var actualPower = this.getActualPower().get();
@@ -170,6 +179,7 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 				case MPPT_1 -> new String[] { "charger0", "charger1" };
 				case MPPT_2 -> new String[] { "charger2", "charger3" };
 				case MPPT_3 -> new String[] { "charger4", "charger5" };
+				default -> throw new IllegalStateException("Unexpected value: " + this.config.mpptPort());
 				};
 
 				/*
@@ -195,7 +205,7 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Calculate energy from two given strings.
-	 * 
+	 *
 	 * @param energyString1Opt energy of string 1
 	 * @param energyString2Opt energy of string 2
 	 * @return total energy

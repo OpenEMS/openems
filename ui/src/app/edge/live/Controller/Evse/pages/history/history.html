@@ -1,0 +1,12 @@
+<oe-navigation-view [title]="component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+    <ion-buttons header class="ion-justify-content-center">
+        <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+        <pickdate [historyPeriods]="['day', 'week']" *ngIf="!ref.children.length"></pickdate>
+    </ion-buttons>
+
+    <oe-controller-evse-history-chart class="ion-padding" [component]="component">
+    </oe-controller-evse-history-chart>
+    <oe-controller-evse-history-status-chart *ngIf="showStatusChart" class="ion-padding ion-padding-bottom"
+        [component]="component">
+    </oe-controller-evse-history-status-chart>
+</oe-navigation-view>

@@ -9,6 +9,7 @@ import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { environment } from "src/environments";
 
+import { WebsocketInterface } from "../interface/websocketInterface";
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { CurrentDataNotification } from "../jsonrpc/notification/currentDataNotification";
 import { EdgeConfigNotification } from "../jsonrpc/notification/edgeConfigNotification";
@@ -26,7 +27,6 @@ import { Language } from "../type/language";
 import { Pagination } from "./pagination";
 import { Service } from "./service";
 import { UserService } from "./user.service";
-import { WebsocketInterface } from "./websocketInterface";
 import { WsData } from "./wsdata";
 
 @Injectable()
@@ -56,8 +56,8 @@ export class Websocket implements WebsocketInterface {
     private translate: TranslateService,
     private cookieService: CookieService,
     private router: Router,
-    private pagination: Pagination,
     private userService: UserService,
+    private pagination: Pagination,
   ) {
     service.websocket = this;
 

@@ -146,12 +146,24 @@ public abstract class AbstractOpenemsAppWithProps<//
 
 	@Override
 	public final String mapPropName(String prop, String componentId, OpenemsAppInstance instance) {
-		return Stream.of(this.propertyValues()).map(p -> p.def().getBidirectionalPropertyName()).filter(t -> {
-			if (t == null) {
-				return false;
-			}
-			return t.equals(prop);
-		}).findFirst().orElseGet(() -> super.mapPropName(prop, componentId, instance));
+		final var superMappedName = super.mapPropName(prop, componentId, instance);
+
+		var result = Stream.of(this.propertyValues()).filter(p -> {
+			final var bidirectionalName = p.def().getBidirectionalPropertyName();
+			return bidirectionalName != null && bidirectionalName.equals(prop);
+		}).findFirst().orElse(null);
+		if (result != null) {
+			return result.name();
+		}
+		if (Stream.of(this.propertyValues()).filter(p -> {
+			return p.name().equals(superMappedName);
+		}).noneMatch(p -> {
+			return p.def().getBidirectionalPropertyName() != null;
+		})) {
+			return superMappedName;
+		}
+		return null;
+
 	}
 
 	protected boolean getBoolean(//

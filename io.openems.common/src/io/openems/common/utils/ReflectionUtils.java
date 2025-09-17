@@ -12,11 +12,15 @@ public class ReflectionUtils {
 		private static final long serialVersionUID = -8001364348945297741L;
 
 		protected static ReflectionException from(Exception e) {
-			return new ReflectionException(e.getClass().getSimpleName() + ": " + e.getMessage());
+			return new ReflectionException(e.getClass().getSimpleName() + ": " + e.getMessage(), e);
 		}
 
 		public ReflectionException(String message) {
 			super(message);
+		}
+
+		public ReflectionException(String message, Throwable cause) {
+			super(message, cause);
 		}
 	}
 
@@ -84,17 +88,41 @@ public class ReflectionUtils {
 	}
 
 	/**
-	 * Invokes a {@link Method} that takes no arguments via Java Reflection.
+	 * Invokes a {@link Method} that takes no arguments via Java Reflection. Only
+	 * searches in the objects {@link Class} which is returned by
+	 * {@link Object#getClass()} not in its parent classes.
+	 * 
+	 * <p>
+	 * Use {@link #invokeMethodWithoutArgumentsViaReflection(Class, Object, String)}
+	 * to specify a {@link Class} and to avoid problems with subclasses or anonymous
+	 * classes.
 	 * 
 	 * @param <T>        the type of the result
 	 * @param object     the target object
 	 * @param memberName the name of the method
 	 * @return the result of the method
-	 * @throws Exception on error
+	 * @throws ReflectionException on error
 	 */
 	public static <T> T invokeMethodWithoutArgumentsViaReflection(Object object, String memberName)
 			throws ReflectionException {
-		var method = callGuarded(() -> object.getClass().getDeclaredMethod(memberName));
+		return invokeMethodWithoutArgumentsViaReflection(object.getClass(), object, memberName);
+	}
+
+	/**
+	 * Invokes a {@link Method} that takes no arguments via Java Reflection. Only
+	 * searches in the provided {@link Class} not in parent classes.
+	 * 
+	 * @param <T>        the type of the result
+	 * @param <C>        the type of the {@link Class} the method is defined in
+	 * @param clazz      the {@link Class} the method is defined in
+	 * @param object     the target object
+	 * @param memberName the name of the method
+	 * @return the result of the method
+	 * @throws ReflectionException on error
+	 */
+	public static <T, C> T invokeMethodWithoutArgumentsViaReflection(Class<? extends C> clazz, C object,
+			String memberName) throws ReflectionException {
+		var method = callGuarded(() -> clazz.getDeclaredMethod(memberName));
 		return invokeMethodViaReflection(object, method);
 	}
 

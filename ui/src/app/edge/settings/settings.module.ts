@@ -3,9 +3,9 @@ import { TranslateService } from "@ngx-translate/core";
 import { ChangelogComponent } from "src/app/changelog/view/component/changelog.component";
 import tr from "src/app/edge/settings/shared/translation.json";
 import { ComponentsModule } from "src/app/shared/components/components.module";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Language } from "src/app/shared/type/language";
 import { SharedModule } from "./../../shared/shared.module";
-import { AlertingComponent } from "./alerting/alerting.component";
 import { AppModule } from "./app/app.module";
 import { ChannelsComponent } from "./channels/channels.component";
 import { IndexComponent as ComponentInstallIndexComponent } from "./component/install/index.component";
@@ -30,9 +30,9 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
     ChangelogComponent,
     PowerAssistantModule,
     ComponentsModule,
+    HelpButtonComponent,
   ],
   declarations: [
-    AlertingComponent,
     AliasUpdateComponent,
     ChannelsComponent,
     ComponentInstallComponent,

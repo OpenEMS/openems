@@ -81,6 +81,12 @@ describe("OverviewComponent", () => {
                 isAtLeast(role) {
                     return true;
                 },
+                getNavigationTree(navigation, translate) {
+                    return null;
+                },
+                getUseNewUIFromSettings: function (): boolean {
+                    throw new Error("Function not implemented.");
+                },
             },
         });
 

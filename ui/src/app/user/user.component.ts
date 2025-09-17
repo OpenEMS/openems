@@ -1,12 +1,13 @@
 // @ts-strict-ignore
 import { KeyValue } from "@angular/common";
-import { Component, effect, OnInit } from "@angular/core";
+import { Component, effect, OnInit, untracked } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { environment, Theme as SystemTheme } from "../../environments";
 import { Changelog } from "../changelog/view/component/changelog.constants";
 import { Theme as UserTheme } from "../edge/history/shared";
+import { NavigationService } from "../shared/components/navigation/service/navigation.service";
 import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
@@ -72,12 +73,15 @@ export class UserComponent implements OnInit {
 
   protected isAtLeastAdmin: boolean = false;
   protected isAllowedToSeeUserDetails: boolean = true;
+  protected useNewUi: boolean | null = null;
+  protected newNavigationForced: boolean = false;
 
   constructor(
     public translate: TranslateService,
     public service: Service,
     private websocket: Websocket,
     private userService: UserService,
+    private navigationService: NavigationService,
   ) {
     effect(async () => {
       const user = this.userService.currentUser();
@@ -89,6 +93,8 @@ export class UserComponent implements OnInit {
         this.isAllowedToSeeUserDetails = this.isUserAllowedToSeeContactDetails(user.id);
         this.showInformation = this.form != null;
         this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
+        this.useNewUi = user.getUseNewUIFromSettings();
+        this.newNavigationForced = NavigationService.forceNewNavigation(untracked(() => this.service.currentEdge()));
       }
     });
   }
@@ -132,10 +138,6 @@ export class UserComponent implements OnInit {
       this.updateUserInformation();
     }
     this.enableAndDisableFormFields();
-  }
-
-  public getEditButtonText(): string {
-    return this.isEditModeDisabled ? "General.EDIT" : "General.RESET";
   }
 
   public enableAndDisableFormFields(): boolean {
@@ -194,6 +196,13 @@ export class UserComponent implements OnInit {
     this.environment.debugMode = (event as CustomEvent).detail["checked"];
   }
 
+  public async toggleNewUI(event: Event) {
+    const isToggleOn = (event as CustomEvent).detail["checked"];
+    this.service.startSpinner("user");
+    await this.userService.updateUserSettingsWithProperty("useNewUI", isToggleOn);
+    this.service.stopSpinner("user");
+  }
+
   public setLanguage(language: Language): void {
     // Get Key of LanguageTag Enum
     localStorage.LANGUAGE = language.key;
@@ -222,7 +231,6 @@ export class UserComponent implements OnInit {
         props: {
           label: this.translate.instant("Register.Form.street"),
           disabled: true,
-
         },
       },
       {

@@ -1,12 +1,15 @@
-
 import { Directive, effect, signal, WritableSignal } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";
 import { ThemePopoverComponent } from "src/app/user/theme-selection-popup/theme-selection-popover";
 import { environment } from "src/environments";
+import { NavigationService } from "../components/navigation/service/navigation.service";
+import { UnimplementedInEdgeError } from "../errors.ts/errors";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
+import { JsonRpcUtils } from "../jsonrpc/jsonrpcutils";
 import { UpdateUserSettingsRequest } from "../jsonrpc/request/updateUserSettingsRequest";
 import { User } from "../jsonrpc/shared";
+import { AssertionUtils } from "../utils/assertions/assertions.utils";
 import { Service } from "./service";
 
 @Directive()
@@ -14,6 +17,9 @@ export class UserService {
 
     public static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
     public currentUser: WritableSignal<User | null> = signal(null);
+
+    /** @deprecated determines if applying new ui or old*/
+    public isNewNavigation: WritableSignal<boolean> = signal(false);
 
     constructor(
         private modalCtrl: ModalController,
@@ -27,6 +33,7 @@ export class UserService {
 
             if (user != null) {
                 this.showThemeSelection(user);
+                this.isNewNavigation.set(NavigationService.isNewNavigation(user, this.service.currentEdge()));
             }
         });
     }
@@ -56,6 +63,24 @@ export class UserService {
             : userTheme;
 
         return theme ?? UserService.DEFAULT_THEME;
+    }
+
+    /**
+     * Updates the userSettings
+     *
+     * @param key the key to update
+     * @param value the value for given key
+     */
+    public async updateUserSettingsWithProperty(key: string, value: boolean | string | number) {
+        const user = this.currentUser();
+        AssertionUtils.assertIsDefined(user);
+        const updatedSettings = { ...user.settings, [key]: value };
+        const [err, _result] = await this.updateUserSettings(updatedSettings);
+        if (err !== null) {
+            throw err;
+        }
+
+        this.currentUser.set(new User(user.id, user.name, user.globalRole, user.language, user.hasMultipleEdges, updatedSettings));
     }
 
     /**
@@ -100,6 +125,11 @@ export class UserService {
         if (validTheme === UserTheme.SYSTEM) {
             attr = window.matchMedia("(prefers-color-scheme: dark)").matches ? UserTheme.DARK : UserTheme.LIGHT;
         }
+
+        // Provide color to set before angular app inits
+        const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-background-color");
+        localStorage.setItem("THEME_COLOR", backgroundColor);
+
         document.documentElement.setAttribute("data-theme", attr);
     }
 
@@ -128,12 +158,12 @@ export class UserService {
     * @param settings the new settings to use
     * @returns
     */
-    private updateUserSettings(settings: object): Promise<JsonrpcResponseSuccess> {
+    private updateUserSettings(settings: object): Promise<[Error | null, JsonrpcResponseSuccess | null]> {
         const request = new UpdateUserSettingsRequest({ settings: settings });
         if (environment.backend === "OpenEMS Edge") {
-            return Promise.resolve(new JsonrpcResponseSuccess(request.id, {}));
+            return Promise.resolve([new UnimplementedInEdgeError(request), null]);
         }
-        return this.service.websocket.sendSafeRequest(new UpdateUserSettingsRequest({ settings: settings }));
+        return JsonRpcUtils.handle<JsonrpcResponseSuccess>(this.service.websocket.sendSafeRequest(request));
     }
 
     /**

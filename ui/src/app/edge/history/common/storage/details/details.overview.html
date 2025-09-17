@@ -1,0 +1,9 @@
+<oe-chart [title]="component.alias" [showPhases]="showPhases" [showTotal]="showTotal"
+  (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized"
+  [period]="service.historyPeriod.value">
+
+  <common-storage-details-ess-chart [component]="component" [isOnlyChart]="true">
+  </common-storage-details-ess-chart>
+
+</oe-chart>
+<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>

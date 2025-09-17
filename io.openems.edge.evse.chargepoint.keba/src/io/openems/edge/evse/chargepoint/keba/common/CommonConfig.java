@@ -1,11 +1,11 @@
 package io.openems.edge.evse.chargepoint.keba.common;
 
-import io.openems.edge.evse.api.SingleThreePhase;
+import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.PhaseRotation;
-import io.openems.edge.evse.chargepoint.keba.common.enums.P30S10PhaseSwitching;
+import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
 
-public record CommonConfig(boolean readOnly, PhaseRotation phaseRotation, P30S10PhaseSwitching p30s10PhaseSwitching,
-		SingleThreePhase wiring, boolean debugMode) {
+public record CommonConfig(boolean readOnly, PhaseRotation phaseRotation, boolean p30hasS10PhaseSwitching,
+		SingleOrThreePhase wiring, LogVerbosity logVerbosity) {
 
 	/**
 	 * Builds {@link CommonConfig} from Modbus Config.
@@ -14,8 +14,8 @@ public record CommonConfig(boolean readOnly, PhaseRotation phaseRotation, P30S10
 	 * @return the record
 	 */
 	public static CommonConfig from(io.openems.edge.evse.chargepoint.keba.modbus.Config config) {
-		return new CommonConfig(config.readOnly(), config.phaseRotation(), config.p30S10PhaseSwitching(),
-				config.wiring(), config.debugMode());
+		return new CommonConfig(config.readOnly(), config.phaseRotation(), config.p30hasS10PhaseSwitching(),
+				config.wiring(), config.logVerbosity());
 	}
 
 	/**
@@ -25,7 +25,7 @@ public record CommonConfig(boolean readOnly, PhaseRotation phaseRotation, P30S10
 	 * @return the record
 	 */
 	public static CommonConfig from(io.openems.edge.evse.chargepoint.keba.udp.Config config) {
-		return new CommonConfig(config.readOnly(), config.phaseRotation(), config.p30S10PhaseSwitching(),
-				config.wiring(), config.debugMode());
+		return new CommonConfig(config.readOnly(), config.phaseRotation(), config.p30hasS10PhaseSwitching(),
+				config.wiring(), config.logVerbosity());
 	}
 }

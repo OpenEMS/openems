@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../../shared/shared";
 
@@ -18,6 +19,7 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
     private websocket: Websocket,
     private route: ActivatedRoute,
     private dataService: DataService,
+    protected navigationService: NavigationService,
   ) { }
 
   ngOnInit() {

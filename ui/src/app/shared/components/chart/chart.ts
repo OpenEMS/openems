@@ -5,8 +5,9 @@ import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
 import { ChartOptionsPopoverComponent } from "../../legacy/chartoptions/popover/popover.component";
-import { DefaultTypes } from "../../service/defaulttypes";
+import { UserService } from "../../service/user.service";
 import { Edge, Service } from "../../shared";
+import { DefaultTypes } from "../../type/defaulttypes";
 
 @Component({
   selector: "oe-chart",
@@ -27,9 +28,11 @@ export class ChartComponent implements OnInit, OnChanges {
   public edge: Edge | null = null;
 
   protected showPopover: boolean = false;
+  protected newNavigationUrlSegment: string;
 
   constructor(
     protected service: Service,
+    protected userService: UserService,
     private route: ActivatedRoute,
     public popoverCtrl: PopoverController,
     protected translate: TranslateService,
@@ -42,6 +45,9 @@ export class ChartComponent implements OnInit, OnChanges {
       this.edge = edge;
     });
 
+    const _user = this.userService.currentUser();
+    const isNewNavigation = this.userService.isNewNavigation();
+    this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
   }
 
   /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/

@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.edge.EdgeCache;
@@ -23,6 +24,8 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
+import io.openems.common.jsonrpc.notification.LogMessageNotification;
+import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 
 public class WsData extends io.openems.common.websocket.WsData {
@@ -77,8 +80,26 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private Set<String> subscribedEdges = new HashSet<>();
 
-	public WsData(WebSocket ws) {
+	private final RateLimiter limiterGlobal;
+	private final RateLimiter limiterLogMessages = RateLimiter.create(5);
+
+	public WsData(WebSocket ws, int requestLimit) {
 		super(ws);
+		this.limiterGlobal = RateLimiter.create(requestLimit);
+	}
+
+	/**
+	 * Check if the method can be called. Or if it is rate limited.
+	 * 
+	 * @param method to check
+	 * @return true if the method can be called
+	 */
+	public boolean checkLimiter(String method) {
+		return switch (method) {
+		case EdgeRpcRequest.METHOD -> true;
+		case LogMessageNotification.METHOD -> this.limiterLogMessages.tryAcquire();
+		case null, default -> this.limiterGlobal.tryAcquire();
+		};
 	}
 
 	/**

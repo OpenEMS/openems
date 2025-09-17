@@ -1,5 +1,7 @@
 package io.openems.edge.ess.core.power.optimizers;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,7 +14,6 @@ import io.openems.edge.ess.core.power.solver.nearequal.SolverBySocOptimization;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -47,10 +48,16 @@ public class KeepAllNearEqual {
 		var reactivePowerSolved = solvePowerIfNotNaN(setReactivePower, essList, Pwr.REACTIVE, direction);
 
 		var mergedResult = mergeResults(coefficients, esss, activePowerSolved, reactivePowerSolved);
+		if (mergedResult == null) {
+			return null;
+		}
 
 		var result = Arrays.stream(mergedResult)//
 				.map(d -> reverseAbsoluteData(d, direction))//
 				.toArray();
+		if (result.length == 0) {
+			return null;
+		}
 		return new PointValuePair(result, 0);
 	}
 
@@ -230,7 +237,7 @@ public class KeepAllNearEqual {
 	 * @return the maximum available power in watts for the given parameters
 	 */
 	private static int getMaxPowerFromEss(ManagedSymmetricEss ess, Pwr pwr) {
-		return ess.getPower().getMaxPower(ess, Phase.ALL, pwr);
+		return ess.getPower().getMaxPower(ess, ALL, pwr);
 	}
 
 	/**
@@ -241,6 +248,6 @@ public class KeepAllNearEqual {
 	 * @return the maximum available power in watts for the given parameters
 	 */
 	private static int getMinPowerFromEss(ManagedSymmetricEss ess, Pwr pwr) {
-		return ess.getPower().getMinPower(ess, Phase.ALL, pwr);
+		return ess.getPower().getMinPower(ess, ALL, pwr);
 	}
 }

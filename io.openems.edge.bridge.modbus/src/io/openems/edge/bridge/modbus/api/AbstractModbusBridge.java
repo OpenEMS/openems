@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
@@ -12,11 +14,15 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.test.TestUtils;
 
 /**
  * Abstract service for connecting to, querying and writing to a Modbus device.
  */
-public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements BridgeModbus, EventHandler {
+public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
+		implements BridgeModbus, EventHandler, StartStoppable {
 
 	/**
 	 * Default Modbus timeout in [ms].
@@ -150,7 +156,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	/**
 	 * Creates a new Modbus Transaction on an open Modbus connection.
 	 *
-	 * @return the Modbus Transaction
+	 * @return the Modbus Transaction, null if Bridge is stopped
 	 * @throws OpenemsException on error
 	 */
 	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
@@ -182,5 +188,23 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	@Override
 	public void retryModbusCommunication(String sourceId) {
 		this.worker.retryModbusCommunication(sourceId);
+	}
+
+	@Override
+	public final void setStartStop(StartStop value) {
+		// We are not using _setStartStop() by purpose to avoid race conditions with not
+		// setting the Channel immediately
+		TestUtils.withValue(this, StartStoppable.ChannelId.START_STOP, switch (value) {
+		case START, UNDEFINED -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		});
+
+		// Close existing Modbus Connection on STOP
+		if (value == StartStop.STOP) {
+			this.closeModbusConnection();
+		}
+
+		// Set BRIDGE_IS_STOPPED Channel
+		setValue(this, BridgeModbus.ChannelId.BRIDGE_IS_STOPPED, value == StartStop.STOP);
 	}
 }

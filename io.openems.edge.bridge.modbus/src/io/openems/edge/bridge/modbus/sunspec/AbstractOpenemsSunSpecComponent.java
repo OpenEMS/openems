@@ -6,15 +6,16 @@ import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static io.openems.edge.bridge.modbus.sunspec.Utils.toUpperUnderscore;
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -60,14 +61,68 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsSunSpecComponent.class);
 
+	public record SunSpecModelEntry(SunSpecModel sunSpecModel, Priority priority, boolean required) {
+
+		public static class Builder {
+			private final SunSpecModel sunSpecModel;
+			private Priority priority = Priority.LOW;
+			private boolean required = false;
+
+			public Builder(SunSpecModel sunSpecModel) {
+				this.sunSpecModel = sunSpecModel;
+			}
+
+			public Builder setPriority(Priority priority) {
+				this.priority = priority;
+				return this;
+			}
+
+			/**
+			 * Sets if the model is required.
+			 * 
+			 * <p>
+			 * Changing this value does not have any effect on reading or initialization.
+			 * It's only used for {@link #areRequiredModelsRead()} which can be used to
+			 * trigger a reinitialization, but this has to happen in the component
+			 * implementation. The default just prints a log which states that the
+			 * initialization finished without all required models.
+			 * </p>
+			 * 
+			 * @param required true if required; else false; default false
+			 * @return this
+			 */
+			public Builder setRequired(boolean required) {
+				this.required = required;
+				return this;
+			}
+
+			public SunSpecModelEntry build() {
+				return new SunSpecModelEntry(this.sunSpecModel, this.priority, this.required);
+			}
+
+		}
+
+		/**
+		 * Creates a builder for a {@link SunSpecModelEntry}.
+		 * 
+		 * @param sunSpecModel the {@link SunSpecModel}
+		 * @return the builder
+		 */
+		public static Builder create(SunSpecModel sunSpecModel) {
+			return new Builder(sunSpecModel);
+		}
+
+	}
+
 	// The active SunSpec-Models and their reading-priority
-	private final Map<SunSpecModel, Priority> activeModels;
+	private final List<SunSpecModelEntry> activeModels;
+	private final List<SunSpecModel> readModels = new CopyOnWriteArrayList<>();
 	private final ModbusProtocol modbusProtocol;
 
 	private int readFromCommonBlockNo = 1;
-	private int commonBlockCounter = 0;
 
-	private boolean isSunSpecInitializationCompleted = false;
+	private final AtomicBoolean isSunSpecInitializationCompleted = new AtomicBoolean(false);
+	private CompletableFuture<Void> runningInitialization;
 
 	/**
 	 * Constructs a AbstractOpenemsSunSpecComponent.
@@ -79,9 +134,16 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 *                                 {@link AbstractOpenemsModbusComponent}
 	 * @param furtherInitialChannelIds forwarded to
 	 *                                 {@link AbstractOpenemsModbusComponent}
-	 * @throws OpenemsException on error
 	 */
 	public AbstractOpenemsSunSpecComponent(Map<SunSpecModel, Priority> activeModels,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		this(activeModels.entrySet().stream()
+				.map(t -> SunSpecModelEntry.create(t.getKey()).setPriority(t.getValue()).build()).toList(),
+				firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public AbstractOpenemsSunSpecComponent(List<SunSpecModelEntry> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
@@ -95,27 +157,102 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
+	/**
+	 * Make sure to call this method from the inheriting OSGi Component.
+	 *
+	 * @param context               ComponentContext of this component. Receive it
+	 *                              from parameter for @Activate
+	 * @param id                    ID of this component. Typically 'config.id()'
+	 * @param alias                 Human-readable name of this Component. Typically
+	 *                              'config.alias()'. Defaults to 'id' if empty
+	 * @param enabled               Whether the component should be enabled.
+	 *                              Typically 'config.enabled()'
+	 * @param unitId                Unit-ID of the Modbus target
+	 * @param cm                    An instance of ConfigurationAdmin. Receive it
+	 *                              using @Reference
+	 * @param modbusReference       The name of the @Reference setter method for the
+	 *                              Modbus bridge - e.g. 'Modbus' if you have a
+	 *                              setModbus()-method
+	 * @param modbusId              The ID of the Modbus bridge. Typically
+	 *                              'config.modbus_id()'
+	 * @param readFromCommonBlockNo ignore all SunSpec blocks before
+	 *                              'readFromCommonBlockNo' was passed
+	 * @return true if the target filter was updated. You may use it to abort the
+	 *         activate() method.
+	 * @throws OpenemsException on error
+	 */
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
 			throws OpenemsException {
 		this.readFromCommonBlockNo = readFromCommonBlockNo;
 
-		var expectedBlocks = this.activeModels.keySet().stream() //
-				.map(SunSpecModel::getBlockId) //
-				.collect(Collectors.toSet());
+		this.reinitializeSunSpecChannels(true);
 
-		// Start the SunSpec read procedure...
-		this.isSunSpec().thenAccept(isSunSpec -> {
+		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
+	}
+
+	protected void reinitializeSunSpecChannels() {
+		this.reinitializeSunSpecChannels(false);
+	}
+
+	private void reinitializeSunSpecChannels(boolean force) {
+		final var success = this.isSunSpecInitializationCompleted.compareAndSet(true, false);
+		if (!(success || force)) {
+			this.log.debug("SunSpec initialization still running.");
+			return;
+		}
+
+		final var runningInitialization = this.runningInitialization;
+		if (runningInitialization != null) {
+			runningInitialization.cancel(false);
+		}
+
+		this.logInfo(this.log, "Reinitialize SunSpec channels [force=" + force + "]");
+
+		this.removeAllSunSpecChannels();
+		this.readModels.clear();
+
+		final var expectedBlocks = this.activeModels.stream() //
+				.collect(toMap(t -> t.sunSpecModel().getBlockId(), Function.identity()));
+
+		this.runningInitialization = this.isSunSpec().thenCompose(isSunSpec -> {
 			if (!isSunSpec) {
 				throw new IllegalArgumentException("This modbus device is not SunSpec!");
 			}
 
-			this.readNextBlock(40_002, expectedBlocks).thenRun(() -> {
-				this.isSunSpecInitializationCompleted = true;
+			return this.readNextBlock(40_002, expectedBlocks, 0).whenComplete((result, error) -> {
+				if (error != null) {
+					this.log.error("Error during SunSpec initialization", error);
+					return;
+				}
+				this.isSunSpecInitializationCompleted.set(true);
 				this.onSunSpecInitializationCompleted();
 			});
 		});
-		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId);
+	}
+
+	private void removeAllSunSpecChannels() {
+		for (var channel : new ArrayList<>(this.channels())) {
+			if (channel.channelId() instanceof SunSChannelId) {
+				if (this.removeChannel(channel)) {
+					this.log.debug("Removed SunSpec channel {}", channel.channelId());
+				}
+			}
+		}
+	}
+
+	protected boolean areRequiredModelsRead() {
+		return this.activeModels.stream().allMatch(modelEntry -> {
+			if (!modelEntry.required()) {
+				return true;
+			}
+
+			return this.hasModelRead(modelEntry.sunSpecModel());
+		});
+	}
+
+	protected boolean hasModelRead(SunSpecModel model) {
+		return this.readModels.contains(model);
 	}
 
 	@Override
@@ -130,9 +267,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * Tests if first registers are 0x53756e53 ("SunS").
 	 *
 	 * @return a future true if it is SunSpec; otherwise false
-	 * @throws OpenemsException on error
 	 */
-	private CompletableFuture<Boolean> isSunSpec() throws OpenemsException {
+	private CompletableFuture<Boolean> isSunSpec() {
 		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull,
 				new UnsignedDoublewordElement(40_000)) //
 				.thenApply(v -> v == 0x53756e53);
@@ -141,12 +277,15 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	/**
 	 * Reads the next SunSpec block.
 	 *
-	 * @param startAddress    the startAddress
-	 * @param remainingBlocks the remaining blocks expected to read
+	 * @param startAddress       the startAddress
+	 * @param remainingBlocks    the remaining blocks expected to read
+	 * @param commonBlockCounter the number of already read common blocks
 	 * @return a future that completes once reading the block finished
-	 * @throws OpenemsException on error
 	 */
-	private CompletableFuture<Void> readNextBlock(int startAddress, Set<Integer> remainingBlocks) {
+	private CompletableFuture<Void> readNextBlock(final int startAddress,
+			final Map<Integer, SunSpecModelEntry> remainingBlocks, final int commonBlockCounter) {
+		this.log.debug("Read next SunSpec value at " + startAddress + ", remainingBlocks=" + remainingBlocks);
+
 		// Finish if all expected Blocks have been read
 		if (remainingBlocks.isEmpty()) {
 			return completedFuture(null);
@@ -164,15 +303,18 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				// Retry if value is null and error is not "Illegal Data Address".
 				// Background: some SMA inverters do not provide an END_OF_MAP register.
 				(executeState, value) -> {
-					if (executeState instanceof ExecuteState.Error s) {
-						if (s.exception() instanceof ModbusSlaveException mse) {
-							if (mse.isType(ILLEGAL_ADDRESS_EXCEPTION)) {
-								return false; // do not retry
-							}
-						}
-					}
 					if (value != null) {
 						return false; // do not retry
+					}
+
+					if (!this.areRequiredModelsRead()) {
+						this.log.info("Could not read SunSpec value but required blocks are still missing.");
+					}
+
+					if (executeState instanceof ExecuteState.Error(Exception exception)) {
+						if (exception instanceof ModbusSlaveException mse) {
+							return !mse.isType(ILLEGAL_ADDRESS_EXCEPTION); // do not retry
+						}
 					}
 					return true;
 				}, //
@@ -181,32 +323,41 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				new UnsignedWordElement(startAddress + 1)) // Length of Block
 
 				.thenCompose(rer -> {
+					var blockCounter = commonBlockCounter;
+
 					var values = rer.values();
 					var blockId = values.get(0);
 
+					this.log.debug("Read next SunSpec value at " + startAddress + ", blockId=" + blockId);
 					// END_OF_MAP
 					if (blockId == null || blockId == 0xFFFF) {
+						if (!this.areRequiredModelsRead()) {
+							this.log.warn(
+									"Reached end of SunSpec but required blocks are still missing. Update Modbus protocol or remove required blocks.");
+						}
+
 						return completedFuture(null);
 					}
 
 					// Handle SunSpec Block
 					if (blockId == 1 /* SunSpecModel.S_1 */) {
-						this.commonBlockCounter++;
+						blockCounter++;
 					}
 
-					if (this.commonBlockCounter != this.readFromCommonBlockNo) {
-						// ignore all SunSpec blocks before 'startFromCommonBlockNo' was passed
+					if (blockCounter < this.readFromCommonBlockNo) {
+						// ignore all SunSpec blocks before 'readFromCommonBlockNo' was passed
 
 					} else {
 
 						// Should this Block be considered?
-						var activeEntry = this.getActiveModelForId(blockId);
+						final var activeEntry = this.getActiveModelForId(blockId);
 						if (activeEntry != null) {
-							var sunSpecModel = activeEntry.getKey();
-							var priority = activeEntry.getValue();
-
-							this.addBlock(startAddress, sunSpecModel, priority);
-							remainingBlocks.remove(activeEntry.getKey().getBlockId());
+							final var sunSpecModel = activeEntry.sunSpecModel();
+							if (remainingBlocks.remove(sunSpecModel.getBlockId()) != null) {
+								this.addBlock(startAddress, sunSpecModel, activeEntry.priority());
+							} else {
+								this.log.warn("Skip model {}; already added", sunSpecModel.getBlockId());
+							}
 						} else {
 							// This block is not considered, because the Model is not active
 							this.logInfo(this.log,
@@ -219,7 +370,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					var nextBlockStartAddress = startAddress + 2 + values.get(1);
 
 					// Announce finished when next block (recursively) is finished
-					return this.readNextBlock(nextBlockStartAddress, remainingBlocks);
+					return this.readNextBlock(nextBlockStartAddress, remainingBlocks, blockCounter);
 				});
 	}
 
@@ -230,13 +381,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param blockId the SunSpec Block-ID
 	 * @return the entry with Model and priority
 	 */
-	private Entry<SunSpecModel, Priority> getActiveModelForId(int blockId) {
-		for (Entry<SunSpecModel, Priority> entry : this.activeModels.entrySet()) {
-			if (entry.getKey().getBlockId() == blockId) {
-				return entry;
-			}
-		}
-		return null;
+	private SunSpecModelEntry getActiveModelForId(int blockId) {
+		return this.activeModels.stream() //
+				.filter(t -> t.sunSpecModel().getBlockId() == blockId) //
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -273,8 +421,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 *
 	 * @return true if initialization is completed
 	 */
-	public boolean isSunSpecInitializationCompleted() {
-		return this.isSunSpecInitializationCompleted;
+	public final boolean isSunSpecInitializationCompleted() {
+		return this.isSunSpecInitializationCompleted.get();
 	}
 
 	/**
@@ -296,6 +444,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
+		this.readModels.add(model);
+
 		var readElements = new ArrayList<ModbusElement>();
 		var writeElements = new ArrayList<ModbusElement>();
 		startAddress += 2;

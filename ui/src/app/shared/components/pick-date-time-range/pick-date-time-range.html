@@ -1,0 +1,12 @@
+<ion-item #triggerItem button="true" lines="none" class="time-display-item" [style.border-color]="borderColor"
+    (click)="presentPopover()">
+    <ion-label>{{ displayText }}</ion-label>
+
+    <ion-popover #popoverInstance [event]="popoverEvent" show-backdrop="true">
+        <ng-template>
+            <ion-datetime [presentation]="mode" [minuteValues]="minuteValues" hourCycle="h23"
+                (ionChange)="handleTimeChange($event)" [showDefaultButtons]="true">
+            </ion-datetime>
+        </ng-template>
+    </ion-popover>
+</ion-item>
