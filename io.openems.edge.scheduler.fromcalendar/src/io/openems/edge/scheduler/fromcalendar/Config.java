@@ -1,0 +1,31 @@
+package io.openems.edge.scheduler.fromcalendar;
+
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+@ObjectClassDefinition(//
+		name = "Scheduler From Calendar", //
+		description = "This Scheduler takes a static defined schedule and provides the controllers defined in the calendar.")
+@interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "scheduler0";
+
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Always Run Before", description = "IDs of Controllers that should be executed _before_ other Controllers in the order of the IDs.")
+	String[] alwaysRunBeforeController_ids() default {};
+
+	@AttributeDefinition(name = "JSON Schedule for active controllers", description = "Takes a Json-Array in JSCalendar format")
+	String controllerSchedule() default "";
+	
+	@AttributeDefinition(name = "Always Run After", description = "IDs of Controllers that should be executed _after_ other Controllers in the order of the IDs.")
+	String[] alwaysRunAfterController_ids() default { "ctrlDebugLog0" };
+
+
+	String webconsole_configurationFactory_nameHint() default "Scheduler From Calendar [{id}]";
+}

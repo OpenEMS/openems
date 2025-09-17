@@ -187,6 +187,7 @@
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
+	bnd.identity;id='io.openems.edge.scheduler.fromcalendar',\
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.sma',\
 	bnd.identity;id='io.openems.edge.solaredge',\
@@ -381,6 +382,7 @@
 	io.openems.edge.scheduler.api;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
+	io.openems.edge.scheduler.fromcalendar;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.sma;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
