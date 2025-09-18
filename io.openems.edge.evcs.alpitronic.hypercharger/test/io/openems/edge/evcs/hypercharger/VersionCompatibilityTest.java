@@ -71,34 +71,45 @@ public class VersionCompatibilityTest {
 	
 	@Test
 	public void testConnectorTypeMapping() {
-		// Test that connector type enums exist for different versions
-		// v1.8 - v2.4 use: CCS_DC, CHAdeMO, CCS_AC, GBT
+		// Test that connector type enums exist with unique values
 		assertNotNull(SelectedConnector.CCS_DC);
-		assertEquals(1, SelectedConnector.CCS_DC.getValue());
+		assertEquals(10, SelectedConnector.CCS_DC.getValue());
 		
 		assertNotNull(SelectedConnector.CHA_DEMO);
-		assertEquals(2, SelectedConnector.CHA_DEMO.getValue());
+		assertEquals(20, SelectedConnector.CHA_DEMO.getValue());
 		
 		assertNotNull(SelectedConnector.CCS_AC);
-		assertEquals(3, SelectedConnector.CCS_AC.getValue());
+		assertEquals(30, SelectedConnector.CCS_AC.getValue());
 		
 		assertNotNull(SelectedConnector.GBT);
-		assertEquals(4, SelectedConnector.GBT.getValue());
+		assertEquals(40, SelectedConnector.GBT.getValue());
 		
-		// v2.5+ adds: CCS2, CCS1, MCS, NACS (with different values)
 		assertNotNull(SelectedConnector.CCS2);
-		assertEquals(1, SelectedConnector.CCS2.getValue());
+		assertEquals(12, SelectedConnector.CCS2.getValue());
 		
 		assertNotNull(SelectedConnector.CCS1);
-		assertEquals(2, SelectedConnector.CCS1.getValue());
-		
-		assertNotNull(SelectedConnector.CHA_DEMO_V25);
-		assertEquals(3, SelectedConnector.CHA_DEMO_V25.getValue());
+		assertEquals(11, SelectedConnector.CCS1.getValue());
 		
 		assertNotNull(SelectedConnector.MCS);
-		assertEquals(6, SelectedConnector.MCS.getValue());
+		assertEquals(60, SelectedConnector.MCS.getValue());
 		
 		assertNotNull(SelectedConnector.NACS);
-		assertEquals(7, SelectedConnector.NACS.getValue());
+		assertEquals(70, SelectedConnector.NACS.getValue());
+		
+		// Test version-specific mapping
+		// v1.8-2.4 mapping
+		assertEquals(SelectedConnector.CCS_DC, SelectedConnector.fromRawValue(1, false));
+		assertEquals(SelectedConnector.CHA_DEMO, SelectedConnector.fromRawValue(2, false));
+		assertEquals(SelectedConnector.CCS_AC, SelectedConnector.fromRawValue(3, false));
+		assertEquals(SelectedConnector.GBT, SelectedConnector.fromRawValue(4, false));
+		
+		// v2.5+ mapping
+		assertEquals(SelectedConnector.CCS2, SelectedConnector.fromRawValue(1, true));
+		assertEquals(SelectedConnector.CCS1, SelectedConnector.fromRawValue(2, true));
+		assertEquals(SelectedConnector.CHA_DEMO, SelectedConnector.fromRawValue(3, true));
+		assertEquals(SelectedConnector.CCS_AC, SelectedConnector.fromRawValue(4, true));
+		assertEquals(SelectedConnector.GBT, SelectedConnector.fromRawValue(5, true));
+		assertEquals(SelectedConnector.MCS, SelectedConnector.fromRawValue(6, true));
+		assertEquals(SelectedConnector.NACS, SelectedConnector.fromRawValue(7, true));
 	}
 }

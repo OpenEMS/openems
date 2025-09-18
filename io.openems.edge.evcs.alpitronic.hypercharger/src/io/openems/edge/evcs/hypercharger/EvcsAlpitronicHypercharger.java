@@ -37,40 +37,40 @@ public interface EvcsAlpitronicHypercharger extends OpenemsComponent {
 		/**
 		 * Unix time from charging station.
 		 */
-		UNIX_TIME(Doc.of(OpenemsType.LONG) //
+		UNIX_TIME(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.SECONDS)),
-		
+
 		/**
 		 * Number of physical connectors.
 		 */
 		NUM_CONNECTORS(Doc.of(OpenemsType.INTEGER)),
-		
+
 		/**
 		 * State of the charging station (0=Available, 8=Unavailable, 10=Faulted).
 		 */
 		STATION_STATE(Doc.of(OpenemsType.INTEGER)),
-		
+
 		/**
 		 * Total power drained from the grid by all connectors.
 		 */
-		TOTAL_STATION_POWER(Doc.of(OpenemsType.INTEGER) //
+		TOTAL_STATION_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		
+
 		/**
 		 * Whether external load management controller has control.
 		 */
 		LOAD_MANAGEMENT_ENABLED(Doc.of(OpenemsType.BOOLEAN)),
-		
+
 		/**
 		 * Software version major.
 		 */
 		SOFTWARE_VERSION_MAJOR(Doc.of(OpenemsType.INTEGER)),
-		
+
 		/**
 		 * Software version minor.
 		 */
 		SOFTWARE_VERSION_MINOR(Doc.of(OpenemsType.INTEGER)),
-		
+
 		/**
 		 * Software version patch.
 		 */
@@ -88,66 +88,66 @@ public interface EvcsAlpitronicHypercharger extends OpenemsComponent {
 		 * WriteChannel for the modbus register to apply the charge power given by the
 		 * applyChargePowerLimit method
 		 */
-		APPLY_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		APPLY_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		CHARGING_VOLTAGE(Doc.of(OpenemsType.DOUBLE) //
+		CHARGING_VOLTAGE(Doc.of(OpenemsType.DOUBLE)//
 				.unit(Unit.VOLT)),
 
-		CHARGING_CURRENT(Doc.of(OpenemsType.DOUBLE) //
+		CHARGING_CURRENT(Doc.of(OpenemsType.DOUBLE)//
 				.unit(Unit.AMPERE)),
 
-		RAW_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+		RAW_CHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
 
-		CHARGED_TIME(Doc.of(OpenemsType.INTEGER) //
+		CHARGED_TIME(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.SECONDS)),
 
-		CHARGED_ENERGY(Doc.of(OpenemsType.DOUBLE) //
+		CHARGED_ENERGY(Doc.of(OpenemsType.DOUBLE)//
 				.unit(Unit.KILOWATT_HOURS)),
 
-		EV_SOC(Doc.of(OpenemsType.INTEGER) //
+		EV_SOC(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)),
 
 		CONNECTOR_TYPE(Doc.of(SelectedConnector.values())),
 
-		EV_MAX_CHARGING_POWER(Doc.of(OpenemsType.INTEGER) //
+		EV_MAX_CHARGING_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
 
-		EV_MIN_CHARGING_POWER(Doc.of(OpenemsType.INTEGER) //
+		EV_MIN_CHARGING_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
 
 		/**
 		 * Maximum possible inductive VAR, e. g. 1500 VAR
 		 */
-		VAR_REACTIVE_MAX(Doc.of(OpenemsType.INTEGER) //
+		VAR_REACTIVE_MAX(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE_REACTIVE)),
 
 		/**
 		 * Maximum possible capacitive VAR, e. g. -1500 VAR
 		 */
-		VAR_REACTIVE_MIN(Doc.of(OpenemsType.INTEGER) //
+		VAR_REACTIVE_MIN(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE_REACTIVE)),
 
-		SETPOINT_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+		SETPOINT_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
 				.accessMode(AccessMode.WRITE_ONLY)),
 
-		RAW_CHARGE_POWER_SET(Doc.of(OpenemsType.INTEGER) //
+		RAW_CHARGE_POWER_SET(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		
+
 		/**
 		 * Total charged energy counter.
 		 */
-		TOTAL_CHARGED_ENERGY(Doc.of(OpenemsType.LONG) //
+		TOTAL_CHARGED_ENERGY(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.WATT_HOURS)),
-		
+
 		/**
 		 * Maximum AC charging power per connector.
 		 */
-		MAX_CHARGING_POWER_AC(Doc.of(OpenemsType.INTEGER) //
+		MAX_CHARGING_POWER_AC(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT));
 
 		private final Doc doc;

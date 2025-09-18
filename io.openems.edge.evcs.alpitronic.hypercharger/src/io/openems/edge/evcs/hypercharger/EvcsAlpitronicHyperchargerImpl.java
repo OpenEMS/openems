@@ -58,11 +58,13 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 /**
  * Implementation of the Alpitronic Hypercharger EVCS component.
  * 
- * <p>This component provides integration with Alpitronic Hypercharger DC fast charging stations
- * through Modbus TCP communication. It supports automatic firmware version detection and
- * adapts register mappings accordingly.
+ * <p>
+ * This component provides integration with Alpitronic Hypercharger DC fast
+ * charging stations through Modbus TCP communication. It supports automatic
+ * firmware version detection and adapts register mappings accordingly.
  * 
- * <p>Key features:
+ * <p>
+ * Key features:
  * <ul>
  * <li>Supports HYC50, HYC150, HYC200, HYC300, HYC400 models (50-400kW)</li>
  * <li>Automatic detection of firmware version (2.5.x and later)</li>
@@ -92,7 +94,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	private final Logger log = LoggerFactory.getLogger(EvcsAlpitronicHyperchargerImpl.class);
 	/** Modbus offset for multiple connectors. */
 	private final IntFunction<Integer> offset = addr -> addr + this.config.connector().modbusOffset;
-	
+
 	/** Software version for register mapping compatibility */
 	private FirmwareVersion firmwareVersion = null;
 	private Integer versionMajor = null;
@@ -219,10 +221,12 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	/**
 	 * Defines the Modbus protocol for communication with Alpitronic Hypercharger.
 	 * 
-	 * <p>Register mapping based on Load Management Manual v2.5:
+	 * <p>
+	 * Register mapping based on Load Management Manual v2.5:
 	 * <ul>
 	 * <li>Station-level input registers: 0-48 (global information)</li>
-	 * <li>Connector-specific input registers: 100+, 200+, 300+, 400+ (per connector data)</li>
+	 * <li>Connector-specific input registers: 100+, 200+, 300+, 400+ (per connector
+	 * data)</li>
 	 * <li>Holding registers: for power control and reactive power settings</li>
 	 * </ul>
 	 * 
@@ -236,12 +240,12 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 			// Version already detected, use appropriate protocol
 			return getProtocolForVersion();
 		}
-		
+
 		// Version not yet detected - use v2.5 as default (most recent)
 		// The version will be detected from the version registers and logged
 		return defineModbusProtocolV25();
 	}
-	
+
 	/**
 	 * Returns the appropriate protocol based on detected firmware version.
 	 */
@@ -260,7 +264,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 			return defineModbusProtocolV25();
 		}
 	}
-	
+
 	/**
 	 * Defines modbus protocol for firmware version 2.5.x and later.
 	 */
@@ -269,28 +273,20 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 
 				// Read station-level information (input registers)
 				new FC4ReadInputRegistersTask(0, Priority.LOW,
-						m(EvcsAlpitronicHypercharger.ChannelId.UNIX_TIME,
-								new UnsignedDoublewordElement(0)),
-						m(EvcsAlpitronicHypercharger.ChannelId.NUM_CONNECTORS,
-								new UnsignedWordElement(2)),
-						m(EvcsAlpitronicHypercharger.ChannelId.STATION_STATE,
-								new UnsignedWordElement(3)),
-						m(EvcsAlpitronicHypercharger.ChannelId.TOTAL_STATION_POWER,
-								new UnsignedDoublewordElement(4))),
-				
+						m(EvcsAlpitronicHypercharger.ChannelId.UNIX_TIME, new UnsignedDoublewordElement(0)),
+						m(EvcsAlpitronicHypercharger.ChannelId.NUM_CONNECTORS, new UnsignedWordElement(2)),
+						m(EvcsAlpitronicHypercharger.ChannelId.STATION_STATE, new UnsignedWordElement(3)),
+						m(EvcsAlpitronicHypercharger.ChannelId.TOTAL_STATION_POWER, new UnsignedDoublewordElement(4))),
+
 				// Read load management status
 				new FC4ReadInputRegistersTask(18, Priority.LOW,
-						m(EvcsAlpitronicHypercharger.ChannelId.LOAD_MANAGEMENT_ENABLED,
-								new UnsignedWordElement(18))),
-				
+						m(EvcsAlpitronicHypercharger.ChannelId.LOAD_MANAGEMENT_ENABLED, new UnsignedWordElement(18))),
+
 				// Read software version for compatibility checks
 				new FC4ReadInputRegistersTask(46, Priority.LOW,
-						m(EvcsAlpitronicHypercharger.ChannelId.SOFTWARE_VERSION_MAJOR,
-								new UnsignedWordElement(46)),
-						m(EvcsAlpitronicHypercharger.ChannelId.SOFTWARE_VERSION_MINOR,
-								new UnsignedWordElement(47)),
-						m(EvcsAlpitronicHypercharger.ChannelId.SOFTWARE_VERSION_PATCH,
-								new UnsignedWordElement(48))),
+						m(EvcsAlpitronicHypercharger.ChannelId.SOFTWARE_VERSION_MAJOR, new UnsignedWordElement(46)),
+						m(EvcsAlpitronicHypercharger.ChannelId.SOFTWARE_VERSION_MINOR, new UnsignedWordElement(47)),
+						m(EvcsAlpitronicHypercharger.ChannelId.SOFTWARE_VERSION_PATCH, new UnsignedWordElement(48))),
 
 				// Read holding registers for current power limits
 				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
@@ -359,10 +355,9 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 								new UnsignedWordElement(this.offset.apply(109))),
 
 						/*
-						 * Maximum/Minimum DC charging power
-						 * Not equals MaximumPower or MinimumPower e.g. EvMaxChargingPower is 99kW, but
-						 * ChargePower is 40kW because of temperature, current SoC or
-						 * MaximumHardwareLimit.
+						 * Maximum/Minimum DC charging power Not equals MaximumPower or MinimumPower
+						 * e.g. EvMaxChargingPower is 99kW, but ChargePower is 40kW because of
+						 * temperature, current SoC or MaximumHardwareLimit.
 						 */
 						m(EvcsAlpitronicHypercharger.ChannelId.EV_MAX_CHARGING_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(110))),
@@ -373,7 +368,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 								new UnsignedDoublewordElement(this.offset.apply(114))),
 						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MIN,
 								new UnsignedDoublewordElement(this.offset.apply(116)), INVERT)),
-				
+
 				// Additional registers for SW 2.5.x
 				new FC4ReadInputRegistersTask(this.offset.apply(132), Priority.LOW,
 						// Total energy counter at offset 132-135 (INT64, Wh)
@@ -390,13 +385,13 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 
 		// Map raw status to evcs status.
 		this.addStatusListener();
-		
+
 		// Monitor software version for compatibility
 		this.addVersionListener();
 
 		return modbusProtocol;
 	}
-	
+
 	/**
 	 * Defines modbus protocol for firmware version 1.8.x.
 	 */
@@ -407,14 +402,14 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
 						m(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER_SET,
 								new UnsignedDoublewordElement(this.offset.apply(0)))),
-				
+
 				// Write holding registers - Active power is W for all connectors in v1.8
 				new FC16WriteRegistersTask(this.offset.apply(0),
 						m(EvcsAlpitronicHypercharger.ChannelId.APPLY_CHARGE_POWER_LIMIT,
 								new UnsignedDoublewordElement(this.offset.apply(0))),
 						m(EvcsAlpitronicHypercharger.ChannelId.SETPOINT_REACTIVE_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(2)))),
-				
+
 				// Read connector-specific input registers (v1.8 layout)
 				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
 						m(EvcsAlpitronicHypercharger.ChannelId.RAW_STATUS,
@@ -451,8 +446,8 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 									}
 									this._setEnergySession(e * 10);
 								}),
-						m(EvcsAlpitronicHypercharger.ChannelId.EV_SOC,
-								new UnsignedWordElement(this.offset.apply(8)), SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronicHypercharger.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)),
+								SCALE_FACTOR_MINUS_2),
 						m(EvcsAlpitronicHypercharger.ChannelId.CONNECTOR_TYPE,
 								new UnsignedWordElement(this.offset.apply(9))),
 						m(EvcsAlpitronicHypercharger.ChannelId.EV_MAX_CHARGING_POWER,
@@ -462,16 +457,15 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MAX,
 								new UnsignedDoublewordElement(this.offset.apply(14))),
 						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MIN,
-								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT))
-		);
-		
+								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT)));
+
 		this.addCalculatePowerListeners();
 		this.addStatusListener();
 		this.addVersionListener();
-		
+
 		return modbusProtocol;
 	}
-	
+
 	/**
 	 * Defines modbus protocol for firmware version 2.3.x.
 	 */
@@ -481,7 +475,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		// TODO: Add register 132 (total charged energy) when extending
 		return defineModbusProtocolV18();
 	}
-	
+
 	/**
 	 * Defines modbus protocol for firmware version 2.4.x.
 	 */
@@ -495,9 +489,10 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	/**
 	 * Adds listeners for power calculation.
 	 * 
-	 * <p>For firmware versions before 2.5, the power register returns 0, 
-	 * so we calculate power from voltage * current.
-	 * For firmware 2.5 and later, we use the power value from register 104 directly.
+	 * <p>
+	 * For firmware versions before 2.5, the power register returns 0, so we
+	 * calculate power from voltage * current. For firmware 2.5 and later, we use
+	 * the power value from register 104 directly.
 	 */
 	private void addCalculatePowerListeners() {
 		// For firmware 2.5+, the RAW_CHARGE_POWER register (104) works correctly
@@ -516,10 +511,9 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 			// For older firmware versions, calculate power from voltage and current
 			// since the power register returns 0
 			final Consumer<Value<Double>> calculatePower = ignore -> {
-				Integer power = TypeUtils.getAsType(OpenemsType.INTEGER, TypeUtils.multiply(
-						this.getChargingVoltageChannel().getNextValue().get(),
-						this.getChargingCurrentChannel().getNextValue().get()
-				));
+				Integer power = TypeUtils.getAsType(OpenemsType.INTEGER,
+						TypeUtils.multiply(this.getChargingVoltageChannel().getNextValue().get(),
+								this.getChargingCurrentChannel().getNextValue().get()));
 				this._setActivePower(power);
 				if (power != null) {
 					this.logDebug("Calculated power from V*I for older firmware: " + power + " W");
@@ -551,7 +545,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 			}
 		});
 	}
-	
+
 	/**
 	 * Updates the version compatibility flag based on detected software version.
 	 */
@@ -559,22 +553,20 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		if (this.versionMajor == null || this.versionMinor == null) {
 			return;
 		}
-		
+
 		int patch = this.versionPatch != null ? this.versionPatch : 0;
 		FirmwareVersion newVersion = new FirmwareVersion(this.versionMajor, this.versionMinor, patch);
-		
+
 		// Check if version changed
-		if (this.firmwareVersion != null && 
-			this.firmwareVersion.getMajor() == this.versionMajor && 
-			this.firmwareVersion.getMinor() == this.versionMinor &&
-			this.firmwareVersion.getPatch() == patch) {
+		if (this.firmwareVersion != null && this.firmwareVersion.getMajor() == this.versionMajor
+				&& this.firmwareVersion.getMinor() == this.versionMinor && this.firmwareVersion.getPatch() == patch) {
 			return; // No change
 		}
-		
+
 		boolean firstDetection = (this.firmwareVersion == null);
 		this.firmwareVersion = newVersion;
 		this.logInfo(this.log, "Detected Hypercharger firmware version " + newVersion);
-		
+
 		// Log which register mapping will be used
 		if (newVersion.isVersion18()) {
 			this.logInfo(this.log, "Using v1.8.x register mappings");
@@ -585,17 +577,17 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		} else if (newVersion.isVersion25OrLater()) {
 			this.logInfo(this.log, "Using v2.5.x+ register mappings");
 		}
-		
+
 		// Log warning if version changed after initial detection (requires restart)
 		if (!firstDetection) {
-			this.logWarn(this.log, "Firmware version changed from previous detection. " +
-				"A component restart is required to use the correct protocol for version " + newVersion);
+			this.logWarn(this.log, "Firmware version changed from previous detection. "
+					+ "A component restart is required to use the correct protocol for version " + newVersion);
 		} else {
 			// First detection - reinitialize power listeners with correct logic
 			this.addCalculatePowerListeners();
 		}
 	}
-	
+
 	private void addStatusListener() {
 		this.channel(EvcsAlpitronicHypercharger.ChannelId.RAW_STATUS).onSetNextValue(s -> {
 			AvailableState rawState = s.asEnum();
@@ -672,8 +664,8 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	public String debugLog() {
 		String versionStr = "";
 		if (this.versionMajor != null && this.versionMinor != null) {
-			versionStr = "v" + this.versionMajor + "." + this.versionMinor + 
-					(this.versionPatch != null ? "." + this.versionPatch : "") + "|";
+			versionStr = "v" + this.versionMajor + "." + this.versionMinor
+					+ (this.versionPatch != null ? "." + this.versionPatch : "") + "|";
 		}
 		return versionStr + "Limit:" + this.getSetChargePowerLimit().orElse(null) + "|" + this.getStatus().getName();
 	}

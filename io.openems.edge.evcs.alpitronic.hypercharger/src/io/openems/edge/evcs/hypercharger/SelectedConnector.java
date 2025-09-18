@@ -5,7 +5,12 @@ import io.openems.common.types.OptionsEnum;
 /**
  * Shows the selected connector of the Hypercharger.
  * 
- * <p>Note: Connector type values changed between firmware versions:
+ * <p>
+ * Note: The raw register values are mapped differently depending on firmware version.
+ * This enum uses unique internal values and provides mapping methods for different versions.
+ * 
+ * <p>
+ * Firmware version mappings:
  * <ul>
  * <li>Version 1.8 - 2.4: CCS_DC (1), CHAdeMO (2), CCS_AC (3), GBT (4)</li>
  * <li>Version 2.5+: CCS2 (1), CCS1 (2), CHAdeMO (3), CCS_AC (4), GBT (5), MCS (6), NACS (7)</li>
@@ -14,19 +19,14 @@ import io.openems.common.types.OptionsEnum;
 public enum SelectedConnector implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	CHARGE_POINT(0, "ChargePoint"), //
-	// For firmware < 2.5
-	CCS_DC(1, "CCS_DC Connector"), // Legacy: v1.8-2.4
-	// For firmware >= 2.5
-	CCS2(1, "CCS2 Connector"), // v2.5+
-	CCS1(2, "CCS1 Connector"), // v2.5+
-	CHA_DEMO(2, "CHAdeMO Connector"), // v1.8-2.4: value 2, v2.5+: value 3
-	CHA_DEMO_V25(3, "CHAdeMO Connector"), // v2.5+ mapping
-	CCS_AC(3, "CCS AC Connector"), // v1.8-2.4: value 3, v2.5+: value 4
-	CCS_AC_V25(4, "CCS AC Connector"), // v2.5+ mapping
-	GBT(4, "GBT Connector"), // v1.8-2.4: value 4, v2.5+: value 5
-	GBT_V25(5, "GBT Connector"), // v2.5+ mapping
-	MCS(6, "MCS Connector"), // v2.5+ only
-	NACS(7, "NACS Connector"); // v2.5+ only
+	CCS_DC(10, "CCS DC Connector"), // Used for v1.8-2.4
+	CCS1(11, "CCS1 Connector"), // Used for v2.5+
+	CCS2(12, "CCS2 Connector"), // Used for v2.5+
+	CHA_DEMO(20, "CHAdeMO Connector"), //
+	CCS_AC(30, "CCS AC Connector"), //
+	GBT(40, "GBT Connector"), //
+	MCS(60, "MCS Connector"), // v2.5+ only
+	NACS(70, "NACS Connector"); // v2.5+ only
 
 	private final int value;
 	private final String name;
@@ -49,5 +49,39 @@ public enum SelectedConnector implements OptionsEnum {
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
+	}
+	
+	/**
+	 * Maps raw register value to SelectedConnector based on firmware version.
+	 * 
+	 * @param rawValue the raw register value
+	 * @param isVersion25OrLater true if firmware is v2.5 or later
+	 * @return the appropriate SelectedConnector
+	 */
+	public static SelectedConnector fromRawValue(int rawValue, boolean isVersion25OrLater) {
+		if (isVersion25OrLater) {
+			// Version 2.5+ mapping
+			return switch (rawValue) {
+				case 0 -> CHARGE_POINT;
+				case 1 -> CCS2;
+				case 2 -> CCS1;
+				case 3 -> CHA_DEMO;
+				case 4 -> CCS_AC;
+				case 5 -> GBT;
+				case 6 -> MCS;
+				case 7 -> NACS;
+				default -> UNDEFINED;
+			};
+		} else {
+			// Version 1.8-2.4 mapping
+			return switch (rawValue) {
+				case 0 -> CHARGE_POINT;
+				case 1 -> CCS_DC;
+				case 2 -> CHA_DEMO;
+				case 3 -> CCS_AC;
+				case 4 -> GBT;
+				default -> UNDEFINED;
+			};
+		}
 	}
 }
