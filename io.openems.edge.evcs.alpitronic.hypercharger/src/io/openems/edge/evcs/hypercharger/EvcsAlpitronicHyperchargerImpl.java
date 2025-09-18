@@ -32,7 +32,9 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -367,13 +369,12 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MAX,
 								new UnsignedDoublewordElement(this.offset.apply(114))),
 						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MIN,
-								new UnsignedDoublewordElement(this.offset.apply(116)), INVERT)),
-
-				// Additional registers for SW 2.5.x
-				new FC4ReadInputRegistersTask(this.offset.apply(132), Priority.LOW,
-						// Total energy counter at offset 132-135 (INT64, Wh)
+								new UnsignedDoublewordElement(this.offset.apply(116)), INVERT),
+						// Gap between 118-131
+						new DummyRegisterElement(this.offset.apply(118), this.offset.apply(131)),
+						// Total energy counter at offset 132-135 (UINT64, Wh)
 						m(EvcsAlpitronicHypercharger.ChannelId.TOTAL_CHARGED_ENERGY,
-								new UnsignedDoublewordElement(this.offset.apply(132))),
+								new UnsignedQuadruplewordElement(this.offset.apply(132))),
 						// Maximum AC charging power at offset 136-137 (UINT32, W)
 						m(EvcsAlpitronicHypercharger.ChannelId.MAX_CHARGING_POWER_AC,
 								new UnsignedDoublewordElement(this.offset.apply(136))))
