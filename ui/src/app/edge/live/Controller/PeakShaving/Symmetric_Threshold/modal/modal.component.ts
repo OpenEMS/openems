@@ -49,7 +49,7 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
     ) { }
 
     ngOnInit() {
-        //console.log("Edge currentData (before subscription):", this.edge.currentData);
+        console.log("Edge currentData (before subscription):", this.edge.currentData);
 
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([

@@ -50,17 +50,12 @@ public class ApplyPowerHandler {
 	// Register-Pacing
 	private static final long REG_COOLDOWN_MS = 1000; // 108/109/128
 	private static final long REG154_COOLDOWN_MS = 300; // 154 braucht länger
-	private long flagsSettingUntilMs = 0;
+	
 
 	// Pv correction
 	private int lastUsedPvAc = 0;
 
-	// deadBand variables
-	private static final long DEAD_FLAGS_REFRESH_MS = 4000; // alle x Sekunden Flags im Deadband reasserten
-	private boolean inDeadBand = false;
-	private long lastDeadFlagsMs = 0;
-	private final int DEADBAND_HYST = 100;
-
+	
 	// === ACK-Ramp (minimal-invasiv) ===
 	private int desiredDcW = 0; // „Ziel“ aus deiner Regelung
 	private int stepTargetDcW = 0; // nächster Freigabe-Step
@@ -87,9 +82,6 @@ public class ApplyPowerHandler {
 	private static final double HDR_DIS = 1.12; // +12% bei Entladung
 	private static final double HDR_CHG = 1.08; // +8% bei Ladung
 
-	// Vbat-Filter für stabile Ampere
-	private static final double VBAT_ALPHA = 0.25; // EMA
-	private double vbatEma = 52.0;
 
 	private static final double FB_GAIN = 0.20; // was 0.30
 
@@ -100,7 +92,7 @@ public class ApplyPowerHandler {
 		this.log = this.ess.getLogger();
 	}
 
-	public void apply(int activePowerTarget, int reactivePower, int configuredMaxApparentPower, int deadBand)
+	public void apply(int activePowerTarget, int reactivePower, int configuredMaxApparentPower)
 			throws OpenemsNamedException {
 
 		// --- Guards ---
@@ -112,8 +104,7 @@ public class ApplyPowerHandler {
 			log.error("ESS not in normal state. Skipping ApplyPower");
 			return;
 		}
-		// cannot be negative
-		deadBand = Math.max(0, deadBand);
+
 
 		// --- Read inputs ---
 		Integer maxApparentPower = ess.getMaxApparentPower().get();
@@ -185,52 +176,6 @@ public class ApplyPowerHandler {
 		boolean batteryFull = (soc != null && soc >= 100);		
 
 		int sellCapMax = quantize50floor(Math.min(8000, (maxApparentPower != null ? maxApparentPower : 8000)));
-		boolean deadbandEnter = Math.abs(ffAc) < deadBand;
-		boolean deadbandStay  = inDeadBand && Math.abs(ffAc) <= (deadBand + DEADBAND_HYST);	// leave deadband if hysteresis is over
-
-		// overrule
-		deadbandEnter = false;
-		deadbandStay = false;
-		
-		if (deadbandEnter || deadbandStay) {
-		    // cyclic refreshing of deadband flags
-		    if ((nowMs() - lastDeadFlagsMs) >= DEAD_FLAGS_REFRESH_MS || !inDeadBand) {
-		        writeDeadbandFlags();           // setzt 141/142/145/166/172 passend
-		        lastDeadFlagsMs = nowMs();
-		    }
-
-		    // SoC = 100%: 154 kurz auf Cap anheben, um PV-Drossel zu vermeiden
-		    if (batteryFull) {
-		        boolean due154 = due(last154Ms, REG154_COOLDOWN_MS) || keepAliveDue();
-		        if (sellPSetLast != sellCapMax && due154) {
-		            this.ess.setSellModeTimePoint1Power(sellCapMax);
-		            sellPSetLast = sellCapMax;
-		            last154Ms = nowMs();
-		        }
-		    }
-
-		    // Keep-alive: BMS-Limits nie 0 A werden lassen
-		    if (battery.getBmsMaxChargeCurrent().get() == null || battery.getBmsMaxChargeCurrent().get() < MIN_A)
-		        battery.setBmsMaxChargeCurrent(MIN_A);
-		    if (battery.getBmsMaxDischargeCurrent().get() == null || battery.getBmsMaxDischargeCurrent().get() < MIN_A)
-		        battery.setBmsMaxDischargeCurrent(MIN_A);
-
-		    // Zustand merken und transparent machen
-		    inDeadBand = true;
-		    ess.logDebug(log, "DeadBand aktiv: interne Eigenverbrauchsregelung (< " +  this.ess.getDeadBand() + " W)");
-
-		    // Optional nur für Transparenz im UI (wirken HW-seitig nicht):
-		    this.ess.setTargetActivePower(0);
-		    this.ess.setTargetCurrent(0);
-
-		    // WICHTIG: Im Deadband KEINE 108/109/128/154-Regel-Schreibs (außer o.g.) -> früh raus
-		    return;
-		} else if (inDeadBand) {
-		    // Wechsel raus aus Deadband -> Normalbetrieb
-		    inDeadBand = false;
-		    // ggf. sofortiger Re-Assert deiner SELLING_ACTIVE/LOAD_FIRST-Flags von außen erlaubt
-		    flagsSettingUntilMs = 0;
-		}
 
 		int sign = (cmdDc > DC_MODE_HYST_W) ? 1 : (cmdDc < -DC_MODE_HYST_W) ? -1 : 0;
 		FlowMode desiredMode = (sign > 0) ? FlowMode.DISCHARGE : (sign < 0) ? FlowMode.CHARGE : lastMode;
@@ -503,6 +448,7 @@ public class ApplyPowerHandler {
 		this.ess.logDebug(log, "Set Active Power: " + activePowerWatt + " W (" + activePowerPercent + "%)");
 	}
 
+	// DeadBand is not used any more because this modes reduces PV
 	private void writeDeadbandFlags() throws OpenemsNamedException {
 		// use internal self consumption functions
 		if (this.ess.getEnergyManagementModel() != EnergyManagementModel.LOAD_FIRST)

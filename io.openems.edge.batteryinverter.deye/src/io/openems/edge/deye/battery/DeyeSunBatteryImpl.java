@@ -164,10 +164,10 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC16WriteRegistersTask(108,
-						m(DeyeSunBattery.ChannelId.BMS_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(108)), // 0-185A
-						m(DeyeSunBattery.ChannelId.BMS_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(109))), // 0-185A
+						m(DeyeSunBattery.ChannelId.BMS_CHARGE_CURRENT_LIMIT, new SignedWordElement(108)), // 0-185A
+						m(DeyeSunBattery.ChannelId.BMS_DISCHARGE_CURRENT_LIMIT, new SignedWordElement(109))), // 0-185A
 
-				new FC3ReadRegistersTask(102, Priority.LOW, // °C
+				new FC3ReadRegistersTask(102, Priority.HIGH, // °C
 						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY, new SignedWordElement(102)),
 						new DummyRegisterElement(103, 107),
 						m(DeyeSunBattery.ChannelId.BMS_CHARGE_CURRENT_LIMIT, new SignedWordElement(108)), //
@@ -191,8 +191,10 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 						m(DeyeSunBattery.ChannelId.BATTERY_VOLTAGE_RESTART, new UnsignedWordElement(119),
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(DeyeSunBattery.ChannelId.BATTERY_VOLTAGE_LOW_BATT, new UnsignedWordElement(120),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						new DummyRegisterElement(121, 209),
+								ElementToChannelConverter.SCALE_FACTOR_1)),
+				// new DummyRegisterElement(121, 209),
+
+				new FC3ReadRegistersTask(210, Priority.LOW, // °C
 						// BMS
 						m(DeyeSunBattery.ChannelId.BMS_CHARGING_VOLTAGE, new UnsignedWordElement(210),
 								ElementToChannelConverter.SCALE_FACTOR_1),

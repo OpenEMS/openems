@@ -39,6 +39,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S123_WMaxLim_Ena;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -68,13 +69,13 @@ import io.openems.edge.timedata.api.TimedataProvider;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-	//EdgeEventConstants.TOPIC_BASE,
-	//EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS,
-	//EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
-	//EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,	
-	//EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE,
-	//EdgeEventConstants.TOPIC_CYCLE
+		// EdgeEventConstants.TOPIC_BASE,
+		// EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS,
+		// EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+// EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,
+// EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE,
+// EdgeEventConstants.TOPIC_CYCLE
 })
 public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		implements PvInverterSmaSunnyTripower, SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter,
@@ -138,9 +139,8 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 	private Config config;
 	private int numberOfModules = 0;
 
-	private Instant lastSuccessfulCommunication = null;  // Zeitstempel der letzten erfolgreichen Modbus-Kommunikation
-	
-	
+	private Instant lastSuccessfulCommunication = null; // Zeitstempel der letzten erfolgreichen Modbus-Kommunikation
+
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -185,28 +185,23 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		super.deactivate();
 	}
 
-
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
-		//this.log.error("Event -> " + event.toString());		
+		// this.log.error("Event -> " + event.toString());
 		this.checkActivePowerChannel();
 		try {
 
 			this.pvDataHandler();
-			
 
 		} catch (OpenemsNamedException e) {
 			log.warn("Cannot write S160 data yet");
 		}
 
-		
-		
-
 	}
-	
+
 	/**
-	 * Overrides because SMA needs value of S123_WMaxLim_Ena to be set every
-	 * time a new value is given.
+	 * Overrides because SMA needs value of S123_WMaxLim_Ena to be set every time a
+	 * new value is given.
 	 *
 	 * @param int value - the new limit value
 	 * @throws OpenemsException on error
@@ -217,17 +212,21 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			this.log.info("SunSpec model not completely initialized. Skipping PV Limiter");
 			return;
 		}
-
-		if(value == null)  {
-			this.log.info("Value for Limiter is NULL. Skipping PV Limiter");
-			return;
-		}
-
 		EnumWriteChannel wMaxLimEnaChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA);
 		FloatWriteChannel wMaxPercentChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT);
 		IntegerWriteChannel wMaxPercentTimeoutChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
 
-		
+		// no active limitation from controller. Disable inverter´s limit
+		if (value == null) {
+			this.log.info("Value for Limiter is NULL. Disabling Limitation");
+				this.getActivePowerLimitChannel().setNextWriteValue(null);
+				wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.DISABLED);
+			return; // early return
+		}
+
+		float targetPercent = 100;
+
+
 		Integer maxApparentPower;
 		maxApparentPower = this.getMaxApparentPower().get();
 		if (maxApparentPower == null || maxApparentPower <= 0) {
@@ -236,16 +235,19 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			return;
 		}
 
-		float targetPercent = (float) value * 100f / maxApparentPower;
+		targetPercent = (float) value * 100f / maxApparentPower;
+		targetPercent = Math.max(0f, Math.min(100f, targetPercent));
 
-		this.getActivePowerLimitChannel().setNextWriteValue(value);
-		wMaxPercentChannel.setNextWriteValue(targetPercent);
 		wMaxPercentTimeoutChannel.setNextWriteValue(60);
+		wMaxPercentChannel.setNextWriteValue(targetPercent);
 		wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
+		
+		this.getActivePowerLimitChannel().setNextWriteValue(value); // feed internal channel		
+
 	}
 
 	public void setActivePowerLimit(int value) throws OpenemsNamedException {
-	    this.setActivePowerLimit(Integer.valueOf(value));
+		this.setActivePowerLimit(Integer.valueOf(value));
 	}
 
 	// Active Power channel is not available (yet)
@@ -385,7 +387,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		}
 
 		try {
-			
+
 			// modbus Task is active and Sunspec is initialized
 			IntegerReadChannel currentScaleFactorChannel = this.channel(PvInverterSmaSunnyTripower.ChannelId.DCA_SF);
 			int currentScaleFactor = currentScaleFactorChannel.value().getOrError().intValue();
@@ -398,9 +400,9 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 			IntegerReadChannel energyScaleFactorChannel = this.channel(PvInverterSmaSunnyTripower.ChannelId.DCWH_SF);
 			int energyScaleFactor = energyScaleFactorChannel.value().getOrError().intValue();
-			
-	        this.lastSuccessfulCommunication = Instant.now();
-	        this._setCommunicationFailed(false);			
+
+			this.lastSuccessfulCommunication = Instant.now();
+			this._setCommunicationFailed(false);
 
 			for (int i = 0; i < this.numberOfModules; i++) {
 
@@ -447,17 +449,16 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 		} catch (OpenemsException e) {
 
-	        boolean communicationFailed = (this.lastSuccessfulCommunication == null) ||
-	                this.lastSuccessfulCommunication.isBefore(Instant.now().minus(24, ChronoUnit.HOURS));
+			boolean communicationFailed = (this.lastSuccessfulCommunication == null)
+					|| this.lastSuccessfulCommunication.isBefore(Instant.now().minus(24, ChronoUnit.HOURS));
 
-	        this._setCommunicationFailed(communicationFailed);
-			
-			
-	        if (communicationFailed) {
-	            log.error("Inverter not available for over 24 hours");
-	        } else {
-	            log.warn("Inverter not available within 24 hours");
-	        }
+			this._setCommunicationFailed(communicationFailed);
+
+			if (communicationFailed) {
+				log.error("Inverter not available for over 24 hours");
+			} else {
+				log.warn("Inverter not available within 24 hours");
+			}
 			return;
 		}
 

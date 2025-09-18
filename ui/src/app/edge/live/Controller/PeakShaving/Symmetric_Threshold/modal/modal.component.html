@@ -85,7 +85,7 @@
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ng-container
-                                *ngIf="(currentData['channel'][controllerId + '/PeakShavedPower'] || true) as value">
+                                *ngIf="(currentData['channel'][controllerId + '/PeakShavingPower'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
                         </td>

@@ -57,9 +57,9 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	private State state = State.UNDEFINED;
 	private Integer gridPowerWithoutChp = 0;
 	private Integer applyPowerTarget = 0;
-	//private Integer lastApplyPowerTarget = null;	
-	private Double currentPrice = null;	
-	private Double currentEnergyCost = 0.0;	
+	// private Integer lastApplyPowerTarget = null;
+	private Double currentPrice = null;
+	private Double currentEnergyCost = 0.0;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -70,15 +70,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private TimeOfUseTariff timeOfUseTariff;
 
-	@Reference(
-		    name = "gridMeter",
-		    service = ElectricityMeter.class,
-		    policy = ReferencePolicy.DYNAMIC,
-		    policyOption = ReferencePolicyOption.GREEDY,
-		    cardinality = ReferenceCardinality.OPTIONAL,
-		    bind = "bindGridMeter",
-		    unbind = "unbindGridMeter"
-		)
+	@Reference(name = "gridMeter", service = ElectricityMeter.class, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL, bind = "bindGridMeter", unbind = "unbindGridMeter")
 	private volatile ElectricityMeter gridMeter;
 
 	@Reference
@@ -97,14 +89,15 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-	    boolean updated = false;
-	    updated |= OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chp", config.chp_id());
-	    updated |= OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.meter_id());
-	    if (updated) return; // DS reconfig kommt gleich nochmal
+		boolean updated = false;
+		updated |= OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chp", config.chp_id());
+		updated |= OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "gridMeter", config.meter_id());
+		if (updated)
+			return; // DS reconfig kommt gleich nochmal
 
-	    var props = context.getProperties();
-	    log.info("[CHP CostOpt] gridMeter.target={}", props.get("gridMeter.target"));
-	    log.info("[CHP CostOpt] chp.target={}",       props.get("chp.target"));
+		var props = context.getProperties();
+		log.info("[CHP CostOpt] gridMeter.target={}", props.get("gridMeter.target"));
+		log.info("[CHP CostOpt] chp.target={}", props.get("chp.target"));
 	}
 
 	@Override
@@ -125,23 +118,22 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		if (!checkOperationalValues() || currentEnergyCost == null ) {
+		if (!checkOperationalValues() || currentEnergyCost == null) {
 			this.logWarn(this.log, "Controller not ready");
 			this.changeState(State.ERROR);
 			return;
-		}		
+		}
 		Integer gridActivePower = this.gridMeter.getActivePower().get();
 		Integer chpActivePower = this.chp.getGeneratorActivePower().get();
-		
+
 		this.gridPowerWithoutChp = gridActivePower + chpActivePower;
 		Double currentEnergyCostsWithoutChp = this.getCurrentCost(gridPowerWithoutChp);
 		Double currentEnergyCosts = this.getCurrentCost(gridActivePower);
-		
+
 		this._setEnergyCostsWithoutChp(currentEnergyCostsWithoutChp); // save value in channel
 		this._setEnergyCosts(currentEnergyCosts); // save value in channel
 		this._setChpActivePower(chpActivePower); // save value in channel
 		this._setAwaitingDeviceHysteresis(this.chp.getAwaitingHysteresis().get());
-		
 
 		switch (this.state) {
 		case ERROR:
@@ -154,22 +146,22 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			if (checkOperationalValues()) {
 				this.changeState(State.NORMAL);
 				return;
-			}			
+			}
 			break;
 		case NORMAL:
 
-	  		if (this.config.mode() == Mode.MANUAL_ON) {
-	  			this.changeState(State.CHP_ACTIVE);
-	  			this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
-	  			break;
-	  		}
-	  		
-	  		if (this.config.mode() == Mode.MANUAL_OFF) {
-	  			this.chp.applyPower(null); // off
-	  			this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
-	  			break;
-	  		}
-			
+			if (this.config.mode() == Mode.MANUAL_ON) {
+				this.changeState(State.CHP_ACTIVE);
+				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+				break;
+			}
+
+			if (this.config.mode() == Mode.MANUAL_OFF) {
+				this.chp.applyPower(null); // off
+				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
+				break;
+			}
+
 			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
 				// ready to start
 
@@ -179,15 +171,15 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				// Start Timer
 				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
 			} else {
-				
+
 				// Only turn off if there was a change in target power
-				//if (this.lastApplyPowerTarget != this.applyPowerTarget) {
-				//	this.chp.applyPower(this.applyPowerTarget);	
-				//} else {
-					// do nothing
-				//}
+				// if (this.lastApplyPowerTarget != this.applyPowerTarget) {
+				// this.chp.applyPower(this.applyPowerTarget);
+				// } else {
+				// do nothing
+				// }
 				this._setActivePowerTarget(this.applyPowerTarget);
-				this.chp.applyPower(this.applyPowerTarget);				
+				this.chp.applyPower(this.applyPowerTarget);
 			}
 
 			break;
@@ -195,14 +187,14 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			// check hysteresis
 			// check target power
 			// check costs
-			//this._setAwaitingStartHysteresis(false); // 
-			
-	  		if (this.config.mode() == Mode.MANUAL_ON) {
-	  			this.chp.applyPower(this.config.maxActivePower()); // full power
-	  			break;
-	  		}			
-			
-	  		if (this.config.mode() == Mode.MANUAL_OFF) {
+			// this._setAwaitingStartHysteresis(false); //
+
+			if (this.config.mode() == Mode.MANUAL_ON) {
+				this.chp.applyPower(this.config.maxActivePower()); // full power
+				break;
+			}
+
+			if (this.config.mode() == Mode.MANUAL_OFF) {
 				// stop chp
 				this.applyPowerTarget = 0;
 				this.chp.applyPower(this.applyPowerTarget);
@@ -210,10 +202,10 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				// Start Timer
 				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
 				this._setAwaitingStartHysteresis(false);
-	  			break;
-	  		}	  		
-	  		
-	  		// Automatic mode
+				break;
+			}
+
+			// Automatic mode
 			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
 				this.applyPowerTarget = this.calculateChpPowerTarget();
 				this.chp.applyPower(this.applyPowerTarget);
@@ -223,7 +215,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				// check last START time
 				if (isHysteresisActive(this.lastStartHysteresisTime, this.config.startHyteresis())) {
 					this.applyPowerTarget = this.calculateChpPowerTarget();
-					this.chp.applyPower(this.applyPowerTarget);					
+					this.chp.applyPower(this.applyPowerTarget);
 					this._setAwaitingStartHysteresis(true);
 				} else {
 					// stop chp
@@ -235,24 +227,24 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 					this._setAwaitingStartHysteresis(false);
 				}
 			}
-			
+
 			// this.lastApplyPowerTarget = this.applyPowerTarget;
 			break;
 		case CHP_INACTIVE: // stopped
-			
+
 			if (isHysteresisActive(this.lastStopHysteresisTime, this.config.stopHyteresis())) {
 				this._setAwaitingStopHysteresis(true);
 			} else {
 				this._setAwaitingStopHysteresis(false);
-				this.changeState(State.NORMAL);				
+				this.changeState(State.NORMAL);
 			}
 			break;
 		default: // ToDo. Is there a default case?
 			break;
 		}
 	}
-	
-	private boolean isHysteresisActive (Instant hysteresisTime, int configuredHysteresis) {
+
+	private boolean isHysteresisActive(Instant hysteresisTime, int configuredHysteresis) {
 		if (Duration.between(//
 				hysteresisTime, //
 				Instant.now(this.componentManager.getClock()) //
@@ -262,30 +254,30 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			return true;
 		}
 	}
-	
+
 	/**
-	 * Calculates the optimal target power for the CHP unit to ensure that energy costs 
-	 * do not exceed the configured maximum (maxCost). The calculation is based on the 
-	 * current grid power without CHP and the current energy cost. The result is limited 
-	 * by the maximum allowed CHP power and by the actual grid power demand (to avoid 
-	 * unwanted feed-in to the grid).
+	 * Calculates the optimal target power for the CHP unit to ensure that energy
+	 * costs do not exceed the configured maximum (maxCost). The calculation is
+	 * based on the current grid power without CHP and the current energy cost. The
+	 * result is limited by the maximum allowed CHP power and by the actual grid
+	 * power demand (to avoid unwanted feed-in to the grid).
 	 * 
-	 * Formula:
-	 *     chpTargetPower = gridPowerWithoutChp * maxCost / currentEnergyCost
+	 * Formula: chpTargetPower = gridPowerWithoutChp * maxCost / currentEnergyCost
 	 * 
-	 * Limits:
-	 * - Does not exceed the maximum CHP power (maxActivePower).
-	 * - Does not exceed the current grid power demand (prevents export to the grid).
+	 * Limits: - Does not exceed the maximum CHP power (maxActivePower). - Does not
+	 * exceed the current grid power demand (prevents export to the grid).
 	 * 
-	 * Returns the calculated power target in watts and sets it to the corresponding channel.
+	 * Returns the calculated power target in watts and sets it to the corresponding
+	 * channel.
 	 */
 	private int calculateChpPowerTarget() {
 		int chpTargetPower = 0;
-		
+
 		if (this.gridPowerWithoutChp != null) {
-			
-			chpTargetPower = (int) Math.round( this.gridPowerWithoutChp * this.config.maxCost() / (double) this.currentEnergyCost) ;
-			
+
+			chpTargetPower = (int) Math
+					.round(this.gridPowerWithoutChp * this.config.maxCost() / (double) this.currentEnergyCost);
+
 			// Apply limits
 			chpTargetPower = Math.min(this.config.maxActivePower(), chpTargetPower);
 			chpTargetPower = Math.min(chpTargetPower, this.gridPowerWithoutChp); // sell to grid is not allowed
@@ -298,7 +290,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	private Double getCurrentCost(Integer gridPowerWithoutChp) {
 
 		if (!this.timeOfUseTariff.getPrices().isEmpty()) {
-			this.currentPrice = this.timeOfUseTariff.getPrices().getFirst(); // Price in €/MWh. 
+			this.currentPrice = this.timeOfUseTariff.getPrices().getFirst(); // Price in €/MWh.
 		} else {
 			return 0.0;
 		}
@@ -307,8 +299,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			this.currentEnergyCost = this.currentPrice * gridPowerWithoutChp / 1_000_000.0; // €
 		}
 
-
-		return Math.round(currentEnergyCost *1000.0)/1000.0;
+		return Math.round(currentEnergyCost * 1000.0) / 1000.0;
 	}
 
 	@Deactivate
@@ -326,9 +317,8 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		if (this.state == nextState) {
 			return false;
 		}
-		
-		
-		if (isHysteresisActive(this.lastTransistionChangeTime, STATE_TRANSITION_HYSTERESIS)){
+
+		if (isHysteresisActive(this.lastTransistionChangeTime, STATE_TRANSITION_HYSTERESIS)) {
 			this._setAwaitingTransitionHysteresis(true);
 			return false;
 		} else {
@@ -337,39 +327,70 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			this._setAwaitingTransitionHysteresis(false);
 			this._setStateMachine(nextState);
 			this.logDebug(this.log, "Change state " + this.state + "->" + nextState);
-			
+
 			return true;
-		} 
+		}
 	}
 
 	private boolean checkOperationalValues() {
-		this.logDebug(this.log, "" + " gridMeter: " + this.gridMeter + " chp: " + this.chp + " gridActivePower: "
-				+ (this.gridMeter != null ? this.gridMeter.getActivePower().get() : null)
-				+ (this.chp != null ? this.chp.getGeneratorActivePower().get() : null)				
-				
-				
-				);
+		this.logDebug(this.log,
+				"" + " gridMeter: " + this.gridMeter + " chp: " + this.chp + " gridActivePower: "
+						+ (this.gridMeter != null ? this.gridMeter.getActivePower().get() : null)
+						+ (this.chp != null ? this.chp.getGeneratorActivePower().get() : null)
 
-		if (this.chp == null || this.gridMeter == null || this.gridMeter.getMeterType() != MeterType.GRID
-				|| this.timeOfUseTariff == null || this.gridMeter.getActivePower().get() == null || this.chp.getGeneratorActivePower().get() == null) {
-			this.log.warn("Controller not ready");
+		);
+		if (this.gridMeter.getMeterType() != MeterType.GRID) {
+			this.log.warn("Controller not ready. Metertype is not GRID");
+			this.changeState(State.ERROR);
+			return false;
+
+		}
+
+		if (this.gridMeter == null) {
+			this.log.warn("Controller not ready. GridMeter is NULL");
 			this.changeState(State.ERROR);
 			return false;
 		}
+
+		if (this.chp == null) {
+			this.log.warn("Controller not ready. No CHP available");
+			this.changeState(State.ERROR);
+			return false;
+		}
+
+		if (this.gridMeter.getActivePower().get() == null) {
+			this.log.warn("Controller not ready. No value for ActivePower from GridMeter");
+			this.changeState(State.ERROR);
+			return false;
+		}
+
+		if (this.timeOfUseTariff == null) {
+			this.log.warn("Controller not ready. No prices available because TimeOfUse Controller is NULL");
+			this.changeState(State.ERROR);
+			return false;
+		}
+
+		if (this.chp.getGeneratorActivePower().get() == null) {
+			this.log.warn("Controller not ready. No value for AcmtivePower from generator(s)");
+			this.changeState(State.ERROR);
+			return false;
+		}
+
 		return true;
 
 	}
-	
+
 	void bindGridMeter(ElectricityMeter m) {
-	    this.gridMeter = m;
-	    log.info("[CHP CostOpt] gridMeter bound: id={}, type={}", m.id(), m.getMeterType());
+		this.gridMeter = m;
+		log.info("[CHP CostOpt] gridMeter bound: id={}, type={}", m.id(), m.getMeterType());
 	}
+
 	void unbindGridMeter(ElectricityMeter m) {
-	    if (this.gridMeter == m) {
-	        this.gridMeter = null;
-	        log.info("[CHP CostOpt] gridMeter unbound: id={}", m.id());
-	    }
-	}	
+		if (this.gridMeter == m) {
+			this.gridMeter = null;
+			log.info("[CHP CostOpt] gridMeter unbound: id={}", m.id());
+		}
+	}
 
 	/**
 	 * Uses Info Log for further debug features.
@@ -380,18 +401,15 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			this.logInfo(this.log, message);
 		}
 	}
-	
-	
+
 	@Override
 	public String debugLog() {
 		// return null;
-		return "Current Energy costs: " + this.getEnergyCosts().asString() + " €/h"+
-		"Current Energy costs without CHP: " + this.getEnergyCostsWithoutChp().asString() + " €/h"+				
-				" State: " + this.state +
-				" TargetPower: " + this.getActivePowerTarget().asString() +
-				" ChpActivePower: " + this.getChpActivePower().asString() 
-				
-				
-				;
-	}	
+		return "Current Energy costs: " + this.getEnergyCosts().asString() + " €/h"
+				+ "Current Energy costs without CHP: " + this.getEnergyCostsWithoutChp().asString() + " €/h"
+				+ " State: " + this.state + " TargetPower: " + this.getActivePowerTarget().asString()
+				+ " ChpActivePower: " + this.getChpActivePower().asString()
+
+		;
+	}
 }

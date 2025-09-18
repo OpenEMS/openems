@@ -104,8 +104,6 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 	private LocalDateTime lastDefineWorkState =  LocalDateTime.now();
 
 	private boolean chargeMode = false;
-
-	private BatteryRunState lastBatteryRunState = null;
 	private boolean lastHadCommError = false;
 	
 	@Reference
@@ -198,7 +196,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 	    }		
 		
 		if (this.applyPowerHandler != null) {
-			this.applyPowerHandler.apply(activePower, reactivePower, this.config.maxApparentPower(),this.config.deadBand());
+			this.applyPowerHandler.apply(activePower, reactivePower, this.config.maxApparentPower());
 		}
 
 	}
@@ -403,6 +401,8 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				),
 
 				new FC3ReadRegistersTask(586, Priority.LOW,
+						
+						
 						m(DeyeSunHybrid.ChannelId.BATTERY_TEMPERATURE, new UnsignedWordElement(586),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
 						m(DeyeSunHybrid.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(587),
@@ -616,10 +616,6 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		
 		this.setWorkState(nextState);
 		return true;
-	}
-
-	public int getDeadBand() {
-		return this.config.deadBand();
 	}
 	
 	@Override
