@@ -35,6 +35,48 @@ public interface EvcsAlpitronicHypercharger extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
+		 * Unix time from charging station.
+		 */
+		UNIX_TIME(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.SECONDS)),
+		
+		/**
+		 * Number of physical connectors.
+		 */
+		NUM_CONNECTORS(Doc.of(OpenemsType.INTEGER)),
+		
+		/**
+		 * State of the charging station (0=Available, 8=Unavailable, 10=Faulted).
+		 */
+		STATION_STATE(Doc.of(OpenemsType.INTEGER)),
+		
+		/**
+		 * Total power drained from the grid by all connectors.
+		 */
+		TOTAL_STATION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		
+		/**
+		 * Whether external load management controller has control.
+		 */
+		LOAD_MANAGEMENT_ENABLED(Doc.of(OpenemsType.BOOLEAN)),
+		
+		/**
+		 * Software version major.
+		 */
+		SOFTWARE_VERSION_MAJOR(Doc.of(OpenemsType.INTEGER)),
+		
+		/**
+		 * Software version minor.
+		 */
+		SOFTWARE_VERSION_MINOR(Doc.of(OpenemsType.INTEGER)),
+		
+		/**
+		 * Software version patch.
+		 */
+		SOFTWARE_VERSION_PATCH(Doc.of(OpenemsType.INTEGER)),
+
+		/**
 		 * General status message applied to the entire charger.
 		 */
 		RAW_STATUS(Doc.of(AvailableState.values())),
@@ -94,7 +136,19 @@ public interface EvcsAlpitronicHypercharger extends OpenemsComponent {
 				.accessMode(AccessMode.WRITE_ONLY)),
 
 		RAW_CHARGE_POWER_SET(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)),;
+				.unit(Unit.WATT)),
+		
+		/**
+		 * Total charged energy counter.
+		 */
+		TOTAL_CHARGED_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS)),
+		
+		/**
+		 * Maximum AC charging power per connector.
+		 */
+		MAX_CHARGING_POWER_AC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT));
 
 		private final Doc doc;
 
