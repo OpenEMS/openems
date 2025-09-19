@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
@@ -82,16 +81,16 @@ public class ModbusRegisterMappingTest {
 	@Test
 	public void testConnectorSpecificRegisters() throws Exception {
 		// Test SLOT_0 (offset 100)
-		testConnectorOffset(Connector.SLOT_0, 100);
-		
-		// Test SLOT_1 (offset 200) 
-		testConnectorOffset(Connector.SLOT_1, 200);
-		
+		this.testConnectorOffset(Connector.SLOT_0, 100);
+
+		// Test SLOT_1 (offset 200)
+		this.testConnectorOffset(Connector.SLOT_1, 200);
+
 		// Test SLOT_2 (offset 300)
-		testConnectorOffset(Connector.SLOT_2, 300);
-		
+		this.testConnectorOffset(Connector.SLOT_2, 300);
+
 		// Test SLOT_3 (offset 400)
-		testConnectorOffset(Connector.SLOT_3, 400);
+		this.testConnectorOffset(Connector.SLOT_3, 400);
 	}
 	
 	private void testConnectorOffset(Connector connector, int expectedOffset) throws Exception {

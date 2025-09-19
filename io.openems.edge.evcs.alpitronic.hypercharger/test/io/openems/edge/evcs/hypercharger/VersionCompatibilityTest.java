@@ -1,6 +1,9 @@
 package io.openems.edge.evcs.hypercharger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
@@ -56,7 +59,7 @@ public class VersionCompatibilityTest {
 	public void testVersionComparison() {
 		FirmwareVersion v18 = new FirmwareVersion(1, 8, 0);
 		FirmwareVersion v25 = new FirmwareVersion(2, 5, 3);
-		FirmwareVersion v30 = new FirmwareVersion(3, 0, 0);
+		final FirmwareVersion v30 = new FirmwareVersion(3, 0, 0);
 		
 		// Test isAtLeast
 		assertTrue("v1.8 should be at least 1.8", v18.isAtLeast(1, 8));
