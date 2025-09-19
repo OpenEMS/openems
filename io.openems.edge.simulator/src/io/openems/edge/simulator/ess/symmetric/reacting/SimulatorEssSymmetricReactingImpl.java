@@ -90,8 +90,8 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 				/ 100 * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.capacity() * -1);
-		this._setAllowedDischargePower(config.capacity());
+		this._setAllowedChargePower(config.maxChargePower() * -1);
+		this._setAllowedDischargePower(config.maxDischargePower());
 		this._setGridMode(config.gridMode());
 		this._setCapacity(config.capacity());
 	}
@@ -189,12 +189,12 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 		if (soc == 100) {
 			this._setAllowedChargePower(0);
 		} else {
-			this._setAllowedChargePower(this.config.capacity() * -1);
+			this._setAllowedChargePower(this.config.maxChargePower() * -1);
 		}
 		if (soc == 0) {
 			this._setAllowedDischargePower(0);
 		} else {
-			this._setAllowedDischargePower(this.config.capacity());
+			this._setAllowedDischargePower(this.config.maxDischargePower());
 		}
 	}
 
