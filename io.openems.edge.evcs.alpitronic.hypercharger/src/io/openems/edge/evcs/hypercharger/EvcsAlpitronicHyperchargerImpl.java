@@ -59,28 +59,6 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-/**
- * Implementation of the Alpitronic Hypercharger EVCS component.
- * 
- * <p>
- * This component provides integration with Alpitronic Hypercharger DC fast
- * charging stations through Modbus TCP communication. It supports automatic
- * firmware version detection and adapts register mappings accordingly.
- * 
- * <p>
- * Key features:
- * <ul>
- * <li>Supports HYC50, HYC150, HYC200, HYC300, HYC400 models (50-400kW)</li>
- * <li>Automatic detection of firmware version (2.5.x and later)</li>
- * <li>Backward compatibility with pre-2.5 firmware versions</li>
- * <li>Real-time monitoring of charging sessions</li>
- * <li>Power limit control via Modbus holding registers</li>
- * <li>Reactive power control support</li>
- * <li>Multiple connector support (up to 4 connectors)</li>
- * </ul>
- * 
- * @see <a href="https://www.alpitronic.it">Alpitronic Official Website</a>
- */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.AlpitronicHypercharger", //
@@ -484,10 +462,79 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	 * @return the ModbusProtocol configured for v2.3.x register mapping
 	 */
 	private ModbusProtocol defineModbusProtocolV23() {
-		// Version 2.3 is similar to 1.8 but adds total charged energy at register 132
-		// For simplicity, we use the v1.8 protocol as base
-		// TODO: Add register 132 (total charged energy) when extending
-		return this.defineModbusProtocolV18();
+		final var modbusProtocol = new ModbusProtocol(this,
+				// Version 2.3 uses connector-relative offsets throughout
+				// Read holding registers
+				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
+						m(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER_SET,
+								new UnsignedDoublewordElement(this.offset.apply(0)))),
+
+				// Write holding registers - Active power is W for all connectors in v2.3
+				new FC16WriteRegistersTask(this.offset.apply(0),
+						m(EvcsAlpitronicHypercharger.ChannelId.APPLY_CHARGE_POWER_LIMIT,
+								new UnsignedDoublewordElement(this.offset.apply(0))),
+						m(EvcsAlpitronicHypercharger.ChannelId.SETPOINT_REACTIVE_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(2)))),
+
+				// Read connector-specific input registers (v2.3 layout)
+				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
+						m(EvcsAlpitronicHypercharger.ChannelId.RAW_STATUS,
+								new UnsignedWordElement(this.offset.apply(0))),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_VOLTAGE,
+								new UnsignedDoublewordElement(this.offset.apply(1)), SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_CURRENT,
+								new UnsignedWordElement(this.offset.apply(3)), SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(4))),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGED_TIME,
+								new UnsignedWordElement(this.offset.apply(6))),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGED_ENERGY,
+								new UnsignedWordElement(this.offset.apply(7)), SCALE_FACTOR_MINUS_2)
+								.onUpdateCallback(e -> {
+									if (e == null) {
+										return;
+									}
+									if (e == 0) {
+										switch (this.getStatus()) {
+										case UNDEFINED:
+										case NOT_READY_FOR_CHARGING:
+										case STARTING:
+											this._setEnergySession(0);
+											return;
+										case CHARGING:
+										case CHARGING_REJECTED:
+										case ENERGY_LIMIT_REACHED:
+										case ERROR:
+										case READY_FOR_CHARGING:
+											// Ignore 0 value
+											return;
+										}
+									}
+									this._setEnergySession(e * 10);
+								}),
+						m(EvcsAlpitronicHypercharger.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)),
+								SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronicHypercharger.ChannelId.CONNECTOR_TYPE,
+								new UnsignedWordElement(this.offset.apply(9))),
+						m(EvcsAlpitronicHypercharger.ChannelId.EV_MAX_CHARGING_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(10))),
+						m(EvcsAlpitronicHypercharger.ChannelId.EV_MIN_CHARGING_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(12))),
+						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MAX,
+								new UnsignedDoublewordElement(this.offset.apply(14))),
+						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MIN,
+								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT),
+						// Gap between 18-131
+						new DummyRegisterElement(this.offset.apply(18), this.offset.apply(131)),
+						// v2.3 addition: Total charged energy at register 132
+						m(EvcsAlpitronicHypercharger.ChannelId.TOTAL_CHARGED_ENERGY,
+								new UnsignedQuadruplewordElement(this.offset.apply(132)))));
+
+		this.addCalculatePowerListeners();
+		this.addStatusListener();
+		this.addVersionListener();
+
+		return modbusProtocol;
 	}
 
 	/**
@@ -496,10 +543,82 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	 * @return the ModbusProtocol configured for v2.4.x register mapping
 	 */
 	private ModbusProtocol defineModbusProtocolV24() {
-		// Version 2.4 adds max charging power AC at register 136
-		// For simplicity, we use the v1.8 protocol as base
-		// TODO: Add registers 132 and 136 when extending
-		return this.defineModbusProtocolV18();
+		final var modbusProtocol = new ModbusProtocol(this,
+				// Version 2.4 uses connector-relative offsets throughout
+				// Read holding registers
+				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
+						m(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER_SET,
+								new UnsignedDoublewordElement(this.offset.apply(0)))),
+
+				// Write holding registers - Active power is W for all connectors in v2.4
+				new FC16WriteRegistersTask(this.offset.apply(0),
+						m(EvcsAlpitronicHypercharger.ChannelId.APPLY_CHARGE_POWER_LIMIT,
+								new UnsignedDoublewordElement(this.offset.apply(0))),
+						m(EvcsAlpitronicHypercharger.ChannelId.SETPOINT_REACTIVE_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(2)))),
+
+				// Read connector-specific input registers (v2.4 layout)
+				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
+						m(EvcsAlpitronicHypercharger.ChannelId.RAW_STATUS,
+								new UnsignedWordElement(this.offset.apply(0))),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_VOLTAGE,
+								new UnsignedDoublewordElement(this.offset.apply(1)), SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_CURRENT,
+								new UnsignedWordElement(this.offset.apply(3)), SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(4))),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGED_TIME,
+								new UnsignedWordElement(this.offset.apply(6))),
+						m(EvcsAlpitronicHypercharger.ChannelId.CHARGED_ENERGY,
+								new UnsignedWordElement(this.offset.apply(7)), SCALE_FACTOR_MINUS_2)
+								.onUpdateCallback(e -> {
+									if (e == null) {
+										return;
+									}
+									if (e == 0) {
+										switch (this.getStatus()) {
+										case UNDEFINED:
+										case NOT_READY_FOR_CHARGING:
+										case STARTING:
+											this._setEnergySession(0);
+											return;
+										case CHARGING:
+										case CHARGING_REJECTED:
+										case ENERGY_LIMIT_REACHED:
+										case ERROR:
+										case READY_FOR_CHARGING:
+											// Ignore 0 value
+											return;
+										}
+									}
+									this._setEnergySession(e * 10);
+								}),
+						m(EvcsAlpitronicHypercharger.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)),
+								SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronicHypercharger.ChannelId.CONNECTOR_TYPE,
+								new UnsignedWordElement(this.offset.apply(9))),
+						m(EvcsAlpitronicHypercharger.ChannelId.EV_MAX_CHARGING_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(10))),
+						m(EvcsAlpitronicHypercharger.ChannelId.EV_MIN_CHARGING_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(12))),
+						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MAX,
+								new UnsignedDoublewordElement(this.offset.apply(14))),
+						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MIN,
+								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT),
+						// Gap between 18-131
+						new DummyRegisterElement(this.offset.apply(18), this.offset.apply(131)),
+						// v2.3 addition: Total charged energy at register 132
+						m(EvcsAlpitronicHypercharger.ChannelId.TOTAL_CHARGED_ENERGY,
+								new UnsignedQuadruplewordElement(this.offset.apply(132))),
+						// v2.4 addition: Maximum AC charging power at register 136
+						m(EvcsAlpitronicHypercharger.ChannelId.MAX_CHARGING_POWER_AC,
+								new UnsignedDoublewordElement(this.offset.apply(136)))));
+
+		this.addCalculatePowerListeners();
+		this.addStatusListener();
+		this.addVersionListener();
+
+		return modbusProtocol;
 	}
 
 	/**
