@@ -2,6 +2,7 @@ package io.openems.edge.evcs.hypercharger;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.hypercharger.EvcsAlpitronicHypercharger.Connector;
 
 @SuppressWarnings("all")
@@ -15,6 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int minHwPower;
 		private int maxHwPower;
 		private EvcsAlpitronicHypercharger.Connector connector;
+		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 
 		private Builder() {
 		}
@@ -46,6 +48,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setConnector(EvcsAlpitronicHypercharger.Connector connector) {
 			this.connector = connector;
+			return this;
+		}
+
+		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
+			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -103,5 +110,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Connector connector() {
 		return this.builder.connector;
+	}
+
+	@Override
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 }

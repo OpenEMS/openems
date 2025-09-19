@@ -83,6 +83,9 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	private Integer versionMinor = null;
 	private Integer versionPatch = null;
 
+	/** Phase rotation configuration. */
+	private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
+
 	@Reference
 	private EvcsPower evcsPower;
 
@@ -126,9 +129,12 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 				EvcsAlpitronicHypercharger.ChannelId.values());
 		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
 
-		// Automatically calculate L1/l2/L3 values from sum
+		// Automatically calculate L1/L2/L3 values from sum
 		ElectricityMeter.calculatePhasesFromActivePower(this);
-		// TODO consider CURRENT and VOLTAGE also
+		ElectricityMeter.calculatePhasesFromVoltage(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateCurrentsFromActivePowerAndVoltage(this);
 	}
 
 	@Activate
@@ -166,6 +172,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		this._setFixedMaximumHardwarePower(config.maxHwPower());
 		this._setPowerPrecision(1);
 		this._setPhases(3);
+		this.phaseRotation = config.phaseRotation();
 	}
 
 	@Override
@@ -181,8 +188,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 
 	@Override
 	public PhaseRotation getPhaseRotation() {
-		// TODO implement handling for rotated Phases
-		return PhaseRotation.L1_L2_L3;
+		return this.phaseRotation;
 	}
 
 	@Override
