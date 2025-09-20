@@ -43,15 +43,15 @@ import io.openems.common.channel.PersistencePriority;
 
 	@AttributeDefinition(name = "Trust Store", description = "The trust store in PEM format")
 	String trustStorePem();
+	
+	@AttributeDefinition(name = "Filter Spec", description = "A list of valid topic paths. Follows the MQTT topic subscription rules for globbing.")
+	String filterSpec();
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
 	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
-
-	@AttributeDefinition(name = "Filter Spec", description = "A list of valid topic paths. Follows the MQTT topic subscription rules for globbing.")
-	String filterSpec();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Api MQTT [{id}]";
 }

@@ -147,4 +147,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String trustStorePem() {
 		return this.builder.trustStorePem;
 	}
+
+	@Override
+	public String filterSpec() {
+		return "";
+	}
 }
