@@ -83,7 +83,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	private static boolean hasFilter(Config config) {
 		return !(config.filterSpec() == null || config.filterSpec().isBlank());
 	}
-	
+
 	public ControllerApiMqttImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -100,23 +100,23 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		if (this.filterList.length != 0) {
 			this.logInfo(this.log, "Enabled filter: '" + config.filterSpec() + "'");
 		}
-		
+
 		// Publish MQTT messages under the topic "edge/edge0/..."
 		this.topicPrefix = createTopicPrefix(config);
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		
+
 		if (this.isEnabled()) {
-			this.scheduleReconnect();;
-		}		
+			this.scheduleReconnect();
+		}
 	}
-	
+
 	private Pattern[] getFilter(Config config) {
 		// Expand the filterSpec to the filterList
 		if (!hasFilter(config)) {
-			return new Pattern[]{};
+			return new Pattern[] {};
 		}
-		
+
 		String[] buildList = config.filterSpec().split(";");
 		final var newFilter = new Pattern[buildList.length];
 		for (int i = 0; i < buildList.length; i++) {
@@ -127,7 +127,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 			} catch (PatternSyntaxException e) {
 				this.logWarn(this.log, "Unable to parse filter pattern: '" + buildList[i] + "'! Filter disabled!");
 				this.log.warn(e.getMessage(), e);
-				return new Pattern[]{};
+				return new Pattern[] {};
 			}
 		}
 		return newFilter;
@@ -220,14 +220,15 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	 * @param subTopic the MQTT topic. The global MQTT Topic prefix is added in
 	 *                 front of this string
 	 * @param message  the message
-	 * @return true if message was successfully published (or filtered); false
-	 *         otherwise
+	 * @return MqttPublishStatus enum value: OK if the message was successfully
+	 *         published, ERROR if publishing failed, FILTERED if the topic was
+	 *         filtered.
 	 */
 	protected MqttPublishStatus publish(String subTopic, MqttMessage message) {
 		if (!this.isEnabled()) {
 			return MqttPublishStatus.ERROR;
 		}
-		
+
 		var mqttClient = this.mqttClient;
 		if (mqttClient == null) {
 			return MqttPublishStatus.ERROR;
@@ -253,9 +254,12 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	 * @param qos        the MQTT QOS
 	 * @param retained   the MQTT retained parameter
 	 * @param properties the {@link MqttProperties}
-	 * @return true if message was successfully published; false otherwise
+	 * @return MqttPublishStatus enum value: OK if the message was successfully
+	 *         published, ERROR if publishing failed, FILTERED if the topic was
+	 *         filtered.
 	 */
-	protected MqttPublishStatus publish(String subTopic, String message, int qos, boolean retained, MqttProperties properties) {
+	protected MqttPublishStatus publish(String subTopic, String message, int qos, boolean retained,
+			MqttProperties properties) {
 		var msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);
 		return this.publish(subTopic, msg);
 	}
@@ -296,7 +300,8 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 							this.config.certPem(), this.config.privateKeyPem(), this.config.trustStorePem())
 					.thenAccept(client -> {
 						this.mqttClient = client;
-						this.logInfo(this.log, "Connected to MQTT Broker [" + this.config.uri() + "]! Publish to topics '" + this.topicPrefix + "#'");
+						this.logInfo(this.log, "Connected to MQTT Broker [" + this.config.uri()
+								+ "]! Publish to topics '" + this.topicPrefix + "#'");
 						this.reconnectionAttempt.set(0); // Reset on successful connection.
 					}) //
 					.exceptionally(ex -> {
