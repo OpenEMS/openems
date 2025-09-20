@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 /**
  * Represents a generic JSON-RPC Success Response.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
  *   "result": {}
  * }
  * </pre>
- * 
+ *
  * @see <a href="https://www.jsonrpc.org/specification#response_object">JSON-RPC
  *      specification</a>
  */

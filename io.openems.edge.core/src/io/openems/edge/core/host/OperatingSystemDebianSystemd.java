@@ -1,42 +1,70 @@
 package io.openems.edge.core.host;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.InetAddressUtils.parseOrNull;
+import static java.lang.Runtime.getRuntime;
+import static java.util.concurrent.CompletableFuture.runAsync;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.ConfigurationProperty;
+import io.openems.common.utils.InetAddressUtils;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
+import io.openems.edge.common.update.Updateable;
+import io.openems.edge.common.user.User;
+import io.openems.edge.core.host.NetworkInterface.IpMasqueradeSetting;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartResponse;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoAddress;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.NetworkInfoWrapper;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Route;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 /**
  * OperatingSystem implementation for Debian with systemd.
@@ -45,9 +73,16 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	private static final String NETWORK_BASE_PATH = "/etc/systemd/network";
 	private static final Path UDEV_PATH = Paths.get("/etc/udev/rules.d/99-usb-serial.rules");
+	private static final int DEFAULT_METRIC = 1024;
+	private static final String MATCH_SECTION = "[Match]";
+	private static final String NETWORK_SECTION = "[Network]";
+	private static final String ROUTE_SECTION = "[Route]";
+	private static final String DHCP_SECTION = "[DHCP]";
+	private static final String ADDRESS_SECTION = "[Address]";
+	private static final String EMPTY_SECTION = "";
 
 	private static enum Block {
-		UNDEFINED, MATCH, NETWORK
+		UNDEFINED, MATCH, NETWORK, ADDRESS, ROUTE, DHCP
 	}
 
 	private final HostImpl parent;
@@ -56,20 +91,14 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		this.parent = parent;
 	}
 
-	/**
-	 * Gets the current network configuration for systemd-networkd.
-	 * 
-	 * @return the current network configuration
-	 * @throws OpenemsException on error
-	 */
 	@Override
 	public NetworkConfiguration getNetworkConfiguration() throws OpenemsNamedException {
-		File path = Paths.get(NETWORK_BASE_PATH).toFile();
+		var path = Paths.get(NETWORK_BASE_PATH).toFile();
 		if (!path.exists()) {
 			throw new OpenemsException("Base-Path [" + path + "] does not exist.");
 		}
 
-		TreeMap<String, NetworkInterface<?>> interfaces = new TreeMap<>();
+		var interfaces = new TreeMap<String, NetworkInterface<?>>();
 
 		for (final File file : path.listFiles()) {
 			/*
@@ -82,7 +111,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * Parse the content of the network configuration file
 				 */
-				List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
+				var lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 				NetworkInterface<File> networkInterface = parseSystemdNetworkdConfigurationFile(lines, file);
 
 				// check for null value
@@ -99,19 +128,11 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		return new NetworkConfiguration(interfaces);
 	}
 
-	/**
-	 * Handles a SetNetworkConfigRequest for systemd-networkd.
-	 * 
-	 * @param oldNetworkConfiguration the current/old network configuration
-	 * @param request                 the JSON-RPC request
-	 * @throws OpenemsException on error
-	 */
 	@Override
-	public void handleSetNetworkConfigRequest(NetworkConfiguration oldNetworkConfiguration,
-			SetNetworkConfigRequest request) throws OpenemsNamedException {
-		boolean isChanged = false;
-		List<NetworkInterface<?>> networkInterfaces = request.getNetworkInterface();
-		for (NetworkInterface<?> networkInterface : networkInterfaces) {
+	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
+			SetNetworkConfig.Request request) throws OpenemsNamedException {
+		var isChanged = false;
+		for (NetworkInterface<?> networkInterface : request.networkInterfaces()) {
 			NetworkInterface<?> iface = oldNetworkConfiguration.getInterfaces().get(networkInterface.getName());
 			if (iface == null) {
 				throw new OpenemsException("No network interface with name [" + networkInterface.getName() + "]");
@@ -129,11 +150,14 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		// write configuration files
 		IOException writeException = null;
 		for (Entry<String, NetworkInterface<?>> entry : oldNetworkConfiguration.getInterfaces().entrySet()) {
+			if (!request.networkInterfaces().stream().anyMatch(i -> i.getName().equals(entry.getKey()))) {
+				continue;
+			}
 			NetworkInterface<?> iface = entry.getValue();
-			File file = (File) iface.getAttachment();
-			List<String> lines = this.toFileFormat(iface);
+			var file = (File) iface.getAttachment();
+			var lines = this.toFileFormat(user, iface);
 			try {
-				Files.write(file.toPath(), lines, StandardCharsets.US_ASCII);
+				Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 			} catch (IOException e) {
 				writeException = e;
 			}
@@ -146,13 +170,13 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 
 		// apply the configuration by restarting the systemd-networkd service
-		this.handleExecuteCommandRequest(ExecuteSystemCommandRequest
+		this.handleExecuteSystemCommandRequest(ExecuteSystemCommandRequest
 				.runInBackgroundWithoutAuthentication("systemctl restart systemd-networkd --no-block"));
 	}
 
 	/**
 	 * Helper function to match a String in the configuration file.
-	 * 
+	 *
 	 * @param pattern  the regular expression pattern
 	 * @param line     the line of the file
 	 * @param callback the callback that should get called
@@ -160,7 +184,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	private static void onMatchString(Pattern pattern, String line,
 			ThrowingConsumer<String, OpenemsNamedException> callback) throws OpenemsNamedException {
-		Matcher matcher = pattern.matcher(line);
+		var matcher = pattern.matcher(line);
 		if (matcher.find() && matcher.groupCount() > 0) {
 			callback.accept(matcher.group(1));
 		}
@@ -168,7 +192,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	/**
 	 * Helper function to match an Inet4Address in the configuration file.
-	 * 
+	 *
 	 * @param pattern  the regular expression pattern
 	 * @param line     the line of the file
 	 * @param callback the callback that should get called
@@ -177,110 +201,175 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	private static void onMatchInet4Address(Pattern pattern, String line,
 			ThrowingConsumer<Inet4Address, OpenemsNamedException> callback) throws OpenemsNamedException {
 		onMatchString(pattern, line, property -> {
-			try {
-				callback.accept((Inet4Address) Inet4Address.getByName(property));
-			} catch (UnknownHostException e) {
-				throw new OpenemsException("Unable to parse IPv4 address [" + property + "]: " + e.getMessage());
-			}
+			callback.accept(InetAddressUtils.parseOrError(property));
 		});
 	}
 
 	/**
 	 * Converts the NetworkInterface object to systemd-networkd file format.
-	 * 
+	 *
+	 * @param user  the User
 	 * @param iface the input network interface configuration
 	 * @return a list of strings for writing it to a file
+	 * @throws OpenemsNamedException on error
 	 */
-	private List<String> toFileFormat(NetworkInterface<?> iface) {
+	private List<String> toFileFormat(User user, NetworkInterface<?> iface) throws OpenemsNamedException {
 		List<String> result = new ArrayList<>();
-		result.add("[Match]");
-		result.add("Name=" + iface.getName());
-		result.add("");
+		result.add("# changedBy: " //
+				+ user.getName());
+		result.add("# changedAt: " //
+				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString());
 
-		result.add("[Network]");
+		// Match Section
+		result.add(MATCH_SECTION);
+		result.add("Name=" + iface.getName());
+		result.add(EMPTY_SECTION);
+
+		// Network Section
+		result.add(NETWORK_SECTION);
 		if (iface.getDhcp().isSetAndNotNull()) {
 			result.add("DHCP=" + (iface.getDhcp().getValue() ? "yes" : "no"));
-		}
-		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
-			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
-		}
-		if (iface.getGateway().isSetAndNotNull()) {
-			result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
 		}
 		if (iface.getDns().isSetAndNotNull()) {
 			result.add("DNS=" + iface.getDns().getValue().getHostAddress());
 		}
+		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
+			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
+		}
+		if (iface.getIpv4Forwarding().isSetAndNotNull()) {
+			result.add("IPv4Forwarding=" + (iface.getIpv4Forwarding().getValue() ? "yes" : "no"));
+		}
+		if (iface.getIpMasquerade().isSetAndNotNull()) {
+			result.add("IPMasquerade=" + iface.getIpMasquerade().getValue().settingValue);
+		}
+
+		var metric = DEFAULT_METRIC;
+		if (iface.getMetric().isSetAndNotNull()) {
+			metric = iface.getMetric().getValue().intValue();
+		}
+
+		if (iface.getDhcp().isSetAndNotNull()) {
+			var dhcp = iface.getDhcp().getValue();
+			result.add(EMPTY_SECTION);
+			if (dhcp) { // dhcp == yes
+				result.add(DHCP_SECTION);
+				result.add("RouteMetric=" + metric);
+			} else {
+				result.add(ROUTE_SECTION);
+				if (iface.getGateway().isSetAndNotNull()) {
+					result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
+				}
+				result.add("Metric=" + metric);
+			}
+		}
 		if (iface.getAddresses().isSetAndNotNull()) {
-			for (Inet4AddressWithNetmask address : iface.getAddresses().getValue()) {
+			for (var address : iface.getAddresses().getValue()) {
+				final var label = address.getLabel();
+				result.add(EMPTY_SECTION);
+				result.add(ADDRESS_SECTION);
 				result.add("Address=" + address.toString());
+				if (!label.isBlank()) {
+					result.add("Label=" + label);
+				}
 			}
 		}
 		return result;
 	}
 
 	@Override
-	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteSystemCommandRequest(
 			ExecuteSystemCommandRequest request) {
-		CompletableFuture<ExecuteSystemCommandResponse> result = new CompletableFuture<>();
+		var result = new CompletableFuture<ExecuteSystemCommandResponse>();
+		this.execute(request.systemCommand, //
+				scr -> result.complete(new ExecuteSystemCommandResponse(request.id, scr)),
+				e -> result.completeExceptionally(e));
+		return result;
+	}
 
+	@Override
+	public CompletableFuture<ExecuteSystemRestartResponse> handleExecuteSystemRestartRequest(
+			ExecuteSystemRestartRequest request) {
+		final var result = new CompletableFuture<ExecuteSystemRestartResponse>();
+		var sc = new SystemCommand(//
+				switch (request.type) { // actual command string
+				case HARD -> "/usr/bin/systemctl reboot -i"; // "-i" is for "ignore inhibitors and users"
+				case SOFT -> "/usr/bin/systemctl restart openems";
+				}, //
+				false, // runInBackground
+				5, // timeoutSeconds
+				Optional.empty(), // username
+				Optional.empty()); // password
+		this.execute(sc, //
+				scr -> result.complete(new ExecuteSystemRestartResponse(request.id, scr)),
+				e -> result.completeExceptionally(e));
+		return result;
+	}
+
+	private void execute(SystemCommand sc, Consumer<SystemCommandResponse> scr, Consumer<Throwable> error) {
 		try {
-			Process proc;
-			if (request.getUsername().isPresent() && request.getPassword().isPresent()) {
-				proc = Runtime.getRuntime().exec(new String[] { //
+			final Process proc;
+			if (sc.username().isPresent() && sc.password().isPresent()) {
+				// Authenticate with user and password
+				proc = getRuntime().exec(new String[] { //
 						"/bin/bash", "-c", "--", //
-						"echo " + request.getPassword().get() + " | " //
-								+ " /usr/bin/sudo -Sk -p '' -u \"" + request.getUsername().get() + "\" " //
-								+ "-- " + request.getCommand() });
+						"echo " + sc.password().get() + " | " //
+								+ " /usr/bin/sudo -Sk -p '' -u \"" + sc.username().get() + "\" -- " //
+								+ sc.command() });
+			} else if (sc.password().isPresent()) {
+				// Authenticate with password (user must have 'sudo' permissions)
+				proc = getRuntime().exec(new String[] { //
+						"/bin/bash", "-c", "--", //
+						"echo " + sc.password().get() + " | " //
+								+ " /usr/bin/sudo -Sk -p '' -- " //
+								+ sc.command() });
 			} else {
-				proc = Runtime.getRuntime().exec(new String[] { //
-						"/bin/bash", "-c", "--", request.getCommand() });
+				// No authentication: run as current user
+				proc = getRuntime().exec(new String[] { //
+						"/bin/bash", "-c", "--", sc.command() });
 			}
 
 			// get stdout and stderr
-			CompletableFuture<List<String>> stdoutFuture = CompletableFuture
-					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getInputStream()));
-			CompletableFuture<List<String>> stderrFuture = CompletableFuture
-					.supplyAsync(new InputStreamToString(this.parent, request.getCommand(), proc.getErrorStream()));
+			var stdoutFuture = supplyAsync(new InputStreamToString(this.parent, sc.command(), proc.getInputStream()));
+			var stderrFuture = supplyAsync(new InputStreamToString(this.parent, sc.command(), proc.getErrorStream()));
 
-			if (request.isRunInBackground()) {
+			if (sc.runInBackground()) {
 				/*
 				 * run in background
 				 */
-				String[] stdout = new String[] { //
-						"Command [" + request.getCommand() + "] executed in background...", //
+				var stdout = new String[] { //
+						"Command [" + sc.command() + "] executed in background...", //
 						"Check system logs for more information." };
-				result.complete(new ExecuteSystemCommandResponse(request.getId(), stdout, new String[0]));
+				scr.accept(new SystemCommandResponse(stdout, new String[0], 0));
 
 			} else {
 				/*
 				 * run in foreground with timeout
 				 */
-				CompletableFuture.runAsync(() -> {
-					List<String> stderr = new ArrayList<>();
+				runAsync(() -> {
+					var stderr = new ArrayList<>();
 					try {
 						// apply command timeout
-						if (!proc.waitFor(request.getTimeoutSeconds(), TimeUnit.SECONDS)) {
-							stderr.add("Command [" + request.getCommand() + "] timed out.");
+						if (!proc.waitFor(sc.timeoutSeconds(), TimeUnit.SECONDS)) {
+							stderr.add("Command [" + sc.command() + "] timed out.");
 							proc.destroy();
 						}
 
-						List<String> stdout = stdoutFuture.get(1, TimeUnit.SECONDS);
+						var stdout = stdoutFuture.get(1, TimeUnit.SECONDS);
 						stderr.addAll(stderrFuture.get(1, TimeUnit.SECONDS));
-						result.complete(new ExecuteSystemCommandResponse(request.getId(), //
+						scr.accept(new SystemCommandResponse(//
 								stdout.toArray(new String[stdout.size()]), //
-								stderr.toArray(new String[stderr.size()]) //
+								stderr.toArray(new String[stderr.size()]), //
+								proc.exitValue() //
 						));
 
 					} catch (Throwable e) {
-						result.completeExceptionally(e);
+						error.accept(e);
 					}
 				});
 			}
 		} catch (IOException e) {
-			result.completeExceptionally(e);
+			error.accept(e);
 		}
-
-		return result;
 	}
 
 	/**
@@ -330,33 +419,45 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		try {
 			if (!Files.exists(UDEV_PATH)) {
 				return "";
-			} else {
-				List<String> lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
-				return String.join("\n", lines);
 			}
+			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.UTF_8);
+			return String.join("\n", lines);
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());
 		}
 	}
 
-	private static final Pattern MATCH_NAME = Pattern.compile("^Name=([a-zA-Z0-9*]+)$");
-	private static final Pattern NETWORK_ADDRESS = Pattern
+	private static final Pattern MATCH_NAME = Pattern //
+			.compile("^Name=([a-zA-Z0-9*]+)$");
+	private static final Pattern ADDRESS_LABEL = Pattern //
+			.compile("^Label=([a-zA-Z*]+)$");
+	private static final Pattern NETWORK_ADDRESS = Pattern //
 			.compile("^Address=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + "/\\d+)$");
-	private static final Pattern NETWORK_DHCP = Pattern.compile("^DHCP=(\\w+)$");
-	private static final Pattern NETWORK_LINK_LOCAL_ADDRESSING = Pattern.compile("^LinkLocalAddressing=(\\w+)$");
-	private static final Pattern NETWORK_GATEWAY = Pattern
+	private static final Pattern NETWORK_DHCP = Pattern //
+			.compile("^DHCP=(\\w+)$");
+	private static final Pattern NETWORK_LINK_LOCAL_ADDRESSING = Pattern //
+			.compile("^LinkLocalAddressing=(\\w+)$");
+	private static final Pattern NETWORK_GATEWAY = Pattern //
 			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
-	private static final Pattern NETWORK_DNS = Pattern
+	private static final Pattern NETWORK_DNS = Pattern //
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
+	private static final Pattern NETWORK_IPV4_FORWARDING = Pattern //
+			.compile("^IPv4Forwarding=(\\w+)$");
+	private static final Pattern NETWORK_IP_MASQUERADE = Pattern //
+			.compile("^IPMasquerade=(\\w+)$");
+	private static final Pattern GATEWAY_METRIC = Pattern //
+			.compile("^Metric=([0-9]+)$");
+	private static final Pattern ROUTE_METRIC = Pattern //
+			.compile("^RouteMetric=([0-9]+)$");
 
 	/**
 	 * Parses a Systemd-Networkd configuration file.
-	 * 
+	 *
 	 * <p>
 	 * See <a href=
 	 * "https://man7.org/linux/man-pages/man5/systemd.network.5.html">systemd.network.5</a>
 	 * man page
-	 * 
+	 *
 	 * @param <A>        the type of the attachment
 	 * @param lines      the lines to parse
 	 * @param attachment to be added as an attachment to the
@@ -366,36 +467,54 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	protected static <A> NetworkInterface<A> parseSystemdNetworkdConfigurationFile(List<String> lines, A attachment)
 			throws OpenemsNamedException {
-		Block currentBlock = Block.UNDEFINED;
-		final AtomicReference<String> name = new AtomicReference<>();
-		final AtomicReference<ConfigurationProperty<Boolean>> dhcp = new AtomicReference<>(
+		var currentBlock = Block.UNDEFINED;
+		final var name = new AtomicReference<String>();
+		final var dhcp = new AtomicReference<ConfigurationProperty<Boolean>>(//
 				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Boolean>> linkLocalAddressing = new AtomicReference<>(
+		final var linkLocalAddressing = new AtomicReference<ConfigurationProperty<Boolean>>(//
 				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Inet4Address>> gateway = new AtomicReference<>(
+		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
 				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Inet4Address>> dns = new AtomicReference<>(
+		final var metric = new AtomicReference<ConfigurationProperty<Integer>>(//
 				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>> addresses = new AtomicReference<>(
+		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
+				ConfigurationProperty.asNotSet());
+		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithSubnetmask>>>(//
+				ConfigurationProperty.asNotSet());
+		final var ipv4Forwarding = new AtomicReference<ConfigurationProperty<Boolean>>(//
+				ConfigurationProperty.asNotSet());
+		final var ipMasquerade = new AtomicReference<ConfigurationProperty<IpMasqueradeSetting>>(//
 				ConfigurationProperty.asNotSet());
 
-		for (String line : lines) {
+		// holds the latest found address
+		final var tmpAddress = new AtomicReference<Inet4AddressWithSubnetmask>();
+
+		for (var line : lines) {
 			line = line.trim();
+			if (line.isBlank()) {
+				continue;
+			}
+
 			/*
 			 * Find current configuration block
 			 */
 			if (line.startsWith("[")) {
-				switch (line) {
-				case "[Match]":
-					currentBlock = Block.MATCH;
-					break;
-				case "[Network]":
-					currentBlock = Block.NETWORK;
-					break;
-				default:
-					currentBlock = Block.UNDEFINED;
-					break;
+				currentBlock = switch (line) {
+				case MATCH_SECTION //
+					-> Block.MATCH;
+				case NETWORK_SECTION //
+					-> Block.NETWORK;
+				case ADDRESS_SECTION -> {
+					tmpAddress.set(null);
+					yield Block.ADDRESS;
 				}
+				case ROUTE_SECTION //
+					-> Block.ROUTE;
+				case DHCP_SECTION //
+					-> Block.DHCP;
+				default //
+					-> Block.UNDEFINED;
+				};
 				continue;
 			}
 
@@ -403,20 +522,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			 * Parse Block
 			 */
 			switch (currentBlock) {
-			case MATCH:
+			case MATCH -> {
 				onMatchString(MATCH_NAME, line, property -> {
 					name.set(property);
 				});
-				break;
-			case NETWORK:
-				onMatchString(NETWORK_ADDRESS, line, property -> {
-					Set<Inet4AddressWithNetmask> content = addresses.get().getValue();
-					if (content == null) {
-						content = new HashSet<>();
-					}
-					content.add(Inet4AddressWithNetmask.fromString(property));
-					addresses.set(ConfigurationProperty.of(content));
-				});
+			}
+			case NETWORK -> {
 				onMatchString(NETWORK_DHCP, line, property -> {
 					dhcp.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
 				});
@@ -429,13 +540,242 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				onMatchInet4Address(NETWORK_DNS, line, property -> {
 					dns.set(ConfigurationProperty.of(property));
 				});
-				break;
-			case UNDEFINED:
-				break;
+				onMatchString(NETWORK_ADDRESS, line, property -> {
+					var addressDetails = addresses.get().getValue();
+					if (addressDetails == null) {
+						addressDetails = new HashSet<>();
+					}
+					addressDetails.add(Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property));
+					addresses.set(ConfigurationProperty.of(addressDetails));
+				});
+				onMatchString(NETWORK_IPV4_FORWARDING, line, property -> {
+					ipv4Forwarding.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
+				});
+				onMatchString(NETWORK_IP_MASQUERADE, line, property -> {
+					ipMasquerade.set(ConfigurationProperty.of(IpMasqueradeSetting.findBySettingValue(property)));
+				});
+			}
+			case ADDRESS -> {
+				onMatchString(NETWORK_ADDRESS, line, property -> {
+					// Storing here temporarily so that we can use it if when we find label.
+					var address = Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property);
+					tmpAddress.set(address);
+
+					var addressDetails = addresses.get().getValue();
+					if (addressDetails == null) {
+						addressDetails = new HashSet<>();
+					}
+					// Add it with empty label now, later replace with label if we find one.
+					addressDetails.add(address);
+					addresses.set(ConfigurationProperty.of(addressDetails));
+				});
+				onMatchString(ADDRESS_LABEL, line, property -> {
+					// IP address contains Only static labels or with no labels.
+					var addressDetails = addresses.get().getValue();
+					var address = tmpAddress.get();
+					if (addressDetails == null || address == null) {
+						// ignore label
+						return;
+					}
+
+					// Replace the value with static or any other label in future.
+					addressDetails.remove(address);
+					address = new Inet4AddressWithSubnetmask(property, address.getInet4Address(),
+							address.getSubnetmaskAsCidr());
+					addressDetails.add(address);
+				});
+			}
+			case ROUTE -> {
+				onMatchInet4Address(NETWORK_GATEWAY, line, property -> {
+					gateway.set(ConfigurationProperty.of(property));
+				});
+				onMatchString(GATEWAY_METRIC, line, property -> {
+					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
+				});
+			}
+			case DHCP -> {
+				onMatchString(ROUTE_METRIC, line, property -> {
+					metric.set(ConfigurationProperty.of(Integer.parseInt(property)));
+				});
+			}
+			case UNDEFINED -> doNothing();
 			}
 		}
-		return new NetworkInterface<A>(name.get(), //
-				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), attachment);
+		return new NetworkInterface<>(name.get(), //
+				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), metric.get(),
+				ipv4Forwarding.get(), ipMasquerade.get(), attachment);
+	}
+
+	@Override
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		var reqIpShow = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
+		try {
+			var resultIpShow = this.handleExecuteSystemCommandRequest(reqIpShow).get().getResult().toString();
+			return parseShowJson(resultIpShow).stream() //
+					.flatMap(t -> t.ips().stream() //
+							.map(d -> d.ip().getInet4Address())) //
+					.toList();
+		} catch (InterruptedException | ExecutionException e) {
+			return Collections.emptyList();
+		}
+
+	}
+
+	@Override
+	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
+		var reqIpShow = ExecuteSystemCommandRequest.withoutAuthentication("ip -j -4 address show", false, 5);
+		var reqIpRoute = ExecuteSystemCommandRequest.withoutAuthentication("ip -j route", false, 5);
+		try {
+			var resultIpShow = this.handleExecuteSystemCommandRequest(reqIpShow).get().getResult().toString();
+			var resultIpRoute = this.handleExecuteSystemCommandRequest(reqIpRoute).get().getResult().toString();
+			return new GetNetworkInfo.Response(parseShowJson(resultIpShow), parseRouteJson(resultIpRoute));
+		} catch (InterruptedException | ExecutionException e) {
+			return new GetNetworkInfo.Response(Collections.emptyList(), Collections.emptyList());
+		}
+
+	}
+
+	protected static List<JsonObject> parseIpJson(String json) throws OpenemsNamedException {
+		final var stdout = JsonUtils.getAsJsonArray(JsonUtils.getAsJsonObject(JsonUtils.parse(json)), "stdout");
+		final var networkData = stdout.get(0).getAsString();
+		final var networkDataJson = JsonUtils.parseOptional(networkData);
+		if (networkDataJson.isPresent() && networkDataJson.get().isJsonArray()) {
+			final var networkInterfaces = JsonUtils.getAsJsonArray(JsonUtils.parse(networkData));
+			if (networkData.startsWith("[")) {
+				return JsonUtils.stream(networkInterfaces)//
+						.map(JsonElement::getAsJsonObject)//
+						.toList();
+			}
+		}
+
+		return Collections.emptyList();
+	}
+
+	protected static List<Route> parseRouteJson(String routeJson) throws OpenemsNamedException {
+		final var networkData = parseIpJson(routeJson);
+		if (networkData == null) {
+			return Collections.emptyList();
+		}
+		return networkData.stream() //
+				.map(t -> Route.serializer().deserialize(t)) //
+				.toList();
+	}
+
+	/**
+	 * Parses the json returned by ip address get command.
+	 * 
+	 * @param resultIpShow the json to be parsed
+	 * @return a list of parsed ips
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static List<NetworkInfoWrapper> parseShowJson(String resultIpShow) throws OpenemsNamedException {
+		final var networkInterfaces = parseIpJson(resultIpShow);
+		if (networkInterfaces == null) {
+			return Collections.emptyList();
+		}
+
+		return networkInterfaces.stream() //
+				.map(SystemdInterface.serializer()::deserialize) //
+				.map(t -> {
+					return new NetworkInfoWrapper(t.ifname(), t.addressInfos.stream() //
+							.map(address -> {
+								return new NetworkInfoAddress(//
+										new Inet4AddressWithSubnetmask(address.label(), parseOrNull(address.local()),
+												address.prefixlen),
+										address.dynamic);
+							}) //
+							.toList());
+				}) //
+				.toList();
+	}
+
+	private record SystemdInterface(String ifname, List<SystemdAddressInfo> addressInfos) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link SystemdInterface}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<SystemdInterface> serializer() {
+			return jsonObjectSerializer(SystemdInterface.class, json -> {
+				return new SystemdInterface(//
+						json.getString("ifname"), //
+						json.getList("addr_info", SystemdAddressInfo.serializer()) //
+				);
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("ifname", obj.ifname()) //
+						.add("addr_info", SystemdAddressInfo.serializer().toListSerializer() //
+								.serialize(obj.addressInfos())) //
+						.build();
+			});
+		}
+
+	}
+
+	private record SystemdAddressInfo(String family, String local, int prefixlen, String label, boolean dynamic) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link SystemdAddressInfo}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<SystemdAddressInfo> serializer() {
+			return jsonObjectSerializer(SystemdAddressInfo.class, json -> {
+				return new SystemdAddressInfo(//
+						json.getString("family"), //
+						json.getString("local"), //
+						json.getInt("prefixlen"), //
+						json.getStringOrNull("label"), //
+						json.getOptionalBoolean("dynamic").orElse(false) //
+				);
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("family", obj.family()) //
+						.addProperty("local", obj.local()) //
+						.addProperty("prefixlen", obj.prefixlen()) //
+						.addProperty("label", obj.label()) //
+						.onlyIf(obj.dynamic(), b -> b//
+								.addProperty("dynamic", obj.dynamic()))
+						.build();
+			});
+		}
+
+	}
+
+	@Override
+	public CompletableFuture<String> getOperatingSystemVersion() {
+		final var sc = new SystemCommand(//
+				"cat /etc/os-release", //
+				false, // runInBackground
+				5, // timeoutSeconds
+				Optional.empty(), // username
+				Optional.empty()); // password
+
+		final var versionFuture = new CompletableFuture<String>();
+		this.execute(sc, success -> {
+			final var osVersionName = Stream.of(success.stdout()) //
+					.map(t -> t.split("=", 2)) //
+					.filter(t -> t.length == 2) //
+					.filter(t -> t[0].equals("PRETTY_NAME")) //
+					.map(t -> t[1]) //
+					.map(t -> {
+						if (t.startsWith("\"") && t.endsWith("\"")) {
+							return t.substring(1, t.length() - 1);
+						}
+						return t;
+					}) //
+					.findAny();
+
+			osVersionName.ifPresentOrElse(versionFuture::complete, () -> versionFuture
+					.completeExceptionally(new OpenemsException("OS-Version name not found in /etc/os-release")));
+		}, versionFuture::completeExceptionally);
+		return versionFuture;
+	}
+
+	@Override
+	public Updateable getSystemUpdateable() {
+		return null;
 	}
 
 }

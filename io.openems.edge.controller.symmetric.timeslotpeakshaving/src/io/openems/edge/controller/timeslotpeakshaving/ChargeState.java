@@ -10,7 +10,7 @@ public enum ChargeState implements OptionsEnum {
 	NORMAL(0, "Normal charge state, no active power is set"),
 	/**
 	 * slow charge state: it is slowly charging the battery to make soc 100%, it can
-	 * go to either hystersis state or highthreshold phase.
+	 * go to either hysteresis state or high threshold phase.
 	 */
 	SLOWCHARGE(1, "Slowly charging the battery and getting ready for highthreshold timeslot peak shaving"),
 	/**
@@ -20,7 +20,7 @@ public enum ChargeState implements OptionsEnum {
 	HYSTERESIS(2, "Block charging until specified Soc"),
 	/**
 	 * high threshold time slot state: in this state the where the peak shaving
-	 * happens with the congfigured peak shave power starts.
+	 * happens with the configured peak shave power starts.
 	 */
 	HIGHTHRESHOLD_TIMESLOT(3,
 			"High threshold timeslot: The time range where the peakshaving is performed, this is actually highthreshold period"),;
@@ -35,12 +35,12 @@ public enum ChargeState implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

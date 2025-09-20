@@ -16,11 +16,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
  * Executes a simulation.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -32,7 +33,7 @@ import io.openems.common.utils.JsonUtils;
  *     	   "factoryPid": string,
  *         "properties": [{
  *           "name": string,
- *           "value": any 
+ *           "value": any
  *         }]
  *       },
  *       "clock": {
@@ -60,15 +61,15 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 
 		/**
 		 * Create {@link Clock} from {@link JsonObject}.
-		 * 
+		 *
 		 * @param j the {@link JsonObject}
 		 * @return the {@link Clock}
 		 * @throws OpenemsNamedException on parse error
 		 */
 		public static Clock from(JsonObject j) throws OpenemsNamedException {
-			ZonedDateTime start = ZonedDateTime.parse(JsonUtils.getAsString(j, "start"));
-			ZonedDateTime end = ZonedDateTime.parse(JsonUtils.getAsString(j, "end"));
-			int timeleapPerCycle = JsonUtils.getAsInt(j, "timeleapPerCycle");
+			var start = DateUtils.parseZonedDateTimeOrError(JsonUtils.getAsString(j, "start"));
+			var end = DateUtils.parseZonedDateTimeOrError(JsonUtils.getAsString(j, "end"));
+			var timeleapPerCycle = JsonUtils.getAsInt(j, "timeleapPerCycle");
 			boolean executeCycleTwice = JsonUtils.getAsOptionalBoolean(j, "executeCycleTwice").orElse(false);
 			return new Clock(start, end, timeleapPerCycle, executeCycleTwice);
 		}
@@ -90,7 +91,7 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 
 		/**
 		 * Create {@link Profile} from {@link JsonArray}.
-		 * 
+		 *
 		 * @param j the {@link JsonArray}
 		 * @return the {@link Profile}
 		 * @throws OpenemsNamedException on parse error
@@ -115,7 +116,7 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 
 		/**
 		 * Gets the currently active value of the {@link Profile}.
-		 * 
+		 *
 		 * @return the value
 		 */
 		public synchronized Integer getCurrentValue() {
@@ -137,26 +138,26 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link ExecuteSimulationRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link ExecuteSimulationRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static ExecuteSimulationRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
+		var p = r.getParams();
 		List<CreateComponentConfigRequest> components = new ArrayList<>();
-		JsonArray jComponents = JsonUtils.getAsJsonArray(p, "components");
+		var jComponents = JsonUtils.getAsJsonArray(p, "components");
 		for (JsonElement jComponent : jComponents) {
 			components.add(CreateComponentConfigRequest.from(JsonUtils.getAsJsonObject(jComponent)));
 		}
-		Clock clock = Clock.from(JsonUtils.getAsJsonObject(p, "clock"));
+		var clock = Clock.from(JsonUtils.getAsJsonObject(p, "clock"));
 		Map<String, Profile> profiles = new HashMap<>();
-		JsonObject jProfiles = JsonUtils.getAsJsonObject(p, "profiles");
+		var jProfiles = JsonUtils.getAsJsonObject(p, "profiles");
 		for (Entry<String, JsonElement> jProfile : jProfiles.entrySet()) {
 			profiles.put(jProfile.getKey(), Profile.from(JsonUtils.getAsJsonArray(jProfile.getValue())));
 		}
 		List<ChannelAddress> collects = new ArrayList<>();
-		JsonArray jCollects = JsonUtils.getAsJsonArray(p, "collect");
+		var jCollects = JsonUtils.getAsJsonArray(p, "collect");
 		for (JsonElement jCollect : jCollects) {
 			collects.add(ChannelAddress.fromString(JsonUtils.getAsString(jCollect)));
 		}

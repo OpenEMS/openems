@@ -23,7 +23,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CLUSTER_START_STOP}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default WriteChannel<ClusterStartStop> getClusterStartStopChannel() {
@@ -32,7 +32,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#CLUSTER_START_STOP}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default ClusterStartStop getClusterStartStop() {
@@ -42,7 +42,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#CLUSTER_START_STOP} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setClusterStartStop(ClusterStartStop value) {
@@ -51,7 +51,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 
 	/**
 	 * Writes the value to the {@link ChannelId#CLUSTER_START_STOP} Register.
-	 * 
+	 *
 	 * @param value the next value
 	 * @throws OpenemsNamedException on error
 	 */

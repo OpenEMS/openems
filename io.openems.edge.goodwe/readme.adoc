@@ -10,7 +10,6 @@ Charger: (ET only)
 
 Grid-Meter:
 
-- SymmetricMeter
-- AsymmetricMeter
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.goodwe[Source Code icon:github[]]

@@ -1,22 +1,17 @@
 package io.openems.edge.ess.generic.common;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.EssTimeoutFailure;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.common.statemachine.StateMachine.State;
+import io.openems.edge.ess.generic.symmetric.ChannelManager;
 
-public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
+public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave, EssTimeoutFailure {
 
 	/**
 	 * Efficiency factor to calculate AC Charge/Discharge limits from DC. Used at
@@ -35,18 +30,20 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	 */
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
+	/**
+	 * Retry set-command after x Seconds, e.g. for starting battery or
+	 * battery-inverter.
+	 */
+	public static int TIMEOUT = 300;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
-				.text("Running the Logic failed")), //
-		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery start attempts failed")), //
-		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery stop attempts failed")), //
-		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery-Inverter start attempts failed")), //
-		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
 				.text("The maximum number of Battery-Inverter stop attempts failed")); //
 
 		private final Doc doc;
@@ -61,29 +58,16 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 		}
 	}
 
-	@Override
-	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				StartStoppable.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(GenericManagedEss.class, accessMode, 100) //
-						.channel(0, GenericManagedEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
-						.build());
-
-	}
-
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryStartAttemptsFaultChannel() {
@@ -91,9 +75,9 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryStartAttemptsFault() {
@@ -103,7 +87,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryStartAttemptsFault(boolean value) {
@@ -112,7 +96,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryStopAttemptsFaultChannel() {
@@ -120,9 +104,9 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryStopAttemptsFault() {
@@ -132,7 +116,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryStopAttemptsFault(boolean value) {
@@ -142,7 +126,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the Channel for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryInverterStartAttemptsFaultChannel() {
@@ -150,9 +134,9 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryInverterStartAttemptsFault() {
@@ -162,7 +146,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryInverterStartAttemptsFault(boolean value) {
@@ -172,7 +156,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the Channel for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryInverterStopAttemptsFaultChannel() {
@@ -180,9 +164,9 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryInverterStopAttemptsFault() {
@@ -192,7 +176,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryInverterStopAttemptsFault(boolean value) {

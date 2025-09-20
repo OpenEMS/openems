@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -25,27 +26,28 @@ import io.openems.edge.common.component.OpenemsComponent;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implements MyModbusDevice, OpenemsComponent {
-
-	private Config config = null;
-
-	public MyModbusDevice() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				MyModbusDevice.ChannelId.values() //
-		);
-	}
-
+public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implements MyModbusDevice, ModbusComponent, OpenemsComponent {
+	
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
+	private Config config = null;
+
+	public MyModbusDeviceImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				MyModbusDevice.ChannelId.values() //
+		);
+	}
+
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if(super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
@@ -53,6 +55,7 @@ public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implement
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

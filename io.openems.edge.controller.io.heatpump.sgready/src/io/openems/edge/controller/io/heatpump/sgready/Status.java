@@ -58,7 +58,7 @@ public enum Status implements OptionsEnum {
 
 	/**
 	 * Get the value of output 1.
-	 * 
+	 *
 	 * @return value as boolean
 	 */
 	public boolean getOutput1() {
@@ -67,7 +67,7 @@ public enum Status implements OptionsEnum {
 
 	/**
 	 * Get the value of output 2.
-	 * 
+	 *
 	 * @return value as boolean
 	 */
 	public boolean getOutput2() {

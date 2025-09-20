@@ -15,7 +15,7 @@ public class StateCollectorChannelDoc extends EnumDoc {
 	/**
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link Doc}.
-	 * 
+	 *
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */

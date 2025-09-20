@@ -1,0 +1,5 @@
+= RRD4J 
+
+Persists data of OpenEMS Edge Channels to RRD4J files.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timedata.rrd4j[Source Code icon:github[]]

@@ -11,7 +11,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Notification for sending the current system log.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -24,22 +24,35 @@ import io.openems.common.utils.JsonUtils;
  */
 public class SystemLogNotification extends JsonrpcNotification {
 
-	public final static String METHOD = "systemLog";
+	public static final String METHOD = "systemLog";
 
 	private final SystemLog line;
 
-	public static SystemLogNotification from(JsonrpcNotification notification) throws OpenemsNamedException {
-		JsonObject j = notification.getParams();
-		SystemLog line = SystemLog.fromJsonObject(JsonUtils.getAsJsonObject(j, "line"));
+	/**
+	 * Parses a {@link JsonrpcNotification} to a {@link SystemLogNotification}.
+	 *
+	 * @param n the {@link JsonrpcNotification}
+	 * @return the {@link SystemLogNotification}
+	 * @throws OpenemsNamedException on error
+	 */
+	public static SystemLogNotification from(JsonrpcNotification n) throws OpenemsNamedException {
+		var j = n.getParams();
+		var line = SystemLog.fromJsonObject(JsonUtils.getAsJsonObject(j, "line"));
 		return new SystemLogNotification(line);
 	}
 
+	/**
+	 * Creates a {@link SystemLogNotification} from a {@link PaxLoggingEvent}.
+	 *
+	 * @param event the {@link PaxLoggingEvent}
+	 * @return the {@link SystemLogNotification}
+	 */
 	public static SystemLogNotification fromPaxLoggingEvent(PaxLoggingEvent event) {
 		return new SystemLogNotification(SystemLog.fromPaxLoggingEvent(event));
 	}
 
 	public SystemLogNotification(SystemLog line) {
-		super(METHOD);
+		super(SystemLogNotification.METHOD);
 		this.line = line;
 	}
 

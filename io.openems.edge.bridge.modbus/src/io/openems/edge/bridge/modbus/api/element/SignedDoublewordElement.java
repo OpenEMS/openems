@@ -1,8 +1,8 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import io.openems.common.types.OpenemsType;
-
 import java.nio.ByteBuffer;
+
+import io.openems.common.types.OpenemsType;
 
 /**
  * A SignedDoublewordElement represents a Long value in an
@@ -19,12 +19,14 @@ public class SignedDoublewordElement extends AbstractDoubleWordElement<SignedDou
 		return this;
 	}
 
-	protected Long fromByteBuffer(ByteBuffer buff) {
+	@Override
+	protected Long byteBufferToValue(ByteBuffer buff) {
 		return Long.valueOf(buff.getInt());
 	}
 
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Long value) {
-		return buff.putInt(value.intValue());
+	@Override
+	protected void valueToByteBuffer(ByteBuffer buff, Long value) {
+		buff.putInt(value.intValue());
 	}
 
 }

@@ -3,15 +3,14 @@ package io.openems.edge.battery.soltaro.single.versionb.statemachine;
 import java.time.LocalDateTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionBImpl;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class RunningHandler extends StateHandler<State, Context> {
 
-	public static int refreshIntervalSeconds = 900;
-	LocalDateTime refreshTime = null;
+	public static final int refreshIntervalSeconds = 900;
+	private LocalDateTime refreshTime = null;
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
@@ -27,7 +26,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		SingleRackVersionBImpl battery = context.getParent();
+		var battery = context.getParent();
 
 		if (ControlAndLogic.hasError(battery, context.numberOfModules)) {
 			return State.UNDEFINED;

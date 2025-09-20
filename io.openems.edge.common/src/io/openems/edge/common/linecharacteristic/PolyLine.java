@@ -12,7 +12,7 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Defines a polyline built of multiple points defined by a JsonArray.
- * 
+ *
  * <p>
  * This class can be used e.g. to build Q-by-U characteristics Controllers.
  */
@@ -26,11 +26,25 @@ public class PolyLine {
 		private Builder() {
 		}
 
+		/**
+		 * Add a point to the {@link PolyLine} {@link Builder}.
+		 * 
+		 * @param x the x value
+		 * @param y the y value
+		 * @return myself
+		 */
 		public Builder addPoint(double x, Double y) {
 			this.points.put(x, y);
 			return this;
 		}
 
+		/**
+		 * Add a point to the {@link PolyLine} {@link Builder}.
+		 * 
+		 * @param x the x value
+		 * @param y the y value
+		 * @return myself
+		 */
 		public Builder addPoint(double x, double y) {
 			this.points.put(x, y);
 			return this;
@@ -43,7 +57,7 @@ public class PolyLine {
 
 	/**
 	 * Create a PolyLine builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -52,7 +66,7 @@ public class PolyLine {
 
 	/**
 	 * Create a PolyLine that returns null for every 'x'.
-	 * 
+	 *
 	 * @return a {@link PolyLine}
 	 */
 	public static PolyLine empty() {
@@ -61,25 +75,25 @@ public class PolyLine {
 
 	/**
 	 * Creates a static PolyLine, i.e. the 'y' value is the same for each 'x'.
-	 * 
+	 *
 	 * @param y 'y' value
 	 */
 	public PolyLine(Double y) {
-		TreeMap<Double, Double> points = new TreeMap<>();
+		var points = new TreeMap<Double, Double>();
 		points.put(0D, y);
 		this.points = points;
 	}
 
 	/**
 	 * Creates a PolyLine from two points.
-	 * 
+	 *
 	 * @param x1 'x' value of point 1
 	 * @param y1 'y' value of point 1
 	 * @param x2 'x' value of point 2
 	 * @param y2 'y' value of point 2
 	 */
 	public PolyLine(double x1, Double y1, double x2, Double y2) {
-		TreeMap<Double, Double> points = new TreeMap<>();
+		var points = new TreeMap<Double, Double>();
 		points.put(x1, y1);
 		points.put(x2, y2);
 		this.points = points;
@@ -87,7 +101,7 @@ public class PolyLine {
 
 	/**
 	 * Creates a PolyLine from a map of points.
-	 * 
+	 *
 	 * @param points a map of points
 	 */
 	public PolyLine(TreeMap<Double, Double> points) {
@@ -96,7 +110,7 @@ public class PolyLine {
 
 	/**
 	 * Creates a PolyLine from a JSON line configuration.
-	 * 
+	 *
 	 * @param x          the name of the 'x' value inside the Json-Array
 	 * @param y          the name of the 'y' value inside the Json-Array
 	 * @param lineConfig the configured x and y coordinates values; parsed to a
@@ -128,7 +142,7 @@ public class PolyLine {
 	 * @throws OpenemsNamedException on error
 	 */
 	public PolyLine(String x, String y, JsonArray lineConfig) throws OpenemsNamedException {
-		TreeMap<Double, Double> points = new TreeMap<>();
+		var points = new TreeMap<Double, Double>();
 		for (JsonElement element : lineConfig) {
 			Double xValue = JsonUtils.getAsDouble(element, x);
 			Double yValue = JsonUtils.getAsDouble(element, y);
@@ -139,7 +153,7 @@ public class PolyLine {
 
 	/**
 	 * Gets the Y-value for the given X.
-	 * 
+	 *
 	 * @param x the 'x' value, possibly null
 	 * @return the 'y' value, possibly null
 	 */
@@ -148,13 +162,14 @@ public class PolyLine {
 			return null;
 		}
 
-		Entry<Double, Double> floorEntry = this.points.floorEntry(x);
-		Entry<Double, Double> ceilingEntry = this.points.ceilingEntry(x);
+		var floorEntry = this.points.floorEntry(x);
+		var ceilingEntry = this.points.ceilingEntry(x);
 
 		if (floorEntry == null && ceilingEntry == null) {
 			return null;
 
-		} else if (floorEntry == null) {
+		}
+		if (floorEntry == null) {
 			return ceilingEntry.getValue();
 
 		} else if (ceilingEntry == null) {
@@ -164,9 +179,8 @@ public class PolyLine {
 			return floorEntry.getValue();
 
 		} else {
-			Double m = (ceilingEntry.getValue() - floorEntry.getValue())
-					/ (ceilingEntry.getKey() - floorEntry.getKey());
-			Double t = floorEntry.getValue() - m * floorEntry.getKey();
+			var m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
+			var t = floorEntry.getValue() - m * floorEntry.getKey();
 			return m * x + t;
 		}
 	}
@@ -174,7 +188,7 @@ public class PolyLine {
 	/**
 	 * Gets the Y-value for the given X. Convenience method that internally converts
 	 * the Float to a Double.
-	 * 
+	 *
 	 * @param x the 'x' value, possibly null
 	 * @return the 'y' value, possibly null
 	 */
@@ -185,7 +199,7 @@ public class PolyLine {
 	/**
 	 * Gets the Y-value for the given X. Convenience method that internally converts
 	 * the Integer to a Double.
-	 * 
+	 *
 	 * @param x the 'x' value, possibly null
 	 * @return the 'y' value, possibly null
 	 */
@@ -193,6 +207,14 @@ public class PolyLine {
 		return this.getValue(TypeUtils.toDouble(x));
 	}
 
+	/**
+	 * Prints a {@link PolyLine} in CSV format.
+	 * 
+	 * <p>
+	 * Use this method to visualize the {@link PolyLine} in a spreadsheet.
+	 * 
+	 * @param polyLine the {@link PolyLine}
+	 */
 	public static void printAsCsv(PolyLine polyLine) {
 		System.out.println("x;y");
 		for (Entry<Double, Double> point : polyLine.points.entrySet()) {

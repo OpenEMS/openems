@@ -4,17 +4,17 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'queryHistoricTimeseriesExportXlxs'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -35,35 +35,45 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link QueryHistoricTimeseriesExportXlxsRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link QueryHistoricTimeseriesExportXlxsRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static QueryHistoricTimeseriesExportXlxsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		QueryHistoricTimeseriesExportXlxsRequest result = new QueryHistoricTimeseriesExportXlxsRequest(r, fromDate,
-				toDate);
-		return result;
+		var p = r.getParams();
+		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
+		final ZoneId timezone;
+		if (jTimezone.isNumber()) {
+			// For UI version before 2022.4.0
+			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
+		} else {
+			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(jTimezone)).toZoneId();
+		}
+
+		var fromDate = JsonUtils.getAsZonedDateWithZeroTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateWithZeroTime(p, "toDate", timezone).plusDays(1);
+		return new QueryHistoricTimeseriesExportXlxsRequest(r, fromDate, toDate);
 
 	}
 
 	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	private final int timezoneDiff;
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
 
 	private QueryHistoricTimeseriesExportXlxsRequest(JsonrpcRequest request, ZonedDateTime fromDate,
 			ZonedDateTime toDate) throws OpenemsNamedException {
-		super(request, METHOD);
+		super(request, QueryHistoricTimeseriesExportXlxsRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
+		this.fromDate = fromDate;
+		this.toDate = toDate;
+	}
+
+	public QueryHistoricTimeseriesExportXlxsRequest(ZonedDateTime fromDate, ZonedDateTime toDate)
+			throws OpenemsNamedException {
+		super(QueryHistoricTimeseriesExportXlxsRequest.METHOD);
+
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 	}
@@ -71,15 +81,14 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("timezone", this.timezoneDiff) //
-				.addProperty("fromDate", FORMAT.format(this.fromDate)) //
-				.addProperty("toDate", FORMAT.format(this.toDate)) //
+				.addProperty("fromDate", QueryHistoricTimeseriesExportXlxsRequest.FORMAT.format(this.fromDate)) //
+				.addProperty("toDate", QueryHistoricTimeseriesExportXlxsRequest.FORMAT.format(this.toDate)) //
 				.build();
 	}
 
 	/**
 	 * Gets the From-Date.
-	 * 
+	 *
 	 * @return From-Date
 	 */
 	public ZonedDateTime getFromDate() {
@@ -88,7 +97,7 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the To-Date.
-	 * 
+	 *
 	 * @return To-Date
 	 */
 	public ZonedDateTime getToDate() {

@@ -20,18 +20,21 @@ public class DataTest {
 
 	@Before
 	public void before() {
-		PowerComponent powerComponent = new PowerComponentImpl();
-		DummyManagedSymmetricEss ess1 = new DummyManagedSymmetricEss("ess1", powerComponent) //
+		EssPower powerComponent = new EssPowerImpl();
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(30);
-		DummyManagedSymmetricEss ess2 = new DummyManagedSymmetricEss("ess2", powerComponent) //
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(60);
-		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2) //
+				.setPower(powerComponent);
 		esss = Lists.newArrayList(ess0, ess1, ess2);
 
 		data = new Data();

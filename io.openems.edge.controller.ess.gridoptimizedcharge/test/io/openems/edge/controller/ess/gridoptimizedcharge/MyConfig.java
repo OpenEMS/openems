@@ -1,23 +1,25 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
+import io.openems.edge.common.meta.Meta;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
+		private Meta meta;
 		private String id;
-		public String essId;
-		public String meterId;
-		public int maximumSellToGridPower;
-		public int noOfBufferMinutes;
-		public Mode mode;
-		public String manualTargetTime;
-		public boolean sellToGridLimitEnabled;
-		public int sellToGridLimitRampPercentage;
-
-		private Builder() {
-		}
+		private String essId;
+		private String meterId;
+		private int maximumSellToGridPower;
+		private GridFeedInLimitationType gridFeedInLimitationType;
+		private Mode mode;
+		private String manualTargetTime;
+		private boolean sellToGridLimitEnabled;
+		private int sellToGridLimitRampPercentage;
+		private DelayChargeRiskLevel delayChargeRiskLevel;
 
 		public Builder setId(String id) {
 			this.id = id;
@@ -34,13 +36,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMaximumSellToGridPower(int maximumSellToGridPower) {
-			this.maximumSellToGridPower = maximumSellToGridPower;
+		public Builder setMeta(Meta meta) {
+			this.meta = meta;
 			return this;
 		}
 
-		public Builder setNoOfBufferMinutes(int noOfBufferMinutes) {
-			this.noOfBufferMinutes = noOfBufferMinutes;
+		public Builder setMaximumSellToGridPower(int maximumSellToGridPower) {
+			this.meta._setMaximumGridFeedInLimit(maximumSellToGridPower);
 			return this;
 		}
 
@@ -64,6 +66,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setDelayChargeRiskLevel(DelayChargeRiskLevel delayChargeRiskLevel) {
+			this.delayChargeRiskLevel = delayChargeRiskLevel;
+			return this;
+		}
+
+		public Builder setGridFeedInLimitationType(GridFeedInLimitationType gridFeedInLimitationType) {
+			this.gridFeedInLimitationType = gridFeedInLimitationType;
+			this.meta._setGridFeedInLimitationType(this.gridFeedInLimitationType);
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -71,7 +84,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -95,24 +108,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.meterId;
 	}
 
+	@Deprecated
 	@Override
 	public int maximumSellToGridPower() {
 		return this.builder.maximumSellToGridPower;
 	}
 
 	@Override
-	public int noOfBufferMinutes() {
-		return this.builder.noOfBufferMinutes;
-	}
-
-	@Override
 	public String ess_target() {
-		return "(&(enabled=true)(!(service.pid=" + this.builder.id + "))(|(id=" + this.ess_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 	@Override
 	public String meter_target() {
-		return "(&(enabled=true)(!(service.pid=" + this.builder.id + "))(|(id=" + this.meter_id() + ")))";
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 
 	@Override
@@ -130,6 +139,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.manualTargetTime;
 	}
 
+	@Deprecated
 	@Override
 	public boolean sellToGridLimitEnabled() {
 		return this.builder.sellToGridLimitEnabled;
@@ -138,5 +148,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int sellToGridLimitRampPercentage() {
 		return this.builder.sellToGridLimitRampPercentage;
+	}
+
+	@Override
+	public DelayChargeRiskLevel delayChargeRiskLevel() {
+		return this.builder.delayChargeRiskLevel;
 	}
 }

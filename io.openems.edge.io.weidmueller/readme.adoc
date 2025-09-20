@@ -1,0 +1,37 @@
+= Weidmüller Fieldbus Coupler UR20-FBC-MOD-TCP-V2
+
+Implemented Natures::
+- DigitalOutput
+- DigitalInput
+
+This component reads the current Weidmüller fieldbus coupler configuration and dynamically creates its Input and Output Channels accordingly. 
+
+The following examples assume the Component-ID is `io0` and the addresses are valid for the first extension.
+For extensions 2, 3,... just increase the number behind `M`.
+Channel names follow this logic:
+
+== Digital input module UR20-4DI-P
+
+|=======
+|`io0/DigitalInputM1C1` |Input |digital input #1
+|`io0/DigitalInputM1C2` |Input |digital input #2
+|`io0/DigitalInputM1C3` |Input |digital input #3
+|`io0/DigitalInputM1C4` |Input |digital input #4
+|=======
+
+== Digital output module UR20-8DO-P
+
+|=======
+|`io0/DigitalOutputM1C1` |Input/Output |digital output #1
+|`io0/DigitalOutputM1C2` |Input/Output |digital output #2
+|`io0/DigitalOutputM1C3` |Input/Output |digital output #3
+|`io0/DigitalOutputM1C4` |Input/Output |digital output #4
+|`io0/DigitalOutputM1C5` |Input/Output |digital output #5
+|`io0/DigitalOutputM1C6` |Input/Output |digital output #6
+|`io0/DigitalOutputM1C7` |Input/Output |digital output #7
+|`io0/DigitalOutputM1C8` |Input/Output |digital output #8
+|=======
+
+https://catalog.weidmueller.com/catalog/Start.do?ObjectID=2476450000
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.weidmueller[Source Code icon:github[]]

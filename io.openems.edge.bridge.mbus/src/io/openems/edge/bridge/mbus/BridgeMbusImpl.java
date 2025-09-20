@@ -7,15 +7,14 @@ import java.util.Map;
 import org.openmuc.jmbus.DecodingException;
 import org.openmuc.jmbus.MBusConnection;
 import org.openmuc.jmbus.MBusConnection.MBusSerialBuilder;
-import org.openmuc.jmbus.VariableDataStructure;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,20 +28,17 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Bridge.Mbus", //
+@Component(//
+		name = "Bridge.Mbus", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+})
 public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMbus, EventHandler, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(BridgeMbusImpl.class);
-
-	public BridgeMbusImpl() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				BridgeMbus.ChannelId.values() //
-		);
-	}
 
 	private final Map<String, MbusTask> tasks = new HashMap<>();
 	private final MbusWorker worker = new MbusWorker();
@@ -51,8 +47,15 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 	private MBusSerialBuilder builder;
 	private String portName;
 
+	public BridgeMbusImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				BridgeMbus.ChannelId.values() //
+		);
+	}
+
 	@Activate
-	protected void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.portName = config.portName();
 
@@ -61,6 +64,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		this.builder = MBusConnection.newSerialBuilder(this.portName).setBaudrate(config.baudrate());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -80,6 +84,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		}
 	}
 
+	@Override
 	public MBusConnection getmBusConnection() {
 		return this.mBusConnection;
 	}
@@ -94,7 +99,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 
 				for (MbusTask task : BridgeMbusImpl.this.tasks.values()) {
 					try {
-						VariableDataStructure data = task.getRequest();
+						var data = task.getRequest();
 						data.decode();
 						// "Before accessing elements of a variable data structure it has to be decoded
 						// using the decode method." ??
@@ -107,7 +112,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 				BridgeMbusImpl.this.mBusConnection.close();
 			} catch (IOException e) {
 				BridgeMbusImpl.this.logError(BridgeMbusImpl.this.log,
-						"Connection via [" + portName + "] failed: " + e.getMessage());
+						"Connection via [" + BridgeMbusImpl.this.portName + "] failed: " + e.getMessage());
 			}
 		}
 	}

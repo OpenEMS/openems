@@ -1,5 +1,6 @@
+// @ts-strict-ignore
 import { WebSocketSubject } from "rxjs/webSocket";
-import { environment as env } from '../../../environments';
+import { environment } from "src/environments";
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { AuthenticateWithPasswordRequest } from "../jsonrpc/request/authenticateWithPasswordRequest";
 import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
@@ -16,13 +17,12 @@ export class WsData {
 
   /**
    * Sends a JSON-RPC request to a Websocket and registers a callback.
-   * 
-   * @param ws 
-   * @param request 
-   * @param responseCallback 
+   *
+   * @param ws
+   * @param request
    */
   public sendRequest(ws: WebSocketSubject<any>, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    if (env.debugMode) {
+    if (environment.debugMode) {
       if (request instanceof EdgeRpcRequest) {
         console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
       } else if (request instanceof AuthenticateWithPasswordRequest) {
@@ -35,7 +35,7 @@ export class WsData {
     // create Promise
     let promiseResolve: (value?: JsonrpcResponseSuccess | PromiseLike<JsonrpcResponseSuccess>) => void;
     let promiseReject: (reason?: any) => void;
-    let promise = new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
+    const promise = new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
       promiseResolve = resolve;
       promiseReject = reject;
     });
@@ -54,9 +54,9 @@ export class WsData {
 
   /**
    * Sends a JSON-RPC notification to a Websocket.
-   * 
-   * @param ws 
-   * @param notification 
+   *
+   * @param ws
+   * @param notification
    */
   public sendNotification(ws: WebSocketSubject<any>, notification: JsonrpcNotification) {
     ws.next(notification);
@@ -64,11 +64,11 @@ export class WsData {
 
   /**
    * Handles a JSON-RPC response by resolving the previously registered request Promise.
-   * 
-   * @param response 
+   *
+   * @param response
    */
   public handleJsonrpcResponse(response: JsonrpcResponse) {
-    let promise = this.requestPromises[response.id];
+    const promise = this.requestPromises[response.id];
     if (promise) {
       // this was a response on a request
       if (response instanceof JsonrpcResponseSuccess) {
@@ -84,7 +84,7 @@ export class WsData {
         // TODO use OpenemsError code
         promise.reject(
           new JsonrpcResponseError(response.id, {
-            code: 0, message: "Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response, data: {}
+            code: 0, message: "Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response, data: {},
           }));
       }
     } else {

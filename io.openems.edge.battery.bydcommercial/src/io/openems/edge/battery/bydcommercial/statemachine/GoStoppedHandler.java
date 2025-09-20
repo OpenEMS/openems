@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.bydcommercial.BatteryBoxC130;
 import io.openems.edge.battery.bydcommercial.enums.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.battery.bydcommercial.utils.Constants;
@@ -23,36 +22,32 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		BatteryBoxC130 battery = context.getParent();
-		PowerCircuitControl powerCircuitControl = battery.getPowerCircuitControl();
+		var battery = context.getParent();
+		var powerCircuitControl = battery.getPowerCircuitControl();
 
 		if (powerCircuitControl == PowerCircuitControl.SWITCH_OFF) {
 			return State.STOPPED;
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
 				.getSeconds() > Constants.RETRY_COMMAND_SECONDS;
-		if (isMaxStartTimePassed) {
-			// First try - or waited long enough for next try
-
-			if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
-				// Too many tries
-				battery._setMaxStopAttempts(true);
-				return State.UNDEFINED;
-
-			} else {
-				// Trying to switch off
-				battery.setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
-				this.lastAttempt = Instant.now();
-				this.attemptCounter++;
-				return State.GO_STOPPED;
-
-			}
-
-		} else {
+		if (!isMaxStartTimePassed) {
 			// Still waiting...
 			return State.GO_STOPPED;
 		}
+
+		if (this.attemptCounter > Constants.RETRY_COMMAND_MAX_ATTEMPTS) {
+			// Too many tries
+			battery._setMaxStopAttempts(true);
+			return State.UNDEFINED;
+
+		}
+
+		// Trying to switch off
+		battery.setPowerCircuitControl(PowerCircuitControl.SWITCH_OFF);
+		this.lastAttempt = Instant.now();
+		this.attemptCounter++;
+		return State.GO_STOPPED;
 	}
 
 }

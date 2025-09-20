@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -43,20 +44,19 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 	 * Creates an object for the device.
 	 */
 	public Switch() {
-		super();
-		ActuatorSelections = new Vector<>();
+		this.ActuatorSelections = new Vector<>();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address connected to the
 	 * supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the actuator.
 	 * @param netAddress The 1-Wire network address of the actuator.
 	 */
 	public Switch(DSPortAdapter adapter, String netAddress) {
 		super(adapter, netAddress);
-		ActuatorSelections = new Vector<>();
+		this.ActuatorSelections = new Vector<>();
 	}
 
 	/**
@@ -64,8 +64,9 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 	 *
 	 * @return Vector of Strings representing selection states.
 	 */
+	@Override
 	public Vector<String> getSelections() {
-		return ActuatorSelections;
+		return this.ActuatorSelections;
 	}
 
 	/**
@@ -74,20 +75,22 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 	 * @throws OneWireException
 	 *
 	 */
+	@Override
 	public void setSelection(String selection) throws OneWireException {
-		SwitchContainer switchcontainer = (SwitchContainer) getDeviceContainer();
-		int Index = 0;
-		int channelValue = getChannel();
-		Index = ActuatorSelections.indexOf(selection);
-		boolean switch_state = false;
+		var switchcontainer = (SwitchContainer) this.getDeviceContainer();
+		var Index = 0;
+		var channelValue = this.getChannel();
+		Index = this.ActuatorSelections.indexOf(selection);
+		var switch_state = false;
 
 		if (Index > -1) // means selection is in the vector
 		{
 			// initialize switch-state variable
-			if (Index > 0)
+			if (Index > 0) {
 				switch_state = true;
+			}
 			// write to the device (but, read it first to get state)
-			byte[] state = switchcontainer.readDevice();
+			var state = switchcontainer.readDevice();
 			// set the switch's state to the value specified
 			switchcontainer.setLatchState(channelValue, switch_state, false, state);
 			switchcontainer.writeDevice(state);
@@ -102,32 +105,34 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 
 	/**
 	 * Initializes the actuator
-	 * 
+	 *
 	 * @throws OneWireException
-	 * 
+	 *
 	 */
+	@Override
 	public void initActuator() throws OneWireException {
-		SwitchContainer switchcontainer = (SwitchContainer) getDeviceContainer();
+		var switchcontainer = (SwitchContainer) this.getDeviceContainer();
 		// initialize the ActuatorSelections Vector
-		ActuatorSelections.addElement(getMin()); // for switch, use min and max
-		ActuatorSelections.addElement(getMax());
+		this.ActuatorSelections.addElement(this.getMin()); // for switch, use min and max
+		this.ActuatorSelections.addElement(this.getMax());
 		// Now, initialize the switch to the desired condition.
 		// This condition is in the <init> tag and, of course, the
 		// <channel> tag is also needed to know which channel to
 		// to open or close.
 		int initValue;
 		int channelValue;
-		int switchStateIntValue = 0;
-		Integer init = new Integer(getInit());
+		var switchStateIntValue = 0;
+		Integer init = Integer.parseInt(this.getInit());
 		initValue = init.intValue();
-		channelValue = getChannel();
+		channelValue = this.getChannel();
 
-		byte[] state = switchcontainer.readDevice();
-		boolean switch_state = switchcontainer.getLatchState(channelValue, state);
-		if (switch_state)
+		var state = switchcontainer.readDevice();
+		var switch_state = switchcontainer.getLatchState(channelValue, state);
+		if (switch_state) {
 			switchStateIntValue = 1;
-		else
+		} else {
 			switchStateIntValue = 0;
+		}
 		if (initValue != switchStateIntValue) {
 			// set the switch's state to the value specified in XML file
 			switchcontainer.setLatchState(channelValue, !switch_state, false, state);
@@ -138,5 +143,6 @@ public class Switch extends TaggedDevice implements TaggedActuator {
 	/**
 	 * Keeps the selections of this actuator
 	 */
-	private Vector<String> ActuatorSelections;
+	private final Vector<String> ActuatorSelections;
 }
+// CHECKSTYLE:ON

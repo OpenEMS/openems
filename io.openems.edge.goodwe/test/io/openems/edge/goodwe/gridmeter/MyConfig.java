@@ -1,18 +1,20 @@
 package io.openems.edge.goodwe.gridmeter;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
-		private String id = null;
-		public int modbusUnitId;
-		public String modbusId;
+		private String id;
+		private int modbusUnitId;
+		private String modbusId;
+		private GoodWeGridMeterCategory goodWeMeterCategory;
+		private int externalMeterRatioValueA;
+		private int externalMeterRatioValueB;
 
 		private Builder() {
-
 		}
 
 		protected Builder setId(String id) {
@@ -30,6 +32,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		protected Builder setGoodWeMeterCategory(GoodWeGridMeterCategory goodWeMeterCategory) {
+			this.goodWeMeterCategory = goodWeMeterCategory;
+			return this;
+		}
+
+		protected Builder setExternalMeterRatioValueA(int externalMeterRatioValueA) {
+			this.externalMeterRatioValueA = externalMeterRatioValueA;
+			return this;
+		}
+
+		protected Builder setExternalMeterRatioValueB(int externalMeterRatioValueB) {
+			this.externalMeterRatioValueB = externalMeterRatioValueB;
+			return this;
+		}
+
 		protected MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -37,7 +54,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -64,6 +81,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
+	public GoodWeGridMeterCategory goodWeMeterCategory() {
+		return this.builder.goodWeMeterCategory;
+	}
+
+	@Override
+	public int externalMeterRatioValueA() {
+		return this.builder.externalMeterRatioValueA;
+	}
+
+	@Override
+	public int externalMeterRatioValueB() {
+		return this.builder.externalMeterRatioValueB;
 	}
 
 }

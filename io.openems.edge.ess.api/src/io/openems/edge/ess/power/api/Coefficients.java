@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 public class Coefficients {
 
@@ -17,7 +18,7 @@ public class Coefficients {
 
 	/**
 	 * Initialize the Coefficients for the linear equation system.
-	 * 
+	 *
 	 * @param symmetricMode if activated, Coefficients are only added for Sum of all
 	 *                      Phases. Otherwise Coefficients for Sum and each Phase
 	 *                      are added.
@@ -26,16 +27,16 @@ public class Coefficients {
 	public synchronized void initialize(boolean symmetricMode, Set<String> essIds) {
 		this.coefficients.clear();
 		this.symmetricMode = symmetricMode;
-		int index = 0;
+		var index = 0;
 		for (String essId : essIds) {
 			if (symmetricMode) {
 				// Symmetric Mode
 				for (Pwr pwr : Pwr.values()) {
-					this.coefficients.add(new Coefficient(index++, essId, Phase.ALL, pwr));
+					this.coefficients.add(new Coefficient(index++, essId, SingleOrAllPhase.ALL, pwr));
 				}
 			} else {
 				// Asymmetric Mode
-				for (Phase phase : Phase.values()) {
+				for (var phase : SingleOrAllPhase.values()) {
 					for (Pwr pwr : Pwr.values()) {
 						this.coefficients.add(new Coefficient(index++, essId, phase, pwr));
 					}
@@ -45,12 +46,22 @@ public class Coefficients {
 		this.noOfCoefficients = index;
 	}
 
-	public Coefficient of(String essId, Phase phase, Pwr pwr) throws OpenemsException {
-		if (this.symmetricMode && phase != Phase.ALL) {
+	/**
+	 * Gets the {@link Coefficient} for the given Ess-ID, {@link Phase} and
+	 * {@link Pwr}.
+	 * 
+	 * @param essId the Ess-ID
+	 * @param phase the {@link SingleOrAllPhase}
+	 * @param pwr   the {@link Pwr}
+	 * @return the {@link Coefficient}
+	 * @throws OpenemsException on error
+	 */
+	public Coefficient of(String essId, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException {
+		if (this.symmetricMode && phase != SingleOrAllPhase.ALL) {
 			throw new OpenemsException("Symmetric-Mode is activated. Coefficients for [" + essId + "," + phase + ","
 					+ pwr + "] is not available!");
 		}
-		for (Coefficient c : this.coefficients) {
+		for (var c : this.coefficients) {
 			if (Objects.equals(c.essId, essId) && c.phase == phase && c.pwr == pwr) {
 				return c;
 			}

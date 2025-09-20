@@ -6,15 +6,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 /**
  * Configures the User Service.
- * 
+ *
+ * <p>
  * By default the following passwords are set:
  * <ul>
  * <li>User admin: admin
  * <li>User installer: installer
  * <li>User owner: owner
  * <li>User guest: user
+ * </ul>
  */
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Core User", //
 		description = "This component handles User authentication.")
 @interface Config {
@@ -41,6 +43,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Guest: salt", description = "salt for User 'guest'", type = AttributeType.PASSWORD)
 	String guestSalt() default "dXNlcg==";
+
+	@AttributeDefinition(name = "Additional Users", description = "Additional User config as json e. g. \"[{\"id\":\"guest\", \"name\":\"Guest\", \"language\": \"EN\", \"role\":\"GUEST\", \"password\": \"\", \"salt\": \"\"}]\"", type = AttributeType.PASSWORD)
+	String users();
 
 	String webconsole_configurationFactory_nameHint() default "Core User";
 }

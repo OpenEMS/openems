@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,12 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
@@ -40,7 +43,7 @@ public class ApiWorker {
 
 	private final Logger log = LoggerFactory.getLogger(ApiWorker.class);
 
-	private final OpenemsComponent parent;
+	private final AbstractOpenemsComponent parent;
 
 	/**
 	 * Debug information about writes to channels is sent to this channel.
@@ -58,15 +61,31 @@ public class ApiWorker {
 
 	private int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
 
-	public ApiWorker(OpenemsComponent parent) {
+	/**
+	 * Handles write-only channel overriding.
+	 */
+	public record WriteHandler(Consumer<Entry<WriteChannel<?>, WriteObject>> handleWrites, //
+			Consumer<Status> setOverrideStatus, //
+			Runnable handleTimeout) {
+	}
+
+	private WriteHandler writeHandler;
+
+	public ApiWorker(AbstractOpenemsComponent parent) {
+		this(parent, new WriteHandler(FunctionUtils::doNothing, //
+				FunctionUtils::doNothing, FunctionUtils::doNothing));
+	}
+
+	public ApiWorker(AbstractOpenemsComponent parent, WriteHandler writeHandler) { //
 		this.parent = parent;
+		this.writeHandler = writeHandler;
 		this.executor = Executors.newSingleThreadScheduledExecutor();
 	}
 
 	/**
 	 * Sets the Channel that should be used to log debug information about writes to
 	 * channels.
-	 * 
+	 *
 	 * @param logChannel a {@link StringReadChannel}
 	 */
 	public void setLogChannel(StringReadChannel logChannel) {
@@ -76,7 +95,7 @@ public class ApiWorker {
 	/**
 	 * Adds a value to the write-pipeline. The values are then set in the next
 	 * execution of {@link #run()}, until the timeout is reached.
-	 * 
+	 *
 	 * @param channel     the {@link WriteChannel}
 	 * @param writeObject the {@link WriteObject}
 	 */
@@ -99,7 +118,7 @@ public class ApiWorker {
 
 	/**
 	 * Adds a value via JSON-RPC {@link SetChannelValueRequest}.
-	 * 
+	 *
 	 * @param componentManager the {@link ComponentManager}
 	 * @param user             the authenticated {@link User}
 	 * @param request          the Request
@@ -121,8 +140,7 @@ public class ApiWorker {
 			value = null;
 		} else {
 			value = JsonUtils.getAsBestType(request.getValue());
-			if (value instanceof String && ((String) value).isEmpty()
-					&& channel.channelId().doc().getType() != OpenemsType.STRING) {
+			if (value instanceof String s && s.isEmpty() && channel.channelId().doc().getType() != OpenemsType.STRING) {
 				// Allow non-string Channels to be set to 'UNDEFINED' using an empty string
 				value = null;
 			}
@@ -150,6 +168,8 @@ public class ApiWorker {
 								+ entry.getKey().address() + "] after [" + this.timeoutSeconds + "s]");
 						entry.getValue().notifyTimeout();
 					}
+					this.writeHandler.setOverrideStatus.accept(Status.INACTIVE);
+					this.writeHandler.handleTimeout.run();
 					this.values.clear();
 				}
 			}, this.timeoutSeconds, TimeUnit.SECONDS);
@@ -171,7 +191,7 @@ public class ApiWorker {
 	/**
 	 * Sets the channels. This method is called by the run() method of the
 	 * Controller
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public void run() throws OpenemsNamedException {
@@ -180,13 +200,17 @@ public class ApiWorker {
 		synchronized (this.values) {
 			for (Entry<WriteChannel<?>, WriteObject> entry : this.values.entrySet()) {
 				WriteChannel<?> channel = entry.getKey();
-				WriteObject writeObject = entry.getValue();
+				var writeObject = entry.getValue();
 				try {
 					OpenemsComponent.logInfo(this.parent, this.log,
 							"Set Channel [" + channel.address() + "] to Value [" + writeObject.valueToString() + "]");
 					writeObject.setNextWriteValue(channel);
 					writeObject.notifySuccess();
+
 					logs.add(channel.address() + ":" + writeObject.valueToString());
+
+					this.writeHandler.handleWrites.accept(entry);
+					this.writeHandler.setOverrideStatus.accept(Status.ACTIVE);
 				} catch (OpenemsException e) {
 					OpenemsComponent.logError(this.parent, this.log, "Unable to set Channel [" + channel.address()
 							+ "] to Value [" + writeObject.valueToString() + "]: " + e.getMessage());

@@ -1,0 +1,19 @@
+Bundle-Name: JavaBeans Activation Framework
+Bundle-License: https://opensource.org/licenses/CDDL-1.0
+Bundle-Version: 1.2.0
+
+Include-Resource: \
+	@javax.activation-1.2.0.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Import-Package: \
+
+Export-Package: \
+    com.sun.activation.registries,\
+    com.sun.activation.viewers,\
+	javax.activation,\
+	
+-sources: false

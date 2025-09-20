@@ -14,9 +14,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
 	int poolSize() default 10;
 
-	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
-	boolean debugMode() default false;
-
 	String webconsole_configurationFactory_nameHint() default "Edge Websocket";
-
 }

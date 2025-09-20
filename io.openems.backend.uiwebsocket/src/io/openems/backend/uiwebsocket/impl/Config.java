@@ -14,9 +14,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
 	int poolSize() default 10;
 
-	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
-	boolean debugMode() default false;
+	@AttributeDefinition(name = "Request Limit", description = "Limit of Requests per second, before they get discarded by the Limiter")
+	int requestLimit() default 20;
 
 	String webconsole_configurationFactory_nameHint() default "Ui Websocket";
-
 }

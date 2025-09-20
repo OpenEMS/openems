@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -137,7 +138,6 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *      OneWireContainer05(DSPortAdapter,String)
 	 */
 	public OneWireContainer05() {
-		super();
 	}
 
 	/**
@@ -201,6 +201,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS2405";
 	}
@@ -212,6 +213,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "Addressable Switch";
 	}
@@ -222,9 +224,12 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return "Addressable Switch with controlled open drain PIO "
-				+ "pin. PIO pin sink capability is greater than 4mA " + "at 0.4V.";
+		return """
+				Addressable Switch with controlled open drain PIO \
+				pin. PIO pin sink capability is greater than 4mA \
+				at 0.4V.""";
 	}
 
 	// --------
@@ -244,6 +249,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 */
+	@Override
 	public int getNumberChannels(byte[] state) {
 		// we ignore the state, DS2405 can only have one channel
 		return 1;
@@ -260,6 +266,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLatchState(int,byte[])
 	 */
+	@Override
 	public boolean isHighSideSwitch() {
 		return false;
 	}
@@ -274,6 +281,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @see #getSensedActivity(int,byte[])
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean hasActivitySensing() {
 		return false;
 	}
@@ -287,6 +295,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLevel(int,byte[])
 	 */
+	@Override
 	public boolean hasLevelSensing() {
 		return true;
 	}
@@ -303,6 +312,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean hasSmartOn() {
 		return false;
 	}
@@ -318,6 +328,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean onlySingleChannelOn() {
 		return true;
 	}
@@ -343,8 +354,9 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #hasLevelSensing()
 	 */
+	@Override
 	public boolean getLevel(int channel, byte[] state) {
-		return ((state[0] & 0x02) == 0x02);
+		return (state[0] & 0x02) == 0x02;
 	}
 
 	/**
@@ -364,8 +376,9 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @see #isHighSideSwitch()
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean getLatchState(int channel, byte[] state) {
-		return ((state[0] & 0x01) == 0x01);
+		return (state[0] & 0x01) == 0x01;
 	}
 
 	/**
@@ -388,6 +401,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @see #hasActivitySensing()
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean getSensedActivity(int channel, byte[] state) throws OneWireException {
 
 		// i don't do this
@@ -404,6 +418,7 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #getSensedActivity(int,byte[])
 	 */
+	@Override
 	public void clearActivity() throws OneWireException {
 
 		// i don't do this
@@ -438,11 +453,13 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @see #getLatchState(int,byte[])
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 */
+	@Override
 	public void setLatchState(int channel, boolean latchState, boolean doSmart, byte[] state) {
-		if (latchState)
+		if (latchState) {
 			state[0] = (byte) (state[0] | 0x01);
-		else
+		} else {
 			state[0] = (byte) (state[0] & 0xfe);
+		}
 	}
 
 	/**
@@ -461,33 +478,35 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
 
 		// first let's make sure we can talk to the part
 		// speed is not critical with the 2405 so i'll just call doSpeed()
-		doSpeed();
+		this.doSpeed();
 
 		// this ain't a hard part--it's only gonna take 1 byte
-		byte[] state = new byte[1];
+		var state = new byte[1];
 
 		// here's the 'bitmap'
 		// bit 0 : switch state (0 for conducting, 1 for non-conducting)
 		// bit 1 : sensed level (0 for low, 1 for high)
 		state[0] = (byte) 0;
 
-		if (isPresent()) {
-			if (isAlarming())
-				state[0] = 1;
-		} else
+		if (!this.isPresent()) {
 			throw new OneWireIOException("Device not present");
+		}
+		if (this.isAlarming()) {
+			state[0] = 1;
+		}
 
-		if (isPresent()) {
-
-			// Byte after 'search' indicates level
-			if (adapter.getByte() != 0)
-				state[0] = (byte) (state[0] | 0x02);
-		} else
+		if (!this.isPresent()) {
 			throw new OneWireIOException("Device not present");
+		}
+		// Byte after 'search' indicates level
+		if (this.adapter.getByte() != 0) {
+			state[0] = (byte) (state[0] | 0x02);
+		}
 
 		return state;
 	}
@@ -507,26 +526,28 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
-		doSpeed();
+		this.doSpeed();
 
-		boolean value = ((state[0] & 0x01) == 0x01);
-		boolean compare = isAlarming();
+		var value = (state[0] & 0x01) == 0x01;
+		var compare = this.isAlarming();
 
 		// check to see if already in the correct state
-		if (compare == value)
+		if (compare == value) {
 			return;
-
-		// incorrect state so toggle
-		else if (adapter.select(address)) {
+		}
+		if (this.adapter.select(this.address)) {
 
 			// verify
-			compare = isAlarming();
+			compare = this.isAlarming();
 
-			if (compare == value)
+			if (compare == value) {
 				return;
+			}
 		}
 
 		throw new OneWireIOException("Failure to change DS2405 latch state");
 	}
 }
+// CHECKSTYLE:ON

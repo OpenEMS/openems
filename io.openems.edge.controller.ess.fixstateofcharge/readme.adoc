@@ -1,0 +1,9 @@
+= ESS Fix State Of Charge
+
+Sets active power constraints for charging/discharging of a symmetric energy storage system, to reach a final SoC under the constraints below.
+
+- State of Charge should be reached at a certain time or as fast as possible
+- State of Charge is held for a configured time or optionally until a specific end condition is fulfilled
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.fixstateofcharge[Source Code icon:github[]]

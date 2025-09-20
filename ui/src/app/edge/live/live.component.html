@@ -1,13 +1,26 @@
-<header></header>
-<ion-content>
-  <ion-grid [hidden]="!edge.subscribeChannelsSuccessful" *ngIf="edge && edge.isOnline">
-    <ion-row class="ion-justify-content-center" *ngIf="widgets">
-      <!-- Energymonitor -->
-      <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-        <ion-col *ngSwitchCase="'Energymonitor'" size="12" size-md="8" size-lg="3" class="ion-no-padding">
-          <energymonitor></energymonitor>
-        </ion-col>
-      </ng-container>
+<oe-navigation-view *ngIf="edge">
+  <oe-refresh-view header [refresh]="handleRefresh" [show]="showRefreshDragDown">
+    <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
+    </ion-refresher>
+  </oe-refresh-view>
+  <ion-grid *ngIf="edge && edge.isOnline && paddingBottom !== null">
+    <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">
+
+      <!-- Left column -->
+      <ion-col size="12" [attr.size-md]="8" [attr.size-lg]="navigationService.position() === 'left' ? 4 : 3"
+        class="ion-no-padding">
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="12">
+              <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+                <!-- Energymonitor -->
+                <energymonitor *ngSwitchCase="'Energymonitor'"></energymonitor>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
 
       <!-- Widgets -->
       <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
@@ -16,12 +29,12 @@
             <!-- Regular Widgets -->
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
-              <ion-col *ngSwitchCase="'Autarchy'" size="12" size-lg="6" class="ion-no-padding">
-                <autarchy></autarchy>
+              <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-lg="6" class="ion-no-padding">
+                <Common_Autarchy></Common_Autarchy>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Selfconsumption'" size="12" size-lg="6" class="ion-no-padding">
-                <selfconsumption></selfconsumption>
+              <ion-col *ngSwitchCase="'Common_Selfconsumption'" size="12" size-lg="6" class="ion-no-padding">
+                <Common_Selfconsumption></Common_Selfconsumption>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Storage'" size="12" size-lg="6" class="ion-no-padding">
@@ -32,14 +45,13 @@
                 <grid></grid>
               </ion-col>
 
-              <ion-col *ngSwitchCase="'Production'" size="12" size-lg="6" class="ion-no-padding">
-                <production></production>
+              <ion-col *ngSwitchCase="'Common_Production'" size="12" size-lg="6" class="ion-no-padding">
+                <Common_Production></Common_Production>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Consumption'" size="12" size-lg="6" class="ion-no-padding">
                 <consumption></consumption>
               </ion-col>
-
 
             </ng-container>
 
@@ -50,59 +62,73 @@
 
               <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
                 <ng-container
-                  *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumption'">
+                  *ngIf="factoryId !== 'Evcs.Cluster.PeakShaving' && factoryId !== 'Evcs.Cluster.SelfConsumption'">
                   <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
-                    <evcs [componentId]="widget.componentId">
-                    </evcs>
+                    <Controller_Evcs [componentId]="widget.componentId"></Controller_Evcs>
                   </ion-col>
                 </ng-container>
               </ng-container>
 
               <ion-col *ngSwitchCase="'Evcs.Cluster.SelfConsumption'" size="12" size-lg="6" class="ion-no-padding">
-                <evcsCluster [componentId]="widget.componentId"></evcsCluster>
+                <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Evcs.Cluster.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <evcsCluster [componentId]="widget.componentId"></evcsCluster>
+                <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+                <Controller_Channelthreshold [componentId]="widget.componentId"></Controller_Channelthreshold>
               </ion-col>
 
               <ion-col *ngSwitchCase="'io.openems.impl.controller.channelthreshold.ChannelThresholdController'"
                 size="12" size-lg="6" class="ion-no-padding">
-                <channelthreshold [componentId]="widget.componentId"></channelthreshold>
+                <Controller_Channelthreshold [componentId]="widget.componentId"></Controller_Channelthreshold>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.FixDigitalOutput'" size="12" size-lg="6" class="ion-no-padding">
                 <Controller_Io_FixDigitalOutput [componentId]="widget.componentId"></Controller_Io_FixDigitalOutput>
               </ion-col>
 
+              <ng-container *ngIf="isModbusTcpWidgetAllowed">
+                <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" size-lg="6"
+                  class="ion-no-padding">
+                  <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
+                </ion-col>
+              </ng-container>
+
               <!-- Widgets that are likely to be configured seldomly -->
 
               <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" size-lg="6" class="ion-no-padding">
-                <chpsoc [componentId]="widget.componentId"></chpsoc>
+                <Controller_ChpSocComponent [componentId]="widget.componentId"></Controller_ChpSocComponent>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.IO.HeatingElement'" size="12" size-lg="6" class="ion-no-padding">
-                <heatingelement [componentId]="widget.componentId"></heatingelement>
+                <Controller_Io_HeatingElement [componentId]="widget.componentId"></Controller_Io_HeatingElement>
+              </ion-col>
+
+              <ion-col size="12" *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'" size-lg="6"
+                class="ion-no-padding">
+                <Controller_Heat [componentId]="widget.componentId"></Controller_Heat>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Io.HeatPump.SgReady'" size="12" size-lg="6" class="ion-no-padding">
-                <heatpump [componentId]="widget.componentId"></heatpump>
+                <Controller_Io_Heatpump [componentId]="widget.componentId"></Controller_Io_Heatpump>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <symmetricpeakshaving [componentId]="widget.componentId"></symmetricpeakshaving>
+                <Controller_Symmetric_PeakShaving [componentId]="widget.componentId">
+                </Controller_Symmetric_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <asymmetricpeakshaving [componentId]="widget.componentId"></asymmetricpeakshaving>
+                <Controller_Asymmetric_PeakShaving [componentId]="widget.componentId">
+                </Controller_Asymmetric_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.TimeslotPeakshaving'" size="12" size-lg="6" class="ion-no-padding">
-                <timeslotpeakshaving [componentId]="widget.componentId"></timeslotpeakshaving>
+                <Controller_Symmetric_TimeSlot_PeakShaving [componentId]="widget.componentId">
+                </Controller_Symmetric_TimeSlot_PeakShaving>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'" size="12" size-lg="6" class="ion-no-padding">
@@ -111,22 +137,30 @@
 
               <ion-col *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'" size="12" size-lg="6"
                 class="ion-no-padding">
-                <singlethreshold [componentId]="widget.componentId"></singlethreshold>
+                <oe-controller-io-channelsinglethreshold
+                  [componentId]="widget.componentId"></oe-controller-io-channelsinglethreshold>
+              </ion-col>
+
+              <ion-col *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'" size="12" size-lg="6" class="ion-no-padding">
+                <Controller_Ess_TimeOfUseTariff [componentId]="widget.componentId">
+                </Controller_Ess_TimeOfUseTariff>
               </ion-col>
 
               <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" size-lg="6"
                 class="ion-no-padding">
-                <digitalinput></digitalinput>
+                <Io_Api_DigitalInput></Io_Api_DigitalInput>
               </ion-col>
 
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" size-lg="6" class="ion-no-padding">
                 <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
               </ion-col>
-            </ng-container>
 
-            <!-- <ion-col size="12" size-lg="12">
-            <info></info>
-          </ion-col> -->
+              <ion-col size="12" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'" size-lg="6"
+                class="ion-no-padding">
+                <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId">
+                </Controller_Ess_GridOptimizedCharge>
+              </ion-col>
+            </ng-container>
 
           </ion-row>
         </ion-grid>
@@ -141,8 +175,10 @@
   <ion-grid *ngIf="edge && !edge.isOnline">
     <ion-row class="ion-justify-content-center">
       <ion-col size-xl="8" size-lg="10" size-md="11" size-sm="12">
-        <offline></offline>
+        <oe-offline></oe-offline>
       </ion-col>
     </ion-row>
   </ion-grid>
-</ion-content>
+
+  <!-- </oe-refresh-view> -->
+</oe-navigation-view>

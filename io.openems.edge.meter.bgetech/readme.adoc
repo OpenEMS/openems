@@ -1,0 +1,9 @@
+= DRT428M-2 Meter
+
+Reads data of a DRT428M-2 Meter. More details are present in the below link
+https://xn--stromzhler-v5a.eu/stromzaehler/drehstromzaehler/fuer-hutschiene-geeicht/252/drt428m-2-zweirichtungs-drehstromzaehler-geeicht-fuer-din-hutschiene-mit-s0-ir-rs485#
+
+Implemented Natures:
+- ElectricityMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.bgetech[Source Code icon:github[]]

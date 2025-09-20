@@ -17,8 +17,8 @@ public class DoubleWriteChannel extends DoubleReadChannel implements WriteChanne
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
-	 * @param value
+	 *
+	 * @param value the value
 	 */
 	@Deprecated
 	@Override
@@ -43,5 +43,4 @@ public class DoubleWriteChannel extends DoubleReadChannel implements WriteChanne
 	public void onSetNextWrite(ThrowingConsumer<Double, OpenemsNamedException> callback) {
 		this.getOnSetNextWrites().add(callback);
 	}
-
 }

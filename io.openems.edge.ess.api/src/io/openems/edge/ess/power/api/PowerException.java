@@ -20,7 +20,7 @@ public class PowerException extends OpenemsException {
 	}
 
 	public Type getType() {
-		return type;
+		return this.type;
 	}
 
 	public void setReason(Constraint reason) {

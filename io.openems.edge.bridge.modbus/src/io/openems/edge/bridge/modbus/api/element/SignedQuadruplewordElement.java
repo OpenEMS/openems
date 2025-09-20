@@ -1,8 +1,8 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import io.openems.common.types.OpenemsType;
-
 import java.nio.ByteBuffer;
+
+import io.openems.common.types.OpenemsType;
 
 /**
  * A SignedQuadruplewordElement represents a Long value in an
@@ -19,12 +19,14 @@ public class SignedQuadruplewordElement extends AbstractQuadrupleWordElement<Sig
 		return this;
 	}
 
-	protected Long fromByteBuffer(ByteBuffer buff) {
-		return Long.valueOf(buff.getLong());
+	@Override
+	protected Long byteBufferToValue(ByteBuffer buff) {
+		return buff.getLong();
 	}
 
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Long value) {
-		return buff.putLong(value.longValue());
+	@Override
+	protected void valueToByteBuffer(ByteBuffer buff, Long value) {
+		buff.putLong(value.longValue());
 	}
 
 }

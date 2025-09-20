@@ -1,54 +1,64 @@
 package io.openems.edge.core.host.jsonrpc;
 
 import java.util.UUID;
+import java.util.stream.Stream;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
 
 /**
- * JSON-RPC Response to "executeSystemCommand" Request.
- * 
- * <p>
- * 
+ * JSON-RPC Response to {@link ExecuteSystemCommandRequest}.
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
  *     "stdout": string[],
- *     "stderr": string[]
+ *     "stderr": string[],
+ *     "exitcode": number (exit code of application: 0 = successful; otherwise error)
  *   }
  * }
  * </pre>
  */
 public class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
 
-	private final String[] stdout;
-	private final String[] stderr;
+	/**
+	 * Holds common parameters for a response to a {@link SystemCommand}.
+	 */
+	public static record SystemCommandResponse(String[] stdout, String[] stderr, int exitcode) {
 
-	public ExecuteSystemCommandResponse(UUID id, String[] stdout, String[] stderr) {
+		/**
+		 * Convert to {@link JsonObject}.
+		 * 
+		 * @return a {@link JsonObject}
+		 */
+		public JsonObject toJsonObject() {
+			return JsonUtils.buildJsonObject() //
+					.add("stdout", Stream.of(this.stdout) //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray()))
+					.add("stderr", Stream.of(this.stderr) //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray()))
+					.addProperty("exitcode", this.exitcode) //
+					.build();
+		}
+	}
+
+	public final SystemCommandResponse scr;
+
+	public ExecuteSystemCommandResponse(UUID id, SystemCommandResponse scr) {
 		super(id);
-		this.stdout = stdout;
-		this.stderr = stderr;
+		this.scr = scr;
 	}
 
 	@Override
 	public JsonObject getResult() {
-		JsonArray stdout = new JsonArray();
-		for (String line : this.stdout) {
-			stdout.add(line);
-		}
-		JsonArray stderr = new JsonArray();
-		for (String line : this.stderr) {
-			stderr.add(line);
-		}
-		return JsonUtils.buildJsonObject() //
-				.add("stdout", stdout) //
-				.add("stderr", stderr) //
-				.build();
+		return this.scr.toJsonObject();
 	}
-
 }

@@ -1,0 +1,16 @@
+= Timedata
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+A OpenEMS Edge Timedata service is responsible for...
+
+- persisting values of Channels over time
+- providing historic data e.g. for OpenEMS UI History
+
+include::timedata.adoc.d/_include.adoc[leveloffset=+0]

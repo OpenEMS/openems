@@ -1,7 +1,6 @@
 = Internal Component Communication
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :source-highlighter: highlight.js

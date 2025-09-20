@@ -1,17 +1,18 @@
 package io.openems.edge.battery.fenecon.home;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public StartStopConfig startStop;
+		private String id;
+		private String modbusId;
+		private String batteryStartUpRelay;
+		private int modbusUnitId;
+		private StartStopConfig startStop;
 
 		private Builder() {
 		}
@@ -36,6 +37,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setBatteryStartUpRelay(String batteryStartUpRelay) {
+			this.batteryStartUpRelay = batteryStartUpRelay;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -43,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -75,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
+	}
+
+	@Override
+	public String batteryStartUpRelay() {
+		return this.builder.batteryStartUpRelay;
 	}
 
 }

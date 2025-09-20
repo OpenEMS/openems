@@ -11,7 +11,6 @@ public class WritePojo extends WriteObject {
 	public final Object value;
 
 	public WritePojo(Object value) {
-		super();
 		this.value = value;
 	}
 
@@ -28,6 +27,11 @@ public class WritePojo extends WriteObject {
 	@Override
 	public boolean isNull() {
 		return this.value == null;
+	}
+
+	@Override
+	public Object value() {
+		return this.value;
 	}
 
 }

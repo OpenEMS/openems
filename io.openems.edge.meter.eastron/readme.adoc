@@ -1,0 +1,11 @@
+= Eastron/Microcare SDM 630 and 120 Meter
+
+This implementation is functionally compatible with a number of energy meters with the names:
+
+- SDM 630 and
+- SDM 120
+
+Implemented Natures:
+- ElectricityMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.eastron[Source Code icon:github[]]

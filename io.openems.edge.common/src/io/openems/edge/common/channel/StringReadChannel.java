@@ -8,12 +8,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 public class StringReadChannel extends AbstractReadChannel<OpenemsTypeDoc<String>, String> {
 
 	protected StringReadChannel(OpenemsComponent component, ChannelId channelId, StringDoc channelDoc) {
-		this(component, channelId, channelDoc, null);
-	}
-
-	protected StringReadChannel(OpenemsComponent component, ChannelId channelId, StringDoc channelDoc,
-			String initialValue) {
-		super(OpenemsType.STRING, component, channelId, channelDoc, initialValue);
+		super(OpenemsType.STRING, component, channelId, channelDoc);
 	}
 
 }

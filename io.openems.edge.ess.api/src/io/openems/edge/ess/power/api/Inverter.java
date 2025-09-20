@@ -1,62 +1,64 @@
 package io.openems.edge.ess.power.api;
 
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public abstract class Inverter {
 
-	/*
-	 * Factory
+	/**
+	 * Factory for an {@link Inverter}.
+	 * 
+	 * @param symmetricMode is Symmetric-Mode?
+	 * @param ess           the {@link ManagedSymmetricEss}
+	 * @param essType       the {@link EssType}
+	 * @return the {@link Inverter}
 	 */
 	public static Inverter[] of(boolean symmetricMode, ManagedSymmetricEss ess, EssType essType) {
-		String essId = ess.id();
+		var essId = ess.id();
 		if (symmetricMode) {
 			// Symmetric Mode -> always return a symmetric ThreePhaseInverter
-			switch (essType) {
-			case SINGLE_PHASE:
-			case ASYMMETRIC:
-			case SYMMETRIC:
-				return new Inverter[] { new ThreePhaseInverter(essId) };
-
-			case META:
-				return new Inverter[0];
-			}
+			return switch (essType) {
+			case SINGLE_PHASE, ASYMMETRIC, SYMMETRIC //
+				-> new Inverter[] { new ThreePhaseInverter(essId) };
+			case META //
+				-> new Inverter[0];
+			};
 		} else {
 			// Asymmetric Mode
-			switch (essType) {
-			case SINGLE_PHASE:
-				Phase phase = ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase();
-				return new Inverter[] { //
-						phase == Phase.L1 ? new SinglePhaseInverter(essId, Phase.L1)
-								: new DummyInverter(essId, Phase.L1),
-						phase == Phase.L2 ? new SinglePhaseInverter(essId, Phase.L2)
-								: new DummyInverter(essId, Phase.L2),
-						phase == Phase.L3 ? new SinglePhaseInverter(essId, Phase.L3)
-								: new DummyInverter(essId, Phase.L3), //
+			return switch (essType) {
+			case SINGLE_PHASE -> {
+				var phase = ((ManagedSinglePhaseEss) ess).getPhase();
+				yield new Inverter[] { //
+						phase == SinglePhase.L1 //
+								? new SinglePhaseInverter(essId, phase) //
+								: new DummyInverter(essId, phase.toSingleOrAllPhase), //
+						phase == SinglePhase.L2 //
+								? new SinglePhaseInverter(essId, phase) //
+								: new DummyInverter(essId, phase.toSingleOrAllPhase), //
+						phase == SinglePhase.L3 //
+								? new SinglePhaseInverter(essId, phase) //
+								: new DummyInverter(essId, phase.toSingleOrAllPhase) //
 				};
-
-			case ASYMMETRIC:
-				return new Inverter[] { //
-						new SinglePhaseInverter(essId, Phase.L1), //
-						new SinglePhaseInverter(essId, Phase.L2), //
-						new SinglePhaseInverter(essId, Phase.L3) //
-				};
-
-			case META:
-				return new Inverter[0];
-
-			case SYMMETRIC:
-				return new Inverter[] { new ThreePhaseInverter(essId) };
 			}
+			case ASYMMETRIC -> new Inverter[] { //
+					new SinglePhaseInverter(essId, SinglePhase.L1), //
+					new SinglePhaseInverter(essId, SinglePhase.L2), //
+					new SinglePhaseInverter(essId, SinglePhase.L3) //
+				};
+			case META //
+				-> new Inverter[0];
+			case SYMMETRIC //
+				-> new Inverter[] { new ThreePhaseInverter(essId) };
+			};
 		}
-		// should never come here
-		return new Inverter[0];
 	}
 
 	private final String essId;
-	private final Phase phase;
+	private final SingleOrAllPhase phase;
 
-	protected Inverter(String essId, Phase phase) {
+	protected Inverter(String essId, SingleOrAllPhase phase) {
 		this.essId = essId;
 		this.phase = phase;
 	}
@@ -65,7 +67,7 @@ public abstract class Inverter {
 		return this.essId;
 	}
 
-	public Phase getPhase() {
+	public SingleOrAllPhase getPhase() {
 		return this.phase;
 	}
 
@@ -91,7 +93,7 @@ public abstract class Inverter {
 	}
 
 	/**
-	 * Holds the last set ActivePower
+	 * Holds the last set ActivePower.
 	 */
 	private int lastActivePower = 0;
 
@@ -100,10 +102,11 @@ public abstract class Inverter {
 	}
 
 	public int getLastActivePower() {
-		return lastActivePower;
+		return this.lastActivePower;
 	}
 
+	@Override
 	public String toString() {
-		return this.essId + this.phase.getSymbol();
+		return this.essId + this.phase.symbol;
 	}
 }

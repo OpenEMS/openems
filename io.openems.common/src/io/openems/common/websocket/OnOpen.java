@@ -1,56 +1,25 @@
 package io.openems.common.websocket;
 
-import java.util.Map.Entry;
-import java.util.Optional;
+import java.util.function.BiFunction;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.Handshakedata;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.exceptions.OpenemsError;
 
 @FunctionalInterface
-public interface OnOpen {
+public interface OnOpen extends BiFunction<WebSocket, Handshakedata, OpenemsError> {
+
+	public static final OnOpen NO_OP = (ws, handshakedata) -> {
+		return null;
+	};
 
 	/**
 	 * Handles OnOpen event of WebSocket.
-	 * 
-	 * @param ws        the WebSocket
-	 * @param handshake the HTTP handshake/headers
-	 * @throws OpenemsNamedException on error
+	 *
+	 * @param ws            the {@link WebSocket}
+	 * @param handshakedata the {@link Handshakedata} with HTTP headers
+	 * @return {@link OpenemsError} or null
 	 */
-	public void run(WebSocket ws, JsonObject handshake) throws OpenemsNamedException;
-
-	/**
-	 * Get field from the 'cookie' field in the handshake.
-	 * 
-	 * <p>
-	 * Per <a href=
-	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
-	 * all variants of 'cookie' are accepted.
-	 * 
-	 * @param handshake the Handshake
-	 * @param fieldname the field name
-	 * @return value as optional
-	 */
-	public static Optional<String> getFieldFromHandshakeCookie(JsonObject handshake, String fieldname) {
-		for (Entry<String, JsonElement> entry : handshake.entrySet()) {
-			if (entry.getKey().equalsIgnoreCase("cookie")) {
-				Optional<String> cookieOpt = JsonUtils.getAsOptionalString(entry.getValue());
-				if (cookieOpt.isPresent()) {
-					for (String cookieVariable : cookieOpt.get().split("; ")) {
-						String[] keyValue = cookieVariable.split("=");
-						if (keyValue.length == 2) {
-							if (keyValue[0].equals(fieldname)) {
-								return Optional.ofNullable(keyValue[1]);
-							}
-						}
-					}
-				}
-			}
-		}
-		return Optional.empty();
-	}
+	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata);
 }

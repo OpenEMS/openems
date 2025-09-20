@@ -9,6 +9,9 @@ public class ChargeSessionStamp {
 
 	/**
 	 * Constructor of a ChargeSession with the given time and energy.
+	 * 
+	 * @param time   the {@link Instant} time
+	 * @param energy the Energy
 	 */
 	public ChargeSessionStamp(Instant time, long energy) {
 		this.time = time;
@@ -17,8 +20,11 @@ public class ChargeSessionStamp {
 
 	/**
 	 * Constructor of a ChargeSession with the initial Energy.
+	 * 
 	 * <p>
 	 * The time will be initialized by Instant.now().
+	 * 
+	 * @param energy the Energy
 	 */
 	public ChargeSessionStamp(long energy) {
 		this(Instant.now(), energy);
@@ -26,8 +32,11 @@ public class ChargeSessionStamp {
 
 	/**
 	 * Constructor of a ChargeSession with the initial Time.
+	 * 
 	 * <p>
 	 * The energy will be initialized by 0.
+	 * 
+	 * @param time the {@link Instant} time
 	 */
 	public ChargeSessionStamp(Instant time) {
 		this(time, 0);
@@ -41,7 +50,7 @@ public class ChargeSessionStamp {
 	}
 
 	public Instant getTime() {
-		return time;
+		return this.time;
 	}
 
 	public void setTime(Instant time) {
@@ -49,7 +58,7 @@ public class ChargeSessionStamp {
 	}
 
 	public long getEnergy() {
-		return energy;
+		return this.energy;
 	}
 
 	public void setEnergy(long energy) {
@@ -59,23 +68,26 @@ public class ChargeSessionStamp {
 	public boolean isChargeSessionStampPresent() {
 		return this.time != null;
 	}
-	
+
 	public void setChargeSessionStamp(Instant time, long energy) {
 		this.time = time;
 		this.energy = energy;
 	}
-	
-	public void resetChargeSessionStamp() {
+
+	protected void resetChargeSessionStamp() {
 		this.time = null;
 		this.energy = 0;
 	}
-	
+
 	public void setChargeSessionStampIfNotPresent(Instant time, long energy) {
 		this.setChargeSessionStamp(time, energy);
 	}
-	
+
+	/**
+	 * Reset the Charge Session Timestamp.
+	 */
 	public void resetChargeSessionStampIfPresent() {
-		if(isChargeSessionStampPresent()) {
+		if (this.isChargeSessionStampPresent()) {
 			this.resetChargeSessionStamp();
 		}
 	}

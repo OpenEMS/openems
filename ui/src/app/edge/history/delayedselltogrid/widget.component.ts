@@ -1,29 +1,39 @@
-import { ActivatedRoute } from '@angular/router';
-import { Component, Input, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
+import { Component, effect, Input, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { UserService } from "src/app/shared/service/user.service";
+import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 @Component({
     selector: DelayedSellToGridWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class DelayedSellToGridWidgetComponent implements OnInit {
 
-    @Input() public period: DefaultTypes.HistoryPeriod;
-    @Input() public componentId: string;
-
     private static readonly SELECTOR = "delayedSellToGridWidget";
+    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public componentId!: string;
 
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public component: EdgeConfig.Component | null = null;
+
+    /** @deprecated migration purposes*/
+    protected newNavigationUrlSegment: string = "";
 
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-    ) { }
+        private userService: UserService,
+    ) {
+        effect(() => {
+            const isNewNavigation = this.userService.isNewNavigation();
+            this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+        });
+    }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);

@@ -1,13 +1,17 @@
 package io.openems.common.websocket;
 
+import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
+import static io.openems.common.utils.StringUtils.toShortString;
+
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -21,18 +25,25 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 /**
  * Objects of this class are used to store additional data with websocket
- * connections of WebSocketClient and WebSocketServer
+ * connections of WebSocketClient and WebSocketServer.
  */
-public abstract class WsData {
+public class WsData {
+
+	private final Logger log = LoggerFactory.getLogger(WsData.class);
 
 	/**
-	 * Holds the Websocket. Possibly null!
+	 * Holds the WebSocket.
 	 */
-	private WebSocket websocket = null;
+	private final WebSocket websocket;
+
+	public WsData(WebSocket ws) {
+		this.websocket = ws;
+	}
 
 	/**
-	 * Holds Futures for JSON-RPC Requests
+	 * Holds Futures for JSON-RPC Requests.
 	 */
+	// TODO add timeout to requestFutures
 	private final ConcurrentHashMap<UUID, CompletableFuture<JsonrpcResponseSuccess>> requestFutures = new ConcurrentHashMap<>();
 
 	/**
@@ -40,119 +51,134 @@ public abstract class WsData {
 	 * blocked resources.
 	 */
 	public void dispose() {
-		// nothing here
-	}
+		this.debugLog(this.log, () -> "dispose() Futures[" + this.requestFutures.mappingCount() + "]");
 
-	/**
-	 * Sets the WebSocket.
-	 * 
-	 * @param ws the WebSocket instance
-	 */
-	public synchronized void setWebsocket(WebSocket ws) {
-		this.websocket = ws;
+		if (!this.requestFutures.isEmpty()) {
+			final var e = new OpenemsException("Websocket connection closed");
+			// Complete all pending requests
+			this.requestFutures.values().forEach(r -> r.completeExceptionally(e));
+			this.requestFutures.clear();
+		}
 	}
 
 	/**
 	 * Gets the WebSocket. Possibly null!
-	 * 
+	 *
 	 * @return the WebSocket instance
 	 */
 	public WebSocket getWebsocket() {
-		return websocket;
+		return this.websocket;
 	}
 
 	/**
 	 * Sends a JSON-RPC request to a Websocket and registers a callback.
-	 * 
+	 *
 	 * @param request the JSON-RPC Request
 	 * @return a promise for a successful JSON-RPC Response
-	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) throws OpenemsNamedException {
-		CompletableFuture<JsonrpcResponseSuccess> future = new CompletableFuture<>();
-		CompletableFuture<JsonrpcResponseSuccess> existingFuture = this.requestFutures.putIfAbsent(request.getId(),
-				future);
+	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) {
+		this.debugLog(this.log, () -> "REQUEST " + request.toString());
+		var future = new CompletableFuture<JsonrpcResponseSuccess>();
+		var existingFuture = this.requestFutures.putIfAbsent(request.getId(), future);
 		if (existingFuture != null) {
-			throw OpenemsError.JSONRPC_ID_NOT_UNIQUE.exception(request.getId());
-		} else {
-			this.sendMessage(request);
-			return future;
+			return CompletableFuture.failedFuture(OpenemsError.JSONRPC_ID_NOT_UNIQUE.exception(request.getId()));
 		}
+		if (!this.sendMessage(request)) {
+			future.completeExceptionally(OpenemsError.JSONRPC_SEND_FAILED.exception());
+		}
+		return future;
 	}
 
 	/**
 	 * Sends a JSON-RPC Notification to a WebSocket.
-	 * 
+	 *
 	 * @param notification the JSON-RPC Notification
-	 * @throws OpenemsException on error
+	 * @return true if sending was successful; false otherwise
 	 */
-	public void send(JsonrpcNotification notification) throws OpenemsException {
-		this.sendMessage(notification);
+	public boolean send(JsonrpcNotification notification) {
+		this.debugLog(this.log, () -> "NOTIFICATION " + toShortString(notification.toString(), 100));
+		return this.sendMessage(notification);
 	}
 
 	/**
 	 * Sends the JSON-RPC message.
-	 * 
+	 *
 	 * @param message the JSON-RPC Message
-	 * @throws OpenemsException on error
+	 * @return true if sending was successful; false otherwise
 	 */
-	private void sendMessage(JsonrpcMessage message) throws OpenemsException {
-		if (this.websocket == null) {
-			throw new OpenemsException("There is no Websocket defined for this WsData.");
+	private boolean sendMessage(JsonrpcMessage message) {
+		if (!this.websocket.isOpen()) {
+			return false;
 		}
 		try {
 			this.websocket.send(message.toString());
+			return true;
 		} catch (WebsocketNotConnectedException e) {
-			throw new OpenemsException("Websocket is not connected: " + e.getMessage());
+			// handles corner cases
+			return false;
 		}
 	}
 
 	/**
 	 * Handles a JSON-RPC response by completing the previously registers request
 	 * Future.
-	 * 
+	 *
 	 * @param response the JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
 	public void handleJsonrpcResponse(JsonrpcResponse response) throws OpenemsNamedException {
-		CompletableFuture<JsonrpcResponseSuccess> future = this.requestFutures.remove(response.getId());
-		if (future != null) {
-			// this was a response on a request
-			if (response instanceof JsonrpcResponseSuccess) {
-				// Success Response -> complete future
-				future.complete((JsonrpcResponseSuccess) response);
-
-			} else if (response instanceof JsonrpcResponseError) {
-				// Named OpenEMS-Error Response -> cancel future
-				JsonrpcResponseError error = ((JsonrpcResponseError) response);
-				OpenemsNamedException exception = new OpenemsNamedException(error.getOpenemsError(),
-						error.getParamsAsObjectArray());
-				future.completeExceptionally(exception);
-
-			} else {
-				// Undefined Error Response -> cancel future
-				OpenemsNamedException exception = new OpenemsNamedException(OpenemsError.GENERIC,
-						"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString());
-				future.completeExceptionally(exception);
-			}
-
-		} else {
+		var future = this.requestFutures.remove(response.getId());
+		if (future == null) {
 			// this was a response without a request
 			throw OpenemsError.JSONRPC_RESPONSE_WITHOUT_REQUEST.exception(response.toJsonObject());
+		}
+		// this was a response on a request
+		switch (response) {
+		case JsonrpcResponseSuccess success -> {
+			// Success Response -> complete future
+			this.debugLog(this.log, () -> "SUCCESS RESPONSE " + toShortString(simplifyJsonrpcMessage(response), 200));
+			future.complete(success);
+		}
+		case JsonrpcResponseError error -> {
+			// Named OpenEMS-Error Response -> cancel future
+			this.debugLog(this.log, () -> "ERROR RESPONSE " + toShortString(simplifyJsonrpcMessage(response), 200));
+			future.completeExceptionally(
+					new OpenemsNamedException(error.getOpenemsError(), error.getParamsAsObjectArray()));
+		}
+		default -> {
+			// Undefined Error Response -> cancel future
+			this.debugLog(this.log, () -> "UNDEFINED RESPONSE " + toShortString(simplifyJsonrpcMessage(response), 200));
+			future.completeExceptionally(new OpenemsNamedException(OpenemsError.GENERIC,
+					"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString()));
+		}
 		}
 	}
 
 	/**
-	 * Provides a specific toString method.
-	 * 
+	 * Provides a specific log string.
+	 *
 	 * @return a specific string for this instance
 	 */
-	public abstract String toString();
+	protected String toLogString() {
+		return "";
+	}
+
+	private boolean isDebug = false;
+
+	protected void setDebug(boolean isDebug) {
+		this.isDebug = isDebug;
+	}
 
 	/**
-	 * Execute a {@link Runnable}.
+	 * Logs the message if this {@link WsData} has debug mode activated.
 	 * 
-	 * @param command the {@link Runnable}
+	 * @param log     the {@link Logger}
+	 * @param message a {@link Supplier} for a message
 	 */
-	protected abstract ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit);
+	public void debugLog(Logger log, Supplier<String> message) {
+		if (!this.isDebug) {
+			return;
+		}
+		log.info(this.toLogString() + ": " + message.get());
+	}
 }

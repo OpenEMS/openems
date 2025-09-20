@@ -36,7 +36,7 @@ public class MyRegister implements Register {
 
 	@Override
 	public int getValue() {
-		return ((this.byte1 & 0xff) << 8 | (this.byte2 & 0xff));
+		return (this.byte1 & 0xff) << 8 | this.byte2 & 0xff;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class MyRegister implements Register {
 
 	@Override
 	public final synchronized void setValue(short s) {
-		this.setValue((byte) (0xff & (s >> 8)), (byte) (0xff & s));
+		this.setValue((byte) (0xff & s >> 8), (byte) (0xff & s));
 	}
 
 	@Override

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -43,20 +44,19 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 	 * Creates an object for the device.
 	 */
 	public D2A() {
-		super();
-		ActuatorSelections = new Vector<>();
+		this.ActuatorSelections = new Vector<>();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address connected to the
 	 * supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the actuator.
 	 * @param netAddress The 1-Wire network address of the actuator.
 	 */
 	public D2A(DSPortAdapter adapter, String netAddress) {
 		super(adapter, netAddress);
-		ActuatorSelections = new Vector<>();
+		this.ActuatorSelections = new Vector<>();
 	}
 
 	/**
@@ -64,8 +64,9 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 	 *
 	 * @return Vector of Strings representing selection states.
 	 */
+	@Override
 	public Vector<String> getSelections() {
-		return ActuatorSelections;
+		return this.ActuatorSelections;
 	}
 
 	/**
@@ -74,14 +75,15 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 	 * @param selection The selection string.
 	 * @throws OneWireException
 	 */
+	@Override
 	public void setSelection(String selection) throws OneWireException {
-		PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();
-		int Index = 0;
-		Index = ActuatorSelections.indexOf(selection);
+		var pc = (PotentiometerContainer) this.getDeviceContainer();
+		var Index = 0;
+		Index = this.ActuatorSelections.indexOf(selection);
 		// must first read the device
-		byte[] state = pc.readDevice();
+		var state = pc.readDevice();
 		// set current wiper number from xml tag "channel"
-		pc.setCurrentWiperNumber(getChannel(), state);
+		pc.setCurrentWiperNumber(this.getChannel(), state);
 		// now, write to device to set the wiper number
 		pc.writeDevice(state);
 
@@ -106,21 +108,22 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 
 	/**
 	 * Initializes the actuator
-	 * 
+	 *
 	 * @throws OneWireException
 	 */
+	@Override
 	public void initActuator() throws OneWireException {
-		PotentiometerContainer pc = (PotentiometerContainer) getDeviceContainer();
+		var pc = (PotentiometerContainer) this.getDeviceContainer();
 		int numOfWiperSettings;
 		int resistance;
-		double offset = 0.6; // this seems about right...
+		var offset = 0.6; // this seems about right...
 		double wiperResistance;
 		String selectionString;
 		// initialize the ActuatorSelections Vector
 		// must first read the device
-		byte[] state = pc.readDevice();
+		var state = pc.readDevice();
 		// set current wiper number from xml tag "channel"
-		pc.setCurrentWiperNumber(getChannel(), state);
+		pc.setCurrentWiperNumber(this.getChannel(), state);
 		// now, write to device to set the wiper number
 		pc.writeDevice(state);
 		// now, extract some values to initialize the ActuatorSelections
@@ -129,21 +132,22 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 		// get the resistance value in k-Ohms
 		resistance = pc.potentiometerResistance(state);
 		// calculate wiper resistance
-		wiperResistance = (double) ((double) (resistance - offset) / (double) numOfWiperSettings);
+		wiperResistance = (resistance - offset) / numOfWiperSettings;
 		// add the values to the ActuatorSelections Vector
 		selectionString = resistance + " k-Ohms"; // make sure the first
-		ActuatorSelections.addElement(selectionString); // element is the entire resistance
-		for (int i = (numOfWiperSettings - 2); i > -1; i--) {
-			double newWiperResistance = (double) (wiperResistance * (double) i);
+		this.ActuatorSelections.addElement(selectionString); // element is the entire resistance
+		for (var i = numOfWiperSettings - 2; i > -1; i--) {
+			var newWiperResistance = wiperResistance * i;
 			// round the values before putting them in drop-down list
-			int roundedWiperResistance = (int) ((newWiperResistance + offset) * 10000);
-			selectionString = (double) ((double) roundedWiperResistance / 10000.0) + " k-Ohms";
-			ActuatorSelections.addElement(selectionString);
+			var roundedWiperResistance = (int) ((newWiperResistance + offset) * 10000);
+			selectionString = roundedWiperResistance / 10000.0 + " k-Ohms";
+			this.ActuatorSelections.addElement(selectionString);
 		}
 	}
 
 	/**
 	 * Keeps the selections of this actuator
 	 */
-	private Vector<String> ActuatorSelections;
+	private final Vector<String> ActuatorSelections;
 }
+// CHECKSTYLE:ON

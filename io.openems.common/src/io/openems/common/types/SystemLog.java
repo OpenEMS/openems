@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -28,7 +29,7 @@ public class SystemLog {
 		/**
 		 * Converts a PaxLevel to this Level via Syslog codes:
 		 * {@link org.apache.log4j.Level}.
-		 * 
+		 *
 		 * @param paxLevel the PaxLevel
 		 * @return a Level enum
 		 */
@@ -43,7 +44,7 @@ public class SystemLog {
 			case 7: // DEBUG/TRACE/ALL
 				return INFO;
 			default:
-				log.warn("Undefined PaxLevel [" + paxLevel.toString() + "/" + paxLevel.getSyslogEquivalent()
+				SystemLog.log.warn("Undefined PaxLevel [" + paxLevel.toString() + "/" + paxLevel.getSyslogEquivalent()
 						+ "] . Falling back to [INFO].");
 			}
 			return INFO;
@@ -52,16 +53,15 @@ public class SystemLog {
 
 	/**
 	 * Creates a SystemLog object from a PaxLoggingEvent.
-	 * 
+	 *
 	 * @param event the PaxLoggingEvent
 	 * @return the SystemLog object
 	 */
 	public static SystemLog fromPaxLoggingEvent(PaxLoggingEvent event) {
-		Level level = Level.fromPaxLevel(event.getLevel());
-		ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.getTimeStamp()),
-				ZoneId.systemDefault());
-		String source = event.getLoggerName();
-		String message = event.getRenderedMessage();
+		var level = Level.fromPaxLevel(event.getLevel());
+		var time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.getTimeStamp()), ZoneId.systemDefault());
+		var source = event.getLoggerName();
+		var message = event.getRenderedMessage();
 		return new SystemLog(time, level, source, message);
 	}
 
@@ -81,7 +81,7 @@ public class SystemLog {
 
 	/**
 	 * Returns the SystemLog as a JSON Object.
-	 * 
+	 *
 	 * <pre>
 	 * {
 	 *   "time": date,
@@ -90,12 +90,12 @@ public class SystemLog {
 	 *   "message": string
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return SystemLog as a JSON Object
 	 */
 	public JsonObject toJson() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("time", FORMAT.format(this.time)) //
+				.addProperty("time", SystemLog.FORMAT.format(this.time)) //
 				.addProperty("level", this.level.toString()) //
 				.addProperty("source", this.source) //
 				.addProperty("message", this.message) //
@@ -104,16 +104,16 @@ public class SystemLog {
 
 	/**
 	 * Parses a JSON-Object to a SystemLog.
-	 * 
+	 *
 	 * @param j the JSON-Object
 	 * @return the SystemLog
 	 * @throws OpenemsNamedException on error
 	 */
 	public static SystemLog fromJsonObject(JsonObject j) throws OpenemsNamedException {
-		ZonedDateTime time = ZonedDateTime.parse(JsonUtils.getAsString(j, "time"), FORMAT);
-		Level level = Level.valueOf(JsonUtils.getAsString(j, "level").toUpperCase());
-		String source = JsonUtils.getAsString(j, "source");
-		String message = JsonUtils.getAsString(j, "message");
+		var time = DateUtils.parseZonedDateTimeOrError(JsonUtils.getAsString(j, "time"), SystemLog.FORMAT);
+		var level = Level.valueOf(JsonUtils.getAsString(j, "level").toUpperCase());
+		var source = JsonUtils.getAsString(j, "source");
+		var message = JsonUtils.getAsString(j, "message");
 		return new SystemLog(time, level, source, message);
 	}
 

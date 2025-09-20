@@ -8,8 +8,8 @@ public enum ContactorControl implements OptionsEnum {
 	CONNECTION_INITIATING(1, "Connection initiating"), //
 	ON_GRID(3, "On grid");
 
-	int value;
-	String name;
+	private final int value;
+	private final String name;
 
 	private ContactorControl(int value, String name) {
 		this.value = value;

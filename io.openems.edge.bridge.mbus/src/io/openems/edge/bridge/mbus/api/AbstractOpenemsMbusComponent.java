@@ -11,7 +11,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsComponent {
 
-	protected final List<ChannelRecord> channelDataRecordsList = new ArrayList<ChannelRecord>();
+	protected final List<ChannelRecord> channelDataRecordsList = new ArrayList<>();
 
 	private Integer primaryAddress = null;
 
@@ -30,7 +30,7 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 
 	/**
 	 * Call this method from Component implementations activate().
-	 * 
+	 *
 	 * @param context        ComponentContext of this component. Receive it from
 	 *                       parameter for @Activate
 	 * @param id             ID of this component. Typically 'config.id()'

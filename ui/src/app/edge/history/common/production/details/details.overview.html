@@ -1,0 +1,11 @@
+<oe-chart [title]="componentSome.displayName" *ngIf="isInitialized && component && componentSome"
+  [period]="service.historyPeriod.value">
+
+  <ng-container [ngSwitch]="componentSome.type">
+    <sumChart *ngSwitchCase="'sum'" [isOnlyChart]="true"></sumChart>
+    <productionMeterChart *ngSwitchCase="'productionMeter'" [isOnlyChart]="true"></productionMeterChart>
+    <chargerChart *ngSwitchCase="'charger'" [isOnlyChart]="true"></chargerChart>
+  </ng-container>
+</oe-chart>
+<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true"
+  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>

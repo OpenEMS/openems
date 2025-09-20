@@ -9,10 +9,9 @@ public enum State implements OptionsEnum {
 	INIT("Initializing", 2), //
 	RUNNING("Running", 3), //
 	STOPPING("Stopping", 4), //
-	ERROR("Error", 5), //	
+	ERROR("Error", 5), //
 	ERRORDELAY("Errordelay", 6), //
-	STANDBY("Standby", 7), //
-	;
+	STANDBY("Standby", 7);
 
 	private State(String name, int value) {
 		this.name = name;

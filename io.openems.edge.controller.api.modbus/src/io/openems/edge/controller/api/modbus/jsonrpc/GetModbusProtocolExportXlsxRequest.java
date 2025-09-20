@@ -6,7 +6,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Exports the Modbus Protocol to an Excel (xlsx) file.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

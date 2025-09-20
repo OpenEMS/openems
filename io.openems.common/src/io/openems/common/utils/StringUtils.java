@@ -1,5 +1,8 @@
 package io.openems.common.utils;
 
+import java.util.OptionalInt;
+import java.util.regex.Pattern;
+
 import com.google.gson.JsonElement;
 
 /**
@@ -7,38 +10,66 @@ import com.google.gson.JsonElement;
  */
 public class StringUtils {
 
+	/**
+	 * Shortens a string to a given length.
+	 *
+	 * <p>
+	 * Example: converts a string "hello world" to "hello w..."
+	 *
+	 * @param s      the string
+	 * @param length the target string length
+	 * @return the shortened string
+	 */
 	public static String toShortString(String s, int length) {
 		if (s.length() > length - 3) {
 			return s.substring(0, length - 3) + "...";
-		} else {
-			return s;
 		}
+		return s;
 	}
 
+	/**
+	 * Shortens a {@link JsonElement} string representation to a given length.
+	 *
+	 * <p>
+	 * Example: converts a "{ 'foo': 'bar' }" to "{ 'foo': '..."
+	 *
+	 * @param j      the {@link JsonElement}
+	 * @param length the target string length
+	 * @return the shortened string
+	 */
 	public static String toShortString(JsonElement j, int length) {
-		String s = j.toString();
-		return toShortString(s, length);
+		var s = j.toString();
+		return StringUtils.toShortString(s, length);
 	}
 
+	/**
+	 * Convert the first letter of a string to Upper-Case.
+	 *
+	 * <p>
+	 * Example: converts "hello world" to "Hello world"
+	 *
+	 * @param s the string
+	 * @return the converted string
+	 */
 	public static String capitalizeFirstLetter(String s) {
 		return s.substring(0, 1).toUpperCase() + s.substring(1);
 	}
 
 	/**
 	 * Match two Strings, considering wildcards.
-	 * 
+	 *
 	 * <ul>
 	 * <li>if {@link #equals(Object)} is true -&gt; return 0
 	 * <li>if 'pattern' matches 'source' -&gt; return value &gt; 1; bigger values
 	 * represent a better match
 	 * <li>if both Strings do not match -&gt; return -1
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * Implementation note: only one wildcard is considered. Either the entire
 	 * string is "*" or the wildcard is at the beginning or at the end of the
 	 * pattern String. The the JUnit test for details.
-	 * 
+	 *
 	 * @param source  the String to be evaluated
 	 * @param pattern the pattern String, i.e. "meter*"
 	 * @return an integer value representing the degree of matching
@@ -46,7 +77,8 @@ public class StringUtils {
 	public static int matchWildcard(String source, String pattern) {
 		if (source.equals(pattern)) {
 			return 0;
-		} else if (pattern.equals("*")) {
+		}
+		if (pattern.equals("*")) {
 			return 1;
 		} else if (pattern.startsWith("*") && source.endsWith(pattern.substring(1))) {
 			return pattern.length();
@@ -55,5 +87,82 @@ public class StringUtils {
 		} else {
 			return -1;
 		}
+	}
+
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+
+	/**
+	 * Causes this character sequence to be replaced by the reverse of the sequence.
+	 * 
+	 * @param string to be reversed.
+	 * @return reversed String.
+	 */
+	public static String reverse(String string) {
+		return new StringBuilder(string).reverse().toString();
+	}
+
+	/**
+	 * If the given string is null return false, otherwise result of
+	 * {@link String#contains(CharSequence)} is returned.
+	 * 
+	 * @param string the string to check
+	 * @param value  the sequence to search for
+	 * @return true if string is not null and string contains value, otherwise false
+	 */
+	public static boolean containsWithNullCheck(String string, String value) {
+		return string != null && string.contains(value);
+	}
+
+	/**
+	 * Returns the 'alternative' if 'original' is null or blank.
+	 *
+	 * @param original    the original value, can be null, empty or filled with
+	 *                    white-space only
+	 * @param alternative the alternative value
+	 * @return either the 'defined' value (not null, not empty, not only
+	 *         white-space), alternatively the 'orElse' value
+	 */
+	public static String definedOrElse(String original, String alternative) {
+		if (original != null && !original.isBlank()) {
+			return original;
+		}
+		return alternative;
+	}
+
+	/**
+	 * Parses the number of an Edge from its name string.
+	 *
+	 * <p>
+	 * e.g. translates "edge0" to "0".
+	 *
+	 * @param name the edge name
+	 * @return the number or empty optional if there is no number in the name or if
+	 *         the name is null
+	 */
+	public static OptionalInt parseNumberFromName(String name) {
+		if (name == null) {
+			return OptionalInt.empty();
+		}
+		try {
+			var matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				var nameNumberString = matcher.group(1);
+				return OptionalInt.of(Integer.parseInt(nameNumberString));
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		return OptionalInt.empty();
+	}
+
+	/**
+	 * Returns {@code null} if the given string is {@code null} or blank, otherwise
+	 * returns the string itself.
+	 *
+	 * @param value the input string
+	 * @return {@code null} if input is {@code null} or blank, else the input string
+	 */
+	public static String emptyToNull(String value) {
+		return (value == null || value.isBlank()) ? null : value;
 	}
 }

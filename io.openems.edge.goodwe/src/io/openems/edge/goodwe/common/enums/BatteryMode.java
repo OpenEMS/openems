@@ -5,11 +5,9 @@ import io.openems.common.types.OptionsEnum;
 public enum BatteryMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NO_BATTERY(0, "NO Battery,inverter disconnects to Battery"), //
-	STANDBY(1, "Standby,no diacharging and no charging"), //
+	STANDBY(1, "Standby,no discharging and no charging"), //
 	DISCHARGING(2, "Discharging"), //
-	CHARGING(3, "Charging"), //
-	WAITING_FOR_CHARGE(4, "Waiting for charge"), //
-	WAITING_FOR_DISCHARGE(5, "Waiting for discharge");
+	CHARGING(3, "Charging");
 
 	private final int value;
 	private final String option;

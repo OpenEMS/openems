@@ -1,6 +1,6 @@
 package io.openems.edge.batteryinverter.api;
 
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -9,15 +9,15 @@ import io.openems.edge.ess.power.api.Relationship;
  */
 public class BatteryInverterConstraint {
 
+	public static final BatteryInverterConstraint[] NO_CONSTRAINTS = {};
+
 	public final String description;
-	public final Phase phase;
+	public final SingleOrAllPhase phase;
 	public final Pwr pwr;
 	public final Relationship relationship;
 	public final double value;
 
-	public static BatteryInverterConstraint[] NO_CONSTRAINTS = new BatteryInverterConstraint[] {};
-
-	public BatteryInverterConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
+	public BatteryInverterConstraint(String description, SingleOrAllPhase phase, Pwr pwr, Relationship relationship,
 			double value) {
 		this.description = description;
 		this.phase = phase;
@@ -25,5 +25,4 @@ public class BatteryInverterConstraint {
 		this.relationship = relationship;
 		this.value = value;
 	}
-
 }

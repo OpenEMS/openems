@@ -30,20 +30,18 @@ public class ForceDischarge extends AbstractForceChargeDischarge {
 
 	/**
 	 * Builds a {@link ForceDischarge} instance from {@link ForceDischarge.Params}.
-	 * 
+	 *
 	 * @param params the parameter object
 	 * @return a {@link ForceDischarge} instance
 	 */
 	public static ForceDischarge from(Params params) {
 		if (params == null) {
 			return null;
-		} else {
-			return new ForceDischarge(params);
 		}
+		return new ForceDischarge(params);
 	}
 
 	private ForceDischarge(Params params) {
-		super();
 		this.params = params;
 	}
 
@@ -51,6 +49,7 @@ public class ForceDischarge extends AbstractForceChargeDischarge {
 	protected State handleUndefinedState(int minCellVoltage, int maxCellVoltage) {
 		if (maxCellVoltage >= this.params.startDischargeAboveCellVoltage) {
 			return State.WAIT_FOR_FORCE_MODE;
+
 		} else {
 			return State.UNDEFINED;
 		}
@@ -73,6 +72,7 @@ public class ForceDischarge extends AbstractForceChargeDischarge {
 	protected State handleForceModeState(int minCellVoltage, int maxCellVoltage) {
 		if (maxCellVoltage >= this.params.dischargeAboveCellVoltage) {
 			return State.FORCE_MODE;
+
 		} else {
 			return State.BLOCK_MODE;
 		}
@@ -82,8 +82,10 @@ public class ForceDischarge extends AbstractForceChargeDischarge {
 	protected State handleBlockModeState(int minCellVoltage, int maxCellVoltage) {
 		if (maxCellVoltage >= this.params.startDischargeAboveCellVoltage) {
 			return State.FORCE_MODE;
+
 		} else if (maxCellVoltage >= this.params.blockChargeAboveCellVoltage) {
 			return State.BLOCK_MODE;
+
 		} else {
 			return State.UNDEFINED;
 		}

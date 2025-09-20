@@ -3,9 +3,10 @@ package io.openems.backend.b2bwebsocket;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import org.java_websocket.WebSocket;
 
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
@@ -13,12 +14,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
-	private final B2bWebsocket parent;
 	private final SubscribedEdgesChannelsWorker worker;
-	private CompletableFuture<User> user = new CompletableFuture<User>();
+	private final CompletableFuture<User> user = new CompletableFuture<>();
 
-	public WsData(B2bWebsocket parent) {
-		this.parent = parent;
+	public WsData(WebSocket ws, Backend2BackendWebsocket parent) {
+		super(ws);
 		this.worker = new SubscribedEdgesChannelsWorker(parent, this);
 	}
 
@@ -35,6 +35,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return this.user;
 	}
 
+	/**
+	 * Gets the logged in User with a timeout.
+	 *
+	 * @param timeout the timeout length
+	 * @param unit    the {@link TimeUnit} of the timeout
+	 * @return the {@link User}
+	 * @throws OpenemsNamedException on error
+	 */
 	public User getUserWithTimeout(long timeout, TimeUnit unit) throws OpenemsNamedException {
 		try {
 			return this.user.get(timeout, unit);
@@ -49,7 +57,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
-	 * 
+	 *
 	 * @return the SubscribedChannelsWorker
 	 */
 	public SubscribedEdgesChannelsWorker getSubscribedChannelsWorker() {
@@ -57,17 +65,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		if (this.user == null) {
-			return "B2bWebsocket.WsData [user=UNKNOWN]";
-		} else {
-			return "B2bWebsocket.WsData [user=" + user + "]";
-		}
-	}
-
-	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return this.parent.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+	public String toLogString() {
+		var user = this.user.getNow(null);
+		var userId = user == null //
+				? "UNDEFINED" //
+				: user.getId();
+		return "B2bWebsocket.WsData [user=" + userId + "]";
 	}
 }

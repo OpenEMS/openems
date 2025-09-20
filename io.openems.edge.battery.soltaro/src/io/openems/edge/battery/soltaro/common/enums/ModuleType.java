@@ -16,6 +16,7 @@ public enum ModuleType {
 
 	/**
 	 * Gets the capacity.
+	 *
 	 * @return int
 	 */
 	public int getCapacity_Wh() {

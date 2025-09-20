@@ -1,9 +1,0 @@
-= PQ Plus UMD 97 Meter
-
-Applies also to UMD 96, UMD 97, UMD 98, UMD 807, UMD 701, UMD 704, UMD 705, UMD 706, UMD 707, UMD 709, UMD 710, UMD 913, UMC 26
-
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus.umd97[Source Code icon:github[]]

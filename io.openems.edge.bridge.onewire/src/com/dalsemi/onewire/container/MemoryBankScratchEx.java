@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -54,10 +55,10 @@ class MemoryBankScratchEx extends MemoryBankScratch {
 		super(ibutton);
 
 		// initialize attributes of this memory bank
-		bankDescription = "Scratchpad Ex";
+		this.bankDescription = "Scratchpad Ex";
 
 		// change copy scratchpad command
-		COPY_SCRATCHPAD_COMMAND = (byte) 0x5A;
+		this.COPY_SCRATCHPAD_COMMAND = (byte) 0x5A;
 	}
 
 	// --------
@@ -75,45 +76,47 @@ class MemoryBankScratchEx extends MemoryBankScratch {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writeScratchpad(int startAddr, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
-		boolean calcCRC = false;
+		var calcCRC = false;
 
-		if (len > pageLength)
+		if (len > this.pageLength) {
 			throw new OneWireException("Write exceeds memory bank end");
+		}
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block to send
-		byte[] raw_buf = new byte[pageLength + 5]; // [37];
+		var raw_buf = new byte[this.pageLength + 5]; // [37];
 
 		raw_buf[0] = WRITE_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
 
 		System.arraycopy(writeBuf, offset, raw_buf, 3, len);
 
 		// check if full page (can utilize CRC)
-		if (((startAddr + len) % pageLength) == 0) {
-			System.arraycopy(ffBlock, 0, raw_buf, len + 3, 2);
+		if ((startAddr + len) % this.pageLength == 0) {
+			System.arraycopy(this.ffBlock, 0, raw_buf, len + 3, 2);
 
 			calcCRC = true;
 		}
 
 		// send block, return result
-		ib.adapter.dataBlock(raw_buf, 0, len + 3 + ((calcCRC) ? 2 : 0));
+		this.ib.adapter.dataBlock(raw_buf, 0, len + 3 + (calcCRC ? 2 : 0));
 		// System.out.println("WriteScratchpad: " +
 		// com.dalsemi.onewire.utils.Convert.toHexString(raw_buf));
 
 		// check crc
 		if (calcCRC) {
 			if (CRC16.compute(raw_buf, 0, len + 5, 0) != 0x0000B001) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Invalid CRC16 read from device");
 			}
@@ -129,33 +132,35 @@ class MemoryBankScratchEx extends MemoryBankScratch {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void copyScratchpad(int startAddr, int len) throws OneWireIOException, OneWireException {
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block to send
-		byte[] raw_buf = new byte[6];
+		var raw_buf = new byte[6];
 
-		raw_buf[0] = COPY_SCRATCHPAD_COMMAND;
+		raw_buf[0] = this.COPY_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
-		raw_buf[3] = (byte) ((startAddr + len - 1) & 0x1F);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
+		raw_buf[3] = (byte) (startAddr + len - 1 & 0x1F);
 
-		System.arraycopy(ffBlock, 0, raw_buf, 4, 2);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 4, 2);
 
 		// send block (check copy indication complete)
-		ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
+		this.ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
 
-		if (((byte) (raw_buf[raw_buf.length - 1] & 0x0F0) != (byte) 0xA0)
-				&& ((byte) (raw_buf[raw_buf.length - 1] & 0x0F0) != (byte) 0x50)) {
-			forceVerify();
+		if ((byte) (raw_buf[raw_buf.length - 1] & 0x0F0) != (byte) 0xA0
+				&& (byte) (raw_buf[raw_buf.length - 1] & 0x0F0) != (byte) 0x50) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Copy scratchpad complete not found");
 		}
 	}
 }
+// CHECKSTYLE:ON

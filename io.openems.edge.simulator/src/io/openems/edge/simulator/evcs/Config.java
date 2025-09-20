@@ -17,6 +17,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Maximum power", description = "Maximum power of the charger in Watt.", required = true)
+	int maxHwPower() default 22080;
+
+	@AttributeDefinition(name = "Minimum power", description = "Minimum power of the charger in Watt.", required = true)
+	int minHwPower() default 4140;
+
 	String webconsole_configurationFactory_nameHint() default "Simulator EVCS [{id}]";
 
 }

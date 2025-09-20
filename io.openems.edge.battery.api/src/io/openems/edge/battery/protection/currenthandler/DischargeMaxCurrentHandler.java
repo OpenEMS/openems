@@ -14,7 +14,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Creates a {@link Builder} for {@link DischargeMaxCurrentHandler}.
-		 * 
+		 *
 		 * @param clockProvider                     a {@link ClockProvider}, mainly for
 		 *                                          JUnit tests
 		 * @param initialBmsMaxEverDischargeCurrent the (estimated) maximum allowed
@@ -30,7 +30,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Configure 'Force Charge' parameters.
-		 * 
+		 *
 		 * @param startChargeBelowCellVoltage    start force charge if minCellVoltage is
 		 *                                       below this value, e.g. 2850
 		 * @param chargeBelowCellVoltage         force charge as long as minCellVoltage
@@ -49,7 +49,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Sets the {@link ForceCharge.Params} parameters.
-		 * 
+		 *
 		 * @param forceChargeParams the {@link ForceCharge.Params}
 		 * @return a {@link Builder}
 		 */
@@ -60,12 +60,12 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 		/**
 		 * Builds the {@link DischargeMaxCurrentHandler} instance.
-		 * 
+		 *
 		 * @return a {@link DischargeMaxCurrentHandler}
 		 */
 		public DischargeMaxCurrentHandler build() {
 			return new DischargeMaxCurrentHandler(this.clockProvider, this.initialBmsMaxEverCurrent,
-					this.voltageToPercent, this.temperatureToPercent, this.maxIncreasePerSecond,
+					this.voltageToPercent, this.temperatureToPercent, this.socToPercent, this.maxIncreasePerSecond,
 					ForceCharge.from(this.forceChargeParams));
 		}
 
@@ -77,7 +77,7 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 	/**
 	 * Create a {@link DischargeMaxCurrentHandler} builder.
-	 * 
+	 *
 	 * @param clockProvider                     a {@link ClockProvider}
 	 * @param initialBmsMaxEverDischargeCurrent the (estimated) maximum allowed
 	 *                                          discharge current. This is used as a
@@ -92,9 +92,9 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	}
 
 	protected DischargeMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverDischargeCurrent,
-			PolyLine voltageToPercent, PolyLine temperatureToPercent, Double maxIncreasePerSecond,
-			ForceCharge forceCharge) {
-		super(clockProvider, initialBmsMaxEverDischargeCurrent, voltageToPercent, temperatureToPercent,
+			PolyLine voltageToPercent, PolyLine temperatureToPercent, PolyLine socToPercent,
+			Double maxIncreasePerSecond, ForceCharge forceCharge) {
+		super(clockProvider, initialBmsMaxEverDischargeCurrent, voltageToPercent, temperatureToPercent, socToPercent,
 				maxIncreasePerSecond, forceCharge);
 	}
 
@@ -124,6 +124,11 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	}
 
 	@Override
+	protected ChannelId getBpMaxSocChannelId() {
+		return BatteryProtection.ChannelId.BP_DISCHARGE_MAX_SOC;
+	}
+
+	@Override
 	protected ChannelId getBpMaxIncreaseAmpereChannelId() {
 		return BatteryProtection.ChannelId.BP_DISCHARGE_INCREASE;
 	}
@@ -132,5 +137,4 @@ public class DischargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 	protected ChannelId getBpForceCurrentChannelId() {
 		return BatteryProtection.ChannelId.BP_FORCE_CHARGE;
 	}
-
 }

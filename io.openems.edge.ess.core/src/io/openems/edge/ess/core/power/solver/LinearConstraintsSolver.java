@@ -6,7 +6,6 @@ import org.apache.commons.math3.exception.MathIllegalStateException;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
-import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.PivotSelectionRule;
 import org.apache.commons.math3.optim.linear.SimplexSolver;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
@@ -18,7 +17,7 @@ public class LinearConstraintsSolver {
 
 	/**
 	 * Solves the problem with the given list of LinearConstraints.
-	 * 
+	 *
 	 * @param coefficients the {@link Coefficients}
 	 * @param constraints  a list of LinearConstraints
 	 * @return a solution as {@link PointValuePair}
@@ -26,10 +25,9 @@ public class LinearConstraintsSolver {
 	 */
 	public static PointValuePair solve(Coefficients coefficients, List<LinearConstraint> constraints)
 			throws MathIllegalStateException {
-		LinearObjectiveFunction objectiveFunction = LinearSolverUtil
-				.getDefaultObjectiveFunction(coefficients.getNoOfCoefficients());
+		var objectiveFunction = LinearSolverUtil.getDefaultObjectiveFunction(coefficients.getNoOfCoefficients());
 
-		SimplexSolver solver = new SimplexSolver();
+		var solver = new SimplexSolver();
 		return solver.optimize(//
 				objectiveFunction, //
 				new LinearConstraintSet(constraints), //

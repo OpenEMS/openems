@@ -8,7 +8,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'deleteComponentConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -27,26 +27,26 @@ public class DeleteComponentConfigRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link DeleteComponentConfigRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link DeleteComponentConfigRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static DeleteComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
+		var p = r.getParams();
+		var componentId = JsonUtils.getAsString(p, "componentId");
 		return new DeleteComponentConfigRequest(r, componentId);
 	}
 
 	private final String componentId;
 
 	public DeleteComponentConfigRequest(String componentId) {
-		super(METHOD);
+		super(DeleteComponentConfigRequest.METHOD);
 		this.componentId = componentId;
 	}
 
 	private DeleteComponentConfigRequest(JsonrpcRequest request, String componentId) {
-		super(request, METHOD);
+		super(request, DeleteComponentConfigRequest.METHOD);
 		this.componentId = componentId;
 	}
 
@@ -59,7 +59,7 @@ public class DeleteComponentConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Component-ID.
-	 * 
+	 *
 	 * @return Component-ID
 	 */
 	public String getComponentId() {

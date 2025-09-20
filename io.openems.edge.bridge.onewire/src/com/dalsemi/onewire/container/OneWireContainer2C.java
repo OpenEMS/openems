@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -66,7 +67,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	// --------
 	// -------- Variables
 	// --------
-	private byte[] buffer = new byte[4];
+	private final byte[] buffer = new byte[4];
 
 	// --------
 	// -------- Finals
@@ -128,7 +129,6 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * Default constructor
 	 */
 	public OneWireContainer2C() {
-		super();
 	}
 
 	/**
@@ -177,6 +177,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *
 	 * @return representation of this 1-Wire devices name
 	 */
+	@Override
 	public String getName() {
 		return "DS2890";
 	}
@@ -188,6 +189,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *
 	 * @return representation of the alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "Digital Potentiometer";
 	}
@@ -197,6 +199,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *
 	 * @return representation of the function description
 	 */
+	@Override
 	public String getDescription() {
 		return "1-Wire linear taper digitally controlled potentiometer "
 				+ "with 256 wiper positions.  0-11 Volt working range.";
@@ -207,6 +210,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *
 	 * @return maximum speed this device can communicate at
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -225,8 +229,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *         <CODE>false</CODE> if this device has logarithmic potentiometer
 	 *         element(s)
 	 */
+	@Override
 	public boolean isLinear(byte[] state) {
-		return ((state[0] & 0x01) == 0x01);
+		return (state[0] & 0x01) == 0x01;
 	}
 
 	/**
@@ -238,8 +243,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @return <CODE>true</CODE> if the wiper settings are volatile;
 	 *         <CODE>false</CODE> if the wiper settings are non-volatile
 	 */
+	@Override
 	public boolean wiperSettingsAreVolatile(byte[] state) {
-		return ((state[0] & 0x02) == 0x02);
+		return (state[0] & 0x02) == 0x02;
 	}
 
 	/**
@@ -250,8 +256,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *              <CODE>readDevice()</CODE>)
 	 * @return the number of potentiometers on this device
 	 */
+	@Override
 	public int numberOfPotentiometers(byte[] state) {
-		return (((state[0] >> 2) & 0x03) + 1);
+		return (state[0] >> 2 & 0x03) + 1;
 	}
 
 	/**
@@ -262,18 +269,14 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *              <CODE>readDevice()</CODE>)
 	 * @return number of wiper positions available
 	 */
+	@Override
 	public int numberOfWiperSettings(byte[] state) {
-		switch (state[0] & 0x30) {
-
-		case 0x00:
-			return 32;
-		case 0x10:
-			return 64;
-		case 0x20:
-			return 128;
-		default:
-			return 256;
-		}
+		return switch (state[0] & 0x30) {
+		case 0x00 -> 32;
+		case 0x10 -> 64;
+		case 0x20 -> 128;
+		default -> 256;
+		};
 	}
 
 	/**
@@ -283,18 +286,14 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *              <CODE>readDevice()</CODE>)
 	 * @return the resistance value in k-Ohms
 	 */
+	@Override
 	public int potentiometerResistance(byte[] state) {
-		switch (state[0] & 0xc0) {
-
-		case 0x00:
-			return 5;
-		case 0x40:
-			return 10;
-		case 0x80:
-			return 50;
-		default:
-			return 100;
-		}
+		return switch (state[0] & 0xc0) {
+		case 0x00 -> 5;
+		case 0x40 -> 10;
+		case 0x80 -> 50;
+		default -> 100;
+		};
 	}
 
 	/**
@@ -306,12 +305,14 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *              <CODE>readDevice()</CODE>)
 	 * @return the current wiper number
 	 */
+	@Override
 	public int getCurrentWiperNumber(byte[] state) {
-		int wiper = state[1] & 0x03;
-		int wiper_inverse = (state[1] >> 2) & 0x03;
+		var wiper = state[1] & 0x03;
+		var wiper_inverse = state[1] >> 2 & 0x03;
 
-		if ((wiper + wiper_inverse) == 3)
+		if (wiper + wiper_inverse == 3) {
 			return wiper;
+		}
 
 		return -1;
 	}
@@ -326,14 +327,16 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @param state        state buffer of this 1-Wire Potentiometer device
 	 *                     (returned by <CODE>readDevice()</CODE>)
 	 */
+	@Override
 	public void setCurrentWiperNumber(int wiper_number, byte[] state) {
-		if (wiper_number != (wiper_number & 0x03))
+		if (wiper_number != (wiper_number & 0x03)) {
 			return; // invalid, just skip it
+		}
 
-		int wiper_inverse = ~wiper_number;
+		var wiper_inverse = ~wiper_number;
 
-		wiper_number = wiper_number | ((wiper_inverse & 0x03) << 2);
-		state[1] = (byte) ((state[1] & 0xf0) | (wiper_number & 0x0f));
+		wiper_number = wiper_number | (wiper_inverse & 0x03) << 2;
+		state[1] = (byte) (state[1] & 0xf0 | wiper_number & 0x0f);
 	}
 
 	/**
@@ -343,8 +346,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 *              <CODE>readDevice()</CODE>)
 	 * @return <CODE>true</CODE> if it is enabled; <CODE>false</CODE> if not
 	 */
+	@Override
 	public boolean isChargePumpOn(byte[] state) {
-		return ((state[1] & 0x40) == 0x40);
+		return (state[1] & 0x40) == 0x40;
 	}
 
 	/**
@@ -359,11 +363,13 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @return <CODE>true</CODE> if the operation was successful; <CODE>false</CODE>
 	 *         if there was an error
 	 */
+	@Override
 	public void setChargePump(boolean charge_pump_on, byte[] state) {
 		state[1] = (byte) (state[1] & 0xbf); // mask out the charge pump bit
 
-		if (charge_pump_on)
+		if (charge_pump_on) {
 			state[1] = (byte) (state[1] | 0x40);
+		}
 	}
 
 	/**
@@ -375,8 +381,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public int getWiperPosition() throws OneWireIOException, OneWireException {
-		return (readRegisters(READ_POSITION) & 0x0ff);
+		return this.readRegisters(READ_POSITION) & 0x0ff;
 	}
 
 	/**
@@ -389,8 +396,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public boolean setWiperPosition(int position) throws OneWireIOException, OneWireException {
-		return writeTransaction(WRITE_POSITION, (byte) position);
+		return this.writeTransaction(WRITE_POSITION, (byte) position);
 	}
 
 	/**
@@ -404,8 +412,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public int increment(boolean reselect) throws OneWireIOException, OneWireException {
-		return unitChange(INCREMENT, reselect);
+		return this.unitChange(INCREMENT, reselect);
 	}
 
 	/**
@@ -419,8 +428,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public int decrement(boolean reselect) throws OneWireIOException, OneWireException {
-		return unitChange(DECREMENT, reselect);
+		return this.unitChange(DECREMENT, reselect);
 	}
 
 	/**
@@ -430,8 +440,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public int increment() throws OneWireIOException, OneWireException {
-		return unitChange(INCREMENT, true);
+		return this.unitChange(INCREMENT, true);
 	}
 
 	/**
@@ -441,8 +452,9 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public int decrement() throws OneWireIOException, OneWireException {
-		return unitChange(DECREMENT, true);
+		return this.unitChange(DECREMENT, true);
 	}
 
 	/**
@@ -456,6 +468,7 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not read correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
 
 		// format for the byte array is this:
@@ -477,19 +490,20 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 		// bit 2 : Inverted Wiper Number lsb
 		// bit 1 : Wiper Number msb
 		// (lsb) bit 0 : Wiper Number lsb
-		byte[] state = new byte[2];
+		var state = new byte[2];
 
-		doSpeed();
+		this.doSpeed();
 
-		if (!adapter.select(address))
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireIOException("Could not select the part!");
+		}
 
-		byte[] buf = new byte[3];
+		var buf = new byte[3];
 
 		buf[0] = READ_CONTROL;
 		buf[1] = buf[2] = (byte) 0x0ff;
 
-		adapter.dataBlock(buf, 0, 3);
+		this.adapter.dataBlock(buf, 0, 3);
 
 		state[0] = buf[1]; // feature
 		state[1] = buf[2]; // control
@@ -507,11 +521,13 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 * @throws OneWireIOException Data was not written correctly
 	 * @throws OneWireException   Could not find device
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
 
 		// here we want to write the control register, just state[1]
-		if (!writeTransaction(WRITE_CONTROL, state[1]))
+		if (!this.writeTransaction(WRITE_CONTROL, state[1])) {
 			throw new OneWireIOException("Device may not have been present!");
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -521,56 +537,58 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	/*
 	 * This function handles reading of the registers for: 1. Finding the state of
 	 * the charge pump 2. Finding the current location of the wiper
-	 * 
+	 *
 	 * Both of these operations send one command byte and receive two information
 	 * bytes. The relevant information for both is stored in that second received
 	 * byte.
 	 */
 	private synchronized int readRegisters(byte COMMAND) throws OneWireIOException, OneWireException {
-		doSpeed();
+		this.doSpeed();
 
-		if (!adapter.select(address))
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireIOException("Could not select the part!");
+		}
 
-		buffer[0] = COMMAND;
-		buffer[1] = buffer[2] = (byte) 0x0ff;
+		this.buffer[0] = COMMAND;
+		this.buffer[1] = this.buffer[2] = (byte) 0x0ff;
 
-		adapter.dataBlock(buffer, 0, 3);
+		this.adapter.dataBlock(this.buffer, 0, 3);
 
-		return (0x0ff & buffer[2]);
+		return 0x0ff & this.buffer[2];
 	}
 
 	/*
 	 * Handles the writing transactions, which are: 1. Setting the control register
 	 * (ie the charge pump state) 2. Setting the wiper position
-	 * 
+	 *
 	 * Both of these operations have the same transaction process. The command byte
 	 * and a value parameter are passed in (either the new control register or the
 	 * new position) and the part echo's the value parameter. If the echo is correct
 	 * (no transmission errors), the master sends a 96 (which means finish
 	 * transaction). If the transaction succeeds, the part returns 0's, otherwise it
 	 * returns 1's.
-	 * 
+	 *
 	 */
 	private synchronized boolean writeTransaction(byte COMMAND, byte value)
 			throws OneWireIOException, OneWireException {
-		doSpeed();
+		this.doSpeed();
 
-		if (adapter.select(address)) {
-			buffer[0] = COMMAND;
-			buffer[1] = value;
-			buffer[2] = (byte) 0x0ff;
+		if (this.adapter.select(this.address)) {
+			this.buffer[0] = COMMAND;
+			this.buffer[1] = value;
+			this.buffer[2] = (byte) 0x0ff;
 
-			adapter.dataBlock(buffer, 0, 3);
+			this.adapter.dataBlock(this.buffer, 0, 3);
 
-			if (buffer[2] == value) {
-				buffer[0] = (byte) 0x096;
-				buffer[1] = (byte) 0x0ff;
+			if (this.buffer[2] == value) {
+				this.buffer[0] = (byte) 0x096;
+				this.buffer[1] = (byte) 0x0ff;
 
-				adapter.dataBlock(buffer, 0, 2);
+				this.adapter.dataBlock(this.buffer, 0, 2);
 
-				if (buffer[1] == 0)
+				if (this.buffer[1] == 0) {
 					return true;
+				}
 			}
 		}
 
@@ -585,15 +603,16 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 	 */
 	private synchronized int unitChange(byte COMMAND, boolean reselect) throws OneWireIOException, OneWireException {
 		if (reselect) {
-			doSpeed(); // don't need to do this if we don't need to select
-			adapter.select(address);
+			this.doSpeed(); // don't need to do this if we don't need to select
+			this.adapter.select(this.address);
 		}
 
-		buffer[0] = COMMAND;
-		buffer[1] = (byte) 0x0ff;
+		this.buffer[0] = COMMAND;
+		this.buffer[1] = (byte) 0x0ff;
 
-		adapter.dataBlock(buffer, 0, 2);
+		this.adapter.dataBlock(this.buffer, 0, 2);
 
-		return (0x0ff & buffer[1]);
+		return 0x0ff & this.buffer[1];
 	}
 }
+// CHECKSTYLE:ON

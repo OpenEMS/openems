@@ -1,0 +1,20 @@
+= Webasto Unite Charging Station (BETA)
+
+Implementation of the Webasto Unite electric vehicle charging station.
+
+== https://en.wikipedia.org/wiki/Software_release_life_cycle[Software release life cycle]: BETA
+
+This implementation has been carried out during OpenEMS Hackathon Q1/2023 and is not yet fully feature tested. Please consider it BETA quality
+
+== Compatibility
+
+** https://charging.webasto.com/de-de/produkte/webasto-unite/[Webasto Unite]
+
+== Additional application notes
+
+The implementation includes:
+
+** Reading actual values from the charging station
+** Setting charge power/current set-points via OpenEMS Edge EVCS Controllers
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.webasto.unite[Source Code icon:github[]]

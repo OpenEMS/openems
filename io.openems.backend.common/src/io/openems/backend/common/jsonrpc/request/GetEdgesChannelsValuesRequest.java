@@ -13,7 +13,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'getChannelsValues'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -33,21 +33,21 @@ public class GetEdgesChannelsValuesRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link GetEdgesChannelsValuesRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link GetEdgesChannelsValuesRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static GetEdgesChannelsValuesRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		GetEdgesChannelsValuesRequest result = new GetEdgesChannelsValuesRequest(r);
-		JsonArray edgeIds = JsonUtils.getAsJsonArray(p, "ids");
+		var p = r.getParams();
+		var result = new GetEdgesChannelsValuesRequest(r);
+		var edgeIds = JsonUtils.getAsJsonArray(p, "ids");
 		for (JsonElement edgeId : edgeIds) {
 			result.addEdgeId(JsonUtils.getAsString(edgeId));
 		}
-		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
+		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
-			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
+			var address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
 			result.addChannel(address);
 		}
 		return result;
@@ -57,16 +57,16 @@ public class GetEdgesChannelsValuesRequest extends JsonrpcRequest {
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
 	public GetEdgesChannelsValuesRequest() {
-		super(METHOD);
+		super(GetEdgesChannelsValuesRequest.METHOD);
 	}
 
 	private GetEdgesChannelsValuesRequest(JsonrpcRequest request) {
-		super(request, METHOD);
+		super(request, GetEdgesChannelsValuesRequest.METHOD);
 	}
 
 	/**
 	 * Adds a Edge-ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 */
 	public void addEdgeId(String edgeId) {
@@ -75,7 +75,7 @@ public class GetEdgesChannelsValuesRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Edge-IDs.
-	 * 
+	 *
 	 * @return set of Edge-IDs.
 	 */
 	public TreeSet<String> getEdgeIds() {
@@ -84,7 +84,7 @@ public class GetEdgesChannelsValuesRequest extends JsonrpcRequest {
 
 	/**
 	 * Adds a {@link ChannelAddress}.
-	 * 
+	 *
 	 * @param address the {@link ChannelAddress}
 	 */
 	public void addChannel(ChannelAddress address) {
@@ -93,7 +93,7 @@ public class GetEdgesChannelsValuesRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the {@link ChannelAddress}es.
-	 * 
+	 *
 	 * @return the {@link ChannelAddress}es
 	 */
 	public TreeSet<ChannelAddress> getChannels() {
@@ -102,11 +102,11 @@ public class GetEdgesChannelsValuesRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray edgeIds = new JsonArray();
+		var edgeIds = new JsonArray();
 		for (String edgeId : this.edgeIds) {
 			edgeIds.add(edgeId);
 		}
-		JsonArray channels = new JsonArray();
+		var channels = new JsonArray();
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}

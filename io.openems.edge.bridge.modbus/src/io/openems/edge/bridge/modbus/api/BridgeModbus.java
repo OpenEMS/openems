@@ -18,8 +18,16 @@ public interface BridgeModbus extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CYCLE_TIME_IS_TOO_SHORT(Doc.of(Level.INFO) //
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
-		EXECUTION_DURATION(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.MILLISECONDS));
+		/**
+		 * Delay per Cycle before starting to execute Modbus Tasks. Global Cycle-Time
+		 * can be reduced by this amount, without causing CYCLE_TIME_IS_TOO_SHORT.
+		 */
+		CYCLE_DELAY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.MILLISECONDS)),
+
+		BRIDGE_IS_STOPPED(Doc.of(Level.INFO) //
+				.text("Modbus Communication is stopped")) //
+		;
 
 		private final Doc doc;
 
@@ -34,35 +42,8 @@ public interface BridgeModbus extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
-	 * @return the Channel
-	 */
-	public StateChannel getSlaveCommunicationFailedChannel();
-
-	/**
-	 * Gets the Slave Communication Failed State. See
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getSlaveCommunicationFailed() {
-		return this.getSlaveCommunicationFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setSlaveCommunicationFailed(boolean value) {
-		this.getSlaveCommunicationFailedChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getCycleTimeIsTooShortChannel() {
@@ -72,7 +53,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	/**
 	 * Gets the Cycle-Time-is-too-short State. See
 	 * {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getCycleTimeIsTooShort() {
@@ -82,7 +63,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCycleTimeIsTooShort(boolean value) {
@@ -90,37 +71,36 @@ public interface BridgeModbus extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#EXECUTION_DURATION}.
-	 * 
+	 * Gets the Channel for {@link ChannelId#CYCLE_DELAY}.
+	 *
 	 * @return the Channel
 	 */
-	public default LongReadChannel getExecutionDurationChannel() {
-		return this.channel(ChannelId.EXECUTION_DURATION);
+	public default LongReadChannel getCycleDelayChannel() {
+		return this.channel(ChannelId.CYCLE_DELAY);
 	}
 
 	/**
-	 * Gets the Execution Duration in [ms], see
-	 * {@link ChannelId#EXECUTION_DURATION}.
-	 * 
+	 * Gets the Cycle Delay in [ms], see {@link ChannelId#CYCLE_DELAY}.
+	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Long> getExecutionDuration() {
-		return this.getExecutionDurationChannel().value();
+	public default Value<Long> getCycleDelay() {
+		return this.getCycleDelayChannel().value();
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EXECUTION_DURATION} Channel.
-	 * 
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CYCLE_DELAY}
+	 * Channel.
+	 *
 	 * @param value the next value
 	 */
-	public default void _setExecutionDuration(long value) {
-		this.getExecutionDurationChannel().setNextValue(value);
+	public default void _setCycleDelay(long value) {
+		this.getCycleDelayChannel().setNextValue(value);
 	}
 
 	/**
 	 * Adds a Protocol with a source identifier to this Modbus Bridge.
-	 * 
+	 *
 	 * @param sourceId the unique source identifier
 	 * @param protocol the Modbus Protocol
 	 */
@@ -128,9 +108,22 @@ public interface BridgeModbus extends OpenemsComponent {
 
 	/**
 	 * Removes a Protocol from this Modbus Bridge.
-	 * 
+	 *
 	 * @param sourceId the unique source identifier
 	 */
 	public void removeProtocol(String sourceId);
 
+	/**
+	 * The Modbus Bridge marks defective Components, e.g. if there are communication
+	 * failures. If a component is marked as defective, reads and writes are paused
+	 * for an increasing waiting time. This method resets the waiting time, causing
+	 * the Modbus Bridge to retry if a Component is not anymore defective.
+	 * 
+	 * <p>
+	 * Use this method if there is good reason that a Modbus Component should be
+	 * available again 'now', e.g. because it was turned on manually.
+	 * 
+	 * @param sourceId the unique source identifier
+	 */
+	public void retryModbusCommunication(String sourceId);
 }

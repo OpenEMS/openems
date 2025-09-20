@@ -1,5 +1,0 @@
-= Symmetric Balancing
-
-Controls a symmetric energy storage system in self-consumption optimization mode.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.balancing[Source Code icon:github[]]

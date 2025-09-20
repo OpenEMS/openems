@@ -1,46 +1,263 @@
 package io.openems.edge.bridge.modbus.test;
 
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
+import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.function.Consumer;
+
+import org.osgi.service.event.Event;
+
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.net.AbstractModbusListener;
+import com.ghgande.j2mod.modbus.procimg.ProcessImage;
+import com.ghgande.j2mod.modbus.procimg.SimpleProcessImage;
+import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.bridge.modbus.api.Config;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
+import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplier;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
 
-public class DummyModbusBridge extends AbstractOpenemsComponent
-		implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
+public class DummyModbusBridge extends AbstractModbusBridge implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
 
-	private final Map<String, ModbusProtocol> protocols = new HashMap<>();
+	private final ModbusTransaction modbusTransaction = new ModbusTransaction() {
+		@Override
+		public void execute() throws ModbusException {
+			this.response = DummyModbusBridge.this.executeModbusRequest(this.request);
+		}
+	};
+	private final AbstractModbusListener modbusListener = new AbstractModbusListener() {
+		@Override
+		public ProcessImage getProcessImage(int unitId) {
+			return DummyModbusBridge.this.processImage;
+		}
+
+		@Override
+		public void run() {
+		}
+
+		@Override
+		public void stop() {
+		}
+
+	};
+	private final TasksSupplier tasksSupplier;
+	private final DefectiveComponents defectiveComponents;
+
+	private SimpleProcessImage processImage = null;
+	private InetAddress ipAddress = null;
 
 	public DummyModbusBridge(String id) {
+		this(id, LogVerbosity.NONE);
+	}
+
+	public DummyModbusBridge(String id, LogVerbosity logVerbosity) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				BridgeModbus.ChannelId.values(), //
 				BridgeModbusTcp.ChannelId.values() //
 		);
-		for (Channel<?> channel : this.channels()) {
+		for (var channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true);
+		super.activate(null, new Config(id, "", false, logVerbosity, 2));
+		this.tasksSupplier = getValueViaReflection(this.worker, "tasksSupplier");
+		this.defectiveComponents = getValueViaReflection(this.worker, "defectiveComponents");
 	}
 
-	@Override
-	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.protocols.put(sourceId, protocol);
+	private synchronized DummyModbusBridge withProcessImage(Consumer<SimpleProcessImage> callback) {
+		if (this.processImage == null) {
+			this.processImage = new SimpleProcessImage();
+		}
+		callback.accept(this.processImage);
+		return this;
 	}
 
+	/**
+	 * Sets the IP-Address.
+	 * 
+	 * @param ipAddress an IP-Address.
+	 * @return myself
+	 * @throws UnknownHostException on parse error
+	 */
+	public DummyModbusBridge withIpAddress(String ipAddress) throws UnknownHostException {
+		this.ipAddress = InetAddress.getByName(ipAddress);
+		return this;
+	}
+
+	/**
+	 * Sets the value of a FC3HoldingRegister.
+	 * 
+	 * @param address the Register address
+	 * @param b1      first byte
+	 * @param b2      second byte
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegister(int address, byte b1, byte b2) {
+		return this.withProcessImage(pi -> pi.addRegister(address, new SimpleRegister(b1, b2)));
+	}
+
+	/**
+	 * Sets the value of a FC3HoldingRegister.
+	 * 
+	 * @param address the Register address
+	 * @param value   the value
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegister(int address, int value) {
+		return this.withProcessImage(pi -> pi.addRegister(address, new SimpleRegister(value)));
+	}
+
+	/**
+	 * Sets the value of a FC4InputRegister.
+	 * 
+	 * @param address the Register address
+	 * @param value   the value
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegister(int address, int value) {
+		return this.withProcessImage(pi -> pi.addInputRegister(address, new SimpleRegister(value)));
+	}
+
+	/**
+	 * Sets the value of a FC4InputRegister.
+	 * 
+	 * @param address the Register address
+	 * @param b1      first byte
+	 * @param b2      second byte
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegister(int address, byte b1, byte b2) {
+		return this.withProcessImage(pi -> pi.addInputRegister(address, new SimpleRegister(b1, b2)));
+	}
+
+	/**
+	 * Sets the values of FC3HoldingRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegisters(int startAddress, int... values) {
+		for (var value : values) {
+			this.withRegister(startAddress++, value);
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the values of FC3HoldingRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegisters(int startAddress, int[]... values) {
+		for (var a : values) {
+			for (var b : a) {
+				this.withRegister(startAddress++, b);
+			}
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the value of a FC3HoldingRegister in Float32 format.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       float values
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegistersFloat32(int startAddress, float... values) {
+		for (var value : values) {
+			var b = ModbusRecordFloat32.toByteArray(value);
+			this.withRegister(startAddress++, b[0], b[1]);
+			this.withRegister(startAddress++, b[2], b[3]);
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the values of FC4InputRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegisters(int startAddress, int... values) {
+		for (var value : values) {
+			this.withInputRegister(startAddress++, value);
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the values of FC4InputRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegisters(int startAddress, int[]... values) {
+		for (var a : values) {
+			for (var b : a) {
+				this.withInputRegister(startAddress++, b);
+			}
+		}
+		return this;
+	}
+
+	/**
+	 * NOTE: {@link DummyModbusBridge} does not call parent handleEvent().
+	 */
 	@Override
-	public void removeProtocol(String sourceId) {
-		this.protocols.remove(sourceId);
+	public synchronized void handleEvent(Event event) {
+		// NOTE: TOPIC_CYCLE_EXECUTE_WRITE is not implemented (yet)
+		if (this.processImage == null) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> this.onBeforeProcessImage();
+		}
+	}
+
+	private ModbusResponse executeModbusRequest(ModbusRequest request) {
+		return request.createResponse(this.modbusListener);
+	}
+
+	private void onBeforeProcessImage() {
+		var cycleTasks = this.tasksSupplier.getCycleTasks(this.defectiveComponents);
+		for (var readTask : cycleTasks.reads()) {
+			readTask.execute(this);
+		}
 	}
 
 	@Override
 	public InetAddress getIpAddress() {
-		return null;
+		if (this.ipAddress != null) {
+			return this.ipAddress;
+		}
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		return this.modbusTransaction;
+	}
+
+	@Override
+	public void closeModbusConnection() {
 	}
 
 }

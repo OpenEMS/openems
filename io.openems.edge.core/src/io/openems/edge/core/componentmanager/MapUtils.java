@@ -13,7 +13,7 @@ public class MapUtils {
 
 	/**
 	 * Get the Map value as String.
-	 * 
+	 *
 	 * @param map the {@link Map}
 	 * @param key the identifier key
 	 * @return the value as {@link String}
@@ -24,7 +24,7 @@ public class MapUtils {
 
 	/**
 	 * Get the Map value as Optional String.
-	 * 
+	 *
 	 * @param map the {@link Map}
 	 * @param key the identifier key
 	 * @return the value as {@link Optional} {@link String}
@@ -35,7 +35,7 @@ public class MapUtils {
 
 	/**
 	 * Get the Map value as Boolean.
-	 * 
+	 *
 	 * @param map the {@link Map}
 	 * @param key the identifier key
 	 * @return the value as {@link Integer}
@@ -46,7 +46,7 @@ public class MapUtils {
 
 	/**
 	 * Get the Map value as Optional Boolean.
-	 * 
+	 *
 	 * @param map the {@link Map}
 	 * @param key the identifier key
 	 * @return the value as {@link Optional} {@link Integer}

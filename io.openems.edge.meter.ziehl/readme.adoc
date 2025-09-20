@@ -1,0 +1,10 @@
+= Meter Ziehl EFR4001IP
+
+Implemented Natures:
+- ElectricityMeter
+
+For details, see https://www.ziehl.com/de/produkte/detail/EFR4001IP-362.
+
+Modbus Protocol: https://www.ziehl.com/de/produkte/dl/Betriebsanleitung_Modbus-3585/?task=download
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.ziehl[Source Code icon:github[]]

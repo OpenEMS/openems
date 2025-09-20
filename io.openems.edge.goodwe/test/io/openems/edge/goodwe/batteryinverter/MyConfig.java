@@ -1,22 +1,41 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.edge.common.startstop.StartStopConfig;
+import io.openems.edge.goodwe.common.enums.ControlMode;
+import io.openems.edge.goodwe.common.enums.EnableDisable;
+import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
+import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
-		private String id = null;
-		public String modbusId;
-		public int modbusUnitId;
+	public static class Builder {
+		private String id;
+		private ControlMode controlMode;
+		private String modbusId;
+		private int modbusUnitId;
+		private SafetyCountry safetyCountry;
+		private EnableDisable mpptForShadowEnable;
+		private EnableDisable backupEnable;
+		private EnableDisable feedPowerEnable;
+		private int feedPowerPara;
+		private FeedInPowerSettings feedInPowerSettings;
+		private EnableDisable rcrEnable = EnableDisable.DISABLE;
+		private StartStopConfig startStop;
+		private EnableDisable naProtectionEnable = EnableDisable.DISABLE;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setControlMode(ControlMode controlMode) {
+			this.controlMode = controlMode;
 			return this;
 		}
 
@@ -30,6 +49,51 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setSafetyCountry(SafetyCountry safetyCountry) {
+			this.safetyCountry = safetyCountry;
+			return this;
+		}
+
+		public Builder setMpptForShadowEnable(EnableDisable mpptForShadowEnable) {
+			this.mpptForShadowEnable = mpptForShadowEnable;
+			return this;
+		}
+
+		public Builder setBackupEnable(EnableDisable backupEnable) {
+			this.backupEnable = backupEnable;
+			return this;
+		}
+
+		public Builder setFeedPowerEnable(EnableDisable feedPowerEnable) {
+			this.feedPowerEnable = feedPowerEnable;
+			return this;
+		}
+
+		public Builder setFeedPowerPara(int feedPowerPara) {
+			this.feedPowerPara = feedPowerPara;
+			return this;
+		}
+
+		public Builder setFeedInPowerSettings(FeedInPowerSettings feedInPowerSettings) {
+			this.feedInPowerSettings = feedInPowerSettings;
+			return this;
+		}
+
+		public Builder setRcrEnable(EnableDisable rcrEnable) {
+			this.rcrEnable = rcrEnable;
+			return this;
+		}
+
+		public Builder setNaProtectionEnable(EnableDisable naProtectionEnable) {
+			this.naProtectionEnable = naProtectionEnable;
+			return this;
+		}
+
+		public Builder setStartStop(StartStopConfig startStop) {
+			this.startStop = startStop;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -37,7 +101,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -64,5 +128,57 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
+	public SafetyCountry safetyCountry() {
+		return this.builder.safetyCountry;
+	}
+
+	@Override
+	public EnableDisable mpptForShadowEnable() {
+		return this.builder.mpptForShadowEnable;
+	}
+
+	@Override
+	public EnableDisable backupEnable() {
+		return this.builder.backupEnable;
+	}
+
+	@Deprecated
+	@Override
+	public EnableDisable feedPowerEnable() {
+		return this.builder.feedPowerEnable;
+	}
+
+	@Deprecated
+	@Override
+	public int feedPowerPara() {
+		return this.builder.feedPowerPara;
+	}
+
+	@Override
+	public FeedInPowerSettings setfeedInPowerSettings() {
+		return this.builder.feedInPowerSettings;
+	}
+
+	@Override
+	public ControlMode controlMode() {
+		return this.builder.controlMode;
+	}
+
+	@Override
+	public EnableDisable rcrEnable() {
+		return this.builder.rcrEnable;
+	}
+
+	@Override
+	public StartStopConfig startStop() {
+		return this.builder.startStop;
+	}
+
+	@Override
+	public EnableDisable naProtectionEnable() {
+		return this.builder.naProtectionEnable;
 	}
 }

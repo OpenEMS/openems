@@ -1,5 +1,203 @@
 = EVCS Core
 
-Core services for electric vehicle charging.
+== Core
+
+Core services for electric vehicle charging. 
+
+
+== Implementing an Electric Vehicle Charging Station 
+// Implementing an evcs should be a separate guide in the docs or a part of the Evcs Nature readme.
+
+These are a couple of steps that should be helpful in your implementation of a new evcs component.
+Note that some parts may still be missing.
+
+. Gather all the important information about your Electric Vehicle Charging Station (EVCS)
+
+.. Communication Protocol
+.. Possible Read/Write values (Important for used Natures and their values)
+.. IP address, URL, Modbus Unit ID, or any other relevant parameters required for the communication
+
+. Select Natures depending on the Read/Write values provided by the evcs (In many cases more than one)
+
+- https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.api/src/io/openems/edge/evcs/api/Evcs.java[Evcs]
+(Basic reading functionality)
+// TODO add channels
+
+- https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.api/src/io/openems/edge/evcs/api/ManagedEvcs.java[ManagedEvcs]
+(Additional Channels and functions for writing charge power limits)
+// TODO add channels
+
+- https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.api/src/io/openems/edge/evcs/api/SocEvcs.java[SocEvcs]
+(Additional Channels for the State of Charge information)
+// TODO add channels
+
+. Use already existing Bridge (e.g. https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.evcs.alpitronic.hypercharger/src/io/openems/edge/evcs/hypercharger/HyperchargerImpl.java[Hypercharger] using https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/api/AbstractOpenemsModbusComponent.java[AbstractOpenemsModbusComponent]) or create a new bridge (Not every protocol is/can be generalized in a separate bundle) 
+
+- Note that AbstractManagedEvcsComponent cannot be used if the component is a modbus component (Some functions must be called manually)
+
+. Create Component based on the evcs related natures. Example HyperchargerImpl:
++
+[source,java]
+----
+@Designate(ocd = Config.class, factory = true)
+@Component(//
+		name = "Evcs.AlpitronicHypercharger", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
+public class HyperchargerImpl extends AbstractOpenemsModbusComponent
+		implements Evcs, ManagedEvcs, OpenemsComponent, ModbusComponent, EventHandler, Hypercharger, TimedataProvider {
+----
+- @Designate: Standard
+- @Component: Standard
+- @EventTopics: Handle this events in the handleEvent method
+- *AbstractOpenemsModbusComponent*: Ease the communication with a modbus device
+- *Evcs*: See above
+- *ManagedEvcs*: See above
+- *OpenemsComponent*: Identifies an OpenemsComponent
+- *ModbusComponent*: Specific for modbus component
+- *EventHandler*: Used to act in a specific Event in an Openems Cycle
+- *Hypercharger*: Individual "Nature" for additional Channels besides the evcs natures
+- *TimedataProvider*: Needed for this evcs to calculate the total energy charged
+
+
+
+. Create Properties needed. Most important for components not using AbstractManagedEvcsComponent: 
++
+[source,java]
+----
+/**
+* Handles charge states.
+*/
+private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
+
+/**
+* Processes the controller's writes to this evcs component.
+*/
+private final WriteHandler writeHandler = new WriteHandler(this);
+----
+
+. Constructor using ChannelIds of implementing Natures: 
++
+[source,java]
+----
+public HyperchargerImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				Evcs.ChannelId.values(), //
+				ManagedEvcs.ChannelId.values(), //
+				Hypercharger.ChannelId.values());
+	}
+----
++
+If it is not listed here, the component is not aware of the channels in that nature.
+
+. Add Activate, Deactivate & Modified
++
+[source,java]
+----
+@Activate
+private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	this.config = config;
+	if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+			"Modbus", config.modbus_id())) {
+		return;
+	}
+
+	/*
+	 * Calculates the maximum and minimum hardware power dynamically by listening on
+	 * the fixed hardware limit and the phases used for charging
+	 */
+	Evcs.addCalculatePowerLimitListeners(this);
+
+	this.applyConfig(config);
+}
+
+@Modified
+private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+			"Modbus", config.modbus_id())) {
+		return;
+	}
+	this.applyConfig(config);
+}
+
+private void applyConfig(Config config) {
+	this.config = config;
+	this.calculateTotalEnergy = new CalculateEnergyFromPower(this, Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	this._setFixedMinimumHardwarePower(config.minHwPower());
+	this._setFixedMaximumHardwarePower(config.maxHwPower());
+	this._setPowerPrecision(1);
+	this._setPhases(3);
+}
+
+@Override
+@Deactivate
+protected void deactivate() {
+	super.deactivate();
+}
+----
++
+The Channel values set in the applyConfig are given by the config or by default.
++
+The Fixed Minimum/Maximum HardwarePower and the Phases Channel are used to calculate the minimum and maximum power for the user interface. (Automatically handled by calling Evcs.addCalculatePowerLimitListeners(this) or the AbstractManagedEvcsComponent)
++
+Maximum Charge power selected: 17000 W
++
+*4140 W* -----------------------x------------ *22080 W* (charging 6 - 32 amps on 3 phases)
++
+Maximum Charge power selected: 1600 W
++
+*1380 W* --x--------------------------------- *7360 W* (charging 6 - 32 amps on 1 phase)
+
+. Modbus specific methods
+
+.. Reference to the modbus bridge
++
+[source,java]
+----
+@Override
+@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+protected void setModbus(BridgeModbus modbus) {
+	super.setModbus(modbus);
+}
+----
+.. Modbus-Register mapping 
++
+[source,java]
+----
+@Override
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		var modbusProtocol = new ModbusProtocol(this,
+
+				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
+						m(Hypercharger.ChannelId.RAW_CHARGE_POWER_SET,
+								new UnsignedDoublewordElement(this.offset.apply(0)))),
+
+				new FC16WriteRegistersTask(this.offset.apply(0),
+						m(Hypercharger.ChannelId.APPLY_CHARGE_POWER_LIMIT,
+								new UnsignedDoublewordElement(this.offset.apply(0))),
+						m(Hypercharger.ChannelId.SETPOINT_REACTIVE_POWER,
+								new UnsignedDoublewordElement(this.offset.apply(2)))),
+								...
+----
++
+Most mistakes:
+- Wrong function code, offset, or any other information provided by the Modbus protocol or manual
+- Wrong AbstractModbusRegisterElement for a register
+- Missing register (Unimportant register could be skipped with *new DummyRegisterElement(xxx),*)
+- Important tasks with Priority HIGH are blocked by other unimportant tasks with Priority HIGH
+- Read/Write register must be read and write in different tasks with different function codes
+- Scale factor overlooked. The scale factor can be easily adjusted using, for example, SCALE_FACTOR_MINUS_2
+
+. Check if every Channel is set correctly
++
+To do this, you could add the component in the controller 'DebugDetailedLog', or download the information of a component using the 'Excel Export' feature in the system profile."
+
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.core[Source Code icon:github[]]

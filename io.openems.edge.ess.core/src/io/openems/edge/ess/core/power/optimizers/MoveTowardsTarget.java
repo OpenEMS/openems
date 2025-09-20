@@ -42,8 +42,8 @@ public class MoveTowardsTarget {
 			List<Inverter> allInverters, List<Inverter> targetInverters, List<Constraint> allConstraints)
 			throws OpenemsException {
 		// find maxLastActive + maxWeight
-		int maxLastActivePower = 0;
-		int sumWeights = 0;
+		var maxLastActivePower = 0;
+		var sumWeights = 0;
 		for (Inverter inv : allInverters) {
 			maxLastActivePower = Math.max(Math.abs(inv.getLastActivePower()), maxLastActivePower);
 			sumWeights += Math.abs(inv.getWeight());
@@ -62,7 +62,7 @@ public class MoveTowardsTarget {
 			}
 		} else {
 			// at least one weight is != zero -> start normal weighting
-			double normalizeFactor = 100d / maxLastActivePower;
+			var normalizeFactor = 100d / maxLastActivePower;
 			for (Inverter inv : allInverters) {
 				lastWeights.put(inv, Math.abs(inv.getLastActivePower() * normalizeFactor));
 			}
@@ -77,7 +77,7 @@ public class MoveTowardsTarget {
 				case KEEP_ZERO:
 					// Invert weights for CHARGE, i.e. give higher weight to low state-of-charge
 					// inverters
-					targetWeights.put(inv, (100 - (inv.getWeight() * 100 / sumWeights)));
+					targetWeights.put(inv, 100 - inv.getWeight() * 100 / sumWeights);
 					break;
 				case DISCHARGE:
 					targetWeights.put(inv, inv.getWeight() * 100 / sumWeights);
@@ -101,7 +101,7 @@ public class MoveTowardsTarget {
 		}
 
 		// adjust towards target weight till Problem solves
-		for (double i = 0; i < 1 - LEARNING_RATE; i += LEARNING_RATE) {
+		for (var i = 0D; i < 1 - LEARNING_RATE; i += LEARNING_RATE) {
 			List<Constraint> constraints = new ArrayList<>(allConstraints);
 			List<Inverter> inverters = new ArrayList<>(allInverters);
 
@@ -109,7 +109,7 @@ public class MoveTowardsTarget {
 			// inverters
 			for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {
 				if (entry.getValue() == 0) { // might fail... compare double to zero
-					Inverter inv = entry.getKey();
+					var inv = entry.getKey();
 					constraints.add(ConstraintUtil.createSimpleConstraint(coefficients, //
 							inv.toString() + ": ActivePower next weight = 0", //
 							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0));
@@ -126,9 +126,9 @@ public class MoveTowardsTarget {
 			}
 
 			// Create weighted Constraint between first inverter and every other inverter
-			Inverter invA = inverters.get(0);
-			for (int j = 1; j < inverters.size(); j++) {
-				Inverter invB = inverters.get(j);
+			var invA = inverters.get(0);
+			for (var j = 1; j < inverters.size(); j++) {
+				var invB = inverters.get(j);
 				constraints.add(new Constraint(invA.toString() + "|" + invB.toString() + ": ActivePower Weight",
 						new LinearCoefficient[] {
 								new LinearCoefficient(coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE),
@@ -146,8 +146,7 @@ public class MoveTowardsTarget {
 			}
 
 			try {
-				PointValuePair solution = ConstraintSolver.solve(coefficients, constraints);
-				return solution;
+				return ConstraintSolver.solve(coefficients, constraints);
 			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
 				// Adjust next weights
 				for (Entry<Inverter, Double> entry : nextWeights.entrySet()) {

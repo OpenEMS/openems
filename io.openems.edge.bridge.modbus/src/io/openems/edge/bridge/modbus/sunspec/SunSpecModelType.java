@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
+import java.util.Arrays;
+
 /**
  * This is taken from the first sheet inside the SunSpec excel file.
  */
@@ -18,20 +20,24 @@ public enum SunSpecModelType {
 	RESERVED_2(900, 63000), //
 	VENDOR_SPECIFIC(64000, 65535);
 
-	protected final int startId;
-	protected final int endId;
+	private final int startId;
+	private final int endId;
 
 	private SunSpecModelType(int startId, int endId) {
 		this.startId = startId;
 		this.endId = endId;
 	}
 
-	protected static SunSpecModelType getModelType(int id) {
-		for (SunSpecModelType type : SunSpecModelType.values()) {
-			if (type.startId <= id && type.endId >= id) {
-				return type;
-			}
-		}
-		throw new IllegalArgumentException("There is no SunSpec Model-Type for ID " + id);
+	/**
+	 * Get a {@link SunSpecModelType} by its id.
+	 * 
+	 * @param id the id
+	 * @return The {@link SunSpecModelType}
+	 */
+	public static SunSpecModelType getModelType(int id) {
+		return Arrays.stream(SunSpecModelType.values()) //
+				.filter(t -> t.startId <= id && t.endId >= id) //
+				.findFirst() //
+				.orElseThrow(() -> new IllegalArgumentException("There is no SunSpec Model-Type for ID " + id));
 	}
 }

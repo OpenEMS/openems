@@ -6,16 +6,17 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 
+// TODO consider replacing this by ElectricityMeter
 public interface MeasuringEvcs extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
 		 * Current to grid (export).
-		 * 
+		 *
 		 * <p>
 		 * Instantaneous current flow from EV
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -31,10 +32,10 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Current to ev (import).
-		 * 
+		 *
 		 * <p>
 		 * Instantaneous current flow to EV
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -50,10 +51,10 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Current offered.
-		 * 
+		 *
 		 * <p>
 		 * Maximum current offered to EV
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -69,12 +70,12 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Active energy to grid (export).
-		 * 
+		 *
 		 * <p>
 		 * Numerical value read from the "active electrical energy" (Wh) register of the
 		 * (most authoritative) electrical meter measuring the total energy exported (to
 		 * the grid).
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -83,19 +84,19 @@ public interface MeasuringEvcs extends Evcs {
 		 * </ul>
 		 */
 		ENERGY_ACTIVE_TO_GRID(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Active energy to grid")),
 
 		/**
 		 * Active energy to ev (import).
-		 * 
+		 *
 		 * <p>
 		 * Numerical value read from the "active electrical energy" (Wh) register of the
 		 * (most authoritative) electrical meter measuring the total energy imported
 		 * (from the grid supply).
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -104,19 +105,19 @@ public interface MeasuringEvcs extends Evcs {
 		 * </ul>
 		 */
 		ENERGY_ACTIVE_TO_EV(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Active energy to ev")),
 
 		/**
 		 * Reactive energy to grid (export).
-		 * 
+		 *
 		 * <p>
 		 * Numerical value read from the "reactive electrical energy" (VARh or kVARh)
 		 * register of the (most authoritative) electrical meter measuring energy
 		 * exported (to the grid).
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -132,12 +133,12 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Reactive energy to EV (import).
-		 * 
+		 *
 		 * <p>
 		 * Numerical value read from the "reactive electrical energy" (VARh or kVARh)
 		 * register of the (most authoritative) electrical meter measuring energy
 		 * imported (from the grid supply).
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -153,13 +154,13 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Active energy to grid (export) in an interval.
-		 * 
+		 *
 		 * <p>
 		 * Absolute amount of "active electrical energy" (Wh or kWh) exported (to the
 		 * grid) during an associated time "interval", specified by a Metervalues
 		 * ReadingContext, and applicable interval duration configuration values (in
 		 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -175,13 +176,13 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Active energy to EV (import) in an interval.
-		 * 
+		 *
 		 * <p>
 		 * Absolute amount of "active electrical energy" (Wh or kWh) imported (from the
 		 * grid supply) during an associated time "interval", specified by a Metervalues
 		 * ReadingContext, and applicable interval duration configuration values (in
 		 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -197,13 +198,13 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Reactive energy to grid (export) in an interval.
-		 * 
+		 *
 		 * <p>
 		 * Absolute amount of "reactive electrical energy" (VARh or kVARh) exported (to
 		 * the grid) during an associated time "interval", specified by a Metervalues
 		 * ReadingContext, and applicable interval duration configuration values (in
 		 * seconds) for "ClockAlignedDataInterval" and "MeterValueSampleInterval".
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -219,14 +220,14 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Reactive energy to EV (import) in an interval.
-		 * 
+		 *
 		 * <p>
 		 * Absolute amount of "reactive electrical energy" (VARh or kVARh) imported
 		 * (from the grid supply) during an associated time "interval", specified by a
 		 * Metervalues ReadingContext, and applicable interval duration configuration
 		 * values (in seconds) for "ClockAlignedDataInterval" and
 		 * "MeterValueSampleInterval".
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -241,32 +242,11 @@ public interface MeasuringEvcs extends Evcs {
 				.text("Energy.Reactive.Import.Interval")),
 
 		/**
-		 * Frequency.
-		 * 
-		 * <p>
-		 * Instantaneous reading of powerline frequency. NOTE: OCPP 1.6 does not have a
-		 * UnitOfMeasure for frequency, the UnitOfMeasure for any SampledValue with
-		 * measurand: Frequency is Hertz.
-		 * 
-		 * <ul>
-		 * <li>Interface: MeasuringEvcs
-		 * <li>Readable
-		 * <li>Type: String
-		 * <li>Unit: Hz
-		 * </ul>
-		 */
-		FREQUENCY(Doc.of(OpenemsType.STRING) //
-				.unit(Unit.HERTZ) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Frequency")),
-
-		/**
 		 * Active power to grid (export)
-		 * 
+		 *
 		 * <p>
 		 * Instantaneous active power exported by EV. (W or kW)
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -282,10 +262,10 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Power factor.
-		 * 
+		 *
 		 * <p>
 		 * Instantaneous power factor of total energy flow
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -299,10 +279,10 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Power offered.
-		 * 
+		 *
 		 * <p>
 		 * Maximum power offered to EV
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -318,10 +298,10 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Reactive power to grid (export).
-		 * 
+		 *
 		 * <p>
 		 * Instantaneous reactive power exported by EV. (var or kvar)
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -337,10 +317,10 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Reactive power to EV (import).
-		 * 
+		 *
 		 * <p>
 		 * Instantaneous reactive power imported by EV. (var or kvar)
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -356,10 +336,10 @@ public interface MeasuringEvcs extends Evcs {
 
 		/**
 		 * Fan speed.
-		 * 
+		 *
 		 * <p>
 		 * Fan speed in RPM
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable
@@ -372,28 +352,11 @@ public interface MeasuringEvcs extends Evcs {
 				.text("Fan speed")),
 
 		/**
-		 * Voltage.
-		 * 
-		 * <p>
-		 * Instantaneous AC RMS supply voltage.
-		 * 
-		 * <ul>
-		 * <li>Interface: MeasuringEvcs
-		 * <li>Readable
-		 * <li>Type: String
-		 * </ul>
-		 */
-		VOLTAGE(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Voltage")),
-
-		/**
 		 * Temperature.
-		 * 
+		 *
 		 * <p>
 		 * Temperature reading inside Charge Point.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: MeasuringEvcs
 		 * <li>Readable

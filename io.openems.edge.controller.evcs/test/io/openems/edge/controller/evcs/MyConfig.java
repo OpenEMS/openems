@@ -1,14 +1,13 @@
 package io.openems.edge.controller.evcs;
 
-import io.openems.edge.common.startstop.StartStopConfig;
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evcs.api.ChargeMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String alias = "Controller Evcs";
 		private boolean enabled = true;
 		private boolean debugMode = false;
 		private String evcsId = "evcs0";
@@ -17,8 +16,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int forceChargeMinPower = 7560;
 		private int defaultChargeMinPower = 0;
 		private Priority priority = Priority.CAR;
-		private String essId = "ess0";
 		private int energySessionLimit = 0;
+		private int excessChargeHystersis = 120;
+		private int excessChargePauseHysteresis = 30;
 
 		private Builder() {
 		}
@@ -28,21 +28,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setAlias(String alias) {
-			this.alias = alias;
-			return this;
-		}
-
 		public Builder setEnabled(boolean enabled) {
 			this.enabled = enabled;
 			return this;
 		}
-		
+
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
 			return this;
 		}
-		
+
 		public Builder setEvcsId(String evcsId) {
 			this.evcsId = evcsId;
 			return this;
@@ -73,20 +68,31 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setEssId(String essId) {
-			this.essId = essId;
-			return this;
-		}
 		public Builder setEnergySessionLimit(int energySessionLimit) {
 			this.energySessionLimit = energySessionLimit;
 			return this;
 		}
-		
+
+		public Builder setExcessChargeHystersis(int excessChargeHystersis) {
+			this.excessChargeHystersis = excessChargeHystersis;
+			return this;
+		}
+
+		public Builder setExcessChargePauseHysteresis(int excessChargePauseHysteresis) {
+			this.excessChargePauseHysteresis = excessChargePauseHysteresis;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
 	}
 
+	/**
+	 * Create a Config builder.
+	 * 
+	 * @return a {@link Builder}
+	 */
 	public static Builder create() {
 		return new Builder();
 	}
@@ -97,7 +103,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}
-
 
 	@Override
 	public String id() {
@@ -135,11 +140,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String ess_id() {
-		return this.builder.essId;
-	}
-
-	@Override
 	public int energySessionLimit() {
 		return this.builder.energySessionLimit;
 	}
@@ -148,7 +148,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public boolean debugMode() {
 		return this.builder.debugMode;
 	}
-	
+
+	@Override
+	public int excessChargeHystersis() {
+		return this.builder.excessChargeHystersis;
+	}
+
+	@Override
+	public int excessChargePauseHysteresis() {
+		return this.builder.excessChargePauseHysteresis;
+	}
+
 	@Override
 	public String evcs_target() {
 		return "(&(enabled=true)(!(service.pid=ctrlEvcs0))(|(id=" + this.evcs_id() + ")))";

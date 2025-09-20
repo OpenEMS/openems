@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -56,7 +57,7 @@ import com.dalsemi.onewire.utils.CRC16;
  * the the counters may also be read with the <CODE> PagedMemoryBank </CODE>
  * interface as 'extra' information on a page read.
  * </P>
- * 
+ *
  * <H3>Features</H3>
  * <UL>
  * <LI>4096 bits (512 bytes) of read/write nonvolatile memory
@@ -72,14 +73,14 @@ import com.dalsemi.onewire.utils.CRC16;
  * <LI>Operating temperature range from -40 to +70
  * <LI>Over 10 years of data retention
  * </UL>
- * 
+ *
  * <H3>Memory</H3>
- * 
+ *
  * <P>
  * The memory can be accessed through the objects that are returned from the
  * {@link #getMemoryBanks() getMemoryBanks} method.
  * </P>
- * 
+ *
  * The following is a list of the MemoryBank instances that are returned:
  *
  * <UL>
@@ -130,21 +131,21 @@ import com.dalsemi.onewire.utils.CRC16;
  * length 8
  * </UL>
  * </UL>
- * 
+ *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>
  * <H4>Example</H4> Read the two external counters of this containers instance
  * 'owd':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  System.out.print("Counter on page 14: " + owd.readCounter(14));
  *  System.out.print("Counter on page 15: " + owd.readCounter(15));
  * </CODE>
  * </PRE>
- * 
+ *
  * <DD>See the usage example in
  * {@link com.dalsemi.onewire.container.OneWireContainer OneWireContainer} to
  * enumerate the MemoryBanks.
@@ -158,10 +159,10 @@ import com.dalsemi.onewire.utils.CRC16;
  * <DD><A HREF="http://pdfserv.maxim-ic.com/arpdf/DS2422-DS2423.pdf">
  * http://pdfserv.maxim-ic.com/arpdf/DS2422-DS2423.pdf</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.MemoryBank
  * @see com.dalsemi.onewire.container.PagedMemoryBank
- * 
+ *
  * @version 0.00, 28 Aug 2000
  * @author DS
  */
@@ -183,7 +184,7 @@ public class OneWireContainer1D extends OneWireContainer {
 	/**
 	 * Internal buffer
 	 */
-	private byte[] buffer = new byte[14];
+	private final byte[] buffer = new byte[14];
 
 	// --------
 	// -------- Constructors
@@ -201,7 +202,6 @@ public class OneWireContainer1D extends OneWireContainer {
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer1D() {
-		super();
 	}
 
 	/**
@@ -273,6 +273,7 @@ public class OneWireContainer1D extends OneWireContainer {
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS2423";
 	}
@@ -283,13 +284,16 @@ public class OneWireContainer1D extends OneWireContainer {
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return "1-Wire counter with 4096 bits of read/write, nonvolatile "
-				+ "memory.  Memory is partitioned into sixteen pages of 256 bits each.  "
-				+ "256 bit scratchpad ensures data transfer integrity.  "
-				+ "Has overdrive mode.  Last four pages each have 32 bit "
-				+ "read-only non rolling-over counter.  The first two counters "
-				+ "increment on a page write cycle and the second two have " + "active-low external triggers.";
+		return """
+				1-Wire counter with 4096 bits of read/write, nonvolatile \
+				memory.  Memory is partitioned into sixteen pages of 256 bits each. \
+				256 bit scratchpad ensures data transfer integrity. \
+				Has overdrive mode.  Last four pages each have 32 bit \
+				read-only non rolling-over counter.  The first two counters \
+				increment on a page write cycle and the second two have \
+				active-low external triggers.""";
 	}
 
 	/**
@@ -306,6 +310,7 @@ public class OneWireContainer1D extends OneWireContainer {
 	 * @see com.dalsemi.onewire.adapter.DSPortAdapter#SPEED_FLEX
 	 *      DSPortAdapter.SPEED_FLEX
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -316,19 +321,20 @@ public class OneWireContainer1D extends OneWireContainer {
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(4);
+		var bank_vector = new Vector<MemoryBank>(4);
 
 		// scratchpad
-		MemoryBankScratchEx scratch = new MemoryBankScratchEx(this);
+		var scratch = new MemoryBankScratchEx(this);
 
 		bank_vector.addElement(scratch);
 
 		// NVRAM
-		MemoryBankNVCRC nv = new MemoryBankNVCRC(this, scratch);
+		var nv = new MemoryBankNVCRC(this, scratch);
 
 		nv.numberPages = 12;
 		nv.size = 384;
@@ -389,42 +395,44 @@ public class OneWireContainer1D extends OneWireContainer {
 	public long readCounter(int counterPage) throws OneWireIOException, OneWireException {
 
 		// check if counter page provided is valid
-		if ((counterPage < 12) || (counterPage > 15))
+		if (counterPage < 12 || counterPage > 15) {
 			throw new OneWireException("OneWireContainer1D-invalid counter page");
+		}
 
 		// select the device
-		if (adapter.select(address)) {
+		if (this.adapter.select(this.address)) {
 			int crc16;
 
 			// read memory command
-			buffer[0] = READ_MEMORY_COMMAND;
+			this.buffer[0] = READ_MEMORY_COMMAND;
 			crc16 = CRC16.compute(READ_MEMORY_COMMAND);
 
 			// address of last data byte before counter
-			int address = (counterPage << 5) + 31;
+			var address = (counterPage << 5) + 31;
 
 			// append the address
-			buffer[1] = (byte) address;
-			crc16 = CRC16.compute(buffer[1], crc16);
-			buffer[2] = (byte) (address >>> 8);
-			crc16 = CRC16.compute(buffer[2], crc16);
+			this.buffer[1] = (byte) address;
+			crc16 = CRC16.compute(this.buffer[1], crc16);
+			this.buffer[2] = (byte) (address >>> 8);
+			crc16 = CRC16.compute(this.buffer[2], crc16);
 
 			// now add the read bytes for data byte,counter,zero bits, crc16
-			for (int i = 3; i < 14; i++)
-				buffer[i] = (byte) 0xFF;
+			for (var i = 3; i < 14; i++) {
+				this.buffer[i] = (byte) 0xFF;
+			}
 
 			// send the block
-			adapter.dataBlock(buffer, 0, 14);
+			this.adapter.dataBlock(this.buffer, 0, 14);
 
 			// calculate the CRC16 on the result and check if correct
-			if (CRC16.compute(buffer, 3, 11, crc16) == 0xB001) {
+			if (CRC16.compute(this.buffer, 3, 11, crc16) == 0xB001) {
 
 				// extract the counter out of this verified packet
-				long return_count = 0;
+				var return_count = 0L;
 
-				for (int i = 4; i >= 1; i--) {
+				for (var i = 4; i >= 1; i--) {
 					return_count <<= 8;
-					return_count |= (buffer[i + 3] & 0xFF);
+					return_count |= this.buffer[i + 3] & 0xFF;
 				}
 
 				// return the result count
@@ -436,3 +444,4 @@ public class OneWireContainer1D extends OneWireContainer {
 		throw new OneWireIOException("OneWireContainer1D-device not present");
 	}
 }
+// CHECKSTYLE:ON

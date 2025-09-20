@@ -16,7 +16,7 @@ public abstract class ComponentManagerWorker extends AbstractWorker implements C
 	/**
 	 * Gets some output that is suitable for a continuous Debug log. Returns 'null'
 	 * by default which causes no output.
-	 * 
+	 *
 	 * @return the debug log output
 	 */
 	public String debugLog() {
@@ -25,7 +25,6 @@ public abstract class ComponentManagerWorker extends AbstractWorker implements C
 
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
-		return;
 	}
 
 }

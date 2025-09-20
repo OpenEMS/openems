@@ -1,4 +1,4 @@
-Grid Optimized Charge
+= ESS Grid Optimized Charge
 
 Combination of the PredictiveDelayCharge and the SellToGridPowerLimit controllers:  
 

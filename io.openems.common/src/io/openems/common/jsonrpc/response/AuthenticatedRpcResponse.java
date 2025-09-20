@@ -1,5 +1,7 @@
 package io.openems.common.jsonrpc.response;
 
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
@@ -10,7 +12,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for 'authenticatedRpc'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,9 +25,17 @@ import io.openems.common.utils.JsonUtils;
  */
 public class AuthenticatedRpcResponse extends JsonrpcResponseSuccess {
 
+	/**
+	 * Parses a {@link JsonrpcResponseSuccess} to a
+	 * {@link AuthenticatedRpcResponse}.
+	 *
+	 * @param r the {@link JsonrpcResponseSuccess}
+	 * @return the {@link AuthenticatedRpcResponse}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static AuthenticatedRpcResponse from(JsonrpcResponseSuccess r) throws OpenemsNamedException {
-		JsonObject p = r.getResult();
-		JsonrpcResponseSuccess payload = JsonrpcResponseSuccess.from(JsonUtils.getAsJsonObject(p, "payload"));
+		var p = r.getResult();
+		var payload = JsonrpcResponseSuccess.from(getAsJsonObject(p, "payload"));
 		return new AuthenticatedRpcResponse(r.getId(), payload);
 	}
 
@@ -37,7 +47,7 @@ public class AuthenticatedRpcResponse extends JsonrpcResponseSuccess {
 	}
 
 	public JsonrpcResponseSuccess getPayload() {
-		return payload;
+		return this.payload;
 	}
 
 	@Override

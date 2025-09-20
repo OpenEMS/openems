@@ -1,6 +1,0 @@
-
-include::io.openems.edge.bridge.mbus.adoc[leveloffset=+1]
-
-include::io.openems.edge.bridge.modbus.adoc[leveloffset=+1]
-
-include::io.openems.edge.bridge.onewire.adoc[leveloffset=+1]

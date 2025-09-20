@@ -3,7 +3,7 @@ package io.openems.edge.controller.symmetric.peakshaving;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Peak-Shaving Symmetric", //
 		description = "Cuts power peaks and recharges the battery in low consumption periods.")
 @interface Config {

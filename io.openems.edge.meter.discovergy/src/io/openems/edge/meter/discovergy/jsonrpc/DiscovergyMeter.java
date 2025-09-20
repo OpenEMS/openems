@@ -8,23 +8,30 @@ import io.openems.common.utils.JsonUtils;
 
 public class DiscovergyMeter {
 
+	/**
+	 * Factory.
+	 * 
+	 * @param j the {@link JsonElement}
+	 * @return the {@link DiscovergyMeter}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static DiscovergyMeter fromJson(JsonElement j) throws OpenemsNamedException {
-		String meterId = JsonUtils.getAsString(j, "meterId");
+		var meterId = JsonUtils.getAsString(j, "meterId");
 		// e.g. "ESY"
-		String manufacturerId = JsonUtils.getAsOptionalString(j, "manufacturerId").orElse("");
+		var manufacturerId = JsonUtils.getAsOptionalString(j, "manufacturerId").orElse("");
 		// e.g. "12345678"
-		String serialNumber = JsonUtils.getAsOptionalString(j, "serialNumber").orElse("");
+		var serialNumber = JsonUtils.getAsOptionalString(j, "serialNumber").orElse("");
 		// e.g. 1ESY1234567890
-		String fullSerialNumber = JsonUtils.getAsOptionalString(j, "fullSerialNumber").orElse("");
-		Location location = Location.fromJson(JsonUtils.getAsJsonObject(j, "location"));
+		var fullSerialNumber = JsonUtils.getAsOptionalString(j, "fullSerialNumber").orElse("");
+		var location = Location.fromJson(JsonUtils.getAsJsonObject(j, "location"));
 		// e.g. "DE0012345678910000000000001234567"
-		String administrationNumber = JsonUtils.getAsOptionalString(j, "administrationNumber").orElse("");
+		var administrationNumber = JsonUtils.getAsOptionalString(j, "administrationNumber").orElse("");
 		// e.g. "EASYMETER"
-		String type = JsonUtils.getAsOptionalString(j, "type").orElse("");
+		var type = JsonUtils.getAsOptionalString(j, "type").orElse("");
 		// e.g. "ELECTRICITY"
-		String measurementType = JsonUtils.getAsOptionalString(j, "measurementType").orElse("");
+		var measurementType = JsonUtils.getAsOptionalString(j, "measurementType").orElse("");
 		// e.g. "SLP"
-		String loadProfileType = JsonUtils.getAsOptionalString(j, "loadProfileType").orElse("");
+		var loadProfileType = JsonUtils.getAsOptionalString(j, "loadProfileType").orElse("");
 		// e.g. "1"
 		int scalingFactor = JsonUtils.getAsOptionalInt(j, "scalingFactor").orElse(1);
 		// e.g. "1"
@@ -44,12 +51,19 @@ public class DiscovergyMeter {
 
 	public static class Location {
 
+		/**
+		 * Factory.
+		 * 
+		 * @param j the {@link JsonElement}
+		 * @return the {@link Location}
+		 * @throws OpenemsNamedException on error
+		 */
 		public static Location fromJson(JsonObject j) throws OpenemsNamedException {
-			String street = JsonUtils.getAsString(j, "street");
-			String streetNumber = JsonUtils.getAsString(j, "streetNumber");
-			String zip = JsonUtils.getAsString(j, "zip");
-			String city = JsonUtils.getAsString(j, "city");
-			String country = JsonUtils.getAsString(j, "country");
+			var street = JsonUtils.getAsString(j, "street");
+			var streetNumber = JsonUtils.getAsString(j, "streetNumber");
+			var zip = JsonUtils.getAsString(j, "zip");
+			var city = JsonUtils.getAsString(j, "city");
+			var country = JsonUtils.getAsString(j, "country");
 			return new Location(street, streetNumber, zip, city, country);
 		}
 
@@ -67,6 +81,11 @@ public class DiscovergyMeter {
 			this.country = country;
 		}
 
+		/**
+		 * Converts to {@link JsonObject}.
+		 * 
+		 * @return the {@link JsonObject}
+		 */
 		public JsonObject toJson() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("street", this.street) //
@@ -117,11 +136,16 @@ public class DiscovergyMeter {
 
 	@Override
 	public String toString() {
-		return "[meterId=" + meterId + ", manufacturerId=" + manufacturerId + ", serialNumber=" + serialNumber
-				+ ", fullSerialNumber=" + getFullSerialNumber() + ", type=" + type + ", measurementType="
-				+ measurementType + "]";
+		return "[meterId=" + this.meterId + ", manufacturerId=" + this.manufacturerId + ", serialNumber="
+				+ this.serialNumber + ", fullSerialNumber=" + this.getFullSerialNumber() + ", type=" + this.type
+				+ ", measurementType=" + this.measurementType + "]";
 	}
 
+	/**
+	 * Converts to {@link JsonObject}.
+	 * 
+	 * @return the {@link JsonObject}
+	 */
 	public JsonObject toJson() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("meterId", this.meterId) //

@@ -9,11 +9,11 @@ import io.openems.common.utils.JsonUtils;
 /**
  * Represents a JSON-RPC Request to subscribe to system log. The actual system
  * log is then sent as JSON-RPC Notification
- * 
+ *
  * <p>
  * Set 'subscribe' param to 'true' to start the subscription, false for
  * unsubscribe.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -32,20 +32,20 @@ public class SubscribeSystemLogRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link SubscribeSystemLogRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link SubscribeSystemLogRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static SubscribeSystemLogRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		boolean subscribe = JsonUtils.getAsBoolean(p, "subscribe");
+		var p = r.getParams();
+		var subscribe = JsonUtils.getAsBoolean(p, "subscribe");
 		return new SubscribeSystemLogRequest(r, subscribe);
 	}
 
 	/**
 	 * Creates a JSON-RPC Request that subscribes the System-Log.
-	 * 
+	 *
 	 * @return {@link SubscribeSystemLogRequest}
 	 */
 	public static SubscribeSystemLogRequest subscribe() {
@@ -54,7 +54,7 @@ public class SubscribeSystemLogRequest extends JsonrpcRequest {
 
 	/**
 	 * Creates a JSON-RPC Request that unsubscribes the System-Log.
-	 * 
+	 *
 	 * @return {@link SubscribeSystemLogRequest}
 	 */
 	public static SubscribeSystemLogRequest unsubscribe() {
@@ -64,21 +64,21 @@ public class SubscribeSystemLogRequest extends JsonrpcRequest {
 	private final boolean subscribe;
 
 	private SubscribeSystemLogRequest(JsonrpcRequest request, boolean subscribe) {
-		super(request, METHOD);
+		super(request, SubscribeSystemLogRequest.METHOD);
 		this.subscribe = subscribe;
 	}
 
 	public SubscribeSystemLogRequest(boolean subscribe) {
-		super(METHOD);
+		super(SubscribeSystemLogRequest.METHOD);
 		this.subscribe = subscribe;
 	}
 
 	/**
 	 * Whether to subscribe or unsubscribe.
-	 * 
+	 *
 	 * @return true for subscribe, false for unsubscribe
 	 */
-	public boolean getSubscribe() {
+	public boolean isSubscribe() {
 		return this.subscribe;
 	}
 

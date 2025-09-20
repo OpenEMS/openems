@@ -1,0 +1,25 @@
+= Go-e Gemini Charging Station
+
+This component implements the Gemini family of charging station by the manufacturer go-e.
+There are two implementations present:
+
+** GoE API V2 via HTTP (OpenEMS preferred solution)
+** Modbus (Versions >= 57.1 appear to be stable)
+
+
+== Compatibility
+
+** Charger Gemini
+** Charger Gemini flex
+** Charger Gemini 2.0
+** Charger Gemini 2.0 flex
+** Charger Pro
+
+=== Technical Data
+
+https://github.com/goecharger/go-eCharger-API-v2/blob/main/modbus-en.md
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.goe[Source Code icon:github[]]

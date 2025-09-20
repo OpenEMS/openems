@@ -2,109 +2,40 @@ package io.openems.edge.common.converter;
 
 import java.util.function.Function;
 
-import io.openems.common.types.OpenemsType;
-
 public class StaticConverters {
+
 	/**
-	 * Converts only positive values from Element to Channel
+	 * Converts only positive values from Element to Channel.
 	 */
-	public final static Function<Object, Object> KEEP_POSITIVE = (value) -> {
-		if (value == null) {
-			return null;
-		}
-		for (OpenemsType openemsType : OpenemsType.values()) {
-			// this 'for' + 'switch' is only utilized to get an alert by Eclipse IDE if a
-			// new OpenemsType was added. ("The enum constant XX needs a corresponding case
-			// label in this enum switch on OpenemsType")
-			switch (openemsType) {
-			case BOOLEAN:
-			case SHORT:
-			case INTEGER:
-			case LONG:
-			case FLOAT:
-			case DOUBLE:
-			case STRING:
-				if (value instanceof Boolean || value instanceof String) {
-					return value; // impossible
-				} else if (value instanceof Short) {
-					short shortValue = (Short) value;
-					if (shortValue > 0) {
-						return shortValue;
-					} else {
-						return 0;
-					}
-				} else if (value instanceof Integer) {
-					int intValue = (Integer) value;
-					if (intValue > 0) {
-						return intValue;
-					} else {
-						return 0;
-					}
-				} else if (value instanceof Long) {
-					long longValue = (Long) value;
-					if (longValue > 0) {
-						return longValue;
-					} else {
-						return 0;
-					}
-				} else if (value instanceof Float) {
-					float floatValue = (Float) value;
-					if (floatValue > 0) {
-						return floatValue;
-					} else {
-						return 0;
-					}
-				} else if (value instanceof Double) {
-					double doubleValue = (Double) value;
-					if (doubleValue > 0) {
-						return doubleValue;
-					} else {
-						return 0;
-					}
-				}
-			}
-			break;
-		}
-		throw new IllegalArgumentException("Converter KEEP_POSITIVE does not accept the type of [" + value + "]");
+	public static final Function<Object, Object> KEEP_POSITIVE = value -> {
+		return switch (value) {
+		case null -> null;
+		case Boolean b -> b;
+		case String s -> s;
+		case Short s -> s > 0 ? s : 0;
+		case Integer i -> i > 0 ? i : 0;
+		case Long l -> l > 0 ? l : 0;
+		case Float f -> f > 0 ? f : 0;
+		case Double d -> d > 0 ? d : 0;
+		default ->
+			throw new IllegalArgumentException("Converter KEEP_POSITIVE does not accept the type of [" + value + "]");
+		};
 	};
 
 	/**
-	 * Invert a value
+	 * Invert a value.
 	 */
-	public final static Function<Object, Object> INVERT = (value) -> {
-		if (value == null) {
-			return null;
-		}
-		for (OpenemsType openemsType : OpenemsType.values()) {
-			// this 'for' + 'switch' is only utilized to get an alert by Eclipse IDE if a
-			// new OpenemsType was added. ("The enum constant XX needs a corresponding case
-			// label in this enum switch on OpenemsType")
-			switch (openemsType) {
-			case BOOLEAN:
-			case SHORT:
-			case INTEGER:
-			case LONG:
-			case FLOAT:
-			case DOUBLE:
-			case STRING:
-				if (value instanceof String) {
-					return value; // impossible
-				} else if (value instanceof Boolean) {
-					return Boolean.valueOf(!(boolean) value);
-				} else if (value instanceof Short) {
-					return Short.valueOf((short) ((short) value * -1));
-				} else if (value instanceof Integer) {
-					return Integer.valueOf((int) value * -1);
-				} else if (value instanceof Long) {
-					return Long.valueOf((long) value * -1);
-				} else if (value instanceof Float) {
-					return Float.valueOf((float) value * -1);
-				} else if (value instanceof Double) {
-					return Double.valueOf((double) value * -1);
-				}
-			}
-			break;
-		}
-		throw new IllegalArgumentException("Converter INVERT does not accept the type of [" + value + "]");
+	public static final Function<Object, Object> INVERT = value -> {
+		return switch (value) {
+		case null -> null;
+		case Boolean b -> !b;
+		case String s -> s; // impossible
+		case Short s -> s * -1;
+		case Integer i -> i * -1;
+		case Long l -> l * -1;
+		case Float f -> f * -1;
+		case Double d -> d * -1;
+		default -> throw new IllegalArgumentException("Converter INVERT does not accept the type of [" + value + "]");
+		};
 	};
 }

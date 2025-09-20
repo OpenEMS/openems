@@ -9,34 +9,48 @@ import io.openems.common.types.EdgeConfig;
 
 /**
  * Represents a JSON-RPC Notification for OpenEMS Edge configuration.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "method": "edgeConfig",
  *   "params": {
- *     {@link EdgeConfig#toJson()}   
+ *     {@link EdgeConfig#toJson()}
  *   }
  * }
  * </pre>
  */
 public class EdgeConfigNotification extends JsonrpcNotification {
 
+	/**
+	 * Parses a {@link JsonObject} to a {@link EdgeConfigNotification}.
+	 *
+	 * @param j the {@link JsonObject}
+	 * @return the {@link EdgeConfigNotification}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static EdgeConfigNotification from(JsonObject j) throws OpenemsNamedException {
-		return from(GenericJsonrpcNotification.from(j));
+		return EdgeConfigNotification.from(GenericJsonrpcNotification.from(j));
 	}
 
-	public static EdgeConfigNotification from(JsonrpcNotification r) throws OpenemsNamedException {
-		EdgeConfig config = EdgeConfig.fromJson(r.getParams());
+	/**
+	 * Parses a {@link JsonrpcNotification} to a {@link EdgeConfigNotification}.
+	 *
+	 * @param n the {@link JsonrpcNotification}
+	 * @return the {@link EdgeConfigNotification}
+	 * @throws OpenemsNamedException on error
+	 */
+	public static EdgeConfigNotification from(JsonrpcNotification n) throws OpenemsNamedException {
+		var config = EdgeConfig.fromJson(n.getParams());
 		return new EdgeConfigNotification(config);
 	}
 
-	public final static String METHOD = "edgeConfig";
+	public static final String METHOD = "edgeConfig";
 
 	private final EdgeConfig config;
 
 	public EdgeConfigNotification(EdgeConfig config) {
-		super(METHOD);
+		super(EdgeConfigNotification.METHOD);
 		this.config = config;
 	}
 
@@ -46,7 +60,7 @@ public class EdgeConfigNotification extends JsonrpcNotification {
 	}
 
 	public EdgeConfig getConfig() {
-		return config;
+		return this.config;
 	}
 
 }

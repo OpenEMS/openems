@@ -6,7 +6,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.ChargingProperty;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 
@@ -46,9 +45,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(CoreEventHandlerImpl.class);
 
-	private final OcppServerImpl parent;
+	private final EvcsOcppServer parent;
 
-	public CoreEventHandlerImpl(OcppServerImpl parent) {
+	public CoreEventHandlerImpl(EvcsOcppServer parent) {
 		this.parent = parent;
 	}
 
@@ -58,8 +57,8 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle BootNotificationRequest: " + request);
 
-		BootNotificationConfirmation response = new BootNotificationConfirmation(Instant.now().atZone(ZoneOffset.UTC),
-				100, RegistrationStatus.Accepted);
+		var response = new BootNotificationConfirmation(Instant.now().atZone(ZoneOffset.UTC), 100,
+				RegistrationStatus.Accepted);
 		this.logDebug("Send BootNotificationConfirmation: " + response.toString());
 
 		return response;
@@ -70,19 +69,16 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle AuthorizeRequest: " + request);
 
-		IdTagInfo tag = new IdTagInfo(AuthorizationStatus.Accepted);
+		var tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.setParentIdTag(request.getIdTag());
-		AuthorizeConfirmation response = new AuthorizeConfirmation(tag);
-		return response;
+		return new AuthorizeConfirmation(tag);
 	}
 
 	@Override
 	public DataTransferConfirmation handleDataTransferRequest(UUID sessionIndex, DataTransferRequest request) {
 
 		this.logDebug("Handle DataTransferRequest: " + request);
-		DataTransferConfirmation response = new DataTransferConfirmation(DataTransferStatus.Accepted);
-
-		return response;
+		return new DataTransferConfirmation(DataTransferStatus.Accepted);
 	}
 
 	@Override
@@ -96,7 +92,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	public MeterValuesConfirmation handleMeterValuesRequest(UUID sessionIndex, MeterValuesRequest request) {
 		this.logDebug("Handle MeterValuesRequest: " + request);
 
-		AbstractOcppEvcsComponent evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
+		var evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new MeterValuesConfirmation();
 		}
@@ -104,18 +100,18 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		/*
 		 * Set the channels depending on the meter values
 		 */
-		MeterValue[] meterValueArr = request.getMeterValue();
+		var meterValueArr = request.getMeterValue();
 		for (MeterValue meterValue : meterValueArr) {
 
-			SampledValue[] sampledValues = meterValue.getSampledValue();
+			var sampledValues = meterValue.getSampledValue();
 			for (SampledValue value : sampledValues) {
 
 				// value.getLocation(); Not needed
-				String phases = value.getPhase();
-				String unitString = value.getUnit();
-				Unit unit = Unit.valueOf(unitString.toUpperCase());
-				String val = value.getValue();
-				String measurandString = value.getMeasurand();
+				var phases = value.getPhase();
+				var unitString = value.getUnit();
+				var unit = Unit.valueOf(unitString.toUpperCase());
+				var val = value.getValue();
+				var measurandString = value.getMeasurand();
 
 				if (val != null) {
 
@@ -123,12 +119,12 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 					 * Value is formatted in RAW data (integer/decimal) or in SignedData (binary
 					 * data block, encoded as hex data)
 					 */
-					ValueFormat format = value.getFormat();
+					var format = value.getFormat();
 					if (format.equals(ValueFormat.SignedData)) {
-						val = this.fromHexToDezString(val);
+						val = fromHexToDezString(val);
 					}
 
-					OcppInformations measurand = OcppInformations
+					var measurand = OcppInformations
 							.valueOf("CORE_METER_VALUES_" + measurandString.replace(".", "_").toUpperCase());
 
 					this.logDebug(measurandString + ": " + val + " " + unitString + " Phases: " + phases);
@@ -147,14 +143,14 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_INTERVAL:
 						case CORE_METER_VALUES_ENERGY_ACTIVE_EXPORT_INTERVAL:
 							if (unit.equals(Unit.KWH)) {
-								val = this.multipliedByThousand(val);
+								val = multipliedByThousand(val);
 							}
 							correctValue = Double.valueOf(val);
 							break;
 
 						case CORE_METER_VALUES_ENERGY_ACTIVE_IMPORT_REGISTER:
 							if (unit.equals(Unit.KWH)) {
-								val = this.multipliedByThousand(val);
+								val = multipliedByThousand(val);
 							}
 							correctValue = Double.valueOf(val);
 
@@ -164,18 +160,17 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								// TODO: Currently not working with session energy values
 							}
 
-							long energy = (long) Math.round((Double) correctValue);
+							var energy = Math.round((Double) correctValue);
 							if (!evcs.getSessionStart().isChargeSessionStampPresent()) {
 								break;
 							}
-
-							int sessionEnergy = 0;
-							long totalEnergy = 0;
 
 							/*
 							 * Calculating the energy in this session and in total for the given energy
 							 * value.
 							 */
+							final int sessionEnergy;
+							final long totalEnergy;
 							if (evcs.returnsSessionEnergy()) {
 								sessionEnergy = (int) energy;
 								totalEnergy = evcs.getSessionStart().getEnergy() + energy;
@@ -184,7 +179,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 								totalEnergy = energy;
 							}
 							evcs._setEnergySession(sessionEnergy);
-							evcs._setActiveConsumptionEnergy(totalEnergy);
+							evcs._setActiveProductionEnergy(totalEnergy);
 							break;
 
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_REGISTER:
@@ -192,7 +187,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_ENERGY_REACTIVE_EXPORT_INTERVAL:
 						case CORE_METER_VALUES_ENERGY_REACTIVE_IMPORT_INTERVAL:
 							if (unit.equals(Unit.KVARH)) {
-								val = this.multipliedByThousand(val);
+								val = multipliedByThousand(val);
 							}
 							correctValue = Double.valueOf(val);
 							break;
@@ -201,21 +196,21 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_POWER_ACTIVE_IMPORT:
 						case CORE_METER_VALUES_POWER_OFFERED:
 							if (unit.equals(Unit.KW)) {
-								val = this.multipliedByThousand(val);
+								val = multipliedByThousand(val);
 							}
-							correctValue = (int) Math.round(Double.valueOf(val));
+							correctValue = (int) Math.round(Double.parseDouble(val));
 
 							/*
 							 * Sets the start and end session stamp depending on the the current power.
 							 */
-							Instant now = Instant.now(this.parent.componentManager.getClock());
+							var now = Instant.now(this.parent.componentManager.getClock());
 
 							if ((int) correctValue > 0) {
 								evcs._setStatus(Status.CHARGING);
 							}
 
 							// Has to provide a not null energy value
-							Optional<Long> currEnergy = evcs.getActiveConsumptionEnergy().asOptional();
+							var currEnergy = evcs.getActiveConsumptionEnergy().asOptional();
 							if (currEnergy.isPresent()) {
 								if ((int) correctValue > 0) {
 									evcs.getSessionStart().setChargeSessionStampIfNotPresent(now, currEnergy.get());
@@ -230,14 +225,14 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 						case CORE_METER_VALUES_POWER_REACTIVE_EXPORT:
 						case CORE_METER_VALUES_POWER_REACTIVE_IMPORT:
 							if (unit.equals(Unit.KVAR)) {
-								val = this.multipliedByThousand(val);
+								val = multipliedByThousand(val);
 							}
-							correctValue = (int) Math.round(Double.valueOf(val));
+							correctValue = (int) Math.round(Double.parseDouble(val));
 							break;
 
 						case CORE_METER_VALUES_VOLTAGE:
 						case CORE_METER_VALUES_SOC:
-							correctValue = (int) Math.round(Double.valueOf(val));
+							correctValue = (int) Math.round(Double.parseDouble(val));
 							break;
 
 						case CORE_METER_VALUES_RPM:
@@ -259,7 +254,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 			StatusNotificationRequest request) {
 
 		this.logDebug("Handle StatusNotificationRequest: " + request);
-		AbstractOcppEvcsComponent evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
+		var evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getConnectorId());
 		if (evcs == null) {
 			return new StatusNotificationConfirmation();
 		}
@@ -268,51 +263,54 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		 * Set the EVCS status based on the status from the StatusNotificationRequest
 		 */
 		Status evcsStatus = null;
-		ChargePointStatus ocppStatus = request.getStatus();
+		var ocppStatus = request.getStatus();
 		switch (ocppStatus) {
-		case Available:
+		case Available -> {
 			evcs._setChargingstationCommunicationFailed(false);
 			evcsStatus = Status.NOT_READY_FOR_CHARGING;
-			break;
-		case Charging:
+		}
+		case Charging -> {
 			evcsStatus = Status.CHARGING;
 
 			// Reset the end charge session stamp
 			evcs.getSessionEnd().resetChargeSessionStampIfPresent();
 
 			// Set the start charge session stamp
-			evcs.getSessionStart().setChargeSessionStampIfNotPresent(
-					Instant.now(this.parent.componentManager.getClock()), evcs.getActiveConsumptionEnergy().orElse(0L));
-			break;
-		case Faulted:
+			evcs.getSessionStart().setChargeSessionStampIfNotPresent(//
+					Instant.now(this.parent.componentManager.getClock()), //
+					evcs.getActiveProductionEnergy().orElse(0L));
+		}
+		case Faulted -> {
 			evcsStatus = Status.ERROR;
-			break;
-		case Finishing:
-			evcsStatus = Status.CHARGING_FINISHED;
+		}
+		case Finishing -> {
+			evcsStatus = Status.CHARGING_REJECTED;
 
 			// Reset the start charge session stamp
 			evcs.getSessionStart().resetChargeSessionStampIfPresent();
 
-			evcs.getSessionEnd().setChargeSessionStampIfNotPresent(Instant.now(this.parent.componentManager.getClock()),
-					evcs.getActiveConsumptionEnergy().orElse(0L));
-			break;
-		case Preparing:
+			evcs.getSessionEnd().setChargeSessionStampIfNotPresent(//
+					Instant.now(this.parent.componentManager.getClock()), //
+					evcs.getActiveProductionEnergy().orElse(0L));
+
+		}
+		case Preparing -> {
 			evcsStatus = Status.READY_FOR_CHARGING;
-			break;
-		case Reserved:
+		}
+		case Reserved -> {
 			this.logDebug("Reservation currently not supported");
-			break;
-		case SuspendedEV:
+		}
+		case SuspendedEV -> {
 			evcsStatus = Status.CHARGING_REJECTED;
-			break;
-		case SuspendedEVSE:
+		}
+		case SuspendedEVSE -> {
 			evcsStatus = Status.CHARGING_REJECTED;
-			break;
-		case Unavailable:
+		}
+		case Unavailable -> {
 			this.logDebug("Charging Station is Unavailable.");
 			evcs._setChargingstationCommunicationFailed(true);
 			evcsStatus = Status.ERROR;
-			break;
+		}
 		}
 
 		if (ocppStatus != ChargePointStatus.Unavailable) {
@@ -331,11 +329,10 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle StartTransactionRequest: " + request);
 
-		IdTagInfo idTagInfo = new IdTagInfo(AuthorizationStatus.Accepted);
+		var idTagInfo = new IdTagInfo(AuthorizationStatus.Accepted);
 		idTagInfo.setParentIdTag(request.getIdTag());
-		
-		StartTransactionConfirmation response = new StartTransactionConfirmation(idTagInfo, request.getConnectorId());
-		return response;
+
+		return new StartTransactionConfirmation(idTagInfo, request.getConnectorId());
 	}
 
 	@Override
@@ -343,19 +340,19 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 		this.logDebug("Handle StopTransactionRequest: " + request);
 
-		IdTagInfo tag = new IdTagInfo(AuthorizationStatus.Accepted);
+		var tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.setParentIdTag(request.getIdTag());
 		tag.validate();
-		AbstractOcppEvcsComponent evcs;
-		List<AbstractOcppEvcsComponent> evcss = this.getEvcssBySessionIndex(sessionIndex);
+		AbstractManagedOcppEvcsComponent evcs;
+		var evcss = this.getEvcssBySessionIndex(sessionIndex);
 		if (evcss.size() == 1) {
 			evcs = evcss.get(0);
 		} else {
 			evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getTransactionId());
 		}
-		evcs._setStatus(Status.CHARGING_FINISHED);
+		evcs._setStatus(Status.CHARGING_REJECTED);
 
-		StopTransactionConfirmation response = new StopTransactionConfirmation();
+		var response = new StopTransactionConfirmation();
 		response.setIdTagInfo(tag);
 		response.validate();
 		return response;
@@ -363,37 +360,36 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	/**
 	 * Get the EVCSs that are in this session.
-	 * 
+	 *
 	 * <p>
 	 * One charging station has one session but can have more connectors. Every
 	 * connector is one EVCS in our System because each can be managed and monitored
 	 * by itself.
-	 * 
+	 *
 	 * @param sessionIndex given session
 	 * @return List of AbstractOcppEvcsComponent
 	 */
-	private List<AbstractOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
-		List<AbstractOcppEvcsComponent> evcss = this.parent.activeEvcsSessions.getOrDefault(sessionIndex,
-				new ArrayList<AbstractOcppEvcsComponent>());
-		return evcss;
+	private List<AbstractManagedOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
+		return this.parent.activeEvcsSessions.getOrDefault(sessionIndex,
+				new ArrayList<AbstractManagedOcppEvcsComponent>());
 	}
 
 	/**
 	 * Get the EVCS that are in this session and with the given connector id.
-	 * 
+	 *
 	 * <p>
 	 * One charging station has one session but can have more connectors. Every
 	 * connector is one EVCS in our System because each can be managed and monitored
 	 * by itself.
-	 * 
+	 *
 	 * @param sessionIndex given session
 	 * @param connectorId  given connector id
 	 * @return EVCS Component with the given session and connectorId.
 	 */
-	private AbstractOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
-		List<AbstractOcppEvcsComponent> evcss = this.getEvcssBySessionIndex(sessionIndex);
+	private AbstractManagedOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
+		var evcss = this.getEvcssBySessionIndex(sessionIndex);
 		if (evcss != null) {
-			for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
+			for (AbstractManagedOcppEvcsComponent ocppEvcs : evcss) {
 				if (ocppEvcs.getConfiguredConnectorId().equals(connectorId)) {
 					return ocppEvcs;
 				}
@@ -405,63 +401,63 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	/**
 	 * Return the decimal value of the given Hexadecimal value.
-	 * 
+	 *
 	 * @param hex given value in hex
 	 * @return Decimal value as String
 	 */
-	public String fromHexToDezString(String hex) {
-		int dezValue = Integer.parseInt(hex, 16);
+	public static String fromHexToDezString(String hex) {
+		var dezValue = Integer.parseInt(hex, 16);
 		return String.valueOf(dezValue);
 	}
 
 	/**
 	 * Divide the given String value by thousand.
-	 * 
+	 *
 	 * @param val value
 	 * @return Value / 1000 as String
 	 */
-	private String multipliedByThousand(String val) {
+	private static String multipliedByThousand(String val) {
 		if (val.isEmpty()) {
 			return val;
 		}
-		return String.valueOf((Double.parseDouble(val) * 1000.0));
+		return String.valueOf(Double.parseDouble(val) * 1000.0);
 	}
 
 	/**
 	 * Sets the calculated power to the given EVCS.
-	 * 
+	 *
 	 * @param evcs          Corresponding EVCS component.
 	 * @param currentEnergy Current measured Energy.
 	 * @param timestamp     Time when the current Energy was measured.
 	 */
-	private void setPowerDependingOnEnergy(AbstractOcppEvcsComponent evcs, Double currentEnergy,
+	private void setPowerDependingOnEnergy(AbstractManagedOcppEvcsComponent evcs, Double currentEnergy,
 			ZonedDateTime timestamp) {
 
-		ChargingProperty lastChargingProperty = evcs.getLastChargingProperty();
-		int power = 0;
+		var lastChargingProperty = evcs.getLastChargingProperty();
+		var power = 0;
 		if (lastChargingProperty != null) {
 
-			power = this.calculateChargePower(lastChargingProperty, currentEnergy, timestamp);
-			evcs._setChargePower(power);
+			power = this.calculateActivePower(lastChargingProperty, currentEnergy, timestamp);
+			evcs._setActivePower(power);
 		}
 		evcs.setLastChargingProperty(new ChargingProperty(power, currentEnergy, timestamp));
 	}
 
 	/**
 	 * Calculates the power depending on the last and current measured Energy.
-	 * 
-	 * @param meterValueOld Last measured meter values.
-	 * @param currentEnergy Current measured Energy.
-	 * @param timestamp     Time when the current Energy was measured.
+	 *
+	 * @param lastMeterValue Last measured meter values.
+	 * @param currentEnergy  Current measured Energy.
+	 * @param timestamp      Time when the current Energy was measured.
 	 * @return current power
 	 */
-	private int calculateChargePower(ChargingProperty lastMeterValue, double currentEnergy, ZonedDateTime timestamp) {
+	private int calculateActivePower(ChargingProperty lastMeterValue, double currentEnergy, ZonedDateTime timestamp) {
 
 		double diffseconds = Duration.between(timestamp, lastMeterValue.getTimestamp()).getSeconds();
 
-		double lastEnergy = lastMeterValue.getTotalMeterEnergy();
+		var lastEnergy = lastMeterValue.getTotalMeterEnergy();
 
-		int power = (int) (Math.round((currentEnergy - lastEnergy) / (diffseconds / 3600.0)));
+		var power = (int) Math.round((currentEnergy - lastEnergy) / (diffseconds / 3600.0));
 
 		this.logDebug("Last: " + String.valueOf(lastEnergy) + "Wh, Current: " + String.valueOf(currentEnergy)
 				+ "Wh. Calculated Power: " + power + "; Sekunden differenz: " + diffseconds);

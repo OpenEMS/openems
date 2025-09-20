@@ -16,8 +16,7 @@ public enum Status implements OptionsEnum {
 	CHARGING(3, "Charging"), //
 	ERROR(4, "Error"), //
 	CHARGING_REJECTED(5, "Charging rejected"), //
-	ENERGY_LIMIT_REACHED(6, "The charging limit reached"), //
-	CHARGING_FINISHED(7, "Charging has finished");
+	ENERGY_LIMIT_REACHED(6, "The charging limit reached"); //
 
 	private final int value;
 	private final String name;
@@ -29,12 +28,12 @@ public enum Status implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

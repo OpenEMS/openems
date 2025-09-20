@@ -3,7 +3,6 @@ package io.openems.edge.ess.core.power.optimizers;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.math3.optim.PointValuePair;
@@ -56,10 +55,10 @@ public class ReduceNumberOfUsedInvertersTest {
 
 	@Test
 	public void testNumberOfUsedInverters() {
-		int requiredNumberOfInverters = 3;
+		var requiredNumberOfInverters = 3;
 
-		ValidateFunction validateFunction = new ValidateFunction(allInverters, requiredNumberOfInverters);
-		List<Inverter> inverters = sut.apply(allInverters, TargetDirection.DISCHARGE, validateFunction);
+		var validateFunction = new ValidateFunction(allInverters, requiredNumberOfInverters);
+		var inverters = sut.apply(allInverters, TargetDirection.DISCHARGE, validateFunction);
 
 		if (requiredNumberOfInverters > allInverters.size() || requiredNumberOfInverters <= 0) {
 			// no solution possible; keep all Inverters
@@ -71,10 +70,10 @@ public class ReduceNumberOfUsedInvertersTest {
 
 	@Test
 	public void testActualInvertersOnDischarge() {
-		ValidateFunction validateFunction = new ValidateFunction(allInverters, 2);
-		List<Inverter> inverters = sut.apply(allInverters, TargetDirection.DISCHARGE, validateFunction);
+		var validateFunction = new ValidateFunction(allInverters, 2);
+		var inverters = sut.apply(allInverters, TargetDirection.DISCHARGE, validateFunction);
 
-		Iterator<Inverter> iter = inverters.iterator();
+		var iter = inverters.iterator();
 		Inverter inv;
 
 		inv = iter.next();
@@ -86,10 +85,10 @@ public class ReduceNumberOfUsedInvertersTest {
 
 	@Test
 	public void testActualInvertersOnCharge() {
-		ValidateFunction validateFunction = new ValidateFunction(allInverters, 3);
-		List<Inverter> inverters = sut.apply(allInverters, TargetDirection.CHARGE, validateFunction);
+		var validateFunction = new ValidateFunction(allInverters, 3);
+		var inverters = sut.apply(allInverters, TargetDirection.CHARGE, validateFunction);
 
-		Iterator<Inverter> iter = inverters.iterator();
+		var iter = inverters.iterator();
 		Inverter inv;
 
 		inv = iter.next();
@@ -120,9 +119,8 @@ public class ReduceNumberOfUsedInvertersTest {
 		public PointValuePair apply(List<Inverter> disabledInverters) throws Exception {
 			if (this.allInverters.size() - disabledInverters.size() < this.requiredNumberOfInverters) {
 				throw new Exception("Not solved");
-			} else {
-				return null; // ignored
 			}
+			return null; // ignored
 		}
 
 	}

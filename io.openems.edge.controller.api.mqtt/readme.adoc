@@ -2,16 +2,16 @@
 
 Publishes OpenEMS Edge data to a MQTT broker.
 
-* `edge/{OpenEMS-Edge-ID}/channel/{Component-ID}/{Channel-ID}`
+* `edge/\{OpenEMS-Edge-ID\}/channel/\{Component-ID\}/\{Channel-ID\}`
 ** Data of Channels is published on change and at least every 5 minutes to these topics.
 ** Example: `edge/edge0/channel/_sum/GridActivePower`
 
 
-* `edge/{OpenEMS-Edge-ID}/channel/lastUpdate`
+* `edge/\{OpenEMS-Edge-ID\}/channel/lastUpdate`
 ** Timestamp of the latest data update on any of the Channel topics above.
 ** Example: `edge/edge0/channel/lastUpdate`
 
-* `edge/{OpenEMS-Edge-ID}/edgeConfig`
+* `edge/\{OpenEMS-Edge-ID\}/edgeConfig`
 ** Configuration of the OpenEMS Edge instance is published to this topic as a JsonObject.
 ** Example: `edge/edge0/edgeConfig`
 

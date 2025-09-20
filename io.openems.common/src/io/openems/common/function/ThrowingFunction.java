@@ -14,6 +14,13 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface ThrowingFunction<T, R, E extends Exception> {
 
+	/**
+	 * Applies this function to the given argument.
+	 *
+	 * @param t the function argument
+	 * @return the function result
+	 * @throws E on error
+	 */
 	public R apply(T t) throws E;
 
 }

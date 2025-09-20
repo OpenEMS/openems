@@ -1,5 +1,2 @@
 eclipse.preferences.version=1
-encoding//src/io/openems/edge/io/kmtronic/AbstractKmtronicRelay.java=UTF-8
-encoding//src/io/openems/edge/io/kmtronic/eight/KmtronicRelay8Port.java=UTF-8
-encoding//src/io/openems/edge/io/kmtronic/eight/KmtronicRelay8PortImpl.java=UTF-8
-encoding/bnd.bnd=UTF-8
+encoding/<project>=UTF-8

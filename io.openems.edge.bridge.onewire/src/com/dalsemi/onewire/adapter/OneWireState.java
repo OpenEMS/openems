@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -165,30 +166,31 @@ class OneWireState {
 	public OneWireState() {
 
 		// speed, level
-		oneWireSpeed = DSPortAdapter.SPEED_REGULAR;
-		oneWireLevel = DSPortAdapter.LEVEL_NORMAL;
+		this.oneWireSpeed = DSPortAdapter.SPEED_REGULAR;
+		this.oneWireLevel = DSPortAdapter.LEVEL_NORMAL;
 
 		// level primed
-		levelChangeOnNextBit = false;
-		levelChangeOnNextByte = false;
-		primedLevelValue = DSPortAdapter.LEVEL_NORMAL;
-		levelTimeFactor = DSPortAdapter.DELIVERY_INFINITE;
+		this.levelChangeOnNextBit = false;
+		this.levelChangeOnNextByte = false;
+		this.primedLevelValue = DSPortAdapter.LEVEL_NORMAL;
+		this.levelTimeFactor = DSPortAdapter.DELIVERY_INFINITE;
 
 		// adapter abilities
-		canProgram = false;
+		this.canProgram = false;
 
 		// search options
-		searchIncludeFamilies = new byte[0];
-		searchExcludeFamilies = new byte[0];
-		searchOnlyAlarmingButtons = false;
-		skipResetOnSearch = false;
+		this.searchIncludeFamilies = new byte[0];
+		this.searchExcludeFamilies = new byte[0];
+		this.searchOnlyAlarmingButtons = false;
+		this.skipResetOnSearch = false;
 
 		// new iButton object
-		ID = new byte[8];
+		this.ID = new byte[8];
 
 		// search state
-		searchLastDiscrepancy = 0;
-		searchFamilyLastDiscrepancy = 0;
-		searchLastDevice = false;
+		this.searchLastDiscrepancy = 0;
+		this.searchFamilyLastDiscrepancy = 0;
+		this.searchLastDevice = false;
 	}
 }
+// CHECKSTYLE:ON

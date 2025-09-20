@@ -1,0 +1,24 @@
+= ESS Time-of-Use Tariff
+
+This Controller optimizes the performance of an energy storage system (ESS) in conjunction with a Time-Of-Use (ToU) Tariff provider. 
+
+The primary aim of the controller is to optimize the economic utilization of energy stored within the battery, primarily for self-consumption. To achieve this goal, the controller employs a rolling approach, where it continuously fetches predictions from the prediction service. It takes into account the current state of the battery's capacity, recalculates its operations, and generates a detailed schedule for the Energy Storage System (ESS) for the upcoming 24-hour period, in 15-minute intervals.
+
+This iterative and dynamic approach ensures that the ESS operates efficiently by staying synchronized with real-time forecasts and the evolving state of the battery, thereby maximizing cost-effectiveness and self-consumption of stored energy.
+
+== Schedule Calculation Modes
+
+The schedule calculation process varies depending on the local market conditions. To accommodate this variability, two distinct modes have been introduced to facilitate flexible operation:
+
+CHARGE_CONSUMPTION::
+  This mode is well-suited for markets that permit charging the battery from the grid. In this mode, the controller utilizes production and consumption forecasts along with day-ahead electricity prices to calculate the optimal time periods for charging the battery from the grid. This approach ensures efficient utilization of resources while taking advantage of cost-effective grid charging opportunities.
+
+  
+DELAY_DISCHARGE::
+  This mode is tailored for markets where grid charging is restricted or discouraged. In such scenarios, optimal time periods are determined based on forecasts and day-ahead pricing information. The controller then schedules the Energy Storage System (ESS) to limit or delay discharging during these specific periods. This strategic approach aims to optimize economic performance by avoiding costly grid interactions when grid charging is not feasible or economical.
+  
+
+These two operation modes provide the necessary flexibility to adapt to varying market conditions, allowing for efficient energy management and cost savings based on the specific requirements of your local energy market.
+
+	
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.timeofusetariff[Source Code icon:github[]]

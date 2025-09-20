@@ -7,16 +7,19 @@ import io.openems.edge.common.linecharacteristic.PolyLine;
  */
 public class BatteryProtectionDefinitionSoltaro3500Wh extends AbstractBatteryProtectionDefinitionSoltaro {
 
+	// Over voltage Protection
 	@Override
 	public PolyLine getChargeVoltageToPercent() {
 		return PolyLine.create() //
-				.addPoint(3000, 0.1) //
-				.addPoint(Math.nextUp(3000), 1) //
-				.addPoint(3350, 1) //
-				.addPoint(3450, 0.9999) //
-				.addPoint(3600, 0.01) //
-				.addPoint(Math.nextDown(3650), 0.01) //
-				.addPoint(3650, 0) //
+				.addPoint(3010, 0.1) //
+				.addPoint(Math.nextUp(3010), 1) //
+				.addPoint(Math.nextDown(3460), 1) //
+				.addPoint(3460, 0.99) //
+				.addPoint(3560, 0.02) //
+				.addPoint(3605, 0.01) //
+				.addPoint(Math.nextDown(3615), 0.01) //
+				.addPoint(3615, 0) //
 				.build();
 	}
+
 }

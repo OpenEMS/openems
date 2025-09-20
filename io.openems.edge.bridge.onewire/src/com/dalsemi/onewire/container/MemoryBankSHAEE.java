@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 Maxim Integrated Products, All Rights Reserved.
  *
@@ -179,15 +180,15 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 */
 	public MemoryBankSHAEE(OneWireContainer33 ibutton, MemoryBankScratchSHAEE scratch) {
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
-		scratchpad = scratch;
+		this.scratchpad = scratch;
 
 		// keep reference to adapter that button is on
-		adapter = ib.getAdapter();
+		this.adapter = this.ib.getAdapter();
 
 		// indicate speed has not been set
-		doSetSpeed = true;
+		this.doSetSpeed = true;
 	}
 
 	// --------
@@ -199,8 +200,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
-		return bankDescription;
+		return this.bankDescription;
 	}
 
 	/**
@@ -210,8 +212,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
-		return generalPurposeMemory;
+		return this.generalPurposeMemory;
 	}
 
 	/**
@@ -219,8 +222,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		return readWrite;
+		return this.readWrite;
 	}
 
 	/**
@@ -229,8 +233,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
-		return writeOnce;
+		return this.writeOnce;
 	}
 
 	/**
@@ -238,8 +243,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -248,6 +254,7 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
 		return true;
 	}
@@ -259,6 +266,7 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
 		return false;
 	}
@@ -270,6 +278,7 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
 		return true;
 	}
@@ -280,8 +289,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -289,8 +299,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	/**
@@ -299,8 +310,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	/**
@@ -308,8 +320,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return number of pages in current memory bank
 	 */
+	@Override
 	public int getNumberPages() {
-		return numberPages;
+		return this.numberPages;
 	}
 
 	/**
@@ -317,8 +330,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return page length in bytes in current memory bank
 	 */
+	@Override
 	public int getPageLength() {
-		return pageLength;
+		return this.pageLength;
 	}
 
 	/**
@@ -328,24 +342,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can be read with self generated CRC.
 	 */
+	@Override
 	public boolean hasPageAutoCRC() {
-		return pageCRC;
-	}
-
-	/**
-	 * Query to see if current memory bank pages when read deliver extra information
-	 * outside of the normal data space. Examples of this may be a redirection byte,
-	 * counter, tamper protection bytes, or SHA-1 result. If this method returns
-	 * true then the methods 'ReadPagePacket()' and 'readPageCRC()' with 'extraInfo'
-	 * parameter can be used.
-	 *
-	 * @return 'true' if reading the current memory bank pages provides extra
-	 *         information.
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo() {
-		return extraInfo;
+		return this.pageCRC;
 	}
 
 	/**
@@ -365,8 +364,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
 	 * @since 1-Wire API 0.01
 	 */
+	@Override
 	public boolean hasExtraInfo() {
-		return extraInfo;
+		return this.extraInfo;
 	}
 
 	/**
@@ -376,8 +376,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @return number of bytes in Extra Information read when reading pages in the
 	 *         current memory bank.
 	 */
+	@Override
 	public int getExtraInfoLength() {
-		return extraInfoLength;
+		return this.extraInfoLength;
 	}
 
 	/**
@@ -387,6 +388,7 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 *
 	 * @return string describing extra information.
 	 */
+	@Override
 	public String getExtraInfoDescription() {
 		return "The MAC for the SHA Engine";
 	}
@@ -394,13 +396,14 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only useful if the current
-	 * memory bank is general purpose memory.
+	 * 'WritePagePacket()' methods. This method is only useful if the current memory
+	 * bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
 	 */
+	@Override
 	public int getMaxPacketDataLength() {
-		return maxPacketDataLength;
+		return this.maxPacketDataLength;
 	}
 
 	// --------
@@ -430,6 +433,7 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
@@ -440,7 +444,7 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 			Debug.debug("  readContinue=" + readContinue);
 			Debug.debug("  offset=" + offset);
 			Debug.debug("  len=" + len);
-			Debug.debug("  this.startPhysicalAddress=0x" + Convert.toHexString((byte) startPhysicalAddress));
+			Debug.debug("  this.startPhysicalAddress=0x" + Convert.toHexString((byte) this.startPhysicalAddress));
 			Debug.debug("  this.pageLength=" + this.pageLength);
 			Debug.debug("  this.numberPages=" + this.numberPages);
 			Debug.stackTrace();
@@ -448,45 +452,50 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 
 		// attempt to put device at max desired speed
-		if (!readContinue && ib.adapterSet())
-			checkSpeed();
+		if (!readContinue && this.ib.adapterSet()) {
+			this.checkSpeed();
+		}
 
 		// check if read exceeds memory
-		if ((startAddr + len) > (pageLength * numberPages))
+		if (startAddr + len > this.pageLength * this.numberPages) {
 			throw new OneWireException("Read exceeds memory bank end.");
+		}
 
 		// see if need to access the device
 		if (!readContinue) {
 			// select the device
-			if (!adapter.select(ib.getAddress()))
+			if (!this.adapter.select(this.ib.getAddress())) {
 				throw new OneWireIOException("Device select failed.");
+			}
 
 			// build start reading memory block
-			int addr = startAddr + startPhysicalAddress;
-			byte[] raw_buf = new byte[3];
+			var addr = startAddr + this.startPhysicalAddress;
+			var raw_buf = new byte[3];
 
 			raw_buf[0] = READ_MEMORY;
 			raw_buf[1] = (byte) (addr & 0xFF);
-			raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+			raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
 			// do the first block for command, address
-			adapter.dataBlock(raw_buf, 0, 3);
+			this.adapter.dataBlock(raw_buf, 0, 3);
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-			if (DEBUG)
+			if (DEBUG) {
 				Debug.debug("  raw_buf", raw_buf, 0, 3);
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+			}
 		}
 
 		// pre-fill readBuf with 0xFF
-		int pgs = len / pageLength;
-		int extra = len % pageLength;
+		var pgs = len / this.pageLength;
+		var extra = len % this.pageLength;
 
-		for (int i = 0; i < pgs; i++)
-			System.arraycopy(ffBlock, 0, readBuf, offset + i * pageLength, pageLength);
-		System.arraycopy(ffBlock, 0, readBuf, offset + pgs * pageLength, extra);
+		for (var i = 0; i < pgs; i++) {
+			System.arraycopy(ffBlock, 0, readBuf, offset + i * this.pageLength, this.pageLength);
+		}
+		System.arraycopy(ffBlock, 0, readBuf, offset + pgs * this.pageLength, extra);
 
 		// send second block to read data, return result
-		adapter.dataBlock(readBuf, offset, len);
+		this.adapter.dataBlock(readBuf, offset, len);
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 		if (DEBUG) {
@@ -517,6 +526,7 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -524,93 +534,103 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 			Debug.debug("MemoryBankSHAEE.write(int,byte[],int,int) called");
 			Debug.debug("  startAddr=0x" + Convert.toHexString((byte) startAddr));
 			Debug.debug("  writeBuf", writeBuf, offset, len);
-			Debug.debug("  startPhysicalAddress=0x" + Convert.toHexString((byte) startPhysicalAddress));
+			Debug.debug("  startPhysicalAddress=0x" + Convert.toHexString((byte) this.startPhysicalAddress));
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		int room_left;
 
-		if (!checked)
-			checked = ib.checkStatus();
+		if (!this.checked) {
+			this.checked = this.ib.checkStatus();
+		}
 
 		// return if nothing to do
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// attempt to put device at speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// check to see if secret is set
-		if (!ib.isContainerSecretSet())
+		if (!this.ib.isContainerSecretSet()) {
 			throw new OneWireException("Secret is not set.");
+		}
 
 		// check if write exceeds memory
-		if ((startAddr + len) > size)
+		if (startAddr + len > this.size) {
 			throw new OneWireException("Write exceeds memory bank end");
+		}
 
 		// check if trying to write read only bank
-		if (isReadOnly())
+		if (this.isReadOnly()) {
 			throw new OneWireException("Trying to write read-only memory bank");
+		}
 
 		// loop while still have pages to write
 		int startx = 0, nextx = 0; // (start and next index into writeBuf)
-		byte[] raw_buf = new byte[8];
-		byte[] memory = new byte[(size - (startAddr & 0xE0))]; // till end of memory
-		int abs_addr = startPhysicalAddress + startAddr;
-		int pl = 8;
+		var raw_buf = new byte[8];
+		var memory = new byte[this.size - (startAddr & 0xE0)]; // till end of memory
+		var abs_addr = this.startPhysicalAddress + startAddr;
+		var pl = 8;
 
-		read(startAddr & 0xE0, false, memory, 0, memory.length);
+		this.read(startAddr & 0xE0, false, memory, 0, memory.length);
 
 		if (abs_addr >= 128) {
-			ib.getContainerSecret(memory, 0);
+			this.ib.getContainerSecret(memory, 0);
 		}
 
 		do {
 			// calculate room left in current page
-			room_left = pl - ((abs_addr + startx) % pl);
+			room_left = pl - (abs_addr + startx) % pl;
 
 			// check if block left will cross end of page
-			if ((len - startx) > room_left)
+			if (len - startx > room_left) {
 				nextx = startx + room_left;
-			else
+			} else {
 				nextx = len;
+			}
 
 			// bug fix, if updating pages two and three in the same write op
 			// this used to fail, was (startAddr>=pageLength)
-			if ((startx + startAddr) >= pageLength)
-				System.arraycopy(memory, (((startx + startAddr) / 8) * 8) - 32, raw_buf, 0, 8);
-			else
-				System.arraycopy(memory, (((startx + startAddr) / 8) * 8), raw_buf, 0, 8);
+			if (startx + startAddr >= this.pageLength) {
+				System.arraycopy(memory, (startx + startAddr) / 8 * 8 - 32, raw_buf, 0, 8);
+			} else {
+				System.arraycopy(memory, (startx + startAddr) / 8 * 8, raw_buf, 0, 8);
+			}
 
-			if ((nextx - startx) == 8)
+			if (nextx - startx == 8) {
 				System.arraycopy(writeBuf, offset + startx, raw_buf, 0, 8);
-			else if (((startAddr + nextx) % 8) == 0)
-				System.arraycopy(writeBuf, offset + startx, raw_buf, ((startAddr + startx) % 8),
-						8 - ((startAddr + startx) % 8));
-			else
-				System.arraycopy(writeBuf, offset + startx, raw_buf, ((startAddr + startx) % 8),
-						((startAddr + nextx) % 8) - ((startAddr + startx) % 8));
+			} else if ((startAddr + nextx) % 8 == 0) {
+				System.arraycopy(writeBuf, offset + startx, raw_buf, (startAddr + startx) % 8,
+						8 - (startAddr + startx) % 8);
+			} else {
+				System.arraycopy(writeBuf, offset + startx, raw_buf, (startAddr + startx) % 8,
+						(startAddr + nextx) % 8 - (startAddr + startx) % 8);
+			}
 
 			// write the page of data to scratchpad
-			scratchpad.writeScratchpad(abs_addr + startx + room_left - 8, raw_buf, 0, 8);
+			this.scratchpad.writeScratchpad(abs_addr + startx + room_left - 8, raw_buf, 0, 8);
 
 			// Copy data from scratchpad into memory
-			scratchpad.copyScratchpad(abs_addr + startx + room_left - 8, raw_buf, 0, memory, 0);
+			this.scratchpad.copyScratchpad(abs_addr + startx + room_left - 8, raw_buf, 0, memory, 0);
 
 			// bug fix, if updating pages two and three in the same write op
 			// this used to fail, was (startAddr>=pageLength)
-			if ((startx + startAddr) >= pageLength)
-				System.arraycopy(raw_buf, 0, memory, (((startx + startAddr) / 8) * 8) - 32, 8);
-			else
-				System.arraycopy(raw_buf, 0, memory, (((startx + startAddr) / 8) * 8), 8);
+			if (startx + startAddr >= this.pageLength) {
+				System.arraycopy(raw_buf, 0, memory, (startx + startAddr) / 8 * 8 - 32, 8);
+			} else {
+				System.arraycopy(raw_buf, 0, memory, (startx + startAddr) / 8 * 8, 8);
+			}
 
 			// point to next index
 			startx = nextx;
 		} while (nextx < len);
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-		if (DEBUG)
+		if (DEBUG) {
 			Debug.debug("-----------------------------------------------------------");
-		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+		}
 	}
 
 	// --------
@@ -638,9 +658,10 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		read(page * pageLength, readContinue, readBuf, offset, pageLength);
+		this.read(page * this.pageLength, readContinue, readBuf, offset, this.pageLength);
 	}
 
 	/**
@@ -666,22 +687,27 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		byte[] pg = new byte[32];
+		var pg = new byte[32];
 
-		if (!checked)
-			checked = ib.checkStatus();
+		if (!this.checked) {
+			this.checked = this.ib.checkStatus();
+		}
 
-		if (!hasPageAutoCRC())
+		if (!this.hasPageAutoCRC()) {
 			throw new OneWireException("This memory bank doesn't have crc capabilities.");
+		}
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			checkSpeed();
+		if (!readContinue) {
+			this.checkSpeed();
+		}
 
-		if (!readAuthenticatedPage(page, pg, 0, extraInfo, 0))
+		if (!this.readAuthenticatedPage(page, pg, 0, extraInfo, 0)) {
 			throw new OneWireException("Read didn't work.");
+		}
 
 		System.arraycopy(pg, 0, readBuf, offset, 32);
 	}
@@ -714,16 +740,18 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
 		// read the page
-		readPage(page, readContinue, raw_buf, 0);
+		this.readPage(page, readContinue, raw_buf, 0);
 
 		// check if length is realistic
-		if ((raw_buf[0] & 0x00FF) > maxPacketDataLength)
+		if ((raw_buf[0] & 0x00FF) > this.maxPacketDataLength) {
 			throw new OneWireIOException("Invalid length in packet.");
+		}
 
 		// verify the CRC is correct
 		if (CRC16.compute(raw_buf, 0, raw_buf[0] + 3, page) == 0x0000B001) {
@@ -733,8 +761,8 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 
 			// return the length
 			return raw_buf[0];
-		} else
-			throw new OneWireIOException("Invalid CRC16 in packet read.");
+		}
+		throw new OneWireIOException("Invalid CRC16 in packet read.");
 	}
 
 	/**
@@ -759,22 +787,26 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
-		if (!checked)
-			checked = ib.checkStatus();
+		if (!this.checked) {
+			this.checked = this.ib.checkStatus();
+		}
 
-		if (!hasPageAutoCRC())
+		if (!this.hasPageAutoCRC()) {
 			throw new OneWireException("This memory bank page doesn't have CRC capabilities.");
+		}
 
 		// read the page
-		readAuthenticatedPage(page, raw_buf, 0, extraInfo, 0);
+		this.readAuthenticatedPage(page, raw_buf, 0, extraInfo, 0);
 
 		// check if length is realistic
-		if ((raw_buf[0] & 0x00FF) > maxPacketDataLength)
+		if ((raw_buf[0] & 0x00FF) > this.maxPacketDataLength) {
 			throw new OneWireIOException("Invalid length in packet.");
+		}
 
 		// verify the CRC is correct
 		if (CRC16.compute(raw_buf, 0, raw_buf[0] + 3, page) == 0x0000B001) {
@@ -784,8 +816,8 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 
 			// return the length
 			return raw_buf[0];
-		} else
-			throw new OneWireIOException("Invalid CRC16 in packet read.");
+		}
+		throw new OneWireIOException("Invalid CRC16 in packet read.");
 	}
 
 	/**
@@ -800,31 +832,34 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writePagePacket(int page, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// make sure length does not exceed max
-		if (len > maxPacketDataLength)
+		if (len > this.maxPacketDataLength) {
 			throw new OneWireIOException("Length of packet requested exceeds page size.");
+		}
 
 		// see if this bank is general read/write
-		if (!generalPurposeMemory)
+		if (!this.generalPurposeMemory) {
 			throw new OneWireException("Current bank is not general purpose memory.");
+		}
 
 		// construct the packet to write
-		byte[] raw_buf = new byte[len + 3];
+		var raw_buf = new byte[len + 3];
 
 		raw_buf[0] = (byte) len;
 
 		System.arraycopy(writeBuf, offset, raw_buf, 1, len);
 
-		int crc = CRC16.compute(raw_buf, 0, len + 1, page);
+		var crc = CRC16.compute(raw_buf, 0, len + 1, page);
 
 		raw_buf[len + 1] = (byte) (~crc & 0xFF);
-		raw_buf[len + 2] = (byte) (((~crc & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[len + 2] = (byte) ((~crc & 0xFFFF) >>> 8 & 0xFF);
 
 		// write the packet, return result
-		write(page * pageLength, raw_buf, 0, len + 3);
+		this.write(page * this.pageLength, raw_buf, 0, len + 3);
 	}
 
 	/**
@@ -843,21 +878,25 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] extra = new byte[20];
-		byte[] pg = new byte[32];
+		var extra = new byte[20];
+		var pg = new byte[32];
 
-		if (!checked)
-			checked = ib.checkStatus();
+		if (!this.checked) {
+			this.checked = this.ib.checkStatus();
+		}
 
-		if (!hasPageAutoCRC())
+		if (!this.hasPageAutoCRC()) {
 			throw new OneWireException("This memory bank doesn't have CRC capabilities.");
+		}
 
-		if (!readAuthenticatedPage(page, pg, 0, extra, 0))
+		if (!this.readAuthenticatedPage(page, pg, 0, extra, 0)) {
 			throw new OneWireException("Read didn't work.");
+		}
 
-		System.arraycopy(pg, 0, readBuf, offset, pageLength);
+		System.arraycopy(pg, 0, readBuf, offset, this.pageLength);
 	}
 
 	/**
@@ -879,20 +918,24 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		byte[] pg = new byte[32];
+		var pg = new byte[32];
 
-		if (!checked)
-			checked = ib.checkStatus();
+		if (!this.checked) {
+			this.checked = this.ib.checkStatus();
+		}
 
-		if (!hasPageAutoCRC())
+		if (!this.hasPageAutoCRC()) {
 			throw new OneWireException("This memory bank doesn't have CRC capabilities.");
+		}
 
-		if (!readAuthenticatedPage(page, pg, 0, extraInfo, 0))
+		if (!this.readAuthenticatedPage(page, pg, 0, extraInfo, 0)) {
 			throw new OneWireException("Read didn't work.");
+		}
 
-		System.arraycopy(pg, 0, readBuf, offset, pageLength);
+		System.arraycopy(pg, 0, readBuf, offset, this.pageLength);
 	}
 
 	// ------------------------
@@ -903,15 +946,15 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 * Write protect the memory bank.
 	 */
 	public void writeprotect() {
-		readOnly = true;
-		readWrite = false;
+		this.readOnly = true;
+		this.readWrite = false;
 	}
 
 	/**
 	 * Sets the EPROM mode for this page.
 	 */
 	public void setEPROM() {
-		writeOnce = true;
+		this.writeOnce = true;
 	}
 
 	// ------------------------
@@ -928,13 +971,13 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	public void checkSpeed() throws OneWireIOException, OneWireException {
 		synchronized (this) {
 			// only check the speed
-			if (doSetSpeed) {
+			if (this.doSetSpeed) {
 
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
 				// no exceptions so clear flag
-				doSetSpeed = false;
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -951,30 +994,31 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 */
 	public boolean readAuthenticatedPage(int page, byte[] data, int dataStart, byte[] extra_info, int extraStart)
 			throws OneWireException, OneWireIOException {
-		byte[] send_block = new byte[40];
-		byte[] challenge = new byte[8];
+		var send_block = new byte[40];
+		var challenge = new byte[8];
 
-		int addr = (page * pageLength) + startPhysicalAddress;
+		var addr = page * this.pageLength + this.startPhysicalAddress;
 
-		ib.getChallenge(challenge, 4);
-		scratchpad.writeScratchpad(addr, challenge, 0, 8);
+		this.ib.getChallenge(challenge, 4);
+		this.scratchpad.writeScratchpad(addr, challenge, 0, 8);
 
 		// access the device
-		if (!adapter.select(ib.getAddress()))
+		if (!this.adapter.select(this.ib.getAddress())) {
 			throw new OneWireIOException("Device select failed.");
+		}
 
 		// Read Authenticated Command
 		send_block[0] = READ_AUTH_PAGE;
 		// address 1
 		send_block[1] = (byte) (addr & 0xFF);
 		// address 2
-		send_block[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+		send_block[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
 		// data + FF byte
 		System.arraycopy(ffBlock, 0, send_block, 3, 35);
 
 		// now send the block
-		adapter.dataBlock(send_block, 0, 38);
+		this.adapter.dataBlock(send_block, 0, 38);
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -997,10 +1041,10 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 		try {
 			Thread.sleep(2);
 		} catch (InterruptedException ie) {
-			;
+
 		}
 
-		adapter.dataBlock(send_block, 0, 22);
+		this.adapter.dataBlock(send_block, 0, 22);
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -1032,8 +1076,9 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	 */
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 
 }
+// CHECKSTYLE:ON

@@ -1,124 +1,164 @@
 package io.openems.common.websocket;
 
+import java.net.ConnectException;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.BooleanConsumer;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
-import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.FunctionUtils;
 
 /**
  * A Websocket Client implementation that automatically tries to reconnect a
  * closed connection.
  *
- * @param <T>
+ * @param <T> the type of websocket attachments inheriting {@link WsData}
  */
 public abstract class AbstractWebsocketClient<T extends WsData> extends AbstractWebsocket<T> {
 
-	public final static Map<String, String> NO_HTTP_HEADERS = new HashMap<>();
-	public final static Proxy NO_PROXY = null;
-	public final static Draft DEFAULT_DRAFT = new Draft_6455();
+	public static final Map<String, String> NO_HTTP_HEADERS = new HashMap<>();
+	public static final Proxy NO_PROXY = null;
+	public static final Draft DEFAULT_DRAFT = new Draft_6455(new PerMessageDeflateExtension());
 
 	protected final WebSocketClient ws;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketClient.class);
 	private final URI serverUri;
+	private final BooleanConsumer onConnectedChange;
+	private final AtomicBoolean isConnected = new AtomicBoolean(false);
 	private final ClientReconnectorWorker reconnectorWorker;
 
 	protected AbstractWebsocketClient(String name, URI serverUri) {
-		this(name, serverUri, DEFAULT_DRAFT, NO_HTTP_HEADERS, NO_PROXY);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, AbstractWebsocketClient.NO_HTTP_HEADERS,
+				AbstractWebsocketClient.NO_PROXY, null /* onConnectedChange */);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders) {
-		this(name, serverUri, DEFAULT_DRAFT, httpHeaders, NO_PROXY);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
+				null /* onConnectedChange */);
+	}
+
+	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders,
+			BooleanConsumer onConnectedChange) {
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
+				onConnectedChange);
+	}
+
+	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders,
+			BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
+				onConnectedChange, reconnectorConfig);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders, Proxy proxy) {
-		this(name, serverUri, DEFAULT_DRAFT, httpHeaders, proxy);
+		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, proxy, null /* onConnectedChange */);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
-			Proxy proxy) {
+			Proxy proxy, BooleanConsumer onConnectedChange) {
+		this(name, serverUri, draft, httpHeaders, proxy, onConnectedChange, ClientReconnectorWorker.DEFAULT_CONFIG);
+	}
+
+	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
+			Proxy proxy, BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
 		super(name);
 		this.serverUri = serverUri;
+		this.onConnectedChange = onConnectedChange == null ? FunctionUtils::doNothing : onConnectedChange;
 		this.ws = new WebSocketClient(serverUri, draft, httpHeaders) {
 
-			@Override
-			public void onOpen(ServerHandshake handshake) {
-				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
-				AbstractWebsocketClient.this.execute(
-						new OnOpenHandler(AbstractWebsocketClient.this, AbstractWebsocketClient.this.ws, jHandshake));
+			private void logInfo(String message) {
+				AbstractWebsocketClient.this.logInfo(AbstractWebsocketClient.this.log, message);
 			}
 
 			@Override
-			public void onMessage(String stringMessage) {
-				try {
-					JsonrpcMessage message = JsonrpcMessage.from(stringMessage);
-					if (message instanceof JsonrpcRequest) {
-						AbstractWebsocketClient.this.execute(new OnRequestHandler(AbstractWebsocketClient.this, ws,
-								(JsonrpcRequest) message, (response) -> {
-									AbstractWebsocketClient.this.sendMessage(response);
-								}));
+			public void onOpen(ServerHandshake handshake) {
+				AbstractWebsocketClient.this.execute(new OnOpenHandler(//
+						AbstractWebsocketClient.this.ws, handshake, //
+						AbstractWebsocketClient.this.getOnOpen(), //
+						AbstractWebsocketClient.this::logWarn, //
+						AbstractWebsocketClient.this::handleInternalError));
+				this.updateIsConnected();
+			}
 
-					} else if (message instanceof JsonrpcResponse) {
-						AbstractWebsocketClient.this.execute(
-								new OnResponseHandler(AbstractWebsocketClient.this, ws, (JsonrpcResponse) message));
-
-					} else if (message instanceof JsonrpcNotification) {
-						AbstractWebsocketClient.this.execute(new OnNotificationHandler(AbstractWebsocketClient.this, ws,
-								(JsonrpcNotification) message));
-
-					}
-				} catch (OpenemsNamedException e) {
-					AbstractWebsocketClient.this.handleInternalErrorAsync(e);
-				}
+			@Override
+			public void onMessage(String message) {
+				AbstractWebsocketClient.this.execute(new OnMessageHandler(//
+						AbstractWebsocketClient.this.ws, message, //
+						AbstractWebsocketClient.this.getOnRequest(), //
+						AbstractWebsocketClient.this.getOnNotification(), //
+						AbstractWebsocketClient.this::sendMessage, //
+						AbstractWebsocketClient.this::handleInternalError, //
+						AbstractWebsocketClient.this::logWarn));
 			}
 
 			@Override
 			public void onError(Exception ex) {
-				AbstractWebsocketClient.this.execute(new OnErrorHandler(AbstractWebsocketClient.this, ws, ex));
+				if (ex instanceof ConnectException) {
+					// Ignore. This happens when connecting fails and is handled by
+					// ClientReconnectorWorker
+					return;
+				}
+
+				AbstractWebsocketClient.this.execute(new OnErrorHandler(//
+						AbstractWebsocketClient.this.ws, ex, //
+						AbstractWebsocketClient.this.getOnError(), //
+						AbstractWebsocketClient.this::handleInternalError));
 			}
 
 			@Override
 			public void onClose(int code, String reason, boolean remote) {
-				AbstractWebsocketClient.this
-						.execute(new OnCloseHandler(AbstractWebsocketClient.this, ws, code, reason, remote));
+				AbstractWebsocketClient.this.execute(new OnCloseHandler(//
+						AbstractWebsocketClient.this.ws, code, reason, remote, //
+						AbstractWebsocketClient.this.getOnClose(), //
+						AbstractWebsocketClient.this::handleInternalError));
 
-				AbstractWebsocketClient.this.log.info(
-						"Websocket [" + serverUri.toString() + "] closed. Code [" + code + "] Reason [" + reason + "]");
+				if (code == CloseFrame.NEVER_CONNECTED) {
+					// Ignore "Code [-1] Reason [Connection refused: connect]"
+					return;
+				}
+
+				this.logInfo(new StringBuilder() //
+						.append("Websocket [").append(serverUri.toString()) //
+						.append("] closed. Code [").append(code) //
+						.append("] Reason [").append(reason).append("]") //
+						.toString());
+				this.updateIsConnected();
 				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
 			}
+
+			private void updateIsConnected() {
+				var isOpen = this.isOpen();
+				if (AbstractWebsocketClient.this.isConnected.compareAndSet(!isOpen, isOpen)) {
+					// Value has changed
+					AbstractWebsocketClient.this.onConnectedChange.accept(isOpen);
+				}
+			}
 		};
-		// Disable lost connection detection
 		// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection
-		this.ws.setConnectionLostTimeout(0);
+		this.ws.setConnectionLostTimeout(100);
 
 		// initialize WsData
-		T wsData = AbstractWebsocketClient.this.createWsData();
-		wsData.setWebsocket(ws);
+		var wsData = AbstractWebsocketClient.this.createWsData(this.ws);
 		this.ws.setAttachment(wsData);
 
 		// Initialize reconnector
-		this.reconnectorWorker = new ClientReconnectorWorker(this);
+		this.reconnectorWorker = new ClientReconnectorWorker(this, reconnectorConfig);
 
 		if (proxy != null) {
 			this.ws.setProxy(proxy);
@@ -126,81 +166,83 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Starts the websocket client
+	 * Starts the websocket client.
 	 */
+	@Override
 	public void start() {
-		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
-		this.ws.connect();
+		this.logInfo(this.log, "Opening connection to websocket server [" + this.serverUri + "]");
+		this.reconnectorWorker.activate(this.getName());
+		this.reconnectorWorker.triggerNextRun();
+	}
+
+	/**
+	 * Starts the {@link WebSocketClient}; waiting till it started.
+	 *
+	 * @throws InterruptedException on waiting error
+	 */
+	public void startBlocking() throws InterruptedException {
+		this.logInfo(this.log, "Opening connection to websocket server [" + this.serverUri + "]");
+		this.ws.connectBlocking();
 		this.reconnectorWorker.activate(this.getName());
 	}
 
 	/**
-	 * Starts the websocket client
-	 * 
-	 * @throws InterruptedException
+	 * Stops the websocket client.
 	 */
-	public void startBlocking() throws InterruptedException {
-		this.log.info("Opening connection [" + this.getName() + "] websocket server [" + this.serverUri + "]");
-		this.ws.connectBlocking();
-	}
-
-	/**
-	 * Stops the websocket client
-	 */
+	@Override
 	public void stop() {
-		this.log.info("Closing connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
+		this.logInfo(this.log, "Closing connection to websocket server [" + this.serverUri + "]");
 		// shutdown reconnector
 		this.reconnectorWorker.deactivate();
 		// close websocket
 		this.ws.close(CloseFrame.NORMAL, "Closing connection [" + this.getName() + "]");
 	}
 
-	protected OnInternalError getOnInternalError() {
-		return (ex, wsDataString) -> {
-			this.log.warn("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
-		};
-	};
-
-	public void sendMessageOrError(JsonrpcMessage message) throws OpenemsException {
-		try {
-			this.ws.send(message.toString());
-		} catch (Exception e) {
-			if (e instanceof WebsocketNotConnectedException) {
-				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
-			}
-			throw new OpenemsException("Unable to send JSON-RPC message. " + e.getClass().getSimpleName() + ": "
-					+ StringUtils.toShortString(message.toString(), 100));
-		}
-	}
-
 	/**
-	 * Sends a JSON-RPC message. Returns true if sending was successful, otherwise
-	 * false. Also logs a warning in that case.
-	 * 
-	 * @param message
-	 * @return
+	 * Sends a {@link JsonrpcMessage} to the {@link WebSocket}. Returns true if
+	 * sending was successful, otherwise false. Also logs a warning in that case.
+	 *
+	 * @param message the {@link JsonrpcMessage}
+	 * @return true if sending was successful
 	 */
 	public boolean sendMessage(JsonrpcMessage message) {
-		try {
-			this.sendMessageOrError(message);
-			return true;
-		} catch (OpenemsException e) {
-			log.warn(e.getMessage());
-			return false;
-		}
+		return this.sendMessage(this.ws, message);
+	}
+
+	@Override
+	protected OnInternalError getOnInternalError() {
+		return (t, wsDataString) -> {
+			this.logError(this.log, new StringBuilder() //
+					.append("OnInternalError for ").append(wsDataString).append(". ") //
+					.append(t.getClass()).append(": ").append(t.getMessage()) //
+					.toString());
+			t.printStackTrace();
+		};
 	}
 
 	/**
 	 * Sends a JSON-RPC Request and returns a future Response.
-	 * 
+	 *
 	 * @param request the JSON-RPC Request
 	 * @return the future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> sendRequest(JsonrpcRequest request) throws OpenemsNamedException {
+	public CompletableFuture<JsonrpcResponseSuccess> sendRequest(JsonrpcRequest request) {
 		WsData wsData = this.ws.getAttachment();
 		return wsData.send(request);
 	}
 
+	/**
+	 * Gets some output that is suitable for a continuous Debug log.
+	 *
+	 * @return the debug log output or null
+	 */
+	public String debugLog() {
+		var b = new StringBuilder("[").append(this.getName()).append("] [monitor] ");
+		if (this.ws.isOpen()) {
+			b.append("Connected ");
+		} else {
+			b.append("NOT CONNECTED. ").append(this.reconnectorWorker.debugLog());
+		}
+		return b.toString();
+	}
 }

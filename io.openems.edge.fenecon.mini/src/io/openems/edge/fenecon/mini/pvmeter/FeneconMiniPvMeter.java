@@ -4,10 +4,10 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.TimedataProvider;
 
-public interface FeneconMiniPvMeter extends SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public interface FeneconMiniPvMeter extends ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

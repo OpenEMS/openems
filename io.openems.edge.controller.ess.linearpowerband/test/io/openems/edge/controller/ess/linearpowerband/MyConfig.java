@@ -1,18 +1,18 @@
 package io.openems.edge.controller.ess.linearpowerband;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String essId;
-		public int minPower;
-		public int maxPower;
-		public int adjustPower;
-		public StartDirection startDirection;
+		private String id;
+		private String essId;
+		private int minPower;
+		private int maxPower;
+		private int adjustPower;
+		private StartDirection startDirection;
 
 		private Builder() {
 		}
@@ -54,7 +54,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

@@ -1,4 +1,6 @@
-= Virtual Symmetric Subtract
+= Virtual Meter 
+
+== Virtual Subtract Meter
 
 This is a virtual meter built from subtracting other meters or energy storage systems.
 
@@ -10,15 +12,14 @@ Example use-case: create a virtual Grid-Meter from Production-Meter, Consumption
 - this can be achieved by configuring the Consumption-Meter as Minuend and Production-Meter and ESS as Subtrahends.
 
 
-= Virtual Symmetric Add
+== Virtual Add Meter
 
 This is a virtual meter which is used to sum up the values from multiple symmetric meters. The use case for this feature is, Usually when there are multiple meters reading values from different systems, The average values from the systems make more sense for calculation and statistics. 
 
 Implemented Natures
-- SymmetricMeter
+- ElectricityMeter
 
-
-== Example Configuration
+=== Example Configuration
 
 - `Component-ID` : meter0
 - `Alias` : virtualMeter

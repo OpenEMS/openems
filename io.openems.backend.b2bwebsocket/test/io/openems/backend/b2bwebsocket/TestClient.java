@@ -3,11 +3,11 @@ package io.openems.backend.b2bwebsocket;
 import java.net.URI;
 import java.util.Map;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
-import io.openems.common.websocket.DummyWsData;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnError;
 import io.openems.common.websocket.OnNotification;
@@ -17,7 +17,7 @@ import io.openems.common.websocket.WsData;
 
 public class TestClient extends AbstractWebsocketClient<WsData> {
 
-	private Logger log = LoggerFactory.getLogger(TestClient.class);
+	private final Logger log = LoggerFactory.getLogger(TestClient.class);
 
 	private OnOpen onOpen;
 	private OnRequest onRequest;
@@ -28,26 +28,27 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
 		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
 		this.onOpen = (ws, handshake) -> {
-			log.info("OnOpen: " + handshake);
+			this.log.info("OnOpen: " + handshake);
+			return null;
 		};
 		this.onRequest = (ws, request) -> {
-			log.info("OnRequest: " + request);
+			this.log.info("OnRequest: " + request);
 			return null;
 		};
 		this.onNotification = (ws, notification) -> {
-			log.info("OnNotification: " + notification);
+			this.log.info("OnNotification: " + notification);
 		};
 		this.onError = (ws, ex) -> {
-			log.info("onError: " + ex.getMessage());
+			this.log.info("onError: " + ex.getMessage());
 		};
 		this.onClose = (ws, code, reason, remote) -> {
-			log.info("onClose: " + reason);
+			this.log.info("onClose: " + reason);
 		};
 	}
 
 	@Override
 	public OnOpen getOnOpen() {
-		return onOpen;
+		return this.onOpen;
 	}
 
 	public void setOnOpen(OnOpen onOpen) {
@@ -56,7 +57,7 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	public OnRequest getOnRequest() {
-		return onRequest;
+		return this.onRequest;
 	}
 
 	public void setOnRequest(OnRequest onRequest) {
@@ -65,7 +66,7 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	public OnError getOnError() {
-		return onError;
+		return this.onError;
 	}
 
 	public void setOnError(OnError onError) {
@@ -74,7 +75,7 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	public OnClose getOnClose() {
-		return onClose;
+		return this.onClose;
 	}
 
 	public void setOnClose(OnClose onClose) {
@@ -83,7 +84,7 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected OnNotification getOnNotification() {
-		return onNotification;
+		return this.onNotification;
 	}
 
 	public void setOnNotification(OnNotification onNotification) {
@@ -91,8 +92,8 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
-	protected WsData createWsData() {
-		return new DummyWsData();
+	protected WsData createWsData(WebSocket ws) {
+		return new WsData(ws);
 	}
 
 	@Override
@@ -103,6 +104,11 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		log.warn(message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		log.error(message);
 	}
 
 	@Override

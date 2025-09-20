@@ -7,6 +7,12 @@ import io.openems.backend.metadata.odoo.Config;
  */
 public class Credentials {
 
+	/**
+	 * Creates {@link Credentials} from a {@link Config}uration.
+	 *
+	 * @param config the configuration
+	 * @return a new {@link Credentials} object
+	 */
 	public static Credentials fromConfig(Config config) {
 		return new Credentials(//
 				config.odooProtocol(), config.odooHost(), config.odooPort(), config.odooUid(), config.odooPassword(),
@@ -32,15 +38,15 @@ public class Credentials {
 	}
 
 	public Protocol getProtocol() {
-		return protocol;
+		return this.protocol;
 	}
 
 	public String getHost() {
-		return host;
+		return this.host;
 	}
 
 	public int getPort() {
-		return port;
+		return this.port;
 	}
 
 	public int getUid() {
@@ -52,7 +58,7 @@ public class Credentials {
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public String getDatabase() {

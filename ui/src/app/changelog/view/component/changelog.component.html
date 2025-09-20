@@ -1,0 +1,57 @@
+<ion-grid>
+  <ion-row class="ion-justify-content-center">
+    <ion-col size="12" size-md="8">
+
+      <ion-card>
+        <ion-item lines="full" color="light">
+          <ion-icon slot="start" color="primary" name="today-outline"></ion-icon>
+          <ion-label translate>Menu.changelog</ion-label>
+        </ion-item>
+        <ion-card-content>
+          <ng-container
+            *ngFor="let changelog of changelogs | slice:0:(showAll ? changelogs.length : slice);  let last = last;">
+            <ion-row>
+              <ion-label *ngIf="changelog.title" style="font-size:large">{{ changelog.title }}</ion-label>
+              <ion-label *ngIf="changelog.version" style="font-size:large">
+                Version {{ changelog.version }}
+              </ion-label>
+            </ion-row>
+            <ion-row>
+              <ul>
+                <ng-container *ngFor="let change of changelog.changes">
+                  <ng-container *ngIf="change.hasOwnProperty('roleIsAtLeast'); else no_roleIsAtLeast">
+                    <!-- Limited to 'roleIsAtLeast' -->
+                    <ng-container *ngIf="(service.metadata | async)?.user as user">
+                      <li *ngIf="roleIsAtLeast(user.globalRole, change.roleIsAtLeast)">
+                        <span [innerHtml]="change.change"></span>
+                        <span style="color: darkgray"><i> (Dieser Eintrag ist nur sichtbar für '{{
+                            numberToRole(change['roleIsAtLeast'])
+                            }}')</i></span>
+                      </li>
+                    </ng-container>
+                  </ng-container>
+                  <ng-template #no_roleIsAtLeast>
+                    <!-- Default changelog entry -->
+                    <li [innerHtml]="change"></li>
+                  </ng-template>
+                </ng-container>
+              </ul>
+            </ion-row>
+            <div *ngIf="!last" style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left:
+                -5%;">
+            </div>
+          </ng-container>
+          <ion-row *ngIf="changelogs.length > slice && !showAll">
+            <ion-col>
+              <ion-item lines="none" class="ion-float-right">
+                <ion-button (click)="showAll = true">
+                  Alle anzeigen
+                </ion-button>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

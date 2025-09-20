@@ -1,0 +1,43 @@
+<ion-grid [ngClass]="{'disabled-field': formControl.disabled}">
+    <ion-row>
+        <ion-col size="12" size-md="6">
+            <ion-item lines="none">
+                <ion-label [position]="to.labelPosition" [ngStyle]="{
+                   'margin-left': props?.boxBorder ? '15%' : 'auto',
+                   'max-width': 'none'
+                 }">
+                    <span>{{to.label}}</span>
+                    <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
+                    <span *ngIf="to.description"><br /><small>{{ to.description }}</small></span>
+                </ion-label>
+            </ion-item>
+        </ion-col>
+        <ion-col size="12" size-md="6">
+            <ion-item lines="none" class="ion-no-padding input-box" [ngClass]="{'input-box': props.boxBorder}"
+                [ngStyle]="{
+                    'border-bottom-color': formControl.invalid && formControl.touched
+                    ? 'var(--highlight-color-invalid)'
+                    : (formControl.valid ? 'var(--highlight-color-valid)' : (isFocused ? 'var(--highlight-color-focused)' : 'hidden')),
+                    'border-bottom-style': (formControl.invalid && formControl.touched) || formControl.valid || isFocused ? 'solid' : 'hidden'
+                }">
+                <span *ngIf="to.prefix" [style.color]="'var(--ion-color-text)'">{{to.prefix}}</span>
+                <ion-input [formControl]="formControl" (ionFocus)="setFocus(true)" (ionBlur)="setFocus(false)"
+                    [type]="props.type || 'text'" [formlyAttributes]="field" text-left></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" *ngIf="showError">
+                <ion-label class="ion-text-wrap">
+                    <ion-text class="ion-font-size-smaller" color="danger">
+                        <formly-validation-message [field]="field"></formly-validation-message>
+                    </ion-text>
+                </ion-label>
+            </ion-item>
+
+            <ion-checkbox *ngIf="props.checkbox" class="ion-padding-top" color="primary" alignment="start"
+                labelPlacement="end" [checked]="props.checkbox.value"
+                (ionChange)="onCheckboxChange($event.detail.checked)">
+                {{ props.checkbox.label }}
+            </ion-checkbox>
+        </ion-col>
+    </ion-row>
+</ion-grid>

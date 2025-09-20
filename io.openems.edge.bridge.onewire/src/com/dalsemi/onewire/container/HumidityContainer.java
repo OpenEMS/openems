@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -69,7 +70,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *
  * <H4>Example</H4> Gets humidity reading from a HumidityContainer instance
  * '<code>hc</code>':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   double lastHumidity;
@@ -78,7 +79,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *   byte[] state = hc.readDevice();
  *
  *   // loop to read the humidity
- *   do 
+ *   do
  *   {
  *      // perform a humidity conversion
  *      hc.doHumidityConvert(state);
@@ -283,3 +284,4 @@ public interface HumidityContainer extends OneWireSensor {
 	public void setHumidityResolution(double resolution, byte[] state) throws OneWireException;
 
 }
+// CHECKSTYLE:ON

@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+exec \
+    s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z 127.0.0.1 8079" \
+        s6-setuidgid abc \
+             /usr/bin/java \
+                -Dosgi.clean=true \
+                -Dorg.apache.felix.eventadmin.Timeout=0 \
+                -Dorg.apache.felix.http.host=0.0.0.0 \
+                -Dorg.apache.felix.http.port=8079 \
+                -Dfelix.cm.dir=/var/opt/openems/config \
+                -Dopenems.data.dir=/var/opt/openems/data \
+                -XX:+ExitOnOutOfMemoryError \
+                -XX:+UseZGC -XX:+ZGenerational \
+                -jar /opt/openems/openems-backend.jar

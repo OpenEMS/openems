@@ -1,0 +1,70 @@
+<style>
+  ion-select {
+    max-width: 100% !important;
+    margin: auto;
+    padding: 0;
+    vertical-align: middle;
+  }
+</style>
+
+
+<ion-content>
+  <ng-template #loading>
+    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+  </ng-template>
+  <ion-grid *ngIf="currentUserForm,else loading" class="ion-no-padding">
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="8" size-md="8" size-xs="12">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
+            <ion-label>
+              <span>{{user.name}}</span>
+            </ion-label>
+            <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
+          </ion-item>
+          <ion-card-content class="ion-no-padding">
+            <form>
+              <formly-form [model]="currentUserForm.model" [fields]="currentUserForm.fields"
+                [options]="currentUserForm.options" [form]="currentUserForm.formGroup">
+              </formly-form>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="ion-justify-content-center ion-padding-top" *ngIf="otherUserForm">
+      <ion-col size="10" size-md="10" size-xs="12">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="people-outline" color="primary"></ion-icon>
+            <ion-label translate>
+              ALERTING.OTHER_USERS
+            </ion-label>
+          </ion-item>
+          <ion-card-content class="ion-no-padding-left-right">
+            <form>
+              <formly-form [model]="{}" [fields]="otherUserForm.fields" [options]="otherUserForm.options"
+                [form]="otherUserForm.formGroup">
+              </formly-form>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<!-- Save Button -->
+<ion-footer *ngIf="currentUserForm?.formGroup?.dirty || otherUserForm?.formGroup?.dirty">
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="6">
+        <ion-button expand="block" type="submit" color="primary" (click)="setUsersAlertingConfig()" translate>
+          General.save
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-footer>

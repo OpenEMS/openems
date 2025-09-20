@@ -9,7 +9,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -29,14 +29,14 @@ public class ComponentJsonApiRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link ComponentJsonApiRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link ComponentJsonApiRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static ComponentJsonApiRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
+		var p = r.getParams();
+		var componentId = JsonUtils.getAsString(p, "componentId");
 		JsonrpcRequest payload = GenericJsonrpcRequest.fromIgnoreId(JsonUtils.getAsJsonObject(p, "payload"));
 		return new ComponentJsonApiRequest(r, componentId, payload);
 	}
@@ -45,13 +45,13 @@ public class ComponentJsonApiRequest extends JsonrpcRequest {
 	private final JsonrpcRequest payload;
 
 	public ComponentJsonApiRequest(String componentId, JsonrpcRequest payload) {
-		super(METHOD, payload.getTimeout() /* inherit timeout from payload */);
+		super(ComponentJsonApiRequest.METHOD, payload.getTimeout() /* inherit timeout from payload */);
 		this.componentId = componentId;
 		this.payload = payload;
 	}
 
 	private ComponentJsonApiRequest(JsonrpcRequest request, String componentId, JsonrpcRequest payload) {
-		super(request, METHOD);
+		super(request, ComponentJsonApiRequest.METHOD);
 		this.componentId = componentId;
 		this.payload = payload;
 	}
@@ -66,7 +66,7 @@ public class ComponentJsonApiRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Component-ID.
-	 * 
+	 *
 	 * @return Component-ID
 	 */
 	public String getComponentId() {
@@ -75,7 +75,7 @@ public class ComponentJsonApiRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Payload {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @return Payload
 	 */
 	public JsonrpcRequest getPayload() {

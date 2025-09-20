@@ -1,19 +1,18 @@
 package io.openems.edge.controller.debuglog;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = "ctrlJsonLogic0";
-		private String rule = null;
-		public String[] additionalChannels;
-		public String[] ignoreComponents;
-		public boolean condensedOutput;
+		private String id;
+		private boolean showAlias;
+		private String[] additionalChannels;
+		private String[] ignoreComponents;
+		private boolean condensedOutput;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
@@ -21,12 +20,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setAdditionalChannels(String[] additionalChannels) {
+		public Builder setShowAlias(boolean showAlias) {
+			this.showAlias = showAlias;
+			return this;
+		}
+
+		public Builder setAdditionalChannels(String... additionalChannels) {
 			this.additionalChannels = additionalChannels;
 			return this;
 		}
 
-		public Builder setIgnoreComponents(String[] ignoreComponents) {
+		public Builder setIgnoreComponents(String... ignoreComponents) {
 			this.ignoreComponents = ignoreComponents;
 			return this;
 		}
@@ -50,6 +54,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public boolean showAlias() {
+		return this.builder.showAlias;
 	}
 
 	@Override

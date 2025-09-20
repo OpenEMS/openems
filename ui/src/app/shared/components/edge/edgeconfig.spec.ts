@@ -1,0 +1,963 @@
+// @ts-strict-ignore
+import { TimeUnit } from "chart.js";
+import { SumState } from "src/app/index/shared/sumState";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+
+import { Role } from "../../type/role";
+import { ButtonLabel } from "../modal/modal-button/modal-button";
+import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
+import { Edge } from "./edge";
+import { EdgeConfig, PersistencePriority } from "./edgeconfig";
+
+export namespace DummyConfig {
+
+    export function dummyEdge(values: {
+        edgeId?: string,
+        comment?: string,
+        producttype?: string,
+        version?: string,
+        role?: Role,
+        isOnline?: boolean,
+        lastmessage?: Date,
+        sumState?: SumState,
+        firstSetupProtocol?: Date,
+    }): Edge {
+        return new Edge(
+            values.edgeId ?? "edge0",
+            values.comment ?? "edge0",
+            values.producttype ?? "",
+            values.version ?? "2023.3.5",
+            values.role ?? Role.ADMIN,
+            values.isOnline ?? true,
+            values.lastmessage ?? new Date(),
+            values.sumState ?? SumState.OK,
+            values.firstSetupProtocol ?? new Date(0),
+        );
+    }
+
+    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date(), SumState.OK, new Date(0));
+    export function from(...components: Component[]): EdgeConfig {
+
+        return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
+            components: <unknown>components?.reduce((acc, c) => {
+                c.factoryId = c.factory.id;
+                return ({ ...acc, [c.id]: c });
+            }, {}),
+            factories: components?.reduce((p, c) => {
+                p[c.factory.id] = new EdgeConfig.Factory(c.factory.id, "", c.factory.natureIds);
+                return p;
+            }, {}),
+        });
+    }
+
+    export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
+        const components = Object.values(edgeConfig?.components) ?? null;
+
+        const factories = {};
+        components.forEach(obj => {
+            if (factories[obj.factoryId]) {
+                factories[obj.factoryId].componentIds = [...factories[obj.factoryId].componentIds, obj.id];
+            } else {
+                factories[obj.factoryId] = {
+                    componentIds: [obj.id],
+                    description: "",
+                    id: obj.factoryId,
+                    name: obj.factoryId,
+                    natureIds: edgeConfig.factories[obj.factoryId].natureIds,
+                    properties: [],
+                };
+            }
+        });
+
+        return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
+            components: edgeConfig.components,
+            factories: factories,
+        });
+    }
+
+    export namespace Factory {
+
+        export const SUM = {
+            id: "Core.Sum",
+            natureIds: [
+                "io.openems.edge.common.sum.Sum",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const METER_SOCOMEC_THREEPHASE = {
+            id: "Meter.Socomec.Threephase",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.meter.socomec.SocomecMeter",
+                "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
+            ],
+        };
+
+        export const METER_GOODWE_GRID = {
+            id: "GoodWe.Grid-Meter",
+            natureIds: [
+                "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const CHARGER_GOODWE_MPPT_TWO_STRING = {
+            id: "GoodWe.Charger.Mppt.Two-String",
+            natureIds: [
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.ess.dccharger.api.EssDcCharger",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.goodwe.charger.GoodWeCharger",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const EVCS_KEBA_KECONTACT = {
+            id: "Evcs.Keba.KeContact",
+            natureIds: [
+                "io.openems.edge.evcs.keba.kecontact.EvcsKebaKeContact",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evcs.api.ManagedEvcs",
+                "io.openems.edge.evcs.api.Evcs",
+            ],
+        };
+
+        export const EVSE_CHARGEPOINT_KEBA_UDP = {
+            id: "Evse.ChargePoint.Keba.UDP",
+            natureIds: [
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.evse.chargepoint.keba.common.KebaUdp",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
+                "io.openems.edge.evse.chargepoint.keba.common.EvseKeba",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const ESS_GENERIC_MANAGEDSYMMETRIC = {
+            id: "Ess.Generic.ManagedSymmetric",
+            natureIds: [
+                "io.openems.edge.goodwe.common.GoodWe",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.ess.api.SymmetricEss",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.ess.api.HybridEss",
+                "io.openems.edge.goodwe.ess.GoodWeEss",
+                "io.openems.edge.ess.api.ManagedSymmetricEss",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const ESS_LIMITER_14A = {
+            id: "Controller.Ess.Limiter14a",
+            natureIds: [
+                "io.openems.edge.controller.ess.limiter14a",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+
+            ],
+        };
+
+        export const SOLAR_EDGE_PV_INVERTER = {
+            id: "SolarEdge.PV-Inverter",
+            natureIds: [
+                "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter",
+                "io.openems.edge.meter.api.AsymmetricMeter",
+                "io.openems.edge.meter.api.SymmetricMeter",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter",
+                "io.openems.edge.common.component.OpenemsComponent",
+            ],
+        };
+        export const EVCS_HARDY_BARTH = {
+            id: "Evcs.HardyBarth",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
+                "io.openems.edge.evcs.api.ManagedEvcs",
+                "io.openems.edge.evcs.api.Evcs",
+                "io.openems.edge.evcs.api.DeprecatedEvcs",
+                "io.openems.edge.meter.api.ElectricityMeter",
+            ],
+        };
+
+        export const EVCS_MENNEKES = {
+            id: "Evcs.Mennekes",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
+                "io.openems.edge.evcs.api.ManagedEvcs",
+                "io.openems.edge.evcs.api.Evcs",
+                "io.openems.edge.meter.api.ElectricityMeter",
+            ],
+        };
+
+        export const MODBUS_TCP_READWRITE = {
+            id: "Controller.Api.ModbusTcp.ReadWrite",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.JsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.modbus.ModbusTcpApi",
+                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusTcpReadWrite",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const MODBUS_RTU_READWRITE = {
+            id: "Controller.Api.ModbusRtu.ReadWrite",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.JsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.modbus.ModbusRtuApi",
+                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusRtuReadWrite",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const HEAT_PUMP_SG_READY = {
+            id: "Controller.Io.HeatPump.SgReady",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.io.heatpump.sgready.ControllerIoHeatPumpSgReady",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const GOODWE_CHARGER_PV_1 = {
+            id: "GoodWe.Charger-PV1",
+            natureIds: [
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.ess.dccharger.api.EssDcCharger",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.goodwe.charger.GoodWeCharger",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE = {
+            id: "Controller.Ess.EmergencyCapacityReserve",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve",
+                "io.openems.edge.controller.api.Controller",
+            ],
+        };
+        export const Heat_MYPV_ACTHOR = {
+            id: "HeatMyPv",
+            natureIds: [
+                "io.openems.edge.heat.mypv.acthor9s.HeatMyPvAcThor9s",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.heat.api.ManagedHeatElement",
+                "io.openems.edge.heat.api.Heat",
+            ],
+        };
+
+        export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
+            id: "Controller.Io.FixDigitalOutput",
+            natureIds: [
+                "io.openems.edge.controller.io.fixdigitaloutput.ControllerIoFixDigitalOutput",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+    }
+
+    export namespace Component {
+
+        export const SUM = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Core.Sum",
+            factory: Factory.SUM,
+            properties: {
+                enabled: "true",
+            },
+            channels: {},
+        });
+        export const EVCS_HARDY_BARTH = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Evcs.HardyBarth",
+            factory: Factory.EVCS_HARDY_BARTH,
+            properties: {
+                enabled: "true",
+            },
+            channels: {},
+        });
+
+        export const EVCS_MENNEKES = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Evcs.Mennekes",
+            factory: Factory.EVCS_MENNEKES,
+            properties: {
+                enabled: "true",
+            },
+            channels: {},
+        });
+
+        export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Meter.Socomec.Threephase",
+            factory: Factory.METER_SOCOMEC_THREEPHASE,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "GRID",
+            },
+            channels: {},
+        });
+
+        export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.METER_SOCOMEC_THREEPHASE,
+            factoryId: Factory.METER_SOCOMEC_THREEPHASE.id,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "CONSUMPTION_METERED",
+            },
+            channels: {},
+        });
+        export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.METER_GOODWE_GRID,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "PRODUCTION",
+            },
+            channels: {},
+        });
+
+        export const GOODWE_CHARGER_MPPT_TWO_STRING = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias,
+            factory: Factory.CHARGER_GOODWE_MPPT_TWO_STRING,
+            properties: {
+                "alias": "MPPT 1",
+                "enabled": true,
+                "essOrBatteryInverter.id": "batteryInverter0",
+                "mpptPort": "MPPT_1",
+            },
+            channels: {},
+        });
+
+        export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "SolarEdge.PV-Inverter",
+            factory: Factory.SOLAR_EDGE_PV_INVERTER,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "PRODUCTION",
+            },
+            channels: {},
+        });
+
+        export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Ess.Generic.ManagedSymmetric",
+            factory: Factory.ESS_GENERIC_MANAGEDSYMMETRIC,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+            },
+            channels: {},
+        });
+
+        export const ESS_LIMITER_14A = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.ESS_LIMITER_14A,
+            properties: {
+                enabled: "true",
+                ["ess.id"]: "ess0",
+            },
+            channels: {},
+        });
+
+        export const EVCS_KEBA_KECONTACT = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.EVCS_KEBA_KECONTACT,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                // TODO
+                type: "CONSUMPTION_METERED",
+            },
+            channels: {},
+        });
+
+        export const EVSE_CHARGEPOINT_KEBA_UDP = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.EVSE_CHARGEPOINT_KEBA_UDP,
+            properties: {
+                alias: alias ?? id,
+                enabled: true,
+                readOnly: false,
+            },
+            channels: {},
+        });
+
+        export const GOODWE_CHARGER_PV_1 = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.GOODWE_CHARGER_PV_1,
+            properties: {
+                modbusUnitId: 5,
+            },
+            channels: {},
+        });
+        export const Heat_MYPV_ACTHOR = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.Heat_MYPV_ACTHOR,
+            properties: {
+                enabled: "true",
+                modbusUnitId: 1,
+                // TODO
+                type: "CONSUMPTION_METERED",
+            },
+            channels: {},
+        });
+
+        export const MODBUS_TCP_READWRITE = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.MODBUS_TCP_READWRITE,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "PRODUCTION",
+                writeChannels: [
+                    "Ess0SetActivePowerEquals",
+                ],
+            },
+            channels: {},
+        });
+
+
+        export const CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE = ({ id = "ctrlEmergencyCapacityReserve0", essId = "ess0", isReserveSocEnabled = true, alias = id }: { id?: string, essId?: string, isReserveSocEnabled?: boolean, alias?: string }): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: "Controller.Ess.EmergencyCapacityReserve",
+            factory: Factory.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE,
+            isEnabled: true,
+            properties: {
+                "modbusUnitId": 5,
+                "ess.id": essId,
+                "isReserveSocEnabled": isReserveSocEnabled,
+            },
+            channels: {},
+
+        });
+
+        export const HEAT_PUMP_SG_READY = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.HEAT_PUMP_SG_READY,
+            properties: {
+                enabled: true,
+                mode: "AUTOMATIC",
+            },
+            channels: {},
+        });
+
+        export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_IO_FIX_DIGITAL_OUTPUT,
+            properties: {
+                enabled: true,
+                isOn: true,
+            },
+            channels: {},
+        });
+    }
+}
+
+/**
+ * Factories.
+ */
+// identifier `Factory` is also used in namespace
+
+type Factory = {
+    id: string,
+    natureIds: string[],
+};
+
+/**
+ * Components
+ */
+// identifier `Component` is also used in namespace
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type Component = {
+    id: string,
+    alias: string, // defaults to id
+    factory: Factory,
+    factoryId?: string // generated
+    properties: { [property: string]: any },
+    channels?: {},
+    isEnabled?: boolean
+};
+
+export const CHANNEL_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
+    type: "channel-line",
+    name: name,
+    ...(indentation && { indentation: indentation }),
+    value: value,
+});
+
+export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
+    type: "value-from-channels-line",
+    name: name,
+    ...(indentation && { indentation: indentation }),
+    value: value,
+});
+
+export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OeFormlyViewTester.Field => ({
+    type: "children-line",
+    name: name,
+    indentation: TextIndentation.SINGLE,
+    children: [
+        {
+            type: "item",
+            value: voltage,
+        },
+        {
+            type: "item",
+            value: current,
+        },
+        {
+            type: "item",
+            value: power,
+        },
+    ],
+});
+
+export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
+    type: "children-line",
+    name: name,
+    indentation: TextIndentation.SINGLE,
+    children: [
+        {
+            type: "item",
+            value: power,
+        },
+    ],
+});
+
+export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
+    type: "horizontal-line",
+};
+
+export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
+    type: "info-line",
+    name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
+};
+
+export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
+    type: "info-line",
+    name: text,
+});
+export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OeFormlyViewTester.Field => ({
+    type: "buttons-from-form-control-line",
+    name: text,
+    buttons: buttons,
+    controlName: controlName,
+});
+export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, expectedValue: T, properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,): OeFormlyViewTester.Field => ({
+    type: "range-button-from-form-control-line",
+    controlName,
+    expectedValue,
+    properties,
+});
+
+export namespace ChartConfig {
+
+
+    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OeChartTester.Dataset.Option => ({
+        type: "option", options: {
+            "responsive": true,
+            "maintainAspectRatio": false,
+            "elements": {
+                "point": {
+                    "radius": 0,
+                    "hitRadius": 0,
+                    "hoverRadius": 0,
+                },
+                "line": {
+                    "stepped": false,
+                    "fill": true,
+                },
+            },
+            "datasets": {
+                "bar": {
+                    "barPercentage": 1,
+                },
+                "line": {
+                },
+            },
+            "plugins": {
+                "colors": {
+                    "enabled": false,
+                },
+                "legend": {
+                    "display": true,
+                    "position": "bottom",
+                    "labels": {
+                        "color": "",
+                    },
+                },
+                "tooltip": {
+                    "intersect": false,
+                    "mode": "x",
+                    "callbacks": {
+                    },
+                },
+            },
+            "scales": {
+                "x": {
+                    "stacked": true,
+                    "offset": true,
+                    "type": "time",
+                    "ticks": {
+                        "source": "auto",
+                        "maxTicksLimit": 31,
+                    },
+                    "bounds": "ticks",
+                    "adapters": {
+                        "date": {
+                            "locale": {
+                                "code": "de",
+                                "formatLong": {
+                                },
+                                "localize": {
+                                },
+                                "match": {
+                                },
+                                "options": {
+                                    "weekStartsOn": 1,
+                                    "firstWeekContainsDate": 4,
+                                },
+                            },
+                        },
+                    },
+                    "time": {
+                        "unit": period as TimeUnit,
+                        "displayFormats": {
+                            "datetime": "yyyy-MM-dd HH:mm:ss",
+                            "millisecond": "SSS [ms]",
+                            "second": "HH:mm:ss a",
+                            "minute": "HH:mm",
+                            "hour": "HH:00",
+                            "day": "dd",
+                            "week": "ll",
+                            "month": "MM",
+                            "quarter": "[Q]Q - YYYY",
+                            "year": "yyyy",
+                        },
+                    },
+                },
+                "left": {
+                    ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
+                    "title": {
+                        "text": "kWh",
+                        "display": false,
+                        "padding": 5,
+                        "font": { "size": 11 },
+                    },
+                    "beginAtZero": true,
+                    "position": "left",
+                    "grid": { "display": true },
+                    "ticks": {
+                        ...options["left"]?.ticks,
+                        "color": "",
+                        "padding": 5,
+                        "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+                    },
+                },
+            },
+        },
+    });
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OeChartTester.Dataset.Option => ({
+        type: "option",
+        options: {
+            "responsive": true,
+            "maintainAspectRatio": false,
+            "elements": {
+                "point": {
+                    "radius": 0,
+                    "hitRadius": 0,
+                    "hoverRadius": 0,
+                },
+                "line": {
+                    "stepped": false,
+                    "fill": true,
+                },
+            },
+            "datasets": {
+                "bar": {
+                },
+                "line": {
+                },
+            },
+            "plugins": {
+                "colors": {
+                    "enabled": false,
+                },
+                "legend": {
+                    "display": true,
+                    "position": "bottom",
+                    "labels": {
+                        "color": "",
+                    },
+                },
+                "tooltip": {
+                    "intersect": false,
+                    "mode": "index",
+                    "callbacks": {
+                    },
+                },
+            },
+            "scales": {
+                "x": {
+                    "stacked": true,
+                    "offset": false,
+                    "type": "time",
+                    "ticks": {
+                        "source": "auto",
+                        "maxTicksLimit": 31,
+                    },
+                    "bounds": "ticks",
+                    "adapters": {
+                        "date": {
+                            "locale": {
+                                "code": "de",
+                                "formatLong": {
+                                },
+                                "localize": {
+                                },
+                                "match": {
+                                },
+                                "options": {
+                                    "weekStartsOn": 1,
+                                    "firstWeekContainsDate": 4,
+                                },
+                            },
+                        },
+                    },
+                    "time": {
+                        "unit": period as TimeUnit,
+                        "displayFormats": {
+                            "datetime": "yyyy-MM-dd HH:mm:ss",
+                            "millisecond": "SSS [ms]",
+                            "second": "HH:mm:ss a",
+                            "minute": "HH:mm",
+                            "hour": "HH:00",
+                            "day": "dd",
+                            "week": "ll",
+                            "month": "MM",
+                            "quarter": "[Q]Q - YYYY",
+                            "year": "yyyy",
+                        },
+                    },
+                },
+                "left": {
+                    ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
+                    "title": {
+                        "text": "kW",
+                        "display": false,
+                        "padding": 5,
+                        "font": { "size": 11 },
+                    },
+                    "beginAtZero": true,
+                    "position": "left",
+                    "grid": { "display": true },
+                    "ticks": {
+                        ...options["left"]?.ticks,
+                        "color": "",
+                        "padding": 5,
+                        "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+                    },
+                },
+            },
+        },
+    });
+    export const LINE_CHART_OPTIONS_TYPE_PERCENTAGE = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OeChartTester.Dataset.Option => ({
+        type: "option",
+        options: {
+            "responsive": true,
+            "maintainAspectRatio": false,
+            "interaction": {
+                "mode": "index",
+                "intersect": false,
+            },
+            "elements": {
+                "point": {
+                    "radius": 0,
+                    "hitRadius": 0,
+                    "hoverRadius": 0,
+                },
+                "line": {
+                    "stepped": false,
+                    "fill": true,
+                },
+            },
+            "datasets": {
+                "bar": {
+                },
+                "line": {
+                },
+            },
+            "plugins": {
+                "colors": {
+                    "enabled": false,
+                },
+                "legend": {
+                    "display": true,
+                    "position": "bottom",
+                    "labels": {
+                        "color": "",
+                    },
+                },
+                "tooltip": {
+                    "enabled": true,
+                    "intersect": false,
+                    "mode": "index",
+                    "callbacks": {
+                    },
+                },
+                "annotation": { "annotations": {} }, "datalabels": {
+                    display: false,
+                },
+            },
+            "scales": {
+                "x": {
+                    "stacked": true,
+                    "offset": false,
+                    "type": "time",
+                    "ticks": {
+                        "source": "auto",
+                        "maxTicksLimit": 31,
+                    },
+                    "bounds": "ticks",
+                    "adapters": {
+                        "date": {
+                            "locale": {
+                                "code": "de",
+                                "formatLong": {
+                                },
+                                "localize": {
+                                },
+                                "match": {
+                                },
+                                "options": {
+                                    "weekStartsOn": 1,
+                                    "firstWeekContainsDate": 4,
+                                },
+                            },
+                        },
+                    },
+                    "time": {
+                        "unit": period as TimeUnit,
+                        "displayFormats": {
+                            "datetime": "yyyy-MM-dd HH:mm:ss",
+                            "millisecond": "SSS [ms]",
+                            "second": "HH:mm:ss a",
+                            "minute": "HH:mm",
+                            "hour": "HH:00",
+                            "day": "dd",
+                            "week": "ll",
+                            "month": "MM",
+                            "quarter": "[Q]Q - YYYY",
+                            "year": "yyyy",
+                        },
+                    },
+                },
+                "left": {
+                    ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
+                    "title": {
+                        "text": "%",
+                        "display": false,
+                        "padding": 5,
+                        "font": { "size": 11 },
+                    },
+                    "position": "left",
+                    "grid": { "display": true },
+                    "ticks": {
+                        ...options["left"]?.ticks,
+                        "color": "",
+                        "padding": 5,
+                        "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
+                    },
+                    "beginAtZero": true,
+                    "type": "linear",
+                },
+            },
+        },
+    });
+}
+
+describe("PersistencePriority", () => {
+    it("#isLessThan", () => {
+        expect(PersistencePriority.isLessThan(PersistencePriority.LOW, PersistencePriority.HIGH)).toBe(true);
+        expect(PersistencePriority.isLessThan(PersistencePriority.VERY_HIGH, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(PersistencePriority.HIGH, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(null, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(undefined, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(undefined, null)).toBe(false);
+    });
+});
+
+describe("hasPropertyValue", () => {
+
+    const component = new EdgeConfig.Component("component0", "", true, "factoryId", {
+        "booleanValue": true,
+        "booleanValueString": "true",
+        "numberValueStrng": "42",
+    });
+
+    it("#booleanValue", () => {
+        expect(component.hasPropertyValue("booleanValue", true)).toBeTrue();
+    });
+
+    it("#booleanValueString", () => {
+        expect(component.hasPropertyValue("booleanValueString", true)).toBeTrue();
+    });
+
+    it("#wrongEquals", () => {
+        expect(component.hasPropertyValue("booleanValueString", false)).toBeFalse();
+    });
+
+    it("#compareWrongTypes", () => {
+        expect(component.hasPropertyValue("numberValueStrng", 42)).toBeTrue();
+    });
+});

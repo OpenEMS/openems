@@ -7,9 +7,9 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An SignedWordElement represents a Short value in an
- * {@link AbstractWordElement}.
+ * {@link AbstractSingleWordElement}.
  */
-public class SignedWordElement extends AbstractWordElement<SignedWordElement, Short> {
+public class SignedWordElement extends AbstractSingleWordElement<SignedWordElement, Short> {
 
 	public SignedWordElement(int address) {
 		super(OpenemsType.SHORT, address);
@@ -20,13 +20,15 @@ public class SignedWordElement extends AbstractWordElement<SignedWordElement, Sh
 		return this;
 	}
 
-	protected Short fromByteBuffer(ByteBuffer buff) {
-		return buff.order(getByteOrder()).getShort(0);
+	@Override
+	protected Short byteBufferToValue(ByteBuffer buff) {
+		return buff.getShort(0);
 	}
 
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
-		Short value = TypeUtils.getAsType(OpenemsType.SHORT, object);
-		return buff.putShort(value.shortValue());
+	@Override
+	protected void valueToByteBuffer(ByteBuffer buff, Short value) {
+		Short s = TypeUtils.getAsType(OpenemsType.SHORT, value);
+		buff.putShort(s.shortValue());
 	}
 
 }

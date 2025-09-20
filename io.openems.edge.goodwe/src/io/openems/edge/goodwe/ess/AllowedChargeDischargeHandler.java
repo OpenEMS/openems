@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.ess;
 
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
@@ -14,31 +15,31 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 	}
 
 	@Override
-	public void accept(ClockProvider clockProvider, Battery battery) {
+	public void accept(ClockProvider clockProvider, Battery battery, SymmetricBatteryInverter inverter) {
 		this.accept(clockProvider);
 	}
 
 	/**
 	 * Calculates AllowedChargePower and AllowedDischargePower and sets the
 	 * Channels.
-	 * 
+	 *
 	 * @param clockProvider a {@link ClockProvider}
 	 */
 	public void accept(ClockProvider clockProvider) {
 		IntegerReadChannel bmsChargeImaxChannel = parent.channel(GoodWe.ChannelId.BMS_CHARGE_IMAX);
-		Integer bmsChargeImax = bmsChargeImaxChannel.value().get();
+		var bmsChargeImax = bmsChargeImaxChannel.value().get();
 		IntegerReadChannel bmsDischargeImaxChannel = parent.channel(GoodWe.ChannelId.BMS_DISCHARGE_IMAX);
-		Integer bmsDischargeImax = bmsDischargeImaxChannel.value().get();
-		IntegerReadChannel wbmsBatVoltageChannel = parent.channel(GoodWe.ChannelId.WBMS_BAT_VOLTAGE);
-		Integer wbmsBatVoltage = wbmsBatVoltageChannel.value().get();
-		this.calculateAllowedChargeDischargePower(clockProvider, true, bmsChargeImax, bmsDischargeImax, wbmsBatVoltage);
+		var bmsDischargeImax = bmsDischargeImaxChannel.value().get();
+		IntegerReadChannel wbmsVoltageChannel = parent.channel(GoodWe.ChannelId.WBMS_VOLTAGE);
+		var wbmsVoltage = wbmsVoltageChannel.value().get();
+		this.calculateAllowedChargeDischargePower(clockProvider, true, bmsChargeImax, bmsDischargeImax, wbmsVoltage);
 
 		// Battery limits
-		int batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
-		int batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
+		var batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
+		var batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
 
 		// PV-Production
-		int pvProduction = Math.max(//
+		var pvProduction = Math.max(//
 				TypeUtils.orElse(//
 						TypeUtils.subtract(this.parent.getActivePower().get(), this.parent.getDcDischargePower().get()), //
 						0),
@@ -48,5 +49,4 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		this.parent._setAllowedChargePower(batteryAllowedChargePower * -1 /* invert charge power */);
 		this.parent._setAllowedDischargePower(batteryAllowedDischargePower + pvProduction);
 	}
-
 }

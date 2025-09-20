@@ -1,49 +1,58 @@
 package io.openems.backend.core.jsonrpcrequesthandler;
 
-import java.time.ZonedDateTime;
+import static io.openems.common.utils.JsonUtils.getAsOptionalBoolean;
+import static io.openems.common.utils.JsonUtils.getAsOptionalString;
+import static io.openems.common.utils.JsonUtils.getAsString;
+import static java.util.Collections.emptyMap;
+
+import java.io.IOException;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Map;
-import java.util.SortedMap;
+import java.util.Optional;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import com.google.gson.JsonElement;
-
+import io.openems.backend.common.metadata.AppCenterHandler;
+import io.openems.backend.common.metadata.Metadata.GenericSystemLog;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.AppCenterRequest;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyPerPeriodRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
-import io.openems.common.jsonrpc.request.SetChannelValueRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyPerPeriodResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesExportXlsxResponse;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.timedata.Resolution;
+import io.openems.common.timedata.XlsxExportDetailData.XlsxExportDataEntry.HistoricTimedataSaveType;
+import io.openems.common.timedata.XlsxExportUtil;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.EdgeConfig;
 
 public class EdgeRpcRequestHandler {
 
-	private final JsonRpcRequestHandlerImpl parent;
+	private final CoreJsonRpcRequestHandlerImpl parent;
 
-	protected EdgeRpcRequestHandler(JsonRpcRequestHandlerImpl parent) {
+	protected EdgeRpcRequestHandler(CoreJsonRpcRequestHandlerImpl parent) {
 		this.parent = parent;
 	}
 
 	/**
 	 * Handles an {@link EdgeRpcRequest}.
-	 * 
+	 *
 	 * @param user           the {@link User}
 	 * @param edgeRpcRequest the {@link EdgeRpcRequest}
 	 * @param messageId      the JSON-RPC Message-ID
@@ -52,66 +61,75 @@ public class EdgeRpcRequestHandler {
 	 */
 	protected CompletableFuture<EdgeRpcResponse> handleRequest(User user, UUID messageId, EdgeRpcRequest edgeRpcRequest)
 			throws OpenemsNamedException {
-		String edgeId = edgeRpcRequest.getEdgeId();
-		JsonrpcRequest request = edgeRpcRequest.getPayload();
+		var edgeId = edgeRpcRequest.getEdgeId();
+		var request = edgeRpcRequest.getPayload();
+
+		if (user.getRole(edgeId).isEmpty()) {
+			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
+		}
 		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeRpcRequest.getEdgeId(), Role.GUEST);
 
-		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
-		switch (request.getMethod()) {
+		var resultFuture = switch (request.getMethod()) {
+		case AppCenterRequest.METHOD -> AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
+				t -> this.handleRequest(user, messageId, t), //
+				AppCenterRequest.from(request), user, edgeId);
 
-		case QueryHistoricTimeseriesDataRequest.METHOD:
-			resultFuture = this.handleQueryHistoricDataRequest(edgeId, user,
-					QueryHistoricTimeseriesDataRequest.from(request));
-			break;
+		case QueryHistoricTimeseriesDataRequest.METHOD ->
+			this.handleQueryHistoricDataRequest(edgeId, user, QueryHistoricTimeseriesDataRequest.from(request));
 
-		case QueryHistoricTimeseriesEnergyRequest.METHOD:
-			resultFuture = this.handleQueryHistoricEnergyRequest(edgeId, user,
-					QueryHistoricTimeseriesEnergyRequest.from(request));
-			break;
+		case QueryHistoricTimeseriesEnergyRequest.METHOD ->
+			this.handleQueryHistoricEnergyRequest(edgeId, user, QueryHistoricTimeseriesEnergyRequest.from(request));
 
-		case QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD:
-			resultFuture = this.handleQueryHistoricEnergyPerPeriodRequest(edgeId, user,
-					QueryHistoricTimeseriesEnergyPerPeriodRequest.from(request));
-			break;
+		case QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD -> this.handleQueryHistoricEnergyPerPeriodRequest(
+				edgeId, user, QueryHistoricTimeseriesEnergyPerPeriodRequest.from(request));
 
-		case QueryHistoricTimeseriesExportXlxsRequest.METHOD:
-			resultFuture = this.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, user,
-					QueryHistoricTimeseriesExportXlxsRequest.from(request));
-			break;
+		case QueryHistoricTimeseriesExportXlxsRequest.METHOD -> this.handleQueryHistoricTimeseriesExportXlxsRequest(
+				edgeId, user, QueryHistoricTimeseriesExportXlxsRequest.from(request));
 
-		case GetEdgeConfigRequest.METHOD:
-			resultFuture = this.handleGetEdgeConfigRequest(edgeId, user, GetEdgeConfigRequest.from(request));
-			break;
+		case GetEdgeConfigRequest.METHOD ->
+			this.handleGetEdgeConfigRequest(edgeId, user, GetEdgeConfigRequest.from(request));
 
-		case CreateComponentConfigRequest.METHOD:
-			resultFuture = this.handleCreateComponentConfigRequest(edgeId, user,
-					CreateComponentConfigRequest.from(request));
-			break;
+		case ComponentJsonApiRequest.METHOD -> {
+			final var componentRequest = ComponentJsonApiRequest.from(request);
+			if (!"_host".equals(componentRequest.getComponentId())) {
+				yield null;
+			}
+			switch (componentRequest.getPayload().getMethod()) {
+			case "executeSystemCommand" -> {
+				final var executeSystemCommandRequest = componentRequest.getPayload();
+				final var p = executeSystemCommandRequest.getParams();
+				this.parent.metadata.logGenericSystemLog(new LogSystemExecuteCommend(edgeId, user, //
+						getAsString(p, "command"), //
+						getAsOptionalBoolean(p, "sudo").orElse(null), //
+						getAsOptionalString(p, "username").orElse(null), //
+						getAsOptionalString(p, "password").orElse(null), //
+						getAsOptionalBoolean(p, "runInBackground").orElse(null) //
+				));
+			}
+			case "executeSystemUpdate" -> {
+				this.parent.metadata.logGenericSystemLog(new LogUpdateSystem(edgeId, user));
+			}
+			case "executeSystemRestart" -> {
+				final var executeSystemCommandRequest = componentRequest.getPayload();
+				final var p = executeSystemCommandRequest.getParams();
+				this.parent.metadata.logGenericSystemLog(new LogRestartSystem(edgeId, user, //
+						getAsOptionalString(p, "type").orElse(null) //
+				));
+			}
+			}
+			yield null;
+		}
 
-		case UpdateComponentConfigRequest.METHOD:
-			resultFuture = this.handleUpdateComponentConfigRequest(edgeId, user,
-					UpdateComponentConfigRequest.from(request));
-			break;
+		default -> null;
+		};
 
-		case DeleteComponentConfigRequest.METHOD:
-			resultFuture = this.handleDeleteComponentConfigRequest(edgeId, user,
-					DeleteComponentConfigRequest.from(request));
-			break;
-
-		case SetChannelValueRequest.METHOD:
-			resultFuture = this.handleSetChannelValueRequest(edgeId, user, SetChannelValueRequest.from(request));
-			break;
-
-		case ComponentJsonApiRequest.METHOD:
-			resultFuture = this.handleComponentJsonApiRequest(edgeId, user, ComponentJsonApiRequest.from(request));
-			break;
-
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		if (resultFuture == null) {
+			// Request not handled delegate to edge
+			resultFuture = this.parent.edgeManager.send(edgeId, user, request);
 		}
 
 		// Wrap reply in EdgeRpcResponse
-		CompletableFuture<EdgeRpcResponse> result = new CompletableFuture<EdgeRpcResponse>();
+		var result = new CompletableFuture<EdgeRpcResponse>();
 		resultFuture.whenComplete((r, ex) -> {
 			if (ex != null) {
 				result.completeExceptionally(ex);
@@ -125,9 +143,77 @@ public class EdgeRpcRequestHandler {
 		return result;
 	}
 
+	private record LogSystemExecuteCommend(//
+			String edgeId, // non-null
+			User user, // non-null
+			String command, // non-null
+			Boolean sudo, // null-able
+			String username, // null-able
+			String password, // null-able
+			Boolean runInBackground // null-able
+	) implements GenericSystemLog {
+
+		@Override
+		public String teaser() {
+			return "Systemcommand: " + this.command;
+		}
+
+		@Override
+		public Map<String, String> getValues() {
+			return Map.of(//
+					"Sudo", Boolean.toString(Optional.ofNullable(this.sudo()).orElse(false)), //
+					"Command", this.command(), //
+					"Username", this.username(), //
+					"Password", this.password() == null || this.password().isEmpty() ? "[NOT_SET]" : "[SET]", //
+					"Run in Background", Boolean.toString(Optional.ofNullable(this.runInBackground()).orElse(false)) //
+			);
+		}
+
+	}
+
+	private record LogUpdateSystem(//
+			String edgeId, // non-null
+			User user // non-null
+	) implements GenericSystemLog {
+
+		@Override
+		public String teaser() {
+			return "Systemupdate";
+		}
+
+		@Override
+		public Map<String, String> getValues() {
+			return emptyMap();
+		}
+
+	}
+
+	private record LogRestartSystem(//
+			String edgeId, // non-null
+			User user, // non-null
+			String type // null-able
+	) implements GenericSystemLog {
+
+		@Override
+		public String teaser() {
+			return "Systemrestart";
+		}
+
+		@Override
+		public Map<String, String> getValues() {
+			if (this.type == null) {
+				return emptyMap();
+			}
+			return Map.of(//
+					"type", this.type //
+			);
+		}
+
+	}
+
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesDataRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
@@ -136,8 +222,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData = this.parent.timeData
-				.queryHistoricData(edgeId, request);
+		var historicData = this.parent.timedataManager.queryHistoricData(edgeId, request);
 
 		// JSON-RPC response
 		return CompletableFuture
@@ -146,7 +231,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesEnergyRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link QueryHistoricTimeseriesEnergyRequest}
@@ -155,7 +240,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, User user,
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-		Map<ChannelAddress, JsonElement> data = this.parent.timeData.queryHistoricEnergy(//
+		var data = this.parent.timedataManager.queryHistoricEnergy(//
 				edgeId, request.getFromDate(), request.getToDate(), request.getChannels());
 
 		// JSON-RPC response
@@ -164,7 +249,7 @@ public class EdgeRpcRequestHandler {
 
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
@@ -173,19 +258,16 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(String edgeId,
 			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.timeData
-				.queryHistoricEnergyPerPeriod(//
-						edgeId, request.getFromDate(), request.getToDate(), request.getChannels(),
-						request.getResolution());
+		var data = this.parent.timedataManager.queryHistoricEnergyPerPeriod(//
+				edgeId, request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
 
-		// JSON-RPC response
 		return CompletableFuture
 				.completedFuture(new QueryHistoricTimeseriesEnergyPerPeriodResponse(request.getId(), data));
 	}
 
 	/**
 	 * Handles a {@link QueryHistoricTimeseriesExportXlxsRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User}
 	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest}
@@ -194,13 +276,43 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
 			User user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		return CompletableFuture
-				.completedFuture(this.parent.timeData.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request));
+		return CompletableFuture.completedFuture(
+				this.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
+	}
+
+	private QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
+			QueryHistoricTimeseriesExportXlxsRequest request, Language language) throws OpenemsNamedException {
+		final var powerChannels = new TreeSet<ChannelAddress>(QueryHistoricTimeseriesExportXlsxResponse.POWER_CHANNELS);
+		final var energyChannels = new TreeSet<ChannelAddress>(
+				QueryHistoricTimeseriesExportXlsxResponse.ENERGY_CHANNELS);
+
+		final var edge = this.parent.metadata.edge().getEdgeConfig(edgeId);
+
+		final var detailData = XlsxExportUtil.getDetailData(edge);
+		final var channelsByType = detailData.getChannelsBySaveType();
+		powerChannels.addAll(channelsByType.getOrDefault(HistoricTimedataSaveType.POWER, Collections.emptyList()));
+		energyChannels.addAll(channelsByType.getOrDefault(HistoricTimedataSaveType.ENERGY, Collections.emptyList()));
+
+		var powerData = this.parent.timedataManager.queryHistoricData(edgeId, request.getFromDate(),
+				request.getToDate(), powerChannels, new Resolution(15, ChronoUnit.MINUTES));
+
+		var energyData = this.parent.timedataManager.queryHistoricEnergy(edgeId, request.getFromDate(),
+				request.getToDate(), energyChannels);
+		if (powerData == null || energyData == null) {
+			return null;
+		}
+		try {
+			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), edgeId, request.getFromDate(),
+					request.getToDate(), powerData, energyData, language, detailData);
+
+		} catch (IOException e) {
+			throw new OpenemsException("QueryHistoricTimeseriesExportXlxsRequest failed: " + e.getMessage());
+		}
 	}
 
 	/**
 	 * Handles a {@link GetEdgeConfigRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link GetEdgeConfigRequest}
@@ -209,89 +321,10 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, User user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		EdgeConfig config = this.parent.metadata.getEdgeOrError(edgeId).getConfig();
+		var config = this.parent.metadata.edge().getEdgeConfig(edgeId);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GetEdgeConfigResponse(request.getId(), config));
 	}
 
-	/**
-	 * Handles a {@link CreateComponentConfigRequest}.
-	 * 
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User} - Installer-level required
-	 * @param request the {@link CreateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(String edgeId, User user,
-			CreateComponentConfigRequest request) throws OpenemsNamedException {
-		user.assertEdgeRoleIsAtLeast(CreateComponentConfigRequest.METHOD, edgeId, Role.INSTALLER);
-
-		return this.parent.edgeWebsocket.send(edgeId, user, request);
-	}
-
-	/**
-	 * Handles a {@link UpdateComponentConfigRequest}.
-	 * 
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User} - Installer-level required
-	 * @param request the {@link UpdateComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(String edgeId, User user,
-			UpdateComponentConfigRequest request) throws OpenemsNamedException {
-		user.assertEdgeRoleIsAtLeast(UpdateComponentConfigRequest.METHOD, edgeId, Role.OWNER);
-
-		return this.parent.edgeWebsocket.send(edgeId, user, request);
-	}
-
-	/**
-	 * Handles a {@link DeleteComponentConfigRequest}.
-	 * 
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User} - Installer-level required
-	 * @param request the {@link DeleteComponentConfigRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(String edgeId, User user,
-			DeleteComponentConfigRequest request) throws OpenemsNamedException {
-		user.assertEdgeRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, edgeId, Role.INSTALLER);
-
-		return this.parent.edgeWebsocket.send(edgeId, user, request);
-	}
-
-	/**
-	 * Handles a {@link SetChannelValueRequest}.
-	 * 
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User}
-	 * @param request the {@link SetChannelValueRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSetChannelValueRequest(String edgeId, User user,
-			SetChannelValueRequest request) throws OpenemsNamedException {
-		user.assertEdgeRoleIsAtLeast(SetChannelValueRequest.METHOD, edgeId, Role.ADMIN);
-
-		return this.parent.edgeWebsocket.send(edgeId, user, request);
-	}
-
-	/**
-	 * Handles a {@link UpdateComponentConfigRequest}.
-	 * 
-	 * @param edgeId                  the Edge-ID
-	 * @param user                    the {@link User} - Guest-level required
-	 * @param componentJsonApiRequest the {@link ComponentJsonApiRequest}
-	 * @return the Future JSON-RPC Response
-	 * @throws OpenemsNamedException on error
-	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(String edgeId, User user,
-			ComponentJsonApiRequest componentJsonApiRequest) throws OpenemsNamedException {
-		user.assertEdgeRoleIsAtLeast(ComponentJsonApiRequest.METHOD, edgeId, Role.GUEST);
-
-		return this.parent.edgeWebsocket.send(edgeId, user, componentJsonApiRequest);
-	}
 }

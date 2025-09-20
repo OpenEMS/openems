@@ -1,0 +1,38 @@
+name: Bug Report
+description: Found something you weren't expecting? Report it here!
+labels: ["type/bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        1. Please speak English, this is the language all maintainers can speak and write.
+        2. Please ask questions or configuration/deploy problems on our [Community forum](https://community.openems.io/).
+        3. Make sure you are using the latest release and
+           take a moment to check that your issue hasn't been reported before.
+        4. It's really important to provide pertinent details and logs.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        Please provide a description of your issue here.
+    validations:
+      required: true 
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Please provide one or more screenshots, if feasible. 
+  - type: input
+    id: os-ver
+    attributes:
+      label: Operating System
+      description: The operating system you are running on.
+  - type: textarea
+    id: reproduce-info
+    attributes:
+      label: How to reproduce the Error?
+      description: |
+        Please provide step-by-step instructions on how to reproduce the error.
+    validations:
+      required: true

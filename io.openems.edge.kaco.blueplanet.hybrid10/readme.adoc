@@ -1,0 +1,29 @@
+= KACO Blueplanet Hybrid 10
+
+== Implemented Components:
+
+* *Kaco.BlueplanetHybrid10.Core*
+** This component is always required to establish the communication to the hardware device.
+
+* *Kaco.BlueplanetHybrid10.Ess*
+** This implements the Energy Storage System part (i.e. `ManagedSymmetricEss`) for read-only (fast internal control) or read-write (slow external control)
+
+* *Kaco.BlueplanetHybrid10.Charger*
+** This implements the DC Charger/MPP tracker for the photovoltaics system (i.e. `EssDcCharger`). Note that there is only one instance for both MPP trackers, because the inverter does not provide separated power values.
+
+* *Kaco.BlueplanetHybrid10.PvInverter*
+** This implements the inverter as a pure photovoltaics inverter (i.e. `ManagedSymmetricPvInverter`). Use this instead of Ess+Charger, if you are using the inverter purely as PV inverter without a battery.
+
+* *Kaco.BlueplanetHybrid10.GridMeter*
+** This implements the grid meter (product name "VECTIS" or "blueplanet hy-switch") connected to the inverter (i.e. `ElectricityMeter`) 
+
+== License/Dependencies
+
+NOTE: *The configuration of the Kaco.BlueplanetHybrid10.Core Component requires an `identkey`. This relates to the "Partner ID" that has to be acquired from Katek Memmingen GmbH. Without the `identkey` it is not possible to establish a communication with the hardware device.**
+
+This bundle is provided under the EPL (Eclipse Public License), but it depends on the Katek EDCOM library under `io.openems.edge.katek.edcom`, which is licensed as LGPL (GNU Lesser General Public License) by Katek Memmingen GmbH.
+
+== Product page:
+https://kaco-newenergy.com/de/produkte/blueplanet-hybrid-10.0-TL3/
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kaco.blueplanet.hybrid10[Source Code icon:github[]]

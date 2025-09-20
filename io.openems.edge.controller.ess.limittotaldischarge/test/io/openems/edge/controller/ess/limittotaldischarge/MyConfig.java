@@ -1,16 +1,16 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String essId = null;
-		public int minSoc;
-		public int forceChargeSoc;
-		public int forceChargePower;
+		private String id;
+		private String essId;
+		private int minSoc;
+		private int forceChargeSoc;
+		private int forceChargePower;
 
 		private Builder() {
 		}
@@ -47,7 +47,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

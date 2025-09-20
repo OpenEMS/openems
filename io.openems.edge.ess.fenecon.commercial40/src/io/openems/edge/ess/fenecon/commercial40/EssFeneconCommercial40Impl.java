@@ -1,5 +1,13 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +23,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +36,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -51,12 +60,9 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssFeneconCommercial40Pv;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -65,15 +71,15 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Ess.Fenecon.Commercial40", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
-		})
-public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent implements EssFeneconCommercial40,
-		ManagedSymmetricEss, SymmetricEss, HybridEss, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
-
-	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+})
+public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
+		implements EssFeneconCommercial40, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 
 	protected static final int MAX_APPARENT_POWER = 40000;
 	protected static final int NET_CAPACITY = 40000;
@@ -81,6 +87,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	private static final int UNIT_ID = 100;
 	private static final int MIN_REACTIVE_POWER = -10000;
 	private static final int MAX_REACTIVE_POWER = 10000;
+
+	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
 
 	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
@@ -90,26 +98,33 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 			HybridEss.ChannelId.DC_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
-	private final List<EssDcChargerFeneconCommercial40> chargers = new ArrayList<>();
+	private final List<EssFeneconCommercial40Pv> chargers = new ArrayList<>();
 	private final SurplusFeedInHandler surplusFeedInHandler = new SurplusFeedInHandler(this);
 
-	private Config config;
-
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
 	private Power power;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	private Config config;
+
 	public EssFeneconCommercial40Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
@@ -119,6 +134,21 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				EssFeneconCommercial40.ChannelId.values() //
 		);
 		this._setCapacity(NET_CAPACITY);
+	}
+
+	@Activate
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
+		this.config = config;
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	@Override
@@ -133,32 +163,13 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		setReactivePowerChannel.setNextWriteValue(reactivePower);
 	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id())) {
-			return;
-		}
-		this.config = config;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
-
 	@Override
 	public String getModbusBridgeId() {
 		return this.config.modbus_id();
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0x0101, Priority.LOW, //
 						m(EssFeneconCommercial40.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x0101)),
@@ -167,8 +178,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40.ChannelId.BATTERY_MAINTENANCE_STATE, new UnsignedWordElement(0x0104)),
 						m(EssFeneconCommercial40.ChannelId.INVERTER_STATE, new UnsignedWordElement(0x0105)),
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106), //
-								new ElementToChannelConverter((value) -> {
-									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+								new ElementToChannelConverter(value -> {
+									var intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 									if (intValue != null) {
 										switch (intValue) {
 										case 1:
@@ -329,61 +340,50 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 								.bit(14, EssFeneconCommercial40.SystemErrorChannelId.STATE_124))),
 				new FC3ReadRegistersTask(0x0200, Priority.HIGH, //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_VOLTAGE, new SignedWordElement(0x0200),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_CURRENT, new SignedWordElement(0x0201),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_POWER, new SignedWordElement(0x0202),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0203, 0x0207),
 						m(EssFeneconCommercial40.ChannelId.ORIGINAL_ACTIVE_CHARGE_ENERGY,
-								new UnsignedDoublewordElement(0x0208).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedDoublewordElement(0x0208).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.ORIGINAL_ACTIVE_DISCHARGE_ENERGY,
-								new UnsignedDoublewordElement(0x020A).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedDoublewordElement(0x020A).wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x020C, 0x020F), //
 						m(EssFeneconCommercial40.ChannelId.GRID_ACTIVE_POWER, new SignedWordElement(0x0210),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x0211),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
+						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x0211), SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.APPARENT_POWER, new UnsignedWordElement(0x0212),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.CURRENT_L1, new SignedWordElement(0x0213),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.CURRENT_L2, new SignedWordElement(0x0214),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.CURRENT_L3, new SignedWordElement(0x0215),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
+						m(EssFeneconCommercial40.ChannelId.CURRENT_L1, new SignedWordElement(0x0213), SCALE_FACTOR_2), //
+						m(EssFeneconCommercial40.ChannelId.CURRENT_L2, new SignedWordElement(0x0214), SCALE_FACTOR_2), //
+						m(EssFeneconCommercial40.ChannelId.CURRENT_L3, new SignedWordElement(0x0215), SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0216, 0x218), //
-						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x0219),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x021A),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x021B),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x0219), SCALE_FACTOR_2), //
+						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x021A), SCALE_FACTOR_2), //
+						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x021B), SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.FREQUENCY, new UnsignedWordElement(0x021C)), //
 						new DummyRegisterElement(0x021D, 0x0221), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L1, new UnsignedWordElement(0x0222),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L2, new UnsignedWordElement(0x0223),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L3, new UnsignedWordElement(0x0224),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L1, new SignedWordElement(0x0225),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L2, new SignedWordElement(0x0226),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L3, new SignedWordElement(0x0227),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0228),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0228), SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0229, 0x022F), //
 						m(EssFeneconCommercial40.ChannelId.ORIGINAL_ALLOWED_CHARGE_POWER, new SignedWordElement(0x0230),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.ORIGINAL_ALLOWED_DISCHARGE_POWER,
-								new UnsignedWordElement(0x0231), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(0x0232),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(0x0231), SCALE_FACTOR_2), //
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(0x0232), SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0233, 0x23F),
 						m(EssFeneconCommercial40.ChannelId.IPM_TEMPERATURE_L1, new SignedWordElement(0x0240)), //
 						m(EssFeneconCommercial40.ChannelId.IPM_TEMPERATURE_L2, new SignedWordElement(0x0241)), //
@@ -394,9 +394,9 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40.ChannelId.SET_WORK_STATE, new UnsignedWordElement(0x0500))), //
 				new FC16WriteRegistersTask(0x0501, //
 						m(EssFeneconCommercial40.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(0x0501),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(0x0502),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
+								SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(0xA000, Priority.LOW, //
 						m(EssFeneconCommercial40.ChannelId.BMS_DCDC_WORK_STATE, new UnsignedWordElement(0xA000)), //
 						m(EssFeneconCommercial40.ChannelId.BMS_DCDC_WORK_MODE, new UnsignedWordElement(0xA001))), //
@@ -658,18 +658,18 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 						m(EssFeneconCommercial40.ChannelId.CELL_224_VOLTAGE, new UnsignedWordElement(0x15DF))),
 				new FC3ReadRegistersTask(0x1400, Priority.LOW, //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_TOTAL_VOLTAGE,
-								new UnsignedWordElement(0x1400), ElementToChannelConverter.SCALE_FACTOR_2),
+								new UnsignedWordElement(0x1400), SCALE_FACTOR_2),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_TOTAL_CURRENT, new SignedWordElement(0x1401),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x1402)),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_SOH, new UnsignedWordElement(0x1403)),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_AVG_TEMPERATURE,
 								new SignedWordElement(0x1404)),
 						new DummyRegisterElement(0x1405),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_CHARGE_CURRENT_LIMIT,
-								new UnsignedWordElement(0x1406), ElementToChannelConverter.SCALE_FACTOR_2),
+								new UnsignedWordElement(0x1406), SCALE_FACTOR_2),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_DISCHARGE_CURRENT_LIMIT,
-								new UnsignedWordElement(0x1407), ElementToChannelConverter.SCALE_FACTOR_2),
+								new UnsignedWordElement(0x1407), SCALE_FACTOR_2),
 						new DummyRegisterElement(0x1408, 0x1409),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_CYCLES,
 								new UnsignedDoublewordElement(0x140A).wordOrder(WordOrder.LSWMSW)),
@@ -680,7 +680,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 								new UnsignedDoublewordElement(0x141A).wordOrder(WordOrder.LSWMSW)),
 						new DummyRegisterElement(0x141C, 0x141F),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_POWER, new SignedWordElement(0x1420),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						new DummyRegisterElement(0x1421, 0x142F),
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_MAX_CELL_VOLTAGE_NO,
 								new UnsignedWordElement(0x1430)),
@@ -745,14 +745,14 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		 */
 		// TODO this should be smarter: set in energy saving mode if there was no output
 		// power for a while and we don't need emergency power.
-		LocalDateTime now = LocalDateTime.now();
+		var now = LocalDateTime.now();
 		if (this.lastDefineWorkState == null || now.minusMinutes(1).isAfter(this.lastDefineWorkState)) {
 			this.lastDefineWorkState = now;
 			EnumWriteChannel setWorkStateChannel = this.channel(EssFeneconCommercial40.ChannelId.SET_WORK_STATE);
 			try {
 				setWorkStateChannel.setNextWriteValue(SetWorkState.START);
 			} catch (OpenemsNamedException e) {
-				logError(this.log, "Unable to start: " + e.getMessage());
+				this.logError(this.log, "Unable to start: " + e.getMessage());
 			}
 		}
 	}
@@ -760,6 +760,11 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	@Override
 	public Power getPower() {
 		return this.power;
+	}
+
+	@Override
+	public boolean isManaged() {
+		return !this.config.readOnlyMode();
 	}
 
 	@Override
@@ -772,17 +777,17 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		// Read-Only-Mode
 		if (this.config.readOnlyMode()) {
 			return new Constraint[] { //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+					this.createPowerConstraint("Read-Only-Mode", ALL, ACTIVE, EQUALS, 0), //
+					this.createPowerConstraint("Read-Only-Mode", ALL, REACTIVE, EQUALS, 0) //
 			};
 		}
 
 		// Reactive Power constraints
 		return new Constraint[] { //
-				this.createPowerConstraint("Commercial40 Min Reactive Power", Phase.ALL, Pwr.REACTIVE,
-						Relationship.GREATER_OR_EQUALS, MIN_REACTIVE_POWER), //
-				this.createPowerConstraint("Commercial40 Max Reactive Power", Phase.ALL, Pwr.REACTIVE,
-						Relationship.LESS_OR_EQUALS, MAX_REACTIVE_POWER) };
+				this.createPowerConstraint("Commercial40 Min Reactive Power", ALL, REACTIVE, GREATER_OR_EQUALS,
+						MIN_REACTIVE_POWER), //
+				this.createPowerConstraint("Commercial40 Max Reactive Power", ALL, REACTIVE, LESS_OR_EQUALS,
+						MAX_REACTIVE_POWER) };
 	}
 
 	@Override
@@ -795,12 +800,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
-	public void addCharger(EssDcChargerFeneconCommercial40 charger) {
+	public void addCharger(EssFeneconCommercial40Pv charger) {
 		this.chargers.add(charger);
 	}
 
 	@Override
-	public void removeCharger(EssDcChargerFeneconCommercial40 charger) {
+	public void removeCharger(EssFeneconCommercial40Pv charger) {
 		this.chargers.remove(charger);
 	}
 
@@ -818,14 +823,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				 * Apply limit on ESS charge/discharge power
 				 */
 				try {
-					this.power.addConstraintAndValidate(
-							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
-									Pwr.ACTIVE, Relationship.GREATER_OR_EQUALS,
-									this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
-					this.power.addConstraintAndValidate(
-							this.createPowerConstraint("Limit On PowerDecreaseCausedByOvertemperature Error", Phase.ALL,
-									Pwr.ACTIVE, Relationship.LESS_OR_EQUALS,
-									this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
+					this.power.addConstraintAndValidate(this.createPowerConstraint(
+							"Limit On PowerDecreaseCausedByOvertemperature Error", ALL, ACTIVE, GREATER_OR_EQUALS,
+							this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel() * -1));
+					this.power.addConstraintAndValidate(this.createPowerConstraint(
+							"Limit On PowerDecreaseCausedByOvertemperature Error", ALL, ACTIVE, LESS_OR_EQUALS,
+							this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel()));
 				} catch (OpenemsException e) {
 					this.logError(this.log, e.getMessage());
 				}
@@ -834,7 +837,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 				 */
 				if (this.chargers.size() > 0) {
 					IntegerWriteChannel setPvPowerLimit = this.chargers.get(0)
-							.channel(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT);
+							.channel(EssFeneconCommercial40Pv.ChannelId.SET_PV_POWER_LIMIT);
 					try {
 						setPvPowerLimit.setNextWriteValue(
 								this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel());
@@ -861,7 +864,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		/*
 		 * Calculate AC Energy
 		 */
-		Integer acActivePower = this.getActivePowerChannel().getNextValue().get();
+		var acActivePower = this.getActivePowerChannel().getNextValue().get();
 		if (acActivePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
@@ -878,8 +881,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent i
 		/*
 		 * Calculate DC Power and Energy
 		 */
-		Integer dcDischargePower = acActivePower;
-		for (EssDcChargerFeneconCommercial40 charger : this.chargers) {
+		var dcDischargePower = acActivePower;
+		for (EssFeneconCommercial40Pv charger : this.chargers) {
 			dcDischargePower = TypeUtils.subtract(dcDischargePower,
 					charger.getActualPowerChannel().getNextValue().get());
 		}

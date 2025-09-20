@@ -1,4 +1,2 @@
 eclipse.preferences.version=1
-encoding//src/io/openems/edge/controller/api/backend/BackendApi.java=UTF-8
-encoding//src/io/openems/edge/controller/api/backend/BackendApiImpl.java=UTF-8
-encoding/bnd.bnd=UTF-8
+encoding/<project>=UTF-8

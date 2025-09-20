@@ -10,7 +10,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Sets the write value of a Channel.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -30,16 +30,16 @@ public class SetChannelValueRequest extends JsonrpcRequest {
 
 	/**
 	 * Create {@link SetChannelValueRequest} from a template {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link SetChannelValueRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static SetChannelValueRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String componentId = JsonUtils.getAsString(p, "componentId");
-		String channelId = JsonUtils.getAsString(p, "channelId");
-		JsonElement value = JsonUtils.getSubElement(p, "value");
+		var p = r.getParams();
+		var componentId = JsonUtils.getAsString(p, "componentId");
+		var channelId = JsonUtils.getAsString(p, "channelId");
+		var value = JsonUtils.getSubElement(p, "value");
 		return new SetChannelValueRequest(r, componentId, channelId, value);
 	}
 
@@ -48,14 +48,14 @@ public class SetChannelValueRequest extends JsonrpcRequest {
 	private final JsonElement value;
 
 	public SetChannelValueRequest(String componentId, String channelId, JsonElement value) {
-		super(METHOD);
+		super(SetChannelValueRequest.METHOD);
 		this.componentId = componentId;
 		this.channelId = channelId;
 		this.value = value;
 	}
 
 	private SetChannelValueRequest(JsonrpcRequest request, String componentId, String channelId, JsonElement value) {
-		super(request, METHOD);
+		super(request, SetChannelValueRequest.METHOD);
 		this.componentId = componentId;
 		this.channelId = channelId;
 		this.value = value;
@@ -72,7 +72,7 @@ public class SetChannelValueRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Component-ID.
-	 * 
+	 *
 	 * @return Component-ID
 	 */
 	public String getComponentId() {
@@ -81,7 +81,7 @@ public class SetChannelValueRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Channel-ID.
-	 * 
+	 *
 	 * @return Channel-ID
 	 */
 	public String getChannelId() {
@@ -90,7 +90,7 @@ public class SetChannelValueRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the {@link ChannelAddress}.
-	 * 
+	 *
 	 * @return ChannelAddress
 	 */
 	public ChannelAddress getChannelAddress() {
@@ -99,7 +99,7 @@ public class SetChannelValueRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the Value.
-	 * 
+	 *
 	 * @return Value
 	 */
 	public JsonElement getValue() {

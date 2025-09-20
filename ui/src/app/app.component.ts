@@ -1,23 +1,38 @@
-import { Component } from '@angular/core';
-import { environment } from '../environments';
-import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { Service, Websocket } from './shared/shared';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+// @ts-strict-ignore
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Meta, Title } from "@angular/platform-browser";
+import { NavigationEnd, Router } from "@angular/router";
+import { SplashScreen } from "@capacitor/splash-screen";
+import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
+import { Subject, Subscription } from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
+import { environment } from "../environments";
+import { PlatFormService } from "./platform.service";
+import { NavigationService } from "./shared/components/navigation/service/navigation.service";
+import { AppStateTracker } from "./shared/ngrx-store/states";
+import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
+import { UserService } from "./shared/service/user.service";
+import { Service, UserPermission, Websocket } from "./shared/shared";
+import { Language } from "./shared/type/language";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: 'app.component.html'
+  selector: "app-root",
+  templateUrl: "app.component.html",
+  standalone: false,
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
 
-  public env = environment;
-  public backUrl: string | boolean = '/';
+  public environment = environment;
+  public backUrl: string | boolean = "/";
   public enableSideMenu: boolean;
-  public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
+
+  protected isUserAllowedToSeeOverview: boolean = false;
+  protected isUserAllowedToSeeFooter: boolean = false;
+  protected isHistoryDetailView: boolean = false;
+
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private subscription: Subscription = new Subscription();
 
   constructor(
     private platform: Platform,
@@ -25,29 +40,70 @@ export class AppComponent {
     public modalCtrl: ModalController,
     public router: Router,
     public service: Service,
+    private userService: UserService,
     public toastController: ToastController,
     public websocket: Websocket,
+    private globalRouteChangeHandler: GlobalRouteChangeHandler,
+    private meta: Meta,
+    private appService: PlatFormService,
+    private title: Title,
+    private stateService: AppStateTracker,
+    protected navigationService: NavigationService,
+    protected navCtrl: NavController
   ) {
-    service.setLang(this.service.browserLangToLangTag(navigator.language));
+    service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+
+    this.subscription.add(
+      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+        this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+        this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
+      }));
+
+    this.subscription.add(
+      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
+        // Hide footer for history detail views
+        const segments = e.url.split("/");
+        this.isHistoryDetailView = segments.slice(0, -1).includes("history");
+      }));
+
+    this.appService.listen();
+    SplashScreen.hide();
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+    this.subscription.unsubscribe();
   }
 
   ngOnInit() {
+
+    // Checks if sessionStorage is not null, undefined or empty string
+    if (localStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
+    }
+
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
-        position: 'top',
+        position: "top",
         duration: 2000,
         buttons: [
           {
-            text: 'Ok',
-            role: 'cancel',
-          }
-        ]
+            text: "Ok",
+            role: "cancel",
+          },
+        ],
       });
       toast.present();
     });
 
     this.platform.ready().then(() => {
+      // OEM colors exist only after ionic is initialized, so the notch color has to be set here
+      const notchColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-background");
+      this.meta.updateTag(
+        { name: "theme-color", content: notchColor },
+      );
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();
       this.checkSmartphoneResolution(true);
@@ -55,8 +111,10 @@ export class AppComponent {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
         this.checkSmartphoneResolution(false);
-      })
-    })
+      });
+    });
+
+    this.title.setTitle(environment.edgeShortName);
   }
 
   private checkSmartphoneResolution(init: boolean): void {
@@ -77,10 +135,5 @@ export class AppComponent {
         this.service.isSmartphoneResolutionSubject.next(false);
       }
     }
-  }
-
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 }

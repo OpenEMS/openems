@@ -2,7 +2,7 @@ import { JsonrpcRequest } from "../base";
 
 /**
  * Wraps a JSON-RPC Request to logout.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -14,7 +14,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class LogoutRequest extends JsonrpcRequest {
 
-    static METHOD: string = "logout";
+    private static METHOD: string = "logout";
 
     public constructor() {
         super(LogoutRequest.METHOD, {});

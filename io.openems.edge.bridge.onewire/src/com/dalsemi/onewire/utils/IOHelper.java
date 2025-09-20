@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
@@ -41,14 +42,14 @@ import java.io.Writer;
  * from any stream as well as the destination for written bytes. All routines
  * are static and final and handle all exceptional cases by returning a default
  * value.
- * 
+ *
  * @version 0.02, 2 June 2001
  * @author SH
  */
 public final class IOHelper {
 	/** Do not instantiate this class */
 	private IOHelper() {
-		;
+
 	}
 
 	/*----------------------------------------------------------------*/
@@ -79,34 +80,37 @@ public final class IOHelper {
 	}
 
 	public static final synchronized byte[] readBytes(int count, int pad, boolean hex) {
-		if (hex)
+		if (hex) {
 			return readBytesHex(count, pad);
-		else
-			return readBytesAsc(count, pad);
+		}
+		return readBytesAsc(count, pad);
 	}
 
 	public static final synchronized byte[] readBytesHex(int count, int pad) {
 		try {
-			String s = br.readLine();
-			int len = s.length() > count ? count : s.length();
+			var s = br.readLine();
+			var len = s.length() > count ? count : s.length();
 			byte[] ret;
 
-			if (count > 0)
+			if (count > 0) {
 				ret = new byte[count];
-			else
+			} else {
 				ret = new byte[s.length()];
+			}
 
-			byte[] temp = parseHex(s, 0);
+			var temp = parseHex(s, 0);
 
-			if (count == 0)
+			if (count == 0) {
 				return temp;
+			}
 
 			len = temp.length;
 
 			System.arraycopy(temp, 0, ret, 0, len);
 
-			for (; len < count; len++)
+			for (; len < count; len++) {
 				ret[len] = (byte) pad;
+			}
 
 			return ret;
 		} catch (Exception e) {
@@ -116,14 +120,15 @@ public final class IOHelper {
 
 	public static final synchronized byte[] readBytesAsc(int count, int pad) {
 		try {
-			String s = br.readLine();
-			int len = s.length() > count ? count : s.length();
+			var s = br.readLine();
+			var len = s.length() > count ? count : s.length();
 			byte[] ret;
 
-			if (count > 0)
+			if (count > 0) {
 				ret = new byte[count];
-			else
+			} else {
 				ret = new byte[s.length()];
+			}
 
 			if (count == 0) {
 				System.arraycopy(s.getBytes(), 0, ret, 0, s.length());
@@ -133,8 +138,9 @@ public final class IOHelper {
 
 			System.arraycopy(s.getBytes(), 0, ret, 0, len);
 
-			for (; len < count; len++)
+			for (; len < count; len++) {
 				ret[len] = (byte) pad;
+			}
 
 			return ret;
 		} catch (IOException e) {
@@ -144,32 +150,37 @@ public final class IOHelper {
 
 	private static final byte[] parseHex(String s, int size) {
 		byte[] temp;
-		int index = 0;
-		char[] x = s.toLowerCase().toCharArray();
+		var index = 0;
+		var x = s.toLowerCase().toCharArray();
 
-		if (size > 0)
+		if (size > 0) {
 			temp = new byte[size];
-		else
+		} else {
 			temp = new byte[x.length];
+		}
 
 		try {
-			for (int i = 0; i < x.length && index < temp.length; index++) {
-				int digit = -1;
+			for (var i = 0; i < x.length && index < temp.length; index++) {
+				var digit = -1;
 
-				while (i < x.length && digit == -1)
+				while (i < x.length && digit == -1) {
 					digit = Character.digit(x[i++], 16);
-				if (digit != -1)
-					temp[index] = (byte) ((digit << 4) & 0xF0);
+				}
+				if (digit != -1) {
+					temp[index] = (byte) (digit << 4 & 0xF0);
+				}
 
 				digit = -1;
 
-				while (i < x.length && digit == -1)
+				while (i < x.length && digit == -1) {
 					digit = Character.digit(x[i++], 16);
-				if (digit != -1)
+				}
+				if (digit != -1) {
 					temp[index] |= (byte) (digit & 0x0F);
+				}
 			}
 		} catch (Exception e) {
-			;
+
 		}
 
 		byte[] t;
@@ -177,8 +188,9 @@ public final class IOHelper {
 		if (size == 0 && temp.length != index) {
 			t = new byte[index];
 			System.arraycopy(temp, 0, t, 0, t.length);
-		} else
+		} else {
 			t = temp;
+		}
 
 		return t;
 	}
@@ -217,10 +229,11 @@ public final class IOHelper {
 	}
 
 	public static final synchronized void writeBytesHex(String delim, byte[] b, int offset, int cnt) {
-		int i = offset;
-		for (; i < (offset + cnt);) {
-			if (i != offset && ((i - offset) & 15) == 0)
+		var i = offset;
+		for (; i < offset + cnt;) {
+			if (i != offset && (i - offset & 15) == 0) {
 				pw.println();
+			}
 			pw.print(byteStr(b[i++]));
 			pw.print(delim);
 		}
@@ -242,7 +255,7 @@ public final class IOHelper {
 	 * 16 bytes of data in hex followed by three spaces and the ascii representation
 	 * of those bytes. To write out just the Hex representation, use
 	 * <code>writeBytesHex(byte[],int,int)</code>.
-	 * 
+	 *
 	 * @param b      the byte array to print out.
 	 * @param offset the starting location to begin printing
 	 * @param cnt    the number of bytes to print.
@@ -250,23 +263,25 @@ public final class IOHelper {
 	public static final synchronized void writeBytes(String delim, byte[] b, int offset, int cnt) {
 		int last, i;
 		last = i = offset;
-		for (; i < (offset + cnt);) {
-			if (i != offset && ((i - offset) & 15) == 0) {
+		for (; i < offset + cnt;) {
+			if (i != offset && (i - offset & 15) == 0) {
 				pw.print("  ");
-				for (; last < i; last++)
+				for (; last < i; last++) {
 					pw.print((char) b[last]);
+				}
 				pw.println();
 			}
 			pw.print(byteStr(b[i++]));
 			pw.print(delim);
 		}
-		for (int k = i; ((k - offset) & 15) != 0; k++) {
+		for (var k = i; (k - offset & 15) != 0; k++) {
 			pw.print("  ");
 			pw.print(delim);
 		}
 		pw.print("  ");
-		for (; last < i; last++)
+		for (; last < i; last++) {
 			pw.print((char) b[last]);
+		}
 		pw.println();
 		pw.flush();
 	}
@@ -277,7 +292,7 @@ public final class IOHelper {
 	 * 16 bytes of data in hex followed by three spaces and the ascii representation
 	 * of those bytes. To write out just the Hex representation, use
 	 * <code>writeBytesHex(byte[],int,int)</code>.
-	 * 
+	 *
 	 * @param b the byte array to print out.
 	 */
 	public static final synchronized void writeBytes(byte[] b) {
@@ -356,7 +371,8 @@ public final class IOHelper {
 	private static final char[] hex = "0123456789ABCDEF".toCharArray();
 
 	private static final String byteStr(byte b) {
-		return "" + hex[((b >> 4) & 0x0F)] + hex[(b & 0x0F)];
+		return "" + hex[b >> 4 & 0x0F] + hex[b & 0x0F];
 	}
 
 }
+// CHECKSTYLE:ON

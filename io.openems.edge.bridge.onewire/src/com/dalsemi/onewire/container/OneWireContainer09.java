@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -46,7 +47,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * portable memory device. The 1-Wire Chip version is used for small
  * non-volatile storage.
  * </P>
- * 
+ *
  * <H3>Features</H3>
  * <UL>
  * <LI>1024 bits (128 bytes) Electrically Programmable Read-Only Memory (EPROM)
@@ -63,19 +64,19 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * 12.0V from -40@htmlonly &#176C @endhtmlonly to +50@htmlonly
  * &#176C @endhtmlonly
  * </UL>
- * 
+ *
  * <H3>Alternate Names</H3>
  * <UL>
  * <LI>D2502
  * </UL>
  *
  * <H3>Memory</H3>
- * 
+ *
  * <P>
  * The memory can be accessed through the objects that are returned from the
  * {@link #getMemoryBanks() getMemoryBanks} method.
  * </P>
- * 
+ *
  * The following is a list of the MemoryBank instances that are returned:
  *
  * <UL>
@@ -105,9 +106,9 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <LI><I> Page Features </I> page-device-CRC
  * </UL>
  * </UL>
- * 
+ *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>See the usage example in
  * {@link com.dalsemi.onewire.container.OneWireContainer OneWireContainer} to
@@ -125,13 +126,13 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <DD><A HREF="http://pdfserv.maxim-ic.com/arpdf/DS1982.pdf">
  * http://pdfserv.maxim-ic.com/arpdf/DS1982.pdf</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.MemoryBank
  * @see com.dalsemi.onewire.container.PagedMemoryBank
  * @see com.dalsemi.onewire.container.OTPMemoryBank
  * @see com.dalsemi.onewire.container.OneWireContainer0B
  * @see com.dalsemi.onewire.container.OneWireContainer0F
- * 
+ *
  * @version 0.00, 28 Aug 2000
  * @author DS
  */
@@ -153,7 +154,6 @@ public class OneWireContainer09 extends OneWireContainer {
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer09() {
-		super();
 	}
 
 	/**
@@ -225,6 +225,7 @@ public class OneWireContainer09 extends OneWireContainer {
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS1982";
 	}
@@ -236,6 +237,7 @@ public class OneWireContainer09 extends OneWireContainer {
 	 *
 	 * @return 1-Wire device alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "DS2502";
 	}
@@ -246,11 +248,15 @@ public class OneWireContainer09 extends OneWireContainer {
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return "1024 bit Electrically Programmable Read Only Memory " + "(EPROM) partitioned into four 256 bit pages."
-				+ "Each memory page can be permanently write-protected "
-				+ "to prevent tampering.  Architecture allows software "
-				+ "to patch data by supersending a used page in favor of " + "a newly programmed page.";
+		return """
+				1024 bit Electrically Programmable Read Only Memory \
+				(EPROM) partitioned into four 256 bit pages. \
+				Each memory page can be permanently write-protected \
+				to prevent tampering.  Architecture allows software \
+				to patch data by supersending a used page in favor of \
+				a newly programmed page.""";
 	}
 
 	/**
@@ -259,14 +265,15 @@ public class OneWireContainer09 extends OneWireContainer {
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(2);
+		var bank_vector = new Vector<MemoryBank>(2);
 
 		// EPROM main bank
-		MemoryBankEPROM mn = new MemoryBankEPROM(this);
+		var mn = new MemoryBankEPROM(this);
 
 		mn.numberPages = 4;
 		mn.size = 128;
@@ -281,7 +288,7 @@ public class OneWireContainer09 extends OneWireContainer {
 		bank_vector.addElement(mn);
 
 		// EPROM status write protect pages bank
-		MemoryBankEPROM st = new MemoryBankEPROM(this);
+		var st = new MemoryBankEPROM(this);
 
 		st.bankDescription = "Write protect pages and Page redirection";
 		st.numberPages = 1;
@@ -308,3 +315,4 @@ public class OneWireContainer09 extends OneWireContainer {
 		return bank_vector.elements();
 	}
 }
+// CHECKSTYLE:ON

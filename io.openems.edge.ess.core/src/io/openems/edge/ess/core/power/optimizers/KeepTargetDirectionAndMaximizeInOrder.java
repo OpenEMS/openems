@@ -1,15 +1,20 @@
 package io.openems.edge.ess.core.power.optimizers;
 
+import static io.openems.edge.ess.core.power.data.ConstraintUtil.createSimpleConstraint;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
+import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
+import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.ess.core.power.data.ConstraintUtil;
 import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.core.power.solver.CalculatePowerExtrema;
 import io.openems.edge.ess.core.power.solver.ConstraintSolver;
@@ -17,14 +22,13 @@ import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 public class KeepTargetDirectionAndMaximizeInOrder {
 
 	/**
 	 * Tries to keep all Target Inverters in the right TargetDirection; then
 	 * maximizes them in order.
-	 * 
+	 *
 	 * @param coefficients    the {@link Coefficients}
 	 * @param allInverters    all {@link Inverter}s
 	 * @param targetInverters the target {@link Inverter}s
@@ -41,39 +45,32 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 		// Add Zero-Constraint for all Inverters that are not Target
 		for (Inverter inv : allInverters) {
 			if (!targetInverters.contains(inv)) {
-				constraints.add(ConstraintUtil.createSimpleConstraint(coefficients, //
+				constraints.add(createSimpleConstraint(coefficients, //
 						inv.toString() + ": is not a target inverter", //
-						inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0));
-				constraints.add(ConstraintUtil.createSimpleConstraint(coefficients, //
+						inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, EQUALS, 0));
+				constraints.add(createSimpleConstraint(coefficients, //
 						inv.toString() + ": is not a target inverter", //
-						inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, 0));
+						inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, EQUALS, 0));
 			}
 		}
 
-		PointValuePair result = ConstraintSolver.solve(coefficients, constraints);
+		var result = ConstraintSolver.solve(coefficients, constraints);
 
-		Relationship relationship = Relationship.EQUALS;
-		switch (targetDirection) {
-		case CHARGE:
-			relationship = Relationship.LESS_OR_EQUALS;
-			break;
-		case DISCHARGE:
-			relationship = Relationship.GREATER_OR_EQUALS;
-			break;
-		case KEEP_ZERO:
-			relationship = Relationship.EQUALS;
-			break;
-		}
+		var relationship = switch (targetDirection) {
+		case CHARGE -> LESS_OR_EQUALS;
+		case DISCHARGE -> GREATER_OR_EQUALS;
+		case KEEP_ZERO -> EQUALS;
+		};
 
-		for (Inverter inv : targetInverters) {
+		for (var inv : targetInverters) {
 			// Create Constraint to force Ess positive/negative/zero according to
 			// targetDirection
 			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
-					ConstraintUtil.createSimpleConstraint(coefficients, //
+					createSimpleConstraint(coefficients, //
 							inv.toString() + ": Force ActivePower " + targetDirection.name(), //
 							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0));
 			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
-					ConstraintUtil.createSimpleConstraint(coefficients, //
+					createSimpleConstraint(coefficients, //
 							inv.toString() + ": Force ReactivePower " + targetDirection.name(), //
 							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, relationship, 0));
 		}
@@ -83,27 +80,25 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 		}
 
 		// Try maximizing all inverters in order in target direction
-		for (Inverter inv : targetInverters) {
-			GoalType goal;
-			if (targetDirection == TargetDirection.CHARGE) {
-				goal = GoalType.MINIMIZE;
-			} else {
-				goal = GoalType.MAXIMIZE;
-			}
+		for (var inv : targetInverters) {
+			var goal = switch (targetDirection) {
+			case CHARGE -> MINIMIZE;
+			case DISCHARGE, KEEP_ZERO -> MAXIMIZE;
+			};
 
-			double activePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
+			var activePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
 					inv.getPhase(), Pwr.ACTIVE, goal);
 			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
-					ConstraintUtil.createSimpleConstraint(coefficients, //
+					createSimpleConstraint(coefficients, //
 							inv.toString() + ": Set ActivePower " + goal.name() + " value", //
-							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, activePowerTarget));
+							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, EQUALS, activePowerTarget));
 
-			double reactivePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
+			var reactivePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
 					inv.getPhase(), Pwr.REACTIVE, goal);
 			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
-					ConstraintUtil.createSimpleConstraint(coefficients, //
+					createSimpleConstraint(coefficients, //
 							inv.toString() + ": Set ReactivePower " + goal.name() + " value", //
-							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, reactivePowerTarget));
+							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, EQUALS, reactivePowerTarget));
 		}
 
 		return result;
@@ -111,7 +106,7 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 
 	/**
 	 * Add Constraint only if the problem still solves with the Constraint.
-	 * 
+	 *
 	 * @param lastResult   the last result
 	 * @param constraints  the list of {@link Constraint}s
 	 * @param coefficients the {@link Coefficients}

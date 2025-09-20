@@ -1,0 +1,58 @@
+= Cycle Controller
+
+This controller was developed to support battery cycling or battery capacity test scenarios.
+
+== Configuration
+
+Parameters which should be taken care of:
+
+`mode`::
+Select MANUAL_ON to activate the logic
+`ess_id`::
+Id of the device. ex, ess0
+`cycleOrder`::
+Initial step decide whether to start with charge or discharge in type of 'CycleOrder'. ex, START_WITH_DISCHARGE
+`standbyTime`::
+The time to wait between charge and discharge in minutes. ex, standbyTime=5, means wait 5 minute before switching from charge to discharge
+`startTime`::
+Start time in format [YYYY-MM-DD HH:MM], activates the controller logic at required date and time
+`maxSoc`::
+The maximum state-of-charge value that will be reached for charging when the controller is activated. For maxSoc=100 charging will be stopped only when 'AllowedChargePower' is 0; otherwise charging stops at maxSoc
+`minSoc`::
+The minimum state-of-charge value that will be reached for discharging when the controller is activated. For minSoc=0 discharging will be stopped only when 'AllowedDischargePower' is 0; otherwise discharging stops at minSoc
+`power`::
+The power in Watt to charge or discharge
+`hybridEssMode`::
+Whether to apply the power on AC or DC side of a hybrid ESS
+`totalCycleNumber`::
+Number of charge/discharge cycles
+`finalSoc`::
+After the last cycle, the battery will be charged/discharge to this state-of-charge
+
+== Monitoring
+
+Channels can be followed from Grafana or online monitoring:
+
+`ctrlEssCycle0/AwaitingHysteresis`::
+Active when waiting between two states (see standby-time)
+`ctrlEssCycle0/CompletedCycleNumber`::
+Number of already completed cycles
+`ctrlEssCycle0/StateMachine`::
+The current State of the State-Machine: UNDEFINED, FINISHED, CHARGE, DISCHARGE, STORE_SOC, etc. states.
+
+== Algorithm logic
+
+Controller starts with `UNDEFINED` state. First checks for `cycleOrder` configuration. If it is defined, according to the selection goes to `CHARGE or `DISCHARGE` state. 
+If `cycleOrder` is not defined, selection is made according to the Soc value.
+If Soc is higher than 50 % starts with `CHARGE` state, otherwise starts with `DISCHARGE` state.
+
+If the second state is `CHARGE` state, controller start to charge the system until `maxSoc`. Again, if it is configured as 100 %, when allowed charge power is 0 W, charge will be stopped. Then, based on the `standbyTime` configuration will wait until hysteresis completed.
+Afterwards, will switch to `DISCHARGE` state.
+
+If the second state is `DISCHARGE` state, controller start to discharge the system until `minSoc`. Again, if it is configured as 0 %, when allowed discharge power is 0 W, discharge will be stopped. Then, based on the `standbyTime` configuration will wait until hysteresis completed.
+Afterwards, will switch to `CHARGE` state.
+
+After first `CHARGE` and `DISCHARGE` next state will be `FINISHED`. If the `totalCycleNumber` is "1", next state will be `FINAL_SOC`. And in this state, according to the `finalSoc` system will be charged or discharged last time.
+If the `totalCycleNumber` is higher than "1", next cycle will be called. This process will repeat itself until `totalCycleNumber` reaches. At the end, last state will be `FINAL_SOC` and required last Soc value will be kept in the battery.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.cycle[Source Code icon:github[]]

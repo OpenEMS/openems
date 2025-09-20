@@ -3,7 +3,7 @@ package io.openems.edge.controller.debug.detailedlog;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Debug Detailed Log", //
 		description = "This controller prints detailed information about the defined components on the console")
 @interface Config {

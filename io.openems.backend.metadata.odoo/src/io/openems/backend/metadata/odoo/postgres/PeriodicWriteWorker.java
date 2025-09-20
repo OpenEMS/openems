@@ -1,27 +1,37 @@
 package io.openems.backend.metadata.odoo.postgres;
 
-import java.sql.Connection;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.zaxxer.hikari.HikariDataSource;
 
-import io.openems.backend.metadata.odoo.Field;
-import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.metadata.odoo.MyEdge;
+import io.openems.common.channel.Level;
 import io.openems.common.utils.ThreadPoolUtils;
 
 /**
@@ -35,11 +45,10 @@ public class PeriodicWriteWorker {
 	 */
 	private static final boolean DEBUG_MODE = true;
 
-	private static final int UPDATE_INTERVAL_IN_SECONDS = 120;
+	private static final int UPDATE_INTERVAL_IN_SECONDS = 30;
 
 	private final Logger log = LoggerFactory.getLogger(PeriodicWriteWorker.class);
 	private final PostgresHandler parent;
-	private final HikariDataSource dataSource;
 
 	/**
 	 * Holds the scheduled task.
@@ -49,12 +58,11 @@ public class PeriodicWriteWorker {
 	/**
 	 * Executor for subscriptions task.
 	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
 			new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.PGPeriodic-%d").build());
 
-	public PeriodicWriteWorker(PostgresHandler parent, HikariDataSource dataSource) {
+	public PeriodicWriteWorker(PostgresHandler parent) {
 		this.parent = parent;
-		this.dataSource = dataSource;
 	}
 
 	/**
@@ -62,8 +70,9 @@ public class PeriodicWriteWorker {
 	 */
 	public synchronized void start() {
 		this.future = this.executor.scheduleWithFixedDelay(//
-				() -> this.task.accept(this.dataSource), //
-				UPDATE_INTERVAL_IN_SECONDS, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+				this::applyChanges, //
+				PeriodicWriteWorker.UPDATE_INTERVAL_IN_SECONDS, PeriodicWriteWorker.UPDATE_INTERVAL_IN_SECONDS,
+				TimeUnit.SECONDS);
 	}
 
 	/**
@@ -78,156 +87,101 @@ public class PeriodicWriteWorker {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 
-	private Consumer<HikariDataSource> task = (dataSource) -> {
+	private final LinkedBlockingQueue<Integer> lastMessageOdooIds = new LinkedBlockingQueue<>();
+	private ExchangableObject<Map<Integer, Boolean>> connectionStatesToUpdate = new ExchangableObject<>(
+			new ConcurrentHashMap<>());
+	private ExchangableObject<Map<Integer, Level>> sumStatesToUpdate = new ExchangableObject<>(
+			new ConcurrentHashMap<>());
+
+	private final void applyChanges() {
+		final var edge = this.parent.edge;
+		if (PeriodicWriteWorker.DEBUG_MODE) {
+			this.debugLog();
+		}
+
 		try {
-			if (DEBUG_MODE) {
-				this.debugLog();
+			// Last Message
+			edge.updateLastMessage(drainToSet(this.lastMessageOdooIds));
+
+			// Online/Offline
+			final var connectionToUpdate = this.connectionStatesToUpdate.exchange(new ConcurrentHashMap<>());
+			final var edgesByConnection = connectionToUpdate.entrySet().stream() //
+					.collect(groupingBy(Entry::getValue, mapping(Entry::getKey, toSet())));
+			edge.updateOpenemsIsConnected(edgesByConnection.getOrDefault(false, emptySet()), false);
+			edge.updateOpenemsIsConnected(edgesByConnection.getOrDefault(true, emptySet()), true);
+			if (PeriodicWriteWorker.DEBUG_MODE) {
+				this.parent.logInfo(this.log,
+						"Update Edge connection states online["
+								+ edgesByConnection.getOrDefault(true, emptySet()).size() + "] offline["
+								+ edgesByConnection.getOrDefault(false, emptySet()).size() + "]");
 			}
 
-			this.writeLastMessage(dataSource);
-			this.writeLastUpdate(dataSource);
-			this.writeIsOnline(dataSource);
-			this.writeIsOffline(dataSource);
+			// Sum-State
+			final var statesToUpdate = this.sumStatesToUpdate.exchange(new ConcurrentHashMap<>());
+			final var edgesByState = statesToUpdate.entrySet().stream()
+					.collect(groupingBy(Entry::getValue, mapping(Entry::getKey, toSet())));
+			for (var stateEntry : edgesByState.entrySet()) {
+				edge.updateSumState(stateEntry.getValue(), stateEntry.getKey());
+			}
+			if (PeriodicWriteWorker.DEBUG_MODE) {
+				this.parent.logInfo(this.log, "Update Edge sum states " + Stream.of(Level.values()) //
+						.map(level -> {
+							final var itemsToUpdate = edgesByState.getOrDefault(level, emptySet());
+							return level.getName() + "[" + itemsToUpdate.size() + "]";
+						}).collect(joining(" ")));
+			}
 
 		} catch (SQLException e) {
 			this.log.error("Unable to execute WriteWorker task: " + e.getMessage());
 		}
-	};
-
-	private final Set<Integer> lastMessageOdooIds = new HashSet<>();
-	private final Set<Integer> lastUpdateOdooIds = new HashSet<>();
-	private final Set<Integer> isOnlineOdooIds = new HashSet<>();
-	private final Set<Integer> isOfflineOdooIds = new HashSet<>();
+	}
 
 	/**
-	 * Called on Edge onSetLastMessage event.
-	 * 
+	 * Called on {@link Edge.Events#ON_SET_LAST_MESSAGE_TIMESTAMP} event.
+	 *
 	 * @param edge the {@link MyEdge}.
 	 */
 	public void onLastMessage(MyEdge edge) {
-		synchronized (this.lastMessageOdooIds) {
-			this.lastMessageOdooIds.add(edge.getOdooId());
-		}
+		this.lastMessageOdooIds.add(edge.getOdooId());
 	}
 
 	/**
-	 * Called on Edge onSetLastUpdate event.
-	 * 
-	 * @param edge the {@link MyEdge}.
+	 * Called on {@link Edge.Events#ON_SET_ONLINE} event.
+	 *
+	 * @param edge     the {@link MyEdge}.
+	 * @param isOnline true if online, false if offline
 	 */
-	public void onLastUpdate(MyEdge edge) {
-		synchronized (this.lastUpdateOdooIds) {
-			this.lastUpdateOdooIds.add(edge.getOdooId());
-		}
+	public void onSetOnline(MyEdge edge, boolean isOnline) {
+		final var odooId = edge.getOdooId();
+		this.connectionStatesToUpdate.lockReading(t -> {
+			t.put(odooId, isOnline);
+		});
 	}
 
 	/**
-	 * Called on Edge isOnline event.
-	 * 
-	 * @param edge the {@link MyEdge}.
+	 * Called on {@link Edge.Events#ON_SET_SUM_STATE} event.
+	 *
+	 * @param edge     the {@link MyEdge}.
+	 * @param sumState Sum-State {@link Level}
 	 */
-	public void isOnline(MyEdge edge) {
-		synchronized (this.isOnlineOdooIds) {
-			synchronized (this.isOfflineOdooIds) {
-				int odooId = edge.getOdooId();
-				this.isOfflineOdooIds.remove(odooId);
-				this.isOnlineOdooIds.add(edge.getOdooId());
-			}
-		}
+	public void onSetSumState(MyEdge edge, Level sumState) {
+		final var odooId = edge.getOdooId();
+		this.sumStatesToUpdate.lockReading(t -> {
+			t.put(odooId, sumState);
+		});
 	}
 
 	/**
-	 * Called on Edge isOffline event.
+	 * Moves all entries of a {@link LinkedBlockingQueue} to a Set and clears the
+	 * queue. This is thread-safe.
 	 * 
-	 * @param edge the {@link MyEdge}.
+	 * @param queue the {@link LinkedBlockingQueue}
+	 * @return the {@link Set}
 	 */
-	public void isOffline(MyEdge edge) {
-		synchronized (this.isOnlineOdooIds) {
-			synchronized (this.isOfflineOdooIds) {
-				int odooId = edge.getOdooId();
-				this.isOnlineOdooIds.remove(odooId);
-				this.isOfflineOdooIds.add(edge.getOdooId());
-			}
-		}
-	}
-
-	private void writeIsOffline(HikariDataSource dataSource) throws SQLException {
-		synchronized (this.isOfflineOdooIds) {
-			if (!this.isOfflineOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + EdgeDevice.ODOO_TABLE //
-								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = FALSE" //
-								+ " WHERE id IN (");
-				sql.append(//
-						this.isOfflineOdooIds.stream() //
-								.map(String::valueOf) //
-								.collect(Collectors.joining(",")));
-				this.isOfflineOdooIds.clear();
-				sql.append(")");
-				this.executeSql(dataSource, sql.toString());
-			}
-		}
-	}
-
-	private void writeIsOnline(HikariDataSource dataSource) throws SQLException {
-		synchronized (this.isOnlineOdooIds) {
-			if (!this.isOnlineOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + EdgeDevice.ODOO_TABLE //
-								+ " SET " + Field.EdgeDevice.OPENEMS_IS_CONNECTED.id() + " = TRUE" //
-								+ " WHERE id IN (");
-				sql.append(//
-						this.isOnlineOdooIds.stream() //
-								.map(String::valueOf) //
-								.collect(Collectors.joining(",")));
-				this.isOnlineOdooIds.clear();
-				sql.append(")");
-				this.executeSql(dataSource, sql.toString());
-			}
-		}
-	}
-
-	private void writeLastUpdate(HikariDataSource dataSource) throws SQLException {
-		synchronized (this.lastUpdateOdooIds) {
-			if (!this.lastUpdateOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + EdgeDevice.ODOO_TABLE //
-								+ " SET " + Field.EdgeDevice.LAST_UPDATE.id() + " = (now() at time zone 'UTC')" //
-								+ " WHERE id IN (");
-				sql.append(//
-						this.lastUpdateOdooIds.stream() //
-								.map(String::valueOf) //
-								.collect(Collectors.joining(",")));
-				this.lastUpdateOdooIds.clear();
-				sql.append(")");
-				this.executeSql(dataSource, sql.toString());
-			}
-		}
-	}
-
-	private void writeLastMessage(HikariDataSource dataSource) throws SQLException {
-		synchronized (this.lastMessageOdooIds) {
-			if (!this.lastMessageOdooIds.isEmpty()) {
-				StringBuilder sql = new StringBuilder(//
-						"UPDATE " + EdgeDevice.ODOO_TABLE //
-								+ " SET " + Field.EdgeDevice.LAST_MESSAGE.id() + " = (now() at time zone 'UTC')" //
-								+ " WHERE id IN (");
-				sql.append(//
-						this.lastMessageOdooIds.stream() //
-								.map(String::valueOf) //
-								.collect(Collectors.joining(",")));
-				this.lastMessageOdooIds.clear();
-				sql.append(")");
-				this.executeSql(dataSource, sql.toString());
-			}
-		}
-	}
-
-	private void executeSql(HikariDataSource dataSource, String sql) throws SQLException {
-		try (Connection con = dataSource.getConnection(); //
-		) {
-			con.createStatement().executeUpdate(sql);
-		}
+	protected static Set<Integer> drainToSet(LinkedBlockingQueue<Integer> queue) {
+		Set<Integer> result = new HashSet<>(queue.size());
+		queue.drainTo(result);
+		return result;
 	}
 
 	/*
@@ -236,7 +190,7 @@ public class PeriodicWriteWorker {
 	private LocalDateTime lastExecute = null;
 
 	private synchronized void debugLog() {
-		LocalDateTime now = LocalDateTime.now();
+		var now = LocalDateTime.now();
 		if (this.lastExecute != null) {
 			this.parent.logInfo(this.log, "PeriodicWriteWorker. " //
 					+ "Time since last run: [" + ChronoUnit.SECONDS.between(this.lastExecute, now) + "s]" //
@@ -244,4 +198,36 @@ public class PeriodicWriteWorker {
 		}
 		this.lastExecute = now;
 	}
+
+	private static class ExchangableObject<T> {
+		private final ReadWriteLock lock = new ReentrantReadWriteLock();
+		private volatile T currentObject;
+
+		public ExchangableObject(T currentObject) {
+			super();
+			this.currentObject = currentObject;
+		}
+
+		public T exchange(T newObject) {
+			this.lock.writeLock().lock();
+			try {
+				final var prev = this.currentObject;
+				this.currentObject = newObject;
+				return prev;
+			} finally {
+				this.lock.writeLock().unlock();
+			}
+		}
+
+		public void lockReading(Consumer<T> block) {
+			this.lock.readLock().lock();
+			try {
+				block.accept(this.currentObject);
+			} finally {
+				this.lock.readLock().unlock();
+			}
+		}
+
+	}
+
 }

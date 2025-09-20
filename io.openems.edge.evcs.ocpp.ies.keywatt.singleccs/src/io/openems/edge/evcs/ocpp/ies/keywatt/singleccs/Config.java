@@ -24,10 +24,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int connectorId() default 1;
 
 	@AttributeDefinition(name = "Maximum power", description = "Maximum power of the charger in Watt.", required = true)
-	int maxHwPower() default 24000;
+	int maxHwPower() default 25920; // 24000 + 8% (IesKeywattSingleCcs.DEFAULT_EFFECTIVE_POWER_LOSS)
 
 	@AttributeDefinition(name = "Minimum power", description = "Minimum power of the charger in Watt.", required = true)
-	int minHwPower() default 0;
+	int minHwPower() default 2000;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;
 
 	String webconsole_configurationFactory_nameHint() default "EVCS OCPP Ies KeyWatt [{id}]";
 }

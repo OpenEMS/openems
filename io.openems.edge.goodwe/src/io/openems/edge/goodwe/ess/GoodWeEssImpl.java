@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.ess;
 
+import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -11,26 +13,31 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
+import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -38,58 +45,54 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @Component(//
 		name = "GoodWe.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		}) //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+) //
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, HybridEss, ManagedSymmetricEss,
-		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler {
+		SymmetricEss, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave, CycleProvider {
 
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
-	private Config config;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private Cycle cycle;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
 
+	@Reference
+	private Sum sum;
+
+	@Reference
+	private ComponentManager componentManager;
+
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
-		this._setCapacity(this.config.capacity());
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
+	private Config config;
 
 	public GoodWeEssImpl() throws OpenemsNamedException {
 		super(//
 				SymmetricEss.ChannelId.ACTIVE_POWER, //
+				SymmetricEss.ChannelId.REACTIVE_POWER, //
 				HybridEss.ChannelId.DC_DISCHARGE_POWER, //
 				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, //
 				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
 				HybridEss.ChannelId.DC_CHARGE_ENERGY, //
 				HybridEss.ChannelId.DC_DISCHARGE_ENERGY, //
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
@@ -98,10 +101,29 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		);
 	}
 
+	@Activate
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
+		this._setCapacity(this.config.capacity());
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
+
 		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, config.readOnlyMode(), activePower);
+		ApplyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isPidEnabled());
 	}
 
 	@Override
@@ -121,7 +143,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updatePowerAndEnergyChannels();
+			this.updatePowerAndEnergyChannels(this.getSoc().get(), null);
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.allowedChargeDischargeHandler.accept(this.componentManager);
@@ -140,33 +162,43 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	}
 
 	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		// Handle Read-Only mode -> no charge/discharge
-		if (this.config.readOnlyMode()) {
-			return new Constraint[] { //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
-			};
-		}
-
-		return Power.NO_CONSTRAINTS;
-	}
-
-	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
 
 	@Override
 	public Integer getSurplusPower() {
-		if (this.getSoc().orElse(0) < 99) {
-			return null;
-		}
-		Integer productionPower = this.calculatePvProduction();
+		var productionPower = this.calculatePvProduction();
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
-		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
+		// Surplus power is the PV production that cannot be fed into the battery. "+" because
+		// allowed charge power is always negative by convention
+		var surplus = productionPower + this.getAllowedChargePower().orElse(0);
+		if (surplus < 0) {
+			return null;
+		}
+		return surplus;
 	}
 
+	@Override
+	public boolean isManaged() {
+		return !this.config.controlMode().equals(ControlMode.INTERNAL);
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				HybridEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(GoodWeEss.class, accessMode, 100) //
+						.build());
+	}
+
+	@Override
+	public int getCycleTime() {
+		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
+	}
 }

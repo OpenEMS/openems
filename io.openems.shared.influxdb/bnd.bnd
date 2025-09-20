@@ -5,8 +5,13 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	com.squareup.okhttp3,\
 	io.openems.common,\
-	io.openems.wrapper.influxdb-java,\
+	io.openems.wrapper.influxdb-client-core,\
+	io.openems.wrapper.influxdb-client-java,\
+	io.openems.wrapper.influxdb-flux-dsl,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.wrapper.influxdb-client-utils,\
+	

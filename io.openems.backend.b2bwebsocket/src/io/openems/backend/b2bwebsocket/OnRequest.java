@@ -17,17 +17,17 @@ import io.openems.common.session.Role;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnRequest(B2bWebsocket parent) {
+	public OnRequest(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
+	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsException, OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
-		User user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
+		var user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		switch (request.getMethod()) {
 
@@ -42,7 +42,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link SubscribeEdgesChannelsRequest}.
-	 * 
+	 *
 	 * @param wsData    the WebSocket attachment
 	 * @param user      the {@link User}
 	 * @param messageId the JSON-RPC Message-ID
@@ -52,13 +52,17 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubscribeEdgesChannelsRequest(WsData wsData,
 			User user, UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
-		for (String edgeId : request.getEdgeIds()) {
+		for (var edgeId : request.getEdgeIds()) {
+			if (user.getRole(edgeId).isEmpty()) {
+				this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
+			}
+
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(SubscribeEdgesChannelsRequest.METHOD, edgeId, Role.GUEST);
 		}
 
 		// activate SubscribedChannelsWorker
-		SubscribedEdgesChannelsWorker worker = wsData.getSubscribedChannelsWorker();
+		var worker = wsData.getSubscribedChannelsWorker();
 		worker.handleSubscribeEdgesChannelsRequest(request);
 
 		// JSON-RPC response

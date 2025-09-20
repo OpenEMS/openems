@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 
 public class LinearCoefficient {
 
-	private final static DecimalFormat VALUE_FORMAT = new DecimalFormat("+0.#;-#");
+	private static final DecimalFormat VALUE_FORMAT = new DecimalFormat("+0.#;-#");
 
 	protected final Coefficient coefficient;
 	protected final double value;
@@ -15,18 +15,19 @@ public class LinearCoefficient {
 	}
 
 	public Coefficient getCoefficient() {
-		return coefficient;
+		return this.coefficient;
 	}
 
 	public double getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String toString() {
 		if (this.value == 1) {
 			return "+" + this.coefficient.toString();
-		} else if (this.value == -1) {
+		}
+		if (this.value == -1) {
 			return "-" + this.coefficient.toString();
 		} else {
 			return VALUE_FORMAT.format(this.value) + "*" + this.coefficient.toString();

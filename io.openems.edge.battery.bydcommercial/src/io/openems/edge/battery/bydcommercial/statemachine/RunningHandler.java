@@ -1,6 +1,5 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
-import io.openems.edge.battery.bydcommercial.BatteryBoxC130;
 import io.openems.edge.battery.bydcommercial.enums.PowerCircuitControl;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
@@ -10,7 +9,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		BatteryBoxC130 battery = context.getParent();
+		var battery = context.getParent();
 
 		if (battery.hasFaults()) {
 			return State.UNDEFINED;

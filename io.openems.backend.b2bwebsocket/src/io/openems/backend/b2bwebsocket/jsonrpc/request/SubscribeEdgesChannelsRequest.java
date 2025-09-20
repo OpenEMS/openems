@@ -14,7 +14,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request to subscribe to Channels of multiple Edges.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -32,24 +32,38 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 
 	public static final String METHOD = "subscribeEdgesChannels";
 
+	/**
+	 * Builds a {@link SubscribeEdgesChannelsRequest} from a {@link JsonrpcRequest}.
+	 *
+	 * @param r the {@link JsonrpcRequest}
+	 * @return the {@link SubscribeEdgesChannelsRequest}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static SubscribeEdgesChannelsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		int count = JsonUtils.getAsInt(p, "count");
-		SubscribeEdgesChannelsRequest result = new SubscribeEdgesChannelsRequest(r, count);
-		JsonArray edgeIds = JsonUtils.getAsJsonArray(p, "ids");
+		var p = r.getParams();
+		var count = JsonUtils.getAsInt(p, "count");
+		var result = new SubscribeEdgesChannelsRequest(r, count);
+		var edgeIds = JsonUtils.getAsJsonArray(p, "ids");
 		for (JsonElement edgeId : edgeIds) {
 			result.addEdgeId(JsonUtils.getAsString(edgeId));
 		}
-		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
+		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
-			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
+			var address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
 			result.addChannel(address);
 		}
 		return result;
 	}
 
+	/**
+	 * Builds a {@link SubscribeEdgesChannelsRequest} from a {@link JsonObject}.
+	 *
+	 * @param j the {@link JsonObject}
+	 * @return the {@link SubscribeEdgesChannelsRequest}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static SubscribeEdgesChannelsRequest from(JsonObject j) throws OpenemsNamedException {
-		return from(GenericJsonrpcRequest.from(j));
+		return SubscribeEdgesChannelsRequest.from(GenericJsonrpcRequest.from(j));
 	}
 
 	private final int count;
@@ -57,27 +71,42 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
 	private SubscribeEdgesChannelsRequest(JsonrpcRequest request, int count) {
-		super(request, METHOD);
+		super(request, SubscribeEdgesChannelsRequest.METHOD);
 		this.count = count;
 	}
 
 	public SubscribeEdgesChannelsRequest(int count) {
-		super(METHOD);
+		super(SubscribeEdgesChannelsRequest.METHOD);
 		this.count = count;
 	}
 
+	/**
+	 * Adds an Edge-ID.
+	 *
+	 * @param edgeId the Edge-ID.
+	 */
 	public void addEdgeId(String edgeId) {
 		this.edgeIds.add(edgeId);
 	}
 
+	/**
+	 * Removes an Edge-ID.
+	 *
+	 * @param edgeId the Edge-ID
+	 */
 	public void removeEdgeId(String edgeId) {
 		this.edgeIds.remove(edgeId);
 	}
 
 	public TreeSet<String> getEdgeIds() {
-		return edgeIds;
+		return this.edgeIds;
 	}
 
+	/**
+	 * Adds a Channel.
+	 *
+	 * @param address the {@link ChannelAddress}
+	 */
 	public void addChannel(ChannelAddress address) {
 		this.channels.add(address);
 	}
@@ -87,16 +116,16 @@ public class SubscribeEdgesChannelsRequest extends JsonrpcRequest {
 	}
 
 	public TreeSet<ChannelAddress> getChannels() {
-		return channels;
+		return this.channels;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray edgeIds = new JsonArray();
+		var edgeIds = new JsonArray();
 		for (String edgeId : this.edgeIds) {
 			edgeIds.add(edgeId);
 		}
-		JsonArray channels = new JsonArray();
+		var channels = new JsonArray();
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}

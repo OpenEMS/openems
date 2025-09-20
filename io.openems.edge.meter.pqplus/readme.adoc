@@ -1,0 +1,14 @@
+= PQ-Plus Meters UMD96 | UMD97
+
+Implemented Natures:
+- ElectricityMeter
+
+Details of the meter is present in 
+
+UMD 96
+- https://www.pq-plus.de/produkte/hardwarekomponenten/umd-96/
+
+UMD 97
+- https://www.pq-plus.de/en/products/hardware-components/umd-97/
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus[Source Code icon:github[]]

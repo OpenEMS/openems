@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -62,13 +61,13 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		this.entryAt = Instant.now();
 
 		// Try to stop system
-		SingleRackVersionC battery = context.getParent();
+		var battery = context.getParent();
 		battery.setPreChargeControl(PreChargeControl.SWITCH_OFF);
 	}
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		SingleRackVersionC battery = context.getParent();
+		var battery = context.getParent();
 		battery._setMaxStartAttempts(false);
 		battery._setMaxStopAttempts(false);
 	}

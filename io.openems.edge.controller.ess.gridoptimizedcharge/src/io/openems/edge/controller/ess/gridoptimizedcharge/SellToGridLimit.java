@@ -2,8 +2,7 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
 
 public class SellToGridLimit {
 
@@ -15,21 +14,21 @@ public class SellToGridLimit {
 	/**
 	 * Reference to parent controller.
 	 */
-	private final GridOptimizedChargeImpl parent;
+	private final ControllerEssGridOptimizedChargeImpl parent;
 
-	public SellToGridLimit(GridOptimizedChargeImpl parent) {
+	public SellToGridLimit(ControllerEssGridOptimizedChargeImpl parent) {
 		this.parent = parent;
 	}
 
 	/**
 	 * Set active power limits depending on the maximum sell to grid power.
-	 * 
+	 *
 	 * @return result
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getSellToGridLimit() throws OpenemsNamedException {
 
-		if (!this.parent.config.sellToGridLimitEnabled()) {
+		if (this.parent.meta.getGridFeedInLimitationType().asEnum() == GridFeedInLimitationType.NO_LIMITATION) {
 			this.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.DISABLED, null);
 			return null;
 		}
@@ -40,40 +39,32 @@ public class SellToGridLimit {
 		// Current ess charge/discharge power
 		int essActivePower = this.parent.ess.getActivePower().getOrError();
 
+		// State of charge
+		int soc = this.parent.ess.getSoc().getOrError();
+
+		var maximumSellToGridPower = applyBuffer(soc, this.parent.maximumSellToGridPower);
+
 		// Calculate actual limit for Ess
-		int essMinChargePower = gridPower + essActivePower + this.parent.config.maximumSellToGridPower();
+		var essMinChargePower = gridPower + essActivePower + maximumSellToGridPower;
 
 		// Log debug
-		this.parent.logDebug("SellToGridLimit: " + essMinChargePower + "(Grid:" + gridPower + " + Ess:" + essActivePower
-				+ " + MaximumGrid:" + this.parent.config.maximumSellToGridPower() + ")| Last limit: "
+		this.parent.logDebug("Maximum Discharge/Minimum Charge Power: " + essMinChargePower + "(Grid:" + gridPower
+				+ " + Ess:" + essActivePower + " + MaximumGrid:" + maximumSellToGridPower + ")| Last limit: "
 				+ this.lastSellToGridLimit);
 
-		// Adjust value so that it fits into Min/MaxActivePower
-		essMinChargePower = this.parent.ess.getPower().fitValueIntoMinMaxPower(this.parent.id(), this.parent.ess,
-				Phase.ALL, Pwr.ACTIVE, essMinChargePower);
-
-		// Adjust ramp
-		essMinChargePower = this.applyPowerRamp(essMinChargePower);
-
-		// Avoid max discharge constraint
-		if (essMinChargePower > 0) {
-			this.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.NO_LIMIT, 0);
-			return null;
-		}
-
-		return essMinChargePower;
+		return this.applyPowerRamp(essMinChargePower);
 	}
 
 	protected void applyCalculatedMinimumChargePower(int sellToGridLimit) {
 
 		// Current DelayCharge state
-		SellToGridLimitState state = SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT;
+		var state = SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT;
 
 		try {
 			// Set the power limitation constraint
 			this.parent.ess.setActivePowerLessOrEquals(sellToGridLimit);
 		} catch (OpenemsNamedException e) {
-			state = SellToGridLimitState.NO_FEASABLE_SOLUTION;
+			state = SellToGridLimitState.NO_FEASIBLE_SOLUTION;
 		}
 
 		// Set channels
@@ -82,12 +73,12 @@ public class SellToGridLimit {
 
 	/**
 	 * Apply power ramp, to react in a smooth way.
-	 * 
+	 *
 	 * <p>
 	 * Calculates a limit depending on the given power limit and the last power
 	 * limit. Stronger limits are taken directly, while the last limit will only be
 	 * reduced if the new limit is lower.
-	 * 
+	 *
 	 * @param essPowerLimit essPowerLimit
 	 * @return adjusted ess power limit
 	 * @throws OpenemsException on error
@@ -103,8 +94,8 @@ public class SellToGridLimit {
 		int maxEssPower = this.parent.ess.getMaxApparentPower().getOrError();
 
 		// Reduce last SellToGridLimit by configured percentage
-		double percentage = (this.parent.config.sellToGridLimitRampPercentage() / 100.0);
-		int rampValue = (int) (maxEssPower * percentage);
+		var percentage = this.parent.config.sellToGridLimitRampPercentage() / 100.0;
+		var rampValue = (int) (maxEssPower * percentage);
 
 		// Use ramp only when the difference would be higher than the applied ramp
 		if (Math.abs(this.lastSellToGridLimit - essPowerLimit) > rampValue) {
@@ -117,7 +108,7 @@ public class SellToGridLimit {
 
 	/**
 	 * Set Channels and lastLimit for SellToGridLimit part.
-	 * 
+	 *
 	 * @param state             SellToGridLimit state
 	 * @param essMinChargePower SellToGridLimit absolute charge limit
 	 */
@@ -125,10 +116,29 @@ public class SellToGridLimit {
 		this.parent._setSellToGridLimitState(state);
 		if (essMinChargePower == null) {
 			this.parent._setSellToGridLimitMinimumChargeLimit(null);
+			this.parent._setRawSellToGridLimitChargeLimit(null);
 			this.lastSellToGridLimit = 0;
 			return;
 		}
-		this.parent._setSellToGridLimitMinimumChargeLimit(essMinChargePower * -1);
+
+		this.parent._setRawSellToGridLimitChargeLimit(essMinChargePower);
 		this.lastSellToGridLimit = essMinChargePower;
+
+		// Calculate & set readable AC format
+		int dcProduction = this.parent.sum.getProductionDcActualPower().orElse(0);
+		var essMinChargePowerAc = essMinChargePower - dcProduction;
+		this.parent._setSellToGridLimitMinimumChargeLimit(essMinChargePowerAc * -1);
+	}
+
+	// Reduce the maximum sell to grid power with a buffer, to avoid PV curtail
+	// TODO improve logic to make sure we always meet the maximum sell to grid
+	// power. Right now we simply try to target a value 5 % below the configured
+	// maximum sell to grid power.
+	protected static int applyBuffer(int soc, int maximumSellToGridPower) {
+		if (soc < 100) {
+			var buffer = Math.max(maximumSellToGridPower * 0.05F, 150); // TODO: Document and DEFAULT_VALUE
+			return Math.round(maximumSellToGridPower - buffer);
+		}
+		return maximumSellToGridPower;
 	}
 }

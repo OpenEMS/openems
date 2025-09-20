@@ -5,9 +5,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Controller Ess Delayed Sell-To-Grid ", //
-		description = "Controls an energy storage system so, that it delays the sell-to-grid power e.g. of a photovoltaics system. "
-				+ "It charges the battery, when sell-to-grid power exceeds the configured \"Sell-To-Grid power limit\" "
-				+ "and discharges when sell-to-grid power is falling below \"Continuous Sell-To-Grid power\".")
+		description = """
+				Controls an energy storage system so, that it delays the sell-to-grid power e.g. of a photovoltaics system. \
+				It charges the battery, when sell-to-grid power exceeds the configured "Sell-To-Grid power limit" \
+				and discharges when sell-to-grid power is falling below "Continuous Sell-To-Grid power".""")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

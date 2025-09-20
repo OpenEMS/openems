@@ -33,7 +33,7 @@ public interface Scheduler extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CONTROLLER_IS_MISSING}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getControllerIsMissingChannel() {
@@ -42,7 +42,7 @@ public interface Scheduler extends OpenemsComponent {
 
 	/**
 	 * Gets the Run-Failed State. See {@link ChannelId#CONTROLLER_IS_MISSING}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getControllerIsMissing() {
@@ -52,7 +52,7 @@ public interface Scheduler extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#CONTROLLER_IS_MISSING} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setControllerIsMissing(boolean value) {
@@ -62,11 +62,11 @@ public interface Scheduler extends OpenemsComponent {
 	/**
 	 * Returns Component-IDs of Controllers ordered by their current execution
 	 * priority.
-	 * 
+	 *
 	 * <p>
 	 * This method is called once every Cycle, i.e. once per second. The
 	 * {@link LinkedHashSet} is used, as it preserves insertion order
-	 * 
+	 *
 	 * @return a ordered set of Component-IDs of Controllers
 	 */
 	public LinkedHashSet<String> getControllers();

@@ -1,0 +1,5 @@
+= Time-Of-Use Tariff Tibber
+
+Retrieves the hourly prices from the Tibber API and converts them into quarterly prices. Prices are updated every day at 14:00 and stored locally.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.corrently[Source Code icon:github[]]

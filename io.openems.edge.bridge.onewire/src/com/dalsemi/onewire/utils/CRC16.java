@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -83,22 +84,21 @@ public class CRC16 {
 	 * @return CRC16 value
 	 */
 	public static int compute(int dataToCrc, int seed) {
-		int dat = ((dataToCrc ^ (seed & 0xFF)) & 0xFF);
+		var dat = (dataToCrc ^ seed & 0xFF) & 0xFF;
 
 		seed = (seed & 0xFFFF) >>> 8;
 
-		int indx1 = (dat & 0x0F);
-		int indx2 = (dat >>> 4);
+		var indx1 = dat & 0x0F;
+		var indx2 = dat >>> 4;
 
-		if ((ODD_PARITY[indx1] ^ ODD_PARITY[indx2]) == 1)
+		if ((ODD_PARITY[indx1] ^ ODD_PARITY[indx2]) == 1) {
 			seed = seed ^ 0xC001;
+		}
 
-		dat = (dat << 6);
+		dat = dat << 6;
 		seed = seed ^ dat;
-		dat = (dat << 1);
-		seed = seed ^ dat;
-
-		return seed;
+		dat = dat << 1;
+		return seed ^ dat;
 	}
 
 	/**
@@ -144,8 +144,9 @@ public class CRC16 {
 	public static int compute(byte dataToCrc[], int off, int len, int seed) {
 
 		// loop to do the crc on each data element
-		for (int i = 0; i < len; i++)
+		for (var i = 0; i < len; i++) {
 			seed = compute(dataToCrc[i + off], seed);
+		}
 
 		return seed;
 	}
@@ -163,3 +164,4 @@ public class CRC16 {
 		return compute(dataToCrc, 0, dataToCrc.length, seed);
 	}
 }
+// CHECKSTYLE:ON

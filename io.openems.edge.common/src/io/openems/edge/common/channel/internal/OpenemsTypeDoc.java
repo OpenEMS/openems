@@ -14,24 +14,22 @@ import io.openems.edge.common.channel.StringDoc;
 
 public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
+	/**
+	 * Gets the {@link OpenemsTypeDoc} for the given {@link OpenemsType}.
+	 * 
+	 * @param type the {@link OpenemsType}
+	 * @return the {@link OpenemsTypeDoc}
+	 */
 	public static OpenemsTypeDoc<?> of(OpenemsType type) {
-		switch (type) {
-		case BOOLEAN:
-			return new BooleanDoc();
-		case DOUBLE:
-			return new DoubleDoc();
-		case FLOAT:
-			return new FloatDoc();
-		case INTEGER:
-			return new IntegerDoc();
-		case LONG:
-			return new LongDoc();
-		case SHORT:
-			return new ShortDoc();
-		case STRING:
-			return new StringDoc();
-		}
-		throw new IllegalArgumentException("OpenemsType [" + type + "] is unhandled. This should never happen.");
+		return switch (type) {
+		case BOOLEAN -> new BooleanDoc();
+		case DOUBLE -> new DoubleDoc();
+		case FLOAT -> new FloatDoc();
+		case INTEGER -> new IntegerDoc();
+		case LONG -> new LongDoc();
+		case SHORT -> new ShortDoc();
+		case STRING -> new StringDoc();
+		};
 	}
 
 	protected OpenemsTypeDoc(OpenemsType type) {
@@ -45,13 +43,14 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
 	/**
 	 * Sets the Access-Mode for the Channel.
-	 * 
+	 *
 	 * <p>
 	 * This is validated on construction of the Channel by
 	 * {@link AbstractReadChannel}
-	 * 
+	 *
 	 * @return myself
 	 */
+	@Override
 	public OpenemsTypeDoc<T> accessMode(AccessMode accessMode) {
 		super.accessMode(accessMode);
 		return this;
@@ -64,7 +63,7 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
 	/**
 	 * Unit. Default: none
-	 * 
+	 *
 	 * @param unit the Unit
 	 * @return myself
 	 */
@@ -75,7 +74,7 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
 	/**
 	 * Gets the Unit.
-	 * 
+	 *
 	 * @return the unit
 	 */
 	@Override

@@ -4,7 +4,7 @@
             <ion-title translate>{{ component.alias }}</ion-title>
             <ion-buttons slot="end">
                 <ion-button routerLink="/device/{{edge.id}}/history/">
-                    <ion-icon name="close-outline"></ion-icon>
+                    <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
                 </ion-button>
             </ion-buttons>
         </ion-toolbar>
@@ -16,7 +16,7 @@
     </ion-header>
     <ion-content>
         <ion-card-content>
-            <chpsocchart [componentId]="component.id" [period]="service.historyPeriod">
+            <chpsocchart [componentId]="component.id" [period]="service.historyPeriod.value">
             </chpsocchart>
         </ion-card-content>
     </ion-content>

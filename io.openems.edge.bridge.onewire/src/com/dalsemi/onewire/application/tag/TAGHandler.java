@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -55,6 +56,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @param locator
 	 *
 	 */
+	@Override
 	public void setDocumentLocator(Locator locator) {
 	}
 
@@ -65,16 +67,17 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXException
 	 *
 	 */
+	@Override
 	public void startDocument() throws SAXException {
 
 		// Instantiate deviceList and clusterStack
-		deviceList = new Vector<TaggedDevice>();
-		clusterStack = new Stack<String>(); // keep track of clusters
-		branchStack = new Stack<TaggedDevice>(); // keep track of current branches
-		branchVector = new Vector<TaggedDevice>(); // keep track of every branch
-		branchVectors = new Vector<Vector<TaggedDevice>>(); // keep a vector of cloned branchStacks
+		this.deviceList = new Vector<>();
+		this.clusterStack = new Stack<>(); // keep track of clusters
+		this.branchStack = new Stack<>(); // keep track of current branches
+		this.branchVector = new Vector<>(); // keep track of every branch
+		this.branchVectors = new Vector<>(); // keep a vector of cloned branchStacks
 		// to use in making the OWPaths Vector
-		branchPaths = new Vector<OWPath>(); // keep track of OWPaths
+		this.branchPaths = new Vector<>(); // keep track of OWPaths
 	}
 
 	/**
@@ -84,6 +87,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXException
 	 *
 	 */
+	@Override
 	public void endDocument() throws SAXException {
 
 		// Iterate through deviceList and make all the
@@ -92,24 +96,24 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 		OWPath branchPath;
 		Vector<TaggedDevice> singleBranchVector;
 
-		for (int i = 0; i < deviceList.size(); i++) {
-			device = (TaggedDevice) deviceList.elementAt(i);
+		for (var i = 0; i < this.deviceList.size(); i++) {
+			device = this.deviceList.elementAt(i);
 
-			device.setOWPath(adapter, device.getBranches());
+			device.setOWPath(this.adapter, device.getBranches());
 		}
 
 		// Now, iterate through branchVectors and make all the
 		// OWPaths for the Vector of OWPaths
 
-		for (int i = 0; i < branchVectors.size(); i++) {
-			singleBranchVector = (Vector<TaggedDevice>) branchVectors.elementAt(i);
-			branchPath = new OWPath(adapter);
-			for (int j = 0; j < singleBranchVector.size(); j++) {
-				device = (TaggedDevice) singleBranchVector.elementAt(i);
+		for (var i = 0; i < this.branchVectors.size(); i++) {
+			singleBranchVector = this.branchVectors.elementAt(i);
+			branchPath = new OWPath(this.adapter);
+			for (var j = 0; j < singleBranchVector.size(); j++) {
+				device = singleBranchVector.elementAt(i);
 
 				branchPath.add(device.getDeviceContainer(), device.getChannel());
 			}
-			branchPaths.addElement(branchPath);
+			this.branchPaths.addElement(branchPath);
 		}
 	}
 
@@ -123,19 +127,20 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXException
 	 *
 	 */
+	@Override
 	public void startElement(String name, AttributeList atts) throws SAXException {
-		currentElement = name; // save current element name
+		this.currentElement = name; // save current element name
 
-		String attributeAddr = "null";
-		String attributeType = "null";
+		var attributeAddr = "null";
+		var attributeType = "null";
 		String className;
-		int i = 0;
+		var i = 0;
 
 		// Parse cluster elements here, keeping track of them with a Stack.
 		if (name.toUpperCase().equals("CLUSTER")) {
 			for (i = 0; i < atts.getLength(); i++) {
 				if (atts.getName(i).toUpperCase().equals("NAME")) {
-					clusterStack.push(atts.getValue(i));
+					this.clusterStack.push(atts.getValue(i));
 				}
 			}
 		}
@@ -144,7 +149,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 		if (name.toUpperCase().equals("SENSOR") || name.toUpperCase().equals("ACTUATOR")
 				|| name.toUpperCase().equals("BRANCH")) {
 			for (i = 0; i < atts.getLength(); i++) {
-				String attName = atts.getName(i);
+				var attName = atts.getName(i);
 
 				if (attName.toUpperCase().equals("ADDR")) {
 					attributeAddr = atts.getValue(i);
@@ -160,7 +165,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 			// is of type "branch"
 			if (name.toUpperCase().equals("BRANCH")) {
 				attributeType = "branch";
-				currentDevice = new TaggedDevice(); // instantiates object
+				this.currentDevice = new TaggedDevice(); // instantiates object
 			} else {
 
 				// first, find tag type to instantiate by CLASS NAME!
@@ -168,15 +173,16 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 				// path was included in the tag type.
 				if (attributeType.indexOf(".") > 0) {
 					className = attributeType;
-				} else
+				} else {
 					className = "com.dalsemi.onewire.application.tag." + attributeType;
+				}
 
 				// instantiate the appropriate object based on tag type (i.e., "Contact",
 				// "Switch", etc)
 				try {
 					Class<?> genericClass = Class.forName(className);
 
-					currentDevice = (TaggedDevice) genericClass.newInstance();
+					this.currentDevice = (TaggedDevice) genericClass.newInstance();
 				} catch (Exception e) {
 					throw new RuntimeException(
 							"Can't load 1-Wire Tag Type class (" + className + "): " + e.getMessage());
@@ -184,23 +190,24 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 			}
 
 			// set the members (fields) of the TaggedDevice object
-			currentDevice.setDeviceContainer(adapter, attributeAddr);
-			currentDevice.setDeviceType(attributeType);
-			currentDevice.setClusterName(getClusterStackAsString(clusterStack, "/"));
-			currentDevice.setBranches((Vector<TaggedDevice>) branchStack.clone()); // copy branchStack to it's related
-																					// object in TaggedDevice
+			this.currentDevice.setDeviceContainer(this.adapter, attributeAddr);
+			this.currentDevice.setDeviceType(attributeType);
+			this.currentDevice.setClusterName(this.getClusterStackAsString(this.clusterStack, "/"));
+			this.currentDevice.setBranches((Vector<TaggedDevice>) this.branchStack.clone()); // copy branchStack to it's
+																								// related
+			// object in TaggedDevice
 
 			// ** do branch specific work here: **
 			if (name.equals("branch")) {
 
 				// push the not-quite-finished branch TaggedDevice on the branch stack.
-				branchStack.push(currentDevice);
+				this.branchStack.push(this.currentDevice);
 
 				// put currentDevice in the branch vector that holds all branch objects.
-				branchVector.addElement(currentDevice);
+				this.branchVector.addElement(this.currentDevice);
 
 				// put currentDevice in deviceList (if it is of type "branch", of course)
-				deviceList.addElement(currentDevice);
+				this.deviceList.addElement(this.currentDevice);
 			}
 		}
 	}
@@ -214,27 +221,28 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXException
 	 *
 	 */
+	@Override
 	public void endElement(String name) throws SAXException {
 		if (name.toUpperCase().equals("SENSOR") || name.toUpperCase().equals("ACTUATOR")) {
 
 			// System.out.println(name + " element finished");
-			deviceList.addElement(currentDevice);
+			this.deviceList.addElement(this.currentDevice);
 
-			currentDevice = null;
+			this.currentDevice = null;
 		}
 
 		if (name.toUpperCase().equals("BRANCH")) {
-			branchVectors.addElement((Vector<TaggedDevice>) branchStack.clone()); // adds a snapshot of
+			this.branchVectors.addElement((Vector<TaggedDevice>) this.branchStack.clone()); // adds a snapshot of
 			// the stack to
 			// make OWPaths later
 
-			branchStack.pop();
+			this.branchStack.pop();
 
-			currentDevice = null; // !!! not sure if this is needed.
+			this.currentDevice = null; // !!! not sure if this is needed.
 		}
 
 		if (name.toUpperCase().equals("CLUSTER")) {
-			clusterStack.pop();
+			this.clusterStack.pop();
 		}
 	}
 
@@ -249,63 +257,64 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXException
 	 *
 	 */
+	@Override
 	public void characters(char ch[], int start, int length) throws SAXException {
-		if (currentElement.toUpperCase().equals("LABEL")) {
-			if (currentDevice == null) {
+		if (this.currentElement.toUpperCase().equals("LABEL")) {
+			if (this.currentDevice == null) {
 
 				// This means we have a branch instead of a sensor or actuator
 				// so, set label accordingly
 				try {
-					currentDevice = (TaggedDevice) branchStack.peek();
+					this.currentDevice = this.branchStack.peek();
 
-					currentDevice.setLabel(new String(ch, start, length));
+					this.currentDevice.setLabel(new String(ch, start, length));
 
-					currentDevice = null;
+					this.currentDevice = null;
 				} catch (EmptyStackException ese) {
 
 					// don't do anything yet.
 				}
 			} else {
-				currentDevice.setLabel(new String(ch, start, length));
+				this.currentDevice.setLabel(new String(ch, start, length));
 			}
 
 			// System.out.println("This device's label is: " + currentDevice.label);
 		}
 
-		if (currentElement.toUpperCase().equals("CHANNEL")) {
-			if (currentDevice == null) {
+		if (this.currentElement.toUpperCase().equals("CHANNEL")) {
+			if (this.currentDevice == null) {
 
 				// This means we have a branch instead of a sensor or actuator
 				// so, set channel accordingly
 				try {
-					currentDevice = (TaggedDevice) branchStack.peek();
+					this.currentDevice = this.branchStack.peek();
 
-					currentDevice.setChannelFromString(new String(ch, start, length));
+					this.currentDevice.setChannelFromString(new String(ch, start, length));
 
-					currentDevice = null;
+					this.currentDevice = null;
 				} catch (EmptyStackException ese) {
 
 					// don't do anything yet.
 				}
 			} else {
-				currentDevice.setChannelFromString(new String(ch, start, length));
+				this.currentDevice.setChannelFromString(new String(ch, start, length));
 			}
 		}
 
-		if (currentElement.toUpperCase().equals("MAX")) {
-			currentDevice.max = new String(ch, start, length);
+		if (this.currentElement.toUpperCase().equals("MAX")) {
+			this.currentDevice.max = new String(ch, start, length);
 
 			// System.out.println("This device's max message is: " + currentDevice.max);
 		}
 
-		if (currentElement.toUpperCase().equals("MIN")) {
-			currentDevice.min = new String(ch, start, length);
+		if (this.currentElement.toUpperCase().equals("MIN")) {
+			this.currentDevice.min = new String(ch, start, length);
 
 			// System.out.println("This device's min message is: " + currentDevice.min);
 		}
 
-		if (currentElement.toUpperCase().equals("INIT")) {
-			currentDevice.setInit(new String(ch, start, length));
+		if (this.currentElement.toUpperCase().equals("INIT")) {
+			this.currentDevice.setInit(new String(ch, start, length));
 
 			// System.out.println("This device's init message is: " + currentDevice.init);
 		}
@@ -322,6 +331,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXException
 	 *
 	 */
+	@Override
 	public void ignorableWhitespace(char ch[], int start, int length) throws SAXException {
 	}
 
@@ -335,6 +345,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXException
 	 *
 	 */
+	@Override
 	public void processingInstruction(String target, String data) throws SAXException {
 	}
 
@@ -346,7 +357,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 *
 	 */
 	public Vector<TaggedDevice> getTaggedDeviceList() {
-		return deviceList;
+		return this.deviceList;
 	}
 
 	/**
@@ -371,6 +382,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXParseException
 	 *
 	 */
+	@Override
 	public void fatalError(SAXParseException exception) throws SAXParseException {
 		System.err.println(exception);
 
@@ -386,6 +398,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @throws SAXParseException
 	 *
 	 */
+	@Override
 	public void error(SAXParseException exception) throws SAXParseException {
 		System.err.println(exception);
 
@@ -399,6 +412,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 * @param exception
 	 *
 	 */
+	@Override
 	public void warning(SAXParseException exception) {
 		System.err.println(exception);
 	}
@@ -414,7 +428,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 */
 	public Vector<TaggedDevice> getAllBranches() {
 
-		return branchVector;
+		return this.branchVector;
 
 	}
 
@@ -429,7 +443,7 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 */
 	public Vector<OWPath> getAllBranchPaths() {
 
-		return branchPaths;
+		return this.branchPaths;
 
 	}
 
@@ -444,13 +458,13 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	 *
 	 */
 	private String getClusterStackAsString(Stack<String> clusters, String separator) {
-		String returnString = "";
+		var returnString = new StringBuilder();
 
-		for (int j = 0; j < clusters.size(); j++) {
-			returnString = returnString + separator + clusters.elementAt(j);
+		for (var j = 0; j < clusters.size(); j++) {
+			returnString.append(separator).append(clusters.elementAt(j));
 		}
 
-		return returnString;
+		return returnString.toString();
 	}
 
 	/** Field adapter */
@@ -482,3 +496,4 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	private Vector<OWPath> branchPaths; // to hold all OWPaths to 1-Wire devices.
 
 }
+// CHECKSTYLE:ON

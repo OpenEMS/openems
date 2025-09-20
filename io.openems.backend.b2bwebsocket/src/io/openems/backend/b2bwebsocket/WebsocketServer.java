@@ -1,22 +1,25 @@
 package io.openems.backend.b2bwebsocket;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(B2bWebsocket parent, String name, int port, int poolSize, boolean debugMode) {
-		super(name, port, poolSize, debugMode);
+	public WebsocketServer(Backend2BackendWebsocket parent, String name, int port, int poolSize) {
+		super(name, port, poolSize);
 		this.parent = parent;
-		this.onOpen = new OnOpen(parent);
+		this.onOpen = new OnOpen(//
+				() -> parent.metadata, //
+				this::logInfo);
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
@@ -24,8 +27,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected WsData createWsData() {
-		return new WsData(this.parent);
+	protected WsData createWsData(WebSocket ws) {
+		return new WsData(ws, this.parent);
 	}
 
 	@Override
@@ -40,7 +43,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	public OnNotification getOnNotification() {
-		return onNotification;
+		return this.onNotification;
 	}
 
 	@Override
@@ -61,5 +64,10 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
 	}
 }

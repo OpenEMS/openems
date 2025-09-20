@@ -1,7 +1,6 @@
 = Weidmueller 525 Meter
 
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.weidmueller[Source Code icon:github[]]
