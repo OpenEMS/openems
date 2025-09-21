@@ -35,6 +35,8 @@ public class SimulatorEssSymmetricReactingImplTest {
 						.setId(ESS_ID) //
 						.setCapacity(10_000) //
 						.setMaxApparentPower(10_000) //
+						.setMaxChargePower(10_000) //
+						.setMaxDischargePower(10_000) //
 						.setInitialSoc(50) //
 						.setGridMode(GridMode.ON_GRID) //
 						.build()) //

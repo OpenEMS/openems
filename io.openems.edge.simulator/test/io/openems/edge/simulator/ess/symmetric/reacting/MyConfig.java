@@ -27,6 +27,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMaxChargePower(int maxChargePower) {
+			this.maxChargePower = maxChargePower;
+			return this;
+		}
+		
+		public Builder setMaxDischargePower(int maxDischargePower) {
+			this.maxDischargePower = maxDischargePower;
+			return this;
+		}
+		
 		public Builder setCapacity(int capacity) {
 			this.capacity = capacity;
 			return this;
@@ -70,12 +80,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public int maxChargePower() {
-		return this.capacity();
+		return this.builder.maxChargePower;
 	}
 
 	@Override
 	public int maxDischargePower() {
-		return this.capacity();
+		return this.builder.maxDischargePower;
 	}
 
 	@Override
