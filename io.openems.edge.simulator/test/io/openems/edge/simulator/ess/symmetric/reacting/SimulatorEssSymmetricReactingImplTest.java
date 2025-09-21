@@ -1,12 +1,10 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
-import io.openems.common.test.TimeLeapClock;
+import io.openems.common.test.TestUtils;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -25,8 +23,7 @@ public class SimulatorEssSymmetricReactingImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
-				ZoneOffset.UTC);
+		final var clock = TestUtils.createDummyClock();
 		new ManagedSymmetricEssTest(new SimulatorEssSymmetricReactingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
@@ -55,8 +52,8 @@ public class SimulatorEssSymmetricReactingImplTest {
 				.next(new TestCase() //
 						.timeleap(clock, 30, ChronoUnit.MINUTES) //
 						.input(ESS_SET_ACTIVE_POWER_EQUALS, 10_000) //
-						.output(ESS_SOC, 25)); //
-
+						.output(ESS_SOC, 25)) //
+				.deactivate();
 	}
 
 }

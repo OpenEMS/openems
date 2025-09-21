@@ -7,11 +7,13 @@ import io.openems.edge.common.sum.GridMode;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private Integer maxApparentPower = null;
-		private Integer capacity = null;
-		private Integer initialSoc = null;
-		private GridMode gridMode = null;
+		private String id;
+		private int maxApparentPower;
+		private int maxChargePower;
+		private int maxDischargePower;
+		private int capacity;
+		private int initialSoc;
+		private GridMode gridMode;
 
 		private Builder() {
 
