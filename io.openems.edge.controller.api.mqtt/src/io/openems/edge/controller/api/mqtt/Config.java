@@ -44,8 +44,8 @@ import io.openems.common.channel.PersistencePriority;
 	@AttributeDefinition(name = "Trust Store", description = "The trust store in PEM format")
 	String trustStorePem();
 	
-	@AttributeDefinition(name = "Filter Spec", description = "A list of valid topic paths. Follows the MQTT topic subscription rules for globbing.")
-	String filterSpec();
+	@AttributeDefinition(name = "Topic filters", description = "A list of valid subtopic paths, after 'edge/edge0/'. Follows the MQTT topic subscription rules for globbing e.g.: channel/lastUpdate, channel/_sum/#. If not set, all channels are sent.")
+	String[] topicFilters();
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
 	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;

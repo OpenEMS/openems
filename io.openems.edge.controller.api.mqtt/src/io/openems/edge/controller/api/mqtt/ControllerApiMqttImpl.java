@@ -2,11 +2,9 @@ package io.openems.edge.controller.api.mqtt;
 
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -34,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -72,7 +71,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	private volatile ScheduledFuture<?> reconnectFuture = null;
 	private String topicPrefix;
 	private IMqttClient mqttClient = null;
-	private Pattern[] filterList;
+	private List<MqttTopicFilter> topicFilters;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -80,8 +79,24 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	@Reference
 	protected ComponentManager componentManager;
 
-	private static boolean hasFilter(Config config) {
-		return !(config.filterSpec() == null || config.filterSpec().isBlank());
+	private static List<MqttTopicFilter> getFilter(Config config) throws OpenemsException {
+		// Expand the filterSpec to the filterList
+		if (config == null || config.topicFilters().length == 0) {
+			return List.of();
+		}	
+		if (config.topicFilters().length == 1 && (config.topicFilters()[0] == null || config.topicFilters()[0].isBlank())) {
+			return List.of();
+		}
+
+		final var newFilter = new ArrayList<MqttTopicFilter>(config.topicFilters().length);
+		for (int i = 0; i < config.topicFilters().length; i++) {
+			try {
+				newFilter.add(MqttTopicFilter.of(config.topicFilters()[i]));
+			} catch (IllegalArgumentException e) {
+				throw new OpenemsException("Unable to parse filter pattern: '" + config.topicFilters()[i] + "'");
+			}
+		}
+		return newFilter;
 	}
 
 	public ControllerApiMqttImpl() {
@@ -96,9 +111,14 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
 
-		this.filterList = this.getFilter(config);
-		if (this.filterList.length != 0) {
-			this.logInfo(this.log, "Enabled filter: '" + config.filterSpec() + "'");
+		try {
+			this.topicFilters = ControllerApiMqttImpl.getFilter(config);
+		} catch (OpenemsException e) {
+			this.log.warn("Error parsing filter. Filter disabled!: {}", e.getMessage(), e);
+			this.topicFilters = List.of();
+		}
+		if (!this.topicFilters.isEmpty()) {
+			this.log.info("Enabled filters: {}", String.join(", ", config.topicFilters()));
 		}
 
 		// Publish MQTT messages under the topic "edge/edge0/..."
@@ -109,28 +129,6 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		if (this.isEnabled()) {
 			this.scheduleReconnect();
 		}
-	}
-
-	private Pattern[] getFilter(Config config) {
-		// Expand the filterSpec to the filterList
-		if (!hasFilter(config)) {
-			return new Pattern[] {};
-		}
-
-		String[] buildList = config.filterSpec().split(";");
-		final var newFilter = new Pattern[buildList.length];
-		for (int i = 0; i < buildList.length; i++) {
-			try {
-				newFilter[i] = Pattern.compile(//
-						"^" + buildList[i].replace("+", "[^/]+").replace("#", ".+") + "$"//
-				);
-			} catch (PatternSyntaxException e) {
-				this.logWarn(this.log, "Unable to parse filter pattern: '" + buildList[i] + "'! Filter disabled!");
-				this.log.warn(e.getMessage(), e);
-				return new Pattern[] {};
-			}
-		}
-		return newFilter;
 	}
 
 	/**
@@ -265,17 +263,11 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	}
 
 	protected boolean filterTopic(String topic) {
-
-		// Skip any attempts to check for empty filters
-		if (this.filterList.length == 0) {
+		if (this.topicFilters.isEmpty()) {
 			return true;
 		}
-
-		// Otherwise filter by each regex until we either run out of patterns, or find a
-		// matching one
-		for (Pattern pattern : this.filterList) {
-			final Matcher m = pattern.matcher(topic);
-			if (m.matches()) {
+		for (final var filter : this.topicFilters) {
+			if (filter.matches(topic)) {
 				return true;
 			}
 		}
