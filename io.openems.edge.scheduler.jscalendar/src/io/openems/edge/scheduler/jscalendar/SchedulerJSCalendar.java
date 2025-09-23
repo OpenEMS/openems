@@ -1,10 +1,12 @@
-package io.openems.edge.scheduler.fromcalendar;
+package io.openems.edge.scheduler.jscalendar;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.scheduler.api.Scheduler;
 
-public interface SchedulerFromCalendar extends Scheduler, OpenemsComponent {
+//CHECKSTYLE:OFF
+public interface SchedulerJSCalendar extends Scheduler, OpenemsComponent {
+	// CHECKSTYLE:ON
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

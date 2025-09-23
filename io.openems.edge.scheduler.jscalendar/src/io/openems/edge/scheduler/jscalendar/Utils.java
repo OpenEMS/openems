@@ -1,4 +1,4 @@
-package io.openems.edge.scheduler.fromcalendar;
+package io.openems.edge.scheduler.jscalendar;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;

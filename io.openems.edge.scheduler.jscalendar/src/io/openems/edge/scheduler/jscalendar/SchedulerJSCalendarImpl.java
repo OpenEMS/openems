@@ -1,15 +1,15 @@
-package io.openems.edge.scheduler.fromcalendar;
+package io.openems.edge.scheduler.jscalendar;
 
-import static io.openems.edge.scheduler.fromcalendar.Utils.getNextPeriod;
+import static io.openems.edge.scheduler.jscalendar.Utils.getNextPeriod;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
-import java.time.Clock;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashSet;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -23,8 +23,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.scheduler.api.Scheduler;
-import io.openems.edge.scheduler.fromcalendar.Utils.HighPeriod;
-import io.openems.edge.scheduler.fromcalendar.Utils.Payload;
+import io.openems.edge.scheduler.jscalendar.Utils.HighPeriod;
+import io.openems.edge.scheduler.jscalendar.Utils.Payload;
 
 /**
  * This Scheduler returns all active Controllers from the calendar setting
@@ -32,27 +32,26 @@ import io.openems.edge.scheduler.fromcalendar.Utils.Payload;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Scheduler.FromCalendar", //
+		name = "Scheduler.JSCalendar", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
-public class SchedulerFromCalendarImpl extends AbstractOpenemsComponent
-		implements SchedulerFromCalendar, Scheduler, OpenemsComponent {
+		configurationPolicy = REQUIRE)
+//CHECKSTYLE:OFF
+public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
+		implements SchedulerJSCalendar, Scheduler, OpenemsComponent {
+	// CHECKSTYLE:ON
 
 	private Config config = null;
 	private ImmutableList<Task<Payload>> schedule = ImmutableList.of();
 	private HighPeriod nextCtrlPeriod;
-	private Clock clock;
 
 	@Reference
 	private ComponentManager componentManager;
 
-	public SchedulerFromCalendarImpl() {
+	public SchedulerJSCalendarImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Scheduler.ChannelId.values(), //
-				SchedulerFromCalendar.ChannelId.values() //
-		);
+				SchedulerJSCalendar.ChannelId.values());
 	}
 
 	@Activate
@@ -69,8 +68,7 @@ public class SchedulerFromCalendarImpl extends AbstractOpenemsComponent
 
 	private void applyConfig(Config config) {
 		this.config = config;
-		this.clock = this.componentManager.getClock();
-		this.schedule = Utils.parseConfig(this.config.controllerSchedule());
+		this.schedule = Utils.parseConfig(this.config.jsCalendar());
 		this.updatePeriod();
 	}
 
@@ -89,20 +87,19 @@ public class SchedulerFromCalendarImpl extends AbstractOpenemsComponent
 			this.addControllerById(result, controllerId);
 		}
 
+		final var now = Instant.now(this.componentManager.getClock());
 		// add active controllers from calendar
 		if (this.nextCtrlPeriod != null //
-				&& this.nextCtrlPeriod.from().isBefore(this.clock.instant()) //
-				&& this.nextCtrlPeriod.to().isAfter(this.clock.instant())) {
+				&& this.nextCtrlPeriod.from().isBefore(now) //
+				&& this.nextCtrlPeriod.to().isAfter(now)) {
 
-			for (String controllerId : this.nextCtrlPeriod.controllerIds()) {
+			for (var controllerId : this.nextCtrlPeriod.controllerIds()) {
 				this.addControllerById(result, controllerId);
 			}
 		}
 
 		// add "Always Run After" Controllers
-		for (
-
-		String controllerId : this.config.alwaysRunAfterController_ids()) {
+		for (var controllerId : this.config.alwaysRunAfterController_ids()) {
 			this.addControllerById(result, controllerId);
 		}
 		this.updatePeriod();
@@ -118,7 +115,7 @@ public class SchedulerFromCalendarImpl extends AbstractOpenemsComponent
 	}
 
 	private synchronized void updatePeriod() {
-		var now = ZonedDateTime.now(this.clock);
+		var now = ZonedDateTime.now(this.componentManager.getClock());
 		this.nextCtrlPeriod = getNextPeriod(now, this.schedule);
 	}
 }

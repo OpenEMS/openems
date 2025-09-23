@@ -1,4 +1,4 @@
-package io.openems.edge.scheduler.fromcalendar;
+package io.openems.edge.scheduler.jscalendar;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static java.time.DayOfWeek.FRIDAY;
@@ -25,14 +25,15 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.scheduler.api.Scheduler;
-import io.openems.edge.scheduler.fromcalendar.Utils.Payload;
+import io.openems.edge.scheduler.jscalendar.Utils.Payload;
 
-public class SchedulerFromCalendarImplTest {
+//CHECKSTYLE:OFF
+public class SchedulerJSCalendarImplTest {
+	// CHECKSTYLE:ON
+
 	@Test
 	public void test() throws Exception {
-
-		var ctrls = new String[] { "ctrl0", "ctrl1" };
-		// ""
+		final var ctrls = new String[] { "ctrl0", "ctrl1" };
 		final var scheduleConfig = ImmutableList.of(//
 				JSCalendar.Task.<Payload>create() //
 						.setStart(LocalTime.of(8, 30)) //
@@ -51,7 +52,7 @@ public class SchedulerFromCalendarImplTest {
 						.build());
 
 		final var clock = createDummyClock();
-		final SchedulerFromCalendarImpl sut = new SchedulerFromCalendarImpl();
+		final SchedulerJSCalendarImpl sut = new SchedulerJSCalendarImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyController("ctrl0")) //
@@ -62,8 +63,9 @@ public class SchedulerFromCalendarImplTest {
 				.activate(MyConfig.create() //
 						.setId("scheduler0") //
 						.setAlwaysRunBeforeControllerIds("ctrl2") //
-						.setControllerSchedule(
-								JSCalendar.Tasks.serializer(Payload.serializer()).serialize(scheduleConfig).toString()) //
+						.setJSCalendar(JSCalendar.Tasks.serializer(Payload.serializer()) //
+								.serialize(scheduleConfig) //
+								.toString()) //
 						.setAlwaysRunAfterControllerIds("ctrl3", "ctrl4") //
 						.build()) //
 				.next(new TestCase("02:00") //

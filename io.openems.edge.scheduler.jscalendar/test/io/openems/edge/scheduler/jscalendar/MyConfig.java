@@ -1,14 +1,13 @@
-package io.openems.edge.scheduler.fromcalendar;
+package io.openems.edge.scheduler.jscalendar;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.scheduler.fromcalendar.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String controllerSchedule;
+		private String jsCalendar;
 		private String[] alwaysRunAfterControllerIds;
 		private String[] alwaysRunBeforeControllerIds;
 
@@ -20,18 +19,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setAlwaysRunAfterControllerIds(String... alwaysRunAfterController_ids) {
-			this.alwaysRunAfterControllerIds = alwaysRunAfterController_ids;
+		public Builder setAlwaysRunAfterControllerIds(String... alwaysRunAfterControllerIds) {
+			this.alwaysRunAfterControllerIds = alwaysRunAfterControllerIds;
 			return this;
 		}
-		
-		public Builder setAlwaysRunBeforeControllerIds(String... alwaysRunBeforeController_ids) {
-			this.alwaysRunBeforeControllerIds = alwaysRunBeforeController_ids;
+
+		public Builder setAlwaysRunBeforeControllerIds(String... alwaysRunBeforeControllerIds) {
+			this.alwaysRunBeforeControllerIds = alwaysRunBeforeControllerIds;
 			return this;
 		}
-		
-		public Builder setControllerSchedule(String controllerSchedule) {
-			this.controllerSchedule = controllerSchedule;
+
+		// CHECKSTYLE:OFF
+		public Builder setJSCalendar(String jsCalendar) {
+			// CHECKSTYLE:ON
+			this.jsCalendar = jsCalendar;
 			return this;
 		}
 
@@ -62,8 +63,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String controllerSchedule() {
-		return this.builder.controllerSchedule;
+	public String jsCalendar() {
+		return this.builder.jsCalendar;
 	}
 
 	@Override

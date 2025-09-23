@@ -1,5 +1,0 @@
-= From-Calendar
-
-Provides a fixed order of before and after controllers and static defined controllers from a JsCalendar format.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.scheduler.fromcalendar[Source Code icon:github[]]
