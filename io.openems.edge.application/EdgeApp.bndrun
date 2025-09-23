@@ -217,7 +217,7 @@
 	com.squareup.okhttp3;version='[5.1.0,5.1.1)',\
 	com.squareup.okhttp3.logging;version='[5.1.0,5.1.1)',\
 	com.squareup.okio;version='[3.16.0,3.16.1)',\
-	com.sun.jna;version='[5.17.0,5.17.1)',\
+	com.sun.jna;version='[5.18.0,5.18.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
