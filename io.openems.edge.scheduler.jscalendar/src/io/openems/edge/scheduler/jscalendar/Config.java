@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Scheduler JSCalendar", //
-		description = "This Scheduler takes a static defined schedule and provides the controllers defined in the calendar.")
+		description = "This Scheduler allows enabling specific Controllers on defined dates and times using the JSCalendar format.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

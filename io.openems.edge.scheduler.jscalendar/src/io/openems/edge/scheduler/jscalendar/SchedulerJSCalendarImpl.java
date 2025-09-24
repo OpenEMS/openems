@@ -1,9 +1,7 @@
 package io.openems.edge.scheduler.jscalendar;
 
-import static io.openems.edge.scheduler.jscalendar.Utils.getNextPeriod;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashSet;
 
@@ -18,17 +16,18 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Task;
+import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.scheduler.api.Scheduler;
-import io.openems.edge.scheduler.jscalendar.Utils.HighPeriod;
 import io.openems.edge.scheduler.jscalendar.Utils.Payload;
 
 /**
- * This Scheduler returns all active Controllers from the calendar setting
- * including the before/after controllers.
+ * This Scheduler returns all active Controllers from the JSCalendar including
+ * the before/after controllers.
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -41,8 +40,8 @@ public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
 	// CHECKSTYLE:ON
 
 	private Config config = null;
-	private ImmutableList<Task<Payload>> schedule = ImmutableList.of();
-	private HighPeriod nextCtrlPeriod;
+	private ImmutableList<Task<Payload>> tasks = ImmutableList.of();
+	private OneTask<Payload> activeTask;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -56,8 +55,8 @@ public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
-		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
+		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Modified
@@ -68,8 +67,9 @@ public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
 
 	private void applyConfig(Config config) {
 		this.config = config;
-		this.schedule = Utils.parseConfig(this.config.jsCalendar());
-		this.updatePeriod();
+		this.tasks = config.enabled() //
+				? JSCalendar.Tasks.fromStringOrEmpty(config.jsCalendar(), Payload.serializer()) //
+				: ImmutableList.of();
 	}
 
 	@Override
@@ -79,43 +79,38 @@ public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public LinkedHashSet<String> getControllers() {
+	public synchronized LinkedHashSet<String> getControllers() {
 		var result = new LinkedHashSet<String>();
 
-		// add "Always Run Before" Controllers
-		for (String controllerId : this.config.alwaysRunBeforeController_ids()) {
-			this.addControllerById(result, controllerId);
+		// Add "Always Run Before" Controllers
+		this.addControllersById(result, this.config.alwaysRunBeforeController_ids());
+
+		// Update Active-Task
+		final var now = ZonedDateTime.now(this.componentManager.getClock());
+		if (this.activeTask == null || now.isAfter(this.activeTask.end())) {
+			this.activeTask = JSCalendar.Tasks.getNextOccurence(this.tasks, now).orElse(null);
 		}
 
-		final var now = Instant.now(this.componentManager.getClock());
-		// add active controllers from calendar
-		if (this.nextCtrlPeriod != null //
-				&& this.nextCtrlPeriod.from().isBefore(now) //
-				&& this.nextCtrlPeriod.to().isAfter(now)) {
+		// Add active controllers from JSCalendar
+		if (this.activeTask != null //
+				&& !now.isBefore(this.activeTask.start()) // inclusive
+				&& this.activeTask.end().isAfter(now)) { // exclusive
 
-			for (var controllerId : this.nextCtrlPeriod.controllerIds()) {
-				this.addControllerById(result, controllerId);
-			}
+			this.addControllersById(result, this.activeTask.payload().controllerIds());
 		}
 
-		// add "Always Run After" Controllers
-		for (var controllerId : this.config.alwaysRunAfterController_ids()) {
-			this.addControllerById(result, controllerId);
-		}
-		this.updatePeriod();
+		// Add "Always Run After" Controllers
+		this.addControllersById(result, this.config.alwaysRunAfterController_ids());
+
 		return result;
-
 	}
 
-	private void addControllerById(LinkedHashSet<String> result, String controllerId) {
-		if (controllerId.isEmpty()) {
-			return;
+	private void addControllersById(LinkedHashSet<String> result, String[] controllerIds) {
+		for (var controllerId : controllerIds) {
+			if (controllerId.isEmpty()) {
+				continue;
+			}
+			result.add(controllerId);
 		}
-		result.add(controllerId);
-	}
-
-	private synchronized void updatePeriod() {
-		var now = ZonedDateTime.now(this.componentManager.getClock());
-		this.nextCtrlPeriod = getNextPeriod(now, this.schedule);
 	}
 }

@@ -117,7 +117,11 @@ public class JSCalendar<PAYLOAD> {
 			return fromStringOrEmpty(string, VOID_SERIALIZER);
 		}
 
-		public static record OneTask<PAYLOAD>(ZonedDateTime start, Duration duration, PAYLOAD payload) {
+		public static record OneTask<PAYLOAD>(ZonedDateTime start, Duration duration, ZonedDateTime end,
+				PAYLOAD payload) {
+			public static <PAYLOAD> OneTask<PAYLOAD> from(ZonedDateTime start, Duration duration, PAYLOAD payload) {
+				return new OneTask<PAYLOAD>(start, duration, start.plus(duration), payload);
+			}
 		}
 
 		/**
@@ -136,7 +140,7 @@ public class JSCalendar<PAYLOAD> {
 						var start = task.getNextOccurence(from);
 						return start == null //
 								? null //
-								: new OneTask<PAYLOAD>(start, task.duration, task.payload);
+								: OneTask.<PAYLOAD>from(start, task.duration, task.payload);
 					}) //
 					.filter(Objects::nonNull) //
 					.sorted((ot0, ot1) -> ot0.start().compareTo(ot1.start())) //
@@ -157,7 +161,7 @@ public class JSCalendar<PAYLOAD> {
 				ZonedDateTime from, ZonedDateTime to) {
 			return tasks.stream() //
 					.flatMap(t -> t.getOccurencesBetween(from, to).stream() //
-							.map(s -> new OneTask<PAYLOAD>(s, t.duration, t.payload))) //
+							.map(s -> OneTask.<PAYLOAD>from(s, t.duration, t.payload))) //
 					.sorted((ot0, ot1) -> ot0.start().compareTo(ot1.start())) //
 					.collect(toImmutableList());
 		}
