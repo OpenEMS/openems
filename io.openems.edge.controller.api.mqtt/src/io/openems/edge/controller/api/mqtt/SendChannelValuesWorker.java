@@ -186,10 +186,18 @@ public class SendChannelValuesWorker {
 			for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
 				for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
 					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
-						var subtopic = row.getKey() + "/" + column.getKey();
-						sendTopics.add(subtopic);
-						if (!this.publish(row.getKey() + "/" + column.getKey(), column.getValue().toString())) {
+						final var subtopic = //
+								ControllerApiMqtt.TOPIC_CHANNEL_PREFIX + "/" + row.getKey() + "/" + column.getKey();
+						final var publishStatus = this.publish(subtopic, column.getValue().toString());
+						switch (publishStatus) {
+						case OK:
+							sendTopics.add(subtopic);
+							break;
+						case ERROR:
 							allSendSuccessful = false;
+							break;
+						case FILTERED:
+							break;
 						}
 					}
 				}
@@ -200,8 +208,10 @@ public class SendChannelValuesWorker {
 
 			// Successful?
 			if (allSendSuccessful) {
-				this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: "
-						+ StringUtils.toShortString(String.join(", ", sendTopics), 100));
+				if (!sendTopics.isEmpty()) {
+					this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: "
+							+ StringUtils.toShortString(String.join(", ", sendTopics), 100));
+				}
 
 				// update information for next runs
 				this.parent.lastAllValues = this.allValues;
@@ -222,9 +232,9 @@ public class SendChannelValuesWorker {
 		 * @param value    the value Json.toString()
 		 * @return true if sent successfully; false otherwise
 		 */
-		private boolean publish(String subTopic, String value) {
+		private MqttPublishStatus publish(String subTopic, String value) {
 			return this.parent.parent.publish(//
-					/* topic */ ControllerApiMqtt.TOPIC_CHANNEL_PREFIX + subTopic, //
+					/* topic */ subTopic, //
 					/* message */ value.toString(), //
 					MQTT_QOS, MQTT_RETAIN, MQTT_PROPERTIES //
 			);

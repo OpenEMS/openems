@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.mqtt;
 
+import java.util.ArrayList;
+
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.test.AbstractComponentConfig;
 
@@ -18,6 +20,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String certPem;
 		private String privateKeyPem;
 		private String trustStorePem;
+		private String[] topicFilters;
 
 		private Builder() {
 		}
@@ -74,6 +77,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+		
+		public Builder setTopicFilters(String... filter) {
+			this.topicFilters = filter;
 			return this;
 		}
 
@@ -146,5 +154,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String trustStorePem() {
 		return this.builder.trustStorePem;
+	}
+
+	@Override
+	public String[] topicFilters() {
+		return this.builder.topicFilters;
 	}
 }
