@@ -117,8 +117,23 @@ public class JSCalendar<PAYLOAD> {
 			return fromStringOrEmpty(string, VOID_SERIALIZER);
 		}
 
+		/**
+		 * Holds data of one task.
+		 * 
+		 * @param <PAYLOAD> the type of the Payload
+		 */
 		public static record OneTask<PAYLOAD>(ZonedDateTime start, Duration duration, ZonedDateTime end,
 				PAYLOAD payload) {
+
+			/**
+			 * Builds a {@link OneTask}.
+			 * 
+			 * @param <PAYLOAD> the type of the Payload
+			 * @param start     the start timestamp
+			 * @param duration  the {@link Duration}
+			 * @param payload   the Payload
+			 * @return
+			 */
 			public static <PAYLOAD> OneTask<PAYLOAD> from(ZonedDateTime start, Duration duration, PAYLOAD payload) {
 				return new OneTask<PAYLOAD>(start, duration, start.plus(duration), payload);
 			}
