@@ -63,7 +63,7 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 
 	private Config config;
 
-	protected HagerEcr380dMeterImpl() {
+	public HagerEcr380dMeterImpl() {
 		super(OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
