@@ -74,15 +74,24 @@
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="password" type="password"
-                        [placeholder]="'Register.Form.password' | translate" label-placement="floating"
-                        [label]="('Register.Form.password' | translate) + ' * '"></ion-input>
+                    <oe-password-input
+                      [control]="passwordControl"
+                      [placeholder]="'Register.Form.password' | translate"
+                      [label]="('Register.Form.password' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hidePassword' | translate">
+                    </oe-password-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="confirmPassword" type="password"
-                        [placeholder]="'Register.Form.confirmPassword' | translate" label-placement="floating"
-                        [label]="('Register.Form.confirmPassword' | translate) + ' * '">
-                    </ion-input>
+                    <oe-password-input
+                      [control]="confirmPasswordControl"
+                      [placeholder]="'Register.Form.confirmPassword' | translate"
+                      [label]="('Register.Form.confirmPassword' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showConfirmPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hideConfirmPassword' | translate">
+                    </oe-password-input>
                 </ion-item>
                 <oe-checkbox [form]="{formGroup: formGroup, controlName: 'acceptPrivacyPolicy'}" [attributes]="{labelPlacement: 'end', text: 'Register.Form.user.acceptPrivacyPolicy' | translate: {
                         link: docsLink
@@ -154,15 +163,24 @@
                     </ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="password" type="password"
-                        [placeholder]="'Register.Form.password' | translate" label-placement="floating"
-                        [label]="('Register.Form.password' | translate) + ' * '"></ion-input>
+                    <oe-password-input
+                      [control]="passwordControl"
+                      [placeholder]="'Register.Form.password' | translate"
+                      [label]="('Register.Form.password' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hidePassword' | translate">
+                    </oe-password-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input formControlName="confirmPassword" type="password"
-                        [placeholder]="'Register.Form.confirmPassword' | translate" label-placement="floating"
-                        [label]="('Register.Form.confirmPassword' | translate) + ' * '">
-                    </ion-input>
+                    <oe-password-input
+                      [control]="confirmPasswordControl"
+                      [placeholder]="'Register.Form.confirmPassword' | translate"
+                      [label]="('Register.Form.confirmPassword' | translate) + ' * '"
+                      [required]="true"
+                      [ariaLabelShow]="'Register.Form.showConfirmPassword' | translate"
+                      [ariaLabelHide]="'Register.Form.hideConfirmPassword' | translate">
+                    </oe-password-input>
                 </ion-item>
             </ng-container>
             <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->

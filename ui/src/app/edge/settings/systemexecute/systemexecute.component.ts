@@ -63,6 +63,8 @@ export class SystemExecuteComponent implements OnInit {
     },
   }];
 
+  protected passwordControl: FormControl = new FormControl("");
+
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
@@ -104,7 +106,6 @@ export class SystemExecuteComponent implements OnInit {
 
   public submit() {
     const username = this.form.controls["username"];
-    const password = this.form.controls["password"];
     const timeoutSeconds = this.form.controls["timeoutSeconds"];
     const runInBackground = this.form.controls["runInBackground"];
     const command = this.form.controls["command"];
@@ -115,7 +116,7 @@ export class SystemExecuteComponent implements OnInit {
       this.stderr = [];
       const executeSystemCommandRequest = new ExecuteSystemCommandRequest({
         username: username.value,
-        password: password.value,
+        password: this.passwordControl.value,
         timeoutSeconds: timeoutSeconds.value,
         runInBackground: runInBackground.value,
         command: command.value,
