@@ -135,7 +135,7 @@ public class JSCalendar<PAYLOAD> {
 			 * @return the {@link OneTask}
 			 */
 			public static <PAYLOAD> OneTask<PAYLOAD> from(ZonedDateTime start, Duration duration, PAYLOAD payload) {
-				return new OneTask<PAYLOAD>(start, duration, start.plus(duration), payload);
+				return new OneTask<PAYLOAD>(start, duration, duration == null ? null : start.plus(duration), payload);
 			}
 		}
 
