@@ -121,6 +121,9 @@ public class B2bWebsocketTest {
 			System.out.println(responseFuture.get().toString());
 		} catch (InterruptedException | ExecutionException e) {
 			System.out.println(e.getMessage());
+		} catch (NullPointerException e) {
+			System.out.println("NullPointerException: " + e.getMessage());
+			e.printStackTrace();
 		}
 		client.stop();
 	}
