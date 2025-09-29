@@ -360,6 +360,13 @@ public class ApplyPowerHandler {
 				iSetLast = iSetAbs;
 				ess.logDebug(log, "\n\n\n|-> reg108 " + iSetAbs + "\n");
 			}
+			
+			if (force || (changed && due128)) {
+				this.ess.setGridChargeCurrent(iSetAbs); // 128
+				// battery.setBmsMaxDischargeCurrent(5); // 109
+				last128Ms = nowMs();
+				ess.logDebug(log, "\n\n\n|-> reg128 " + iSetAbs + "\n");
+			}
 		}
 	}
 
