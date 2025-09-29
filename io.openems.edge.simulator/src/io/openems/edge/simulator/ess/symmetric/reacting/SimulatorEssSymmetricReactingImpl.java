@@ -1,5 +1,11 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -8,12 +14,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -24,7 +26,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -41,11 +42,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Simulator.EssSymmetric.Reacting", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-})
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
 public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 		implements SimulatorEssSymmetricReacting, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider,
 		EventHandler, StartStoppable, ModbusSlave {
@@ -64,7 +63,7 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	/** Current Energy in the battery [Wms], based on SoC. */
@@ -90,8 +89,8 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 				/ 100 * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.capacity() * -1);
-		this._setAllowedDischargePower(config.capacity());
+		this._setAllowedChargePower(config.maxChargePower() * -1);
+		this._setAllowedDischargePower(config.maxDischargePower());
 		this._setGridMode(config.gridMode());
 		this._setCapacity(config.capacity());
 	}
@@ -108,9 +107,8 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
-			break;
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+			-> this.calculateEnergy();
 		}
 	}
 
@@ -189,12 +187,12 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 		if (soc == 100) {
 			this._setAllowedChargePower(0);
 		} else {
-			this._setAllowedChargePower(this.config.capacity() * -1);
+			this._setAllowedChargePower(this.config.maxChargePower() * -1);
 		}
 		if (soc == 0) {
 			this._setAllowedDischargePower(0);
 		} else {
-			this._setAllowedDischargePower(this.config.capacity());
+			this._setAllowedDischargePower(this.config.maxDischargePower());
 		}
 	}
 
